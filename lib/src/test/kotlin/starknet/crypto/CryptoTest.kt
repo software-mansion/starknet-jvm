@@ -1,4 +1,4 @@
-package crypto
+package starknet.crypto
 
 import types.Felt
 import types.toFelt
@@ -12,21 +12,21 @@ internal class CryptoTest {
     fun getKeyPair() {
         val pk = BigInteger("019800ea6a9a73f94aee6a3d2edf018fc770443e90c7ba121e8303ec6b349279", 16)
 
-        val keyPair = StarknetCrypto.getKeyPair(pk);
+        val keyPair = getKeyPair(pk);
 
         assertEquals(
             "0x33f45f07e1bd1a51b45fc24ec8c8c9908db9e42191be9e169bfcac0c0d99745",
-            StarknetCrypto.getStarkKey(keyPair),
+            getStarkKey(keyPair),
         )
     }
 
     @Test
     fun sign() {
         val pk = BigInteger("019800ea6a9a73f94aee6a3d2edf018fc770443e90c7ba121e8303ec6b349279", 16)
-        val keyPair = StarknetCrypto.getKeyPair(pk);
+        val keyPair = getKeyPair(pk);
         val msg = "test".toByteArray()
-        val signature = StarknetCrypto.sign(keyPair, msg)
-        val valid = StarknetCrypto.verify(keyPair, msg, signature)
+        val signature = sign(keyPair, msg)
+        val valid = verify(keyPair, msg, signature)
 
         assertTrue(valid)
     }
@@ -53,7 +53,7 @@ internal class CryptoTest {
             ),
         )
         for (case in cases) {
-            val result = StarknetCrypto.pedersen(case.first, case.second)
+            val result = pedersen(case.first, case.second)
             assertEquals(Felt.fromHex(case.third), result)
         }
     }
