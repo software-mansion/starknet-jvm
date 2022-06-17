@@ -30,18 +30,18 @@ fun getStarkKey(keyPair: KeyPair): String {
 }
 
 fun sign(keyPair: KeyPair, msg: ByteArray): StarknetSignature {
-    val ecdsaSign = Signature.getInstance("SHA256withECDSA", provider).also {
-        it.initSign(keyPair.private)
-        it.update(msg)
+    val ecdsaSign = Signature.getInstance("SHA256withECDSA", provider).apply {
+        initSign(keyPair.private)
+        update(msg)
     }
 
     return StarknetSignature.fromASN1(ecdsaSign.sign())
 }
 
 fun verify(keyPair: KeyPair, msgHash: ByteArray, signature: StarknetSignature): Boolean {
-    val ecdsaVerify = Signature.getInstance("SHA256withECDSA", provider).also {
-        it.initVerify(keyPair.public)
-        it.update(msgHash)
+    val ecdsaVerify = Signature.getInstance("SHA256withECDSA", provider).apply {
+        initVerify(keyPair.public)
+        update(msgHash)
     }
 
     return ecdsaVerify.verify(signature.toASN1())
@@ -49,8 +49,8 @@ fun verify(keyPair: KeyPair, msgHash: ByteArray, signature: StarknetSignature): 
 
 fun pedersen(first: Felt, second: Felt): Felt {
     var point = SAMPLED_GENERATORS[0]
-    for (i in 0..1) {
-        var x = if (i == 0) first.value else second.value
+    for ((i, felt) in arrayOf(first, second).withIndex()) {
+        var x = felt.value
         for (j in 0 until 252) {
             val iterationPoint = SAMPLED_GENERATORS[2 + i * 252 + j]
             assert(point.xCoord != iterationPoint.xCoord)

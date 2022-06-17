@@ -2,8 +2,8 @@ package types
 
 import java.math.BigInteger
 
-data class Felt(val value: BigInteger){
-    constructor(value: Long): this(BigInteger.valueOf(value))
+data class Felt(val value: BigInteger) {
+    constructor(value: Long) : this(BigInteger.valueOf(value))
 
     init {
         if (value < BigInteger.ZERO) {
