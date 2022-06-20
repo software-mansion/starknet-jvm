@@ -19,11 +19,11 @@ data class FunctionAbi(
     val name: String,
     val inputs: List<AbiEntry>,
     val outputs: List<AbiEntry>,
-): AbiElement()
+) : AbiElement()
 
 data class StructAbi(
     val name: String,
-): AbiElement()
+) : AbiElement()
 
 data class Abi(
     val values: List<AbiElement>
