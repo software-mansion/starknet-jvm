@@ -1,4 +1,4 @@
-@file:JvmName("functions")
+@file:JvmName("Functions")
 
 package starknet.crypto
 

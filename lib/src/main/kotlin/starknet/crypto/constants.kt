@@ -1,4 +1,4 @@
-@file:JvmName("constants")
+@file:JvmName("Constants")
 
 package starknet.crypto
 

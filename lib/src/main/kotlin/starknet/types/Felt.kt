@@ -25,7 +25,12 @@ data class Felt(val value: BigInteger) {
         val ONE = Felt(BigInteger.ONE)
 
         @JvmStatic
-        fun fromHex(value: String): Felt = Felt(BigInteger(value.removePrefix("0x"), 16))
+        fun fromHex(value: String): Felt {
+            if (!value.startsWith("0x")) {
+                throw IllegalArgumentException("Hex must start with 0x")
+            }
+            return Felt(BigInteger(value.removePrefix("0x"), 16))
+        }
     }
 }
 
