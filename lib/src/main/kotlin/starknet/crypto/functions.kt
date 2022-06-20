@@ -29,16 +29,16 @@ fun getStarkKey(keyPair: KeyPair): String {
     return "0x" + BigInteger(1, key.q.xCoord.encoded).toString(16);
 }
 
-fun sign(keyPair: KeyPair, msg: ByteArray): StarknetSignature {
+fun sign(keyPair: KeyPair, msg: ByteArray): StarknetCurveSignature {
     val ecdsaSign = Signature.getInstance("SHA256withECDSA", provider).apply {
         initSign(keyPair.private)
         update(msg)
     }
 
-    return StarknetSignature.fromASN1(ecdsaSign.sign())
+    return StarknetCurveSignature.fromASN1(ecdsaSign.sign())
 }
 
-fun verify(keyPair: KeyPair, msgHash: ByteArray, signature: StarknetSignature): Boolean {
+fun verify(keyPair: KeyPair, msgHash: ByteArray, signature: StarknetCurveSignature): Boolean {
     val ecdsaVerify = Signature.getInstance("SHA256withECDSA", provider).apply {
         initVerify(keyPair.public)
         update(msgHash)
