@@ -1,4 +1,4 @@
-@file:JvmName("Functions")
+@file:JvmName("StarknetCurve")
 
 package starknet.crypto
 

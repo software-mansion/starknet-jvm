@@ -1,6 +1,6 @@
 @file:JvmName("Transactions")
 
-package starknet.types
+package starknet.data.types
 
 import starknet.crypto.StarknetCurveSignature
 import types.Felt

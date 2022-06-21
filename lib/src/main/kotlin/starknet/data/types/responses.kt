@@ -1,6 +1,6 @@
 @file:JvmName("Responses")
 
-package starknet.types
+package starknet.data.types
 
 data class CallContractResponse(
     val result: Array<String>

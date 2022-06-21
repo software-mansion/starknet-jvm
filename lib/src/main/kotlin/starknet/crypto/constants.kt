@@ -6,7 +6,7 @@ import org.bouncycastle.crypto.params.ECDomainParameters
 import org.bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
-import types.Felt.Companion.PRIME
+import starknet.data.PRIME
 import java.math.BigInteger
 
 // Defined in Weierstrass form:

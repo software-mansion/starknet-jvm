@@ -1,6 +1,6 @@
 @file:JvmName("Contracts")
 
-package starknet.types
+package starknet.data.types
 
 enum class AbiEntryType {
     FELT,

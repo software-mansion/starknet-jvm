@@ -1,9 +1,11 @@
 package types
 
+import starknet.data.PRIME
 import java.math.BigInteger
 
 data class Felt(val value: BigInteger) {
     constructor(value: Long) : this(BigInteger.valueOf(value))
+    constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 
     init {
         if (value < BigInteger.ZERO) {
@@ -15,9 +17,6 @@ data class Felt(val value: BigInteger) {
     }
 
     companion object {
-        @field:JvmField
-        val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
-
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
 
