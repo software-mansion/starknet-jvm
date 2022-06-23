@@ -4,7 +4,6 @@ import org.bouncycastle.asn1.*
 import types.Felt
 import types.toFelt
 import java.io.ByteArrayOutputStream
-import java.math.BigInteger
 
 data class StarknetCurveSignature(val r: Felt, val s: Felt) {
     companion object {
@@ -29,4 +28,6 @@ data class StarknetCurveSignature(val r: Felt, val s: Felt) {
 
         return resultStream.toByteArray()
     }
+
+    fun toList(): List<Felt> = listOf(r, s)
 }
