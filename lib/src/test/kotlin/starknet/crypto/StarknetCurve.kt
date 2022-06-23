@@ -1,6 +1,5 @@
 package starknet.crypto
 
-import starknet.data.PRIME
 import types.Felt
 import types.toFelt
 import java.math.BigInteger
@@ -8,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class CryptoTest {
+internal class StarknetCurveTest {
     @Test
     fun getKeyPair() {
         val pk = BigInteger("019800ea6a9a73f94aee6a3d2edf018fc770443e90c7ba121e8303ec6b349279", 16)
@@ -56,6 +55,25 @@ internal class CryptoTest {
         for (case in cases) {
             val result = pedersen(case.first, case.second)
             assertEquals(Felt.fromHex(case.third), result)
+        }
+    }
+
+    @Test
+    fun pedersenOnElements() {
+        val maxFelt = (PRIME - BigInteger.ONE).toFelt;
+        // Generated using cairo-lang package
+        val cases = arrayOf(
+            Pair(listOf(), Felt.fromHex("0x49ee3eba8c1600700ee1b87eb599f16716b0b1022947733551fde4050ca6804")),
+            Pair(
+                listOf(Felt(123782376), Felt(213984), Felt(128763521321)),
+                Felt.fromHex("0x7b422405da6571242dfc245a43de3b0fe695e7021c148b918cd9cdb462cac59")
+            ),
+        )
+        for ((input, expected) in cases) {
+            val resultWithCollection = pedersenOnElements(input)
+            val resultWithVarargs = pedersenOnElements(*input.toTypedArray())
+            assertEquals(expected, resultWithCollection)
+            assertEquals(expected, resultWithVarargs)
         }
     }
 }

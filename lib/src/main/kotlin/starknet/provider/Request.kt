@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 
 class Request<T: Response>(
-    private val service: StarknetService,
+    private val service: Service,
     val payload: String,
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
     val deserializer: DeserializationStrategy<T>
