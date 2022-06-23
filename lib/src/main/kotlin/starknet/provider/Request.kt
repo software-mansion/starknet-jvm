@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 class Request<T: Response>(
     private val service: StarknetService,
     val payload: String,
+    // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
     val deserializer: DeserializationStrategy<T>
 ) {
     fun send(): T {
