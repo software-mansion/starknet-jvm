@@ -2,6 +2,8 @@
 
 package starknet.data.types
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import starknet.crypto.StarknetCurveSignature
 import types.Felt
 
@@ -16,6 +18,7 @@ enum class TransactionType {
     DECLARE, DEPLOY, INVOKE_FUNCTION
 }
 
+@Serializable
 data class Invocation(
     val contractAddress: Felt, val entrypoint: Felt, val calldata: Calldata?, val signature: Signature?
 )
@@ -37,14 +40,14 @@ data class DeployTransaction(
     val nonce: Felt?
 ) : Transaction()
 
+@Serializable
 data class InvokeFunctionTransaction(
-    val contractAddress: Felt,
+    @SerialName("contract_address") val contractAddress: Felt,
     val signature: Signature?,
-    val entrypointSelector: Felt,
-    val calldata: Calldata,
-    val nonce: Felt?,
-    val maxFee: Felt?,
-    val version: Felt?
+    @SerialName("entry_point_selector") val entryPointSelector: String,
+    val calldata: List<Felt>?,
+    @SerialName("max_fee") val maxFee: Felt,
+    val version: Felt,
 )
 
 

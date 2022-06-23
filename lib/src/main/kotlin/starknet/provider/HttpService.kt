@@ -27,11 +27,11 @@ class HttpService(private val url: String, private val method: String) : Service
         val responseBody = response.body
 
         if (response.isSuccessful) {
-            if (responseBody != null) {
-                return ByteArrayInputStream(responseBody.bytes())
+            return if (responseBody != null) {
+                ByteArrayInputStream(responseBody.bytes())
             } else {
                 // TODO: Should it be empty byte array or null returned from performIO method?
-                return ByteArrayInputStream(null)
+                ByteArrayInputStream(null)
             }
         } else {
             val code = response.code
@@ -39,6 +39,5 @@ class HttpService(private val url: String, private val method: String) : Service
 
             throw java.lang.Exception("Invalid response, code: $code, response: $text")
         }
-
     }
 }

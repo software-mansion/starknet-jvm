@@ -1,5 +1,7 @@
 package starknet.provider
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import starknet.data.types.*
 
 class GatewayProvider: Provider  {
@@ -19,6 +21,8 @@ class GatewayProvider: Provider  {
     override fun callContract(invokeTransaction: Invocation): Request<CallContractResponse> {
         val service = HttpService(feederGatewayUrl + "call_contract", "get")
 
-        return Request(service, "test")
+        val payload = Json.encodeToString(invokeTransaction)
+
+        return Request(service, payload, CallContractResponse.serializer())
     }
 }
