@@ -1,6 +1,6 @@
 package types
 
-import starknet.data.PRIME
+import starknet.crypto.PRIME
 import java.math.BigInteger
 
 data class Felt(val value: BigInteger) {

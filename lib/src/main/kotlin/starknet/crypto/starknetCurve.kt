@@ -65,6 +65,12 @@ fun pedersen(first: Felt, second: Felt): Felt {
     return Felt(point.normalize().xCoord.toBigInteger())
 }
 
-fun pedersen(values: Iterable<Felt>): Felt {
-    return values.fold(Felt.ZERO) { a, b -> pedersen(a, b) }
-}
+fun pedersen(values: Iterable<Felt>): Felt = values.fold(Felt.ZERO) { a, b -> pedersen(a, b) }
+
+fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
+    pedersen(values),
+    Felt(values.size),
+)
+
+
+fun pedersenOnElements(vararg values: Felt): Felt = pedersenOnElements(values.asList())

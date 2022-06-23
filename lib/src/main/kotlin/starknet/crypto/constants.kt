@@ -6,8 +6,10 @@ import org.bouncycastle.crypto.params.ECDomainParameters
 import org.bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
-import starknet.data.PRIME
 import java.math.BigInteger
+
+@field:JvmField
+val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
 
 // Defined in Weierstrass form:
 // y^2 = x^3 + Ax + B
