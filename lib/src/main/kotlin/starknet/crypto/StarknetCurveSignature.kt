@@ -6,6 +6,7 @@ import types.toFelt
 import java.io.ByteArrayOutputStream
 
 data class StarknetCurveSignature(val r: Felt, val s: Felt) {
+
     companion object {
         @JvmStatic
         fun fromASN1(input: ByteArray): StarknetCurveSignature {
