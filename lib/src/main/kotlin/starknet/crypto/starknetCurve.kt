@@ -72,5 +72,4 @@ fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
     Felt(values.size),
 )
 
-
 fun pedersenOnElements(vararg values: Felt): Felt = pedersenOnElements(values.asList())

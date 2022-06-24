@@ -13,7 +13,6 @@ data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
     val version: Felt = Felt.ZERO,
-    val chainId: StarknetChainId
 )
 
 fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {

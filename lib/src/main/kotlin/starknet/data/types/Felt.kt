@@ -8,6 +8,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.PRIME
+import starknet.data.parseHex
+import starknet.data.toHex
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
@@ -24,6 +26,10 @@ data class Felt(val value: BigInteger) {
         }
     }
 
+    override fun toString(): String {
+        return "Felt(${toHex(value)})"
+    }
+
     companion object {
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
@@ -32,12 +38,7 @@ data class Felt(val value: BigInteger) {
         val ONE = Felt(BigInteger.ONE)
 
         @JvmStatic
-        fun fromHex(value: String): Felt {
-            if (!value.startsWith("0x")) {
-                throw IllegalArgumentException("Hex must start with 0x")
-            }
-            return Felt(BigInteger(value.removePrefix("0x"), 16))
-        }
+        fun fromHex(value: String): Felt = Felt(parseHex(value))
     }
 }
 

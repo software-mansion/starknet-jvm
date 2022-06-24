@@ -51,6 +51,16 @@ internal class StarknetCurveTest {
                 Felt.fromHex("0x49ee3eba8c1600700ee1b87eb599f16716b0b1022947733551fde4050ca6804"),
                 "0x68ad69169c41c758ebd02e2fce51716497a708232a45a1b83e82fac1ade326e"
             ),
+            Triple(
+                Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"),
+                Felt.fromHex("0x43e637ca70a5daac877cba6b57e0b9ceffc5b37d28509e46b4fd2dee968a70c"),
+                "0x4b9281c85cfc5ab1f4046663135329020f57c1a88a50f4423eff37dd5fe81e8"
+            ),
+            Triple(
+                Felt.fromHex("0x0"),
+                Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"),
+                "0x1a0c3e0f68c3ee702017fdb6452339244840eedbb70ab3d4f45e2affd1c9420"
+            )
         )
         for (case in cases) {
             val result = pedersen(case.first, case.second)
@@ -68,6 +78,10 @@ internal class StarknetCurveTest {
                 listOf(Felt(123782376), Felt(213984), Felt(128763521321)),
                 Felt.fromHex("0x7b422405da6571242dfc245a43de3b0fe695e7021c148b918cd9cdb462cac59")
             ),
+            Pair(
+                listOf(Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"), Felt.fromHex("0x10927538dee311ae5093324fc180ab87f23bbd7bc05456a12a1a506f220db25")),
+                Felt.fromHex("0x43e637ca70a5daac877cba6b57e0b9ceffc5b37d28509e46b4fd2dee968a70c")
+            )
         )
         for ((input, expected) in cases) {
             val resultWithCollection = pedersenOnElements(input)
