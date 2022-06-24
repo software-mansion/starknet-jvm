@@ -1,4 +1,4 @@
-package starknet.provider
+package starknet.provider.service
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import starknet.data.types.Response
+import starknet.provider.Request
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
@@ -15,6 +16,8 @@ val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
 class HttpService(private val url: String, private val method: String) : Service {
     private val client = OkHttpClient()
+
+    class HttpServiceException(message: String) : Service.ServiceException(message)
 
     private fun buildHttpRequest(payload: String): okhttp3.Request {
         val requestBody = payload.toRequestBody(JSON_MEDIA_TYPE)
@@ -34,15 +37,13 @@ class HttpService(private val url: String, private val method: String) : Service
             if (responseBody != null) {
                 return Json.decodeFromString(deserializer, responseBody.toString())
             } else {
-                // TODO: Create custom exception
-                throw java.lang.Exception("Empty response body")
+                throw HttpServiceException("Empty response body")
             }
         } else {
             val code = response.code
             val text = response.body?.string() ?: "unknown"
 
-            // TODO: Create custom exception
-            throw java.lang.Exception("Invalid response, code: $code, response: $text")
+            throw HttpServiceException("Invalid response, code: $code, response: $text")
         }
     }
 

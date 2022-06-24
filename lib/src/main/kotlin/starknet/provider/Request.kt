@@ -2,8 +2,8 @@ package starknet.provider
 
 import kotlinx.serialization.DeserializationStrategy
 import starknet.data.types.Response
+import starknet.provider.service.Service
 import java.util.concurrent.CompletableFuture
-import kotlin.reflect.KClass
 
 class Request<T: Response>(
     private val service: Service,

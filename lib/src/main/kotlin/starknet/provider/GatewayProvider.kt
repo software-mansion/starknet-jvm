@@ -3,6 +3,7 @@ package starknet.provider
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import starknet.data.types.*
+import starknet.provider.service.HttpService
 
 class GatewayProvider(
     val feederGatewayUrl: String,
