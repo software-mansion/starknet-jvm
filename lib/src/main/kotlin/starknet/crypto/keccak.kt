@@ -5,7 +5,7 @@ import types.Felt
 import types.toFelt
 import java.math.BigInteger
 
-private val MASK_250 = BigInteger.TWO.pow(250) - BigInteger.ONE
+private val MASK_250 = BigInteger.valueOf(2).pow(250) - BigInteger.ONE
 
 fun keccak(input: ByteArray): Felt {
     val keccak = Keccak.Digest256().apply {
