@@ -2030,7 +2030,7 @@ val SAMPLED_GENERATORS: Array<ECPoint> by lazy {
         ),
         point(
             "891626f466536929ee7eadcd18b41925706dedab7528ed5f0f7abf039eb9d2",
-            "f73d11c141c933a35b2d0d06e5cbae614a20d17dc3b439f8bcdc3413c5ea37",
+            "5f73d11c141c933a35b2d0d06e5cbae614a20d17dc3b439f8bcdc3413c5ea37",
         ),
         point(
             "215c23fd3f073f870e5e80303967391bf173f8adcdbeec72d131c557babc203",
