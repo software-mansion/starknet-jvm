@@ -17,7 +17,9 @@ val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 class HttpService(private val url: String, private val method: String) : Service {
     private val client = OkHttpClient()
 
-    class HttpServiceException(message: String) : Service.ServiceException(message)
+    class HttpServiceFailedResponse(message: String, val code: Int, val response: String)
+        : Service.ServiceException(message)
+    class HttpServiceEmptyResponse() : Service.ServiceException("Empty response body")
 
     private fun buildHttpRequest(payload: String): okhttp3.Request {
         val requestBody = payload.toRequestBody(JSON_MEDIA_TYPE)
@@ -37,13 +39,13 @@ class HttpService(private val url: String, private val method: String) : Service
             if (responseBody != null) {
                 return Json.decodeFromString(deserializer, responseBody.toString())
             } else {
-                throw HttpServiceException("Empty response body")
+                throw HttpServiceEmptyResponse()
             }
         } else {
             val code = response.code
             val text = response.body?.string() ?: "unknown"
 
-            throw HttpServiceException("Invalid response, code: $code, response: $text")
+            throw HttpServiceFailedResponse("Invalid response, code: $code, response: $text", code, text)
         }
     }
 
