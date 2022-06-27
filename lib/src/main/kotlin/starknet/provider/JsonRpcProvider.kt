@@ -41,7 +41,7 @@ class JsonRpcProvider(
 
         val params = buildList {
             add(request)
-            add(JsonPrimitive(callParams.blochHashOrTag.string()))
+            add(JsonPrimitive(callParams.blockHashOrTag.string()))
         }
 
         return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer()) // TODO: Wrong deserializer

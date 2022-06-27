@@ -11,7 +11,7 @@ class GatewayProvider(
     override fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse> {
         var url = gatewayUrl + "call_contract"
 
-        url += "?block_hash=${callParams.blochHashOrTag.string()}"
+        url += "?block_hash=${callParams.blockHashOrTag.string()}"
 
         // Gateway requires calldata values to be in decimal form
         val decimalCalldata = JsonArray(call.calldata.map {

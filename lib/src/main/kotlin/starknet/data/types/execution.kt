@@ -13,7 +13,7 @@ data class Call(
 )
 
 data class CallExtraParams(
-    val blochHashOrTag: BlockHashOrTag
+    val blockHashOrTag: BlockHashOrTag
 )
 
 data class ExecutionParams(

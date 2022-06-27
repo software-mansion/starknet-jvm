@@ -2,7 +2,6 @@ package starknet.provider
 
 import kotlinx.serialization.DeserializationStrategy
 import starknet.data.types.Response
-import starknet.provider.service.HttpService
 import java.util.concurrent.CompletableFuture
 
 class Request<T: Response>(
