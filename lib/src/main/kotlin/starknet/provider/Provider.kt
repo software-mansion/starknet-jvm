@@ -1,11 +1,9 @@
 package starknet.provider
 
-import starknet.data.types.CallContractResponse
-import starknet.data.types.Invocation
-import starknet.data.types.StarknetChainId
+import starknet.data.types.*
 
 interface Provider {
     val chainId: StarknetChainId
 
-    fun callContract(invokeTransaction: Invocation): Request<CallContractResponse>
+    fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse>
 }

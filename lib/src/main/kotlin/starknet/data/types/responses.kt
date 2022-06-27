@@ -3,18 +3,18 @@
 package starknet.data.types
 
 import kotlinx.serialization.Serializable
-
+import types.Felt
 
 @Serializable
 sealed class Response
 
 @Serializable
 data class CallContractResponse(
-    val result: List<String>
+    val result: List<Felt>
 ): Response()
 
 data class GetCodeResponse(
-    val bytecode: Array<String>,
+    val bytecode: List<String>,
     val abi: Abi
 )
 

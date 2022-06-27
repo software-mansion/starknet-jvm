@@ -1,12 +1,19 @@
 package starknet.data.types
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import starknet.data.selectorFromName
 import types.Felt
 
+@Serializable
 data class Call(
-    val contractAddress: Felt,
+    @SerialName("contract_address") val contractAddress: Felt,
     val entrypoint: String,
     val calldata: Calldata,
+)
+
+data class CallExtraParams(
+    val blochHashOrTag: BlockHashOrTag
 )
 
 data class ExecutionParams(

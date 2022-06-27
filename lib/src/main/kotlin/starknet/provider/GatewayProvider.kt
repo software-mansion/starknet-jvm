@@ -1,20 +1,30 @@
 package starknet.provider
 
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import starknet.data.types.*
-import starknet.provider.service.HttpService
 
 class GatewayProvider(
     val feederGatewayUrl: String,
     val gatewayUrl: String,
     override val chainId: StarknetChainId
 ): Provider  {
-    override fun callContract(invokeTransaction: Invocation): Request<CallContractResponse> {
-        val service = HttpService(feederGatewayUrl + "call_contract", "get")
+    override fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse> {
+        var url = gatewayUrl + "call_contract"
 
-        val payload = Json.encodeToString(invokeTransaction)
+        url += "?block_hash=${callParams.blochHashOrTag.string()}"
 
-        return Request(service, payload, CallContractResponse.serializer())
+        // Gateway requires calldata values to be in decimal form
+        val decimalCalldata = JsonArray(call.calldata.map {
+            JsonPrimitive(it.decString())
+        })
+
+        val payload = Json.encodeToJsonElement(call)
+
+        val fixedPayload = payload.jsonObject.toMutableMap()
+        fixedPayload.set("calldata", decimalCalldata)
+
+        val payloadString = JsonObject(fixedPayload).toString()
+
+        return Request(url, "POST", emptyList(), payloadString, CallContractResponse.serializer())
     }
 }

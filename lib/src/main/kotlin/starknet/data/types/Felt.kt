@@ -30,6 +30,14 @@ data class Felt(val value: BigInteger) {
         return "Felt(${toHex(value)})"
     }
 
+    fun hexString(): String {
+        return "0x${toHex(value)}"
+    }
+
+    fun decString(): String {
+        return value.toString(10)
+    }
+
     companion object {
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)

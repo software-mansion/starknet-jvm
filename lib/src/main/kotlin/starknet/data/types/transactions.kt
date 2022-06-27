@@ -26,6 +26,31 @@ enum class StarknetChainId(val value: Felt) {
     TESTNET(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 }
 
+enum class BlockTag(val tag: String) {
+    LATEST("latest"),
+    PENDING("pending")
+}
+
+sealed class BlockHashOrTag() {
+    data class Hash(
+        val blockHash: Felt
+    ) : BlockHashOrTag() {
+        override fun string(): String {
+            return blockHash.hexString()
+        }
+    }
+
+    data class Tag(
+        val blockTag: BlockTag
+    ) : BlockHashOrTag() {
+        override fun string(): String {
+            return blockTag.tag
+        }
+    }
+
+    abstract fun string(): String
+}
+
 @Serializable
 data class Invocation(
     val contractAddress: Felt, val entrypoint: Felt, val calldata: Calldata?, val signature: Signature?
