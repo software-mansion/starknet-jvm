@@ -31,7 +31,7 @@ data class Felt(val value: BigInteger) {
     }
 
     fun hexString(): String {
-        return "0x${toHex(value)}"
+        return toHex(value)
     }
 
     fun decString(): String {
@@ -63,9 +63,7 @@ object FeltSerializer : KSerializer<Felt> {
     }
 
     override fun serialize(encoder: Encoder, value: Felt) {
-        val hex = "0x" + value.value.toString(16)
-
-        encoder.encodeString(hex)
+        encoder.encodeString(toHex(value.value))
     }
 
 }
