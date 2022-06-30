@@ -46,30 +46,3 @@ fun verify(keyPair: KeyPair, msgHash: ByteArray, signature: StarknetCurveSignatu
 
     return ecdsaVerify.verify(signature.toASN1())
 }
-
-fun pedersen(first: Felt, second: Felt): Felt {
-    var point = SAMPLED_GENERATORS[0]
-    for ((i, felt) in arrayOf(first, second).withIndex()) {
-        var x = felt.value
-        for (j in 0 until 252) {
-            val iterationPoint = SAMPLED_GENERATORS[2 + i * 252 + j]
-            assert(point.xCoord != iterationPoint.xCoord)
-
-            if (x.testBit(0)) {
-                point = point.add(iterationPoint);
-            }
-            x = x.shiftRight(1)
-        }
-    }
-
-    return Felt(point.normalize().xCoord.toBigInteger())
-}
-
-fun pedersen(values: Iterable<Felt>): Felt = values.fold(Felt.ZERO) { a, b -> pedersen(a, b) }
-
-fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
-    pedersen(values),
-    Felt(values.size),
-)
-
-fun pedersenOnElements(vararg values: Felt): Felt = pedersenOnElements(values.asList())

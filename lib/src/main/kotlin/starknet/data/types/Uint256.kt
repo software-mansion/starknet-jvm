@@ -4,9 +4,9 @@ import starknet.data.parseHex
 import types.Felt
 import java.math.BigInteger
 
-private val MAX: BigInteger = BigInteger.TWO.pow(256).minus(BigInteger.ONE)
+private val MAX: BigInteger = BigInteger.valueOf(2).pow(256).minus(BigInteger.ONE)
 private val SHIFT = 128
-private val SHIFT_MOD: BigInteger = BigInteger.TWO.pow(128)
+private val SHIFT_MOD: BigInteger = BigInteger.valueOf(2).pow(128)
 
 data class Uint256(val value: BigInteger) {
     constructor(value: Long) : this(BigInteger.valueOf(value))

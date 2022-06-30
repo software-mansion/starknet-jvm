@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class StarknetCurveTest {
+internal class CryptoCppTest {
     @Test
     fun getKeyPair() {
         val pk = BigInteger("019800ea6a9a73f94aee6a3d2edf018fc770443e90c7ba121e8303ec6b349279", 16)
@@ -63,14 +63,13 @@ internal class StarknetCurveTest {
             )
         )
         for (case in cases) {
-            val result = pedersen(case.first, case.second)
+            val result = CryptoCpp.pedersen(case.first, case.second)
             assertEquals(Felt.fromHex(case.third), result)
         }
     }
 
     @Test
     fun pedersenOnElements() {
-        val maxFelt = (PRIME - BigInteger.ONE).toFelt;
         // Generated using cairo-lang package
         val cases = arrayOf(
             Pair(listOf(), Felt.fromHex("0x49ee3eba8c1600700ee1b87eb599f16716b0b1022947733551fde4050ca6804")),
@@ -84,8 +83,8 @@ internal class StarknetCurveTest {
             )
         )
         for ((input, expected) in cases) {
-            val resultWithCollection = pedersenOnElements(input)
-            val resultWithVarargs = pedersenOnElements(*input.toTypedArray())
+            val resultWithCollection = CryptoCpp.pedersenOnElements(input)
+            val resultWithVarargs = CryptoCpp.pedersenOnElements(*input.toTypedArray())
             assertEquals(expected, resultWithCollection)
             assertEquals(expected, resultWithVarargs)
         }

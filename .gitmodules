@@ -1,0 +1,3 @@
+[submodule "crypto/crypto-cpp"]
+	path = crypto/crypto-cpp
+	url = git@github.com:Solpatium/crypto-cpp.git
