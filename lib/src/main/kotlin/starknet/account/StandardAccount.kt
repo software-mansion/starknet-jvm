@@ -19,7 +19,7 @@ class StandardAccount(
 ) : Account,
     Provider by provider {
 
-    constructor(provider: Provider, address: Felt, privateKey: BigInteger) : this(
+    constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
         provider,
         address,
         StarkCurveSigner(privateKey)

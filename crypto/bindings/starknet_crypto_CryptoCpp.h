@@ -26,9 +26,9 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_getPublicKey
 /*
  * Class:     starknet_crypto_CryptoCpp
  * Method:    verify
- * Signature: ([B[B[B[B)[B
+ * Signature: ([B[B[B[B)z
  */
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_verify
+JNIEXPORT jboolean JNICALL Java_starknet_crypto_CryptoCpp_verify
   (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
 
 /*

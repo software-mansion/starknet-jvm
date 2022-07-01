@@ -1,6 +1,5 @@
 package types
 
-import starknet.crypto.PRIME
 import starknet.data.parseHex
 import starknet.data.toHex
 import java.math.BigInteger
@@ -23,6 +22,9 @@ data class Felt(val value: BigInteger) {
     }
 
     companion object {
+        @field:JvmField
+        val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
+
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
 

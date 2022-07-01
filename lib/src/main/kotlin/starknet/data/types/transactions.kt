@@ -2,7 +2,7 @@
 
 package starknet.data.types
 
-import starknet.crypto.CryptoCpp
+import starknet.crypto.StarknetCurve
 import starknet.crypto.StarknetCurveSignature
 import types.Felt
 
@@ -72,12 +72,12 @@ data class InvokeTransaction(
 ) : Transaction() {
     override val type = TransactionType.INVOKE
 
-    override fun getHash(): Felt = CryptoCpp.pedersenOnElements(
+    override fun getHash(): Felt = StarknetCurve.pedersenOnElements(
         type.txPrefix,
         version,
         contractAddress,
         entrypointSelector,
-        CryptoCpp.pedersenOnElements(calldata),
+        StarknetCurve.pedersenOnElements(calldata),
         maxFee,
         chainId,
     )
