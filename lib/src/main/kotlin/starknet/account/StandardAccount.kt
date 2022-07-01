@@ -10,7 +10,6 @@ import starknet.provider.Provider
 import starknet.signer.Signer
 import starknet.signer.StarkCurveSigner
 import types.Felt
-import java.math.BigInteger
 
 class StandardAccount(
     private val provider: Provider,

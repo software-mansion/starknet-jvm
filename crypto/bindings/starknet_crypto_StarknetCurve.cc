@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "./starknet_crypto_CryptoCpp.h"
+#include "./starknet_crypto_StarknetCurve.h"
 #include "third_party/gsl/gsl-lite.hpp"
 #include "starkware/algebra/prime_field_element.h"
 #include "starkware/crypto/ecdsa.h"
@@ -36,10 +36,24 @@ void serialize(const ValueType& val, const gsl::span<gsl::byte> span_out) {
   }
 }
 
-ValueType valueFromJArray(JNIEnv * env, jbyteArray input) {
+void throwInvalidFieldProvidedError(JNIEnv *env) {
+    std::string className = "java/lang/IllegalArgumentException";
+    std::string message = "Invalid field element provided.";
+    jclass exClass = env->FindClass(className.c_str());
+    env->ThrowNew(exClass, message.c_str() );
+}
+
+void throwUnknownError(JNIEnv *env) {
+    std::string className = "java/lang/Exception";
+    std::string message = "Unknown crypto-cpp exception.";
+    jclass exClass = env->FindClass(className.c_str());
+    env->ThrowNew(exClass, message.c_str() );
+}
+
+ValueType valueFromJArray(JNIEnv *env, jbyteArray input) {
     jsize size = env->GetArrayLength(input);
     if (size != kElementSize) {
-        throw InvalidFieldProvidedError();
+        throwInvalidFieldProvidedError(env);
     }
     jboolean isCopy;
     gsl::byte* bytes = (gsl::byte*)(env->GetByteArrayElements(input, &isCopy));
@@ -55,14 +69,7 @@ starkware::PrimeFieldElement fieldFromJArray(JNIEnv * env, jbyteArray input) {
     return starkware::PrimeFieldElement::FromBigInt(value);
 }
 
-void throwException( JNIEnv *env, std::string className, std::string message)
-{
-    jclass exClass = env->FindClass(className.c_str());
-    env->ThrowNew(exClass, message.c_str() );
-}
-
-
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_pedersen
+JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_pedersen
   (JNIEnv * env, jclass, jbyteArray first, jbyteArray second) {
   jbyteArray result = env->NewByteArray(kElementSize);
   try {
@@ -75,21 +82,15 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_pedersen
       serialize(hash.ToStandardForm(), gsl::make_span(out, kElementSize));
 
       env->SetByteArrayRegion(result, 0, kElementSize, (const jbyte*) out);
-  } catch (const InvalidFieldProvidedError& e) {
-    auto className = "java/lang/IllegalArgumentException";
-    auto message = "Invalid field element provided.";
-    throwException(env, className, message);
   } catch (...) {
-    auto className = "java/lang/Exception";
-    auto message = "Unknown crypto-cpp exception.";
-    throwException(env, className, message);
+    throwUnknownError(env);
   }
   return result;
 }
 
 
 
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_sign
+JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_sign
   (JNIEnv *env, jclass, jbyteArray privateKey, jbyteArray message, jbyteArray k) {
     jbyteArray result = env->NewByteArray(signatureSize);
     try {
@@ -104,20 +105,14 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_sign
         serialize(sig.second.ToStandardForm(), gsl::make_span(out + kElementSize, kElementSize));
 
         env->SetByteArrayRegion(result, 0, kElementSize*2, (const jbyte*) out);
-    } catch (const InvalidFieldProvidedError& e) {
-      auto className = "java/lang/IllegalArgumentException";
-      auto message = "Invalid field element provided.";
-      throwException(env, className, message);
     } catch (...) {
-      auto className = "java/lang/Exception";
-      auto message = "Unknown crypto-cpp exception.";
-      throwException(env, className, message);
+        throwUnknownError(env);
     }
     return result;
 }
 
 
-JNIEXPORT jboolean JNICALL Java_starknet_crypto_CryptoCpp_verify
+JNIEXPORT jboolean JNICALL Java_starknet_crypto_StarknetCurve_verify
   (JNIEnv *env, jclass, jbyteArray publicKey, jbyteArray hash, jbyteArray r, jbyteArray w) {
    try {
       // The following call will throw in case of verification failure.
@@ -129,10 +124,9 @@ JNIEXPORT jboolean JNICALL Java_starknet_crypto_CryptoCpp_verify
     } catch (...) {
       return false;
     }
-    return true;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_getPublicKey
+JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_getPublicKey
   (JNIEnv *env, jclass, jbyteArray privateKey) {
   jbyteArray result = env->NewByteArray(signatureSize);
    try {
@@ -142,14 +136,8 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_CryptoCpp_getPublicKey
      serialize(stark_key.ToStandardForm(), gsl::make_span(out, kElementSize));
 
      env->SetByteArrayRegion(result, 0, kElementSize, (const jbyte*) out);
-   } catch (const InvalidFieldProvidedError& e) {
-           auto className = "java/lang/IllegalArgumentException";
-           auto message = "Invalid field element provided.";
-           throwException(env, className, message);
-         } catch (...) {
-           auto className = "java/lang/Exception";
-           auto message = "Unknown crypto-cpp exception.";
-           throwException(env, className, message);
-         }
+   } catch (...) {
+     throwUnknownError(env);
+   }
    return result;
  }
