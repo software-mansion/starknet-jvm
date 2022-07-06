@@ -3,7 +3,7 @@ package starknet.signer
 import starknet.crypto.StarknetCurve
 import starknet.data.types.Signature
 import starknet.data.types.Transaction
-import types.Felt
+import starknet.data.types.Felt
 
 class StarkCurveSigner(val privateKey: Felt) : Signer {
 

@@ -1,7 +1,7 @@
 package starknet.data.types
 
 import starknet.data.selectorFromName
-import types.Felt
+import starknet.data.types.Felt
 
 data class Call(
     val contractAddress: Felt,

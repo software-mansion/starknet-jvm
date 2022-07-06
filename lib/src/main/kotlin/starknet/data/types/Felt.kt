@@ -1,4 +1,4 @@
-package types
+package starknet.data.types
 
 import starknet.data.parseHex
 import starknet.data.toHex

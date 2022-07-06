@@ -1,8 +1,8 @@
 #include <jni.h>
 
 #include "./starknet_crypto_StarknetCurve.h"
-#include "third_party/gsl/gsl-lite.hpp"
 #include "starkware/algebra/prime_field_element.h"
+#include "third_party/gsl/gsl-lite.hpp"
 #include "starkware/crypto/ecdsa.h"
 #include "starkware/crypto/pedersen_hash.h"
 #include "starkware/crypto/ffi/portable_endian.h"

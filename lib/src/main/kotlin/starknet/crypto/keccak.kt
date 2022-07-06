@@ -1,8 +1,8 @@
 package starknet.crypto
 
 import org.bouncycastle.jcajce.provider.digest.Keccak
-import types.Felt
-import types.toFelt
+import starknet.data.types.Felt
+import starknet.data.types.toFelt
 import java.math.BigInteger
 
 private val MASK_250 = BigInteger.valueOf(2).pow(250) - BigInteger.ONE

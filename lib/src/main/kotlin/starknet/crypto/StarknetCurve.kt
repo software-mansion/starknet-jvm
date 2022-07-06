@@ -2,8 +2,8 @@ package starknet.crypto
 
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
-import types.Felt
-import types.toFelt
+import starknet.data.types.Felt
+import starknet.data.types.toFelt
 import java.math.BigInteger
 
 private fun bigintToNative(input: BigInteger): ByteArray {

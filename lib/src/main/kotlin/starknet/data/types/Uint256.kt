@@ -1,7 +1,7 @@
 package starknet.data.types
 
 import starknet.data.parseHex
-import types.Felt
+import starknet.data.types.Felt
 import java.math.BigInteger
 
 private val MAX: BigInteger = BigInteger.valueOf(2).pow(256).minus(BigInteger.ONE)

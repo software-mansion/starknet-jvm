@@ -4,7 +4,7 @@ import starknet.data.types.Call
 import starknet.data.types.ExecutionParams
 import starknet.data.types.InvokeTransaction
 import starknet.provider.Provider
-import types.Felt
+import starknet.data.types.Felt
 
 interface Account : Provider {
     val address: Felt

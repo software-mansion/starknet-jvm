@@ -4,7 +4,7 @@ package starknet.data.types
 
 import starknet.crypto.StarknetCurve
 import starknet.crypto.StarknetCurveSignature
-import types.Felt
+import starknet.data.types.Felt
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>

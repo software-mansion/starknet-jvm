@@ -3,7 +3,7 @@
 package starknet.data
 
 import starknet.crypto.keccak
-import types.Felt
+import starknet.data.types.Felt
 
 fun selectorFromName(name: String): Felt {
     if (name == DEFAULT_ENTRY_POINT_NAME || name == DEFAULT_L1_ENTRY_POINT_NAME) {

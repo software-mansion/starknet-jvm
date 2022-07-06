@@ -1,7 +1,7 @@
 package starknet.crypto
 
-import types.Felt
-import types.toFelt
+import starknet.data.types.Felt
+import starknet.data.types.toFelt
 import java.math.BigInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
