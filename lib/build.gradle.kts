@@ -19,6 +19,15 @@ repositories {
     mavenCentral()
 }
 
+val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {
+    commandLine("${project.projectDir}/build_crypto_cpp.sh")
+}
+
+tasks.test {
+    dependsOn(buildCryptoCpp)
+    systemProperty("java.library.path", file("${buildDir}/libs/shared").absolutePath)
+}
+
 dependencies {
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

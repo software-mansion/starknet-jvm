@@ -1,8 +1,8 @@
 package starknet.data
 
 import types.Felt
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class SelectorTest {
     @Test

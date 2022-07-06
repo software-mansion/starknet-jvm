@@ -1,0 +1,2 @@
+add_library(crypto_jni SHARED starknet_crypto_StarknetCurve.cc)
+target_link_libraries(crypto_jni crypto)
