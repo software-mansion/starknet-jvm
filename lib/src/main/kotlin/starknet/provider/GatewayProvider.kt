@@ -33,7 +33,7 @@ class GatewayProvider(
         var url = "$feederGatewayUrl/get_storage_at"
         url += "?contractAddress=${payload.contractAddress.hexString()}"
         url += "?key=${payload.key.hexString()}"
-    //  url += "?blockNumber=${}" TODO: Problem here, feederGateway expects blockNumber, not block tag or hash like rpc
+        url += "?blockHash=${payload.blockHashOrTag.string()}" // TODO: Has to be verified
 
         return Request(url, "GET", emptyList(), "", GetStorageAtResponse.serializer())
     }
