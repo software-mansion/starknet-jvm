@@ -4,27 +4,54 @@ import kotlinx.serialization.json.*
 import starknet.data.types.*
 
 class GatewayProvider(
-    val feederGatewayUrl: String,
-    val gatewayUrl: String,
+    private val feederGatewayUrl: String,
+    private val gatewayUrl: String,
     override val chainId: StarknetChainId
 ): Provider  {
-    override fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse> {
-        var url = gatewayUrl + "call_contract"
-
-        url += "?block_hash=${callParams.blockHashOrTag.string()}"
-
-        // Gateway requires calldata values to be in decimal form
-        val decimalCalldata = JsonArray(call.calldata.map {
+    private fun mapCalldataToDecimal(calldata: Calldata): JsonElement {
+        return JsonArray(calldata.map {
             JsonPrimitive(it.decString())
         })
+    }
 
-        val payload = Json.encodeToJsonElement(call)
+    override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+        var url = "$feederGatewayUrl/call_contract"
+        url += "?blockHash=${payload.blockHashOrTag.string()}"
 
-        val fixedPayload = payload.jsonObject.toMutableMap()
-        fixedPayload.set("calldata", decimalCalldata)
+        val decimalCalldata = mapCalldataToDecimal(payload.request.calldata)
 
-        val payloadString = JsonObject(fixedPayload).toString()
+        val jsonPayload = Json.encodeToJsonElement(mapOf(
+            "contract_address" to payload.request.contractAddress,
+            "entry_point_selector" to payload.request.entrypoint,
+            "calldata" to decimalCalldata,
+        ))
 
-        return Request(url, "POST", emptyList(), payloadString, CallContractResponse.serializer())
+        return Request(url, "POST", emptyList(), jsonPayload.toString(), CallContractResponse.serializer())
+    }
+
+    override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
+        var url = "$feederGatewayUrl/get_storage_at"
+        url += "?contractAddress=${payload.contractAddress.hexString()}"
+        url += "?key=${payload.key.hexString()}"
+    //  url += "?blockNumber=${}" TODO: Problem here, feederGateway expects blockNumber, not block tag or hash like rpc
+
+        return Request(url, "GET", emptyList(), "", GetStorageAtResponse.serializer())
+    }
+
+    override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
+        val url = "$gatewayUrl/add_transaction"
+
+        val decimalCalldata = mapCalldataToDecimal(payload.invocation.calldata)
+
+        val jsonPayload = Json.encodeToJsonElement(mapOf(
+            "type" to JsonPrimitive("INVOKE_FUNCTION"),
+            "contract_address" to payload.invocation.contractAddress,
+            "entry_point_selector" to payload.invocation.entrypoint,
+            "calldata" to decimalCalldata,
+            "max_fee" to payload.maxFee,
+            "signature" to payload.signature
+        ))
+
+        return Request(url, "POST", emptyList(), jsonPayload.toString(), InvokeFunctionResponse.serializer())
     }
 }

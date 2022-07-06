@@ -5,5 +5,9 @@ import starknet.data.types.*
 interface Provider {
     val chainId: StarknetChainId
 
-    fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse>
+    fun callContract(payload: CallContractPayload): Request<CallContractResponse>
+
+    fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse>
+
+    fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
 }

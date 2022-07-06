@@ -16,10 +16,17 @@ data class CallExtraParams(
     val blockHashOrTag: BlockHashOrTag
 )
 
-data class ExecutionParams(
-    val nonce: Felt,
-    val maxFee: Felt,
-    val version: Felt = Felt.ZERO,
+@Serializable
+data class CallContractPayload(
+    val request: Call,
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
+)
+
+@Serializable
+data class GetStorageAtPayload(
+    @SerialName("contract_address") val contractAddress: Felt,
+    val key: Felt,
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
 )
 
 fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {

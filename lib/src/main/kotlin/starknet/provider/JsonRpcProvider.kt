@@ -6,19 +6,19 @@ import starknet.data.types.*
 import java.util.concurrent.atomic.AtomicLong
 
 class JsonRpcProvider(
-    val url: String,
+    private val url: String,
     override val chainId: StarknetChainId
 ) : Provider {
     companion object {
         private val nextId = AtomicLong(0)
     }
 
-    fun buildRequestJson(id: Long, method: String, params: List<JsonElement>): Map<String, JsonElement> {
+    private fun buildRequestJson(id: Long, method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
             "method" to JsonPrimitive(method),
             "id" to JsonPrimitive(id),
-            "params" to JsonArray(params)
+            "params" to paramsJson
         )
 
         return JsonObject(map)
@@ -26,24 +26,33 @@ class JsonRpcProvider(
 
     private fun <T : Response> buildRequest(
         method: JsonRpcMethod,
-        params: List<JsonElement>,
+        paramsJson: JsonElement,
         deserializer: DeserializationStrategy<T>
     ): Request<T> {
         val id = nextId.getAndIncrement()
 
-        val requestJson = buildRequestJson(id, method.key, params)
+        val requestJson = buildRequestJson(id, method.key, paramsJson)
 
         return Request(url, "POST", emptyList(), requestJson.toString(), deserializer)
     }
 
-    override fun callContract(call: Call, callParams: CallExtraParams): Request<CallContractResponse> {
-        val request = Json.encodeToJsonElement(call)
+    override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+        val params = Json.encodeToJsonElement(payload)
 
-        val params = buildList {
-            add(request)
-            add(JsonPrimitive(callParams.blockHashOrTag.string()))
-        }
+        return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer())
+    }
 
-        return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer()) // TODO: Wrong deserializer
+    override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, GetStorageAtResponse.serializer())
+    }
+
+    override fun invokeFunction(
+        payload: InvokeFunctionPayload
+    ): Request<InvokeFunctionResponse> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
 }

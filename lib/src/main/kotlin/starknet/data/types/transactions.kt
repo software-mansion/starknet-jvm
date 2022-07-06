@@ -31,6 +31,7 @@ enum class BlockTag(val tag: String) {
     PENDING("pending")
 }
 
+@Serializable
 sealed class BlockHashOrTag() {
     data class Hash(
         val blockHash: Felt
@@ -52,12 +53,11 @@ sealed class BlockHashOrTag() {
 }
 
 @Serializable
-data class Invocation(
-    val contractAddress: Felt, val entrypoint: Felt, val calldata: Calldata?, val signature: Signature?
-)
-
-data class InvocationDetails(
-    val nonce: Felt?, val maxFee: Felt?, val version: Felt?
+data class InvokeFunctionPayload(
+    @SerialName("function_invocation") val invocation: Call,
+    val signature: Signature?,
+    @SerialName("max_fee") val maxFee: Felt?,
+    val version: Felt?
 )
 
 sealed class Transaction {
