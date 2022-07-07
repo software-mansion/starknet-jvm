@@ -10,7 +10,6 @@ import starknet.provider.Provider
 import starknet.signer.Signer
 import starknet.signer.StarkCurveSigner
 import types.Felt
-import java.math.BigInteger
 
 class StandardAccount(
     private val provider: Provider,
@@ -19,7 +18,7 @@ class StandardAccount(
 ) : Account,
     Provider by provider {
 
-    constructor(provider: Provider, address: Felt, privateKey: BigInteger) : this(
+    constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
         provider,
         address,
         StarkCurveSigner(privateKey)

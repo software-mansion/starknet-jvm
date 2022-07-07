@@ -1,21 +1,17 @@
 package starknet.signer
 
-import starknet.crypto.getKeyPair
-import starknet.crypto.sign
+import starknet.crypto.StarknetCurve
 import starknet.data.types.Signature
 import starknet.data.types.Transaction
-import java.math.BigInteger
-import java.security.KeyPair
-import java.security.PublicKey
+import types.Felt
 
-class StarkCurveSigner(val keyPair: KeyPair) : Signer {
+class StarkCurveSigner(val privateKey: Felt) : Signer {
 
-    constructor(privateKey: BigInteger) : this(getKeyPair(privateKey))
+    // Generating public key takes a while
+    override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
     override fun signTransaction(transaction: Transaction): Signature {
         val hash = transaction.getHash()
-        return sign(keyPair, hash.value.toByteArray()).toList()
+        return StarknetCurve.sign(privateKey, hash).toList()
     }
-
-    override fun getPublicKey(): PublicKey = keyPair.public
 }

@@ -5,7 +5,7 @@ package starknet.data.types
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import starknet.crypto.StarknetCurveSignature
-import starknet.crypto.pedersenOnElements
+import starknet.crypto.StarknetCurve
 import types.Felt
 
 typealias Calldata = List<Felt>
@@ -110,12 +110,12 @@ data class InvokeTransaction(
 ) : Transaction() {
     override val type = TransactionType.INVOKE
 
-    override fun getHash(): Felt = pedersenOnElements(
+    override fun getHash(): Felt = StarknetCurve.pedersenOnElements(
         type.txPrefix,
         version,
         contractAddress,
         entrypointSelector,
-        pedersenOnElements(calldata),
+        StarknetCurve.pedersenOnElements(calldata),
         maxFee,
         chainId,
     )
