@@ -16,6 +16,12 @@ data class CallExtraParams(
     val blockHashOrTag: BlockHashOrTag
 )
 
+data class ExecutionParams(
+    val nonce: Felt,
+    val maxFee: Felt,
+    val version: Felt
+)
+
 @Serializable
 data class CallContractPayload(
     val request: Call,
