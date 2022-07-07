@@ -31,7 +31,7 @@ class JsonRpcProvider(
     ): Request<T> {
         val id = nextId.getAndIncrement()
 
-        val requestJson = buildRequestJson(id, method.key, paramsJson)
+        val requestJson = buildRequestJson(id, method.methodName, paramsJson)
 
         return Request(url, "POST", emptyList(), requestJson.toString(), deserializer)
     }
