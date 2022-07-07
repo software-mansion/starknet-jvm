@@ -6,6 +6,7 @@ import starknet.data.types.*
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
+import starknet.service.http.HttpService
 
 class GatewayProvider(
     private val feederGatewayUrl: String,
@@ -53,7 +54,8 @@ class GatewayProvider(
             )
         )
 
-        return HttpRequest(url, "POST", emptyList(), jsonPayload.toString(), CallContractResponse.serializer())
+        val payload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
+        return HttpRequest(payload, CallContractResponse.serializer())
     }
 
     override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
@@ -65,7 +67,8 @@ class GatewayProvider(
 
         val url = buildRequestUrl(feederGatewayUrl, "get_storage_at", params)
 
-        return HttpRequest(url, "GET", emptyList(), "", GetStorageAtResponse.serializer())
+        val payload = HttpService.Payload(url, "GET", emptyList(), "")
+        return HttpRequest(payload, GetStorageAtResponse.serializer())
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
@@ -84,6 +87,7 @@ class GatewayProvider(
             )
         )
 
-        return HttpRequest(url, "POST", emptyList(), jsonPayload.toString(), InvokeFunctionResponse.serializer())
+        val payload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
+        return HttpRequest(payload, InvokeFunctionResponse.serializer())
     }
 }
