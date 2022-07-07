@@ -15,13 +15,15 @@ class HttpRequest<T: Response>(
     val deserializer: DeserializationStrategy<T>
 ): Request<T> {
     override fun send(): T {
-        val response = HttpService.send(this)
+        val payload = HttpService.Payload(url, method, headers, body)
+        val response = HttpService.send(payload)
 
-        return Json.decodeFromString(deserializer, body)
+        return Json.decodeFromString(deserializer, response)
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        val future = HttpService.sendAsync(this)
+        val payload = HttpService.Payload(url, method, headers, body)
+        val future = HttpService.sendAsync(payload)
 
         val newFuture = future.handle { response, e ->
             if (e != null) {

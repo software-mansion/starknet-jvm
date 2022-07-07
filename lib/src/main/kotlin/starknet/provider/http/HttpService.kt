@@ -13,18 +13,19 @@ import java.util.concurrent.CompletableFuture
 val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
 class HttpService {
+    data class Payload(val url: String, val method: String, val params: List<String>, val body: String)
 
     class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
 
     companion object {
-        private fun <T : Response> buildNetworkRequest(request: HttpRequest<T>): okhttp3.Request {
-            val requestBody = request.body.toRequestBody(JSON_MEDIA_TYPE)
+        private fun buildRequest(payload: Payload): okhttp3.Request {
+            val requestBody = payload.body.toRequestBody(JSON_MEDIA_TYPE)
 
             return okhttp3
                 .Request
                 .Builder()
-                .url(request.url)
-                .method(request.method, requestBody)
+                .url(payload.url)
+                .method(payload.method, requestBody)
                 .build()
         }
 
@@ -41,18 +42,18 @@ class HttpService {
             }
         }
 
-        fun <T : Response> send(request: HttpRequest<T>): String {
+        fun send(payload: Payload): String {
             val client = OkHttpClient()
-            val httpRequest = buildNetworkRequest(request)
+            val httpRequest = buildRequest(payload)
 
             val response = client.newCall(httpRequest).execute()
 
             return processHttpResponse(response)
         }
 
-        fun <T : Response> sendAsync(request: HttpRequest<T>): CompletableFuture<String> {
+        fun sendAsync(payload: Payload): CompletableFuture<String> {
             val client = OkHttpClient()
-            val httpRequest = buildNetworkRequest(request)
+            val httpRequest = buildRequest(payload)
 
             val future = CompletableFuture<String>()
 
