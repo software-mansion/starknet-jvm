@@ -1,24 +1,23 @@
-package starknet.provider
+package starknet.provider.rpc
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 import starknet.data.types.*
-import starknet.provider.http.HttpRequest
-import java.util.concurrent.atomic.AtomicLong
+import starknet.provider.Provider
+import starknet.provider.Request
+import starknet.service.http.HttpRequest
+import starknet.service.http.HttpService
 
 class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId
 ) : Provider {
-    companion object {
-        private val nextId = AtomicLong(0)
-    }
 
-    private fun buildRequestJson(id: Long, method: String, paramsJson: JsonElement): Map<String, JsonElement> {
+    private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
             "method" to JsonPrimitive(method),
-            "id" to JsonPrimitive(0),
+            "id" to JsonPrimitive(0), // It is not used anywhere
             "params" to paramsJson
         )
 
@@ -30,11 +29,11 @@ class JsonRpcProvider(
         paramsJson: JsonElement,
         deserializer: DeserializationStrategy<T>
     ): HttpRequest<T> {
-        val id = nextId.getAndIncrement()
+        val requestJson = buildRequestJson(method.methodName, paramsJson)
 
-        val requestJson = buildRequestJson(id, method.methodName, paramsJson)
+        val payload = HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
-        return HttpRequest(url, "POST", emptyList(), requestJson.toString(), deserializer)
+        return HttpRequest(payload, deserializer)
     }
 
     override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {

@@ -1,4 +1,4 @@
-package starknet.provider
+package starknet.provider.rpc
 
 enum class JsonRpcMethod(val methodName: String) {
     CALL("starknet_call"),
