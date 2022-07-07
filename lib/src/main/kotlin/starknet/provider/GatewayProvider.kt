@@ -3,7 +3,6 @@ package starknet.provider
 import kotlinx.serialization.json.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import starknet.data.types.*
-import java.net.URL
 
 class GatewayProvider(
     private val feederGatewayUrl: String,
@@ -51,7 +50,7 @@ class GatewayProvider(
             )
         )
 
-        return Request(url, "POST", emptyList(), jsonPayload.toString(), CallContractResponse.serializer())
+        return HttpRequest(url, "POST", emptyList(), jsonPayload.toString(), CallContractResponse.serializer())
     }
 
     override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
@@ -63,7 +62,7 @@ class GatewayProvider(
 
         val url = buildRequestUrl(feederGatewayUrl, "get_storage_at", params)
 
-        return Request(url, "GET", emptyList(), "", GetStorageAtResponse.serializer())
+        return HttpRequest(url, "GET", emptyList(), "", GetStorageAtResponse.serializer())
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
@@ -82,6 +81,6 @@ class GatewayProvider(
             )
         )
 
-        return Request(url, "POST", emptyList(), jsonPayload.toString(), InvokeFunctionResponse.serializer())
+        return HttpRequest(url, "POST", emptyList(), jsonPayload.toString(), InvokeFunctionResponse.serializer())
     }
 }

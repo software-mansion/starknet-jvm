@@ -17,7 +17,7 @@ class JsonRpcProvider(
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
             "method" to JsonPrimitive(method),
-            "id" to JsonPrimitive(id),
+            "id" to JsonPrimitive(0),
             "params" to paramsJson
         )
 
@@ -28,12 +28,12 @@ class JsonRpcProvider(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
         deserializer: DeserializationStrategy<T>
-    ): Request<T> {
+    ): HttpRequest<T> {
         val id = nextId.getAndIncrement()
 
         val requestJson = buildRequestJson(id, method.methodName, paramsJson)
 
-        return Request(url, "POST", emptyList(), requestJson.toString(), deserializer)
+        return HttpRequest(url, "POST", emptyList(), requestJson.toString(), deserializer)
     }
 
     override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
