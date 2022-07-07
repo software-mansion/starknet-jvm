@@ -1,4 +1,4 @@
-package starknet.provider.http
+package starknet.service.http
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
@@ -18,16 +18,10 @@ class HttpRequest<T>(
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        val future = HttpService.sendAsync(payload)
-
-        val newFuture = future.handle { response, e ->
-            if (e != null) {
-                throw e
-            }
-
+        val future = HttpService.sendAsync(payload).thenApply { response ->
             Json.decodeFromString(deserializer, response)
         }
 
-        return newFuture
+        return future
     }
 }
