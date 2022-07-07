@@ -3,6 +3,7 @@ package starknet.provider
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 import starknet.data.types.*
+import starknet.provider.http.HttpRequest
 import java.util.concurrent.atomic.AtomicLong
 
 class JsonRpcProvider(

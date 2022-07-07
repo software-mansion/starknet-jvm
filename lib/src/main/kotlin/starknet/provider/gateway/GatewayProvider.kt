@@ -3,6 +3,7 @@ package starknet.provider
 import kotlinx.serialization.json.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import starknet.data.types.*
+import starknet.provider.http.HttpRequest
 
 class GatewayProvider(
     private val feederGatewayUrl: String,
