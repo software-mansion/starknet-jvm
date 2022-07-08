@@ -18,10 +18,8 @@ class HttpRequest<T>(
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        val future = HttpService.sendAsync(payload).thenApply { response ->
+        return HttpService.sendAsync(payload).thenApply { response ->
             Json.decodeFromString(deserializer, response)
         }
-
-        return future
     }
 }
