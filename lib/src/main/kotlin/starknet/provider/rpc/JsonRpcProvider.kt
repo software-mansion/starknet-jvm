@@ -7,6 +7,7 @@ import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
+import types.Felt
 
 class JsonRpcProvider(
     private val url: String,
@@ -36,16 +37,40 @@ class JsonRpcProvider(
         return HttpRequest(payload, deserializer)
     }
 
-    override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+    private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer())
     }
 
-    override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
+    override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+
+        return callContract(payload)
+    }
+
+    override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+
+        return callContract(payload)
+    }
+
+    private fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, GetStorageAtResponse.serializer())
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
+
+        return getStorageAt(payload)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
+
+        return getStorageAt(payload)
     }
 
     override fun invokeFunction(

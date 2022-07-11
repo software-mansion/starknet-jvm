@@ -7,6 +7,7 @@ import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
+import types.Felt
 
 class GatewayProvider(
     private val feederGatewayUrl: String,
@@ -37,7 +38,7 @@ class GatewayProvider(
         return urlBuilder.build().toString()
     }
 
-    override fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+    private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
         val params = buildList {
             add(Pair("blockHash", payload.blockHashOrTag.string()))
         }
@@ -58,7 +59,19 @@ class GatewayProvider(
         return HttpRequest(payload, CallContractResponse.serializer())
     }
 
-    override fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
+    override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+
+        return callContract(payload)
+    }
+
+    override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+
+        return callContract(payload)
+    }
+
+    private fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
         val params = buildList {
             add(Pair("contractAddress", payload.contractAddress.hexString()))
             add(Pair("key", payload.key.hexString()))
@@ -69,6 +82,18 @@ class GatewayProvider(
 
         val payload = HttpService.Payload(url, "GET", emptyList(), "")
         return HttpRequest(payload, GetStorageAtResponse.serializer())
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
+
+        return getStorageAt(payload)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
+
+        return getStorageAt(payload)
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
