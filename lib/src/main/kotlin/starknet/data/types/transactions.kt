@@ -2,8 +2,10 @@
 
 package starknet.data.types
 
-import starknet.crypto.StarknetCurve
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import starknet.crypto.StarknetCurveSignature
+import starknet.crypto.StarknetCurve
 import types.Felt
 
 typealias Calldata = List<Felt>
@@ -24,12 +26,38 @@ enum class StarknetChainId(val value: Felt) {
     TESTNET(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 }
 
-data class Invocation(
-    val contractAddress: Felt, val entrypoint: Felt, val calldata: Calldata?, val signature: Signature?
-)
+enum class BlockTag(val tag: String) {
+    LATEST("latest"),
+    PENDING("pending")
+}
 
-data class InvocationDetails(
-    val nonce: Felt?, val maxFee: Felt?, val version: Felt?
+@Serializable
+sealed class BlockHashOrTag() {
+    data class Hash(
+        val blockHash: Felt
+    ) : BlockHashOrTag() {
+        override fun string(): String {
+            return blockHash.hexString()
+        }
+    }
+
+    data class Tag(
+        val blockTag: BlockTag
+    ) : BlockHashOrTag() {
+        override fun string(): String {
+            return blockTag.tag
+        }
+    }
+
+    abstract fun string(): String
+}
+
+@Serializable
+data class InvokeFunctionPayload(
+    @SerialName("function_invocation") val invocation: Call,
+    val signature: Signature?,
+    @SerialName("max_fee") val maxFee: Felt?,
+    val version: Felt?
 )
 
 sealed class Transaction {
@@ -60,6 +88,16 @@ data class DeployTransaction(
     }
 }
 
+@Serializable
+data class InvokeFunctionTransaction(
+    @SerialName("contract_address") val contractAddress: Felt,
+    val signature: Signature?,
+    @SerialName("entry_point_selector") val entryPointSelector: String,
+    val calldata: List<Felt>?,
+    @SerialName("max_fee") val maxFee: Felt,
+    val version: Felt,
+)
+
 data class InvokeTransaction(
     val contractAddress: Felt,
     val entrypointSelector: Felt,
@@ -81,6 +119,5 @@ data class InvokeTransaction(
         maxFee,
         chainId,
     )
-
 }
 

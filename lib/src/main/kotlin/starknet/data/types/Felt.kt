@@ -1,9 +1,17 @@
 package types
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import starknet.data.parseHex
 import starknet.data.toHex
 import java.math.BigInteger
 
+@Serializable(with = FeltSerializer::class)
 data class Felt(val value: BigInteger) {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
@@ -19,6 +27,14 @@ data class Felt(val value: BigInteger) {
 
     override fun toString(): String {
         return "Felt(${toHex(value)})"
+    }
+
+    fun hexString(): String {
+        return toHex(value)
+    }
+
+    fun decString(): String {
+        return value.toString(10)
     }
 
     companion object {
@@ -38,3 +54,18 @@ data class Felt(val value: BigInteger) {
 
 val BigInteger.toFelt: Felt
     get() = Felt(this)
+
+object FeltSerializer : KSerializer<Felt> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Felt", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Felt {
+        val hex = decoder.decodeString()
+
+        return Felt.fromHex(hex)
+    }
+
+    override fun serialize(encoder: Encoder, value: Felt) {
+        encoder.encodeString(toHex(value.value))
+    }
+
+}

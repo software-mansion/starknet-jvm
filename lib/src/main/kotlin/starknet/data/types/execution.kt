@@ -1,18 +1,38 @@
 package starknet.data.types
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import starknet.data.selectorFromName
 import types.Felt
 
+@Serializable
 data class Call(
-    val contractAddress: Felt,
+    @SerialName("contract_address") val contractAddress: Felt,
     val entrypoint: String,
     val calldata: Calldata,
+)
+
+data class CallExtraParams(
+    val blockHashOrTag: BlockHashOrTag
 )
 
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
-    val version: Felt = Felt.ZERO,
+    val version: Felt
+)
+
+@Serializable
+data class CallContractPayload(
+    val request: Call,
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
+)
+
+@Serializable
+data class GetStorageAtPayload(
+    @SerialName("contract_address") val contractAddress: Felt,
+    val key: Felt,
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
 )
 
 fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {

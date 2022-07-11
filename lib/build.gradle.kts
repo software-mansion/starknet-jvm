@@ -6,12 +6,23 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
+version = "0.0.1"
+
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.7.0"
 
+    kotlin("plugin.serialization") version "1.7.0"
+
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+}
+
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+            "Implementation-Version" to project.version))
+    }
 }
 
 repositories {
@@ -50,4 +61,8 @@ dependencies {
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 }
