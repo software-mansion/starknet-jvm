@@ -4,9 +4,8 @@ package starknet.data.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import starknet.crypto.StarknetCurveSignature
 import starknet.crypto.StarknetCurve
-import types.Felt
+import starknet.data.types.Felt
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>

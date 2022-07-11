@@ -1,4 +1,4 @@
-package types
+package starknet.data.types
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

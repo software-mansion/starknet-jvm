@@ -1,6 +1,6 @@
 package starknet.data.types
 
-import types.Felt
+import starknet.data.types.Felt
 import java.math.BigInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals

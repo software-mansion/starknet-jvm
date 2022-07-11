@@ -3,7 +3,7 @@ package starknet.data.types
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import starknet.data.selectorFromName
-import types.Felt
+import starknet.data.types.Felt
 
 @Serializable
 data class Call(

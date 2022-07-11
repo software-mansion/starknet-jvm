@@ -10,7 +10,7 @@ version = "0.0.1"
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.7.0"
+    id("org.jetbrains.kotlin.jvm")
 
     kotlin("plugin.serialization") version "1.7.0"
 
@@ -23,11 +23,6 @@ tasks.jar {
         attributes(mapOf("Implementation-Title" to project.name,
             "Implementation-Version" to project.version))
     }
-}
-
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
 }
 
 val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {

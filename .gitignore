@@ -31,8 +31,9 @@ hs_err_pid*
 # Ignore Gradle build output directory
 build
 
-# Ignore local Gradle properties
+# Android stuff
 local.properties
+.cxx
 
 # OS specific files
 .DS_Store

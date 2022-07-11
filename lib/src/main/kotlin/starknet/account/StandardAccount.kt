@@ -9,7 +9,7 @@ import starknet.data.types.callsToExecuteCalldata
 import starknet.provider.Provider
 import starknet.signer.Signer
 import starknet.signer.StarkCurveSigner
-import types.Felt
+import starknet.data.types.Felt
 
 class StandardAccount(
     private val provider: Provider,

@@ -2,7 +2,7 @@ package starknet.signer
 
 import starknet.data.types.Signature
 import starknet.data.types.Transaction
-import types.Felt
+import starknet.data.types.Felt
 
 interface Signer {
     // TODO: sign message
