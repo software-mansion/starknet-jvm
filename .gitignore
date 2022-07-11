@@ -34,3 +34,6 @@ build
 # Android stuff
 local.properties
 .cxx
+
+# OS specific files
+.DS_Store
