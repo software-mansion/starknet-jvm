@@ -1,7 +1,6 @@
 package starknet.provider
 
 import starknet.data.types.*
-import types.Felt
 
 interface Provider {
     val chainId: StarknetChainId

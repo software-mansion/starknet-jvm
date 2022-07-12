@@ -7,7 +7,6 @@ import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
-import types.Felt
 
 class JsonRpcProvider(
     private val url: String,
