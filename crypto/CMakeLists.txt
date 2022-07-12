@@ -20,6 +20,8 @@ include(CTest)
 enable_testing()
 include_directories("${CMAKE_SOURCE_DIR}/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/bindings")
+include_directories("/Library/Java/JavaVirtualMachines/adoptopenjdk-16.jdk/Contents/Home/include")
+include_directories("/Library/Java/JavaVirtualMachines/adoptopenjdk-16.jdk/Contents/Home/include/darwin")
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)

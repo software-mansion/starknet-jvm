@@ -2,8 +2,12 @@
 
 package starknet.data.types
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.StarknetCurve
 import starknet.data.types.Felt
 
@@ -25,12 +29,13 @@ enum class StarknetChainId(val value: Felt) {
     TESTNET(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 }
 
+@Serializable
 enum class BlockTag(val tag: String) {
     LATEST("latest"),
     PENDING("pending")
 }
 
-@Serializable
+@Serializable(with=BlockHashOrTagSerializer::class)
 sealed class BlockHashOrTag() {
     data class Hash(
         val blockHash: Felt
@@ -51,6 +56,19 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
+object BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
+    override fun deserialize(decoder: Decoder): BlockHashOrTag {
+        TODO("Not yet implemented")
+    }
+
+    override val descriptor: SerialDescriptor
+        get() = TODO("Not yet implemented")
+
+    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
+        encoder.encodeString(value.string())
+    }
+}
+
 @Serializable
 data class InvokeFunctionPayload(
     @SerialName("function_invocation") val invocation: Call,
@@ -66,7 +84,7 @@ sealed class Transaction {
 }
 
 data class DeclareTransaction(
-    val nonce: Felt, val contractClass: CompiledContract, val signerAddress: Felt, val signature: StarknetCurveSignature
+    val nonce: Felt, val contractClass: CompiledContract, val signerAddress: Felt, val signature: Signature
 ) : Transaction() {
     override val type = TransactionType.DECLARE
     override fun getHash(): Felt {

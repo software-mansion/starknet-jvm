@@ -7,7 +7,6 @@ import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
-import types.Felt
 
 class JsonRpcProvider(
     private val url: String,
@@ -44,13 +43,13 @@ class JsonRpcProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+        val payload = CallContractPayload(call, blockTag.tag)
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+        val payload = CallContractPayload(call, blockHash.hexString())
 
         return callContract(payload)
     }

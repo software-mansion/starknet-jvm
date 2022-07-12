@@ -4,7 +4,6 @@ package starknet.data.types
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import types.Felt
 
 @Serializable
 sealed class Response

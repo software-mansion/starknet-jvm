@@ -7,7 +7,6 @@ import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
-import types.Felt
 
 class GatewayProvider(
     private val feederGatewayUrl: String,
@@ -40,7 +39,7 @@ class GatewayProvider(
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
         val params = buildList {
-            add(Pair("blockHash", payload.blockHashOrTag.string()))
+            add(Pair("blockHash", payload.blockHashOrTag))
         }
 
         val url = buildRequestUrl(feederGatewayUrl, "call_contract", params)
@@ -55,18 +54,18 @@ class GatewayProvider(
             )
         )
 
-        val payload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
-        return HttpRequest(payload, CallContractResponse.serializer())
+        val httpPayload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
+        return HttpRequest(httpPayload, CallContractResponse.serializer())
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+        val payload = CallContractPayload(call, blockTag.tag)
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+        val payload = CallContractPayload(call, blockHash.hexString())
 
         return callContract(payload)
     }
