@@ -9,7 +9,7 @@ import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
 
 /**
- * A provider for interacting with starknet JSON-RPC
+ * A provider for interacting with StarkNet JSON-RPC
  *
  * @param url url of the service providing a rpc interface
  * @param chainId an id of the network

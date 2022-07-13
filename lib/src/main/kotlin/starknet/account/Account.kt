@@ -17,7 +17,7 @@ interface Account : Provider {
     /**
      * Sign a transaction.
      *
-     * Sign a transaction to be executed on starknet.
+     * Sign a transaction to be executed on StarkNet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
@@ -31,7 +31,7 @@ interface Account : Provider {
     /**
      * Sign multiple transactions.
      *
-     * Sign a list of calls to be executed on starknet.
+     * Sign a list of calls to be executed on StarkNet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction

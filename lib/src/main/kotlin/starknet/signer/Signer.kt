@@ -7,7 +7,7 @@ import starknet.data.types.Felt
 /**
  * Transaction signer.
  *
- * Implementers of this interface provide methods for signing transactions to be sent to the starknet.
+ * Implementers of this interface provide methods for signing transactions to be sent to the StarkNet.
  */
 interface Signer {
     /**

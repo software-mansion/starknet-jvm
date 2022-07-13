@@ -3,16 +3,16 @@ package starknet.provider
 import starknet.data.types.*
 
 /**
- * Provider for interacting with starknet.
+ * Provider for interacting with StarkNet.
  *
- * Implementers of this interface provide methods for interacting with starknet, for example through starknet gateway
+ * Implementers of this interface provide methods for interacting with StarkNet, for example through starknet gateway
  * api or JSON-RPC.
  */
 interface Provider {
     val chainId: StarknetChainId
 
     /**
-     * Calls a contract deployed on starknet.
+     * Calls a contract deployed on StarkNet.
      *
      * @param call a call to be made
      * @param blockTag
@@ -20,7 +20,7 @@ interface Provider {
     fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse>
 
     /**
-     * Calls a contract deployed on starknet.
+     * Calls a contract deployed on StarkNet.
      *
      * @param call a call to be made
      * @param blockHash a hash of the block in respect to what the call will be made

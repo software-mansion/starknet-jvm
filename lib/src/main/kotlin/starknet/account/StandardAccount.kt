@@ -12,9 +12,9 @@ import starknet.signer.StarkCurveSigner
 import starknet.data.types.Felt
 
 /**
- * Standard account used in starknet.
+ * Standard account used in StarkNet.
  *
- * @param provider a provider used to interact with starknet
+ * @param provider a provider used to interact with StarkNet
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  */
@@ -26,7 +26,7 @@ class StandardAccount(
     Provider by provider {
 
     /**
-     * @param provider a provider used to interact with starknet
+     * @param provider a provider used to interact with StarkNet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */

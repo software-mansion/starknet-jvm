@@ -6,7 +6,7 @@ import starknet.data.types.Transaction
 import starknet.data.types.Felt
 
 /**
- * Signer implementing a stark curve signature (default signature used on starknet).
+ * Signer implementing a stark curve signature (default signature used on StarkNet).
  *
  * @param privateKey a private key to be used by this signer
  */

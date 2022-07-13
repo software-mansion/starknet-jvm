@@ -9,7 +9,7 @@ import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
 
 /**
- * A provider for interacting with starknet gateway.
+ * A provider for interacting with StarkNet gateway.
  *
  * @param feederGatewayUrl url of the feeder gateway
  * @param gatewayUrl url of the gateway
