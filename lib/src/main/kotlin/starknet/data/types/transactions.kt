@@ -35,7 +35,7 @@ enum class BlockTag(val tag: String) {
     PENDING("pending")
 }
 
-@Serializable(with=BlockHashOrTagSerializer::class)
+@Serializable()
 sealed class BlockHashOrTag() {
     data class Hash(
         val blockHash: Felt
@@ -56,18 +56,18 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
-object BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
-    override fun deserialize(decoder: Decoder): BlockHashOrTag {
-        TODO("Not yet implemented")
-    }
-
-    override val descriptor: SerialDescriptor
-        get() = TODO("Not yet implemented")
-
-    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
-        encoder.encodeString(value.string())
-    }
-}
+//object BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
+//    override fun deserialize(decoder: Decoder): BlockHashOrTag {
+//        TODO("Not yet implemented")
+//    }
+//
+//    override val descriptor: SerialDescriptor
+//        get() = TODO("Not yet implemented")
+//
+//    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
+//        encoder.encodeString(value.string())
+//    }
+//}
 
 @Serializable
 data class InvokeFunctionPayload(

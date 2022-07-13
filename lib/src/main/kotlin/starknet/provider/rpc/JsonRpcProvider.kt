@@ -43,13 +43,13 @@ class JsonRpcProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, blockTag.tag)
+        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, blockHash.hexString())
+        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
 
         return callContract(payload)
     }
