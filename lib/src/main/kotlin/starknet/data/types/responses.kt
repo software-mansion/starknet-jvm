@@ -23,11 +23,6 @@ data class GetStorageAtResponse(
     val result: Felt
 ): Response()
 
-data class GetCodeResponse(
-    val bytecode: List<String>,
-    val abi: Abi
-)
-
 data class TransactionFailureReason(
     val code: String,
     val errorMessage: String
