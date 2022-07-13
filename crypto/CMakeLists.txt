@@ -21,6 +21,11 @@ enable_testing()
 include_directories("${CMAKE_SOURCE_DIR}/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/bindings")
 
+
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
+include_directories(${JNI_INCLUDE_DIRS})
+
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
