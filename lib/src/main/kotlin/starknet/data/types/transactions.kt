@@ -35,7 +35,7 @@ enum class BlockTag(val tag: String) {
     PENDING("pending")
 }
 
-@Serializable()
+@Serializable
 sealed class BlockHashOrTag() {
     data class Hash(
         val blockHash: Felt

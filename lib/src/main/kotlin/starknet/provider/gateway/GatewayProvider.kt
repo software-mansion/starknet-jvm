@@ -13,12 +13,6 @@ class GatewayProvider(
     private val gatewayUrl: String,
     override val chainId: StarknetChainId
 ) : Provider {
-    private fun mapFeltListToDecimal(calldata: List<Felt>): JsonElement {
-        return JsonArray(calldata.map {
-            JsonPrimitive(it.decString())
-        })
-    }
-
     private fun buildRequestUrl(
         baseUrl: String,
         endpoint: String,
@@ -44,7 +38,7 @@ class GatewayProvider(
 
         val url = buildRequestUrl(feederGatewayUrl, "call_contract", params)
 
-        val decimalCalldata = mapFeltListToDecimal(payload.request.calldata)
+        val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
 
         val jsonPayload = buildJsonObject {
             put("contract_address", payload.request.contractAddress.hexString())
@@ -97,9 +91,8 @@ class GatewayProvider(
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
         val url = buildRequestUrl(gatewayUrl, "add_transaction")
 
-        val decimalCalldata = mapFeltListToDecimal(payload.invocation.calldata)
-
-        val decimalSignature = mapFeltListToDecimal(payload.signature ?: emptyList())
+        val decimalCalldata = Json.encodeToJsonElement(payload.invocation.calldata.toDecimal())
+        val decimalSignature = Json.encodeToJsonElement(payload.signature?.toDecimal() ?: emptyList())
 
         val jsonPayload = buildJsonObject {
             put("type", JsonPrimitive("INVOKE_FUNCTION"))

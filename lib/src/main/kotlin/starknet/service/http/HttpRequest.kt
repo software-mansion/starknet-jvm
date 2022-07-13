@@ -18,8 +18,6 @@ class HttpRequest<T>(
     override fun send(): T {
         val response = HttpService.send(payload)
 
-        println(response)
-
         return json.decodeFromString(deserializer, response)
     }
 
