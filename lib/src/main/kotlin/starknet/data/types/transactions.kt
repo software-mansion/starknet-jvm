@@ -56,19 +56,6 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
-//object BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
-//    override fun deserialize(decoder: Decoder): BlockHashOrTag {
-//        TODO("Not yet implemented")
-//    }
-//
-//    override val descriptor: SerialDescriptor
-//        get() = TODO("Not yet implemented")
-//
-//    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
-//        encoder.encodeString(value.string())
-//    }
-//}
-
 @Serializable
 data class InvokeFunctionPayload(
     @SerialName("function_invocation") val invocation: Call,
