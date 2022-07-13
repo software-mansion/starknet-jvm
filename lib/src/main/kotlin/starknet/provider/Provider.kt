@@ -8,8 +8,8 @@ interface Provider {
     fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse>
     fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse>
 
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse>
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt>
 
     fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
 }

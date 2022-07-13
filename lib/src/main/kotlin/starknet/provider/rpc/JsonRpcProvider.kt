@@ -24,7 +24,7 @@ class JsonRpcProvider(
         return JsonObject(map)
     }
 
-    private fun <T : Response> buildRequest(
+    private fun <T> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
         deserializer: DeserializationStrategy<T>
@@ -54,19 +54,19 @@ class JsonRpcProvider(
         return callContract(payload)
     }
 
-    private fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
+    private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, GetStorageAtResponse.serializer())
+        return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, Felt.serializer())
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse> {
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse> {
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
 
         return getStorageAt(payload)

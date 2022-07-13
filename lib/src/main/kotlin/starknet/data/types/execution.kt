@@ -8,7 +8,7 @@ import starknet.data.types.Felt
 @Serializable
 data class Call(
     @SerialName("contract_address") val contractAddress: Felt,
-    val entrypoint: String,
+    val entrypoint: Felt,
     val calldata: Calldata,
 )
 
@@ -40,7 +40,7 @@ fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
         callArray.add(call.contractAddress) // to
-        callArray.add(selectorFromName(call.entrypoint)) // selector
+        callArray.add(call.entrypoint) // selector
         callArray.add(Felt(wholeCalldata.size)) // offset
         callArray.add(Felt(call.calldata.size)) // len
 
