@@ -11,6 +11,13 @@ import starknet.signer.Signer
 import starknet.signer.StarkCurveSigner
 import starknet.data.types.Felt
 
+/**
+ * Standard account used in starknet.
+ *
+ * @param provider a provider used to interact with starknet
+ * @param address the address of the account contract
+ * @param signer a signer instance used to sign transactions
+ */
 class StandardAccount(
     private val provider: Provider,
     override val address: Felt,
@@ -18,6 +25,11 @@ class StandardAccount(
 ) : Account,
     Provider by provider {
 
+    /**
+     * @param provider a provider used to interact with starknet
+     * @param address the address of the account contract
+     * @param privateKey a private key used to create a signer
+     */
     constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
         provider,
         address,

@@ -8,6 +8,13 @@ import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
 
+/**
+ * A provider for interacting with starknet gateway.
+ *
+ * @param feederGatewayUrl url of the feeder gateway
+ * @param gatewayUrl url of the gateway
+ * @param chainId an id of the network
+ */
 class GatewayProvider(
     private val feederGatewayUrl: String,
     private val gatewayUrl: String,

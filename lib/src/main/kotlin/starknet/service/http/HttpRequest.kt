@@ -6,6 +6,9 @@ import starknet.data.types.Response
 import starknet.provider.Request
 import java.util.concurrent.CompletableFuture
 
+/**
+ * A class returned by HttpService.
+ */
 class HttpRequest<T>(
     private val payload: HttpService.Payload,
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization

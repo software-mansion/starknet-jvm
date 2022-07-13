@@ -20,11 +20,21 @@ enum class TransactionType(val txPrefix: Felt) {
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 }
 
+/**
+ * An id of the network.
+ *
+ * An identifier of the network. Either `MAINNET` or `TESTNET`.
+ */
 enum class StarknetChainId(val value: Felt) {
     MAINNET(Felt.fromHex("0x534e5f4d41494e")), // encodeShortString('SN_MAIN'),
     TESTNET(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 }
 
+/**
+ * A block tag.
+ *
+ * A special block identifier for selecting `latest` or `pending` blocks.
+ */
 enum class BlockTag(val tag: String) {
     LATEST("latest"),
     PENDING("pending")
