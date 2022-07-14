@@ -6,16 +6,27 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
+import org.jetbrains.dokka.gradle.DokkaTask
+
 version = "0.0.1"
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.dokka")
 
     kotlin("plugin.serialization")
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+}
+
+val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
+    dokkaSourceSets.create("dokkaHtmlJava") {
+        dependencies {
+            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.7.10")
+        }
+    }
 }
 
 tasks.jar {

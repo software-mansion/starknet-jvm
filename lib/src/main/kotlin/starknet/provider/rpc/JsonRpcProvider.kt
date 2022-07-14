@@ -8,6 +8,12 @@ import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
 
+/**
+ * A provider for interacting with StarkNet JSON-RPC
+ *
+ * @param url url of the service providing a rpc interface
+ * @param chainId an id of the network
+ */
 class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId
