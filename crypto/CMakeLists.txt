@@ -21,9 +21,11 @@ enable_testing()
 include_directories("${CMAKE_SOURCE_DIR}/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/bindings")
 
+set(JAVA_AWT_LIBRARY NotNeeded)
+set(JAVA_JVM_LIBRARY NotNeeded)
+set(JAVA_AWT_INCLUDE_PATH NotNeeded)
 set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
 set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin")
-set(JAVA_AWT_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
 
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
