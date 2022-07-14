@@ -43,7 +43,7 @@ object StarknetCurve {
     val CURVE_ORDER: BigInteger = BigInteger("800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F", 16)
 
     init {
-        System.loadLibrary("crypto_jni")
+        NativeLoader.load("crypto_jni")
     }
 
     /**
