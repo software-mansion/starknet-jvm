@@ -36,7 +36,7 @@ interface Provider {
      * @param key an address of the storage variable inside contract
      * @param blockTag
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -47,7 +47,7 @@ interface Provider {
      * @param key an address of the storage variable inside contract
      * @param blockHash a hash of the block in respect to what the query will be made
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt>
 
     /**
      * Invoke a function.

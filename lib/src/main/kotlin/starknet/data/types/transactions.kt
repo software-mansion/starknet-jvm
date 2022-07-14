@@ -2,8 +2,12 @@
 
 package starknet.data.types
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.StarknetCurve
 import starknet.data.types.Felt
 
@@ -25,6 +29,7 @@ enum class StarknetChainId(val value: Felt) {
     TESTNET(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 }
 
+@Serializable
 enum class BlockTag(val tag: String) {
     LATEST("latest"),
     PENDING("pending")

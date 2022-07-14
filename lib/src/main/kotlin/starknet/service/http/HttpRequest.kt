@@ -11,10 +11,14 @@ class HttpRequest<T>(
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
     private val deserializer: DeserializationStrategy<T>
 ): Request<T> {
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     override fun send(): T {
         val response = HttpService.send(payload)
 
-        return Json.decodeFromString(deserializer, response)
+        return json.decodeFromString(deserializer, response)
     }
 
     override fun sendAsync(): CompletableFuture<T> {
