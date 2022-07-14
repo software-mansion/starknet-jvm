@@ -13,7 +13,7 @@ version = "0.0.1"
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.dokka") version "1.7.0"
+    id("org.jetbrains.dokka")
 
     kotlin("plugin.serialization")
 
