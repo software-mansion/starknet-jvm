@@ -23,6 +23,16 @@ include_directories("${CMAKE_SOURCE_DIR}/bindings")
 include_directories("/Library/Java/JavaVirtualMachines/adoptopenjdk-16.jdk/Contents/Home/include")
 include_directories("/Library/Java/JavaVirtualMachines/adoptopenjdk-16.jdk/Contents/Home/include/darwin")
 
+set(JAVA_AWT_LIBRARY NotNeeded)
+set(JAVA_JVM_LIBRARY NotNeeded)
+set(JAVA_AWT_INCLUDE_PATH NotNeeded)
+set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
+set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin")
+
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
+include_directories(${JNI_INCLUDE_DIRS})
+
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()

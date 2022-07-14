@@ -38,3 +38,6 @@ local.properties
 
 # OS specific files
 .DS_Store
+
+# Exclude gradle wrapper jar
+!gradle/wrapper/gradle-wrapper.jar

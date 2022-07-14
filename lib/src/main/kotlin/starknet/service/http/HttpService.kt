@@ -8,8 +8,11 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Service for making http requests.
+ */
 class HttpService {
-    data class Payload(val url: String, val method: String, val params: List<String>, val body: String)
+    data class Payload(val url: String, val method: String, val params: List<String>, val body: String?)
 
     class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
 
@@ -17,7 +20,7 @@ class HttpService {
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
         private fun buildRequest(payload: Payload): okhttp3.Request {
-            val requestBody = payload.body.toRequestBody(JSON_MEDIA_TYPE)
+            val requestBody = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
 
             return okhttp3
                 .Request
@@ -31,7 +34,7 @@ class HttpService {
             val responseBody = response.body
 
             if (response.isSuccessful) {
-                return responseBody.toString()
+                return responseBody?.string() ?: ""
             } else {
                 val code = response.code
                 val text = response.body?.string() ?: "unknown"
@@ -40,6 +43,11 @@ class HttpService {
             }
         }
 
+        /**
+         * Send a synchronous http request.
+         *
+         * @param payload a payload to be sent
+         */
         @JvmStatic
         fun send(payload: Payload): String {
             val client = OkHttpClient()
@@ -50,6 +58,11 @@ class HttpService {
             return processHttpResponse(response)
         }
 
+        /**
+         * Send an asynchronous http request.
+         *
+         * @param payload a payload to be sent
+         */
         @JvmStatic
         fun sendAsync(payload: Payload): CompletableFuture<String> {
             val client = OkHttpClient()
