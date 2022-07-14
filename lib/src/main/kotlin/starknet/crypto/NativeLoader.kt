@@ -1,6 +1,6 @@
 package starknet.crypto
 
-import java.io.File
+import java.nio.file.FileSystems
 import java.nio.file.Files
 
 
@@ -9,12 +9,10 @@ internal object NativeLoader {
 
     fun load(name: String) {
         try {
-            System.out.println("LOADING DEFAULT")
             // Used for tests and in case someone wants to use a library from
             // a class path.
             System.loadLibrary(name);
         } catch (e: UnsatisfiedLinkError) {
-            System.out.println("LOADING OTHER")
             // Find the package bundled in this jar
             val resource = sharedLibExtensions.map {
                 val fileName = "/lib$name.$it"
@@ -24,9 +22,9 @@ internal object NativeLoader {
             val tmpDir = Files.createTempDirectory("$name-dir").toFile().apply {
                 deleteOnExit()
             }
-            val tmpFile = File(tmpDir, name)
-            resource.openStream().use { Files.copy(it, tmpFile.toPath()) }
-            System.load(tmpFile.absolutePath)
+            val tmpFilePath = FileSystems.getDefault().getPath(tmpDir.absolutePath, name)
+            Files.copy(resource.openStream(), tmpFilePath)
+            System.load(tmpFilePath.toString())
         }
     }
 
