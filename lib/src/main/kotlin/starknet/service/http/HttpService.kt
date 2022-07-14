@@ -8,6 +8,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Service for making http requests.
+ */
 class HttpService {
     data class Payload(val url: String, val method: String, val params: List<String>, val body: String)
 
@@ -40,6 +43,11 @@ class HttpService {
             }
         }
 
+        /**
+         * Send a synchronous http request.
+         *
+         * @param payload a payload to be sent
+         */
         @JvmStatic
         fun send(payload: Payload): String {
             val client = OkHttpClient()
@@ -50,6 +58,11 @@ class HttpService {
             return processHttpResponse(response)
         }
 
+        /**
+         * Send an asynchronous http request.
+         *
+         * @param payload a payload to be sent
+         */
         @JvmStatic
         fun sendAsync(payload: Payload): CompletableFuture<String> {
             val client = OkHttpClient()

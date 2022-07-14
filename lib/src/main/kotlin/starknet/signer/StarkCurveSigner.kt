@@ -5,6 +5,11 @@ import starknet.data.types.Signature
 import starknet.data.types.Transaction
 import starknet.data.types.Felt
 
+/**
+ * Signer implementing a stark curve signature (default signature used on StarkNet).
+ *
+ * @param privateKey a private key to be used by this signer
+ */
 class StarkCurveSigner(val privateKey: Felt) : Signer {
 
     // Generating public key takes a while

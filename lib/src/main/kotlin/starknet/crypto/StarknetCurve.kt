@@ -6,6 +6,14 @@ import starknet.data.types.Felt
 import starknet.data.types.toFelt
 import java.math.BigInteger
 
+/**
+ * Convert bigInteger to native format.
+ *
+ * Convert bigInteger to small endian byte array used by native dependencies.
+ *
+ * @param input a BigInteger to be converted
+ * @return small endian byte array
+ */
 private fun bigintToNative(input: BigInteger): ByteArray {
     val converted = input.toByteArray().apply { reverse() }
     if (converted.size == 32) {
@@ -14,8 +22,21 @@ private fun bigintToNative(input: BigInteger): ByteArray {
     return converted.copyOf(newSize = 32)
 }
 
+/**
+ * Convert Felt to native format.
+ *
+ * Convert Felt to small endian byte array used by native dependencies.
+ *
+ * @param input a Felt to be converted
+ * @return small endian byte array
+ */
 private fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
 
+/**
+ * Starknet curve utilities.
+ *
+ * Class with utility methods related to starknet curve signatures generation and verification.
+ */
 object StarknetCurve {
 
     @field:JvmField
@@ -25,33 +46,64 @@ object StarknetCurve {
         System.loadLibrary("crypto_jni")
     }
 
+    /**
+     * Native pedersen hash.
+     */
     @JvmStatic
     private external fun pedersen(
         first: ByteArray?,
         second: ByteArray?
     ): ByteArray
 
+    /**
+     * Compute pedersen hash on input values
+     */
     @JvmStatic
     fun pedersen(first: Felt, second: Felt): Felt {
         val hash = pedersen(feltToNative(first), feltToNative(second)).apply { reverse() }
         return Felt(BigInteger(hash))
     }
 
+    /**
+     * Compute pedersen hash on iterable of Felts.
+     *
+     * @param values a iterable of Felts
+     */
     @JvmStatic
     fun pedersen(values: Iterable<Felt>): Felt = values.fold(Felt.ZERO) { a, b -> pedersen(a, b) }
 
+    /**
+     * Compute pedersen hash on collection of Felts.
+     *
+     * @param values a collection of Felts
+     */
     @JvmStatic
     fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
         pedersen(values),
         Felt(values.size),
     )
 
+    /**
+     * Compute pedersen hash on variable number of arguments.
+     *
+     * @param values any number of Felts
+     */
     @JvmStatic
     fun pedersenOnElements(vararg values: Felt): Felt = pedersenOnElements(values.asList())
 
+    /**
+     * Native sign.
+     */
     @JvmStatic
     private external fun sign(privateKey: ByteArray, hash: ByteArray, k: ByteArray): ByteArray
 
+    /**
+     * Sign a provided hash.
+     *
+     * @param privateKey a private key used to generate a signature
+     * @param hash a hash to be signed
+     * @param k cryptographically secure random integer
+     */
     // This function is internal, because invalid generation of k is VERY dangerous.
     @JvmStatic
     internal fun sign(privateKey: Felt, hash: Felt, k: BigInteger): StarknetCurveSignature {
@@ -66,6 +118,12 @@ object StarknetCurve {
         return StarknetCurveSignature(Felt(r), Felt(s))
     }
 
+    /**
+     * Sign a provided hash.
+     *
+     * @param privateKey a private key used to generate a signature
+     * @param hash a hash to be signed
+     */
     @JvmStatic
     internal fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
         val cal = HMacDSAKCalculator(SHA256Digest()).apply {
@@ -94,9 +152,20 @@ object StarknetCurve {
         throw lastError;
     }
 
+    /**
+     * Native signature verification.
+     */
     @JvmStatic
     private external fun verify(publicKey: ByteArray, hash: ByteArray, r: ByteArray, w: ByteArray): Boolean;
 
+    /**
+     * Verify a signature.
+     *
+     * @param publicKey a public key to be used to verify a signature
+     * @param hash a value that was signed
+     * @param r part of signature
+     * @param s part of signature
+     */
     @JvmStatic
     fun verify(publicKey: Felt, hash: Felt, r: Felt, s: Felt): Boolean {
         val w = s.value.modInverse(CURVE_ORDER)
@@ -108,9 +177,17 @@ object StarknetCurve {
         )
     }
 
+    /**
+     * Native getPublicKey.
+     */
     @JvmStatic
     private external fun getPublicKey(privateKey: ByteArray): ByteArray;
 
+    /**
+     * Get a public key for provided private key.
+     *
+     * @param privateKey a private key from which public key will be derived
+     */
     @JvmStatic
     fun getPublicKey(privateKey: Felt): Felt {
         val publicKey = getPublicKey(feltToNative(privateKey)).apply { reverse() }
