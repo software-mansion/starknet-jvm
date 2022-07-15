@@ -19,6 +19,7 @@ internal object NativeLoader {
                 object {}::class.java.getResource(fileName)
             }.firstOrNull { it != null } ?: throw e
 
+            // Android lint complains about it, but android should never reach this code
             val tmpDir = Files.createTempDirectory("$name-dir").toFile().apply {
                 deleteOnExit()
             }
