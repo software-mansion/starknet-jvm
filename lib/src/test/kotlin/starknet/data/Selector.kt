@@ -24,7 +24,7 @@ internal class SelectorTest {
             Felt.fromHex("0x0")
         )
         assertEquals(
-            starknet.data.selectorFromName("__l1_default__"),
+            selectorFromName("__l1_default__"),
             Felt.fromHex("0x0")
         )
     }

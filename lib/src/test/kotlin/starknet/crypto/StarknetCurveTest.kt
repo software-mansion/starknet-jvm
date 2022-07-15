@@ -1,7 +1,5 @@
 package starknet.crypto
 
-import starknet.crypto.StarknetCurve
-import starknet.crypto.StarknetCurveSignature
 import starknet.data.types.Felt
 import starknet.data.types.toFelt
 import java.math.BigInteger

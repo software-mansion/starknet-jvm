@@ -1,8 +1,5 @@
 package starknet.data.types
 
-import starknet.data.types.Felt
-import starknet.data.types.InvokeTransaction
-import starknet.data.types.StarknetChainId
 import java.math.BigInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
