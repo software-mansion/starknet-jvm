@@ -24,7 +24,7 @@ internal object NativeLoader {
                 deleteOnExit()
             }
             val tmpFilePath = FileSystems.getDefault().getPath(tmpDir.absolutePath, name)
-            Files.copy(resource.openStream(), tmpFilePath)
+            resource.openStream().use { Files.copy(it, tmpFilePath) }
             System.load(tmpFilePath.toString())
         }
     }
