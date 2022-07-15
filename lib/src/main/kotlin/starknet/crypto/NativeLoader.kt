@@ -11,7 +11,7 @@ internal object NativeLoader {
         try {
             // Used for tests and in case someone wants to use a library from
             // a class path.
-            System.loadLibrary(name);
+            System.loadLibrary(name)
         } catch (e: UnsatisfiedLinkError) {
             // Find the package bundled in this jar
             val resource = sharedLibExtensions.map {
