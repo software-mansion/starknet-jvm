@@ -39,9 +39,9 @@ class GatewayProvider(
     }
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
-        val params = buildList {
-            add(Pair("blockHash", payload.blockHashOrTag))
-        }
+        val params = listOf(
+            Pair("blockHash", payload.blockHashOrTag.string())
+        )
 
         val url = buildRequestUrl(feederGatewayUrl, "call_contract", params)
 
@@ -59,13 +59,13 @@ class GatewayProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, blockTag.tag)
+        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, blockHash.hexString())
+        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
 
         return callContract(payload)
     }

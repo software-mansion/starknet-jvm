@@ -31,7 +31,7 @@ data class ExecutionParams(
 @Serializable
 data class CallContractPayload(
     val request: Call,
-    @SerialName("block_hash") val blockHashOrTag: String
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
 )
 
 @Serializable
