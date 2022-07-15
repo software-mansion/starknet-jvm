@@ -1,10 +1,10 @@
-package starknet.e2e.provider
+package starknet.provider
 
 import org.junit.BeforeClass
 import org.junit.Test
 import starknet.data.selectorFromName
 import starknet.data.types.*
-import starknet.e2e.utils.DevnetClient
+import starknet.utils.DevnetClient
 import starknet.provider.Provider
 import starknet.provider.gateway.GatewayProvider
 import kotlin.test.AfterTest

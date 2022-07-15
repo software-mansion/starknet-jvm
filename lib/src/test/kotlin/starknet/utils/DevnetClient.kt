@@ -1,4 +1,4 @@
-package starknet.e2e.utils
+package starknet.utils
 
 import starknet.data.types.Felt
 import java.util.concurrent.TimeUnit

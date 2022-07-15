@@ -1,4 +1,4 @@
-package starknet.e2e.data.types
+package starknet.data.types
 
 import starknet.data.types.Felt
 import starknet.data.types.InvokeTransaction

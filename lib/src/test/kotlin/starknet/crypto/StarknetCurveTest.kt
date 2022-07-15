@@ -1,4 +1,4 @@
-package starknet.e2e.crypto
+package starknet.crypto
 
 import starknet.crypto.StarknetCurve
 import starknet.crypto.StarknetCurveSignature
