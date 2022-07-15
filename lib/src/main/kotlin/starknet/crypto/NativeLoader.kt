@@ -11,7 +11,7 @@ internal object NativeLoader {
         try {
             // Used for tests and in case someone wants to use a library from
             // a class path.
-            System.loadLibrary(name);
+            System.loadLibrary(name)
         } catch (e: UnsatisfiedLinkError) {
             // Find the package bundled in this jar
             val resource = sharedLibExtensions.map {
@@ -24,7 +24,7 @@ internal object NativeLoader {
                 deleteOnExit()
             }
             val tmpFilePath = FileSystems.getDefault().getPath(tmpDir.absolutePath, name)
-            Files.copy(resource.openStream(), tmpFilePath)
+            resource.openStream().use { Files.copy(it, tmpFilePath) }
             System.load(tmpFilePath.toString())
         }
     }
