@@ -45,6 +45,16 @@ tasks.test {
     systemProperty("java.library.path", file("${buildDir}/libs/shared").absolutePath)
 }
 
+tasks.jar {
+    dependsOn(buildCryptoCpp)
+    // This will ignore files that are not there
+    listOf("so", "dylib", "dll").forEach {
+        from(
+            file("file:${buildDir}/libs/shared/libcrypto_jni.$it").absolutePath
+        )
+    }
+}
+
 dependencies {
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

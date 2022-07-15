@@ -20,10 +20,14 @@ android {
                 arguments "-DCMAKE_BUILD_TYPE=Release"
             }
         }
-        ndk{
+        ndk {
             // 32 bits architectures are excluded, uint128 is not available there
             abiFilters "arm64-v8a", "x86_64"
         }
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml")
     }
 
     buildTypes {
@@ -33,7 +37,7 @@ android {
         }
     }
     externalNativeBuild {
-         cmake {
+        cmake {
             path "../crypto/CMakeLists.txt"
             version "3.18.1"
         }
@@ -45,7 +49,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    sourceSets{
+    sourceSets {
         main {
             kotlin.srcDirs = ['../lib/src/main']
         }
