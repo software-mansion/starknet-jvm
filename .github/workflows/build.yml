@@ -17,25 +17,25 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
   build:
     runs-on: ${{ matrix.os }}
-      strategy:
-        matrix:
-          os: [ ubuntu-latest, macos-latest ]
-      steps:
-        - uses: actions/checkout@v2
-        - name: Setup cmake
-          uses: jwlawson/actions-setup-cmake@v1.12
-          with:
-            cmake-version: '3.16.x'
-        - name: Set up Java
-          uses: actions/setup-java@v3
-          with:
-            java-version: 8
-            cache: 'gradle'
-        - run: ./gradlew build --no-daemon
-        - name: Pack binary into a tarball
-          run:  tar -czvf build.tar.gz lib/build android/build
-        - name: Upload the tarball
-          uses: actions/upload-artifact@v2
-          with:
-            name: build-${{ runner.os }}
-            path: build.tar.gz
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.12
+        with:
+          cmake-version: '3.16.x'
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          cache: 'gradle'
+      - run: ./gradlew build --no-daemon
+      - name: Pack binary into a tarball
+        run:  tar -czvf build.tar.gz lib/build android/build
+      - name: Upload the tarball
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ runner.os }}
+          path: build.tar.gz
