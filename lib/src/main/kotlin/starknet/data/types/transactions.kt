@@ -62,10 +62,10 @@ class BlockHashOrTagSerializer(): KSerializer<BlockHashOrTag> {
     override fun deserialize(decoder: Decoder): BlockHashOrTag {
         val value = decoder.decodeString()
 
-        try {
+        if (BlockTag.values().map{ it.tag }.contains(value)) {
             val tag = BlockTag.valueOf(value)
             return BlockHashOrTag.Tag(tag)
-        } catch (_: Exception) { }
+        }
 
         return BlockHashOrTag.Hash(Felt.fromHex(value))
     }

@@ -1,8 +1,8 @@
 package starknet.provider
 
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.selectorFromName
@@ -12,11 +12,10 @@ import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
 
 class ProviderTest {
-    private var contractAddress: Felt? = null
-
     companion object {
         @JvmStatic
         private val devnetClient = DevnetClient()
+        private lateinit var contractAddress: Felt
 
         @JvmStatic
         private fun getProviders(): List<Provider> {
@@ -32,22 +31,24 @@ class ProviderTest {
                 )
             )
         }
-    }
 
-    @BeforeEach
-    fun before() {
-        devnetClient.start()
-        contractAddress = devnetClient.deployContract("providerTest")
-    }
+        @JvmStatic
+        @BeforeAll
+        fun before() {
+            devnetClient.start()
+            contractAddress = devnetClient.deployContract("providerTest")
+        }
 
-    @AfterEach
-    fun after() {
-        devnetClient.destroy()
+        @JvmStatic
+        @AfterAll
+        fun after() {
+            devnetClient.destroy()
+        }
     }
 
     private fun getBalance(provider: Provider): Felt {
         val call = Call(
-            contractAddress!!,
+            contractAddress,
             "get_balance",
             emptyList()
         )
@@ -63,7 +64,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun callContractTest(provider: Provider) {
-        // Currently not supported in devnet
+        // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
         }
@@ -76,13 +77,13 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun getStorageAtTest(provider: Provider) {
-        // Currently not supported in devnet
+        // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
         }
 
         val request = provider.getStorageAt(
-            contractAddress!!,
+            contractAddress,
             selectorFromName("balance"),
             BlockTag.PENDING
         )
@@ -95,13 +96,13 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun invokeTransactionTest(provider: Provider) {
-        // Currently not supported in devnet
+        // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
         }
 
         val call = Call(
-            contractAddress!!,
+            contractAddress,
             "increase_balance",
             listOf(Felt(10))
         )
