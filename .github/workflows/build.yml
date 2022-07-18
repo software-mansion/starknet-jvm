@@ -46,9 +46,9 @@ jobs:
       - name: Build android's AAR
         run: ./gradlew lib:jar android:build
         if: matrix.os == 'ubuntu-latest'
-      - name: Upload the tarball
+      - name: Upload the AAR
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: build-${{ runner.os }}.aar
-          path: android/build/outputs/android-release.aar
+          name: build.aar
+          path: android/build/outputs/aar/android-release.aar
