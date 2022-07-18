@@ -73,7 +73,7 @@ class ProviderTest {
         assertEquals(Felt(0), balance)
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @MethodSource("getProviders")
     fun getStorageAtTest(provider: Provider) {
         // Currently not supported in devnet

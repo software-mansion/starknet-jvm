@@ -28,7 +28,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(2, TimeUnit.SECONDS)
+        devnetProcess!!.waitFor(1, TimeUnit.SECONDS)
     }
 
     fun destroy() {
