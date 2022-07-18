@@ -5,6 +5,8 @@ package starknet.data.types
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -35,7 +37,7 @@ enum class BlockTag(val tag: String) {
     PENDING("pending")
 }
 
-@Serializable
+@Serializable(with = BlockHashOrTagSerializer::class)
 sealed class BlockHashOrTag() {
     data class Hash(
         val blockHash: Felt
@@ -54,6 +56,26 @@ sealed class BlockHashOrTag() {
     }
 
     abstract fun string(): String
+}
+
+class BlockHashOrTagSerializer(): KSerializer<BlockHashOrTag> {
+    override fun deserialize(decoder: Decoder): BlockHashOrTag {
+        val value = decoder.decodeString()
+
+        try {
+            val tag = BlockTag.valueOf(value)
+            return BlockHashOrTag.Tag(tag)
+        } catch (_: Exception) { }
+
+        return BlockHashOrTag.Hash(Felt.fromHex(value))
+    }
+
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("BlockHashOrTag", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
+        encoder.encodeString(value.string())
+    }
 }
 
 @Serializable

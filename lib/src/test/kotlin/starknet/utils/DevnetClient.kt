@@ -10,12 +10,14 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     val gatewayUrl: String
     val feederGatewayUrl: String
+    val rpcUrl: String
 
     init {
         val baseUrl = "http://${host}:${port}"
 
         gatewayUrl = "$baseUrl/gateway"
         feederGatewayUrl = "$baseUrl/feeder_gateway"
+        rpcUrl = "$baseUrl/rpc"
     }
 
     fun start() {

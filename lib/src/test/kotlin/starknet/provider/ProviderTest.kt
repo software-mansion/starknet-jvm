@@ -1,29 +1,46 @@
 package starknet.provider
 
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.selectorFromName
 import starknet.data.types.*
 import starknet.utils.DevnetClient
-import starknet.provider.Provider
 import starknet.provider.gateway.GatewayProvider
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import starknet.provider.rpc.JsonRpcProvider
 
-class GatewayTest {
-    private val devnetClient = DevnetClient()
-
+class ProviderTest {
     private var contractAddress: Felt? = null
 
-    @BeforeTest
-    fun before() {
-        devnetClient.start()
-        contractAddress = devnetClient.deployContract("testContract")
+    companion object {
+        @JvmStatic
+        private val devnetClient = DevnetClient()
+
+        @JvmStatic
+        private fun getProviders(): List<Provider> {
+            return listOf(
+                GatewayProvider(
+                    devnetClient.feederGatewayUrl,
+                    devnetClient.gatewayUrl,
+                    StarknetChainId.TESTNET
+                ),
+                JsonRpcProvider(
+                    devnetClient.rpcUrl,
+                    StarknetChainId.TESTNET
+                )
+            )
+        }
     }
 
-    @AfterTest
+    @BeforeEach
+    fun before() {
+        devnetClient.start()
+        contractAddress = devnetClient.deployContract("providerTest")
+    }
+
+    @AfterEach
     fun after() {
         devnetClient.destroy()
     }
@@ -44,7 +61,6 @@ class GatewayTest {
         )
 
         val request = provider.callContract(call, BlockTag.PENDING)
-
         val response = request.send()
 
         assertEquals(1, response.result.size)
@@ -52,18 +68,26 @@ class GatewayTest {
         return response.result.first()
     }
 
-    @Test
-    fun callContractTest() {
-        val provider = getProvider()
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun callContractTest(provider: Provider) {
+        // Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
 
         val balance = getBalance(provider)
 
         assertEquals(Felt(0), balance)
     }
 
-    @Test
-    fun getStorageAtTest() {
-        val provider = getProvider()
+    @ParameterizedTest()
+    @MethodSource("getProviders")
+    fun getStorageAtTest(provider: Provider) {
+        // Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
 
         val request = provider.getStorageAt(
             contractAddress!!,
@@ -76,9 +100,13 @@ class GatewayTest {
         assertEquals(Felt(0), response)
     }
 
-    @Test
-    fun invokeTransactionTest() {
-        val provider = getProvider()
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun invokeTransactionTest(provider: Provider) {
+        // Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
 
         val call = Call(
             contractAddress!!,

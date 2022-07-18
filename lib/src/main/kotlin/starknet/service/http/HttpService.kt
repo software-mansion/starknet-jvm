@@ -20,6 +20,9 @@ class HttpService {
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
         private fun buildRequest(payload: Payload): okhttp3.Request {
+            print("Payload body: ${payload.body}")
+            print("Url: ${payload.url}")
+
             val requestBody = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
 
             return okhttp3
