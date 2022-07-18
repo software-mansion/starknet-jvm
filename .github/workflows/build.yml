@@ -19,8 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        os: [ macos-latest ]
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, macos-latest ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,7 +36,7 @@ jobs:
           cache: 'gradle'
       - run: ./gradlew lib:jar android:build
       - name: Pack binary into a tarball
-        run:  tar -czvf build.tar.gz lib/build #android/build
+        run:  tar -czvf build.tar.gz lib/build android/build
       - name: Upload the tarball
         uses: actions/upload-artifact@v2
         with:
