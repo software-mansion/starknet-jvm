@@ -45,14 +45,6 @@ class ProviderTest {
         devnetClient.destroy()
     }
 
-    private fun getProvider(): Provider {
-        return GatewayProvider(
-            devnetClient.feederGatewayUrl,
-            devnetClient.gatewayUrl,
-            StarknetChainId.TESTNET
-        )
-    }
-
     private fun getBalance(provider: Provider): Felt {
         val call = Call(
             contractAddress!!,
