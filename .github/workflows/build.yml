@@ -15,7 +15,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-  build:
+  Build-platfrom-specific:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -35,13 +35,13 @@ jobs:
           distribution: 'corretto'
           cache: 'gradle'
 
-      - name: Build platform specific JAR
-        run: ./gradlew lib:jar
-      - name: Upload the JAR
+      - name: Build platform specific lib
+        run: ./gradlew buildCryptoCpp
+      - name: Upload the shared lib
         uses: actions/upload-artifact@v2
         with:
-          name: build-${{ runner.os }}.jar
-          path: lib/build/libs/lib-0.0.1.jar
+          name: shared-lib-${{ runner.os }}
+          path: crypto/build/bindings/libcrypto_jni.*
 
       - name: Build android's AAR
         run: ./gradlew lib:jar android:build
