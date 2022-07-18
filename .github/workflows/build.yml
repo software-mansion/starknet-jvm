@@ -34,11 +34,21 @@ jobs:
           java-version: 11
           distribution: 'corretto'
           cache: 'gradle'
-      - run: ./gradlew lib:jar android:build
-      - name: Pack binary into a tarball
-        run:  tar -czvf build.tar.gz lib/build android/build
-      - name: Upload the tarball
+
+      - name: Build platform specific JAR
+        run: ./gradlew lib:jar
+      - name: Upload the JAR
         uses: actions/upload-artifact@v2
         with:
-          name: build-${{ runner.os }}
-          path: build.tar.gz
+          name: build-${{ runner.os }}.jar
+          path: lib/build/libs/lib-0.0.1.jar
+
+      - name: Build android's AAR
+        run: ./gradlew lib:jar android:build
+        if: matrix.os == 'ubuntu-latest'
+      - name: Upload the tarball
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ runner.os }}.aar
+          path: android/build/outputs/android-release.aar
