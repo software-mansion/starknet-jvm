@@ -35,7 +35,7 @@ jobs:
           java-version: 11
           distribution: 'corretto'
           cache: 'gradle'
-      - run: ./gradlew lib:jar
+      - run: ./gradlew lib:jar android:build
       - name: Pack binary into a tarball
         run:  tar -czvf build.tar.gz lib/build #android/build
       - name: Upload the tarball
