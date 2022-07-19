@@ -67,9 +67,9 @@ jobs:
         run: |
           mkdir -p build/libs/shared/{darwin,linux}/amd64
           # Mac uses a universal binary
-          cp -r download/lib-macOS build/libs/shared/darwin/
+          cp -r download/lib-macOS lib/build/libs/shared/darwin/
           # TODO: In the future add more architectures
-          cp -r download/lib-Linux build/libs/shared/linux/amd64/
+          cp -r download/lib-Linux lib/build/libs/shared/linux/amd64/
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Upload the JAR
