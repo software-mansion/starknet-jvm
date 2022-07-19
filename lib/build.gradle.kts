@@ -53,12 +53,15 @@ val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {
     commandLine("${project.projectDir}/build_crypto_cpp.sh")
 }
 
+// For tests we simply use version from crypto build
+// For jars we use version from lib/build/libs/native
 tasks.test {
     dependsOn(buildCryptoCpp)
 
     useJUnitPlatform()
 
     systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
+    systemProperty("java.library.path", file("${rootDir}/crypto/build/bindings").absolutePath)
 
     testLogging {
         events("PASSED", "SKIPPED", "FAILED")
@@ -70,14 +73,16 @@ kotlinter {
     disabledRules = arrayOf("no-wildcard-imports")
 }
 
+// Used by CI. Locally you should use jarWithNative task
 tasks.jar {
+    from(
+        file("file:${buildDir}/libs/shared").absolutePath
+    )
+}
+
+val jarWithNative = task("jarWithNative") {
     dependsOn(buildCryptoCpp)
-    // This will ignore files that are not there
-    listOf("so", "dylib", "dll").forEach {
-        from(
-            file("file:$buildDir/libs/shared/libcrypto_jni.$it").absolutePath
-        )
-    }
+    finalizedBy(tasks.jar)
 }
 
 dependencies {

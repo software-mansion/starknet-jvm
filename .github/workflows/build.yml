@@ -15,7 +15,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-  Build-platfrom-specific:
+  Build-platform-specific:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -40,11 +40,11 @@ jobs:
       - name: Upload the shared lib
         uses: actions/upload-artifact@v2
         with:
-          name: shared-lib-${{ runner.os }}
+          name: lib-${{ runner.os }}
           path: crypto/build/bindings/libcrypto_jni.*
 
       - name: Build android's AAR
-        run: ./gradlew lib:jar android:build
+        run: ./gradlew android:build
         if: matrix.os == 'ubuntu-latest'
       - name: Upload the AAR
         if: matrix.os == 'ubuntu-latest'
@@ -52,3 +52,27 @@ jobs:
         with:
           name: build.aar
           path: android/build/outputs/aar/android-release.aar
+  Publish:
+    runs-on: ubuntu-latest
+    needs: [Build-platform-specific]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: download
+      - name: List files in the repository
+        run: |
+          ls download
+      - name: Move shared libs
+        run: |
+          mkdir -p build/libs/shared/{darwin,linux}/amd64
+          cp download/lib-macOS build/libs/shared/darwin/libcrypto_jni.dylib
+          # TODO: In the future add more architectures
+          cp download/lib-Linux build/libs/shared/linux/amd64/libcrypto_jni.so
+      - name: Bundle universal JAR
+        run: ./gradlew lib:jar
+      - name: Upload the JAR
+          uses: actions/upload-artifact@v2
+          with:
+            name: build.jar
+            path: lib/build/libs/lib-0.0.1.jar
