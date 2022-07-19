@@ -65,7 +65,7 @@ jobs:
           ls download
       - name: Move shared libs
         run: |
-          mkdir -p build/libs/shared/{darwin,linux}/amd64
+          mkdir -p lib/build/libs/shared/{darwin,linux}/amd64
           # Mac uses a universal binary
           cp -r download/lib-macOS lib/build/libs/shared/darwin/
           # TODO: In the future add more architectures
