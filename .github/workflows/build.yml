@@ -72,7 +72,7 @@ jobs:
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Upload the JAR
-          uses: actions/upload-artifact@v2
-          with:
-            name: build.jar
-            path: lib/build/libs/lib-0.0.1.jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: build.jar
+          path: lib/build/libs/lib-0.0.1.jar
