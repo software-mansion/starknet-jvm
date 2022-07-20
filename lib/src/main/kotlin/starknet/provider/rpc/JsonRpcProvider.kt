@@ -1,6 +1,6 @@
 package starknet.provider.rpc
 
-import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
 import starknet.data.types.*
 import starknet.provider.Provider
@@ -33,13 +33,15 @@ class JsonRpcProvider(
     private fun <T> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
-        deserializer: DeserializationStrategy<T>
+        responseSerializer: KSerializer<T>
     ): HttpRequest<T> {
         val requestJson = buildRequestJson(method.methodName, paramsJson)
 
         val payload = HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
-        return HttpRequest(payload, deserializer)
+        val jsonRpcDeserializer = JsonRpcResponseDeserializer(responseSerializer)
+
+        return HttpRequest(payload, jsonRpcDeserializer)
     }
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
