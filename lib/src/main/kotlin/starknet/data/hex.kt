@@ -12,3 +12,4 @@ fun parseHex(value: String): BigInteger {
 }
 
 fun toHex(value: BigInteger): String = "0x" + value.toString(16)
+fun toHex(value: Int): String = "0x" + value.toString(16)

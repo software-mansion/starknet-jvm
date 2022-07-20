@@ -87,4 +87,59 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
+
+    override fun getClass(classHash: Felt): Request<ContractClass> {
+        val payload = GetClassPayload(classHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClass.serializer())
+    }
+
+    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClass> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, ContractClass.serializer())
+    }
+
+    override fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    override fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    override fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    private fun getClassHashAt(payload: GetClassAtPayload): Request<Felt> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
+    }
+
+    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+
+        return getClassHashAt(payload)
+    }
+
+    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+
+        return getClassHashAt(payload)
+    }
+
+    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+
+        return getClassHashAt(payload)
+    }
 }

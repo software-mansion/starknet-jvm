@@ -57,4 +57,14 @@ interface Provider {
      * @param payload invoke function payload
      */
     fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
+
+    fun getClass(classHash: Felt): Request<ContractClass>
+
+    fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass>
+    fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass>
+    fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass>
+
+    fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt>
 }
