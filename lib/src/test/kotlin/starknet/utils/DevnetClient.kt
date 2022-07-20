@@ -1,7 +1,9 @@
 package starknet.utils
 
 import starknet.data.types.Felt
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.absolutePathString
 
 const val HEX_ADDRESS_LENGTH = 66
 
@@ -36,7 +38,9 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess = null
     }
 
-    fun deployContract(name: String): Felt {
+    data class TransactionResult(val address: Felt, val hash: Felt)
+
+    fun deployContract(name: String): TransactionResult {
         val deployProcess = ProcessBuilder(
             "starknet",
             "deploy",
@@ -51,12 +55,67 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         deployProcess.waitFor()
 
         val result = String(deployProcess.inputStream.readAllBytes())
+        val lines = result.lines()
+        return getTransactionResult(lines)
+    }
 
-        val searchPhrase = "Contract address: "
+    fun declareContract(contractPath: Path): TransactionResult {
+        val declareProcess = ProcessBuilder(
+            "starknet",
+            "declare",
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+            "--contract",
+            contractPath.absolutePathString()
+        ).start()
 
-        val addressStart = result.indexOf(searchPhrase) + searchPhrase.length
-        val address = result.substring(addressStart, addressStart + HEX_ADDRESS_LENGTH)
+        declareProcess.waitFor()
 
-        return Felt.fromHex(address)
+        val result = String(declareProcess.inputStream.readAllBytes())
+        val lines = result.lines()
+        return getTransactionResult(lines)
+    }
+
+    fun invokeTransaction(
+        functionName: String,
+        contractAddress: Felt,
+        abiPath: Path,
+        vararg inputs: Int
+    ): TransactionResult {
+        val invokeProcess = ProcessBuilder(
+            "starknet",
+            "invoke",
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+            "--address",
+            contractAddress.hexString(),
+            "--abi",
+            abiPath.absolutePathString(),
+            "--function",
+            functionName,
+            "--inputs",
+            inputs.joinToString(separator = " ")
+        ).start()
+
+        invokeProcess.waitFor()
+
+        val result = String(invokeProcess.inputStream.readAllBytes())
+        val lines = result.lines()
+        return getTransactionResult(lines)
+    }
+
+    private fun getValueFromLine(line: String, index: Int = 1): String {
+        val split = line.split(": ")
+        return split[index]
+    }
+
+    private fun getTransactionResult(lines: List<String>): TransactionResult {
+        val address = Felt.fromHex(getValueFromLine(lines[1]))
+        val hash = Felt.fromHex(getValueFromLine(lines[2]))
+        return TransactionResult(address, hash)
     }
 }

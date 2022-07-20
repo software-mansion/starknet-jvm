@@ -2,6 +2,9 @@ package starknet.provider.gateway
 
 import kotlinx.serialization.json.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import starknet.data.responses.Transaction
+import starknet.data.responses.TransactionReceipt
+import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
 import starknet.data.types.*
 import starknet.provider.Provider
 import starknet.provider.Request
@@ -23,27 +26,25 @@ class GatewayProvider(
     private fun buildRequestUrl(
         baseUrl: String,
         endpoint: String,
-        params: List<Pair<String, String>>? = emptyList()
+        vararg params: Pair<String, String>
     ): String {
         val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
         urlBuilder.addPathSegment(endpoint)
 
-        if (params != null) {
-            for (param in params) {
-                urlBuilder.addQueryParameter(param.first, param.second)
-            }
+        for (param in params) {
+            urlBuilder.addQueryParameter(param.first, param.second)
         }
 
         return urlBuilder.build().toString()
     }
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
-        val params = listOf(
+        val url = buildRequestUrl(
+            feederGatewayUrl,
+            "call_contract",
             Pair("blockHash", payload.blockHashOrTag.string())
         )
-
-        val url = buildRequestUrl(feederGatewayUrl, "call_contract", params)
 
         val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
 
@@ -54,7 +55,7 @@ class GatewayProvider(
             put("signature", JsonArray(emptyList()))
         }
 
-        val httpPayload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
+        val httpPayload = HttpService.Payload(url, "POST", jsonPayload.toString())
         return HttpRequest(httpPayload, CallContractResponse.serializer())
     }
 
@@ -71,15 +72,15 @@ class GatewayProvider(
     }
 
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
-        val params = listOf(
+        val url = buildRequestUrl(
+            feederGatewayUrl,
+            "get_storage_at",
             Pair("contractAddress", payload.contractAddress.hexString()),
             Pair("key", payload.key.hexString()),
             Pair("blockHash", payload.blockHashOrTag.string())
         )
 
-        val url = buildRequestUrl(feederGatewayUrl, "get_storage_at", params)
-
-        val httpPayload = HttpService.Payload(url, "GET", emptyList(), null)
+        val httpPayload = HttpService.Payload(url, "GET")
         return HttpRequest(httpPayload, Felt.serializer())
     }
 
@@ -93,6 +94,28 @@ class GatewayProvider(
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
 
         return getStorageAt(payload)
+    }
+
+    override fun getTransaction(transactionHash: Felt): Request<Transaction> {
+        val url = buildRequestUrl(
+            feederGatewayUrl,
+            "get_transaction",
+            Pair("transactionHash", transactionHash.hexString())
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET")
+        return HttpRequest(httpPayload, GatewayTransactionTransformingSerializer)
+    }
+
+    override fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt> {
+        val url = buildRequestUrl(
+            feederGatewayUrl,
+            "get_transaction_receipt",
+            Pair("transactionHash", transactionHash.hexString())
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET")
+        return HttpRequest(httpPayload, TransactionReceipt.serializer())
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
@@ -110,7 +133,7 @@ class GatewayProvider(
             put("signature", decimalSignature)
         }
 
-        val httpPayload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
+        val httpPayload = HttpService.Payload(url, "POST", jsonPayload.toString())
         return HttpRequest(httpPayload, InvokeFunctionResponse.serializer())
     }
 }

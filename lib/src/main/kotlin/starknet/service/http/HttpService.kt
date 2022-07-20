@@ -12,7 +12,13 @@ import java.util.concurrent.CompletableFuture
  * Service for making http requests.
  */
 class HttpService {
-    data class Payload(val url: String, val method: String, val params: List<String>, val body: String?)
+    data class Payload(val url: String, val method: String, val params: List<String>, val body: String?) {
+        constructor(url: String, method: String, params: List<String>): this(url, method, params, null)
+
+        constructor(url: String, method: String, body: String) : this(url, method, emptyList(), body)
+
+        constructor(url: String, method: String): this(url, method, emptyList(), null)
+    }
 
     class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
 
