@@ -2,6 +2,8 @@ package starknet.provider.gateway
 
 import kotlinx.serialization.json.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import starknet.data.NetUrls.MAINNET_URL
+import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.types.*
 import starknet.provider.Provider
 import starknet.provider.Request
@@ -16,14 +18,10 @@ import starknet.service.http.HttpService
  * @param chainId an id of the network
  */
 class GatewayProvider(
-    private val feederGatewayUrl: String,
-    private val gatewayUrl: String,
-    override val chainId: StarknetChainId
+    private val feederGatewayUrl: String, private val gatewayUrl: String, override val chainId: StarknetChainId
 ) : Provider {
     private fun buildRequestUrl(
-        baseUrl: String,
-        endpoint: String,
-        params: List<Pair<String, String>>? = emptyList()
+        baseUrl: String, endpoint: String, params: List<Pair<String, String>>? = emptyList()
     ): String {
         val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
@@ -112,5 +110,25 @@ class GatewayProvider(
 
         val httpPayload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
         return HttpRequest(httpPayload, InvokeFunctionResponse.serializer())
+    }
+
+    companion object Factory {
+        @JvmStatic
+        fun makeTestnetClient(): GatewayProvider {
+            return GatewayProvider(
+                "$TESTNET_URL/feeder_gateway",
+                "$TESTNET_URL/gateway",
+                StarknetChainId.TESTNET
+            )
+        }
+
+        @JvmStatic
+        fun makeMainnetClient(): GatewayProvider {
+            return GatewayProvider(
+                "$MAINNET_URL/feeder_gateway",
+                "$MAINNET_URL/gateway",
+                StarknetChainId.MAINNET
+            )
+        }
     }
 }
