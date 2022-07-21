@@ -17,7 +17,7 @@ data class JsonRpcResponse<T>(
     val error: JsonElement? = null // FIXME: Add error types
 )
 
-class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>): DeserializationStrategy<T> {
+class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
         get() = dataSerializer.descriptor
 
@@ -25,7 +25,8 @@ class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>)
         require(decoder is JsonDecoder)
 
         val responseJson = decoder.decodeJsonElement()
-        val response = Json.decodeFromJsonElement(JsonRpcResponse.serializer(dataSerializer), responseJson)
+        val format = Json { ignoreUnknownKeys = true }
+        val response = format.decodeFromJsonElement(JsonRpcResponse.serializer(dataSerializer), responseJson)
 
         if (response.result != null) {
             return response.result
