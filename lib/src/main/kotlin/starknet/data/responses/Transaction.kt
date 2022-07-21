@@ -24,7 +24,7 @@ data class DeployTransaction @OptIn(ExperimentalSerializationApi::class) constru
     @JsonNames("constructor_calldata", "calldata")
     val constructorCalldata: Calldata,
 
-    @JsonNames("transaction_hash")
+    @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
     @JsonNames("signature")
@@ -46,7 +46,7 @@ data class InvokeTransaction @OptIn(ExperimentalSerializationApi::class) constru
     @JsonNames("entry_point_selector")
     val entryPointSelector: Felt,
 
-    @JsonNames("transaction_hash")
+    @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
     @JsonNames("signature")
@@ -59,13 +59,13 @@ data class InvokeTransaction @OptIn(ExperimentalSerializationApi::class) constru
 @Serializable
 @SerialName("DECLARE")
 data class DeclareTransaction @OptIn(ExperimentalSerializationApi::class) constructor(
-    @JsonNames("class_hash")
+    @JsonNames("class_hash", "contract_class")
     val classHash: Felt,
 
     @JsonNames("sender_address")
     val senderAddress: Felt,
 
-    @JsonNames("transaction_hash")
+    @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
     @JsonNames("signature")

@@ -145,10 +145,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy transaction`(provider: Provider) {
-//        if (provider is JsonRpcProvider) {
-//            return
-//        }
-
         val request = provider.getTransaction(deployTransactionHash)
         val response = request.send()
 
@@ -159,10 +155,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
         val request = provider.getTransaction(invokeTransactionHash)
         val response = request.send()
 
@@ -174,6 +166,8 @@ class ProviderTest {
     @MethodSource("getProviders")
     fun `get declare transaction`(provider: Provider) {
         if (provider is JsonRpcProvider) {
+            // FIXME current rpc spec has class_hash in declare txn, but the version currently supported in devnet
+            //       doesn't.
             return
         }
 
