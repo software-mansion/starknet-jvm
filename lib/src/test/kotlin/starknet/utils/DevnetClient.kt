@@ -38,7 +38,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     data class TransactionResult(val address: Felt, val hash: Felt)
 
-    fun deployContract(name: String): TransactionResult {
+    fun deployContract(contractPath: Path): TransactionResult {
         val deployProcess = ProcessBuilder(
             "starknet",
             "deploy",
@@ -47,7 +47,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            "src/test/resources/compiled/${name}.json"
+            contractPath.absolutePathString()
         ).start()
 
         deployProcess.waitFor()

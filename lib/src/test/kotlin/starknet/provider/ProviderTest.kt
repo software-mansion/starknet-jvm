@@ -41,7 +41,7 @@ class ProviderTest {
         fun before() {
             devnetClient.start()
 
-            val (deployAddress, deployHash) = devnetClient.deployContract("providerTest")
+            val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
             val (_, invokeHash) = devnetClient.invokeTransaction(
                 "increase_balance",
                 deployAddress,
