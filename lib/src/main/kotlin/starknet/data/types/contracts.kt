@@ -56,7 +56,7 @@ data class ContractEntryPoint(
 @Serializable
 data class ContractClass(
     val program: String,
-    val entryPointsByType: EntryPointsByType
+    @SerialName("entry_points_by_type") val entryPointsByType: EntryPointsByType
 ) {
     @Serializable
     data class EntryPointsByType(

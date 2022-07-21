@@ -113,4 +113,32 @@ class GatewayProvider(
         val httpPayload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
         return HttpRequest(httpPayload, InvokeFunctionResponse.serializer())
     }
+
+    override fun getClass(classHash: Felt): Request<ContractClass> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
 }

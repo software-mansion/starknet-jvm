@@ -116,4 +116,15 @@ class ProviderTest {
         val balance = getBalance(provider)
         assertEquals(Felt(10), balance)
     }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun getClassTest(provider: Provider) {
+        val hash = Felt.fromHex("0x1b322dd827d4579c10a08025b9d685c7ed16dcb25c7371dd06a65984cb5426")
+
+        val request = provider.getClass(hash)
+        val response = request.send()
+
+        println(response)
+    }
 }
