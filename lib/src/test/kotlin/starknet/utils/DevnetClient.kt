@@ -47,7 +47,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            contractPath.absolutePathString()
+            contractPath.absolutePathString(),
+            "--no_wallet"
         ).start()
 
         deployProcess.waitFor()
@@ -66,7 +67,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            contractPath.absolutePathString()
+            contractPath.absolutePathString(),
+            "--no_wallet"
         ).start()
 
         declareProcess.waitFor()
@@ -96,7 +98,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--function",
             functionName,
             "--inputs",
-            inputs.joinToString(separator = " ")
+            inputs.joinToString(separator = " "),
+            "--no_wallet"
         ).start()
 
         invokeProcess.waitFor()
