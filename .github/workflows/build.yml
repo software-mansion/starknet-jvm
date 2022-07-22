@@ -1,8 +1,8 @@
-name: "Build"
+name: Build
 
 on:
   push:
-    branches: [feat/gh-build] # [ main ]
+    branches: [ feat/gh-build ] # [ main ]
 
 jobs:
   build:
