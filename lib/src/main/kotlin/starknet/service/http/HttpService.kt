@@ -2,6 +2,7 @@ package starknet.service.http
 
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -12,7 +13,11 @@ import java.util.concurrent.CompletableFuture
  * Service for making http requests.
  */
 class HttpService {
-    data class Payload(val url: String, val method: String, val params: List<String>, val body: String?)
+    data class Payload(val url: String, val method: String, val params: List<Pair<String, String>>, val body: String?) {
+        constructor(url: String, method: String, params: List<Pair<String, String>>) : this(url, method, params, null)
+
+        constructor(url: String, method: String, body: String) : this(url, method, emptyList(), body)
+    }
 
     class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
 
@@ -20,14 +25,28 @@ class HttpService {
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
         private fun buildRequest(payload: Payload): okhttp3.Request {
-            val requestBody = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
+            val body = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
+            val url = buildRequestUrl(payload.url, payload.params)
 
             return okhttp3
                 .Request
                 .Builder()
-                .url(payload.url)
-                .method(payload.method, requestBody)
+                .url(url)
+                .method(payload.method, body)
                 .build()
+        }
+
+        private fun buildRequestUrl(
+            baseUrl: String,
+            params: List<Pair<String, String>>
+        ): String {
+            val urlBuilder = baseUrl.toHttpUrl().newBuilder()
+
+            for (param in params) {
+                urlBuilder.addQueryParameter(param.first, param.second)
+            }
+
+            return urlBuilder.build().toString()
         }
 
         private fun processHttpResponse(response: okhttp3.Response): String {

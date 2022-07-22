@@ -7,5 +7,5 @@ for file in src/*.cairo; do
 
   name="$(basename -- "$file" .cairo)"
 
-  starknet-compile "$file" --output "compiled/$name.json"
+  starknet-compile "$file" --output "compiled/$name.json" --abi "compiled/${name}Abi.json"
 done

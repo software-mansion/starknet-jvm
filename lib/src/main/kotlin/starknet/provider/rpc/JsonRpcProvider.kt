@@ -2,6 +2,9 @@ package starknet.provider.rpc
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
+import starknet.data.responses.Transaction
+import starknet.data.responses.TransactionReceipt
+import starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import starknet.data.types.*
 import starknet.provider.Provider
 import starknet.provider.Request
@@ -78,6 +81,20 @@ class JsonRpcProvider(
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
 
         return getStorageAt(payload)
+    }
+
+    override fun getTransaction(transactionHash: Felt): Request<Transaction> {
+        val payload = GetTransactionByHashPayload(transactionHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, JsonRpcTransactionPolymorphicSerializer)
+    }
+
+    override fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt> {
+        val payload = GetTransactionReceiptPayload(transactionHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_RECEIPT, params, TransactionReceipt.serializer())
     }
 
     override fun invokeFunction(
