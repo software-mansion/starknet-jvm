@@ -4,6 +4,10 @@ on:
   push:
     branches: [ feat/gh-build ] # [ main ]
 
+# TODO: In the future add more architectures
+env:
+  LINUX_ARCHS: "x86_64"
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -48,3 +52,30 @@ jobs:
         with:
           name: starknet.aar
           path: starknet.aar
+
+  package_jar:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: download
+      - name: Move shared libs
+        run: |
+          # Mac uses a universal binary
+          mkdir -p lib/build/libs/shared/darwin
+          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
+          for arch in "$LINUX_ARCHS"; do
+            mkdir -p lib/build/libs/shared/linux/"$arch"
+            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
+          done
+      - name: Bundle universal JAR
+        run: ./gradlew lib:jar
+      - name: Rename JAR
+        run: mv lib/build/libs/lib-0.0.1.jar starknet.jar
+      - name: Upload the JAR
+        uses: actions/upload-artifact@v2
+        with:
+          name: starknet.jar
+          path: starknet.jar
