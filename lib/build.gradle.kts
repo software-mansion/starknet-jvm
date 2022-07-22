@@ -20,6 +20,7 @@ plugins {
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+    `maven-publish`
 }
 
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
@@ -103,4 +104,24 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("starknet.kt") {
+            groupId = "com.swm.starknet"
+            artifactId = "starknet"
+            artifact("starknet.jar/starknet.jar")
+            artifact("starknet.aar/starknet.aar")
+        }
+    }
+
+    repositories {
+        maven {
+            val releasesRepoUrl = layout.buildDirectory.dir("repos/releases")
+            val snapshotsRepoUrl = layout.buildDirectory.dir("repos/snapshots")
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+        }
+
+    }
 }

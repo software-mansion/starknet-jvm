@@ -1,0 +1,38 @@
+name: "Package jar"
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    branches: [feat/gh-build] # [ main ]
+    types:
+      - completed
+
+# TODO: In the future add more architectures
+env:
+  LINUX_ARCHS: "x86_64"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: download
+      - name: Move shared libs
+        run: |
+          # Mac uses a universal binary
+          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
+          for arch in "$LINUX_ARCHS"; do
+            mkdir -p lib/build/libs/shared/linux/"$arch"
+            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
+          done
+      - name: Bundle universal JAR
+        run: ./gradlew lib:jar
+      - name: Rename JAR
+        run: mv lib/build/libs/lib-0.0.1.jar starknet.jar
+      - name: Upload the JAR
+        uses: actions/upload-artifact@v2
+        with:
+          name: starknet.jar
+          path: starknet.jar
