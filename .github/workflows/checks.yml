@@ -21,6 +21,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 11
+
       - name: Set up Python 3.7.12
         uses: actions/setup-python@v2
         with:

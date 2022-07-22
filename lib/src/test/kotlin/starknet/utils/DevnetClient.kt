@@ -61,6 +61,10 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         deployProcess.waitFor()
 
         val result = String(deployProcess.inputStream.readAllBytes())
+        val error = String(deployProcess.errorStream.readAllBytes())
+        println(result)
+        println()
+        println(error)
         val lines = result.lines()
         return getTransactionResult(lines)
     }
