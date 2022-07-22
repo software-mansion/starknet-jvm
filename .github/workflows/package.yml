@@ -2,8 +2,8 @@ name: "Package jar"
 
 on:
   workflow_run:
-    workflows: ["Build"]
-    branches: [feat/gh-build] # [ main ]
+    workflows: [ Build ]
+    branches: [ feat/gh-build ] # [ main ]
     types:
       - completed
 
@@ -13,6 +13,7 @@ env:
 
 jobs:
   package:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
