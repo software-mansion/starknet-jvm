@@ -5,8 +5,6 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-const val HEX_ADDRESS_LENGTH = 66
-
 class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
     private var devnetProcess: Process? = null
 
@@ -47,7 +45,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     data class TransactionResult(val address: Felt, val hash: Felt)
 
-    fun deployContract(name: String): TransactionResult {
+    fun deployContract(contractPath: Path): TransactionResult {
         val deployProcess = ProcessBuilder(
             "starknet",
             "deploy",
@@ -56,7 +54,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            "src/test/resources/compiled/${name}.json",
+            contractPath.absolutePathString(),
             "--no_wallet"
         ).start()
 
