@@ -30,11 +30,18 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(1, TimeUnit.SECONDS)
+        devnetProcess!!.waitFor(2, TimeUnit.SECONDS)
+
+        if (!devnetProcess!!.isAlive) {
+            throw Error("Could not start devnet process")
+        }
     }
 
     fun destroy() {
-        devnetProcess?.destroy()
+        devnetProcess?.destroyForcibly()
+
+        // Wait for the process to be destroyed
+        devnetProcess?.waitFor()
         devnetProcess = null
     }
 
@@ -49,7 +56,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            "src/test/resources/compiled/${name}.json"
+            "src/test/resources/compiled/${name}.json",
+            "--no_wallet"
         ).start()
 
         deployProcess.waitFor()
@@ -68,7 +76,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--feeder_gateway_url",
             feederGatewayUrl,
             "--contract",
-            contractPath.absolutePathString()
+            contractPath.absolutePathString(),
+            "--no_wallet"
         ).start()
 
         declareProcess.waitFor()
@@ -98,7 +107,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
             "--function",
             functionName,
             "--inputs",
-            inputs.joinToString(separator = " ")
+            inputs.joinToString(separator = " "),
+            "--no_wallet"
         ).start()
 
         invokeProcess.waitFor()
