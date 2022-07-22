@@ -28,11 +28,18 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(1, TimeUnit.SECONDS)
+        devnetProcess!!.waitFor(2, TimeUnit.SECONDS)
+
+        if (!devnetProcess!!.isAlive) {
+            throw Error("Could not start devnet process")
+        }
     }
 
     fun destroy() {
-        devnetProcess?.destroy()
+        devnetProcess?.destroyForcibly()
+
+        // Wait for the process to be destroyed
+        devnetProcess?.waitFor()
         devnetProcess = null
     }
 
@@ -40,8 +47,6 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     fun deployContract(contractPath: Path): TransactionResult {
         val deployProcess = ProcessBuilder(
-            "poetry",
-            "run",
             "starknet",
             "deploy",
             "--gateway_url",
@@ -57,16 +62,11 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
         val result = String(deployProcess.inputStream.readAllBytes())
         val lines = result.lines()
-
-        assert(lines.isNotEmpty())
-
         return getTransactionResult(lines)
     }
 
     fun declareContract(contractPath: Path): TransactionResult {
         val declareProcess = ProcessBuilder(
-            "poetry",
-            "run",
             "starknet",
             "declare",
             "--gateway_url",
@@ -92,8 +92,6 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         vararg inputs: Int
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
-            "poetry",
-            "run",
             "starknet",
             "invoke",
             "--gateway_url",
