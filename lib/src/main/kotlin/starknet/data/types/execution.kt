@@ -3,7 +3,6 @@ package starknet.data.types
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import starknet.data.selectorFromName
-import starknet.data.types.Felt
 
 @Serializable
 data class Call(
@@ -37,8 +36,20 @@ data class CallContractPayload(
 @Serializable
 data class GetStorageAtPayload(
     @SerialName("contract_address") val contractAddress: Felt,
-    val key: Felt,
+    @SerialName("key") val key: Felt,
     @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
+)
+
+@Serializable
+data class GetTransactionByHashPayload(
+    @SerialName("transaction_hash")
+    val transactionHash: Felt
+)
+
+@Serializable
+data class GetTransactionReceiptPayload(
+    @SerialName("transaction_hash")
+    val transactionHash: Felt
 )
 
 fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
@@ -53,7 +64,7 @@ fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
         wholeCalldata.addAll(call.calldata)
     }
 
-    return buildList() {
+    return buildList {
         add(Felt(calls.size))
         addAll(callArray)
         add(Felt(wholeCalldata.size))

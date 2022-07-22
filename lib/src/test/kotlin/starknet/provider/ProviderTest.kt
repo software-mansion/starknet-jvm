@@ -1,7 +1,7 @@
 package starknet.provider
 
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -10,12 +10,16 @@ import starknet.data.types.*
 import starknet.utils.DevnetClient
 import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
+import java.nio.file.Path
 
 class ProviderTest {
     companion object {
         @JvmStatic
         private val devnetClient = DevnetClient()
         private lateinit var contractAddress: Felt
+        private lateinit var deployTransactionHash: Felt
+        private lateinit var invokeTransactionHash: Felt
+        private lateinit var declareTransactionHash: Felt
 
         @JvmStatic
         private fun getProviders(): List<Provider> {
@@ -36,7 +40,19 @@ class ProviderTest {
         @BeforeAll
         fun before() {
             devnetClient.start()
-            contractAddress = devnetClient.deployContract("providerTest")
+
+            val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+            val (_, invokeHash) = devnetClient.invokeTransaction(
+                "increase_balance",
+                deployAddress,
+                Path.of("src/test/resources/compiled/providerTestAbi.json"),
+                0
+            )
+            val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
+            contractAddress = deployAddress
+            deployTransactionHash = deployHash
+            invokeTransactionHash = invokeHash
+            declareTransactionHash = declareHash
         }
 
         @JvmStatic
@@ -116,4 +132,51 @@ class ProviderTest {
         val balance = getBalance(provider)
         assertEquals(Felt(10), balance)
     }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun getTransactionReceiptTest(provider: Provider) {
+        val request = provider.getTransactionReceipt(deployTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get deploy transaction`(provider: Provider) {
+        val request = provider.getTransaction(deployTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is starknet.data.responses.DeployTransaction)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get invoke transaction`(provider: Provider) {
+        val request = provider.getTransaction(invokeTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is starknet.data.responses.InvokeTransaction)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get declare transaction`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            // FIXME current rpc spec has class_hash in declare txn, but the version currently supported in devnet
+            //       doesn't.
+            return
+        }
+
+        val request = provider.getTransaction(declareTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertNotEquals(declareTransactionHash, deployTransactionHash)
+        assertTrue(response is starknet.data.responses.DeclareTransaction)
+    }
+
 }
