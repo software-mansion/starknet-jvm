@@ -26,9 +26,11 @@ jobs:
         with:
           python-version: 3.7.12
 
-      - name: Install devnet
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2

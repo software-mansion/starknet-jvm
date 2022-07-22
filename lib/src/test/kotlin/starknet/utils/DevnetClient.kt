@@ -40,6 +40,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     fun deployContract(contractPath: Path): TransactionResult {
         val deployProcess = ProcessBuilder(
+            "poetry",
+            "run",
             "starknet",
             "deploy",
             "--gateway_url",
@@ -63,6 +65,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
     fun declareContract(contractPath: Path): TransactionResult {
         val declareProcess = ProcessBuilder(
+            "poetry",
+            "run",
             "starknet",
             "declare",
             "--gateway_url",
@@ -88,6 +92,8 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         vararg inputs: Int
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
+            "poetry",
+            "run",
             "starknet",
             "invoke",
             "--gateway_url",
