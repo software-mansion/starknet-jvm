@@ -46,6 +46,10 @@ tasks.test {
     useJUnitPlatform()
 
     systemProperty("java.library.path", file("${buildDir}/libs/shared").absolutePath)
+
+    testLogging {
+        events("PASSED", "SKIPPED", "FAILED")
+    }
 }
 
 tasks.jar {
