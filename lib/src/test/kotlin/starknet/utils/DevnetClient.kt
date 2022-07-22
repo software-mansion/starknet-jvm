@@ -55,6 +55,9 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
 
         val result = String(deployProcess.inputStream.readAllBytes())
         val lines = result.lines()
+
+        assert(lines.isNotEmpty())
+
         return getTransactionResult(lines)
     }
 
