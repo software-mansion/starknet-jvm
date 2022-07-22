@@ -34,4 +34,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Run tests
-        run: ./gradlew :lib:test
+        run: ./gradlew :lib:test --stacktrace
