@@ -5,7 +5,7 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
+class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     private var devnetProcess: Process? = null
 
     val gatewayUrl: String
