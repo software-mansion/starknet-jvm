@@ -30,8 +30,12 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
 
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
+        println("WAITING FOR OUTPUT FROM DEVNET")
+
         // Read some output from devnet to make sure it started. It starts with "Account #0\n..."
         devnetProcess!!.inputStream.buffered(16).readNBytes(16)
+
+        println("DEVNET OUTPUT RECEIVED")
 
         if (!devnetProcess!!.isAlive) {
             throw Error("Could not start devnet process")
