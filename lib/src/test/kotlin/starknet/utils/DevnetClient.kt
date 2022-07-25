@@ -1,9 +1,12 @@
 package starknet.utils
 
 import starknet.data.types.Felt
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
+
 
 class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     private var devnetProcess: Process? = null
@@ -27,8 +30,8 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
 
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
-        // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(20, TimeUnit.SECONDS)
+        // Read some output from devnet to make sure it started. It starts with "Account #0\n..."
+        devnetProcess!!.inputStream.buffered(16).readNBytes(16)
 
         if (!devnetProcess!!.isAlive) {
             throw Error("Could not start devnet process")
