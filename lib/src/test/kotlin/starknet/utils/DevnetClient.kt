@@ -1,5 +1,9 @@
 package starknet.utils
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import starknet.data.types.Felt
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -11,6 +15,14 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
     val gatewayUrl: String
     val feederGatewayUrl: String
     val rpcUrl: String
+
+    @Serializable
+    data class Block(
+        @SerialName("block_hash") val hash: Felt,
+        @SerialName("block_number") val number: Int
+    )
+
+    data class TransactionResult(val address: Felt, val hash: Felt)
 
     init {
         val baseUrl = "http://${host}:${port}"
@@ -42,8 +54,6 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess?.waitFor()
         devnetProcess = null
     }
-
-    data class TransactionResult(val address: Felt, val hash: Felt)
 
     fun deployContract(contractPath: Path): TransactionResult {
         val deployProcess = ProcessBuilder(
@@ -114,6 +124,27 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         val result = String(invokeProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines)
+    }
+
+    fun getLatestBlock(): Block {
+        val getBlockProcess = ProcessBuilder(
+            "starknet",
+            "get_block",
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        getBlockProcess.waitFor()
+
+        val result = String(getBlockProcess.inputStream.readAllBytes())
+
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+
+        return json.decodeFromString(Block.serializer(), result)
     }
 
     private fun getValueFromLine(line: String, index: Int = 1): String {
