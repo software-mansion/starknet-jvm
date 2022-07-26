@@ -31,15 +31,15 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
 
         println("WAITING FOR OUTPUT FROM DEVNET")
 
+        if (!devnetProcess!!.isAlive) {
+            throw Error("Could not start devnet process")
+        }
+
         // Read some output from devnet to make sure it started. It starts with "Account #0\n..."
         val line = BufferedReader(InputStreamReader(devnetProcess!!.inputStream)).readLine()
 
         println("DEVNET OUTPUT RECEIVED: $line")
 
-
-        if (!devnetProcess!!.isAlive) {
-            throw Error("Could not start devnet process")
-        }
     }
 
     fun destroy() {
