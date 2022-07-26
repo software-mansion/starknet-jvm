@@ -30,6 +30,15 @@ data class DeployResponse @OptIn(ExperimentalSerializationApi::class) constructo
 )
 
 @Serializable
+data class DeclareResponse @OptIn(ExperimentalSerializationApi::class) constructor(
+    @JsonNames("transaction_hash")
+    val transactionHash: Felt,
+
+    @JsonNames("class_hash")
+    val classHash: Felt
+)
+
+@Serializable
 data class GetStorageAtResponse(
     val result: Felt
 ): Response()

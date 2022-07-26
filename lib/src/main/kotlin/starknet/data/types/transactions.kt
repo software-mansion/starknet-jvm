@@ -11,6 +11,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.StarknetCurve
+import starknet.data.DECLARE_SENDER_ADDRESS
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
@@ -95,6 +96,15 @@ data class DeployTransactionPayload(
 
     @SerialName("contract_definition")
     val contractDefinition: String
+)
+
+@Serializable
+data class DeclareTransactionPayload(
+    val contractDefinition: String,
+    val senderAddress: Felt = DECLARE_SENDER_ADDRESS,
+    val maxFee: Felt = Felt.ZERO,
+    val signature: Signature = emptyList(),
+    val nonce: Felt = Felt.ZERO
 )
 
 sealed class Transaction {

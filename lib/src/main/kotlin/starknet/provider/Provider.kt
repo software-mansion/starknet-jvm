@@ -86,4 +86,13 @@ interface Provider {
      * @param payload deploy transaction payload
      */
     fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
+
+    /**
+     * Declare contract
+     *
+     * Declare a contract on StarkNet.
+     *
+     * @param payload declare transaction payload
+     */
+    fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
 }

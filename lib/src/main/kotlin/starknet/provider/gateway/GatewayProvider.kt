@@ -145,8 +145,32 @@ class GatewayProvider(
         return HttpRequest(httpPayload, DeployResponse.serializer())
     }
 
-    private fun parseProgram(payload: DeployTransactionPayload): Triple<JsonElement, JsonElement, JsonElement> {
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+        val url = gatewayRequestUrl("add_transaction")
         val compiledContract = Json.parseToJsonElement(payload.contractDefinition).jsonObject
+        val (program, entryPointsByType, abi) = parseProgram(compiledContract)
+        val compressedProgram = program.toString().base64Gzipped()
+
+        val body = buildJsonObject {
+            put("type", "DECLARE")
+            putFelt("sender_address", payload.senderAddress)
+            putFelt("max_fee", payload.maxFee)
+            putFelt("nonce", payload.nonce)
+            putJsonArray("signature") {
+                payload.signature
+            }
+            putJsonObject("contract_class") {
+                put("program", compressedProgram)
+                put("entry_points_by_type", entryPointsByType)
+                put("abi", abi)
+            }
+        }
+
+        val httpPayload = HttpService.Payload(url, "POST", body.toString())
+        return HttpRequest(httpPayload, DeclareResponse.serializer())
+    }
+
+    private fun parseProgram(compiledContract: JsonObject): Triple<JsonElement, JsonElement, JsonElement> {
         val program = compiledContract["program"]!!
         val entryPointsByType = compiledContract["entry_points_by_type"]!!
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
