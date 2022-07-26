@@ -4,7 +4,6 @@ import starknet.data.types.Felt
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
-import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
 
@@ -33,9 +32,9 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         println("WAITING FOR OUTPUT FROM DEVNET")
 
         // Read some output from devnet to make sure it started. It starts with "Account #0\n..."
-        val line = devnetProcess!!.inputReader().readLine()
+        val line = BufferedReader(InputStreamReader(devnetProcess!!.inputStream)).readLine()
 
-        println("DEVNET OUTPUT RECEIVED: " + line)
+        println("DEVNET OUTPUT RECEIVED: $line")
 
 
         if (!devnetProcess!!.isAlive) {
