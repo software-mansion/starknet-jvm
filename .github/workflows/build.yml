@@ -50,7 +50,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v2
         with:
-          name: starknet.aar
+          name: starknet-aar
           path: starknet.aar
 
   package_jar:
@@ -72,10 +72,34 @@ jobs:
           done
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
+      # TODO: Get VERSION from env instead?
       - name: Rename JAR
         run: mv lib/build/libs/lib-0.0.1.jar starknet.jar
       - name: Upload the JAR
         uses: actions/upload-artifact@v2
         with:
-          name: starknet.jar
+          name: starknet-jar
           path: starknet.jar
+
+  generate_javadoc_and_sources:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate javadoc JAR
+        run: ./gradlew javadocJar
+      - name: Generate sources JAR
+        run: ./gradlew sourcesJar
+      # TODO: Get VERSION from env instead?
+      - name: Rename JARS
+        run: mv lib/build/libs/lib-0.0.1-javadoc.jar javadoc.jar && mv lib/build/libs/lib-0.0.1-sources.jar sources.jar
+      - name: Upload javadoc JAR
+        uses: actions/upload-artifact@v2
+        with:
+          name: javadoc-jar
+          path: javadoc.jar
+      - name: Upload sources JAR
+        uses: actions/upload-artifact@v2
+        with:
+          name: sources-jar
+          path: sources.jar

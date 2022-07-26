@@ -9,6 +9,7 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
 version = "0.0.1"
+group = "com.swmansion.starknet"
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -21,6 +22,7 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
     `maven-publish`
+    signing
 }
 
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
@@ -106,13 +108,63 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
+}
+
+
 publishing {
     publications {
-        create<MavenPublication>("starknet.kt") {
-            groupId = "com.swm.starknet"
+        create<MavenPublication>("starknet") {
             artifactId = "starknet"
-            artifact("starknet.jar/starknet.jar")
-            artifact("starknet.aar/starknet.aar")
+            artifact("starknet-jar/starknet.jar")
+            artifact("starknet-aar/starknet.aar")
+            artifact("starknet-javadoc/javadoc.jar") {
+                classifier="javadoc"
+            }
+            artifact("starknet-sources/sources.jar"){
+                classifier="sources"
+            }
+        pom {
+                name.set("starknet")
+                description.set("StarkNet SDK for Kotlin")
+                url.set("https://github.com/software-mansion/starknet.kt")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://github.com/software-mansion/starknet.kt/blob/main/LICENSE")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("jakubptak")
+                        name.set("Jakub Ptak")
+                        email.set("jakub.ptak@swmansion.com")
+                    }
+                    developer {
+                        id.set("arturmichalek")
+                        name.set("Artur Michałek")
+                        email.set("artur.michalek@swmansion.com")
+                    }
+                    developer {
+                        id.set("bartoszrybarski")
+                        name.set("Bartosz Rybarski")
+                        email.set("bartosz.rybarski@swmansion.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/software-mansion/starknet.kt.git")
+                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet.kt.git")
+                    url.set("https://github.com/software-mansion/starknet.kt/tree/main")
+                }
+            }
         }
     }
 
@@ -124,4 +176,11 @@ publishing {
         }
 
     }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["starknet"])
 }
