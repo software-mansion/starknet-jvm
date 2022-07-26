@@ -8,6 +8,7 @@ import starknet.data.NetUrls.MAINNET_URL
 import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.types.*
 import starknet.extensions.base64Gzipped
+import starknet.extensions.putFelt
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
@@ -123,12 +124,13 @@ class GatewayProvider(
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
         val url = gatewayRequestUrl("add_transaction")
-        val (program, entryPointsByType, abi) = parseProgram(payload)
-        val compressedProgram = program.jsonPrimitive.content.base64Gzipped()
+        val compiledContract = Json.parseToJsonElement(payload.contractDefinition).jsonObject
+        val (program, entryPointsByType, abi) = parseProgram(compiledContract)
+        val compressedProgram = program.toString().base64Gzipped()
 
         val body = buildJsonObject {
             put("type", "DEPLOY")
-            put("contract_address_salt", payload.salt.hexString())
+            putFelt("contract_address_salt", payload.salt)
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal()
             }
