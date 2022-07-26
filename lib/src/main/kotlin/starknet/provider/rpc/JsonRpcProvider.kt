@@ -104,4 +104,12 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
+
+    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+        TODO("Not yet implemented")
+    }
 }
