@@ -29,8 +29,6 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
 
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
-        println("WAITING FOR OUTPUT FROM DEVNET")
-
         // Give devnet some time to start
         Thread.sleep(10000);
 
