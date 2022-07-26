@@ -32,7 +32,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         println("WAITING FOR OUTPUT FROM DEVNET")
 
         // Give devnet some time to start
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         if (!devnetProcess!!.isAlive) {
             throw Error("Could not start devnet process")
