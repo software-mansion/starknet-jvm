@@ -121,31 +121,55 @@ class GatewayProvider(
     }
 
     override fun getClass(classHash: Felt): Request<ContractClass> {
-        TODO("Not yet implemented")
+        val url = feederGatewayRequestUrl("get_class_by_hash")
+
+        val params = listOf(
+            "classHash" to classHash.hexString()
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET", params)
+        return HttpRequest(httpPayload, ContractClassGatewaySerializer)
     }
 
     override fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not yet implemented")
+        TODO("Not available from gateway")
     }
 
     override fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not yet implemented")
+        TODO("Not available from gateway")
     }
 
     override fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not yet implemented")
+        TODO("Not available from gateway")
+    }
+
+    private fun getClassHashAt(blockParam: Pair<String, String>, contractAddress: Felt): Request<Felt> {
+        val url = feederGatewayRequestUrl("get_class_hash_at")
+        val params = listOf(
+            blockParam,
+            "contractAddress" to contractAddress.hexString()
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET", params)
+        return HttpRequest(httpPayload, Felt.serializer())
     }
 
     override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
-        TODO("Not yet implemented")
+        val param = "blockHash" to blockHash.hexString()
+
+        return getClassHashAt(param, contractAddress)
     }
 
     override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
-        TODO("Not yet implemented")
+        val param = "blockNumber" to blockNumber.toString()
+
+        return getClassHashAt(param, contractAddress)
     }
 
     override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
-        TODO("Not yet implemented")
+        val param = "blockTag" to blockTag.tag
+
+        return getClassHashAt(param, contractAddress)
     }
 
     companion object Factory {

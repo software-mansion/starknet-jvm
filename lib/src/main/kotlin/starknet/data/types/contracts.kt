@@ -2,10 +2,20 @@
 
 package starknet.data.types
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import starknet.data.toHex
+import java.io.ByteArrayOutputStream
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets.UTF_8
+import java.util.Base64
+import java.util.zip.GZIPOutputStream
 
 enum class AbiEntryType {
     FELT,
@@ -64,6 +74,39 @@ data class ContractClass(
         @SerialName("EXTERNAL") val external: List<ContractEntryPoint>,
         @SerialName("L1_HANDLER") val l1Handler: List<ContractEntryPoint>,
     )
+}
+
+object ContractClassGatewaySerializer: KSerializer<ContractClass> {
+    @Serializable
+    data class ContractClassGateway(
+        val program: JsonElement,
+        @SerialName("entry_points_by_type") val entryPointsByType: ContractClass.EntryPointsByType
+    )
+
+    override fun deserialize(decoder: Decoder): ContractClass {
+        val response = ContractClassGateway.serializer().deserialize(decoder)
+        val bos = ByteArrayOutputStream()
+
+        val programString = Json.encodeToString(response.program)
+
+        GZIPOutputStream(bos).bufferedWriter(UTF_8).use { writer ->
+            writer.write(programString)
+        }
+
+        val base64Encoder = Base64.getEncoder()
+        val program = base64Encoder.encodeToString(bos.toByteArray())
+
+        // FIXME: It doesn't produce the same output as the rpc endpoint
+
+        return ContractClass(program, response.entryPointsByType)
+    }
+
+    override val descriptor: SerialDescriptor
+        get() = ContractClass.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: ContractClass) {
+        TODO("Not implemented. It is used only for deserialization.")
+    }
 }
 
 @Serializable
