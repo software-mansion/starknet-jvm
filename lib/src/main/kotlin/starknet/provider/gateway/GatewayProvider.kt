@@ -7,6 +7,7 @@ import starknet.data.responses.serializers.GatewayTransactionTransformingSeriali
 import starknet.data.NetUrls.MAINNET_URL
 import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.types.*
+import starknet.extensions.base64Gzipped
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
@@ -118,6 +119,36 @@ class GatewayProvider(
 
         val httpPayload = HttpService.Payload(url, "POST", body.toString())
         return HttpRequest(httpPayload, InvokeFunctionResponse.serializer())
+    }
+
+    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
+        val url = gatewayRequestUrl("add_transaction")
+        val (program, entryPointsByType, abi) = parseProgram(payload)
+        val compressedProgram = program.jsonPrimitive.content.base64Gzipped()
+
+        val body = buildJsonObject {
+            put("type", "DEPLOY")
+            put("contract_address_salt", payload.salt.hexString())
+            putJsonArray("constructor_calldata") {
+                payload.constructorCalldata.toDecimal()
+            }
+            putJsonObject("contract_definition") {
+                put("program", compressedProgram)
+                put("entry_points_by_type", entryPointsByType)
+                put("abi", abi)
+            }
+        }
+
+        val httpPayload = HttpService.Payload(url, "POST", body.toString())
+        return HttpRequest(httpPayload, DeployResponse.serializer())
+    }
+
+    private fun parseProgram(payload: DeployTransactionPayload): Triple<JsonElement, JsonElement, JsonElement> {
+        val compiledContract = Json.parseToJsonElement(payload.contractDefinition).jsonObject
+        val program = compiledContract["program"]!!
+        val entryPointsByType = compiledContract["entry_points_by_type"]!!
+        val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+        return Triple(program, entryPointsByType, abi)
     }
 
     companion object Factory {

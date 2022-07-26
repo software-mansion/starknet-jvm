@@ -11,7 +11,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.StarknetCurve
-import starknet.data.types.Felt
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
@@ -84,6 +83,18 @@ data class InvokeFunctionPayload(
     val signature: Signature?,
     @SerialName("max_fee") val maxFee: Felt?,
     val version: Felt?
+)
+
+@Serializable
+data class DeployTransactionPayload(
+    @SerialName("contract_address_salt")
+    val salt: Felt,
+
+    @SerialName("constructor_calldata")
+    val constructorCalldata: Calldata,
+
+    @SerialName("contract_definition")
+    val contractDefinition: String
 )
 
 sealed class Transaction {

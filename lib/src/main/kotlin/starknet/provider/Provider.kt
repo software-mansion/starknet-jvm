@@ -77,4 +77,13 @@ interface Provider {
      * @param payload invoke function payload
      */
     fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
+
+    /**
+     * Deploy a contract
+     *
+     * Deploy a contract on StarkNet.
+     *
+     * @param payload deploy transaction payload
+     */
+    fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
 }

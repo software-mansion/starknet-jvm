@@ -10,6 +10,7 @@ import starknet.data.types.*
 import starknet.utils.DevnetClient
 import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
+import java.nio.file.Files
 import java.nio.file.Path
 
 class ProviderTest {
@@ -177,6 +178,23 @@ class ProviderTest {
         assertNotNull(response)
         assertNotEquals(declareTransactionHash, deployTransactionHash)
         assertTrue(response is starknet.data.responses.DeclareTransaction)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `deploy contract`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+
+        val contractPath = Path.of("src/test/resources/payloads/deployPayload.json")
+        val contents = Files.readString(contractPath)
+        val payload = DeployTransactionPayload(Felt(1), emptyList(), contents)
+
+        val request = provider.deployContract(payload)
+        val response = request.send()
+
+        assertNotNull(response)
     }
 
 }
