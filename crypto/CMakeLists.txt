@@ -7,6 +7,8 @@ project(StarkwareCryptoLib VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(BOOST_ENABLE_CMAKE ON)
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -16,10 +18,38 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+
+# Checking if current build supports __uint128_t and including boost if it doesn't.
+INCLUDE(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+int main() {
+  __uint128_t a = 0;
+  return a;
+}" HAVE_UINT128)
+
+if (NOT HAVE_UINT128)
+  FetchContent_Declare(
+    boostorg
+    URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
+  )
+
+  FetchContent_GetProperties(boostorg)
+  if (NOT boostorg_POPULATED)
+      FetchContent_Populate(boostorg)
+  endif ()
+
+  include_directories(${boostorg_SOURCE_DIR})
+
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(boostorg)
+endif()
+
 include(CTest)
 enable_testing()
 include_directories("${CMAKE_SOURCE_DIR}/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/bindings")
+
 
 set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
