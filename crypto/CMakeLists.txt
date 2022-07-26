@@ -14,24 +14,28 @@ FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
 )
-FetchContent_Declare(
-  boostorg
-  URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
-)
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-FetchContent_GetProperties(boostorg)
-if (NOT boostorg_POPULATED)
-    FetchContent_Populate(boostorg)
-endif ()
+if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
+  FetchContent_Declare(
+    boostorg
+    URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
+  )
 
-include_directories(${boostorg_SOURCE_DIR})
+  FetchContent_GetProperties(boostorg)
+  if (NOT boostorg_POPULATED)
+      FetchContent_Populate(boostorg)
+  endif ()
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(boostorg)
+  include_directories(${boostorg_SOURCE_DIR})
+
+  # For Windows: Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(boostorg)
+endif()
+
 
 include(CTest)
 enable_testing()
