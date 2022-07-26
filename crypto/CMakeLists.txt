@@ -25,7 +25,7 @@ set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
 set(JAVA_AWT_INCLUDE_PATH NotNeeded)
 set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
-set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin")
+set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin;$ENV{JAVA_HOME}/include/linux")
 
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)

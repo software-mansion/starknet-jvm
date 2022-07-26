@@ -4,6 +4,7 @@ import starknet.data.types.Felt
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
 
@@ -29,8 +30,8 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
 
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
-        // Give devnet some time to start
-        Thread.sleep(10000);
+        // TODO: Replace with reading buffer until it prints "Listening on"
+        devnetProcess!!.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess!!.isAlive) {
             throw Error("Could not start devnet process")
@@ -63,10 +64,6 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         deployProcess.waitFor()
 
         val result = String(deployProcess.inputStream.readAllBytes())
-        val error = String(deployProcess.errorStream.readAllBytes())
-        println(result)
-        println()
-        println(error)
         val lines = result.lines()
         return getTransactionResult(lines)
     }
