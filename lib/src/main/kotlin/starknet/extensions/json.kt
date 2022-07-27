@@ -7,4 +7,4 @@ fun JsonObjectBuilder.putFeltAsHex(key: String, value: Felt?): JsonElement? =
     put(key, JsonPrimitive(value?.hexString() ?: Felt.ZERO.hexString()))
 
 fun JsonArrayBuilder.addFeltAsHex(value: Felt?): Boolean =
-    add(value?.hexString() ?: Felt.ZERO.hexString())
+    add(JsonPrimitive(value?.hexString() ?: Felt.ZERO.hexString()))
