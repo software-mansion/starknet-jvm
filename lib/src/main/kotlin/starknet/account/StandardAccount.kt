@@ -4,12 +4,12 @@ import starknet.data.EXECUTE_ENTRY_POINT_NAME
 import starknet.data.selectorFromName
 import starknet.data.types.Call
 import starknet.data.types.ExecutionParams
+import starknet.data.types.Felt
 import starknet.data.types.InvokeTransaction
 import starknet.data.types.callsToExecuteCalldata
 import starknet.provider.Provider
 import starknet.signer.Signer
 import starknet.signer.StarkCurveSigner
-import starknet.data.types.Felt
 
 /**
  * Standard account used in StarkNet.

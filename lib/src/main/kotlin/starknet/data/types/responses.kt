@@ -11,17 +11,17 @@ sealed class Response
 @Serializable
 data class CallContractResponse(
     val result: List<Felt>
-): Response()
+) : Response()
 
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt
-): Response()
+) : Response()
 
 @Serializable
 data class GetStorageAtResponse(
     val result: Felt
-): Response()
+) : Response()
 
 data class TransactionFailureReason(
     val code: String,

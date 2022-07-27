@@ -53,7 +53,7 @@ data class Felt(val value: BigInteger) {
 }
 
 fun List<Felt>.toDecimal(): List<String> {
-    return this.map{
+    return this.map {
         it.decString()
     }
 }
@@ -73,5 +73,4 @@ object FeltSerializer : KSerializer<Felt> {
     override fun serialize(encoder: Encoder, value: Felt) {
         encoder.encodeString(toHex(value.value))
     }
-
 }

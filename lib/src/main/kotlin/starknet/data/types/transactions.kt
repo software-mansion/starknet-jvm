@@ -11,7 +11,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.crypto.StarknetCurve
-import starknet.data.types.Felt
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
@@ -58,11 +57,11 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
-class BlockHashOrTagSerializer(): KSerializer<BlockHashOrTag> {
+class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
     override fun deserialize(decoder: Decoder): BlockHashOrTag {
         val value = decoder.decodeString()
 
-        if (BlockTag.values().map{ it.tag }.contains(value)) {
+        if (BlockTag.values().map { it.tag }.contains(value)) {
             val tag = BlockTag.valueOf(value)
             return BlockHashOrTag.Tag(tag)
         }
@@ -93,7 +92,10 @@ sealed class Transaction {
 }
 
 data class DeclareTransaction(
-    val nonce: Felt, val contractClass: CompiledContract, val signerAddress: Felt, val signature: Signature
+    val nonce: Felt,
+    val contractClass: CompiledContract,
+    val signerAddress: Felt,
+    val signature: Signature
 ) : Transaction() {
     override val type = TransactionType.DECLARE
     override fun getHash(): Felt {
@@ -146,4 +148,3 @@ data class InvokeTransaction(
         chainId,
     )
 }
-

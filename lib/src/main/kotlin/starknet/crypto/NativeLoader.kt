@@ -3,7 +3,6 @@ package starknet.crypto
 import java.nio.file.FileSystems
 import java.nio.file.Files
 
-
 internal object NativeLoader {
     private val sharedLibExtensions = listOf("dylib", "so", "dll")
 
@@ -28,5 +27,4 @@ internal object NativeLoader {
             System.load(tmpFilePath.toString())
         }
     }
-
 }
