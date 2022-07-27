@@ -5,7 +5,8 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
+
+class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     private var devnetProcess: Process? = null
 
     val gatewayUrl: String
@@ -28,7 +29,7 @@ class DevnetClient(val host: String = "localhost", val port: Int = 5050) {
         devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(2, TimeUnit.SECONDS)
+        devnetProcess!!.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess!!.isAlive) {
             throw Error("Could not start devnet process")

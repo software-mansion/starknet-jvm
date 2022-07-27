@@ -1,0 +1,1 @@
+starknet-devnet==0.2.6
