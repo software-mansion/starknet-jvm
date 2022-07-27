@@ -109,6 +109,7 @@ data class DeployTransactionPayload(
     val contractDefinition: ContractDefinition,
     val salt: Felt,
     val constructorCalldata: Calldata,
+    val version: Felt
 )
 
 data class DeclareTransactionPayload(
@@ -116,6 +117,7 @@ data class DeclareTransactionPayload(
     val maxFee: Felt,
     val nonce: Felt,
     val signature: Signature,
+    val version: Felt,
 )
 
 sealed class Transaction {

@@ -141,6 +141,7 @@ class GatewayProvider(
                 put("entry_points_by_type", entryPointsByType)
                 put("abi", abi)
             }
+            putFeltAsHex("version", payload.version)
         }
 
         val httpPayload = HttpService.Payload(url, "POST", body.toString())
@@ -157,6 +158,7 @@ class GatewayProvider(
             putFeltAsHex("sender_address", DECLARE_SENDER_ADDRESS)
             putFeltAsHex("max_fee", payload.maxFee)
             putFeltAsHex("nonce", payload.nonce)
+            putFeltAsHex("version", payload.version)
             putJsonArray("signature") { payload.signature }
             putJsonObject("contract_class") {
                 put("program", compressedProgram)

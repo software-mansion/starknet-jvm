@@ -6,6 +6,9 @@ import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import starknet.data.types.*
+import starknet.extensions.addFeltAsHex
+import starknet.extensions.base64Gzipped
+import starknet.extensions.putFeltAsHex
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
@@ -106,10 +109,35 @@ class JsonRpcProvider(
     }
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
-        TODO("Not yet implemented")
+        val (program, entryPointsByType, _) = payload.contractDefinition.parseContract()
+
+        val params = buildJsonObject {
+            putJsonObject("contract_definition") {
+                put("entry_points_by_type", entryPointsByType)
+                put("program", program.toString().base64Gzipped())
+            }
+            putJsonArray("constructor_calldata") {
+                payload.constructorCalldata.forEach { addFeltAsHex(it) }
+            }
+            putFeltAsHex("contract_address_salt", payload.salt)
+        }
+
+        return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-        TODO("Not yet implemented")
+        val (program, entryPointsByType, _) = payload.contractDefinition.parseContract()
+
+        val params = buildJsonObject {
+            putJsonObject("contract_class") {
+                put("entry_points_by_type", entryPointsByType)
+                put("program", program.toString().base64Gzipped())
+            }
+//            FIXME(restore this once devnet accepts our PR
+//            putFeltAsHex("version", payload.version)
+            put("version", 0)
+        }
+
+        return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
     }
 }
