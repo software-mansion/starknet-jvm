@@ -117,9 +117,12 @@ class JsonRpcProvider(
                 put("program", program.toString().base64Gzipped())
             }
             putJsonArray("constructor_calldata") {
-                payload.constructorCalldata.forEach { addFeltAsHex(it) }
+//            FIXME(restore this once devnet accepts our PR
+//              payload.constructorCalldata.forEach { addFeltAsHex(it) }
+              payload.constructorCalldata.forEach { add(it.value.intValueExact()) }
             }
-            putFeltAsHex("contract_address_salt", payload.salt)
+//            putFeltAsHex("contract_address_salt", payload.salt)
+            put("contract_address_salt", payload.salt.value.intValueExact())
         }
 
         return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
