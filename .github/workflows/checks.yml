@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test:
+  test_and_lint:
     # TODO: Change when feat/gh-build branch is merged
     runs-on: macos-latest
     steps:
@@ -33,6 +33,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+
+      - name: Lint
+        run: ./gradlew :lib:ktlintCheck
 
       - name: Run tests
         run: ./gradlew :lib:test --info --stacktrace
