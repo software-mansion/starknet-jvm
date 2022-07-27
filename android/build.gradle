@@ -20,10 +20,7 @@ android {
                 arguments "-DCMAKE_BUILD_TYPE=Release"
             }
         }
-        ndk {
-            // 32 bits architectures are excluded, uint128 is not available there
-            abiFilters "arm64-v8a", "x86_64"
-        }
+        
     }
 
     lint {

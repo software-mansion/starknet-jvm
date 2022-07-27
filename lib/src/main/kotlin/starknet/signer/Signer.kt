@@ -1,8 +1,8 @@
 package starknet.signer
 
+import starknet.data.types.Felt
 import starknet.data.types.Signature
 import starknet.data.types.Transaction
-import starknet.data.types.Felt
 
 /**
  * Transaction signer.

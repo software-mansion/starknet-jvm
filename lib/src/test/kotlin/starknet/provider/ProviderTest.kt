@@ -8,9 +8,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.responses.DeployTransaction
 import starknet.data.selectorFromName
 import starknet.data.types.*
-import starknet.utils.DevnetClient
 import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
+import starknet.utils.DevnetClient
 import java.nio.file.Path
 
 class ProviderTest {

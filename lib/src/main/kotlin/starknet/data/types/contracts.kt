@@ -119,4 +119,3 @@ data class GetClassAtPayload(
     @SerialName("block_id") val blockId: String,
     @SerialName("contract_address") val contractAddress: Felt
 )
-

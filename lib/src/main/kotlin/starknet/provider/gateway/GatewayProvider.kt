@@ -1,11 +1,11 @@
 package starknet.provider.gateway
 
 import kotlinx.serialization.json.*
+import starknet.data.NetUrls.MAINNET_URL
+import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
-import starknet.data.NetUrls.MAINNET_URL
-import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.types.*
 import starknet.provider.Provider
 import starknet.provider.Request
