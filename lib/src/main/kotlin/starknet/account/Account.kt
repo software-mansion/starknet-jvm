@@ -2,9 +2,9 @@ package starknet.account
 
 import starknet.data.types.Call
 import starknet.data.types.ExecutionParams
+import starknet.data.types.Felt
 import starknet.data.types.InvokeTransaction
 import starknet.provider.Provider
-import starknet.data.types.Felt
 
 /**
  * An account interface.
@@ -39,4 +39,3 @@ interface Account : Provider {
      */
     fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction
 }
-

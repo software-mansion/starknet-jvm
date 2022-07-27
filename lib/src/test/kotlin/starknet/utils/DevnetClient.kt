@@ -5,7 +5,6 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-
 class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     private var devnetProcess: Process? = null
 
@@ -14,7 +13,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     val rpcUrl: String
 
     init {
-        val baseUrl = "http://${host}:${port}"
+        val baseUrl = "http://$host:$port"
 
         gatewayUrl = "$baseUrl/gateway"
         feederGatewayUrl = "$baseUrl/feeder_gateway"

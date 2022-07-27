@@ -14,6 +14,7 @@ plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
+    id("org.jlleitschuh.gradle.ktlint")
 
     kotlin("plugin.serialization")
 
@@ -31,8 +32,12 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
 
 tasks.jar {
     manifest {
-        attributes(mapOf("Implementation-Title" to project.name,
-            "Implementation-Version" to project.version))
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version
+            )
+        )
     }
 }
 
@@ -45,7 +50,7 @@ tasks.test {
 
     useJUnitPlatform()
 
-    systemProperty("java.library.path", file("${buildDir}/libs/shared").absolutePath)
+    systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
 
     testLogging {
         events("PASSED", "SKIPPED", "FAILED")
@@ -53,12 +58,16 @@ tasks.test {
     }
 }
 
+ktlint {
+    disabledRules.set(setOf("no-wildcard-imports"))
+}
+
 tasks.jar {
     dependsOn(buildCryptoCpp)
     // This will ignore files that are not there
     listOf("so", "dylib", "dll").forEach {
         from(
-            file("file:${buildDir}/libs/shared/libcrypto_jni.$it").absolutePath
+            file("file:$buildDir/libs/shared/libcrypto_jni.$it").absolutePath
         )
     }
 }
