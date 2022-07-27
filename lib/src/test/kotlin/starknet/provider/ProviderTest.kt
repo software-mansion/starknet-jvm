@@ -7,9 +7,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.selectorFromName
 import starknet.data.types.*
-import starknet.utils.DevnetClient
 import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
+import starknet.utils.DevnetClient
 import java.nio.file.Path
 
 class ProviderTest {
@@ -178,5 +178,4 @@ class ProviderTest {
         assertNotEquals(declareTransactionHash, deployTransactionHash)
         assertTrue(response is starknet.data.responses.DeclareTransaction)
     }
-
 }

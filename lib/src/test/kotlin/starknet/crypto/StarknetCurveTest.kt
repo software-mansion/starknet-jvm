@@ -94,7 +94,7 @@ internal class StarknetCurveTest {
 
     @Test
     fun pedersen() {
-        val maxFelt = (Felt.PRIME - BigInteger.ONE).toFelt;
+        val maxFelt = (Felt.PRIME - BigInteger.ONE).toFelt
         // Generated using cairo-lang package
         val cases = arrayOf(
             Triple(Felt(1), Felt(2), "0x5bb9440e27889a364bcb678b1f679ecd1347acdedcbf36e83494f857cc58026"),
