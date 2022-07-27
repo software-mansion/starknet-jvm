@@ -125,7 +125,10 @@ sealed class Transaction {
 }
 
 data class DeclareTransaction(
-    val nonce: Felt, val contractClass: CompiledContract, val signerAddress: Felt, val signature: Signature
+    val nonce: Felt,
+    val contractClass: CompiledContract,
+    val signerAddress: Felt,
+    val signature: Signature
 ) : Transaction() {
     override val type = TransactionType.DECLARE
     override fun getHash(): Felt {
@@ -178,4 +181,3 @@ data class InvokeTransaction(
         chainId,
     )
 }
-

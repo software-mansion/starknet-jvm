@@ -14,6 +14,7 @@ plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
+    id("org.jlleitschuh.gradle.ktlint")
 
     kotlin("plugin.serialization")
 
@@ -31,8 +32,12 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
 
 tasks.jar {
     manifest {
-        attributes(mapOf("Implementation-Title" to project.name,
-            "Implementation-Version" to project.version))
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version
+            )
+        )
     }
 }
 
@@ -45,7 +50,16 @@ tasks.test {
 
     useJUnitPlatform()
 
-    systemProperty("java.library.path", file("${buildDir}/libs/shared").absolutePath)
+    systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
+
+    testLogging {
+        events("PASSED", "SKIPPED", "FAILED")
+        showStandardStreams = true
+    }
+}
+
+ktlint {
+    disabledRules.set(setOf("no-wildcard-imports"))
 }
 
 tasks.jar {
@@ -53,7 +67,7 @@ tasks.jar {
     // This will ignore files that are not there
     listOf("so", "dylib", "dll").forEach {
         from(
-            file("file:${buildDir}/libs/shared/libcrypto_jni.$it").absolutePath
+            file("file:$buildDir/libs/shared/libcrypto_jni.$it").absolutePath
         )
     }
 }
@@ -65,15 +79,9 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation("com.google.guava:guava:30.1.1-jre")
-
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api("org.apache.commons:commons-math3:3.6.1")
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
