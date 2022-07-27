@@ -10,9 +10,11 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 import starknet.crypto.StarknetCurve
-import starknet.data.DECLARE_SENDER_ADDRESS
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
@@ -80,9 +82,14 @@ class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
 
 @Serializable
 data class InvokeFunctionPayload(
-    @SerialName("function_invocation") val invocation: Call,
+    @SerialName("function_invocation")
+    val invocation: Call,
+
     val signature: Signature?,
-    @SerialName("max_fee") val maxFee: Felt?,
+
+    @SerialName("max_fee")
+    val maxFee: Felt?,
+
     val version: Felt?
 )
 
@@ -102,29 +109,14 @@ data class DeployTransactionPayload(
     val contractDefinition: ContractDefinition,
     val salt: Felt,
     val constructorCalldata: Calldata,
-) {
-    constructor(
-        contractDefinition: String,
-        salt: Felt = Felt.ZERO,
-        constructorCalldata: Calldata = emptyList(),
-    ) : this(ContractDefinition(contractDefinition), salt, constructorCalldata)
-}
+)
 
 data class DeclareTransactionPayload(
     val contractDefinition: ContractDefinition,
-    val senderAddress: Felt,
     val maxFee: Felt,
-    val signature: Signature,
     val nonce: Felt,
-) {
-    constructor(
-        contractDefinition: String,
-        senderAddress: Felt = DECLARE_SENDER_ADDRESS,
-        maxFee: Felt = Felt.ZERO,
-        signature: Signature = emptyList(),
-        nonce: Felt = Felt.ZERO
-    ) : this(ContractDefinition(contractDefinition), senderAddress, maxFee, signature, nonce)
-}
+    val signature: Signature,
+)
 
 sealed class Transaction {
     abstract val type: TransactionType

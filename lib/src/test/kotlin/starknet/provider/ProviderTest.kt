@@ -7,9 +7,9 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.selectorFromName
 import starknet.data.types.*
-import starknet.utils.DevnetClient
 import starknet.provider.gateway.GatewayProvider
 import starknet.provider.rpc.JsonRpcProvider
+import starknet.utils.DevnetClient
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -189,7 +189,7 @@ class ProviderTest {
 
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
-        val payload = DeployTransactionPayload(contractDefinition = contents, salt = Felt(1))
+        val payload = DeployTransactionPayload(ContractDefinition(contents), Felt(1), emptyList())
 
         val request = provider.deployContract(payload)
         val response = request.send()
@@ -206,7 +206,8 @@ class ProviderTest {
 
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
-        val payload = DeclareTransactionPayload(contractDefinition = contents)
+        val payload =
+            DeclareTransactionPayload(ContractDefinition(contents), Felt.ZERO, Felt.ZERO, emptyList())
 
         val request = provider.declareContract(payload)
         val response = request.send()

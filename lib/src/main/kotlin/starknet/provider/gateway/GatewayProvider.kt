@@ -1,11 +1,12 @@
 package starknet.provider.gateway
 
 import kotlinx.serialization.json.*
+import starknet.data.DECLARE_SENDER_ADDRESS
+import starknet.data.NetUrls.MAINNET_URL
+import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
-import starknet.data.NetUrls.MAINNET_URL
-import starknet.data.NetUrls.TESTNET_URL
 import starknet.data.types.*
 import starknet.extensions.base64Gzipped
 import starknet.extensions.putFeltAsHex
@@ -107,8 +108,6 @@ class GatewayProvider(
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
         val url = gatewayRequestUrl("add_transaction")
 
-        val decimalCalldata = Json.encodeToJsonElement(payload.invocation.calldata.toDecimal())
-        val decimalSignature = Json.encodeToJsonElement(payload.signature?.toDecimal() ?: emptyList())
         val body = buildJsonObject {
             put("type", JsonPrimitive("INVOKE_FUNCTION"))
             put("contract_address", payload.invocation.contractAddress.hexString())
@@ -155,7 +154,7 @@ class GatewayProvider(
 
         val body = buildJsonObject {
             put("type", "DECLARE")
-            putFeltAsHex("sender_address", payload.senderAddress)
+            putFeltAsHex("sender_address", DECLARE_SENDER_ADDRESS)
             putFeltAsHex("max_fee", payload.maxFee)
             putFeltAsHex("nonce", payload.nonce)
             putJsonArray("signature") { payload.signature }
