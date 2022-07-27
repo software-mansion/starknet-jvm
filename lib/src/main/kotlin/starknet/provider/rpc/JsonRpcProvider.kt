@@ -6,9 +6,7 @@ import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import starknet.data.types.*
-import starknet.extensions.addFeltAsHex
 import starknet.extensions.base64Gzipped
-import starknet.extensions.putFeltAsHex
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
@@ -117,9 +115,9 @@ class JsonRpcProvider(
                 put("program", program.toString().base64Gzipped())
             }
             putJsonArray("constructor_calldata") {
-//            FIXME(restore this once devnet accepts our PR
-//              payload.constructorCalldata.forEach { addFeltAsHex(it) }
-              payload.constructorCalldata.forEach { add(it.value.intValueExact()) }
+//                FIXME(restore this once devnet accepts our PR
+//                payload.constructorCalldata.forEach { addFeltAsHex(it) }
+                payload.constructorCalldata.forEach { add(it.value.intValueExact()) }
             }
 //            putFeltAsHex("contract_address_salt", payload.salt)
             put("contract_address_salt", payload.salt.value.intValueExact())
