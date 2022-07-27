@@ -183,10 +183,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `deploy contract`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload = DeployTransactionPayload(ContractDefinition(contents), Felt(1), emptyList(), Felt(0))
@@ -199,11 +195,21 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `declare contract`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            return
-        }
+    fun `deploy with constructor calldata`(provider: Provider) {
+        val contractPath = Path.of("src/test/resources/compiled/contractWithConstructor.json")
+        val contents = Files.readString(contractPath)
+        val payload =
+            DeployTransactionPayload(ContractDefinition(contents), Felt(1), listOf(Felt(123), Felt(456)), Felt(0))
 
+        val request = provider.deployContract(payload)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `declare contract`(provider: Provider) {
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload =
