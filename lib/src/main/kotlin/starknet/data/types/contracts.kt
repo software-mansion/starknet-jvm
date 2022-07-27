@@ -8,11 +8,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
 import starknet.data.toHex
 import java.io.ByteArrayOutputStream
-import java.math.BigInteger
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
 import java.util.zip.GZIPOutputStream
@@ -76,7 +73,7 @@ data class ContractClass(
     )
 }
 
-object ContractClassGatewaySerializer: KSerializer<ContractClass> {
+object ContractClassGatewaySerializer : KSerializer<ContractClass> {
     @Serializable
     data class ContractClassGateway(
         val program: JsonElement,
