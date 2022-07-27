@@ -5,6 +5,7 @@ import starknet.data.responses.TransactionReceipt
 import starknet.data.types.BlockTag
 import starknet.data.types.Call
 import starknet.data.types.CallContractResponse
+import starknet.data.types.ContractClass
 import starknet.data.types.Felt
 import starknet.data.types.InvokeFunctionPayload
 import starknet.data.types.InvokeFunctionResponse
