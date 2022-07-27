@@ -189,7 +189,7 @@ class ProviderTest {
 
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
-        val payload = DeployTransactionPayload(Felt(1), emptyList(), contents)
+        val payload = DeployTransactionPayload(contractDefinition = contents, salt = Felt(1))
 
         val request = provider.deployContract(payload)
         val response = request.send()
@@ -206,7 +206,7 @@ class ProviderTest {
 
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
-        val payload = DeclareTransactionPayload(contents)
+        val payload = DeclareTransactionPayload(contractDefinition = contents)
 
         val request = provider.declareContract(payload)
         val response = request.send()

@@ -10,6 +10,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.*
 import starknet.crypto.StarknetCurve
 import starknet.data.DECLARE_SENDER_ADDRESS
 
@@ -33,8 +34,7 @@ enum class StarknetChainId(val value: Felt) {
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"),
-    PENDING("pending")
+    LATEST("latest"), PENDING("pending")
 }
 
 @Serializable(with = BlockHashOrTagSerializer::class)
@@ -58,11 +58,11 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
-class BlockHashOrTagSerializer(): KSerializer<BlockHashOrTag> {
+class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
     override fun deserialize(decoder: Decoder): BlockHashOrTag {
         val value = decoder.decodeString()
 
-        if (BlockTag.values().map{ it.tag }.contains(value)) {
+        if (BlockTag.values().map { it.tag }.contains(value)) {
             val tag = BlockTag.valueOf(value)
             return BlockHashOrTag.Tag(tag)
         }
@@ -86,26 +86,45 @@ data class InvokeFunctionPayload(
     val version: Felt?
 )
 
-@Serializable
+data class ContractDefinition(
+    val contract: String
+) {
+    fun parseContract(): Triple<JsonElement, JsonElement, JsonElement> {
+        val compiledContract = Json.parseToJsonElement(this.contract).jsonObject
+        val program = compiledContract["program"]!!
+        val entryPointsByType = compiledContract["entry_points_by_type"]!!
+        val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+        return Triple(program, entryPointsByType, abi)
+    }
+}
+
 data class DeployTransactionPayload(
-    @SerialName("contract_address_salt")
+    val contractDefinition: ContractDefinition,
     val salt: Felt,
-
-    @SerialName("constructor_calldata")
     val constructorCalldata: Calldata,
+) {
+    constructor(
+        contractDefinition: String,
+        salt: Felt = Felt.ZERO,
+        constructorCalldata: Calldata = emptyList(),
+    ) : this(ContractDefinition(contractDefinition), salt, constructorCalldata)
+}
 
-    @SerialName("contract_definition")
-    val contractDefinition: String
-)
-
-@Serializable
 data class DeclareTransactionPayload(
-    val contractDefinition: String,
-    val senderAddress: Felt = DECLARE_SENDER_ADDRESS,
-    val maxFee: Felt = Felt.ZERO,
-    val signature: Signature = emptyList(),
-    val nonce: Felt = Felt.ZERO
-)
+    val contractDefinition: ContractDefinition,
+    val senderAddress: Felt,
+    val maxFee: Felt,
+    val signature: Signature,
+    val nonce: Felt,
+) {
+    constructor(
+        contractDefinition: String,
+        senderAddress: Felt = DECLARE_SENDER_ADDRESS,
+        maxFee: Felt = Felt.ZERO,
+        signature: Signature = emptyList(),
+        nonce: Felt = Felt.ZERO
+    ) : this(ContractDefinition(contractDefinition), senderAddress, maxFee, signature, nonce)
+}
 
 sealed class Transaction {
     abstract val type: TransactionType
