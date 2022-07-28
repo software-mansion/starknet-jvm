@@ -131,18 +131,6 @@ class GatewayProvider(
         return HttpRequest(httpPayload, ContractClassGatewaySerializer)
     }
 
-    override fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not available from gateway")
-    }
-
-    override fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not available from gateway")
-    }
-
-    override fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
-        TODO("Not available from gateway")
-    }
-
     private fun getClassHashAt(blockParam: Pair<String, String>, contractAddress: Felt): Request<Felt> {
         val url = feederGatewayRequestUrl("get_class_hash_at")
         val params = listOf(

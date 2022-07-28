@@ -86,9 +86,7 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
         val programString = Json.encodeToString(response.program)
 
-        GZIPOutputStream(bos).bufferedWriter(UTF_8).use { writer ->
-            writer.write(programString)
-        }
+        GZIPOutputStream(bos).bufferedWriter(UTF_8).apply { write(programString) }
 
         val base64Encoder = Base64.getEncoder()
         val program = base64Encoder.encodeToString(bos.toByteArray())

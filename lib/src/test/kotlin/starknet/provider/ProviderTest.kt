@@ -148,8 +148,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at block hash`(provider: Provider) {
-        // Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
         return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
 
         val latestBlock = devnetClient.getLatestBlock()
 
@@ -162,8 +166,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at block number`(provider: Provider) {
-        // Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
         return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
 
         val latestBlock = devnetClient.getLatestBlock()
 
@@ -176,8 +184,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at latest block`(provider: Provider) {
-        // Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
         return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
 
         val request = provider.getClassAt(BlockTag.LATEST, contractAddress)
         val response = request.send()
@@ -188,8 +200,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at pending block`(provider: Provider) {
-        // Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
         return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
 
         val request = provider.getClassAt(BlockTag.PENDING, contractAddress)
         val response = request.send()
