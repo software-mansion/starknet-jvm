@@ -103,18 +103,18 @@ data class DeclareTransaction(
     }
 }
 
-// data class DeployTransaction(
-//    val contractDefinition: CompiledContract,
-//    val contractAddressSalt: Felt,
-//    val constructorCalldata: Calldata,
-//    val nonce: Felt?
-// ) : Transaction() {
-//    override val type = TransactionType.DEPLOY
-//
-//    override fun getHash(): Felt {
-//        TODO("Not yet implemented")
-//    }
-// }
+data class DeployTransaction(
+    val contractDefinition: CompiledContract,
+    val contractAddressSalt: Felt,
+    val constructorCalldata: Calldata,
+    val nonce: Felt?
+) : Transaction() {
+    override val type = TransactionType.DEPLOY
+
+    override fun getHash(): Felt {
+        TODO("Not yet implemented")
+    }
+}
 
 @Serializable
 data class InvokeFunctionTransaction(
