@@ -91,6 +91,9 @@ data class InvokeFunctionPayload(
     val version: Felt?
 )
 
+class InvalidContractException(missingKey: String) :
+    Exception("Attempted to parse an invalid contract. Missing key: $missingKey")
+
 data class ContractDefinition(var contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
@@ -105,8 +108,9 @@ data class ContractDefinition(var contract: String) {
 
     private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
-        val program = compiledContract["program"]!!
-        val entryPointsByType = compiledContract["entry_points_by_type"]!!
+        val program = compiledContract["program"] ?: throw InvalidContractException("program")
+        val entryPointsByType =
+            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
         return Triple(program, entryPointsByType, abi)
     }

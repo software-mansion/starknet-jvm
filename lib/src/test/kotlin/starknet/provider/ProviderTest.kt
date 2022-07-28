@@ -3,6 +3,7 @@ package starknet.provider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.data.selectorFromName
@@ -219,5 +220,12 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+    }
+
+    @Test
+    fun `make contract definition with invalid json`() {
+        assertThrows(InvalidContractException::class.java) {
+            ContractDefinition("{}")
+        }
     }
 }
