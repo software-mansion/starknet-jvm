@@ -26,11 +26,11 @@ data class Felt(val value: BigInteger) {
     }
 
     override fun toString(): String {
-        return "Felt(${toHex(value)})"
+        return "Felt(${value.toHex()})"
     }
 
     fun hexString(): String {
-        return toHex(value)
+        return value.toHex()
     }
 
     fun decString(): String {
@@ -71,6 +71,6 @@ object FeltSerializer : KSerializer<Felt> {
     }
 
     override fun serialize(encoder: Encoder, value: Felt) {
-        encoder.encodeString(toHex(value.value))
+        encoder.encodeString(value.value.toHex())
     }
 }

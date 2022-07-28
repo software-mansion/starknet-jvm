@@ -239,8 +239,6 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-
-        print(response)
     }
 
     @ParameterizedTest

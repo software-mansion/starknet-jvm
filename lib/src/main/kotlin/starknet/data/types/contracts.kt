@@ -57,19 +57,26 @@ data class ContractEntryPoint(
     val selector: Felt
 ) {
     constructor(offset: Int, selector: Felt) :
-        this(toHex(offset), selector)
+        this(offset.toHex(), selector)
 }
 
 @Serializable
 data class ContractClass(
     val program: String,
-    @SerialName("entry_points_by_type") val entryPointsByType: EntryPointsByType
+
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType
 ) {
     @Serializable
     data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR") val constructor: List<ContractEntryPoint>,
-        @SerialName("EXTERNAL") val external: List<ContractEntryPoint>,
-        @SerialName("L1_HANDLER") val l1Handler: List<ContractEntryPoint>,
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<ContractEntryPoint>,
+
+        @SerialName("EXTERNAL")
+        val external: List<ContractEntryPoint>,
+
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<ContractEntryPoint>,
     )
 }
 
@@ -77,7 +84,9 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
     @Serializable
     data class ContractClassGateway(
         val program: JsonElement,
-        @SerialName("entry_points_by_type") val entryPointsByType: ContractClass.EntryPointsByType
+
+        @SerialName("entry_points_by_type")
+        val entryPointsByType: ContractClass.EntryPointsByType
     )
 
     override fun deserialize(decoder: Decoder): ContractClass {
@@ -86,7 +95,7 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
         val programString = Json.encodeToString(response.program)
 
-        GZIPOutputStream(bos).bufferedWriter(UTF_8).apply { write(programString) }
+        GZIPOutputStream(bos).bufferedWriter(UTF_8).use { it.write(programString) }
 
         val base64Encoder = Base64.getEncoder()
         val program = base64Encoder.encodeToString(bos.toByteArray())
@@ -106,11 +115,15 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
 @Serializable
 data class GetClassPayload(
-    @SerialName("class_hash") val classHash: Felt
+    @SerialName("class_hash")
+    val classHash: Felt
 )
 
 @Serializable
 data class GetClassAtPayload(
-    @SerialName("block_id") val blockId: String,
-    @SerialName("contract_address") val contractAddress: Felt
+    @SerialName("block_id")
+    val blockId: String,
+
+    @SerialName("contract_address")
+    val contractAddress: Felt
 )

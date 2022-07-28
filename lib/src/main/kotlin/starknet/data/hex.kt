@@ -11,5 +11,5 @@ fun parseHex(value: String): BigInteger {
     return BigInteger(value.removePrefix("0x"), 16)
 }
 
-fun toHex(value: BigInteger): String = "0x" + value.toString(16)
-fun toHex(value: Int): String = "0x" + value.toString(16)
+fun BigInteger.toHex(): String = "0x" + this.toString(16)
+fun Int.toHex(): String = "0x" + this.toString(16)
