@@ -25,4 +25,37 @@ class HttpRequest<T>(
             Json.decodeFromString(deserializer, response)
         }
     }
+
+    companion object {
+        fun <T> makeRequest(
+            url: String,
+            method: String,
+            body: String,
+            deserializer: DeserializationStrategy<T>
+        ): HttpRequest<T> {
+            val httpPayload = HttpService.Payload(url, method, body)
+            return HttpRequest(httpPayload, deserializer)
+        }
+
+        fun <T> makeRequest(
+            url: String,
+            method: String,
+            params: List<Pair<String, String>>,
+            deserializer: DeserializationStrategy<T>
+        ): HttpRequest<T> {
+            val httpPayload = HttpService.Payload(url, method, params)
+            return HttpRequest(httpPayload, deserializer)
+        }
+
+        fun <T> makeRequest(
+            url: String,
+            method: String,
+            params: List<Pair<String, String>>,
+            body: String,
+            deserializer: DeserializationStrategy<T>
+        ): HttpRequest<T> {
+            val httpPayload = HttpService.Payload(url, method, params, body)
+            return HttpRequest(httpPayload, deserializer)
+        }
+    }
 }
