@@ -8,7 +8,6 @@ import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
 import starknet.data.types.*
-import starknet.extensions.base64Gzipped
 import starknet.extensions.putFeltAsHex
 import starknet.provider.Provider
 import starknet.provider.Request
@@ -127,8 +126,6 @@ class GatewayProvider(
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
         val url = gatewayRequestUrl("add_transaction")
-        val (program, entryPointsByType, abi) = payload.contractDefinition.parseContract()
-        val compressedProgram = program.toString().base64Gzipped()
 
         val body = buildJsonObject {
             put("type", "DEPLOY")
@@ -136,11 +133,7 @@ class GatewayProvider(
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal().forEach { add(it) }
             }
-            putJsonObject("contract_definition") {
-                put("program", compressedProgram)
-                put("entry_points_by_type", entryPointsByType)
-                put("abi", abi)
-            }
+            put("contract_definition", payload.contractDefinition.toJson())
             putFeltAsHex("version", payload.version)
         }
 
@@ -150,8 +143,6 @@ class GatewayProvider(
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
         val url = gatewayRequestUrl("add_transaction")
-        val (program, entryPointsByType, abi) = payload.contractDefinition.parseContract()
-        val compressedProgram = program.toString().base64Gzipped()
 
         val body = buildJsonObject {
             put("type", "DECLARE")
@@ -160,11 +151,7 @@ class GatewayProvider(
             putFeltAsHex("nonce", payload.nonce)
             putFeltAsHex("version", payload.version)
             putJsonArray("signature") { payload.signature }
-            putJsonObject("contract_class") {
-                put("program", compressedProgram)
-                put("entry_points_by_type", entryPointsByType)
-                put("abi", abi)
-            }
+            put("contract_class", payload.contractDefinition.toJson())
         }
 
         val httpPayload = HttpService.Payload(url, "POST", body.toString())
