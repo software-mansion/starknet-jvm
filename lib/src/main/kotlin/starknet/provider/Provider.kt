@@ -1,5 +1,7 @@
 package starknet.provider
 
+import starknet.data.responses.Transaction
+import starknet.data.responses.TransactionReceipt
 import starknet.data.types.*
 
 /**
@@ -36,7 +38,7 @@ interface Provider {
      * @param key an address of the storage variable inside contract
      * @param blockTag
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -47,7 +49,25 @@ interface Provider {
      * @param key an address of the storage variable inside contract
      * @param blockHash a hash of the block in respect to what the query will be made
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt>
+
+    /**
+     * Get a transaction.
+     *
+     * Get the details of a submitted transaction.
+     *
+     * @param transactionHash a hash of sent transaction
+     */
+    fun getTransaction(transactionHash: Felt): Request<Transaction>
+
+    /**
+     * Get transaction receipt
+     *
+     * Get a receipt of the transactions.
+     *
+     * @param transactionHash a hash of sent transaction
+     */
+    fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt>
 
     /**
      * Invoke a function.
@@ -57,4 +77,22 @@ interface Provider {
      * @param payload invoke function payload
      */
     fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
+
+    /**
+     * Deploy a contract
+     *
+     * Deploy a contract on StarkNet.
+     *
+     * @param payload deploy transaction payload
+     */
+    fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
+
+    /**
+     * Declare contract
+     *
+     * Declare a contract on StarkNet.
+     *
+     * @param payload declare transaction payload
+     */
+    fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
 }

@@ -17,7 +17,7 @@ import java.math.BigInteger
 private fun bigintToNative(input: BigInteger): ByteArray {
     val converted = input.toByteArray().apply { reverse() }
     if (converted.size == 32) {
-        return converted;
+        return converted
     }
     return converted.copyOf(newSize = 32)
 }
@@ -43,7 +43,7 @@ object StarknetCurve {
     val CURVE_ORDER: BigInteger = BigInteger("800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F", 16)
 
     init {
-        System.loadLibrary("crypto_jni")
+        NativeLoader.load("crypto_jni")
     }
 
     /**
@@ -132,15 +132,15 @@ object StarknetCurve {
 
         // Generated K might not be suitable for signing. Probability of it is very low.
         // https://github.com/starkware-libs/cairo-lang/blob/167b28bcd940fd25ea3816204fa882a0b0a49603/src/starkware/crypto/starkware/crypto/signature/signature.py#L141
-        var lastError: Exception? = null;
+        var lastError: Exception? = null
         for (i in 0 until 3) {
             try {
                 return sign(privateKey, hash, cal.nextK())
             } catch (e: IllegalArgumentException) {
                 // This shouldn't really happen, all Felt instances should work
-                throw e;
+                throw e
             } catch (e: Exception) {
-                lastError = e;
+                lastError = e
             }
         }
 
@@ -149,14 +149,14 @@ object StarknetCurve {
             throw AssertionError("No signature or error after signing.")
         }
 
-        throw lastError;
+        throw lastError
     }
 
     /**
      * Native signature verification.
      */
     @JvmStatic
-    private external fun verify(publicKey: ByteArray, hash: ByteArray, r: ByteArray, w: ByteArray): Boolean;
+    private external fun verify(publicKey: ByteArray, hash: ByteArray, r: ByteArray, w: ByteArray): Boolean
 
     /**
      * Verify a signature.
@@ -181,7 +181,7 @@ object StarknetCurve {
      * Native getPublicKey.
      */
     @JvmStatic
-    private external fun getPublicKey(privateKey: ByteArray): ByteArray;
+    private external fun getPublicKey(privateKey: ByteArray): ByteArray
 
     /**
      * Get a public key for provided private key.

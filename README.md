@@ -1,8 +1,17 @@
 # starknet.kt
 StarkNet SDK for Kotlin
 
+## Development
 
-## Ensuring idiomatic Java code
+### Hooks
+Run
+```
+./gradlew addKtlintFormatGitPreCommitHook
+./gradlew addKtlintCheckGitPreCommitHook
+```
+
+
+### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 
 1. When using file level functions use `@file:JvmName(NAME)` to ensure a nice name without `Kt` suffix.
 2. When using a companion object mark every property/function with `@JvmStatic`. This way they are accessible as static from the class. Without it `Class.INSTANCE` would have to be used.

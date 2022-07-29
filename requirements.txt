@@ -1,0 +1,3 @@
+# revert to pypi source once new devnet version releases
+# starknet-devnet==0.2.6
+git+https://github.com/Shard-Labs/starknet-devnet.git

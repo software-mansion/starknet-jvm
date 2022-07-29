@@ -1,9 +1,9 @@
 package starknet.signer
 
 import starknet.crypto.StarknetCurve
+import starknet.data.types.Felt
 import starknet.data.types.Signature
 import starknet.data.types.Transaction
-import starknet.data.types.Felt
 
 /**
  * Signer implementing a stark curve signature (default signature used on StarkNet).

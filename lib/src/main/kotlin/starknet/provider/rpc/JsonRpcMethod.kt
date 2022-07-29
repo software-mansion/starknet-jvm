@@ -8,5 +8,9 @@ package starknet.provider.rpc
 enum class JsonRpcMethod(val methodName: String) {
     CALL("starknet_call"),
     INVOKE_TRANSACTION("starknet_addInvokeTransaction"),
-    GET_STORAGE_AT("starknet_getStorageAt")
+    GET_STORAGE_AT("starknet_getStorageAt"),
+    GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
+    GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    DECLARE("starknet_addDeclareTransaction"),
+    DEPLOY("starknet_addDeployTransaction")
 }

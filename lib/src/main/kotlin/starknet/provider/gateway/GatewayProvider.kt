@@ -1,12 +1,18 @@
 package starknet.provider.gateway
 
 import kotlinx.serialization.json.*
-import okhttp3.HttpUrl.Companion.toHttpUrl
+import starknet.data.DECLARE_SENDER_ADDRESS
+import starknet.data.NetUrls.MAINNET_URL
+import starknet.data.NetUrls.TESTNET_URL
+import starknet.data.responses.Transaction
+import starknet.data.responses.TransactionReceipt
+import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
 import starknet.data.types.*
+import starknet.extensions.put
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
-import starknet.service.http.HttpService
+import starknet.service.http.HttpService.Payload
 
 /**
  * A provider for interacting with StarkNet gateway.
@@ -20,49 +26,29 @@ class GatewayProvider(
     private val gatewayUrl: String,
     override val chainId: StarknetChainId
 ) : Provider {
-    private fun mapCalldataToDecimal(calldata: Calldata): JsonElement {
-        return JsonArray(calldata.map {
-            JsonPrimitive(it.decString())
-        })
+    @Suppress("SameParameterValue")
+    private fun gatewayRequestUrl(method: String): String {
+        return "$gatewayUrl/$method"
     }
 
-    private fun buildRequestUrl(
-        baseUrl: String,
-        endpoint: String,
-        params: List<Pair<String, String>>? = emptyList()
-    ): String {
-        val urlBuilder = baseUrl.toHttpUrl().newBuilder()
-
-        urlBuilder.addPathSegment(endpoint)
-
-        if (params != null) {
-            for (param in params) {
-                urlBuilder.addQueryParameter(param.first, param.second)
-            }
-        }
-
-        return urlBuilder.build().toString()
+    private fun feederGatewayRequestUrl(method: String): String {
+        return "$feederGatewayUrl/$method"
     }
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
-        val params = buildList {
-            add(Pair("blockHash", payload.blockHashOrTag.string()))
+        val url = feederGatewayRequestUrl("call_contract")
+
+        val params = listOf(Pair("blockHash", payload.blockHashOrTag.string()))
+
+        val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
+        val body = buildJsonObject {
+            put("contract_address", payload.request.contractAddress.hexString())
+            put("entry_point_selector", payload.request.entrypoint.hexString())
+            put("calldata", decimalCalldata)
+            put("signature", JsonArray(emptyList()))
         }
 
-        val url = buildRequestUrl(feederGatewayUrl, "call_contract", params)
-
-        val decimalCalldata = mapCalldataToDecimal(payload.request.calldata)
-
-        val jsonPayload = Json.encodeToJsonElement(
-            mapOf(
-                "contract_address" to payload.request.contractAddress,
-                "entry_point_selector" to payload.request.entrypoint,
-                "calldata" to decimalCalldata,
-            )
-        )
-
-        val payload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
-        return HttpRequest(payload, CallContractResponse.serializer())
+        return HttpRequest(Payload(url, "POST", params, body), CallContractResponse.serializer())
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
@@ -77,48 +63,111 @@ class GatewayProvider(
         return callContract(payload)
     }
 
-    private fun getStorageAt(payload: GetStorageAtPayload): Request<GetStorageAtResponse> {
-        val params = buildList {
-            add(Pair("contractAddress", payload.contractAddress.hexString()))
-            add(Pair("key", payload.key.hexString()))
-            add(Pair("blockHash", payload.blockHashOrTag.string()))
-        }
+    private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
+        val params = listOf(
+            Pair("contractAddress", payload.contractAddress.hexString()),
+            Pair("key", payload.key.hexString()),
+            Pair("blockHash", payload.blockHashOrTag.string())
+        )
+        val url = feederGatewayRequestUrl("get_storage_at")
 
-        val url = buildRequestUrl(feederGatewayUrl, "get_storage_at", params)
-
-        val payload = HttpService.Payload(url, "GET", emptyList(), "")
-        return HttpRequest(payload, GetStorageAtResponse.serializer())
+        return HttpRequest(Payload(url, "GET", params), Felt.serializer())
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<GetStorageAtResponse> {
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<GetStorageAtResponse> {
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
 
         return getStorageAt(payload)
     }
 
+    override fun getTransaction(transactionHash: Felt): Request<Transaction> {
+        val url = feederGatewayRequestUrl("get_transaction")
+        val params = listOf(Pair("transactionHash", transactionHash.hexString()))
+
+        return HttpRequest(Payload(url, "GET", params), GatewayTransactionTransformingSerializer)
+    }
+
+    override fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt> {
+        val url = feederGatewayRequestUrl("get_transaction_receipt")
+        val params = listOf(Pair("transactionHash", transactionHash.hexString()))
+
+        return HttpRequest(Payload(url, "GET", params), TransactionReceipt.serializer())
+    }
+
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
-        val url = buildRequestUrl(gatewayUrl, "add_transaction")
+        val url = gatewayRequestUrl("add_transaction")
 
-        val decimalCalldata = mapCalldataToDecimal(payload.invocation.calldata)
+        val body = buildJsonObject {
+            put("type", JsonPrimitive("INVOKE_FUNCTION"))
+            put("contract_address", payload.invocation.contractAddress.hexString())
+            put("entry_point_selector", payload.invocation.entrypoint.hexString())
+            putJsonArray("calldata") {
+                payload.invocation.calldata.toDecimal().forEach { add(it) }
+            }
+            put("max_fee", payload.maxFee?.hexString())
+            putJsonArray("signature") {
+                payload.signature?.toDecimal()?.forEach { add(it) }
+            }
+        }
 
-        val jsonPayload = Json.encodeToJsonElement(
-            mapOf(
-                "type" to JsonPrimitive("INVOKE_FUNCTION"),
-                "contract_address" to payload.invocation.contractAddress,
-                "entry_point_selector" to payload.invocation.entrypoint,
-                "calldata" to decimalCalldata,
-                "max_fee" to payload.maxFee,
-                "signature" to payload.signature
+        return HttpRequest(Payload(url, "POST", body), InvokeFunctionResponse.serializer())
+    }
+
+    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
+        val url = gatewayRequestUrl("add_transaction")
+
+        val body = buildJsonObject {
+            put("type", "DEPLOY")
+            put("contract_address_salt", payload.salt)
+            putJsonArray("constructor_calldata") {
+                payload.constructorCalldata.toDecimal().forEach { add(it) }
+            }
+            put("contract_definition", payload.contractDefinition.toJson())
+            put("version", payload.version)
+        }
+
+        return HttpRequest(Payload(url, "POST", body), DeployResponse.serializer())
+    }
+
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+        val url = gatewayRequestUrl("add_transaction")
+
+        val body = buildJsonObject {
+            put("type", "DECLARE")
+            put("sender_address", DECLARE_SENDER_ADDRESS)
+            put("max_fee", payload.maxFee)
+            put("nonce", payload.nonce)
+            put("version", payload.version)
+            putJsonArray("signature") { payload.signature }
+            put("contract_class", payload.contractDefinition.toJson())
+        }
+
+        return HttpRequest(Payload(url, "POST", body), DeclareResponse.serializer())
+    }
+
+    companion object Factory {
+        @JvmStatic
+        fun makeTestnetClient(): GatewayProvider {
+            return GatewayProvider(
+                "$TESTNET_URL/feeder_gateway",
+                "$TESTNET_URL/gateway",
+                StarknetChainId.TESTNET
             )
-        )
+        }
 
-        val payload = HttpService.Payload(url, "POST", emptyList(), jsonPayload.toString())
-        return HttpRequest(payload, InvokeFunctionResponse.serializer())
+        @JvmStatic
+        fun makeMainnetClient(): GatewayProvider {
+            return GatewayProvider(
+                "$MAINNET_URL/feeder_gateway",
+                "$MAINNET_URL/gateway",
+                StarknetChainId.MAINNET
+            )
+        }
     }
 }

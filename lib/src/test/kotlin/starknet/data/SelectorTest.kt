@@ -1,8 +1,8 @@
 package starknet.data
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import starknet.data.types.Felt
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 internal class SelectorTest {
     @Test

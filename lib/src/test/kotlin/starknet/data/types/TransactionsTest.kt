@@ -1,9 +1,8 @@
 package starknet.data.types
 
-import starknet.data.types.Felt
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 internal class TransactionsTest {
     @Test

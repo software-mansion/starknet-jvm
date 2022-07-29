@@ -10,6 +10,8 @@
 rootProject.name = "starknet.kt"
 include("lib")
 include("android")
+include("androiddemo")
+include("javademo")
 
 pluginManagement {
     repositories {
@@ -26,4 +28,3 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-include(":androiddemo")

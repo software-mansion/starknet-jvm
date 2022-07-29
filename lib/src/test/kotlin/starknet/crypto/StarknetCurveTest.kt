@@ -1,13 +1,10 @@
 package starknet.crypto
 
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import starknet.data.types.Felt
 import starknet.data.types.toFelt
 import java.math.BigInteger
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-
 
 val PRIVATE_KEY = Felt.fromHex("0x4070e7abfa479cf8a30d38895e93800a88862c4a65aa00e2b11495998818046")
 val PUBLIC_KEY = Felt.fromHex("0x7697f8f9a4c3e2b1efd882294462fda2ca9c439d02a3a04cf0a0cdb627f11ee")
@@ -97,7 +94,7 @@ internal class StarknetCurveTest {
 
     @Test
     fun pedersen() {
-        val maxFelt = (Felt.PRIME - BigInteger.ONE).toFelt;
+        val maxFelt = (Felt.PRIME - BigInteger.ONE).toFelt
         // Generated using cairo-lang package
         val cases = arrayOf(
             Triple(Felt(1), Felt(2), "0x5bb9440e27889a364bcb678b1f679ecd1347acdedcbf36e83494f857cc58026"),
