@@ -8,7 +8,7 @@ Although written in Kotlin, StarkNet.kt has been created with compatibility with
 ## Example usages in Java
 
 ```java
-public class StarknetExample {
+public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
         var provider = new GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET);
@@ -21,10 +21,10 @@ public class StarknetExample {
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<GetStorageAtResponse> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        GetStorageAtResponse response = request.send();
+        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        Felt response = request.send();
 
-        System.out.println(response.getResult());
+        System.out.println(response);
     }
 }
 ```
@@ -47,7 +47,7 @@ fun main() {
     val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
     val response = request.send()
 
-    println(response.result)
+    println(response)
 }
 ```
 
@@ -67,10 +67,10 @@ public class Main {
         // Make an asynchronous request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<GetStorageAtResponse> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        CompletableFuture<GetStorageAtResponse> future = request.sendAsync();
+        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        CompletableFuture<Felt> future = request.sendAsync();
 
-        future.thenAccept(res -> System.out.println(res.getResult()));
+        future.thenAccept(System.out::println);
     }
 }
 ```
@@ -96,8 +96,6 @@ fun main() {
     val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
     val future = request.sendAsync()
 
-    future.thenAccept {
-        println(it.result)
-    }
+    future.thenAccept { println(it) }
 }
 ```
