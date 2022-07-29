@@ -7,6 +7,7 @@ import starknet.data.types.Felt
 import starknet.data.types.TransactionStatus
 
 @Serializable
+// OptIn needed because @JsonNames is part of the experimental serialization api
 data class TransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
     @JsonNames("transaction_hash", "txn_hash")
     val hash: Felt,

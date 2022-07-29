@@ -104,4 +104,30 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
+
+    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
+        val params = buildJsonObject {
+            put("contract_definition", payload.contractDefinition.toRpcJson())
+            putJsonArray("constructor_calldata") {
+//                FIXME(restore this once devnet accepts our PR
+//                payload.constructorCalldata.forEach { addFeltAsHex(it) }
+                payload.constructorCalldata.forEach { add(it.value.intValueExact()) }
+            }
+//            putFeltAsHex("contract_address_salt", payload.salt)
+            put("contract_address_salt", payload.salt.value.intValueExact())
+        }
+
+        return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
+    }
+
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+        val params = buildJsonObject {
+            put("contract_class", payload.contractDefinition.toRpcJson())
+//            FIXME(restore this once devnet accepts our PR
+//            putFeltAsHex("version", payload.version)
+            put("version", 0)
+        }
+
+        return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
+    }
 }
