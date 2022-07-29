@@ -17,6 +17,7 @@ sealed class Transaction {
 
 @Serializable
 @SerialName("DEPLOY")
+// OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployTransaction @OptIn(ExperimentalSerializationApi::class) constructor(
     @JsonNames("contract_address")
     val contractAddress: Felt,

@@ -21,6 +21,7 @@ data class InvokeFunctionResponse(
 ) : Response()
 
 @Serializable
+// OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployResponse @OptIn(ExperimentalSerializationApi::class) constructor(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
