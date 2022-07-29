@@ -12,6 +12,7 @@ import starknet.extensions.putFeltAsHex
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
+import starknet.service.http.HttpService
 
 /**
  * A provider for interacting with StarkNet gateway.
@@ -47,7 +48,7 @@ class GatewayProvider(
             put("signature", JsonArray(emptyList()))
         }
 
-        return HttpRequest.makeRequest(url, "POST", params, body.toString(), CallContractResponse.serializer())
+        return HttpRequest(HttpService.Payload(url, "POST", params, body.toString()), CallContractResponse.serializer())
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
@@ -70,7 +71,7 @@ class GatewayProvider(
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
-        return HttpRequest.makeRequest(url, "GET", params, Felt.serializer())
+        return HttpRequest(HttpService.Payload(url, "GET", params), Felt.serializer())
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
@@ -89,14 +90,14 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_transaction")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        return HttpRequest.makeRequest(url, "GET", params, GatewayTransactionTransformingSerializer)
+        return HttpRequest(HttpService.Payload(url, "GET", params), GatewayTransactionTransformingSerializer)
     }
 
     override fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt> {
         val url = feederGatewayRequestUrl("get_transaction_receipt")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        return HttpRequest.makeRequest(url, "GET", params, TransactionReceipt.serializer())
+        return HttpRequest(HttpService.Payload(url, "GET", params), TransactionReceipt.serializer())
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
@@ -115,7 +116,7 @@ class GatewayProvider(
             }
         }
 
-        return HttpRequest.makeRequest(url, "POST", body.toString(), InvokeFunctionResponse.serializer())
+        return HttpRequest(HttpService.Payload(url, "POST", body.toString()), InvokeFunctionResponse.serializer())
     }
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
@@ -131,7 +132,7 @@ class GatewayProvider(
             putFeltAsHex("version", payload.version)
         }
 
-        return HttpRequest.makeRequest(url, "POST", body.toString(), DeployResponse.serializer())
+        return HttpRequest(HttpService.Payload(url, "POST", body.toString()), DeployResponse.serializer())
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
@@ -147,7 +148,8 @@ class GatewayProvider(
             put("contract_class", payload.contractDefinition.toJson())
         }
 
-        return HttpRequest.makeRequest(url, "POST", body.toString(), DeclareResponse.serializer())
+        return HttpRequest(HttpService.Payload(url, "POST", body.toString()), DeclareResponse.serializer())
+
     }
 
     companion object Factory {
