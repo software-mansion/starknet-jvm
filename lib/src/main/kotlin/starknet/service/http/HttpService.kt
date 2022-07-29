@@ -1,5 +1,6 @@
 package starknet.service.http
 
+import kotlinx.serialization.json.JsonObject
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -16,7 +17,14 @@ class HttpService {
     data class Payload(val url: String, val method: String, val params: List<Pair<String, String>>, val body: String?) {
         constructor(url: String, method: String, params: List<Pair<String, String>>) : this(url, method, params, null)
 
-        constructor(url: String, method: String, body: String) : this(url, method, emptyList(), body)
+        constructor(url: String, method: String, body: JsonObject) : this(url, method, emptyList(), body.toString())
+
+        constructor(url: String, method: String, params: List<Pair<String, String>>, body: JsonObject) : this(
+            url,
+            method,
+            params,
+            body.toString()
+        )
     }
 
     class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
