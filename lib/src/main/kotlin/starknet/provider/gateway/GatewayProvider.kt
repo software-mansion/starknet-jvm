@@ -8,7 +8,7 @@ import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
 import starknet.data.types.*
-import starknet.extensions.putFeltAsHex
+import starknet.extensions.put
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
@@ -124,12 +124,12 @@ class GatewayProvider(
 
         val body = buildJsonObject {
             put("type", "DEPLOY")
-            putFeltAsHex("contract_address_salt", payload.salt)
+            put("contract_address_salt", payload.salt)
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal().forEach { add(it) }
             }
             put("contract_definition", payload.contractDefinition.toJson())
-            putFeltAsHex("version", payload.version)
+            put("version", payload.version)
         }
 
         return HttpRequest(Payload(url, "POST", body), DeployResponse.serializer())
@@ -140,10 +140,10 @@ class GatewayProvider(
 
         val body = buildJsonObject {
             put("type", "DECLARE")
-            putFeltAsHex("sender_address", DECLARE_SENDER_ADDRESS)
-            putFeltAsHex("max_fee", payload.maxFee)
-            putFeltAsHex("nonce", payload.nonce)
-            putFeltAsHex("version", payload.version)
+            put("sender_address", DECLARE_SENDER_ADDRESS)
+            put("max_fee", payload.maxFee)
+            put("nonce", payload.nonce)
+            put("version", payload.version)
             putJsonArray("signature") { payload.signature }
             put("contract_class", payload.contractDefinition.toJson())
         }
