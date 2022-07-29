@@ -1,5 +1,11 @@
-# starknet.kt
-StarkNet SDK for Kotlin
+<h2 align="center">☕ starknet jvm ☕</h2>
+
+[StarkNet](https://starkware.co/starknet/#:~:text=Live%20on%20Mainnet-,What%20is%20StarkNet%3F,-StarkNet%20is%20a) SDK for JVM languages:
+- Java
+- Kotlin
+- Scala
+- Clojure
+- Groovy
 
 ## Development
 
