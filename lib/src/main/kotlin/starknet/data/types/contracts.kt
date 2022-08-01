@@ -126,7 +126,7 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
         get() = ContractClass.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: ContractClass) {
-        TODO("Not implemented. It is used only for deserialization.")
+        throw Exception("Class used for deserialization only.")
     }
 }
 
