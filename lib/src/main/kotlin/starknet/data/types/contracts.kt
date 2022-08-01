@@ -8,7 +8,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import starknet.data.toHex
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
@@ -53,12 +52,9 @@ data class CompiledContract(
 
 @Serializable
 data class ContractEntryPoint(
-    val offset: String,
+    val offset: Felt,
     val selector: Felt
-) {
-    constructor(offset: Int, selector: Felt) :
-        this(offset.toHex(), selector)
-}
+)
 
 @Serializable
 data class ContractClass(
