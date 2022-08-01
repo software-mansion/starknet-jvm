@@ -2,8 +2,12 @@
 
 package starknet.data.types
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonElement
+import starknet.extensions.base64Gzipped
 
 enum class AbiEntryType {
     FELT,
@@ -70,4 +74,73 @@ data class CompiledContract(
 
     @SerialName("abi")
     val abi: List<String> = emptyList(),
+)
+
+@Serializable
+data class ContractEntryPoint(
+    val offset: Felt,
+    val selector: Felt
+)
+
+@Serializable
+data class ContractClass(
+    val program: String,
+
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType
+) {
+    @Serializable
+    data class EntryPointsByType(
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<ContractEntryPoint>,
+
+        @SerialName("EXTERNAL")
+        val external: List<ContractEntryPoint>,
+
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<ContractEntryPoint>,
+    )
+}
+
+object ContractClassGatewaySerializer : KSerializer<ContractClass> {
+    @Serializable
+    data class ContractClassGateway(
+        val program: JsonElement,
+
+        @SerialName("entry_points_by_type")
+        val entryPointsByType: ContractClass.EntryPointsByType
+    )
+
+    override fun deserialize(decoder: Decoder): ContractClass {
+        val response = ContractClassGateway.serializer().deserialize(decoder)
+
+        val programString = response.program.toString()
+        val program = programString.base64Gzipped()
+
+        // FIXME: It doesn't produce the same output as the rpc endpoint
+
+        return ContractClass(program, response.entryPointsByType)
+    }
+
+    override val descriptor: SerialDescriptor
+        get() = ContractClass.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: ContractClass) {
+        throw Exception("Class used for deserialization only.")
+    }
+}
+
+@Serializable
+data class GetClassPayload(
+    @SerialName("class_hash")
+    val classHash: Felt
+)
+
+@Serializable
+data class GetClassAtPayload(
+    @SerialName("block_id")
+    val blockId: String,
+
+    @SerialName("contract_address")
+    val contractAddress: Felt
 )

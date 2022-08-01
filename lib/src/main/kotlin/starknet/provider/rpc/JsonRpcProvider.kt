@@ -105,6 +105,85 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
 
+    override fun getClass(classHash: Felt): Request<ContractClass> {
+        val payload = GetClassPayload(classHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClass.serializer())
+    }
+
+    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClass> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, ContractClass.serializer())
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition in the given block at the given address .
+     *
+     * @param blockHash The hash of the requested block.
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     */
+    fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition in the given block at the given address .
+     *
+     * @param blockNumber The number of the requested block.
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     */
+    fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition in the given block at the given address .
+     *
+     * @param blockTag The tag of the requested block.
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     */
+    fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
+        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+
+        return getClassAt(payload)
+    }
+
+    private fun getClassHashAt(payload: GetClassAtPayload): Request<Felt> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
+    }
+
+    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+
+        return getClassHashAt(payload)
+    }
+
+    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+
+        return getClassHashAt(payload)
+    }
+
+    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+
+        return getClassHashAt(payload)
+    }
+
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
         val params = buildJsonObject {
             put("contract_definition", payload.contractDefinition.toRpcJson())

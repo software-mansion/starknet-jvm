@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.data.parseHex
-import starknet.data.toHex
+import starknet.extensions.toHex
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
@@ -26,11 +26,11 @@ data class Felt(val value: BigInteger) {
     }
 
     override fun toString(): String {
-        return "Felt(${toHex(value)})"
+        return "Felt(${value.toHex()})"
     }
 
     fun hexString(): String {
-        return toHex(value)
+        return value.toHex()
     }
 
     fun decString(): String {
@@ -71,6 +71,6 @@ object FeltSerializer : KSerializer<Felt> {
     }
 
     override fun serialize(encoder: Encoder, value: Felt) {
-        encoder.encodeString(toHex(value.value))
+        encoder.encodeString(value.value.toHex())
     }
 }
