@@ -67,6 +67,9 @@ fun main() {
 
 ## Making asynchronous requests
 
+It is also possible to make asynchronous requests. `Request.sendAsync()` returs a `CompletableFuture`
+that can be than handled in preferred way.
+
 ### In Java
 
 ```java
@@ -101,9 +104,6 @@ public class Main {
 ```
 
 ### In Kotlin
-
-It is also possible to make asynchronous requests. `Request.sendAsync()` returs a `CompletableFuture`
-that can be than handled in preferred way.
 
 ```kotlin
 import starknet.account.StandardAccount
