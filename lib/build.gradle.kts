@@ -14,7 +14,7 @@ plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.jlleitschuh.gradle.ktlint")
+    id("org.jmailen.kotlinter")
 
     kotlin("plugin.serialization")
 
@@ -66,8 +66,8 @@ tasks.test {
     }
 }
 
-ktlint {
-    disabledRules.set(setOf("no-wildcard-imports"))
+kotlinter {
+    disabledRules = arrayOf("no-wildcard-imports")
 }
 
 tasks.jar {
