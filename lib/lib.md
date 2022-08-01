@@ -11,7 +11,6 @@ Although written in Kotlin, StarkNet.kt has been created with compatibility with
 import starknet.account.StandardAccount;
 import starknet.data.types.BlockTag;
 import starknet.data.types.Felt;
-import starknet.data.types.StarknetChainId;
 import starknet.provider.Request;
 import starknet.provider.gateway.GatewayProvider;
 
@@ -19,7 +18,7 @@ import starknet.provider.gateway.GatewayProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        var provider = new GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET);
+        var provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -43,12 +42,11 @@ public class Main {
 import starknet.account.StandardAccount
 import starknet.data.types.BlockTag
 import starknet.data.types.Felt
-import starknet.data.types.StarknetChainId
 import starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET)
+    val provider = GatewayProvider.makeTestnetClient()
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -71,15 +69,16 @@ fun main() {
 import starknet.account.StandardAccount;
 import starknet.data.types.BlockTag;
 import starknet.data.types.Felt;
-import starknet.data.types.StarknetChainId;
 import starknet.provider.Request;
 import starknet.provider.gateway.GatewayProvider;
+
+import java.util.concurrent.CompletableFuture;
 
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        var provider = new GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET);
+        var provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -90,9 +89,9 @@ public class Main {
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
         Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        Felt response = request.send();
+        CompletableFuture<Felt> response = request.sendAsync();
 
-        System.out.println(response);
+        response.thenAccept(System.out::println);
     }
 }
 ```
@@ -106,12 +105,11 @@ that can be than handled in preferred way.
 import starknet.account.StandardAccount
 import starknet.data.types.BlockTag
 import starknet.data.types.Felt
-import starknet.data.types.StarknetChainId
 import starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET)
+    val provider = GatewayProvider.makeTestnetClient()
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
