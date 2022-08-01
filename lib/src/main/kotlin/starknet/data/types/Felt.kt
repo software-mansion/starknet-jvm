@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import starknet.data.parseHex
-import starknet.data.toHex
+import starknet.extensions.toHex
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
