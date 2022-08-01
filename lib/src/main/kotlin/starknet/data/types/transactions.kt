@@ -10,7 +10,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.*
 import starknet.crypto.StarknetCurve
+import starknet.extensions.base64Gzipped
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
@@ -32,8 +34,7 @@ enum class StarknetChainId(val value: Felt) {
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"),
-    PENDING("pending")
+    LATEST("latest"), PENDING("pending")
 }
 
 @Serializable(with = BlockHashOrTagSerializer::class)
@@ -79,10 +80,70 @@ class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
 
 @Serializable
 data class InvokeFunctionPayload(
-    @SerialName("function_invocation") val invocation: Call,
+    @SerialName("function_invocation")
+    val invocation: Call,
+
     val signature: Signature?,
-    @SerialName("max_fee") val maxFee: Felt?,
+
+    @SerialName("max_fee")
+    val maxFee: Felt?,
+
     val version: Felt?
+)
+
+class InvalidContractException(missingKey: String) :
+    Exception("Attempted to parse an invalid contract. Missing key: $missingKey")
+
+data class ContractDefinition(var contract: String) {
+    private val program: JsonElement
+    private val entryPointsByType: JsonElement
+    private val abi: JsonElement?
+
+    init {
+        val (program, entryPointsByType, abi) = parseContract(contract)
+        this.program = program
+        this.entryPointsByType = entryPointsByType
+        this.abi = abi
+    }
+
+    private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
+        val compiledContract = Json.parseToJsonElement(contract).jsonObject
+        val program = compiledContract["program"] ?: throw InvalidContractException("program")
+        val entryPointsByType =
+            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+        return Triple(program, entryPointsByType, abi)
+    }
+
+    fun toJson(): JsonObject {
+        return buildJsonObject {
+            put("program", program.toString().base64Gzipped())
+            put("entry_points_by_type", entryPointsByType)
+            if (abi != null) put("abi", abi) else putJsonArray("abi") { emptyList<Any>() }
+        }
+    }
+
+    fun toRpcJson(): JsonObject {
+        return buildJsonObject {
+            put("program", program.toString().base64Gzipped())
+            put("entry_points_by_type", entryPointsByType)
+        }
+    }
+}
+
+data class DeployTransactionPayload(
+    val contractDefinition: ContractDefinition,
+    val salt: Felt,
+    val constructorCalldata: Calldata,
+    val version: Felt
+)
+
+data class DeclareTransactionPayload(
+    val contractDefinition: ContractDefinition,
+    val maxFee: Felt,
+    val nonce: Felt,
+    val signature: Signature,
+    val version: Felt,
 )
 
 sealed class Transaction {

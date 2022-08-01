@@ -13,5 +13,7 @@ enum class JsonRpcMethod(val methodName: String) {
     GET_CLASS_AT("starknet_getClassAt"),
     GET_CLASS_HASH_AT("starknet_getClassHashAt"),
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
-    GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt")
+    GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    DECLARE("starknet_addDeclareTransaction"),
+    DEPLOY("starknet_addDeployTransaction")
 }

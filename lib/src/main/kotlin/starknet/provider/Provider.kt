@@ -2,14 +2,7 @@ package starknet.provider
 
 import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
-import starknet.data.types.BlockTag
-import starknet.data.types.Call
-import starknet.data.types.CallContractResponse
-import starknet.data.types.ContractClass
-import starknet.data.types.Felt
-import starknet.data.types.InvokeFunctionPayload
-import starknet.data.types.InvokeFunctionResponse
-import starknet.data.types.StarknetChainId
+import starknet.data.types.*
 
 /**
  * Provider for interacting with StarkNet.
@@ -114,4 +107,21 @@ interface Provider {
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
     fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt>
+    /**
+     * Deploy a contract
+     *
+     * Deploy a contract on StarkNet.
+     *
+     * @param payload deploy transaction payload
+     */
+    fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
+
+    /**
+     * Declare contract
+     *
+     * Declare a contract on StarkNet.
+     *
+     * @param payload declare transaction payload
+     */
+    fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
 }
