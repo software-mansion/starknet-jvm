@@ -5,6 +5,9 @@ import com.swmansion.starknet.data.types.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
+import starknet.data.Event
+import starknet.data.types.Felt
+import starknet.data.types.TransactionStatus
 
 @Serializable
 sealed class CommonTransactionReceipt {
