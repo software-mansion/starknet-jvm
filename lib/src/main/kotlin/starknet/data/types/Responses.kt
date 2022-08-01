@@ -20,9 +20,10 @@ data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt
 ) : Response()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 // OptIn needed because @JsonNames is part of the experimental serialization api
-data class DeployResponse @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeployResponse(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 
@@ -30,8 +31,9 @@ data class DeployResponse @OptIn(ExperimentalSerializationApi::class) constructo
     val contractAddress: Felt
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeclareResponse @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeclareResponse(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 

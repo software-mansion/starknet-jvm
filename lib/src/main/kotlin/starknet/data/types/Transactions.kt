@@ -143,7 +143,7 @@ data class DeclareTransactionPayload(
     val maxFee: Felt,
     val nonce: Felt,
     val signature: Signature,
-    val version: Felt,
+    val version: Felt
 )
 
 sealed class Transaction {
@@ -184,7 +184,7 @@ data class InvokeFunctionTransaction(
     @SerialName("entry_point_selector") val entryPointSelector: String,
     val calldata: List<Felt>?,
     @SerialName("max_fee") val maxFee: Felt,
-    val version: Felt,
+    val version: Felt
 )
 
 data class InvokeTransaction(
@@ -195,7 +195,7 @@ data class InvokeTransaction(
     val nonce: Felt,
     val maxFee: Felt,
     val version: Felt = Felt.ZERO,
-    val signature: Signature? = null,
+    val signature: Signature? = null
 ) : Transaction() {
     override val type = TransactionType.INVOKE
 
@@ -206,6 +206,6 @@ data class InvokeTransaction(
         entrypointSelector,
         StarknetCurve.pedersenOnElements(calldata),
         maxFee,
-        chainId,
+        chainId
     )
 }

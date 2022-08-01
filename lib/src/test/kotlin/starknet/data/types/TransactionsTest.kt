@@ -47,7 +47,7 @@ internal class TransactionsTest {
             chainId = Felt(BigInteger("1536727068981429685321")),
             maxFee = Felt(BigInteger("100000000")),
             version = Felt(BigInteger("0")),
-            nonce = Felt.ZERO,
+            nonce = Felt.ZERO
         )
 
         assertEquals(tx2.getHash(), Felt.fromHex("0x77b27f044ac1402af4e44fc012655822c2da2ac231deb003d797f0359055228"))

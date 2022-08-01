@@ -24,12 +24,12 @@ sealed class AbiElement
 data class FunctionAbi(
     val name: String,
     val inputs: List<AbiEntry>,
-    val outputs: List<AbiEntry>,
+    val outputs: List<AbiEntry>
 ) : AbiElement()
 
 @Serializable
 data class StructAbi(
-    val name: String,
+    val name: String
 ) : AbiElement()
 
 @Serializable
@@ -69,5 +69,5 @@ data class CompiledContract(
     val program: String,
 
     @SerialName("abi")
-    val abi: List<String> = emptyList(),
+    val abi: List<String> = emptyList()
 )

@@ -42,7 +42,7 @@ internal class StarknetCurveTest {
         val hash = Felt.fromHex("0x052fc40e34aee86948cd47e1a0096fa67df8410f81421f314a1eb18102251a82")
         val signature = StarknetCurve.sign(
             privateKey = PRIVATE_KEY,
-            hash = hash,
+            hash = hash
         )
 
         // Verified it is a correct signature using cairo-lang package
@@ -71,7 +71,7 @@ internal class StarknetCurveTest {
             publicKey = PUBLIC_KEY,
             hash = Felt.fromHex("0x1"),
             r = r,
-            s = s,
+            s = s
         )
 
         assertTrue(positiveResult)
@@ -80,7 +80,7 @@ internal class StarknetCurveTest {
             publicKey = PUBLIC_KEY,
             hash = Felt.fromHex("0x1"),
             r = s,
-            s = r,
+            s = r
         )
         assertFalse(negativeResult)
     }

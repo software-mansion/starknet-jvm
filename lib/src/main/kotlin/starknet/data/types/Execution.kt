@@ -8,7 +8,7 @@ import starknet.data.selectorFromName
 data class Call(
     @SerialName("contract_address") val contractAddress: Felt,
     val entrypoint: Felt,
-    val calldata: Calldata,
+    val calldata: Calldata
 ) {
     constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata) : this(
         contractAddress,
