@@ -8,6 +8,14 @@ Although written in Kotlin, StarkNet.kt has been created with compatibility with
 ## Example usages in Java
 
 ```java
+import starknet.account.StandardAccount;
+import starknet.data.types.BlockTag;
+import starknet.data.types.Felt;
+import starknet.data.types.StarknetChainId;
+import starknet.provider.Request;
+import starknet.provider.gateway.GatewayProvider;
+
+
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
@@ -32,6 +40,12 @@ public class Main {
 ## Example usages in Kotlin
 
 ```kotlin
+import starknet.account.StandardAccount
+import starknet.data.types.BlockTag
+import starknet.data.types.Felt
+import starknet.data.types.StarknetChainId
+import starknet.provider.gateway.GatewayProvider
+
 fun main() {
     // Create a provider for interacting with StarkNet
     val provider = GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET)
@@ -54,6 +68,14 @@ fun main() {
 ## Asynchronous requests in Java
 
 ```java
+import starknet.account.StandardAccount;
+import starknet.data.types.BlockTag;
+import starknet.data.types.Felt;
+import starknet.data.types.StarknetChainId;
+import starknet.provider.Request;
+import starknet.provider.gateway.GatewayProvider;
+
+
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
@@ -64,13 +86,13 @@ public class Main {
         Felt privateKey = Felt.fromHex("0x425125");
         var account = new StandardAccount(provider, accountAddress, privateKey);
 
-        // Make an asynchronous request
+        // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
         Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        CompletableFuture<Felt> future = request.sendAsync();
+        Felt response = request.send();
 
-        future.thenAccept(System.out::println);
+        System.out.println(response);
     }
 }
 ```
@@ -81,6 +103,12 @@ It is also possible to make asynchronous requests. `Request.sendAsync()` returs 
 that can be than handled in preferred way.
 
 ```kotlin
+import starknet.account.StandardAccount
+import starknet.data.types.BlockTag
+import starknet.data.types.Felt
+import starknet.data.types.StarknetChainId
+import starknet.provider.gateway.GatewayProvider
+
 fun main() {
     // Create a provider for interacting with StarkNet
     val provider = GatewayProvider("feeder_gateway_url", "gateway_url", StarknetChainId.TESTNET)
