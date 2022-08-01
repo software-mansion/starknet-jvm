@@ -6,12 +6,8 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets.UTF_8
-import java.util.Base64
-import java.util.zip.GZIPOutputStream
+import starknet.extensions.base64Gzipped
 
 enum class AbiEntryType {
     FELT,
@@ -117,14 +113,9 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
     override fun deserialize(decoder: Decoder): ContractClass {
         val response = ContractClassGateway.serializer().deserialize(decoder)
-        val bos = ByteArrayOutputStream()
 
-        val programString = Json.encodeToString(response.program)
-
-        GZIPOutputStream(bos).bufferedWriter(UTF_8).use { it.write(programString) }
-
-        val base64Encoder = Base64.getEncoder()
-        val program = base64Encoder.encodeToString(bos.toByteArray())
+        val programString = response.program.toString()
+        val program = programString.base64Gzipped()
 
         // FIXME: It doesn't produce the same output as the rpc endpoint
 
