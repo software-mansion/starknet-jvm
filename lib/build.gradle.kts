@@ -30,6 +30,14 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     }
 }
 
+tasks.withType<DokkaTask>().configureEach {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("lib.md")
+        }
+    }
+}
+
 tasks.jar {
     manifest {
         attributes(
