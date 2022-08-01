@@ -29,12 +29,12 @@ class ProviderTest {
                 GatewayProvider(
                     devnetClient.feederGatewayUrl,
                     devnetClient.gatewayUrl,
-                    StarknetChainId.TESTNET
+                    StarknetChainId.TESTNET,
                 ),
                 JsonRpcProvider(
                     devnetClient.rpcUrl,
-                    StarknetChainId.TESTNET
-                )
+                    StarknetChainId.TESTNET,
+                ),
             )
         }
 
@@ -48,7 +48,7 @@ class ProviderTest {
                 "increase_balance",
                 deployAddress,
                 Path.of("src/test/resources/compiled/providerTestAbi.json"),
-                0
+                0,
             )
             val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
             contractAddress = deployAddress
@@ -68,7 +68,7 @@ class ProviderTest {
         val call = Call(
             contractAddress,
             "get_balance",
-            emptyList()
+            emptyList(),
         )
 
         val request = provider.callContract(call, BlockTag.PENDING)
@@ -103,7 +103,7 @@ class ProviderTest {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
-            BlockTag.PENDING
+            BlockTag.PENDING,
         )
 
         val response = request.send()
@@ -122,7 +122,7 @@ class ProviderTest {
         val call = Call(
             contractAddress,
             "increase_balance",
-            listOf(Felt(10))
+            listOf(Felt(10)),
         )
 
         val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))

@@ -23,7 +23,7 @@ class HttpService {
             url,
             method,
             params,
-            body.toString()
+            body.toString(),
         )
     }
 
@@ -46,7 +46,7 @@ class HttpService {
 
         private fun buildRequestUrl(
             baseUrl: String,
-            params: List<Pair<String, String>>
+            params: List<Pair<String, String>>,
         ): String {
             val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
@@ -97,20 +97,22 @@ class HttpService {
 
             val future = CompletableFuture<String>()
 
-            client.newCall(httpRequest).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    future.completeExceptionally(e)
-                }
-
-                override fun onResponse(call: Call, response: okhttp3.Response) {
-                    try {
-                        val parsedResponse = processHttpResponse(response)
-                        future.complete(parsedResponse)
-                    } catch (e: Exception) {
+            client.newCall(httpRequest).enqueue(
+                object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
                         future.completeExceptionally(e)
                     }
-                }
-            })
+
+                    override fun onResponse(call: Call, response: okhttp3.Response) {
+                        try {
+                            val parsedResponse = processHttpResponse(response)
+                            future.complete(parsedResponse)
+                        } catch (e: Exception) {
+                            future.completeExceptionally(e)
+                        }
+                    }
+                },
+            )
 
             return future
         }

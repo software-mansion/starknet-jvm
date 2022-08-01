@@ -19,7 +19,7 @@ import starknet.service.http.HttpService
  */
 class JsonRpcProvider(
     private val url: String,
-    override val chainId: StarknetChainId
+    override val chainId: StarknetChainId,
 ) : Provider {
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
@@ -27,7 +27,7 @@ class JsonRpcProvider(
             "jsonrpc" to JsonPrimitive("2.0"),
             "method" to JsonPrimitive(method),
             "id" to JsonPrimitive(0), // It is not used anywhere
-            "params" to paramsJson
+            "params" to paramsJson,
         )
 
         return JsonObject(map)
@@ -36,7 +36,7 @@ class JsonRpcProvider(
     private fun <T> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
-        responseSerializer: KSerializer<T>
+        responseSerializer: KSerializer<T>,
     ): HttpRequest<T> {
         val requestJson = buildRequestJson(method.methodName, paramsJson)
 
@@ -98,7 +98,7 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeFunctionPayload
+        payload: InvokeFunctionPayload,
     ): Request<InvokeFunctionResponse> {
         val params = Json.encodeToJsonElement(payload)
 

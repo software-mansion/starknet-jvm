@@ -14,7 +14,7 @@ enum class AbiEntryType {
 @Serializable
 data class AbiEntry(
     val name: String,
-    val type: AbiEntryType
+    val type: AbiEntryType,
 )
 
 @Serializable
@@ -24,28 +24,28 @@ sealed class AbiElement
 data class FunctionAbi(
     val name: String,
     val inputs: List<AbiEntry>,
-    val outputs: List<AbiEntry>
+    val outputs: List<AbiEntry>,
 ) : AbiElement()
 
 @Serializable
 data class StructAbi(
-    val name: String
+    val name: String,
 ) : AbiElement()
 
 @Serializable
 data class Abi(
-    val values: List<AbiElement>
+    val values: List<AbiElement>,
 )
 
 @Serializable
 data class Program(
-    val code: String
+    val code: String,
 )
 
 @Serializable
 data class EntryPoint(
     val selector: Felt,
-    val offset: Felt
+    val offset: Felt,
 )
 
 @Serializable
@@ -57,7 +57,7 @@ data class EntryPointsByType(
     val external: List<EntryPoint>,
 
     @SerialName("L1_HANDLER")
-    val l1Handler: List<EntryPoint>
+    val l1Handler: List<EntryPoint>,
 )
 
 @Serializable
@@ -69,5 +69,5 @@ data class CompiledContract(
     val program: String,
 
     @SerialName("abi")
-    val abi: List<String> = emptyList()
+    val abi: List<String> = emptyList(),
 )

@@ -24,7 +24,7 @@ import starknet.service.http.HttpService.Payload
 class GatewayProvider(
     private val feederGatewayUrl: String,
     private val gatewayUrl: String,
-    override val chainId: StarknetChainId
+    override val chainId: StarknetChainId,
 ) : Provider {
     @Suppress("SameParameterValue")
     private fun gatewayRequestUrl(method: String): String {
@@ -67,7 +67,7 @@ class GatewayProvider(
         val params = listOf(
             Pair("contractAddress", payload.contractAddress.hexString()),
             Pair("key", payload.key.hexString()),
-            Pair("blockHash", payload.blockHashOrTag.string())
+            Pair("blockHash", payload.blockHashOrTag.string()),
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
@@ -157,7 +157,7 @@ class GatewayProvider(
             return GatewayProvider(
                 "$TESTNET_URL/feeder_gateway",
                 "$TESTNET_URL/gateway",
-                StarknetChainId.TESTNET
+                StarknetChainId.TESTNET,
             )
         }
 
@@ -166,7 +166,7 @@ class GatewayProvider(
             return GatewayProvider(
                 "$MAINNET_URL/feeder_gateway",
                 "$MAINNET_URL/gateway",
-                StarknetChainId.MAINNET
+                StarknetChainId.MAINNET,
             )
         }
     }

@@ -14,7 +14,7 @@ data class JsonRpcResponse<T>(
     val id: Int,
     val jsonrpc: String,
     val result: T? = null,
-    val error: JsonElement? = null // FIXME: Add error types
+    val error: JsonElement? = null, // FIXME: Add error types
 )
 
 class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {

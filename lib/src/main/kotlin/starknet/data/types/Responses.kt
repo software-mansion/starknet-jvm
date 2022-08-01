@@ -12,12 +12,12 @@ sealed class Response
 
 @Serializable
 data class CallContractResponse(
-    val result: List<Felt>
+    val result: List<Felt>,
 ) : Response()
 
 @Serializable
 data class InvokeFunctionResponse(
-    @SerialName("transaction_hash") val transactionHash: Felt
+    @SerialName("transaction_hash") val transactionHash: Felt,
 ) : Response()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -28,7 +28,7 @@ data class DeployResponse(
     val transactionHash: Felt,
 
     @JsonNames("contract_address", "address")
-    val contractAddress: Felt
+    val contractAddress: Felt,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -38,15 +38,15 @@ data class DeclareResponse(
     val transactionHash: Felt,
 
     @JsonNames("class_hash")
-    val classHash: Felt
+    val classHash: Felt,
 )
 
 @Serializable
 data class GetStorageAtResponse(
-    val result: Felt
+    val result: Felt,
 ) : Response()
 
 data class TransactionFailureReason(
     val code: String,
-    val errorMessage: String
+    val errorMessage: String,
 )

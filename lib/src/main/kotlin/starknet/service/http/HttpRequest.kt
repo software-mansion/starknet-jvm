@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture
 class HttpRequest<T>(
     private val payload: HttpService.Payload,
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
-    private val deserializer: DeserializationStrategy<T>
+    private val deserializer: DeserializationStrategy<T>,
 ) : Request<T> {
     private val json = Json {
         ignoreUnknownKeys = true

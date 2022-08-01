@@ -8,48 +8,48 @@ import starknet.data.selectorFromName
 data class Call(
     @SerialName("contract_address") val contractAddress: Felt,
     val entrypoint: Felt,
-    val calldata: Calldata
+    val calldata: Calldata,
 ) {
     constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata) : this(
         contractAddress,
         selectorFromName(entrypoint),
-        calldata
+        calldata,
     )
 }
 
 data class CallExtraParams(
-    val blockHashOrTag: BlockHashOrTag
+    val blockHashOrTag: BlockHashOrTag,
 )
 
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
-    val version: Felt
+    val version: Felt,
 )
 
 @Serializable
 data class CallContractPayload(
     val request: Call,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
 )
 
 @Serializable
 data class GetStorageAtPayload(
     @SerialName("contract_address") val contractAddress: Felt,
     @SerialName("key") val key: Felt,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag
+    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
 )
 
 @Serializable
 data class GetTransactionByHashPayload(
     @SerialName("transaction_hash")
-    val transactionHash: Felt
+    val transactionHash: Felt,
 )
 
 @Serializable
 data class GetTransactionReceiptPayload(
     @SerialName("transaction_hash")
-    val transactionHash: Felt
+    val transactionHash: Felt,
 )
 
 fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {

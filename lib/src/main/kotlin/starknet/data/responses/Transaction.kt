@@ -33,7 +33,7 @@ data class DeployTransaction(
     override val signature: Signature = emptyList(),
 
     @JsonNames("max_fee")
-    override val maxFee: Felt = Felt.ZERO
+    override val maxFee: Felt = Felt.ZERO,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -56,7 +56,7 @@ data class InvokeTransaction(
     override val signature: Signature,
 
     @JsonNames("max_fee")
-    override val maxFee: Felt
+    override val maxFee: Felt,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -76,5 +76,5 @@ data class DeclareTransaction(
     override val signature: Signature,
 
     @JsonNames("max_fee")
-    override val maxFee: Felt
+    override val maxFee: Felt,
 ) : Transaction()

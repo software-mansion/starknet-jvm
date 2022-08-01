@@ -52,7 +52,7 @@ object StarknetCurve {
     @JvmStatic
     private external fun pedersen(
         first: ByteArray?,
-        second: ByteArray?
+        second: ByteArray?,
     ): ByteArray
 
     /**
@@ -80,7 +80,7 @@ object StarknetCurve {
     @JvmStatic
     fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
         pedersen(values),
-        Felt(values.size)
+        Felt(values.size),
     )
 
     /**
@@ -110,7 +110,7 @@ object StarknetCurve {
         val signature = sign(
             feltToNative(privateKey),
             feltToNative(hash),
-            bigintToNative(k)
+            bigintToNative(k),
         )
         val r = BigInteger(signature.slice(0 until 32).toByteArray().apply { reverse() })
         val w = BigInteger(signature.slice(32 until 64).toByteArray().apply { reverse() })
@@ -173,7 +173,7 @@ object StarknetCurve {
             feltToNative(publicKey),
             feltToNative(hash),
             feltToNative(r),
-            bigintToNative(w)
+            bigintToNative(w),
         )
     }
 

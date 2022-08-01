@@ -16,7 +16,7 @@ internal class StarknetCurveTest {
         val signature = StarknetCurve.sign(
             privateKey = PRIVATE_KEY,
             hash = hash,
-            k = Felt.fromHex("0x6d45bce40ffc4a8cd4cb656048d023a90913e70e589362b41e4334c721cec4b").value
+            k = Felt.fromHex("0x6d45bce40ffc4a8cd4cb656048d023a90913e70e589362b41e4334c721cec4b").value,
         )
 
         // Verified it is a correct signature using cairo-lang package
@@ -24,7 +24,7 @@ internal class StarknetCurveTest {
         val s = Felt.fromHex("0x198ef0ca145ad0fbd175426788d9a7c84de3764f51bfc0fe0579caca660bfe4")
         assertEquals(
             StarknetCurveSignature(r, s),
-            signature
+            signature,
         )
 
         assertTrue(
@@ -32,8 +32,8 @@ internal class StarknetCurveTest {
                 publicKey = PUBLIC_KEY,
                 hash = hash,
                 r = signature.r,
-                s = signature.s
-            )
+                s = signature.s,
+            ),
         )
     }
 
@@ -42,7 +42,7 @@ internal class StarknetCurveTest {
         val hash = Felt.fromHex("0x052fc40e34aee86948cd47e1a0096fa67df8410f81421f314a1eb18102251a82")
         val signature = StarknetCurve.sign(
             privateKey = PRIVATE_KEY,
-            hash = hash
+            hash = hash,
         )
 
         // Verified it is a correct signature using cairo-lang package
@@ -50,7 +50,7 @@ internal class StarknetCurveTest {
         val s = Felt.fromHex("0x5eed1e83d0df6a22f1cd168331ae85a4c3b74022f3065531488ed0aaa5b0b3")
         assertEquals(
             StarknetCurveSignature(r, s),
-            signature
+            signature,
         )
 
         assertTrue(
@@ -58,8 +58,8 @@ internal class StarknetCurveTest {
                 publicKey = PUBLIC_KEY,
                 hash = hash,
                 r = signature.r,
-                s = signature.s
-            )
+                s = signature.s,
+            ),
         )
     }
 
@@ -71,7 +71,7 @@ internal class StarknetCurveTest {
             publicKey = PUBLIC_KEY,
             hash = Felt.fromHex("0x1"),
             r = r,
-            s = s
+            s = s,
         )
 
         assertTrue(positiveResult)
@@ -80,7 +80,7 @@ internal class StarknetCurveTest {
             publicKey = PUBLIC_KEY,
             hash = Felt.fromHex("0x1"),
             r = s,
-            s = r
+            s = r,
         )
         assertFalse(negativeResult)
     }
@@ -105,23 +105,23 @@ internal class StarknetCurveTest {
             Triple(
                 Felt.fromHex("0x7abcde123245643903241432abcde"),
                 Felt.fromHex("0x791234124214214728147241242142a89b812221c21d"),
-                "0x440a3075f082daa47147a22a4cd0c934ef65ea13ef87bf13adf45613e12f6ee"
+                "0x440a3075f082daa47147a22a4cd0c934ef65ea13ef87bf13adf45613e12f6ee",
             ),
             Triple(
                 Felt.fromHex("0x46c9aeb066cc2f41c7124af30514f9e607137fbac950524f5fdace5788f9d43"),
                 Felt.fromHex("0x49ee3eba8c1600700ee1b87eb599f16716b0b1022947733551fde4050ca6804"),
-                "0x68ad69169c41c758ebd02e2fce51716497a708232a45a1b83e82fac1ade326e"
+                "0x68ad69169c41c758ebd02e2fce51716497a708232a45a1b83e82fac1ade326e",
             ),
             Triple(
                 Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"),
                 Felt.fromHex("0x43e637ca70a5daac877cba6b57e0b9ceffc5b37d28509e46b4fd2dee968a70c"),
-                "0x4b9281c85cfc5ab1f4046663135329020f57c1a88a50f4423eff37dd5fe81e8"
+                "0x4b9281c85cfc5ab1f4046663135329020f57c1a88a50f4423eff37dd5fe81e8",
             ),
             Triple(
                 Felt.fromHex("0x0"),
                 Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"),
-                "0x1a0c3e0f68c3ee702017fdb6452339244840eedbb70ab3d4f45e2affd1c9420"
-            )
+                "0x1a0c3e0f68c3ee702017fdb6452339244840eedbb70ab3d4f45e2affd1c9420",
+            ),
         )
         for (case in cases) {
             val result = StarknetCurve.pedersen(case.first, case.second)
@@ -136,15 +136,15 @@ internal class StarknetCurveTest {
             Pair(listOf(), Felt.fromHex("0x49ee3eba8c1600700ee1b87eb599f16716b0b1022947733551fde4050ca6804")),
             Pair(
                 listOf(Felt(123782376), Felt(213984), Felt(128763521321)),
-                Felt.fromHex("0x7b422405da6571242dfc245a43de3b0fe695e7021c148b918cd9cdb462cac59")
+                Felt.fromHex("0x7b422405da6571242dfc245a43de3b0fe695e7021c148b918cd9cdb462cac59"),
             ),
             Pair(
                 listOf(
                     Felt.fromHex("0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad"),
-                    Felt.fromHex("0x10927538dee311ae5093324fc180ab87f23bbd7bc05456a12a1a506f220db25")
+                    Felt.fromHex("0x10927538dee311ae5093324fc180ab87f23bbd7bc05456a12a1a506f220db25"),
                 ),
-                Felt.fromHex("0x43e637ca70a5daac877cba6b57e0b9ceffc5b37d28509e46b4fd2dee968a70c")
-            )
+                Felt.fromHex("0x43e637ca70a5daac877cba6b57e0b9ceffc5b37d28509e46b4fd2dee968a70c"),
+            ),
         )
         for ((input, expected) in cases) {
             val resultWithCollection = StarknetCurve.pedersenOnElements(input)

@@ -55,7 +55,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             feederGatewayUrl,
             "--contract",
             contractPath.absolutePathString(),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         deployProcess.waitFor()
@@ -75,7 +75,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             feederGatewayUrl,
             "--contract",
             contractPath.absolutePathString(),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         declareProcess.waitFor()
@@ -89,7 +89,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         functionName: String,
         contractAddress: Felt,
         abiPath: Path,
-        vararg inputs: Int
+        vararg inputs: Int,
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
             "starknet",
@@ -106,7 +106,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             functionName,
             "--inputs",
             inputs.joinToString(separator = " "),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         invokeProcess.waitFor()

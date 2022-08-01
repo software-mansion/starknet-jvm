@@ -21,7 +21,7 @@ import starknet.signer.StarkCurveSigner
 class StandardAccount(
     private val provider: Provider,
     override val address: Felt,
-    private val signer: Signer
+    private val signer: Signer,
 ) : Account,
     Provider by provider {
 
@@ -33,7 +33,7 @@ class StandardAccount(
     constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
         provider,
         address,
-        StarkCurveSigner(privateKey)
+        StarkCurveSigner(privateKey),
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction {
@@ -45,7 +45,7 @@ class StandardAccount(
             chainId = provider.chainId.value,
             nonce = params.nonce,
             maxFee = params.maxFee,
-            version = params.version
+            version = params.version,
         )
         return tx.copy(signature = signer.signTransaction(tx))
     }

@@ -23,5 +23,5 @@ data class TransactionReceipt(
     val actualFee: Felt,
 
     @JsonNames("statusData")
-    val rejectionReason: String? = null
+    val rejectionReason: String? = null,
 )
