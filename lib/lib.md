@@ -5,7 +5,9 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, StarkNet.kt has been created with compatibility with Java in mind.
 
-## Example usages in Java
+## Making synchronous requests
+
+### In Java
 
 ```java
 import starknet.account.StandardAccount;
@@ -36,7 +38,7 @@ public class Main {
 }
 ```
 
-## Example usages in Kotlin
+### In Kotlin
 
 ```kotlin
 import starknet.account.StandardAccount
@@ -63,7 +65,9 @@ fun main() {
 }
 ```
 
-## Asynchronous requests in Java
+## Making asynchronous requests
+
+### In Java
 
 ```java
 import starknet.account.StandardAccount;
@@ -96,7 +100,7 @@ public class Main {
 }
 ```
 
-## Asynchronous requests in Kotlin
+### In Kotlin
 
 It is also possible to make asynchronous requests. `Request.sendAsync()` returs a `CompletableFuture`
 that can be than handled in preferred way.
