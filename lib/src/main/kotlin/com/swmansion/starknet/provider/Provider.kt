@@ -67,7 +67,7 @@ interface Provider {
      *
      * @param transactionHash a hash of sent transaction
      */
-    fun getTransactionReceipt(transactionHash: Felt): Request<CommonTransactionReceipt>
+    fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt>
 
     /**
      * Invoke a function.
