@@ -12,6 +12,7 @@ import starknet.extensions.put
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
+import starknet.service.http.HttpService
 import starknet.service.http.HttpService.Payload
 
 /**
@@ -149,6 +150,46 @@ class GatewayProvider(
         }
 
         return HttpRequest(Payload(url, "POST", body), DeclareResponse.serializer())
+    }
+
+    override fun getClass(classHash: Felt): Request<ContractClass> {
+        val url = feederGatewayRequestUrl("get_class_by_hash")
+
+        val params = listOf(
+            "classHash" to classHash.hexString()
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET", params)
+        return HttpRequest(httpPayload, ContractClassGatewaySerializer)
+    }
+
+    private fun getClassHashAt(blockParam: Pair<String, String>, contractAddress: Felt): Request<Felt> {
+        val url = feederGatewayRequestUrl("get_class_hash_at")
+        val params = listOf(
+            blockParam,
+            "contractAddress" to contractAddress.hexString()
+        )
+
+        val httpPayload = HttpService.Payload(url, "GET", params)
+        return HttpRequest(httpPayload, Felt.serializer())
+    }
+
+    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+        val param = "blockHash" to blockHash.hexString()
+
+        return getClassHashAt(param, contractAddress)
+    }
+
+    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+        val param = "blockNumber" to blockNumber.toString()
+
+        return getClassHashAt(param, contractAddress)
+    }
+
+    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+        val param = "blockTag" to blockTag.tag
+
+        return getClassHashAt(param, contractAddress)
     }
 
     companion object Factory {

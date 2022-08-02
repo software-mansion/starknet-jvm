@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import starknet.data.responses.DeployTransaction
 import starknet.data.selectorFromName
 import starknet.data.types.*
 import starknet.provider.gateway.GatewayProvider
@@ -133,6 +134,143 @@ class ProviderTest {
 
         val balance = getBalance(provider)
         assertEquals(Felt(10), balance)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class`(provider: Provider) {
+        val hash = Felt.fromHex("0x1b322dd827d4579c10a08025b9d685c7ed16dcb25c7371dd06a65984cb5426")
+
+        val request = provider.getClass(hash)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class at block hash`(provider: Provider) {
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        val latestBlock = devnetClient.getLatestBlock()
+
+        val request = provider.getClassAt(latestBlock.hash, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class at block number`(provider: Provider) {
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        val latestBlock = devnetClient.getLatestBlock()
+
+        val request = provider.getClassAt(latestBlock.number, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class at latest block`(provider: Provider) {
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        val request = provider.getClassAt(BlockTag.LATEST, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class at pending block`(provider: Provider) {
+        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        return
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        val request = provider.getClassAt(BlockTag.PENDING, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class hash at pending block`(provider: Provider) {
+        // FIXME: Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
+
+        val request = provider.getClassHashAt(BlockTag.PENDING, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class hash at latest block`(provider: Provider) {
+        // FIXME: Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
+
+        val request = provider.getClassHashAt(BlockTag.LATEST, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class hash at block hash`(provider: Provider) {
+        // FIXME: Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val latestBlock = devnetClient.getLatestBlock()
+
+        val request = provider.getClassHashAt(latestBlock.hash, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class hash at block number`(provider: Provider) {
+        // FIXME: Currently not supported in devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val latestBlock = devnetClient.getLatestBlock()
+
+        val request = provider.getClassHashAt(latestBlock.number, contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
     }
 
     @ParameterizedTest
