@@ -24,6 +24,37 @@ sealed class TransactionReceipt : CommonTransactionReceipt() {
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
+data class GatewayTransactionReceipt(
+    @JsonNames("events")
+    val events: List<Event>,
+
+    @JsonNames("l2_to_l1_messages")
+    val messageToL1: List<MessageToL1>,
+
+    @JsonNames("l1_to_l2_consumed_message")
+    val messageToL2: MessageToL2? = null,
+
+    @JsonNames("transaction_hash", "txn_hash")
+    override val hash: Felt,
+
+    @JsonNames("status")
+    override val status: TransactionStatus,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("transaction_failure_reason")
+    override val rejectionReason: String? = null,
+
+    @JsonNames("block_hash")
+    override val blockHash: Felt,
+
+    @JsonNames("block_number")
+    override val blockNumber: Int,
+) : TransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 // OptIn needed because @JsonNames is part of the experimental serialization api
 data class InvokeTransactionReceipt(
     @JsonNames("messages_sent")
@@ -44,7 +75,7 @@ data class InvokeTransactionReceipt(
     @JsonNames("actual_fee")
     override val actualFee: Felt,
 
-    @JsonNames("statusData")
+    @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
     @JsonNames("block_hash")
@@ -66,7 +97,7 @@ data class DeclareTransactionReceipt(
     @JsonNames("actual_fee")
     override val actualFee: Felt,
 
-    @JsonNames("statusData")
+    @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
     @JsonNames("block_hash")
@@ -88,7 +119,7 @@ data class DeployTransactionReceipt(
     @JsonNames("actual_fee")
     override val actualFee: Felt,
 
-    @JsonNames("statusData")
+    @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
     @JsonNames("block_hash")
