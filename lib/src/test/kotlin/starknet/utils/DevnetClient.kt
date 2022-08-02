@@ -2,7 +2,6 @@ package starknet.utils
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import starknet.data.types.Felt
 import java.nio.file.Path
@@ -19,7 +18,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     @Serializable
     data class Block(
         @SerialName("block_hash") val hash: Felt,
-        @SerialName("block_number") val number: Int
+        @SerialName("block_number") val number: Int,
     )
 
     data class TransactionResult(val address: Felt, val hash: Felt)

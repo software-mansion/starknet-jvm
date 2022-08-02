@@ -12,7 +12,6 @@ import starknet.extensions.put
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
-import starknet.service.http.HttpService
 import starknet.service.http.HttpService.Payload
 
 /**
@@ -156,10 +155,10 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_class_by_hash")
 
         val params = listOf(
-            "classHash" to classHash.hexString()
+            "classHash" to classHash.hexString(),
         )
 
-        val httpPayload = HttpService.Payload(url, "GET", params)
+        val httpPayload = Payload(url, "GET", params)
         return HttpRequest(httpPayload, ContractClassGatewaySerializer)
     }
 
@@ -167,10 +166,10 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_class_hash_at")
         val params = listOf(
             blockParam,
-            "contractAddress" to contractAddress.hexString()
+            "contractAddress" to contractAddress.hexString(),
         )
 
-        val httpPayload = HttpService.Payload(url, "GET", params)
+        val httpPayload = Payload(url, "GET", params)
         return HttpRequest(httpPayload, Felt.serializer())
     }
 

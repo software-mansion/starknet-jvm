@@ -1,5 +1,3 @@
-@file:JvmName("Hex")
-
 package starknet.data
 
 import java.math.BigInteger

@@ -79,7 +79,7 @@ data class CompiledContract(
 @Serializable
 data class ContractEntryPoint(
     val offset: Felt,
-    val selector: Felt
+    val selector: Felt,
 )
 
 @Serializable
@@ -87,7 +87,7 @@ data class ContractClass(
     val program: String,
 
     @SerialName("entry_points_by_type")
-    val entryPointsByType: EntryPointsByType
+    val entryPointsByType: EntryPointsByType,
 ) {
     @Serializable
     data class EntryPointsByType(
@@ -108,7 +108,7 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
         val program: JsonElement,
 
         @SerialName("entry_points_by_type")
-        val entryPointsByType: ContractClass.EntryPointsByType
+        val entryPointsByType: ContractClass.EntryPointsByType,
     )
 
     override fun deserialize(decoder: Decoder): ContractClass {
@@ -133,7 +133,7 @@ object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 @Serializable
 data class GetClassPayload(
     @SerialName("class_hash")
-    val classHash: Felt
+    val classHash: Felt,
 )
 
 @Serializable
@@ -142,5 +142,5 @@ data class GetClassAtPayload(
     val blockId: String,
 
     @SerialName("contract_address")
-    val contractAddress: Felt
+    val contractAddress: Felt,
 )
