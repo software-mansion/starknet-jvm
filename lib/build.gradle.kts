@@ -133,40 +133,46 @@ publishing {
                 classifier="sources"
             }
         pom {
-                name.set("starknet")
-                description.set("StarkNet SDK for Kotlin")
-                url.set("https://github.com/software-mansion/starknet-jvm")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
-                    }
+            name.set("starknet")
+            description.set("StarkNet SDK for Kotlin")
+            url.set("https://github.com/software-mansion/starknet-jvm")
+            licenses {
+                license {
+                    name.set("MIT License")
+                    url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
                 }
-                developers {
-                    developer {
-                        id.set("jakubptak")
-                        name.set("Jakub Ptak")
-                        email.set("jakub.ptak@swmansion.com")
-                    }
-                    developer {
-                        id.set("arturmichalek")
-                        name.set("Artur Michałek")
-                        email.set("artur.michalek@swmansion.com")
-                    }
-                    developer {
-                        id.set("bartoszrybarski")
-                        name.set("Bartosz Rybarski")
-                        email.set("bartosz.rybarski@swmansion.com")
-                    }
+            }
+            developers {
+                developer {
+                    id.set("jakubptak")
+                    name.set("Jakub Ptak")
+                    email.set("jakub.ptak@swmansion.com")
                 }
-                scm {
-                    connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
-                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
-                    url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
+                developer {
+                    id.set("arturmichalek")
+                    name.set("Artur Michałek")
+                    email.set("artur.michalek@swmansion.com")
                 }
+                developer {
+                    id.set("bartoszrybarski")
+                    name.set("Bartosz Rybarski")
+                    email.set("bartosz.rybarski@swmansion.com")
+                }
+            }
+            scm {
+                connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+                developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+                url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
+            }
+        pom.withXml {
+            val dependencyNode = asNode().appendNode("dependencies").appendNode("dependency")
+            dependencyNode.appendNode("groupId", "org.jetbrains.kotlin")
+            dependencyNode.appendNode("artifactId", "kotlin-stdlib-jdk8")
+            dependencyNode.appendNode("version", "1.3.50")
             }
         }
     }
+}
 
     repositories {
         maven {
