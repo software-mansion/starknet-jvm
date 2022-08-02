@@ -287,15 +287,6 @@ class ProviderTest {
         assertNotNull(response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy transaction receipt`(provider: Provider) {
-        val request = provider.getTransactionReceipt(deployTransactionHash)
-        val response = request.send()
-
-        assertNotNull(response)
-    }
-
     @Test
     fun `get deploy transaction receipt gateway`() {
         val request = gatewayProvider().getTransactionReceipt(deployTransactionHash)
@@ -323,6 +314,7 @@ class ProviderTest {
         assertTrue(response is GatewayTransactionReceipt)
     }
 
+    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get deploy transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
@@ -332,6 +324,7 @@ class ProviderTest {
         assertTrue(response is DeployTransactionReceipt)
     }
 
+    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get declare transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(declareTransactionHash)
@@ -341,6 +334,7 @@ class ProviderTest {
         assertTrue(response is DeclareTransactionReceipt)
     }
 
+    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get invoke transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(invokeTransactionHash)
