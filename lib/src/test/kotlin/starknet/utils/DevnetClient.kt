@@ -1,9 +1,9 @@
 package starknet.utils
 
+import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import starknet.data.types.Felt
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString

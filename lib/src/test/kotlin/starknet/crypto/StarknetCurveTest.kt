@@ -1,9 +1,11 @@
 package starknet.crypto
 
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.crypto.StarknetCurveSignature
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.toFelt
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import starknet.data.types.Felt
-import starknet.data.types.toFelt
 import java.math.BigInteger
 
 val PRIVATE_KEY = Felt.fromHex("0x4070e7abfa479cf8a30d38895e93800a88862c4a65aa00e2b11495998818046")

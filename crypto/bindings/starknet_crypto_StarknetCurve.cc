@@ -69,7 +69,7 @@ starkware::PrimeFieldElement fieldFromJArray(JNIEnv * env, jbyteArray input) {
     return starkware::PrimeFieldElement::FromBigInt(value);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_pedersen
+JNIEXPORT jbyteArray JNICALL Java_com_swmansion_starknet_crypto_StarknetCurve_pedersen
   (JNIEnv * env, jclass, jbyteArray first, jbyteArray second) {
   jbyteArray result = env->NewByteArray(kElementSize);
   try {
@@ -90,7 +90,7 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_pedersen
 
 
 
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_sign
+JNIEXPORT jbyteArray JNICALL Java_com_swmansion_starknet_crypto_StarknetCurve_sign
   (JNIEnv *env, jclass, jbyteArray privateKey, jbyteArray message, jbyteArray k) {
     jbyteArray result = env->NewByteArray(signatureSize);
     try {
@@ -112,7 +112,7 @@ JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_sign
 }
 
 
-JNIEXPORT jboolean JNICALL Java_starknet_crypto_StarknetCurve_verify
+JNIEXPORT jboolean JNICALL Java_com_swmansion_starknet_crypto_StarknetCurve_verify
   (JNIEnv *env, jclass, jbyteArray publicKey, jbyteArray hash, jbyteArray r, jbyteArray w) {
    try {
       // The following call will throw in case of verification failure.
@@ -126,7 +126,7 @@ JNIEXPORT jboolean JNICALL Java_starknet_crypto_StarknetCurve_verify
     }
 }
 
-JNIEXPORT jbyteArray JNICALL Java_starknet_crypto_StarknetCurve_getPublicKey
+JNIEXPORT jbyteArray JNICALL Java_com_swmansion_starknet_crypto_StarknetCurve_getPublicKey
   (JNIEnv *env, jclass, jbyteArray privateKey) {
   jbyteArray result = env->NewByteArray(signatureSize);
    try {

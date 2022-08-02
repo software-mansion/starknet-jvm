@@ -1,8 +1,8 @@
 package com.example.androiddemo
 
 import androidx.appcompat.app.AppCompatActivity
-import starknet.crypto.StarknetCurve
-import starknet.data.types.Felt
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.types.Felt
 import android.os.Bundle
 import android.widget.TextView
 
