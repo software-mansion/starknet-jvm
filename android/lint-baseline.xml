@@ -7,7 +7,7 @@
         errorLine1="            val tmpDir = Files.createTempDirectory(&quot;$name-dir&quot;).toFile().apply {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="22"
             column="32"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="            val tmpDir = Files.createTempDirectory(&quot;$name-dir&quot;).toFile().apply {"
         errorLine2="                                                                ~~~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="22"
             column="65"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="            val tmpFilePath = FileSystems.getDefault().getPath(tmpDir.absolutePath, name)"
         errorLine2="                                                       ~~~~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="25"
             column="56"/>
     </issue>
@@ -40,7 +40,7 @@
         errorLine1="            val tmpFilePath = FileSystems.getDefault().getPath(tmpDir.absolutePath, name)"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="25"
             column="43"/>
     </issue>
@@ -51,7 +51,7 @@
         errorLine1="            Files.copy(resource.openStream(), tmpFilePath)"
         errorLine2="                  ~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="26"
             column="19"/>
     </issue>
@@ -62,7 +62,7 @@
         errorLine1="            System.load(tmpFilePath.toString())"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="../lib/src/main/kotlin/starknet/crypto/NativeLoader.kt"
+            file="../lib/src/main/kotlin/com/swmansion/starknet/crypto/NativeLoader.kt"
             line="27"
             column="13"/>
     </issue>

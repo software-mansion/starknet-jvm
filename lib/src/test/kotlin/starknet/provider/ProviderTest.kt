@@ -1,16 +1,19 @@
 package starknet.provider
 
+import com.swmansion.starknet.data.responses.DeclareTransaction
+import com.swmansion.starknet.data.responses.DeployTransaction
+import com.swmansion.starknet.data.responses.InvokeTransaction
+import com.swmansion.starknet.data.types.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import starknet.data.responses.DeployTransaction
-import starknet.data.selectorFromName
-import starknet.data.types.*
-import starknet.provider.gateway.GatewayProvider
-import starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.gateway.GatewayProvider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import starknet.utils.DevnetClient
 import java.nio.file.Files
 import java.nio.file.Path
@@ -289,7 +292,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is starknet.data.responses.DeployTransaction)
+        assertTrue(response is DeployTransaction)
     }
 
     @ParameterizedTest
@@ -299,7 +302,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is starknet.data.responses.InvokeTransaction)
+        assertTrue(response is InvokeTransaction)
     }
 
     @ParameterizedTest
@@ -316,7 +319,7 @@ class ProviderTest {
 
         assertNotNull(response)
         assertNotEquals(declareTransactionHash, deployTransactionHash)
-        assertTrue(response is starknet.data.responses.DeclareTransaction)
+        assertTrue(response is DeclareTransaction)
     }
 
     @ParameterizedTest

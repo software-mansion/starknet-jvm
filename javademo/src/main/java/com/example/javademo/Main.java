@@ -1,7 +1,7 @@
 package com.example.javademo;
 
-import starknet.crypto.StarknetCurve;
-import starknet.data.types.Felt;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.types.Felt;
 
 public class Main {
     public static void main(String[] args) {
