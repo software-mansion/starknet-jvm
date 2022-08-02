@@ -21,10 +21,11 @@ sealed class Transaction {
     abstract val nonce: Felt
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY")
 // OptIn needed because @JsonNames is part of the experimental serialization api
-data class DeployTransaction @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeployTransaction(
     @JsonNames("contract_address")
     val contractAddress: Felt,
 
@@ -50,12 +51,13 @@ data class DeployTransaction @OptIn(ExperimentalSerializationApi::class) constru
     override val signature: Signature = emptyList(),
 
     @JsonNames("nonce")
-    override val nonce: Felt = Felt.ZERO
+    override val nonce: Felt = Felt.ZERO,
 ) : Transaction()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("INVOKE_FUNCTION")
-data class InvokeTransaction @OptIn(ExperimentalSerializationApi::class) constructor(
+data class InvokeTransaction(
     @JsonNames("contract_address")
     val contractAddress: Felt,
 
@@ -78,12 +80,13 @@ data class InvokeTransaction @OptIn(ExperimentalSerializationApi::class) constru
     override val signature: Signature = emptyList(),
 
     @JsonNames("nonce")
-    override val nonce: Felt = Felt.ZERO
+    override val nonce: Felt = Felt.ZERO,
 ) : Transaction()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DECLARE")
-data class DeclareTransaction @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeclareTransaction(
     @JsonNames("class_hash", "contract_class")
     val classHash: Felt,
 
@@ -103,5 +106,5 @@ data class DeclareTransaction @OptIn(ExperimentalSerializationApi::class) constr
     override val signature: Signature = emptyList(),
 
     @JsonNames("nonce")
-    override val nonce: Felt = Felt.ZERO
+    override val nonce: Felt = Felt.ZERO,
 ) : Transaction()

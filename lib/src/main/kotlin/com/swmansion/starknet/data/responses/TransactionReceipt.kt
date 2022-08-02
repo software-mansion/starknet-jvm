@@ -5,9 +5,6 @@ import com.swmansion.starknet.data.types.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
-import starknet.data.Event
-import starknet.data.types.Felt
-import starknet.data.types.TransactionStatus
 
 @Serializable
 sealed class CommonTransactionReceipt {
@@ -25,9 +22,10 @@ sealed class TransactionReceipt : CommonTransactionReceipt() {
     abstract val blockNumber: Int
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 // OptIn needed because @JsonNames is part of the experimental serialization api
-data class InvokeTransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class InvokeTransactionReceipt(
     @JsonNames("messages_sent")
     val messagesSent: List<MessageToL1>,
 
@@ -53,11 +51,12 @@ data class InvokeTransactionReceipt @OptIn(ExperimentalSerializationApi::class) 
     override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int
+    override val blockNumber: Int,
 ) : TransactionReceipt()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeclareTransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeclareTransactionReceipt(
     @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
@@ -74,11 +73,12 @@ data class DeclareTransactionReceipt @OptIn(ExperimentalSerializationApi::class)
     override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int
+    override val blockNumber: Int,
 ) : TransactionReceipt()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeployTransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class DeployTransactionReceipt(
     @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
@@ -95,20 +95,22 @@ data class DeployTransactionReceipt @OptIn(ExperimentalSerializationApi::class) 
     override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int
+    override val blockNumber: Int,
 ) : TransactionReceipt()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class PendingTransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class PendingTransactionReceipt(
     @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
 
     @JsonNames("actual_fee")
-    override val actualFee: Felt
+    override val actualFee: Felt,
 ) : CommonTransactionReceipt()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class PendingInvokeTransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class PendingInvokeTransactionReceipt(
     @JsonNames("messages_sent")
     val messagesSent: List<MessageToL1>,
 
@@ -122,5 +124,5 @@ data class PendingInvokeTransactionReceipt @OptIn(ExperimentalSerializationApi::
     override val hash: Felt,
 
     @JsonNames("actual_fee")
-    override val actualFee: Felt
+    override val actualFee: Felt,
 ) : CommonTransactionReceipt()

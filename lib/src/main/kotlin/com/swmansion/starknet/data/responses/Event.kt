@@ -1,12 +1,13 @@
-package starknet.data
+package com.swmansion.starknet.data.responses
 
+import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
-import starknet.data.types.Felt
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class Event @OptIn(ExperimentalSerializationApi::class) constructor(
+data class Event(
     @JsonNames("address")
     val address: Felt,
 
@@ -14,5 +15,5 @@ data class Event @OptIn(ExperimentalSerializationApi::class) constructor(
     val keys: List<Felt>,
 
     @JsonNames("data")
-    val data: List<Felt>
+    val data: List<Felt>,
 )
