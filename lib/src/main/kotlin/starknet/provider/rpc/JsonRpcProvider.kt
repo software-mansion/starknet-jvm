@@ -6,12 +6,12 @@ import starknet.data.responses.Transaction
 import starknet.data.responses.TransactionReceipt
 import starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import starknet.data.types.*
+import starknet.extensions.add
+import starknet.extensions.put
 import starknet.provider.Provider
 import starknet.provider.Request
 import starknet.service.http.HttpRequest
 import starknet.service.http.HttpService
-import starknet.extensions.add
-import starknet.extensions.put
 
 /**
  * A provider for interacting with StarkNet JSON-RPC
