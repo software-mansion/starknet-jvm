@@ -33,7 +33,7 @@ class StandardAccount(
     constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
         provider,
         address,
-        StarkCurveSigner(privateKey)
+        StarkCurveSigner(privateKey),
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction {

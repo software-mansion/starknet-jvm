@@ -40,7 +40,7 @@ enum class BlockTag(val tag: String) {
 @Serializable(with = BlockHashOrTagSerializer::class)
 sealed class BlockHashOrTag() {
     data class Hash(
-        val blockHash: Felt
+        val blockHash: Felt,
     ) : BlockHashOrTag() {
         override fun string(): String {
             return blockHash.hexString()
@@ -48,7 +48,7 @@ sealed class BlockHashOrTag() {
     }
 
     data class Tag(
-        val blockTag: BlockTag
+        val blockTag: BlockTag,
     ) : BlockHashOrTag() {
         override fun string(): String {
             return blockTag.tag
@@ -88,7 +88,7 @@ data class InvokeFunctionPayload(
     @SerialName("max_fee")
     val maxFee: Felt?,
 
-    val version: Felt?
+    val version: Felt?,
 )
 
 class InvalidContractException(missingKey: String) :
@@ -135,7 +135,7 @@ data class DeployTransactionPayload(
     val contractDefinition: ContractDefinition,
     val salt: Felt,
     val constructorCalldata: Calldata,
-    val version: Felt
+    val version: Felt,
 )
 
 data class DeclareTransactionPayload(
@@ -156,7 +156,7 @@ data class DeclareTransaction(
     val nonce: Felt,
     val contractClass: CompiledContract,
     val signerAddress: Felt,
-    val signature: Signature
+    val signature: Signature,
 ) : Transaction() {
     override val type = TransactionType.DECLARE
     override fun getHash(): Felt {
@@ -168,7 +168,7 @@ data class DeployTransaction(
     val contractDefinition: CompiledContract,
     val contractAddressSalt: Felt,
     val constructorCalldata: Calldata,
-    val nonce: Felt?
+    val nonce: Felt?,
 ) : Transaction() {
     override val type = TransactionType.DEPLOY
 

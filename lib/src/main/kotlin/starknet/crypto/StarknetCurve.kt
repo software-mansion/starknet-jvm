@@ -52,7 +52,7 @@ object StarknetCurve {
     @JvmStatic
     private external fun pedersen(
         first: ByteArray?,
-        second: ByteArray?
+        second: ByteArray?,
     ): ByteArray
 
     /**

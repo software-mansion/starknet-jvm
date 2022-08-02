@@ -35,7 +35,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Lint
-        run: ./gradlew :lib:ktlintCheck
+        run: ./gradlew :lib:lintKotlin
 
       - name: Run tests
         run: ./gradlew :lib:test --info

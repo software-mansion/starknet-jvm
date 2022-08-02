@@ -2,7 +2,6 @@ package starknet.utils
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import starknet.data.types.Felt
 import java.nio.file.Path
@@ -19,7 +18,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
     @Serializable
     data class Block(
         @SerialName("block_hash") val hash: Felt,
-        @SerialName("block_number") val number: Int
+        @SerialName("block_number") val number: Int,
     )
 
     data class TransactionResult(val address: Felt, val hash: Felt)
@@ -65,7 +64,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             feederGatewayUrl,
             "--contract",
             contractPath.absolutePathString(),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         deployProcess.waitFor()
@@ -85,7 +84,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             feederGatewayUrl,
             "--contract",
             contractPath.absolutePathString(),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         declareProcess.waitFor()
@@ -99,7 +98,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         functionName: String,
         contractAddress: Felt,
         abiPath: Path,
-        vararg inputs: Int
+        vararg inputs: Int,
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
             "starknet",
@@ -116,7 +115,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
             functionName,
             "--inputs",
             inputs.joinToString(separator = " "),
-            "--no_wallet"
+            "--no_wallet",
         ).start()
 
         invokeProcess.waitFor()

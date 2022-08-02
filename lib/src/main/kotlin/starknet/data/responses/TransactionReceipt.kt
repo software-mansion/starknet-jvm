@@ -6,9 +6,10 @@ import kotlinx.serialization.json.JsonNames
 import starknet.data.types.Felt
 import starknet.data.types.TransactionStatus
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 // OptIn needed because @JsonNames is part of the experimental serialization api
-data class TransactionReceipt @OptIn(ExperimentalSerializationApi::class) constructor(
+data class TransactionReceipt(
     @JsonNames("transaction_hash", "txn_hash")
     val hash: Felt,
 
@@ -22,5 +23,5 @@ data class TransactionReceipt @OptIn(ExperimentalSerializationApi::class) constr
     val actualFee: Felt,
 
     @JsonNames("statusData")
-    val rejectionReason: String? = null
+    val rejectionReason: String? = null,
 )
