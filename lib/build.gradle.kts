@@ -126,20 +126,20 @@ publishing {
             artifactId = "starknet"
             artifact("starknet-jar/starknet.jar")
             artifact("starknet-aar/starknet.aar")
-            artifact("starknet-javadoc/javadoc.jar") {
+            artifact("javadoc-jar/javadoc.jar") {
                 classifier="javadoc"
             }
-            artifact("starknet-sources/sources.jar"){
+            artifact("sources-jar/sources.jar"){
                 classifier="sources"
             }
         pom {
                 name.set("starknet")
                 description.set("StarkNet SDK for Kotlin")
-                url.set("https://github.com/software-mansion/starknet.kt")
+                url.set("https://github.com/software-mansion/starknet-jvm")
                 licenses {
                     license {
                         name.set("MIT License")
-                        url.set("https://github.com/software-mansion/starknet.kt/blob/main/LICENSE")
+                        url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
                     }
                 }
                 developers {
@@ -160,9 +160,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/software-mansion/starknet.kt.git")
-                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet.kt.git")
-                    url.set("https://github.com/software-mansion/starknet.kt/tree/main")
+                    connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+                    url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
                 }
             }
         }
@@ -170,8 +170,12 @@ publishing {
 
     repositories {
         maven {
-            val releasesRepoUrl = layout.buildDirectory.dir("repos/releases")
-            val snapshotsRepoUrl = layout.buildDirectory.dir("repos/snapshots")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
         }
 
