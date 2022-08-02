@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.selectorFromName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.swmansion.starknet.data.selectorFromName
 
 @Serializable
 data class Call(

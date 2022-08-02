@@ -1,9 +1,9 @@
 package starknet.data.types
 
+import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.InvokeTransaction
 import com.swmansion.starknet.data.types.StarknetChainId
 import org.junit.jupiter.api.Assertions.assertEquals
-import com.swmansion.starknet.data.types.Felt
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
 

@@ -1,8 +1,8 @@
 package starknet.data
 
+import com.swmansion.starknet.data.types.Felt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import com.swmansion.starknet.data.types.Felt
 
 internal class SelectorTest {
     @Test

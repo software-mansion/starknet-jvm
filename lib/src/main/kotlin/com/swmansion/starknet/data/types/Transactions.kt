@@ -2,6 +2,8 @@
 
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -11,8 +13,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
-import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.extensions.base64Gzipped
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>

@@ -1,8 +1,8 @@
 package com.swmansion.starknet.service.http
 
+import com.swmansion.starknet.provider.Request
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
-import com.swmansion.starknet.provider.Request
 import java.util.concurrent.CompletableFuture
 
 class HttpRequest<T>(

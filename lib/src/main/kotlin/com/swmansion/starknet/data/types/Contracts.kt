@@ -2,12 +2,12 @@
 
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonElement
-import com.swmansion.starknet.extensions.base64Gzipped
 
 enum class AbiEntryType {
     FELT,
