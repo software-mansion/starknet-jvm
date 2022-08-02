@@ -1,5 +1,6 @@
 package starknet.provider
 
+import com.swmansion.starknet.data.responses.*
 import com.swmansion.starknet.data.responses.DeclareTransaction
 import com.swmansion.starknet.data.responses.DeployTransaction
 import com.swmansion.starknet.data.responses.InvokeTransaction
@@ -40,6 +41,16 @@ class ProviderTest {
                     StarknetChainId.TESTNET,
                 ),
             )
+        }
+
+        @JvmStatic
+        private fun gatewayProvider(): GatewayProvider {
+            return GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
+        }
+
+        @JvmStatic
+        private fun rpcProvider(): JsonRpcProvider {
+            return JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
         }
 
         @JvmStatic
@@ -278,11 +289,65 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun getTransactionReceiptTest(provider: Provider) {
+    fun `get deploy transaction receipt`(provider: Provider) {
         val request = provider.getTransactionReceipt(deployTransactionHash)
         val response = request.send()
 
         assertNotNull(response)
+    }
+
+    @Test
+    fun `get deploy transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(deployTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
+    @Test
+    fun `get declare transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(declareTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
+    @Test
+    fun `get invoke transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(invokeTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
+    @Test
+    fun `get deploy transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is DeployTransactionReceipt)
+    }
+
+    @Test
+    fun `get declare transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(declareTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is DeclareTransactionReceipt)
+    }
+
+    @Test
+    fun `get invoke transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(invokeTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is InvokeTransactionReceipt)
     }
 
     // FIXME(This test will fail until devnet is updated to the newest rpc spec)
