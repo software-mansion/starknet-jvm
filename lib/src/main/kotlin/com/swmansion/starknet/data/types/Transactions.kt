@@ -36,7 +36,7 @@ enum class BlockTag(val tag: String) {
 }
 
 @Serializable(with = BlockHashOrTagSerializer::class)
-sealed class BlockHashOrTag() {
+sealed class BlockHashOrTag {
     data class Hash(
         val blockHash: Felt,
     ) : BlockHashOrTag() {
@@ -56,7 +56,7 @@ sealed class BlockHashOrTag() {
     abstract fun string(): String
 }
 
-class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
+class BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
     override fun deserialize(decoder: Decoder): BlockHashOrTag {
         val value = decoder.decodeString()
 
