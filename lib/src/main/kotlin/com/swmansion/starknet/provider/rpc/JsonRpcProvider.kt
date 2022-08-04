@@ -1,6 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.responses.CommonTransactionReceipt
+import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
@@ -93,7 +93,7 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, JsonRpcTransactionPolymorphicSerializer)
     }
 
-    override fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt> {
+    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val payload = GetTransactionReceiptPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 

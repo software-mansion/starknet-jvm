@@ -3,7 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.responses.CommonTransactionReceipt
+import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.GatewayTransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
@@ -94,7 +94,7 @@ class GatewayProvider(
         return HttpRequest(Payload(url, "GET", params), GatewayTransactionTransformingSerializer)
     }
 
-    override fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt> {
+    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val url = feederGatewayRequestUrl("get_transaction_receipt")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 

@@ -1,6 +1,6 @@
 package com.swmansion.starknet.provider
 
-import com.swmansion.starknet.data.responses.CommonTransactionReceipt
+import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.types.*
 
@@ -67,7 +67,7 @@ interface Provider {
      *
      * @param transactionHash a hash of sent transaction
      */
-    fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt>
+    fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt>
 
     /**
      * Invoke a function.
