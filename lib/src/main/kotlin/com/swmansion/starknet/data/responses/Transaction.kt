@@ -85,7 +85,7 @@ data class InvokeTransaction(
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
 
-    override val type: TransactionType = TransactionType.INVOKE
+    override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -113,5 +113,5 @@ data class DeclareTransaction(
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
 
-    override val type: TransactionType = TransactionType.DECLARE
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()

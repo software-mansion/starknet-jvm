@@ -58,7 +58,7 @@ data class GatewayTransactionReceipt(
     @JsonNames("transaction_failure_reason")
     override val rejectionReason: String? = null,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.GATEWAY
+    override val type: TransactionReceiptType = TransactionReceiptType.GATEWAY,
 ) : AcceptedTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -92,7 +92,7 @@ data class InvokeTransactionReceipt(
     @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.INVOKE
+    override val type: TransactionReceiptType = TransactionReceiptType.INVOKE,
 ) : AcceptedTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -116,7 +116,7 @@ data class DeclareTransactionReceipt(
     @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.DECLARE
+    override val type: TransactionReceiptType = TransactionReceiptType.DECLARE,
 ) : AcceptedTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -140,7 +140,7 @@ data class DeployTransactionReceipt(
     @JsonNames("status_data")
     override val rejectionReason: String? = null,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.DEPLOY
+    override val type: TransactionReceiptType = TransactionReceiptType.DEPLOY,
 ) : AcceptedTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -154,7 +154,7 @@ data class PendingTransactionReceipt(
 
     override val isPending: Boolean = true,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.PENDING
+    override val type: TransactionReceiptType = TransactionReceiptType.PENDING,
 ) : TransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -177,5 +177,5 @@ data class PendingInvokeTransactionReceipt(
 
     override val isPending: Boolean = true,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.PENDING_INVOKE
+    override val type: TransactionReceiptType = TransactionReceiptType.PENDING_INVOKE,
 ) : TransactionReceipt()

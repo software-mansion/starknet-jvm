@@ -1,7 +1,7 @@
 package com.swmansion.starknet.provider
 
-import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
+import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.types.*
 
 /**
