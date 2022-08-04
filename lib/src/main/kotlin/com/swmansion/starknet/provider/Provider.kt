@@ -87,7 +87,7 @@ interface Provider {
      */
     fun getClass(classHash: Felt): Request<ContractClass>
 
-    fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -97,7 +97,7 @@ interface Provider {
      * @param blockNumber The number of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -107,7 +107,7 @@ interface Provider {
      * @param blockTag The tag of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
 
     /**
      * Deploy a contract

@@ -173,19 +173,19 @@ class GatewayProvider(
         return HttpRequest(httpPayload, Felt.serializer())
     }
 
-    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
         val param = "blockHash" to blockHash.hexString()
 
         return getClassHashAt(param, contractAddress)
     }
 
-    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
         val param = "blockNumber" to blockNumber.toString()
 
         return getClassHashAt(param, contractAddress)
     }
 
-    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         val param = "blockTag" to blockTag.tag
 
         return getClassHashAt(param, contractAddress)
