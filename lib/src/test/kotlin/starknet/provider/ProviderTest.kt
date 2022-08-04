@@ -85,7 +85,7 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun callContractTest(provider: Provider) {
+    fun `call contract`(provider: Provider) {
         // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
@@ -112,7 +112,7 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun invokeTransactionTest(provider: Provider) {
+    fun `invoke transaction`(provider: Provider) {
         // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
