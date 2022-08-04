@@ -98,16 +98,11 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun getStorageAtTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `get storage at`(provider: Provider) {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
-            BlockTag.PENDING,
+            BlockTag.LATEST,
         )
 
         val response = request.send()
