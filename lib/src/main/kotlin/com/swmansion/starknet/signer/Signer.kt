@@ -1,8 +1,7 @@
 package com.swmansion.starknet.signer
 
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.Signature
-import com.swmansion.starknet.data.types.Transaction
+import com.swmansion.starknet.data.responses.Transaction
+import com.swmansion.starknet.data.types.*
 
 /**
  * Transaction signer.

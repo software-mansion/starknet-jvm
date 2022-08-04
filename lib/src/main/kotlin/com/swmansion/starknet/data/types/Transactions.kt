@@ -2,7 +2,6 @@
 
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -19,12 +18,6 @@ typealias Signature = List<Felt>
 
 enum class TransactionStatus {
     NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
-}
-
-enum class TransactionType(val txPrefix: Felt) {
-    DECLARE(Felt.fromHex("0x6465636c617265")), // encodeShortString('declare'),
-    DEPLOY(Felt.fromHex("0x6465706c6f79")), // encodeShortString('deploy'),
-    INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 }
 
 enum class StarknetChainId(val value: Felt) {
@@ -78,19 +71,6 @@ class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
     }
 }
 
-@Serializable
-data class InvokeFunctionPayload(
-    @SerialName("function_invocation")
-    val invocation: Call,
-
-    val signature: Signature?,
-
-    @SerialName("max_fee")
-    val maxFee: Felt?,
-
-    val version: Felt?,
-)
-
 class InvalidContractException(missingKey: String) :
     Exception("Attempted to parse an invalid contract. Missing key: $missingKey")
 
@@ -131,6 +111,19 @@ data class ContractDefinition(var contract: String) {
     }
 }
 
+@Serializable
+data class InvokeFunctionPayload(
+    @SerialName("function_invocation")
+    val invocation: Call,
+
+    val signature: Signature?,
+
+    @SerialName("max_fee")
+    val maxFee: Felt?,
+
+    val version: Felt?,
+)
+
 data class DeployTransactionPayload(
     val contractDefinition: ContractDefinition,
     val salt: Felt,
@@ -145,67 +138,3 @@ data class DeclareTransactionPayload(
     val signature: Signature,
     val version: Felt,
 )
-
-sealed class Transaction {
-    abstract val type: TransactionType
-
-    abstract fun getHash(): Felt
-}
-
-data class DeclareTransaction(
-    val nonce: Felt,
-    val contractClass: CompiledContract,
-    val signerAddress: Felt,
-    val signature: Signature,
-) : Transaction() {
-    override val type = TransactionType.DECLARE
-    override fun getHash(): Felt {
-        TODO("Not yet implemented")
-    }
-}
-
-data class DeployTransaction(
-    val contractDefinition: CompiledContract,
-    val contractAddressSalt: Felt,
-    val constructorCalldata: Calldata,
-    val nonce: Felt?,
-) : Transaction() {
-    override val type = TransactionType.DEPLOY
-
-    override fun getHash(): Felt {
-        TODO("Not yet implemented")
-    }
-}
-
-@Serializable
-data class InvokeFunctionTransaction(
-    @SerialName("contract_address") val contractAddress: Felt,
-    val signature: Signature?,
-    @SerialName("entry_point_selector") val entryPointSelector: String,
-    val calldata: List<Felt>?,
-    @SerialName("max_fee") val maxFee: Felt,
-    val version: Felt,
-)
-
-data class InvokeTransaction(
-    val contractAddress: Felt,
-    val entrypointSelector: Felt,
-    val calldata: Calldata,
-    val chainId: Felt,
-    val nonce: Felt,
-    val maxFee: Felt,
-    val version: Felt = Felt.ZERO,
-    val signature: Signature? = null,
-) : Transaction() {
-    override val type = TransactionType.INVOKE
-
-    override fun getHash(): Felt = StarknetCurve.pedersenOnElements(
-        type.txPrefix,
-        version,
-        contractAddress,
-        entrypointSelector,
-        StarknetCurve.pedersenOnElements(calldata),
-        maxFee,
-        chainId,
-    )
-}

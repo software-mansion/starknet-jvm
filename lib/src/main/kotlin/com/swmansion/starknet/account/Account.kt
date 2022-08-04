@@ -1,9 +1,9 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.data.responses.InvokeTransaction
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.ExecutionParams
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.InvokeTransaction
 import com.swmansion.starknet.provider.Provider
 
 /**

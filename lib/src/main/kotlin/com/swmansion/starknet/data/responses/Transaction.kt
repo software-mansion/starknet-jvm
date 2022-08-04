@@ -1,15 +1,19 @@
 package com.swmansion.starknet.data.responses
 
+import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.Signature
+import com.swmansion.starknet.data.types.StarknetChainId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
-enum class TransactionType {
-    DECLARE, DEPLOY, INVOKE
+enum class TransactionType(val txPrefix: Felt) {
+    DECLARE(Felt.fromHex("0x6465636c617265")), // encodeShortString('declare'),
+    DEPLOY(Felt.fromHex("0x6465706c6f79")), // encodeShortString('deploy'),
+    INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 }
 
 @Serializable
@@ -108,3 +112,26 @@ data class DeclareTransaction(
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
 ) : Transaction()
+
+fun makeInvokeTransaction(
+    contractAddress: Felt,
+    calldata: Calldata,
+    entryPointSelector: Felt,
+    maxFee: Felt = Felt.ZERO,
+    version: Felt = Felt.ZERO,
+    signature: Signature = emptyList(),
+    nonce: Felt = Felt.ZERO,
+    chainId: StarknetChainId,
+): InvokeTransaction {
+    val hash = StarknetCurve.pedersenOnElements(
+        TransactionType.INVOKE.txPrefix,
+        version,
+        contractAddress,
+        entryPointSelector,
+        StarknetCurve.pedersenOnElements(calldata),
+        maxFee,
+        chainId.value,
+    )
+
+    return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+}
