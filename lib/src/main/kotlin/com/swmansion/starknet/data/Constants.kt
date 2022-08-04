@@ -1,5 +1,3 @@
-@file:JvmName("Constants")
-
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.data.types.Felt
