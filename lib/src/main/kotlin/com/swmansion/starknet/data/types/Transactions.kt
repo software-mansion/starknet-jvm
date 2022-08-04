@@ -2,7 +2,6 @@
 
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
