@@ -7,7 +7,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.*
 
 enum class AbiEntryType {
     FELT,
@@ -81,6 +81,43 @@ data class ContractEntryPoint(
     val offset: Felt,
     val selector: Felt,
 )
+
+data class ContractDefinition(var contract: String) {
+    private val program: JsonElement
+    private val entryPointsByType: JsonElement
+    private val abi: JsonElement?
+
+    init {
+        val (program, entryPointsByType, abi) = parseContract(contract)
+        this.program = program
+        this.entryPointsByType = entryPointsByType
+        this.abi = abi
+    }
+
+    private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
+        val compiledContract = Json.parseToJsonElement(contract).jsonObject
+        val program = compiledContract["program"] ?: throw InvalidContractException("program")
+        val entryPointsByType =
+            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+        return Triple(program, entryPointsByType, abi)
+    }
+
+    fun toJson(): JsonObject {
+        return buildJsonObject {
+            put("program", program.toString().base64Gzipped())
+            put("entry_points_by_type", entryPointsByType)
+            if (abi != null) put("abi", abi) else putJsonArray("abi") { emptyList<Any>() }
+        }
+    }
+
+    fun toRpcJson(): JsonObject {
+        return buildJsonObject {
+            put("program", program.toString().base64Gzipped())
+            put("entry_points_by_type", entryPointsByType)
+        }
+    }
+}
 
 @Serializable
 data class ContractClass(
