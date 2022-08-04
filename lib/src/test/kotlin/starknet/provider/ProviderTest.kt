@@ -38,7 +38,6 @@ class ProviderTest {
         @JvmStatic
         private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
 
-
         @JvmStatic
         @BeforeAll
         fun before() {
