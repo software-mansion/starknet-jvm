@@ -29,29 +29,15 @@ class ProviderTest {
         private lateinit var declareTransactionHash: Felt
 
         @JvmStatic
-        private fun getProviders(): List<Provider> {
-            return listOf(
-                GatewayProvider(
-                    devnetClient.feederGatewayUrl,
-                    devnetClient.gatewayUrl,
-                    StarknetChainId.TESTNET,
-                ),
-                JsonRpcProvider(
-                    devnetClient.rpcUrl,
-                    StarknetChainId.TESTNET,
-                ),
-            )
-        }
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
 
         @JvmStatic
-        private fun gatewayProvider(): GatewayProvider {
-            return GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
-        }
+        private fun gatewayProvider(): GatewayProvider =
+            GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
 
         @JvmStatic
-        private fun rpcProvider(): JsonRpcProvider {
-            return JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
-        }
+        private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
+
 
         @JvmStatic
         @BeforeAll
