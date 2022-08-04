@@ -29,7 +29,7 @@ data class GatewayTransactionReceipt(
     val events: List<Event>,
 
     @JsonNames("l2_to_l1_messages")
-    val messageToL1: List<MessageToL1>,
+    val messagesToL1: List<MessageToL1>,
 
     @JsonNames("l1_to_l2_consumed_message")
     val messageToL2: MessageToL2? = null,
