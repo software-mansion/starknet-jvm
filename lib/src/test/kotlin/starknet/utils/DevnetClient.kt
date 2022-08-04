@@ -8,7 +8,7 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
+class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050): AutoCloseable {
     private var devnetProcess: Process? = null
 
     val gatewayUrl: String
@@ -46,7 +46,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         }
     }
 
-    fun destroy() {
+    override fun close() {
         devnetProcess?.destroyForcibly()
 
         // Wait for the process to be destroyed

@@ -64,7 +64,7 @@ class ProviderTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.destroy()
+            devnetClient.close()
         }
     }
 
