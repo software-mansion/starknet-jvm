@@ -1,3 +1,5 @@
+@file:JvmName("Nets")
+
 package com.swmansion.starknet.data
 
 object NetUrls {
