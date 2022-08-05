@@ -1,4 +1,5 @@
-@file:JvmName("SelectorFromName")
+// ktlint-disable filename
+@file:JvmName("Selector")
 
 package com.swmansion.starknet.data
 
