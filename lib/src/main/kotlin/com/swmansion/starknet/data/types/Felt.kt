@@ -1,5 +1,3 @@
-@file:JvmName("Felt")
-
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex

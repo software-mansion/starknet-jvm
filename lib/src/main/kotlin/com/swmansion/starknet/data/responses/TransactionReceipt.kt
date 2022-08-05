@@ -1,5 +1,3 @@
-@file:JvmName("TransactionReceipt")
-
 package com.swmansion.starknet.data.responses
 
 import com.swmansion.starknet.data.types.Felt

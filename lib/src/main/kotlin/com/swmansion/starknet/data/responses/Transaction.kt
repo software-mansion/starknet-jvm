@@ -1,5 +1,3 @@
-@file:JvmName("Transaction")
-
 package com.swmansion.starknet.data.responses
 
 import com.swmansion.starknet.data.types.Calldata
