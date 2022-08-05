@@ -1,4 +1,4 @@
-@file:JvmName("Nets")
+@file:JvmName("NetUrls")
 
 package com.swmansion.starknet.data
 

@@ -1,4 +1,4 @@
-@file:JvmName("Selector")
+@file:JvmName("SelectorFromName")
 
 package com.swmansion.starknet.data
 
