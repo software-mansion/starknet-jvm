@@ -84,7 +84,6 @@ interface Account : Provider {
      */
     fun estimateFee(calls: List<Call>, params: CallParams): Felt
 
-
     /**
      * Get account nonce.
      *

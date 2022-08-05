@@ -19,13 +19,13 @@ data class Call(
     constructor(contractAddress: Felt, entrypoint: Felt) : this(
         contractAddress,
         entrypoint,
-        emptyList()
+        emptyList(),
     )
 
     constructor(contractAddress: Felt, entrypoint: String) : this(
         contractAddress,
         entrypoint,
-        emptyList()
+        emptyList(),
     )
 }
 
