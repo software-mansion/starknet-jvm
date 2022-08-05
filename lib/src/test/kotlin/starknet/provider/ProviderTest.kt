@@ -106,8 +106,9 @@ class ProviderTest {
         )
 
         val response = request.send()
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), response)
+        assertEquals(expected, response)
     }
 
     @ParameterizedTest

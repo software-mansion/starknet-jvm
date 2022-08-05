@@ -146,6 +146,24 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
         return json.decodeFromString(Block.serializer(), result)
     }
 
+    fun getStorageAt(contractAddress: Felt, storageKey: Felt): Felt {
+        val getStorageAtProcess = ProcessBuilder(
+            "starknet",
+            "get_storage_at",
+            "--contract_address",
+            contractAddress.hexString(),
+            "--key",
+            storageKey.decString(),
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        val result = String(getStorageAtProcess.inputStream.readAllBytes())
+        return Felt.fromHex(result.trim())
+    }
+
     private fun getValueFromLine(line: String, index: Int = 1): String {
         val split = line.split(": ")
         return split[index]
