@@ -15,10 +15,24 @@ data class Call(
         selectorFromName(entrypoint),
         calldata,
     )
+
+    constructor(contractAddress: Felt, entrypoint: Felt) : this(
+        contractAddress,
+        entrypoint,
+        emptyList()
+    )
+
+    constructor(contractAddress: Felt, entrypoint: String) : this(
+        contractAddress,
+        entrypoint,
+        emptyList()
+    )
 }
 
-data class CallExtraParams(
-    val blockHashOrTag: BlockHashOrTag,
+data class CallParams(
+    val nonce: Felt?,
+    val maxFee: Felt?,
+    val version: Felt?,
 )
 
 data class ExecutionParams(
