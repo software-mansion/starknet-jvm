@@ -45,4 +45,26 @@ class StandardAccount(
         )
         return tx.copy(signature = signer.signTransaction(tx))
     }
+
+    override fun execute(calls: List<Call>, params: CallParams): InvokeFunctionResponse {
+        TODO("To be implemented")
+        val nonce = params.nonce ?: getNonce()
+        val maxFee = params.maxFee ?: Felt(0) // FIXME: Estimate fee
+        val version = params.version ?: Felt(0)
+
+        val calldata = callsToExecuteCalldata(calls, nonce)
+        val call = Call(address, selectorFromName(EXECUTE_ENTRY_POINT_NAME), calldata)
+    }
+
+    override fun getNonce(): Felt {
+        val nonceCall = Call(address, "get_nonce")
+        val request = provider.callContract(nonceCall, BlockTag.LATEST)
+        val response = request.send()
+
+        return response.result.first()
+    }
+
+    override fun estimateFee(calls: List<Call>, params: CallParams): Felt {
+        TODO("Not yet implemented")
+    }
 }
