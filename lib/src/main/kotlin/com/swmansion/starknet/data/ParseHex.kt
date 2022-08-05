@@ -1,3 +1,5 @@
+@file:JvmName("ParseHex")
+
 package com.swmansion.starknet.data
 
 import java.math.BigInteger

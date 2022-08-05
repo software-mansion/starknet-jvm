@@ -223,7 +223,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.PENDING, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.PENDING)
         val response = request.send()
 
         assertNotNull(response)
@@ -237,7 +237,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.LATEST, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
@@ -252,7 +252,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.hash, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
         assertNotNull(response)
@@ -267,7 +267,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.number, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.number)
         val response = request.send()
 
         assertNotNull(response)

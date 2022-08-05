@@ -168,19 +168,19 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
     }
 
-    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
         val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetClassAtPayload(blockTag.tag, contractAddress)
 
         return getClassHashAt(payload)
