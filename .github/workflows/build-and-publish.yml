@@ -2,10 +2,10 @@ name: Build
 
 on:
   push:
-    branches: [ feat/gh-build ] # [ main ]
+    branches: [ main ]
 
 jobs:
-  build_x64:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -49,38 +49,9 @@ jobs:
           name: starknet-aar
           path: starknet.aar
 
-#  build_other_archs:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        include:
-#          - arch: aarch64
-#            distro: ubuntu_latest
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          submodules: recursive
-#      - name: Build additional archs for linux
-#        uses: uraimo/run-on-arch-action@d9e985ee32020b12e9cafe5b7d52cf0122bb7609
-#        with:
-#          arch: ${{ matrix.arch }}
-#          distro: ${{ matrix.distro }}
-#          install:
-#            apt-get update && apt-get install -y openjdk-11-jdk cmake
-#          run: ./gradlew buildCryptoCpp
-#      - name: Upload the shared lib
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: lib-${{ runner.os }}-${{ matrix.arch }}
-#          path: crypto/build/bindings/libcrypto_jni.*
-#      - name: Set arch var for packaging
-#        run: echo LINUX_ARCHS="$LINUX_ARCHS ${{ matrix.arch }}" >> $GITHUB_ENV
-#    outputs:
-#      LINUX_ARCHS: "$LINUX_ARCHS"
-
   package_jar:
     runs-on: ubuntu-latest
-    needs: [build_x64] #, build_other_archs]
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
@@ -107,7 +78,7 @@ jobs:
 
   generate_javadoc_and_sources:
     runs-on: ubuntu-latest
-    needs: [build_x64] #, build_other_archs]
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
       - name: Generate javadoc JAR
