@@ -1,0 +1,31 @@
+name: Build And Publish Docs
+on: 
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  build-and-publish-docs:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      # Build java and kotlin style docs and copy kotlin output to the java folder
+      # so that the deployed github page has java docs at `/` and kotlin docs at `/kotlin`
+      - name: Build docs
+        run: |
+          ./gradlew :lib:dokkaJavadoc
+          ./gradlew :lib:dokkaHtml
+          cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: lib/build/dokka/javadoc
+          branch: gh-pages
