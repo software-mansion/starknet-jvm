@@ -55,27 +55,18 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu_latest
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.12
-        with:
-          cmake-version: '3.16.x'
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: 'corretto'
-          cache: 'gradle'
-
       - name: Build additional archs for linux
         uses: uraimo/run-on-arch-action@d9e985ee32020b12e9cafe5b7d52cf0122bb7609
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
+          install:
+            apt-get update && apt-get install -y openjdk-11-jdk cmake
           run: ./gradlew buildCryptoCpp
       - name: Upload the shared lib
         uses: actions/upload-artifact@v2
