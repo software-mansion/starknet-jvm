@@ -10,7 +10,7 @@ jobs:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Gradle
@@ -22,7 +22,7 @@ jobs:
           ./gradlew :lib:dokkaHtml
           cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
 
-      - name: Deploy 🚀
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: lib/build/dokka/javadoc
