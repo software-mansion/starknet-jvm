@@ -70,9 +70,6 @@ class BlockHashOrTagSerializer() : KSerializer<BlockHashOrTag> {
     }
 }
 
-class InvalidContractException(missingKey: String) :
-    Exception("Attempted to parse an invalid contract. Missing key: $missingKey")
-
 @Serializable
 data class InvokeFunctionPayload(
     @SerialName("function_invocation")

@@ -87,6 +87,9 @@ data class ContractDefinition(private val contract: String) {
     private val entryPointsByType: JsonElement
     private val abi: JsonElement?
 
+    class InvalidContractException(missingKey: String) :
+        Exception("Attempted to parse an invalid contract. Missing key: $missingKey")
+
     init {
         val (program, entryPointsByType, abi) = parseContract(contract)
         this.program = program

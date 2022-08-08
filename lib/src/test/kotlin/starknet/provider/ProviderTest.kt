@@ -410,7 +410,7 @@ class ProviderTest {
 
     @Test
     fun `make contract definition with invalid json`() {
-        assertThrows(InvalidContractException::class.java) {
+        assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
     }
