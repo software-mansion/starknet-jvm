@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.responses.CommonTransactionReceipt
 import com.swmansion.starknet.data.responses.GatewayTransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider

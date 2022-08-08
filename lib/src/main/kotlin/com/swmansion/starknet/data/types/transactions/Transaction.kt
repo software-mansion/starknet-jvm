@@ -16,6 +16,10 @@ enum class TransactionType(val txPrefix: Felt) {
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 }
 
+enum class TransactionStatus {
+    NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
+}
+
 @Serializable
 sealed class Transaction {
     abstract val hash: Felt

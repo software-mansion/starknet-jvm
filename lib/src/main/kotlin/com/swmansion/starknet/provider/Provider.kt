@@ -3,6 +3,7 @@ package com.swmansion.starknet.provider
 import com.swmansion.starknet.data.responses.CommonTransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 
 /**
  * Provider for interacting with StarkNet.
