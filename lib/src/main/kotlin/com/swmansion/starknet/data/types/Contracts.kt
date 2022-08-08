@@ -82,7 +82,7 @@ data class ContractEntryPoint(
     val selector: Felt,
 )
 
-data class ContractDefinition(var contract: String) {
+data class ContractDefinition(private val contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
     private val abi: JsonElement?
