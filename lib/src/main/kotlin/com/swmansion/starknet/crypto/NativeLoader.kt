@@ -5,7 +5,6 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.util.*
 
-
 internal object NativeLoader {
     fun load(name: String) = load(name, operatingSystem, architecture)
 
@@ -20,7 +19,7 @@ internal object NativeLoader {
             val resource =
                 NativeLoader::class.java.getResource(path) ?: throw UnsupportedPlatform(
                     operatingSystem.name,
-                    architecture
+                    architecture,
                 )
             loadFromJar(name, resource)
         }
@@ -56,13 +55,12 @@ internal object NativeLoader {
     }
 
     class UnsupportedPlatform(system: String, architecture: String) :
-        Exception("Unsupported platfrom ${system}:${architecture}") {
-    }
+        Exception("Unsupported platfrom $system:$architecture")
 
     private fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
-            SystemType.MacOS -> "/darwin/${name}.dylib"
-            SystemType.Linux -> "/linux/${architecture}/${name}.so"
+            SystemType.MacOS -> "/darwin/$name.dylib"
+            SystemType.Linux -> "/linux/$architecture/$name.so"
             else -> throw UnsupportedPlatform(operatingSystem.name, architecture)
         }
     }
