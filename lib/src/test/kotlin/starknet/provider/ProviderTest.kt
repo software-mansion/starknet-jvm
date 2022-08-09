@@ -292,16 +292,15 @@ class ProviderTest {
     }
 
     // FIXME(This test will fail until devnet is updated to the newest rpc spec)
-    @Test
-    fun `get deploy transaction receipt rpc`() {
-        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
-        val response = request.send()
+//    @Test
+//    fun `get deploy transaction receipt rpc`() {
+//        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
+//        val response = request.send()
+//
+//        assertNotNull(response)
+//        assertTrue(response is DeployTransactionReceipt)
+//    }
 
-        assertNotNull(response)
-        assertTrue(response is DeployTransactionReceipt)
-    }
-
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get declare transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(declareTransactionHash)
@@ -311,7 +310,6 @@ class ProviderTest {
         assertTrue(response is DeclareTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get invoke transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(invokeTransactionHash)
@@ -321,7 +319,6 @@ class ProviderTest {
         assertTrue(response is InvokeTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy transaction`(provider: Provider) {
@@ -345,12 +342,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare transaction`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            // FIXME current rpc spec has class_hash in declare txn, but the version currently supported in devnet
-            //       doesn't.
-            return
-        }
-
         val request = provider.getTransaction(declareTransactionHash)
         val response = request.send()
 
