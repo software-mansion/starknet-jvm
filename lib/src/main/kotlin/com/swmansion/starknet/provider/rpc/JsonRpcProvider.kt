@@ -57,13 +57,13 @@ class JsonRpcProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+        val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+        val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
@@ -75,13 +75,13 @@ class JsonRpcProvider(
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
 
         return getStorageAt(payload)
     }

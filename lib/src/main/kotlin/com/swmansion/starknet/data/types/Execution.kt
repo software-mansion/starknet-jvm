@@ -18,7 +18,7 @@ data class Call(
 }
 
 data class CallExtraParams(
-    val blockHashOrTag: BlockHashOrTag,
+    val blockId: BlockId,
 )
 
 data class ExecutionParams(
@@ -30,14 +30,16 @@ data class ExecutionParams(
 @Serializable
 data class CallContractPayload(
     val request: Call,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
+
+    @SerialName("block_id")
+    val blockId: BlockId,
 )
 
 @Serializable
 data class GetStorageAtPayload(
     @SerialName("contract_address") val contractAddress: Felt,
     @SerialName("key") val key: Felt,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
+    @SerialName("block_hash") val blockId: BlockId,
 )
 
 @Serializable
