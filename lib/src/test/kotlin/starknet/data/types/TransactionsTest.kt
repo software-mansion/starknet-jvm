@@ -76,7 +76,7 @@ internal class TransactionsTest {
     }
 
     @Test
-    fun `serialize class with blockId`() {
+    fun `serialize class with blockId number`() {
         @Serializable
         data class MyClass(
             @SerialName("block_id")
@@ -86,5 +86,31 @@ internal class TransactionsTest {
         val myClassInstance = MyClass(BlockId.Number(20))
         val json = Json.encodeToJsonElement(MyClass.serializer(), myClassInstance)
         assertEquals("{\"block_id\":{\"block_number\":20}}", json.toString())
+    }
+
+    @Test
+    fun `serialize class with blockId hash`() {
+        @Serializable
+        data class MyClass(
+            @SerialName("block_id")
+            val blockId: BlockId,
+        )
+
+        val myClassInstance = MyClass(BlockId.Hash(Felt.fromHex("0x1")))
+        val json = Json.encodeToJsonElement(MyClass.serializer(), myClassInstance)
+        assertEquals("{\"block_id\":{\"block_hash\":\"0x1\"}}", json.toString())
+    }
+
+    @Test
+    fun `serialize class with blockId tag`() {
+        @Serializable
+        data class MyClass(
+            @SerialName("block_id")
+            val blockId: BlockId,
+        )
+
+        val myClassInstance = MyClass(BlockId.Tag(BlockTag.LATEST))
+        val json = Json.encodeToJsonElement(MyClass.serializer(), myClassInstance)
+        assertEquals("{\"block_id\":\"latest\"}", json.toString())
     }
 }
