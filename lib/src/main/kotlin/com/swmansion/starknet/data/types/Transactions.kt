@@ -35,7 +35,7 @@ enum class BlockTag(val tag: String) {
     LATEST("latest"), PENDING("pending")
 }
 
-@Serializable(with = BlockHashOrTagSerializer::class)
+@Serializable(with = BlockIdSerializer::class)
 sealed class BlockId() {
     data class Hash(
         val blockHash: Felt,
@@ -58,7 +58,7 @@ sealed class BlockId() {
     }
 }
 
-class BlockHashOrTagSerializer() : KSerializer<BlockId> {
+class BlockIdSerializer() : KSerializer<BlockId> {
     override fun deserialize(decoder: Decoder): BlockId {
         val value = decoder.decodeString()
 
