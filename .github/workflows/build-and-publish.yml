@@ -66,10 +66,14 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build platform specific lib
-        run: |
-          docker buildx build --platform linux/${{ matrix.virt_platform }} -f .github/workflows/Dockerfile.multiarch -t build .
-          docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
-          docker run build echo "::set-output name=os_arch::$(uname -m)"
+        run: docker buildx build --platform linux/${{ matrix.virt_platform }} -f .github/workflows/Dockerfile.multiarch -t build .
+      - name: cojes
+        run: docker images
+      - name: Set arch variable
+        id: vars
+        run: docker run build echo "::set-output name=os_arch::$(uname -m)"
+      - name: Extract lib
+        run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
       - name: Upload the shared lib
         uses: actions/upload-artifact@v2
         with:
