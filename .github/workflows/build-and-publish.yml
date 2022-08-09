@@ -65,6 +65,8 @@ jobs:
           platforms: ${{ matrix.virt_platform }}
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          driver: docker
       - name: Build platform specific lib
         uses: docker/build-push-action@v3
         with:
@@ -77,7 +79,7 @@ jobs:
         run: docker images
       - name: Set arch variable
         id: vars
-        run: docker run build echo "::set-output name=os_arch::$(uname -m)"
+        run: docker run --platform linux/${{ matrix.virt_platform }} build echo "::set-output name=os_arch::$(uname -m)"
       - name: Extract lib
         run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
       - name: Upload the shared lib
