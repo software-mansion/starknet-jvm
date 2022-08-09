@@ -8,8 +8,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 enum class TransactionType {
-    DECLARE, DEPLOY, INVOKE
+    @JsonNames("DECLARE")
+    DECLARE,
+
+    @JsonNames("DEPLOY")
+    DEPLOY,
+
+    @JsonNames("INVOKE", "INVOKE_FUNCTION")
+    INVOKE
 }
 
 @Serializable
