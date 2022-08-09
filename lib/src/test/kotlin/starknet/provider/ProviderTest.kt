@@ -82,11 +82,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun callContractTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
         val balance = getBalance(provider)
 
         assertEquals(Felt(0), balance)
