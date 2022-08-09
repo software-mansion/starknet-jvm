@@ -60,7 +60,7 @@ class ProviderTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.destroy()
+            devnetClient.close()
         }
     }
 
@@ -81,20 +81,16 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun callContractTest(provider: Provider) {
+    fun `call contract`(provider: Provider) {
         val balance = getBalance(provider)
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), balance)
+        assertEquals(expected, balance)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun getStorageAtTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `get storage at`(provider: Provider) {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
@@ -102,13 +98,14 @@ class ProviderTest {
         )
 
         val response = request.send()
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), response)
+        assertEquals(expected, response)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun invokeTransactionTest(provider: Provider) {
+    fun `invoke transaction`(provider: Provider) {
         // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
@@ -217,7 +214,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.PENDING, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.PENDING)
         val response = request.send()
 
         assertNotNull(response)
@@ -231,7 +228,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.LATEST, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
@@ -246,7 +243,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.hash, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
         assertNotNull(response)
@@ -261,7 +258,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.number, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.number)
         val response = request.send()
 
         assertNotNull(response)

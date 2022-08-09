@@ -1,5 +1,3 @@
-@file:JvmName("Responses")
-
 package com.swmansion.starknet.data.types
 
 import kotlinx.serialization.ExperimentalSerializationApi

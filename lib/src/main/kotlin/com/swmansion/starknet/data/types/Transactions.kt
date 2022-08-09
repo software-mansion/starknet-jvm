@@ -1,5 +1,3 @@
-@file:JvmName("Transactions")
-
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.crypto.StarknetCurve

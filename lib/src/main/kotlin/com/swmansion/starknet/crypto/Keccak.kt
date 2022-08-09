@@ -1,3 +1,5 @@
+@file:JvmName("Keccak")
+
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt

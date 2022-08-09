@@ -10,12 +10,11 @@ Although written in Kotlin, StarkNet.kt has been created with compatibility with
 ### In Java
 
 ```java
-import starknet.account.StandardAccount;
-import starknet.data.types.BlockTag;
-import starknet.data.types.Felt;
-import starknet.provider.Request;
-import starknet.provider.gateway.GatewayProvider;
-
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.BlockTag;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,10 +40,10 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-import starknet.account.StandardAccount
-import starknet.data.types.BlockTag
-import starknet.data.types.Felt
-import starknet.provider.gateway.GatewayProvider
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.BlockTag
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
@@ -73,14 +72,13 @@ that can be than handled in preferred way.
 ### In Java
 
 ```java
-import starknet.account.StandardAccount;
-import starknet.data.types.BlockTag;
-import starknet.data.types.Felt;
-import starknet.provider.Request;
-import starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.BlockTag;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
 import java.util.concurrent.CompletableFuture;
-
 
 public class Main {
     public static void main(String[] args) {
@@ -106,10 +104,10 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-import starknet.account.StandardAccount
-import starknet.data.types.BlockTag
-import starknet.data.types.Felt
-import starknet.provider.gateway.GatewayProvider
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.BlockTag
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
