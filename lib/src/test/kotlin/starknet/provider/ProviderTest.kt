@@ -71,7 +71,7 @@ class ProviderTest {
             emptyList(),
         )
 
-        val request = provider.callContract(call, BlockTag.PENDING)
+        val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
 
         assertEquals(1, response.result.size)
