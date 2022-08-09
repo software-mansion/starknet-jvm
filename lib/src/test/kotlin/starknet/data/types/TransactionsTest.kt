@@ -1,8 +1,9 @@
 package starknet.data.types
 
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.InvokeTransaction
-import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
@@ -54,5 +55,36 @@ internal class TransactionsTest {
         )
 
         assertEquals(tx2.getHash(), Felt.fromHex("0x77b27f044ac1402af4e44fc012655822c2da2ac231deb003d797f0359055228"))
+    }
+
+    @Test
+    fun `serialize blockId with hash`() {
+        val json = Json.encodeToJsonElement(BlockHashOrTagSerializer(), BlockId.Hash(Felt.fromHex("0x859")))
+        assertEquals("{\"block_hash\":\"0x859\"}", json.toString())
+    }
+
+    @Test
+    fun `serialize blockId with number`() {
+        val json = Json.encodeToJsonElement(BlockHashOrTagSerializer(), BlockId.Number(20))
+        assertEquals("{\"block_number\":20}", json.toString())
+    }
+
+    @Test
+    fun `serialize blockId with tag`() {
+        val json = Json.encodeToJsonElement(BlockHashOrTagSerializer(), BlockId.Tag(BlockTag.LATEST))
+        assertEquals("\"latest\"", json.toString())
+    }
+
+    @Test
+    fun `serialize class with blockId`() {
+        @Serializable
+        data class MyClass(
+            @SerialName("block_id")
+            val blockId: BlockId,
+        )
+
+        val myClassInstance = MyClass(BlockId.Number(20))
+        val json = Json.encodeToJsonElement(MyClass.serializer(), myClassInstance)
+        assertEquals("{\"block_id\":{\"block_number\":20}}", json.toString())
     }
 }
