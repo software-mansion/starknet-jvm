@@ -6,8 +6,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Call(
-    @SerialName("contract_address") val contractAddress: Felt,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("entry_point_selector")
     val entrypoint: Felt,
+
+    @SerialName("calldata")
     val calldata: Calldata,
 ) {
     constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata) : this(
@@ -29,6 +34,7 @@ data class ExecutionParams(
 
 @Serializable
 data class CallContractPayload(
+    @SerialName("request")
     val request: Call,
 
     @SerialName("block_id")
