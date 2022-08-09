@@ -94,7 +94,7 @@ class ProviderTest {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
-            BlockTag.PENDING,
+            BlockTag.LATEST,
         )
 
         val response = request.send()
