@@ -43,9 +43,14 @@ data class CallContractPayload(
 
 @Serializable
 data class GetStorageAtPayload(
-    @SerialName("contract_address") val contractAddress: Felt,
-    @SerialName("key") val key: Felt,
-    @SerialName("block_hash") val blockId: BlockId,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("key")
+    val key: Felt,
+
+    @SerialName("block_id")
+    val blockId: BlockId,
 )
 
 @Serializable
