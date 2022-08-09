@@ -68,6 +68,12 @@ class JsonRpcProvider(
         return callContract(payload)
     }
 
+    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockId.Number(blockNumber))
+
+        return callContract(payload)
+    }
+
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
         val params = Json.encodeToJsonElement(payload)
 
@@ -82,6 +88,12 @@ class JsonRpcProvider(
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
+
+        return getStorageAt(payload)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
     }
