@@ -9,6 +9,7 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 
 version = "0.0.1"
+group = "com.swmansion.starknet"
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -20,6 +21,8 @@ plugins {
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+    `maven-publish`
+    signing
 }
 
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
@@ -53,12 +56,15 @@ val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {
     commandLine("${project.projectDir}/build_crypto_cpp.sh")
 }
 
+// For tests we simply use version from crypto build
+// For jars we use version from lib/build/libs/native
 tasks.test {
     dependsOn(buildCryptoCpp)
 
     useJUnitPlatform()
 
     systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
+    systemProperty("java.library.path", file("${rootDir}/crypto/build/bindings").absolutePath)
 
     testLogging {
         events("PASSED", "SKIPPED", "FAILED")
@@ -70,14 +76,16 @@ kotlinter {
     disabledRules = arrayOf("no-wildcard-imports")
 }
 
+// Used by CI. Locally you should use jarWithNative task
 tasks.jar {
+    from(
+        file("file:${buildDir}/libs/shared").absolutePath
+    )
+}
+
+val jarWithNative = task("jarWithNative") {
     dependsOn(buildCryptoCpp)
-    // This will ignore files that are not there
-    listOf("so", "dylib", "dll").forEach {
-        from(
-            file("file:$buildDir/libs/shared/libcrypto_jni.$it").absolutePath
-        )
-    }
+    finalizedBy(tasks.jar)
 }
 
 dependencies {
@@ -98,4 +106,96 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.javadoc {
+    if (JavaVersion.current().isJava9Compatible) {
+        (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+    }
+}
+
+
+publishing {
+    publications {
+        create<MavenPublication>("starknet") {
+            artifactId = "starknet"
+            artifact("starknet-jar/starknet.jar")
+            artifact("starknet-aar/starknet.aar")
+            artifact("javadoc-jar/javadoc.jar") {
+                classifier="javadoc"
+            }
+            artifact("sources-jar/sources.jar"){
+                classifier="sources"
+            }
+        pom {
+            name.set("starknet")
+            description.set("StarkNet SDK for JVM languages")
+            url.set("https://github.com/software-mansion/starknet-jvm")
+            licenses {
+                license {
+                    name.set("MIT License")
+                    url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
+                }
+            }
+            developers {
+                developer {
+                    id.set("jakubptak")
+                    name.set("Jakub Ptak")
+                    email.set("jakub.ptak@swmansion.com")
+                }
+                developer {
+                    id.set("arturmichalek")
+                    name.set("Artur Michałek")
+                    email.set("artur.michalek@swmansion.com")
+                }
+                developer {
+                    id.set("bartoszrybarski")
+                    name.set("Bartosz Rybarski")
+                    email.set("bartosz.rybarski@swmansion.com")
+                }
+                developer {
+                    id.set("wojciechszymczyk")
+                    name.set("Wojciech Szymczyk")
+                    email.set("wojciech.szymczyk@swmansion.com")
+                }
+            }
+            scm {
+                connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+                developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+                url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
+            }
+        pom.withXml {
+            val dependencyNode = asNode().appendNode("dependencies").appendNode("dependency")
+            dependencyNode.appendNode("groupId", "org.jetbrains.kotlin")
+            dependencyNode.appendNode("artifactId", "kotlin-stdlib-jdk8")
+            dependencyNode.appendNode("version", "1.3.50")
+            }
+        }
+    }
+}
+
+    repositories {
+        maven {
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+        }
+
+    }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["starknet"])
 }
