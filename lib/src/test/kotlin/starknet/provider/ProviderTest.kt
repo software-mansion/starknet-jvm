@@ -106,25 +106,25 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `invoke transaction`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
+        val invokeValue = Felt(10)
 
         val call = Call(
             contractAddress,
             "increase_balance",
-            listOf(Felt(10)),
+            listOf(invokeValue),
         )
 
+        val oldBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
         val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
-        val payload = InvokeFunctionPayload(call, dummySig, Felt(0), null)
+        val payload = InvokeFunctionPayload(call, dummySig, Felt.ZERO, Felt.ZERO)
         val request = provider.invokeFunction(payload)
 
         request.send()
 
-        val balance = getBalance(provider)
-        assertEquals(Felt(10), balance)
+        val newBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
+        assertEquals(oldBalance.value + invokeValue.value , newBalance.value)
     }
 
     @ParameterizedTest
@@ -209,7 +209,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at pending block`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
@@ -223,11 +223,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at latest block`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
         val request = provider.getClassHashAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
@@ -237,7 +232,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block hash`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+//        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
@@ -252,7 +247,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block number`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+//        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
@@ -291,7 +286,8 @@ class ProviderTest {
         assertTrue(response is GatewayTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
+    // FIXME this test will fail until devnet spec is updated as there is no way to differentiate between declare
+    //  and deploy tx receipts currently
 //    @Test
 //    fun `get deploy transaction receipt rpc`() {
 //        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
