@@ -1,7 +1,5 @@
 package com.swmansion.starknet.provider
 
-import com.swmansion.starknet.data.responses.CommonTransactionReceipt
-import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 
@@ -31,6 +29,14 @@ interface Provider {
     fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse>
 
     /**
+     * Calls a contract deployed on StarkNet.
+     *
+     * @param call a call to be made
+     * @param blockNumber a number of the block in respect to what the call will be made
+     */
+    fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse>
+
+    /**
      * Get a value of storage var.
      *
      * Get a value of a storage variable of contract at the provided address.
@@ -53,6 +59,17 @@ interface Provider {
     fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt>
 
     /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockNumber a number of the block in respect to what the query will be made
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt>
+
+    /**
      * Get a transaction.
      *
      * Get the details of a submitted transaction.
@@ -68,7 +85,7 @@ interface Provider {
      *
      * @param transactionHash a hash of sent transaction
      */
-    fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt>
+    fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt>
 
     /**
      * Invoke a function.
@@ -88,7 +105,7 @@ interface Provider {
      */
     fun getClass(classHash: Felt): Request<ContractClass>
 
-    fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -98,7 +115,7 @@ interface Provider {
      * @param blockNumber The number of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -108,7 +125,7 @@ interface Provider {
      * @param blockTag The tag of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
 
     /**
      * Deploy a contract

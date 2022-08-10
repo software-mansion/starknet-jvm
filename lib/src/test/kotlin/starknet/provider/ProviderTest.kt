@@ -1,9 +1,5 @@
 package starknet.provider
 
-import com.swmansion.starknet.data.responses.*
-import com.swmansion.starknet.data.responses.DeclareTransaction
-import com.swmansion.starknet.data.responses.DeployTransaction
-import com.swmansion.starknet.data.responses.InvokeTransaction
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -61,7 +57,7 @@ class ProviderTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.destroy()
+            devnetClient.close()
         }
     }
 
@@ -72,7 +68,7 @@ class ProviderTest {
             emptyList(),
         )
 
-        val request = provider.callContract(call, BlockTag.PENDING)
+        val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
 
         assertEquals(1, response.result.size)
@@ -82,39 +78,31 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun callContractTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `call contract`(provider: Provider) {
         val balance = getBalance(provider)
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), balance)
+        assertEquals(expected, balance)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun getStorageAtTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `get storage at`(provider: Provider) {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
-            BlockTag.PENDING,
+            BlockTag.LATEST,
         )
 
         val response = request.send()
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), response)
+        assertEquals(expected, response)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun invokeTransactionTest(provider: Provider) {
+    fun `invoke transaction`(provider: Provider) {
         // FIXME: Currently not supported in devnet
         if (provider is JsonRpcProvider) {
             return
@@ -223,7 +211,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.PENDING, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.PENDING)
         val response = request.send()
 
         assertNotNull(response)
@@ -237,7 +225,7 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.LATEST, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
@@ -252,7 +240,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.hash, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
         assertNotNull(response)
@@ -267,7 +255,7 @@ class ProviderTest {
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.number, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.number)
         val response = request.send()
 
         assertNotNull(response)
@@ -300,17 +288,15 @@ class ProviderTest {
         assertTrue(response is GatewayTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
-    @Test
-    fun `get deploy transaction receipt rpc`() {
-        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
-        val response = request.send()
+//    @Test
+//    fun `get deploy transaction receipt rpc`() {
+//        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
+//        val response = request.send()
+//
+//        assertNotNull(response)
+//        assertTrue(response is DeployTransactionReceipt)
+//    }
 
-        assertNotNull(response)
-        assertTrue(response is DeployTransactionReceipt)
-    }
-
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get declare transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(declareTransactionHash)
@@ -320,7 +306,6 @@ class ProviderTest {
         assertTrue(response is DeclareTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @Test
     fun `get invoke transaction receipt rpc`() {
         val request = rpcProvider().getTransactionReceipt(invokeTransactionHash)
@@ -354,12 +339,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare transaction`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            // FIXME current rpc spec has class_hash in declare txn, but the version currently supported in devnet
-            //       doesn't.
-            return
-        }
-
         val request = provider.getTransaction(declareTransactionHash)
         val response = request.send()
 

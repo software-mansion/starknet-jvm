@@ -1,7 +1,5 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.responses.CommonTransactionReceipt
-import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
@@ -58,13 +56,19 @@ class JsonRpcProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+        val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+        val payload = CallContractPayload(call, BlockId.Hash(blockHash))
+
+        return callContract(payload)
+    }
+
+    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
     }
@@ -76,13 +80,19 @@ class JsonRpcProvider(
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
+
+        return getStorageAt(payload)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
     }
@@ -94,7 +104,7 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, JsonRpcTransactionPolymorphicSerializer)
     }
 
-    override fun getTransactionReceipt(transactionHash: Felt): Request<out CommonTransactionReceipt> {
+    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val payload = GetTransactionReceiptPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 
@@ -174,19 +184,19 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
     }
 
-    override fun getClassHashAt(blockHash: Felt, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(blockNumber: Int, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
         val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(blockTag: BlockTag, contractAddress: Felt): Request<Felt> {
+    override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetClassAtPayload(blockTag.tag, contractAddress)
 
         return getClassHashAt(payload)

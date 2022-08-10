@@ -1,5 +1,3 @@
-@file:JvmName("Contracts")
-
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.extensions.base64Gzipped

@@ -1,8 +1,8 @@
 package com.swmansion.starknet.signer
 
 import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 
 /**
  * Signer implementing a stark curve signature (default signature used on StarkNet).

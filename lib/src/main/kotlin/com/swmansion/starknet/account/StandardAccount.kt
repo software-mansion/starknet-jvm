@@ -1,13 +1,12 @@
 package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
-import com.swmansion.starknet.data.responses.InvokeTransaction
-import com.swmansion.starknet.data.responses.makeInvokeTransaction
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.ExecutionParams
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.callsToExecuteCalldata
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner

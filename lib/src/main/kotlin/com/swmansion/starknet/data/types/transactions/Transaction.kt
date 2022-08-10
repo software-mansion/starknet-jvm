@@ -1,4 +1,4 @@
-package com.swmansion.starknet.data.responses
+package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Calldata
@@ -10,9 +10,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 enum class TransactionType(val txPrefix: Felt) {
+    @JsonNames("DECLARE")
     DECLARE(Felt.fromHex("0x6465636c617265")), // encodeShortString('declare'),
+
+    @JsonNames("DEPLOY")
     DEPLOY(Felt.fromHex("0x6465706c6f79")), // encodeShortString('deploy'),
+
+    @JsonNames("INVOKE", "INVOKE_FUNCTION")
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 }
 
@@ -27,6 +34,7 @@ sealed class Transaction {
     abstract val version: Felt
     abstract val signature: Signature
     abstract val nonce: Felt
+    abstract val type: TransactionType
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -60,6 +68,8 @@ data class DeployTransaction(
 
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
+
+    override val type: TransactionType = TransactionType.DEPLOY,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -89,6 +99,8 @@ data class InvokeTransaction(
 
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
+
+    override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -115,6 +127,8 @@ data class DeclareTransaction(
 
     @JsonNames("nonce")
     override val nonce: Felt = Felt.ZERO,
+
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
 
 fun makeInvokeTransaction(
