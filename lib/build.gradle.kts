@@ -134,7 +134,7 @@ publishing {
             }
         pom {
             name.set("starknet")
-            description.set("StarkNet SDK for Kotlin")
+            description.set("StarkNet SDK for JVM languages")
             url.set("https://github.com/software-mansion/starknet-jvm")
             licenses {
                 license {
@@ -157,6 +157,11 @@ publishing {
                     id.set("bartoszrybarski")
                     name.set("Bartosz Rybarski")
                     email.set("bartosz.rybarski@swmansion.com")
+                }
+                developer {
+                    id.set("wojciechszymczyk")
+                    name.set("Wojciech Szymczyk")
+                    email.set("wojciech.szymczyk@swmansion.com")
                 }
             }
             scm {
