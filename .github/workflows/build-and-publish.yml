@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: 11
           distribution: 'corretto'
-          cache: 'gradle'
+          #cache: 'gradle'
       - name: Set arch variable
         id: vars
         run: echo "::set-output name=os_arch::$(uname -m)"
@@ -49,74 +49,74 @@ jobs:
           name: starknet-aar
           path: starknet.aar
 
-  build_virt:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - virt_platform: arm64
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Set up qemu
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: ${{ matrix.virt_platform }}
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          driver: docker
-      - name: Build platform specific lib
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: .github/workflows/Dockerfile.multiarch
-          platforms: linux/${{ matrix.virt_platform }}
-          push: false
-          tags: build:latest
-      - name: cojes
-        run: docker images
-      - name: Set arch variable
-        id: vars
-        run: docker run --platform linux/${{ matrix.virt_platform }} build echo "::set-output name=os_arch::$(uname -m)"
-      - name: Extract lib
-        run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
-      - name: Upload the shared lib
-        uses: actions/upload-artifact@v2
-        with:
-          name: lib-Linux-${{ steps.vars.outputs.os_arch }}
-          path: libcrypto_jni.so
-    outputs:
-      archs: ${{ steps.vars.outputs.os_arch }}
-
-  package_jar:
-    runs-on: ubuntu-latest
-    needs: [build_x64, build_virt]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-        with:
-          path: download
-      - name: Move shared libs
-        run: |
-          # Mac uses a universal binary
-          mkdir -p lib/build/libs/shared/darwin
-          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
-          archs="x86_64 ${{ needs.build_virt.outputs.archs }}"
-          for arch in "$archs"; do
-            mkdir -p lib/build/libs/shared/linux/"$arch"
-            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
-          done
-      - name: Bundle universal JAR
-        run: ./gradlew lib:jar
-      - name: Rename JAR
-        run: mv lib/build/libs/lib-[0-9].[0-9].[0-9].jar starknet.jar
-      - name: Upload the JAR
-        uses: actions/upload-artifact@v2
-        with:
-          name: starknet-jar
-          path: starknet.jar
+#  build_virt:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        include:
+#          - virt_platform: arm64
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          submodules: recursive
+#      - name: Set up qemu
+#        uses: docker/setup-qemu-action@v2
+#        with:
+#          platforms: ${{ matrix.virt_platform }}
+#      - name: Set up Buildx
+#        uses: docker/setup-buildx-action@v2
+#        with:
+#          driver: docker
+#      - name: Build platform specific lib
+#        uses: docker/build-push-action@v3
+#        with:
+#          context: .
+#          file: .github/workflows/Dockerfile.multiarch
+#          platforms: linux/${{ matrix.virt_platform }}
+#          push: false
+#          tags: build:latest
+#      - name: cojes
+#        run: docker images
+#      - name: Set arch variable
+#        id: vars
+#        run: docker run --platform linux/${{ matrix.virt_platform }} build echo "::set-output name=os_arch::$(uname -m)"
+#      - name: Extract lib
+#        run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
+#      - name: Upload the shared lib
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: lib-Linux-${{ steps.vars.outputs.os_arch }}
+#          path: libcrypto_jni.so
+#    outputs:
+#      archs: ${{ steps.vars.outputs.os_arch }}
+#
+#  package_jar:
+#    runs-on: ubuntu-latest
+#    needs: [build_x64, build_virt]
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/download-artifact@v2
+#        with:
+#          path: download
+#      - name: Move shared libs
+#        run: |
+#          # Mac uses a universal binary
+#          mkdir -p lib/build/libs/shared/darwin
+#          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
+#          archs="x86_64 ${{ needs.build_virt.outputs.archs }}"
+#          for arch in "$archs"; do
+#            mkdir -p lib/build/libs/shared/linux/"$arch"
+#            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
+#          done
+#      - name: Bundle universal JAR
+#        run: ./gradlew lib:jar
+#      - name: Rename JAR
+#        run: mv lib/build/libs/lib-[0-9].[0-9].[0-9].jar starknet.jar
+#      - name: Upload the JAR
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: starknet-jar
+#          path: starknet.jar
 
 #  generate_javadoc_and_sources:
 #    runs-on: ubuntu-latest
