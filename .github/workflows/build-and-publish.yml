@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: 11
           distribution: 'corretto'
-          #cache: 'gradle'
+          cache: 'gradle'
       - name: Set arch variable
         id: vars
         run: echo "::set-output name=os_arch::$(uname -m)"
