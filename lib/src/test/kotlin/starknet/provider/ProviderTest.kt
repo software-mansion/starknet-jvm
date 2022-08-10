@@ -124,7 +124,7 @@ class ProviderTest {
 
         val newBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(oldBalance.value + invokeValue.value , newBalance.value)
+        assertEquals(oldBalance.value + invokeValue.value, newBalance.value)
     }
 
     @ParameterizedTest
