@@ -35,44 +35,52 @@ enum class BlockTag(val tag: String) {
     LATEST("latest"), PENDING("pending")
 }
 
-@Serializable(with = BlockHashOrTagSerializer::class)
-sealed class BlockHashOrTag {
+@Serializable(with = BlockIdSerializer::class)
+sealed class BlockId() {
     data class Hash(
         val blockHash: Felt,
-    ) : BlockHashOrTag() {
-        override fun string(): String {
+    ) : BlockId() {
+        override fun toString(): String {
             return blockHash.hexString()
         }
     }
 
+    data class Number(
+        val blockNumber: Int,
+    ) : BlockId()
+
     data class Tag(
         val blockTag: BlockTag,
-    ) : BlockHashOrTag() {
-        override fun string(): String {
+    ) : BlockId() {
+        override fun toString(): String {
             return blockTag.tag
         }
     }
-
-    abstract fun string(): String
 }
 
-class BlockHashOrTagSerializer : KSerializer<BlockHashOrTag> {
-    override fun deserialize(decoder: Decoder): BlockHashOrTag {
+class BlockIdSerializer() : KSerializer<BlockId> {
+    override fun deserialize(decoder: Decoder): BlockId {
         val value = decoder.decodeString()
 
         if (BlockTag.values().map { it.tag }.contains(value)) {
             val tag = BlockTag.valueOf(value)
-            return BlockHashOrTag.Tag(tag)
+            return BlockId.Tag(tag)
         }
 
-        return BlockHashOrTag.Hash(Felt.fromHex(value))
+        return BlockId.Hash(Felt.fromHex(value))
     }
 
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("BlockHashOrTag", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: BlockHashOrTag) {
-        encoder.encodeString(value.string())
+    override fun serialize(encoder: Encoder, value: BlockId) {
+        require(encoder is JsonEncoder)
+        val element = when (value) {
+            is BlockId.Tag -> encoder.json.encodeToJsonElement(value.toString())
+            is BlockId.Hash -> buildJsonObject { put("block_hash", value.toString()) }
+            is BlockId.Number -> buildJsonObject { put("block_number", value.blockNumber) }
+        }
+        encoder.encodeJsonElement(element)
     }
 }
 

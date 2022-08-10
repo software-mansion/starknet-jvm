@@ -3,6 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
+import com.swmansion.starknet.data.responses.GatewayTransactionReceipt
 import com.swmansion.starknet.data.responses.Transaction
 import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
@@ -38,7 +39,7 @@ class GatewayProvider(
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
         val url = feederGatewayRequestUrl("call_contract")
 
-        val params = listOf(Pair("blockHash", payload.blockHashOrTag.string()))
+        val params = listOf(Pair("blockHash", payload.blockId.toString()))
 
         val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
         val body = buildJsonObject {
@@ -52,13 +53,19 @@ class GatewayProvider(
     }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Tag(blockTag))
+        val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
     override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
-        val payload = CallContractPayload(call, BlockHashOrTag.Hash(blockHash))
+        val payload = CallContractPayload(call, BlockId.Hash(blockHash))
+
+        return callContract(payload)
+    }
+
+    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+        val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
     }
@@ -67,7 +74,7 @@ class GatewayProvider(
         val params = listOf(
             Pair("contractAddress", payload.contractAddress.hexString()),
             Pair("key", payload.key.hexString()),
-            Pair("blockHash", payload.blockHashOrTag.string()),
+            Pair("blockHash", payload.blockId.toString()),
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
@@ -75,13 +82,19 @@ class GatewayProvider(
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Tag(blockTag))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockHashOrTag.Hash(blockHash))
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
+
+        return getStorageAt(payload)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
+        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
     }
@@ -93,11 +106,11 @@ class GatewayProvider(
         return HttpRequest(Payload(url, "GET", params), GatewayTransactionTransformingSerializer)
     }
 
-    override fun getTransactionReceipt(transactionHash: Felt): Request<TransactionReceipt> {
+    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val url = feederGatewayRequestUrl("get_transaction_receipt")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        return HttpRequest(Payload(url, "GET", params), TransactionReceipt.serializer())
+        return HttpRequest(Payload(url, "GET", params), GatewayTransactionReceipt.serializer())
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
