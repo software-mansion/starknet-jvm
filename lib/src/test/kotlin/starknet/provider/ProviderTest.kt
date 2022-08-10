@@ -39,6 +39,14 @@ class ProviderTest {
         private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
 
         @JvmStatic
+        private fun isAccepted(receipt: TransactionReceipt): Boolean {
+            if (receipt !is AcceptedTransactionReceipt) {
+                return false
+            }
+            return receipt.status == TransactionStatus.ACCEPTED_ON_L2 || receipt.status == TransactionStatus.ACCEPTED_ON_L1
+        }
+
+        @JvmStatic
         @BeforeAll
         fun before() {
             devnetClient.start()
@@ -357,6 +365,10 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @ParameterizedTest
@@ -371,6 +383,10 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @ParameterizedTest
@@ -385,6 +401,10 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @Test
