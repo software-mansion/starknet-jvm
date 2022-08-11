@@ -39,6 +39,8 @@ tasks.withType<DokkaTask>().configureEach {
             includes.from("lib.md")
         }
     }
+
+    moduleName.set("starknet-jvm")
 }
 
 tasks.jar {
