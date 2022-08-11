@@ -135,11 +135,11 @@ fun makeInvokeTransaction(
     contractAddress: Felt,
     calldata: Calldata,
     entryPointSelector: Felt,
+    chainId: StarknetChainId,
     maxFee: Felt = Felt.ZERO,
     version: Felt = Felt.ZERO,
     signature: Signature = emptyList(),
     nonce: Felt = Felt.ZERO,
-    chainId: StarknetChainId,
 ): InvokeTransaction {
     val hash = StarknetCurve.pedersenOnElements(
         TransactionType.INVOKE.txPrefix,

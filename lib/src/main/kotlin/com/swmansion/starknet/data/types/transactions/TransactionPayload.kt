@@ -9,12 +9,12 @@ data class InvokeFunctionPayload(
     @SerialName("function_invocation")
     val invocation: Call,
 
-    val signature: Signature?,
+    val signature: Signature,
 
     @SerialName("max_fee")
-    val maxFee: Felt?,
+    val maxFee: Felt,
 
-    val version: Felt?,
+    val version: Felt,
 )
 
 data class DeployTransactionPayload(

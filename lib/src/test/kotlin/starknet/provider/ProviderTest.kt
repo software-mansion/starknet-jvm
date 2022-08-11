@@ -115,7 +115,7 @@ class ProviderTest {
         )
 
         val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
-        val payload = InvokeFunctionPayload(call, dummySig, Felt(0), null)
+        val payload = InvokeFunctionPayload(call, dummySig, Felt(0), Felt(0))
         val request = provider.invokeFunction(payload)
 
         request.send()
