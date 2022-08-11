@@ -1,4 +1,4 @@
-@file:JvmName("Hex")
+@file:JvmName("ToHex")
 
 package com.swmansion.starknet.extensions
 
