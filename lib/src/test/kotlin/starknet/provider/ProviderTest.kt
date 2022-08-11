@@ -240,7 +240,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block hash`(provider: Provider) {
-//        // Devnet only support's "latest" as block id in this method
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
@@ -255,7 +255,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block number`(provider: Provider) {
-//        // Devnet only support's "latest" as block id in this method
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
