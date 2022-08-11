@@ -1,4 +1,5 @@
 @file:JvmName("Base64Gzipped")
+
 package com.swmansion.starknet.extensions
 
 import java.io.ByteArrayOutputStream
