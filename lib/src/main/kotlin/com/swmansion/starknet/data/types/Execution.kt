@@ -4,6 +4,9 @@ import com.swmansion.starknet.data.selectorFromName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+typealias Calldata = List<Felt>
+typealias Signature = List<Felt>
+
 @Serializable
 data class Call(
     @SerialName("contract_address")

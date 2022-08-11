@@ -1,10 +1,9 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.responses.Transaction
-import com.swmansion.starknet.data.responses.TransactionReceipt
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.responses.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
