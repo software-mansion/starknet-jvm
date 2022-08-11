@@ -1,11 +1,8 @@
 package starknet.provider
 
-import com.swmansion.starknet.data.responses.*
-import com.swmansion.starknet.data.responses.DeclareTransaction
-import com.swmansion.starknet.data.responses.DeployTransaction
-import com.swmansion.starknet.data.responses.InvokeTransaction
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -323,6 +320,7 @@ class ProviderTest {
         assertTrue(response is InvokeTransactionReceipt)
     }
 
+    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy transaction`(provider: Provider) {
@@ -409,7 +407,7 @@ class ProviderTest {
 
     @Test
     fun `make contract definition with invalid json`() {
-        assertThrows(InvalidContractException::class.java) {
+        assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
     }

@@ -1,9 +1,6 @@
 package com.swmansion.starknet.data.responses.serializers
 
-import com.swmansion.starknet.data.responses.DeclareTransaction
-import com.swmansion.starknet.data.responses.DeployTransaction
-import com.swmansion.starknet.data.responses.InvokeTransaction
-import com.swmansion.starknet.data.responses.Transaction
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 import java.lang.IllegalArgumentException

@@ -1,9 +1,8 @@
 package com.swmansion.starknet.signer
 
 import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.Signature
-import com.swmansion.starknet.data.types.Transaction
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 
 /**
  * Signer implementing a stark curve signature (default signature used on StarkNet).
@@ -16,7 +15,6 @@ class StarkCurveSigner(val privateKey: Felt) : Signer {
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
     override fun signTransaction(transaction: Transaction): Signature {
-        val hash = transaction.getHash()
-        return StarknetCurve.sign(privateKey, hash).toList()
+        return StarknetCurve.sign(privateKey, transaction.hash).toList()
     }
 }

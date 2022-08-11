@@ -1,6 +1,7 @@
 package starknet.data.types
 
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -11,23 +12,23 @@ import java.math.BigInteger
 internal class TransactionsTest {
     @Test
     fun getHash() {
-        val tx1 = InvokeTransaction(
+        val tx1 = makeInvokeTransaction(
             version = Felt.ZERO,
             contractAddress = Felt.fromHex("0x2a"),
-            entrypointSelector = Felt.fromHex("0x64"),
+            entryPointSelector = Felt.fromHex("0x64"),
             calldata = listOf(),
             maxFee = Felt.ZERO,
-            chainId = StarknetChainId.TESTNET.value,
+            chainId = StarknetChainId.TESTNET,
             nonce = Felt.ZERO,
         )
 
-        assertEquals(tx1.getHash(), Felt.fromHex("0x7d260744de9d8c55e7675a34512d1951a7b262c79e685d26599edd2948de959"))
+        assertEquals(tx1.hash, Felt.fromHex("0x7d260744de9d8c55e7675a34512d1951a7b262c79e685d26599edd2948de959"))
 
-        val tx2 = InvokeTransaction(
+        val tx2 = makeInvokeTransaction(
             contractAddress = Felt(
                 BigInteger("468485892896389608042320470922610020674017592380673471682128582128678525733"),
             ),
-            entrypointSelector = Felt(
+            entryPointSelector = Felt(
                 BigInteger("617075754465154585683856897856256838130216341506379215893724690153393808813"),
             ),
             calldata = listOf(
@@ -48,13 +49,13 @@ internal class TransactionsTest {
                     BigInteger("2"),
                 ),
             ),
-            chainId = Felt(BigInteger("1536727068981429685321")),
+            chainId = StarknetChainId.TESTNET,
             maxFee = Felt(BigInteger("100000000")),
             version = Felt(BigInteger("0")),
             nonce = Felt.ZERO,
         )
 
-        assertEquals(tx2.getHash(), Felt.fromHex("0x77b27f044ac1402af4e44fc012655822c2da2ac231deb003d797f0359055228"))
+        assertEquals(tx2.hash, Felt.fromHex("0x77b27f044ac1402af4e44fc012655822c2da2ac231deb003d797f0359055228"))
     }
 
     @Test

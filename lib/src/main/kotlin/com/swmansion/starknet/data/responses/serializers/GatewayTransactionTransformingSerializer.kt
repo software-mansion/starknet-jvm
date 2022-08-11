@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.responses.serializers
 
-import com.swmansion.starknet.data.responses.Transaction
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject

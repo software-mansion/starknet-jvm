@@ -1,8 +1,10 @@
-package com.swmansion.starknet.data.responses
+package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.Signature
+import com.swmansion.starknet.data.types.StarknetChainId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,15 +12,19 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-enum class TransactionType {
+enum class TransactionType(val txPrefix: Felt) {
     @JsonNames("DECLARE")
-    DECLARE,
+    DECLARE(Felt.fromHex("0x6465636c617265")), // encodeShortString('declare'),
 
     @JsonNames("DEPLOY")
-    DEPLOY,
+    DEPLOY(Felt.fromHex("0x6465706c6f79")), // encodeShortString('deploy'),
 
     @JsonNames("INVOKE", "INVOKE_FUNCTION")
-    INVOKE
+    INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
+}
+
+enum class TransactionStatus {
+    NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
 }
 
 @Serializable
@@ -124,3 +130,26 @@ data class DeclareTransaction(
 
     override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
+
+fun makeInvokeTransaction(
+    contractAddress: Felt,
+    calldata: Calldata,
+    entryPointSelector: Felt,
+    chainId: StarknetChainId,
+    maxFee: Felt = Felt.ZERO,
+    version: Felt = Felt.ZERO,
+    signature: Signature = emptyList(),
+    nonce: Felt = Felt.ZERO,
+): InvokeTransaction {
+    val hash = StarknetCurve.pedersenOnElements(
+        TransactionType.INVOKE.txPrefix,
+        version,
+        contractAddress,
+        entryPointSelector,
+        StarknetCurve.pedersenOnElements(calldata),
+        maxFee,
+        chainId.value,
+    )
+
+    return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+}

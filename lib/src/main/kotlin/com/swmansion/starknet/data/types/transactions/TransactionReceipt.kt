@@ -1,7 +1,9 @@
-package com.swmansion.starknet.data.responses
+package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.responses.Event
+import com.swmansion.starknet.data.responses.MessageToL1
+import com.swmansion.starknet.data.responses.MessageToL2
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
