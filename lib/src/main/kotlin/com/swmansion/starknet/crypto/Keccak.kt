@@ -3,7 +3,7 @@
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.toFelt
+import com.swmansion.starknet.extensions.toFelt
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import java.math.BigInteger
 

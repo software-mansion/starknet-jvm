@@ -1,7 +1,7 @@
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.toFelt
+import com.swmansion.starknet.extensions.toFelt
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
 import java.math.BigInteger

@@ -52,15 +52,6 @@ data class Felt(val value: BigInteger) {
     }
 }
 
-fun List<Felt>.toDecimal(): List<String> {
-    return this.map {
-        it.decString()
-    }
-}
-
-val BigInteger.toFelt: Felt
-    get() = Felt(this)
-
 object FeltSerializer : KSerializer<Felt> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Felt", PrimitiveKind.STRING)
 

@@ -1,3 +1,4 @@
+@file:JvmName("Json")
 package com.swmansion.starknet.extensions
 
 import com.swmansion.starknet.data.types.Felt
