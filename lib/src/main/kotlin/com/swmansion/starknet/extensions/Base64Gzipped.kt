@@ -8,6 +8,5 @@ import java.util.zip.GZIPOutputStream
 fun String.base64Gzipped(): String {
     val bos = ByteArrayOutputStream()
     GZIPOutputStream(bos).bufferedWriter(StandardCharsets.UTF_8).use { it.write(this) }
-    val base64Encoded = ByteArrayOutputStream().use { Base64.encode(bos.toByteArray(), it) }
-    return base64Encoded.toString()
+    return Base64.toBase64String(bos.toByteArray())
 }
