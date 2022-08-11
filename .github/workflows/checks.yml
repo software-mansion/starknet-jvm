@@ -37,5 +37,10 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Run tests
-        run: ./gradlew :lib:test --info
+      - name: Run tests with coverage
+        run: ./gradlew :lib:koverXmlReport --info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: lib/build/reports/kover/project-xml/report.xml
