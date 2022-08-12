@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTrans
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
+import com.swmansion.starknet.extensions.toDecimal
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.HttpRequest

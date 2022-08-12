@@ -1,4 +1,4 @@
-# Module lib
+# Module starknet-jvm
 
 StarkNet.kt is a library allowing for easy interaction with StarkNet gateway and nodes, including
 querying starknet state, executing transactions and deploying contracts.

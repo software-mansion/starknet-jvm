@@ -3,7 +3,7 @@ package starknet.crypto
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.toFelt
+import com.swmansion.starknet.extensions.toFelt
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.math.BigInteger

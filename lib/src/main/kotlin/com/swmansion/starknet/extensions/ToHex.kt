@@ -1,3 +1,5 @@
+@file:JvmName("ToHex")
+
 package com.swmansion.starknet.extensions
 
 import java.math.BigInteger

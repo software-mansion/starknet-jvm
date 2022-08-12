@@ -1,3 +1,5 @@
+@file:JvmName("Execution")
+
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName

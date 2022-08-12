@@ -12,7 +12,7 @@ import java.math.BigInteger
 internal class TransactionsTest {
     @Test
     fun getHash() {
-        val tx1 = makeInvokeTransaction(
+        val tx1 = TransactionFactory.makeInvokeTransaction(
             version = Felt.ZERO,
             contractAddress = Felt.fromHex("0x2a"),
             entryPointSelector = Felt.fromHex("0x64"),
@@ -24,7 +24,7 @@ internal class TransactionsTest {
 
         assertEquals(tx1.hash, Felt.fromHex("0x7d260744de9d8c55e7675a34512d1951a7b262c79e685d26599edd2948de959"))
 
-        val tx2 = makeInvokeTransaction(
+        val tx2 = TransactionFactory.makeInvokeTransaction(
             contractAddress = Felt(
                 BigInteger("468485892896389608042320470922610020674017592380673471682128582128678525733"),
             ),
