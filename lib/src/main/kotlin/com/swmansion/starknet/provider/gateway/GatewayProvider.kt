@@ -121,9 +121,9 @@ class GatewayProvider(
             putJsonArray("calldata") {
                 payload.invocation.calldata.toDecimal().forEach { add(it) }
             }
-            put("max_fee", payload.maxFee?.hexString())
+            put("max_fee", payload.maxFee.hexString())
             putJsonArray("signature") {
-                payload.signature?.toDecimal()?.forEach { add(it) }
+                payload.signature.toDecimal().forEach { add(it) }
             }
         }
 
