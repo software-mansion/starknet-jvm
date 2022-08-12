@@ -34,13 +34,12 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
 }
 
 tasks.withType<DokkaTask>().configureEach {
+    moduleName.set("starknet-jvm")
     dokkaSourceSets {
         configureEach {
-            includes.from("lib.md")
+            includes.from("starknet-jvm.md")
         }
     }
-
-    moduleName.set("starknet-jvm")
 }
 
 tasks.jar {
