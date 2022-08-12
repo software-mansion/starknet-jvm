@@ -1,11 +1,11 @@
-package com.swmansion.starknet.data.responses.serializers
+package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 import java.lang.IllegalArgumentException
 
-object JsonRpcTransactionPolymorphicSerializer : JsonContentPolymorphicSerializer<Transaction>(Transaction::class) {
+internal object JsonRpcTransactionPolymorphicSerializer : JsonContentPolymorphicSerializer<Transaction>(Transaction::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Transaction> =
         when (element.jsonObject["type"]!!.jsonPrimitive.content) {
             "INVOKE" -> InvokeTransaction.serializer()

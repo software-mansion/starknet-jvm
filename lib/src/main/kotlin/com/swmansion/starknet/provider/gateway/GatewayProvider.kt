@@ -3,7 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put

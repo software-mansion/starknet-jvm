@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class JsonRpcResponse<T>(
+internal data class JsonRpcResponse<T>(
     @SerialName("id")
     val id: Int,
 
@@ -25,7 +25,7 @@ data class JsonRpcResponse<T>(
     val error: JsonElement? = null, // FIXME: Add error types
 )
 
-class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
+internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
         get() = dataSerializer.descriptor
 
