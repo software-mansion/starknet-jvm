@@ -1,6 +1,5 @@
-package com.swmansion.starknet.data.responses
+package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames

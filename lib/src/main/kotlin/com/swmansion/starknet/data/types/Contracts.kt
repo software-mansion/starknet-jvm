@@ -140,7 +140,7 @@ data class ContractClass(
     )
 }
 
-object ContractClassGatewaySerializer : KSerializer<ContractClass> {
+internal object ContractClassGatewaySerializer : KSerializer<ContractClass> {
     @Serializable
     data class ContractClassGateway(
         val program: JsonElement,

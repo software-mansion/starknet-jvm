@@ -52,7 +52,7 @@ data class Felt(val value: BigInteger) {
     }
 }
 
-object FeltSerializer : KSerializer<Felt> {
+internal object FeltSerializer : KSerializer<Felt> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Felt", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Felt {

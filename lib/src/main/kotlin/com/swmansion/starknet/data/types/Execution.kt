@@ -70,7 +70,7 @@ data class GetTransactionReceiptPayload(
     val transactionHash: Felt,
 )
 
-fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
+internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {

@@ -37,7 +37,7 @@ sealed class BlockId() {
     }
 }
 
-class BlockIdSerializer() : KSerializer<BlockId> {
+internal class BlockIdSerializer() : KSerializer<BlockId> {
     override fun deserialize(decoder: Decoder): BlockId {
         val value = decoder.decodeString()
 
