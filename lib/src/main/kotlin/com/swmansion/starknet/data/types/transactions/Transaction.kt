@@ -132,7 +132,6 @@ data class DeclareTransaction(
 ) : Transaction()
 
 object TransactionFactory {
-    @JvmStatic
     fun makeInvokeTransaction(
         contractAddress: Felt,
         calldata: Calldata,
