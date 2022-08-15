@@ -10,6 +10,7 @@
 ## Table of contents
 
 <!-- TOC -->
+  * [Installation](#installation)
   * [Documentation](#documentation)
   * [Example usages](#example-usages)
     * [Making synchronous requests](#making-synchronous-requests)
@@ -19,6 +20,10 @@
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
+
+## Installation
+
+Select the latest version from [the list](https://search.maven.org/artifact/com.swmansion.starknet/starknet) and follow installation instructions.
 
 ## Documentation
 
