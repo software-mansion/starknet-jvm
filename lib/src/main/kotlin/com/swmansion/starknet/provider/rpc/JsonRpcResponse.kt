@@ -2,6 +2,7 @@ package com.swmansion.starknet.provider.rpc
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -10,14 +11,21 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class JsonRpcResponse<T>(
+internal data class JsonRpcResponse<T>(
+    @SerialName("id")
     val id: Int,
-    val jsonrpc: String,
+
+    @SerialName("jsonrpc")
+    val jsonRpc: String,
+
+    @SerialName("result")
     val result: T? = null,
+
+    @SerialName("error")
     val error: JsonElement? = null, // FIXME: Add error types
 )
 
-class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
+internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor
         get() = dataSerializer.descriptor
 

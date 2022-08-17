@@ -1,6 +1,7 @@
 package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 
 /**

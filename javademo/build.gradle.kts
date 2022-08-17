@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":lib")))
+    implementation("com.swmansion.starknet:starknet:0.0.3")
 }
 
 application {

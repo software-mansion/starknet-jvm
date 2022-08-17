@@ -20,7 +20,7 @@ android {
                 arguments "-DCMAKE_BUILD_TYPE=Release"
             }
         }
-        
+
     }
 
     lint {

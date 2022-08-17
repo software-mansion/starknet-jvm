@@ -3,6 +3,7 @@ package com.swmansion.starknet.account
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
@@ -34,13 +35,13 @@ class StandardAccount(
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction {
         val calldata = callsToExecuteCalldata(calls, params.nonce)
-        val tx = InvokeTransaction(
+        val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
-            entrypointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
+            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             calldata = calldata,
-            chainId = provider.chainId.value,
-            nonce = params.nonce,
+            chainId = provider.chainId,
             maxFee = params.maxFee,
+            nonce = params.nonce,
             version = params.version,
         )
         return tx.copy(signature = signer.signTransaction(tx))

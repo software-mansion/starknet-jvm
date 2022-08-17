@@ -1,5 +1,3 @@
-@file:JvmName("Responses")
-
 package com.swmansion.starknet.data.types
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -8,17 +6,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 @Serializable
-sealed class Response
-
-@Serializable
 data class CallContractResponse(
     val result: List<Felt>,
-) : Response()
+)
 
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt,
-) : Response()
+)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -44,7 +39,7 @@ data class DeclareResponse(
 @Serializable
 data class GetStorageAtResponse(
     val result: Felt,
-) : Response()
+)
 
 data class TransactionFailureReason(
     val code: String,

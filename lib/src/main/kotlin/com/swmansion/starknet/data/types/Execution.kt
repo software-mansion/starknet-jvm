@@ -1,13 +1,23 @@
+@file:JvmName("Execution")
+
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+typealias Calldata = List<Felt>
+typealias Signature = List<Felt>
+
 @Serializable
 data class Call(
-    @SerialName("contract_address") val contractAddress: Felt,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("entry_point_selector")
     val entrypoint: Felt,
+
+    @SerialName("calldata")
     val calldata: Calldata,
 ) {
     constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata) : this(
@@ -34,6 +44,9 @@ data class CallParams(
     val maxFee: Felt?,
     val version: Felt?,
 )
+data class CallExtraParams(
+    val blockId: BlockId,
+)
 
 data class ExecutionParams(
     val nonce: Felt,
@@ -43,15 +56,23 @@ data class ExecutionParams(
 
 @Serializable
 data class CallContractPayload(
+    @SerialName("request")
     val request: Call,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
+
+    @SerialName("block_id")
+    val blockId: BlockId,
 )
 
 @Serializable
 data class GetStorageAtPayload(
-    @SerialName("contract_address") val contractAddress: Felt,
-    @SerialName("key") val key: Felt,
-    @SerialName("block_hash") val blockHashOrTag: BlockHashOrTag,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("key")
+    val key: Felt,
+
+    @SerialName("block_id")
+    val blockId: BlockId,
 )
 
 @Serializable
@@ -66,7 +87,7 @@ data class GetTransactionReceiptPayload(
     val transactionHash: Felt,
 )
 
-fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
+internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {

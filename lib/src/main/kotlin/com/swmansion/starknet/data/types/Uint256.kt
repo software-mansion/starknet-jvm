@@ -40,6 +40,3 @@ data class Uint256(val value: BigInteger) {
         fun fromHex(value: String) = Uint256(parseHex(value))
     }
 }
-
-val BigInteger.toUint256: Uint256
-    get() = Uint256(this)

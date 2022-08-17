@@ -1,10 +1,8 @@
 package starknet.provider
 
-import com.swmansion.starknet.data.responses.DeclareTransaction
-import com.swmansion.starknet.data.responses.DeployTransaction
-import com.swmansion.starknet.data.responses.InvokeTransaction
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -28,18 +26,21 @@ class ProviderTest {
         private lateinit var declareTransactionHash: Felt
 
         @JvmStatic
-        private fun getProviders(): List<Provider> {
-            return listOf(
-                GatewayProvider(
-                    devnetClient.feederGatewayUrl,
-                    devnetClient.gatewayUrl,
-                    StarknetChainId.TESTNET,
-                ),
-                JsonRpcProvider(
-                    devnetClient.rpcUrl,
-                    StarknetChainId.TESTNET,
-                ),
-            )
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
+
+        @JvmStatic
+        private fun gatewayProvider(): GatewayProvider =
+            GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
+
+        @JvmStatic
+        private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
+
+        @JvmStatic
+        private fun isAccepted(receipt: TransactionReceipt): Boolean {
+            if (receipt !is AcceptedTransactionReceipt) {
+                return false
+            }
+            return receipt.status == TransactionStatus.ACCEPTED_ON_L2 || receipt.status == TransactionStatus.ACCEPTED_ON_L1
         }
 
         @JvmStatic
@@ -64,7 +65,7 @@ class ProviderTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.destroy()
+            devnetClient.close()
         }
     }
 
@@ -75,7 +76,7 @@ class ProviderTest {
             emptyList(),
         )
 
-        val request = provider.callContract(call, BlockTag.PENDING)
+        val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
 
         assertEquals(1, response.result.size)
@@ -85,58 +86,50 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun callContractTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `call contract`(provider: Provider) {
         val balance = getBalance(provider)
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), balance)
+        assertEquals(expected, balance)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun getStorageAtTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
+    fun `get storage at`(provider: Provider) {
         val request = provider.getStorageAt(
             contractAddress,
             selectorFromName("balance"),
-            BlockTag.PENDING,
+            BlockTag.LATEST,
         )
 
         val response = request.send()
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        assertEquals(Felt(0), response)
+        assertEquals(expected, response)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun invokeTransactionTest(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
+    fun `invoke transaction`(provider: Provider) {
+        val invokeValue = Felt(10)
 
         val call = Call(
             contractAddress,
             "increase_balance",
-            listOf(Felt(10)),
+            listOf(invokeValue),
         )
 
+        val oldBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
         val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
-        val payload = InvokeFunctionPayload(call, dummySig, Felt(0), null)
+        val payload = InvokeFunctionPayload(call, dummySig, Felt.ZERO, Felt.ZERO)
         val request = provider.invokeFunction(payload)
 
         request.send()
 
-        val balance = getBalance(provider)
-        assertEquals(Felt(10), balance)
+        val newBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
+        assertEquals(oldBalance.value + invokeValue.value, newBalance.value)
     }
 
     @ParameterizedTest
@@ -221,12 +214,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at pending block`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
 
-        val request = provider.getClassHashAt(BlockTag.PENDING, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.PENDING)
         val response = request.send()
 
         assertNotNull(response)
@@ -235,12 +228,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at latest block`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
-        val request = provider.getClassHashAt(BlockTag.LATEST, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
@@ -249,13 +237,13 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block hash`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.hash, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
         assertNotNull(response)
@@ -264,27 +252,75 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at block number`(provider: Provider) {
-        // FIXME: Currently not supported in devnet
+        // Devnet only support's "latest" as block id in this method
         if (provider is JsonRpcProvider) {
             return
         }
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassHashAt(latestBlock.number, contractAddress)
+        val request = provider.getClassHashAt(contractAddress, latestBlock.number)
         val response = request.send()
 
         assertNotNull(response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun getTransactionReceiptTest(provider: Provider) {
-        val request = provider.getTransactionReceipt(deployTransactionHash)
+    @Test
+    fun `get deploy transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(deployTransactionHash)
         val response = request.send()
 
         assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
     }
 
+    @Test
+    fun `get declare transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(declareTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
+    @Test
+    fun `get invoke transaction receipt gateway`() {
+        val request = gatewayProvider().getTransactionReceipt(invokeTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
+    // FIXME this test will fail until devnet spec is updated as there is no way to differentiate between declare
+    //  and deploy tx receipts currently
+//    @Test
+//    fun `get deploy transaction receipt rpc`() {
+//        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
+//        val response = request.send()
+//
+//        assertNotNull(response)
+//        assertTrue(response is DeployTransactionReceipt)
+//    }
+
+    @Test
+    fun `get declare transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(declareTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is DeclareTransactionReceipt)
+    }
+
+    @Test
+    fun `get invoke transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(invokeTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is InvokeTransactionReceipt)
+    }
+
+    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy transaction`(provider: Provider) {
@@ -308,12 +344,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare transaction`(provider: Provider) {
-        if (provider is JsonRpcProvider) {
-            // FIXME current rpc spec has class_hash in declare txn, but the version currently supported in devnet
-            //       doesn't.
-            return
-        }
-
         val request = provider.getTransaction(declareTransactionHash)
         val response = request.send()
 
@@ -333,6 +363,10 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @ParameterizedTest
@@ -347,6 +381,10 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @ParameterizedTest
@@ -361,11 +399,15 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+
+        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
+        val txr = txrRequest.send()
+        assertTrue(isAccepted(txr))
     }
 
     @Test
     fun `make contract definition with invalid json`() {
-        assertThrows(InvalidContractException::class.java) {
+        assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
     }

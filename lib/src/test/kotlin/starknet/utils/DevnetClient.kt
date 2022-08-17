@@ -8,7 +8,7 @@ import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 
-class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
+class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoCloseable {
     private var devnetProcess: Process? = null
 
     val gatewayUrl: String
@@ -47,7 +47,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         }
     }
 
-    fun destroy() {
+    override fun close() {
         devnetProcess?.destroyForcibly()
 
         // Wait for the process to be destroyed
@@ -145,6 +145,24 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) {
         }
 
         return json.decodeFromString(Block.serializer(), result)
+    }
+
+    fun getStorageAt(contractAddress: Felt, storageKey: Felt): Felt {
+        val getStorageAtProcess = ProcessBuilder(
+            "starknet",
+            "get_storage_at",
+            "--contract_address",
+            contractAddress.hexString(),
+            "--key",
+            storageKey.decString(),
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        val result = String(getStorageAtProcess.inputStream.readAllBytes())
+        return Felt.fromHex(result.trim())
     }
 
     private fun getValueFromLine(line: String, index: Int = 1): String {
