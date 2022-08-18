@@ -203,6 +203,40 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
+    private fun getEstimateFee(request: InvokeTransaction, blockParam: Pair<String, String>): Request<EstimateFeeResponse> {
+        val url = feederGatewayRequestUrl("estimate_fee")
+
+        val body = buildJsonObject {
+            put("contract_address", request.contractAddress)
+            put("entry_point_selector", request.entryPointSelector)
+            put("max_fee", request.maxFee)
+            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
+        }
+
+        val httpPayload = Payload(url, "POST", body)
+
+        return HttpRequest(httpPayload, EstimateFeeResponse.serializer())
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
+        val param = "blockHash" to blockHash.hexString()
+
+        return getEstimateFee(request, param)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
+        val param = "blockNumber" to blockNumber.toString()
+
+        return getEstimateFee(request, param)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val param = "blockTag" to blockTag.tag
+
+        return getEstimateFee(request, param)
+    }
+
     companion object Factory {
         @JvmStatic
         fun makeTestnetClient(): GatewayProvider {

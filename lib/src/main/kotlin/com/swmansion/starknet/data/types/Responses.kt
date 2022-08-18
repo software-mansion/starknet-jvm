@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
+import java.math.BigInteger
 
 @Serializable
 data class CallContractResponse(
@@ -44,4 +45,17 @@ data class GetStorageAtResponse(
 data class TransactionFailureReason(
     val code: String,
     val errorMessage: String,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class EstimateFeeResponse(
+    @JsonNames("gas_consumed", "gas_usage")
+    val gasConsumed: Long,
+
+    @JsonNames("gas_price")
+    val gasPrice: Long,
+
+    @JsonNames("overall_fee")
+    val overallFee: Long,
 )

@@ -144,4 +144,10 @@ interface Provider {
      * @param payload declare transaction payload
      */
     fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
+
+    fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse>
+
+    fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse>
+
+    fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
 }

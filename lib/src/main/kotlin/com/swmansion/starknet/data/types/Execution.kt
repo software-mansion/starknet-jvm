@@ -3,6 +3,7 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.data.types.transactions.InvokeTransaction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -85,6 +86,15 @@ data class GetTransactionByHashPayload(
 data class GetTransactionReceiptPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
+)
+
+@Serializable
+data class EstimateFeePayload(
+    @SerialName("request")
+    val request: InvokeTransaction,
+
+    @SerialName("block_id")
+    val blockId: BlockId
 )
 
 internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {

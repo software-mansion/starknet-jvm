@@ -6,6 +6,7 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -410,5 +411,32 @@ class ProviderTest {
         assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `estimate fee`(provider: Provider) {
+        // FIXME: Not yet supported in Devnet RPC
+        if (provider is JsonRpcProvider) {
+            return
+        }
+
+        val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
+
+        val invokeTx = TransactionFactory.makeInvokeTransaction(
+            contractAddress= contractAddress,
+            calldata = listOf(Felt(10)),
+            entryPointSelector = selectorFromName("increase_balance"),
+            chainId = StarknetChainId.TESTNET,
+            maxFee = Felt.ZERO,
+            version = Felt.ZERO,
+            signature = dummySig,
+            nonce = Felt.ZERO
+        )
+
+        val request = provider.getEstimateFee(invokeTx, BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
     }
 }
