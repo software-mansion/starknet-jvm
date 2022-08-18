@@ -94,7 +94,7 @@ data class EstimateFeePayload(
     val request: InvokeTransaction,
 
     @SerialName("block_id")
-    val blockId: BlockId
+    val blockId: BlockId,
 )
 
 internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
