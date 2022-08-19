@@ -52,7 +52,6 @@ class StandardAccount(
         val nonce = params.nonce ?: getNonce()
         val maxFee = params.maxFee ?: estimateFee(calls, params)
 
-
 //        val version = params.version ?: Felt(0)
 //
 //        val calldata = callsToExecuteCalldata(calls, nonce)
@@ -78,8 +77,8 @@ class StandardAccount(
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version)
         val signedTransaction = sign(calls, executionParams)
 
+        val req = getEstimateFee(signedTransaction, BlockTag.LATEST)
 
-
-       val req = getEstimateFee(signedTransaction, BlockTag.LATEST)
+        TODO("Not yet implemented")
     }
 }

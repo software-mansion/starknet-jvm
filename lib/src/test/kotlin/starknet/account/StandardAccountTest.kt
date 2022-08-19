@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import starknet.provider.ProviderTest
 import starknet.utils.DevnetClient
 import java.nio.file.Path
 
@@ -90,13 +89,13 @@ class StandardAccountTest {
         val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
-            entrypoint = "increase_balance"
+            entrypoint = "increase_balance",
         )
 
         val callParams = CallParams(
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
-            version = Felt.ZERO
+            version = Felt.ZERO,
         )
 
         val feeEstimate = account.estimateFee(call, callParams).send()
