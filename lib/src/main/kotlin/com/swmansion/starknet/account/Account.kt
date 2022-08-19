@@ -3,6 +3,7 @@ package com.swmansion.starknet.account
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.Request
 
 /**
  * An account interface.
@@ -70,7 +71,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, params: CallParams): Felt {
+    fun estimateFee(call: Call, params: CallParams): Request<EstimateFeeResponse> {
         return estimateFee(listOf(call), params)
     }
 
@@ -83,7 +84,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>, params: CallParams): Felt
+    fun estimateFee(calls: List<Call>, params: CallParams): Request<EstimateFeeResponse>
 
     /**
      * Get account nonce.

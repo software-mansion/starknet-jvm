@@ -5,6 +5,7 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 
@@ -48,13 +49,18 @@ class StandardAccount(
     }
 
     override fun execute(calls: List<Call>, params: CallParams): InvokeFunctionResponse {
-        TODO("To be implemented")
         val nonce = params.nonce ?: getNonce()
-        val maxFee = params.maxFee ?: Felt(0) // FIXME: Estimate fee
-        val version = params.version ?: Felt(0)
+        val maxFee = params.maxFee ?: estimateFee(calls, params)
 
-        val calldata = callsToExecuteCalldata(calls, nonce)
-        val call = Call(address, selectorFromName(EXECUTE_ENTRY_POINT_NAME), calldata)
+
+//        val version = params.version ?: Felt(0)
+//
+//        val calldata = callsToExecuteCalldata(calls, nonce)
+//        val call = Call(address, selectorFromName(EXECUTE_ENTRY_POINT_NAME), calldata)
+
+//        val signParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = Felt.ZERO)
+//        val signedTransaction = sign(calls, signParams)
+        TODO("not implemented")
     }
 
     override fun getNonce(): Felt {
@@ -65,7 +71,15 @@ class StandardAccount(
         return response.result.first()
     }
 
-    override fun estimateFee(calls: List<Call>, params: CallParams): Felt {
-        TODO("Not yet implemented")
+    override fun estimateFee(calls: List<Call>, params: CallParams): Request<EstimateFeeResponse> {
+        val nonce = params.nonce ?: getNonce()
+        val version = params.version ?: Felt.ZERO // TODO: Use constant for version
+
+        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version)
+        val signedTransaction = sign(calls, executionParams)
+
+
+
+       val req = getEstimateFee(signedTransaction, BlockTag.LATEST)
     }
 }

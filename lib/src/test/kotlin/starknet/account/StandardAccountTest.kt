@@ -2,16 +2,21 @@ package starknet.account
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.CallParams
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import starknet.provider.ProviderTest
 import starknet.utils.DevnetClient
+import java.nio.file.Path
 
 class StandardAccountTest {
     companion object {
@@ -19,6 +24,7 @@ class StandardAccountTest {
         private val devnetClient = DevnetClient()
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
+        private lateinit var balanceContractAddress: Felt
 
         @JvmStatic
         @BeforeAll
@@ -35,6 +41,9 @@ class StandardAccountTest {
                 devnetClient.rpcUrl,
                 StarknetChainId.TESTNET,
             )
+
+            val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+            balanceContractAddress = deployAddress
         }
 
         @JvmStatic
@@ -63,7 +72,7 @@ class StandardAccountTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.destroy()
+            devnetClient.close()
         }
     }
 
@@ -73,5 +82,27 @@ class StandardAccountTest {
         val nonce = account.getNonce()
 
         assertEquals(nonce, Felt.ZERO)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `estimate fee`(account: Account) {
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance"
+        )
+
+        val callParams = CallParams(
+            nonce = Felt.ZERO,
+            maxFee = Felt.ZERO,
+            version = Felt.ZERO
+        )
+
+        val feeEstimate = account.estimateFee(call, callParams).send()
+
+        print(feeEstimate)
+
+        assertNotNull(feeEstimate)
     }
 }
