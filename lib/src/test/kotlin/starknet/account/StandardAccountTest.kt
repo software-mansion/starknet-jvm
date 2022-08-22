@@ -98,10 +98,52 @@ class StandardAccountTest {
             version = Felt.ZERO,
         )
 
-        val feeEstimate = account.estimateFee(call, callParams).send()
-
-        print(feeEstimate)
+        val feeEstimate = account.estimateFee(call, callParams)
 
         assertNotNull(feeEstimate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `execute single call`(account: Account) {
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val callParams = CallParams(
+            nonce = null,
+            maxFee = null,
+            version = Felt.ZERO
+        )
+
+        val result = account.execute(call, callParams)
+        assertNotNull(result)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `execute multiple calls`(account: Account) {
+        val call1 = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val call2 = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val callParams = CallParams(
+            nonce = null,
+            maxFee = null,
+            version = Felt.ZERO
+        )
+
+        val result = account.execute(listOf(call1, call2), callParams)
+        assertNotNull(result)
     }
 }
