@@ -103,14 +103,14 @@ data class InvokeTransaction(
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata.plus(nonce),
-            entrypoint = entryPointSelector
+            entrypoint = entryPointSelector,
         )
 
         return InvokeFunctionPayload(
             invocation = invocation,
             signature = signature,
             maxFee = maxFee,
-            version = version
+            version = version,
         )
     }
 }

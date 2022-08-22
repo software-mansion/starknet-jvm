@@ -115,7 +115,7 @@ class StandardAccountTest {
         val callParams = CallParams(
             nonce = null,
             maxFee = null,
-            version = Felt.ZERO
+            version = Felt.ZERO,
         )
 
         val result = account.execute(call, callParams)
@@ -140,7 +140,7 @@ class StandardAccountTest {
         val callParams = CallParams(
             nonce = null,
             maxFee = null,
-            version = Felt.ZERO
+            version = Felt.ZERO,
         )
 
         val result = account.execute(listOf(call1, call2), callParams)
