@@ -1,6 +1,6 @@
 package com.swmansion.starknet.account
 
-import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
+import com.swmansion.starknet.crypto.FeeUtils
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
@@ -50,7 +50,7 @@ class StandardAccount(
 
     override fun execute(calls: List<Call>, params: CallParams): InvokeFunctionResponse {
         val nonce = params.nonce ?: getNonce()
-        val maxFee = params.maxFee ?: Felt(estimatedFeeToMaxFee(estimateFee(calls, params).overallFee))
+        val maxFee = params.maxFee ?: Felt(FeeUtils.estimatedFeeToMaxFee(estimateFee(calls, params).overallFee))
         val version = params.version ?: Felt(0)
 
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee, version = version)
