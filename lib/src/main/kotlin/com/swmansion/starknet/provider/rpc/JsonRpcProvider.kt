@@ -8,8 +8,10 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.service.RequestProcessingService
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.service.http.handlers.BasicHttpErrorHandler
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
 
@@ -23,6 +25,7 @@ class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId,
 ) : Provider {
+    private val httpService: RequestProcessingService = HttpService(BasicHttpErrorHandler())
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
@@ -42,11 +45,12 @@ class JsonRpcProvider(
     ): HttpRequest<T> {
         val requestJson = buildRequestJson(method.methodName, paramsJson)
 
-        val payload = HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
+        val payload =
+            RequestProcessingService.Payload(url, "POST", emptyList(), requestJson.toString())
 
         val jsonRpcDeserializer = JsonRpcResponseDeserializer(responseSerializer)
 
-        return HttpRequest(payload, jsonRpcDeserializer)
+        return HttpRequest(payload, jsonRpcDeserializer, httpService)
     }
 
     private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {

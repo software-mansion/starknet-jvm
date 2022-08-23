@@ -1,120 +1,97 @@
 package com.swmansion.starknet.service.http
 
-import kotlinx.serialization.json.JsonObject
+import com.swmansion.starknet.service.RequestProcessingService
+import com.swmansion.starknet.service.RequestProcessingService.Payload
+import com.swmansion.starknet.service.http.handlers.HttpErrorHandler
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
 /**
  * Service for making http requests.
  */
-internal class HttpService {
-    data class Payload(val url: String, val method: String, val params: List<Pair<String, String>>, val body: String?) {
-        constructor(url: String, method: String, params: List<Pair<String, String>>) : this(url, method, params, null)
+internal class HttpService(private val errorHandler: HttpErrorHandler) : RequestProcessingService {
 
-        constructor(url: String, method: String, body: JsonObject) : this(url, method, emptyList(), body.toString())
+    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
-        constructor(url: String, method: String, params: List<Pair<String, String>>, body: JsonObject) : this(
-            url,
-            method,
-            params,
-            body.toString(),
-        )
+    private fun buildRequest(payload: Payload): okhttp3.Request {
+        val body = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
+        val url = buildRequestUrl(payload.url, payload.params)
+
+        return okhttp3.Request.Builder().url(url).method(payload.method, body).build()
     }
 
-    class HttpServiceFailedResponse(message: String, val code: Int, val response: String) : Exception(message)
+    private fun buildRequestUrl(
+        baseUrl: String,
+        params: List<Pair<String, String>>,
+    ): String {
+        val urlBuilder = baseUrl.toHttpUrl().newBuilder()
 
-    companion object {
-        private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
-
-        private fun buildRequest(payload: Payload): okhttp3.Request {
-            val body = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
-            val url = buildRequestUrl(payload.url, payload.params)
-
-            return okhttp3
-                .Request
-                .Builder()
-                .url(url)
-                .method(payload.method, body)
-                .build()
+        for (param in params) {
+            urlBuilder.addQueryParameter(param.first, param.second)
         }
 
-        private fun buildRequestUrl(
-            baseUrl: String,
-            params: List<Pair<String, String>>,
-        ): String {
-            val urlBuilder = baseUrl.toHttpUrl().newBuilder()
+        return urlBuilder.build().toString()
+    }
 
-            for (param in params) {
-                urlBuilder.addQueryParameter(param.first, param.second)
-            }
+    private fun processHttpResponse(response: Response): String {
+        val responseBody = response.body
 
-            return urlBuilder.build().toString()
+        if (response.isSuccessful) {
+            return responseBody?.string() ?: ""
+        } else {
+            errorHandler.handle(response.body?.string() ?: "Unknown error")
         }
+    }
 
-        private fun processHttpResponse(response: okhttp3.Response): String {
-            val responseBody = response.body
+    /**
+     * Send a synchronous http request.
+     *
+     * @param payload a payload to be sent
+     */
+    override fun send(payload: Payload): String {
+        val client = OkHttpClient()
+        val httpRequest = buildRequest(payload)
 
-            if (response.isSuccessful) {
-                return responseBody?.string() ?: ""
-            } else {
-                val code = response.code
-                val text = response.body?.string() ?: "unknown"
+        val response = client.newCall(httpRequest).execute()
 
-                throw HttpServiceFailedResponse("Invalid response, code: $code, response: $text", code, text)
-            }
-        }
+        return processHttpResponse(response)
+    }
 
-        /**
-         * Send a synchronous http request.
-         *
-         * @param payload a payload to be sent
-         */
-        @JvmStatic
-        fun send(payload: Payload): String {
-            val client = OkHttpClient()
-            val httpRequest = buildRequest(payload)
+    /**
+     * Send an asynchronous http request.
+     *
+     * @param payload a payload to be sent
+     */
+    override fun sendAsync(payload: Payload): CompletableFuture<String> {
+        val client = OkHttpClient()
+        val httpRequest = buildRequest(payload)
 
-            val response = client.newCall(httpRequest).execute()
+        val future = CompletableFuture<String>()
 
-            return processHttpResponse(response)
-        }
+        client.newCall(httpRequest).enqueue(
+            object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    future.completeExceptionally(e)
+                }
 
-        /**
-         * Send an asynchronous http request.
-         *
-         * @param payload a payload to be sent
-         */
-        @JvmStatic
-        fun sendAsync(payload: Payload): CompletableFuture<String> {
-            val client = OkHttpClient()
-            val httpRequest = buildRequest(payload)
-
-            val future = CompletableFuture<String>()
-
-            client.newCall(httpRequest).enqueue(
-                object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        val parsedResponse = processHttpResponse(response)
+                        future.complete(parsedResponse)
+                    } catch (e: Exception) {
                         future.completeExceptionally(e)
                     }
+                }
+            },
+        )
 
-                    override fun onResponse(call: Call, response: okhttp3.Response) {
-                        try {
-                            val parsedResponse = processHttpResponse(response)
-                            future.complete(parsedResponse)
-                        } catch (e: Exception) {
-                            future.completeExceptionally(e)
-                        }
-                    }
-                },
-            )
-
-            return future
-        }
+        return future
     }
 }

@@ -1,5 +1,7 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -8,7 +10,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonElement
 
 @Serializable
 internal data class JsonRpcResponse<T>(
@@ -22,7 +23,16 @@ internal data class JsonRpcResponse<T>(
     val result: T? = null,
 
     @SerialName("error")
-    val error: JsonElement? = null, // FIXME: Add error types
+    val error: JsonRpcError? = null,
+)
+
+@Serializable
+internal data class JsonRpcError(
+    @SerialName("code")
+    val code: Int,
+
+    @SerialName("message")
+    val message: String,
 )
 
 internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
@@ -39,10 +49,9 @@ internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSeria
         if (response.result != null) {
             return response.result
         } else if (response.error != null) {
-            // FIXME: Add custom exception
-            throw Exception("Error")
+            throw RpcRequestFailedException(response.error.code, response.error.message)
         } else {
-            throw Exception("Error")
+            throw RequestFailedException()
         }
     }
 }
