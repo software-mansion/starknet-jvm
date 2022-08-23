@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.0.2"
+version = "0.0.3"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -34,9 +34,10 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
 }
 
 tasks.withType<DokkaTask>().configureEach {
+    moduleName.set("starknet-jvm")
     dokkaSourceSets {
         configureEach {
-            includes.from("lib.md")
+            includes.from("starknet-jvm.md")
         }
     }
 }

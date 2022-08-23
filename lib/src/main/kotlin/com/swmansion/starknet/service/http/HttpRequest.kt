@@ -5,7 +5,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
 
-class HttpRequest<T>(
+internal class HttpRequest<T>(
     private val payload: HttpService.Payload,
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
     private val deserializer: DeserializationStrategy<T>,

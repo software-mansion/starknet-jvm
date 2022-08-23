@@ -1,4 +1,4 @@
-package com.swmansion.starknet.data.responses.serializers
+package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
-object JsonRpcTransactionReceiptPolymorphicSerializer :
+internal object JsonRpcTransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionReceipt> {
         val jsonElement = element.jsonObject

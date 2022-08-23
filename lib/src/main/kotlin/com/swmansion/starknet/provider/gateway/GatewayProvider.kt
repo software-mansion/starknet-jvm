@@ -3,10 +3,11 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.responses.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
+import com.swmansion.starknet.extensions.toDecimal
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.HttpRequest
@@ -121,9 +122,9 @@ class GatewayProvider(
             putJsonArray("calldata") {
                 payload.invocation.calldata.toDecimal().forEach { add(it) }
             }
-            put("max_fee", payload.maxFee?.hexString())
+            put("max_fee", payload.maxFee.hexString())
             putJsonArray("signature") {
-                payload.signature?.toDecimal()?.forEach { add(it) }
+                payload.signature.toDecimal().forEach { add(it) }
             }
         }
 

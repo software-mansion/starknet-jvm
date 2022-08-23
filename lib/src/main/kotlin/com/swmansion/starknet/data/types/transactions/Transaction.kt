@@ -131,25 +131,28 @@ data class DeclareTransaction(
     override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
 
-fun makeInvokeTransaction(
-    contractAddress: Felt,
-    calldata: Calldata,
-    entryPointSelector: Felt,
-    chainId: StarknetChainId,
-    maxFee: Felt = Felt.ZERO,
-    version: Felt = Felt.ZERO,
-    signature: Signature = emptyList(),
-    nonce: Felt = Felt.ZERO,
-): InvokeTransaction {
-    val hash = StarknetCurve.pedersenOnElements(
-        TransactionType.INVOKE.txPrefix,
-        version,
-        contractAddress,
-        entryPointSelector,
-        StarknetCurve.pedersenOnElements(calldata),
-        maxFee,
-        chainId.value,
-    )
+object TransactionFactory {
+    @JvmStatic
+    fun makeInvokeTransaction(
+        contractAddress: Felt,
+        calldata: Calldata,
+        entryPointSelector: Felt,
+        chainId: StarknetChainId,
+        maxFee: Felt = Felt.ZERO,
+        version: Felt = Felt.ZERO,
+        signature: Signature = emptyList(),
+        nonce: Felt = Felt.ZERO,
+    ): InvokeTransaction {
+        val hash = StarknetCurve.pedersenOnElements(
+            TransactionType.INVOKE.txPrefix,
+            version,
+            contractAddress,
+            entryPointSelector,
+            StarknetCurve.pedersenOnElements(calldata),
+            maxFee,
+            chainId.value,
+        )
 
-    return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+        return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+    }
 }

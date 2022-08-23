@@ -1,4 +1,4 @@
-# Module lib
+# Module starknet-jvm
 
 StarkNet.kt is a library allowing for easy interaction with StarkNet gateway and nodes, including
 querying starknet state, executing transactions and deploying contracts.
@@ -10,21 +10,23 @@ Although written in Kotlin, StarkNet.kt has been created with compatibility with
 ### In Java
 
 ```java
+import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        var provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
         Felt privateKey = Felt.fromHex("0x425125");
-        var account = new StandardAccount(provider, accountAddress, privateKey);
+        Account account = new StandardAccount(provider, accountAddress, privateKey);
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
@@ -72,9 +74,11 @@ that can be than handled in preferred way.
 ### In Java
 
 ```java
+import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
@@ -83,12 +87,12 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        var provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
         Felt privateKey = Felt.fromHex("0x425125");
-        var account = new StandardAccount(provider, accountAddress, privateKey);
+        Account account = new StandardAccount(provider, accountAddress, privateKey);
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");

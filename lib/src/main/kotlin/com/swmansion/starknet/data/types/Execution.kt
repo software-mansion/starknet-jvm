@@ -1,3 +1,5 @@
+@file:JvmName("Execution")
+
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
@@ -68,7 +70,7 @@ data class GetTransactionReceiptPayload(
     val transactionHash: Felt,
 )
 
-fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
+internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
