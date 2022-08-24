@@ -102,7 +102,7 @@ data class InvokeTransaction(
     fun toPayload(): InvokeFunctionPayload {
         val invocation = Call(
             contractAddress = contractAddress,
-            calldata = calldata.plus(nonce),
+            calldata = calldata,
             entrypoint = entryPointSelector,
         )
 

@@ -93,7 +93,7 @@ class StandardAccountTest {
         )
 
         val callParams = CallParams(
-            nonce = Felt.ZERO,
+            nonce = null,
             maxFee = Felt.ZERO,
             version = Felt.ZERO,
         )

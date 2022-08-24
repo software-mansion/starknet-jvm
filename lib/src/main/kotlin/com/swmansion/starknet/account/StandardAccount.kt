@@ -73,7 +73,7 @@ class StandardAccount(
         val nonce = params.nonce ?: getNonce()
         val version = params.version ?: Felt.ZERO // TODO: Use constant for version
 
-        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version)
+        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = version)
         val signedTransaction = sign(calls, executionParams)
 
         return getEstimateFee(signedTransaction, BlockTag.LATEST).send()
