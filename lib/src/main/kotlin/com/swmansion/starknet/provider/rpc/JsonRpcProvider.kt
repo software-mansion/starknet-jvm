@@ -223,4 +223,18 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
     }
+
+    /**
+     * Get events
+     *
+     * Returns all events matching the given filter
+     *
+     * @param payload get events payload
+     * @return GetEventsResult with list of emitted events and additional page info
+     */
+    fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+    }
 }
