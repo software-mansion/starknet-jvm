@@ -45,6 +45,11 @@ data class CallParams(
     val maxFee: Felt?,
     val version: Felt?,
 )
+
+data class EstimateFeeParams(
+    val nonce: Felt?,
+)
+
 data class CallExtraParams(
     val blockId: BlockId,
 )

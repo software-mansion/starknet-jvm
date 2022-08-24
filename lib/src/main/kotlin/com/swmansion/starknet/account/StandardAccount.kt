@@ -48,10 +48,17 @@ class StandardAccount(
         return tx.copy(signature = signer.signTransaction(tx))
     }
 
-    override fun execute(calls: List<Call>, params: CallParams): InvokeFunctionResponse {
-        val nonce = params.nonce ?: getNonce()
-        val maxFee = params.maxFee ?: Felt(FeeUtils.estimatedFeeToMaxFee(estimateFee(calls, params).overallFee))
-        val version = params.version ?: Felt(0)
+    override fun execute(calls: List<Call>, params: CallParams?): InvokeFunctionResponse {
+        val nonce = params?.nonce ?: getNonce()
+        val version = params?.version ?: Felt(0)
+
+        val maxFee: Felt = if (params?.maxFee != null) {
+            params.maxFee
+        } else {
+            val estimateFeeParams = EstimateFeeParams(nonce = nonce)
+            val estimateFeeResponse = estimateFee(calls, estimateFeeParams)
+            Felt(FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee))
+        }
 
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee, version = version)
         val signedTransaction = sign(calls, signParams)
@@ -69,11 +76,10 @@ class StandardAccount(
         return response.result.first()
     }
 
-    override fun estimateFee(calls: List<Call>, params: CallParams): EstimateFeeResponse {
-        val nonce = params.nonce ?: getNonce()
-        val version = params.version ?: Felt.ZERO // TODO: Use constant for version
+    override fun estimateFee(calls: List<Call>, params: EstimateFeeParams?): EstimateFeeResponse {
+        val nonce = params?.nonce ?: getNonce()
 
-        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = version)
+        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = Felt.ZERO)
         val signedTransaction = sign(calls, executionParams)
 
         return getEstimateFee(signedTransaction, BlockTag.LATEST).send()

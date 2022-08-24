@@ -3,7 +3,6 @@ package starknet.account
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.CallParams
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.provider.gateway.GatewayProvider
@@ -92,13 +91,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val callParams = CallParams(
-            nonce = null,
-            maxFee = Felt.ZERO,
-            version = Felt.ZERO,
-        )
-
-        val feeEstimate = account.estimateFee(call, callParams)
+        val feeEstimate = account.estimateFee(call)
 
         assertNotNull(feeEstimate)
     }
@@ -112,13 +105,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val callParams = CallParams(
-            nonce = null,
-            maxFee = null,
-            version = Felt.ZERO,
-        )
-
-        val result = account.execute(call, callParams)
+        val result = account.execute(call)
         assertNotNull(result)
     }
 
@@ -137,13 +124,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val callParams = CallParams(
-            nonce = null,
-            maxFee = null,
-            version = Felt.ZERO,
-        )
-
-        val result = account.execute(listOf(call1, call2), callParams)
+        val result = account.execute(listOf(call1, call2))
         assertNotNull(result)
     }
 }

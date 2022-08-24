@@ -46,7 +46,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call, params: CallParams): InvokeFunctionResponse {
+    fun execute(call: Call, params: CallParams? = null): InvokeFunctionResponse {
         return execute(listOf(call), params)
     }
 
@@ -59,7 +59,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>, params: CallParams): InvokeFunctionResponse
+    fun execute(calls: List<Call>, params: CallParams? = null): InvokeFunctionResponse
 
     /**
      * Estimate fee for a call.
@@ -70,7 +70,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, params: CallParams): EstimateFeeResponse {
+    fun estimateFee(call: Call, params: EstimateFeeParams? = null): EstimateFeeResponse {
         return estimateFee(listOf(call), params)
     }
 
@@ -83,7 +83,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>, params: CallParams): EstimateFeeResponse
+    fun estimateFee(calls: List<Call>, params: EstimateFeeParams? = null): EstimateFeeResponse
 
     /**
      * Get account nonce.
