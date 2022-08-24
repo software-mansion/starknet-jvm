@@ -8,8 +8,8 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.HttpRequest
+import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import com.swmansion.starknet.service.http.handlers.BasicHttpErrorHandler
 import kotlinx.serialization.KSerializer
