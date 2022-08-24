@@ -8,12 +8,16 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 import java.nio.file.Files
 import java.nio.file.Path
@@ -433,5 +437,47 @@ class ProviderTest {
         assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
+    }
+
+    @Test
+    fun `get events`() {
+        val getEventsJson = "{\n" +
+            "    \"id\": 0,\n" +
+            "    \"jsonrpc\": \"2.0\",\n" +
+            "    \"result\": {\n" +
+            "        \"events\": [\n" +
+            "            {\n" +
+            "                \"address\": \"0x01\",\n" +
+            "                \"keys\": [\"0x0a\", \"0x0b\"],\n" +
+            "                \"data\": [\"0x0c\", \"0x0d\"],\n" +
+            "                \"block_hash\": \"0x0aaaa\",\n" +
+            "                \"block_number\": 2137,\n" +
+            "                \"transaction_hash\": \"0x02137\"\n" +
+            "            }\n" +
+            "        ],\n" +
+            "        \"page_number\": 1,\n" +
+            "        \"is_last_page\": false\n" +
+            "    }\n" +
+            "}"
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn getEventsJson
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getEvents(
+            GetEventsPayload(
+                BlockId.Number(1),
+                BlockId.Number(2),
+                Felt(111),
+                listOf(Felt.fromHex("0x0a"), Felt.fromHex("0x0b")),
+                100,
+                1,
+            ),
+        )
+
+        val response = request.send()
+
+        assertNotNull(response)
     }
 }
