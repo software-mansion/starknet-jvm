@@ -18,7 +18,7 @@ interface Provider {
      * @param call a call to be made
      * @param blockTag
      */
-    fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse>
+    fun callContract(call: Call, blockTag: BlockTag = BlockTag.LATEST): Request<CallContractResponse>
 
     /**
      * Calls a contract deployed on StarkNet.
@@ -43,9 +43,9 @@ interface Provider {
      *
      * @param contractAddress an address of the contract
      * @param key an address of the storage variable inside contract
-     * @param blockTag
+     * @param blockTag The tag of the requested block.
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt>
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag = BlockTag.LATEST): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -105,6 +105,14 @@ interface Provider {
      */
     fun getClass(classHash: Felt): Request<ContractClass>
 
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockHash The hash of the requested block.
+     */
     fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
     /**
@@ -112,8 +120,8 @@ interface Provider {
      *
      * Get the contract class hash in the given block for the contract deployed at the given address.
      *
-     * @param blockNumber The number of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockNumber The number of the requested block.
      */
     fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt>
 
@@ -122,10 +130,10 @@ interface Provider {
      *
      * Get the contract class hash in the given block for the contract deployed at the given address.
      *
-     * @param blockTag The tag of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockTag The tag of the requested block.
      */
-    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag = BlockTag.LATEST): Request<Felt>
 
     /**
      * Deploy a contract
