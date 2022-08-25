@@ -2,7 +2,7 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
-import com.swmansion.starknet.service.http.HttpRequestDeserializer
+import com.swmansion.starknet.service.http.HttpResponseDeserializer
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
@@ -30,7 +30,7 @@ internal data class JsonRpcError(
     val message: String,
 )
 
-internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpRequestDeserializer<T> {
+internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
     return { response ->
         if (!response.isSuccessful) {
             throw if (response.body == null) RequestFailedException("Request failed") else RequestFailedException(
@@ -42,7 +42,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
             Json.decodeFromString(
                 JsonRpcResponse.serializer(deserializationStrategy),
                 response.body!!,
-            ) // Can we assume that if the request was successful, it will have a body?
+            )
 
         if (jsonRpcResponse.error != null) {
             throw RpcRequestFailedException(jsonRpcResponse.error.code, jsonRpcResponse.error.message)
