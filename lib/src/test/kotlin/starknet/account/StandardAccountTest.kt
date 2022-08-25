@@ -19,7 +19,7 @@ import java.nio.file.Path
 class StandardAccountTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient()
+        private val devnetClient = DevnetClient(port = 5051)
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
         private lateinit var balanceContractAddress: Felt
