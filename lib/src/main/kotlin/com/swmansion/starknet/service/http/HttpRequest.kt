@@ -1,29 +1,24 @@
 package com.swmansion.starknet.service.http
 
 import com.swmansion.starknet.provider.Request
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
+
+internal typealias HttpRequestDeserializer<T> = (HttpResponse) -> T
 
 internal class HttpRequest<T>(
     private val payload: HttpService.Payload,
     // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
-    private val deserializer: DeserializationStrategy<T>,
+    private val deserialize: HttpRequestDeserializer<T>,
     private val service: HttpService,
 ) : Request<T> {
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
 
     override fun send(): T {
         val response = service.send(payload)
 
-        return json.decodeFromString(deserializer, response)
+        return deserialize(response)
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        return service.sendAsync(payload).thenApply { response ->
-            Json.decodeFromString(deserializer, response)
-        }
+        return service.sendAsync(payload).thenApply(deserialize)
     }
 }

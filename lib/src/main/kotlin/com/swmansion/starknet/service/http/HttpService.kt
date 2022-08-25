@@ -3,7 +3,13 @@ package com.swmansion.starknet.service.http
 import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.CompletableFuture
 
-internal interface HttpService {
+data class HttpResponse(
+    val isSuccessful: Boolean,
+    val code: Int,
+    val body: String?,
+)
+
+interface HttpService {
     data class Payload(
         val url: String,
         val method: String,
@@ -41,12 +47,12 @@ internal interface HttpService {
      *
      * @param payload a payload to be sent
      */
-    fun send(payload: Payload): String
+    fun send(payload: Payload): HttpResponse
 
     /**
      * Send an asynchronous http request.
      *
      * @param payload a payload to be sent
      */
-    fun sendAsync(payload: Payload): CompletableFuture<String>
+    fun sendAsync(payload: Payload): CompletableFuture<HttpResponse>
 }

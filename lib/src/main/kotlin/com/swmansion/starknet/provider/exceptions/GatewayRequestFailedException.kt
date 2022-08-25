@@ -1,3 +1,3 @@
 package com.swmansion.starknet.provider.exceptions
 
-class GatewayRequestFailedException(message: String) : RequestFailedException(message)
+class GatewayRequestFailedException(code: Int, message: String) : RequestFailedException(message)

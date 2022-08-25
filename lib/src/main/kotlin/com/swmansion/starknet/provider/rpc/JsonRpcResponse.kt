@@ -2,14 +2,9 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
+import com.swmansion.starknet.service.http.HttpRequestDeserializer
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecoder
 
 @Serializable
 internal data class JsonRpcResponse<T>(
@@ -35,23 +30,29 @@ internal data class JsonRpcError(
     val message: String,
 )
 
-internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
-    override val descriptor: SerialDescriptor
-        get() = dataSerializer.descriptor
-
-    override fun deserialize(decoder: Decoder): T {
-        require(decoder is JsonDecoder)
-
-        val responseJson = decoder.decodeJsonElement()
-        val format = Json { ignoreUnknownKeys = true }
-        val response = format.decodeFromJsonElement(JsonRpcResponse.serializer(dataSerializer), responseJson)
-
-        if (response.result != null) {
-            return response.result
-        } else if (response.error != null) {
-            throw RpcRequestFailedException(response.error.code, response.error.message)
-        } else {
-            throw RequestFailedException()
+internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpRequestDeserializer<T> {
+    return { response ->
+        if (!response.isSuccessful) {
+            throw if (response.body == null) RequestFailedException("Request failed") else RequestFailedException(
+                response.body,
+            )
         }
+
+        val jsonRpcResponse =
+            Json.decodeFromString(
+                JsonRpcResponse.serializer(deserializationStrategy),
+                response.body!!,
+            ) // Can we assume that if the request was successful, it will have a body?
+
+        if (jsonRpcResponse.error != null) {
+            throw RpcRequestFailedException(jsonRpcResponse.error.code, jsonRpcResponse.error.message)
+        }
+
+        if (jsonRpcResponse.result == null) {
+            // FIXME add more specific error
+            throw RequestFailedException(response.body)
+        }
+
+        jsonRpcResponse.result
     }
 }

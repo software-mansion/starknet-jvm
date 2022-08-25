@@ -1,7 +1,6 @@
 package com.swmansion.starknet.service.http
 
 import com.swmansion.starknet.service.http.HttpService.Payload
-import com.swmansion.starknet.service.http.handlers.HttpErrorHandler
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -15,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * Service for making http requests.
  */
-internal class OkhttpHttpService(private val errorHandler: HttpErrorHandler) : HttpService {
+internal class OkhttpHttpService() : HttpService {
 
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
@@ -39,22 +38,15 @@ internal class OkhttpHttpService(private val errorHandler: HttpErrorHandler) : H
         return urlBuilder.build().toString()
     }
 
-    private fun processHttpResponse(response: Response): String {
-        val responseBody = response.body
-
-        if (response.isSuccessful) {
-            return responseBody?.string() ?: ""
-        } else {
-            errorHandler.handle(response.body?.string() ?: "Unknown error")
-        }
-    }
+    private fun processHttpResponse(response: Response): HttpResponse =
+        HttpResponse(response.isSuccessful, response.code, response.body?.string())
 
     /**
      * Send a synchronous http request.
      *
      * @param payload a payload to be sent
      */
-    override fun send(payload: Payload): String {
+    override fun send(payload: Payload): HttpResponse {
         val client = OkHttpClient()
         val httpRequest = buildRequest(payload)
 
@@ -68,11 +60,11 @@ internal class OkhttpHttpService(private val errorHandler: HttpErrorHandler) : H
      *
      * @param payload a payload to be sent
      */
-    override fun sendAsync(payload: Payload): CompletableFuture<String> {
+    override fun sendAsync(payload: Payload): CompletableFuture<HttpResponse> {
         val client = OkHttpClient()
         val httpRequest = buildRequest(payload)
 
-        val future = CompletableFuture<String>()
+        val future = CompletableFuture<HttpResponse>()
 
         client.newCall(httpRequest).enqueue(
             object : Callback {
