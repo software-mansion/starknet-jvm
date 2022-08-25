@@ -2,10 +2,7 @@ package starknet.account
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
-import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.ExecutionParams
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import org.junit.jupiter.api.AfterAll
@@ -16,7 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
 import java.nio.file.Path
-import kotlin.math.sign
 
 class StandardAccountTest {
     companion object {
@@ -92,9 +88,8 @@ class StandardAccountTest {
             nonce = Felt.ZERO,
         )
 
-        val signedTransaction = account.sign(call, params)
-
-        val response = account.invokeFunction(signedTransaction.toPayload())
+        val payload = account.sign(call, params)
+        val response = account.invokeFunction(payload)
 
         assertNotNull(response)
     }
@@ -115,9 +110,8 @@ class StandardAccountTest {
             nonce = Felt.ONE,
         )
 
-        val signedTransaction = account.sign(listOf(call, call, call), params)
-
-        val response = account.invokeFunction(signedTransaction.toPayload()).send()
+        val payload = account.sign(listOf(call, call, call), params)
+        val response = account.invokeFunction(payload).send()
 
         assertNotNull(response)
     }

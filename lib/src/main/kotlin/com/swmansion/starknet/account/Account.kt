@@ -23,7 +23,7 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction
      * @return signed invoke function
      */
-    fun sign(call: Call, params: ExecutionParams): InvokeTransaction {
+    fun sign(call: Call, params: ExecutionParams): InvokeFunctionPayload {
         return sign(listOf(call), params)
     }
 
@@ -37,5 +37,5 @@ interface Account : Provider {
      * @param params additional execution parameters for the transaction
      * @return signed invoke function
      */
-    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction
+    fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload
 }

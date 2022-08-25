@@ -33,7 +33,7 @@ class StandardAccount(
         StarkCurveSigner(privateKey),
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction {
+    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
         val calldata = callsToExecuteCalldata(calls, params.nonce)
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
@@ -44,6 +44,9 @@ class StandardAccount(
             nonce = params.nonce,
             version = params.version,
         )
-        return tx.copy(signature = signer.signTransaction(tx))
+
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
     }
 }
