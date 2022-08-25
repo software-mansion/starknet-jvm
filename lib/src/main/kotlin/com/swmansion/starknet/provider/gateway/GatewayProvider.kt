@@ -101,7 +101,6 @@ class GatewayProvider(
             json.decodeFromString(deserializationStrategy, body)
         }
 
-
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
