@@ -103,13 +103,7 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     @Order(2)
     fun `sign multiple calls test`(account: Account) {
-        val call1 = Call(
-            contractAddress = balanceContractAddress,
-            calldata = listOf(Felt(10)),
-            entrypoint = "increase_balance",
-        )
-
-        val call2 = Call(
+        val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
             entrypoint = "increase_balance",
@@ -121,7 +115,7 @@ class StandardAccountTest {
             nonce = Felt.ONE,
         )
 
-        val signedTransaction = account.sign(listOf(call1, call2), params)
+        val signedTransaction = account.sign(listOf(call, call, call), params)
 
         val response = account.invokeFunction(signedTransaction.toPayload()).send()
 
