@@ -39,3 +39,11 @@ jobs:
 
       - name: Run tests
         run: ./gradlew :lib:test --info
+
+      - name: Generate coverage report
+        run: ./gradlew :lib:koverXmlReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: lib/build/reports/kover/project-xml/report.xml
