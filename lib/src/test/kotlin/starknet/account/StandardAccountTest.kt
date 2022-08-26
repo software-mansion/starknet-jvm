@@ -3,12 +3,12 @@ package starknet.account
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
@@ -65,6 +65,12 @@ class StandardAccountTest {
             return listOf(account1, account2, account3)
         }
 
+        // TODO: Delete after this becomes a part of Account
+        fun getNonce(account: Account): Felt {
+            val call = Call(contractAddress = account.address, entrypoint = "get_nonce", calldata = listOf())
+            return account.callContract(call, BlockTag.LATEST).send().result.first()
+        }
+
         @JvmStatic
         @AfterAll
         fun after() {
@@ -74,7 +80,6 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    @Order(1)
     fun `sign single call test`(account: Account) {
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -84,19 +89,19 @@ class StandardAccountTest {
 
         val params = ExecutionParams(
             version = Felt.ZERO,
-            maxFee = Felt(1000000000),
-            nonce = Felt.ZERO,
+            maxFee = Felt(1000000000000000),
+            nonce = getNonce(account),
         )
 
         val payload = account.sign(call, params)
-        val response = account.invokeFunction(payload)
+        val response = account.invokeFunction(payload).send()
+        val receipt = account.getTransactionReceipt(response.transactionHash).send()
 
-        assertNotNull(response)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
     }
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    @Order(2)
     fun `sign multiple calls test`(account: Account) {
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -106,13 +111,14 @@ class StandardAccountTest {
 
         val params = ExecutionParams(
             version = Felt.ZERO,
-            maxFee = Felt(1000000000),
-            nonce = Felt.ONE,
+            maxFee = Felt(1000000000000000),
+            nonce = getNonce(account),
         )
 
         val payload = account.sign(listOf(call, call, call), params)
         val response = account.invokeFunction(payload).send()
+        val receipt = account.getTransactionReceipt(response.transactionHash).send()
 
-        assertNotNull(response)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
     }
 }

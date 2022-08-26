@@ -36,7 +36,8 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
             throw Error("AlreadyRunning")
         }
 
-        devnetProcess = ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString()).start()
+        devnetProcess =
+            ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString(), "--seed", "1053545547").start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
         devnetProcess!!.waitFor(10, TimeUnit.SECONDS)

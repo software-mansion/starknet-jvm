@@ -37,7 +37,7 @@ class ProviderTest {
 
         @JvmStatic
         private fun isAccepted(receipt: TransactionReceipt): Boolean {
-            if (receipt !is AcceptedTransactionReceipt) {
+            if (receipt !is ProcessedTransactionReceipt) {
                 return false
             }
             return receipt.status == TransactionStatus.ACCEPTED_ON_L2 || receipt.status == TransactionStatus.ACCEPTED_ON_L1
