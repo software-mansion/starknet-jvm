@@ -27,6 +27,7 @@ sealed class TransactionReceipt {
 @Serializable
 sealed class ProcessedTransactionReceipt : TransactionReceipt() {
     override val isPending: Boolean = false
+    abstract override val status: TransactionStatus
 }
 
 @OptIn(ExperimentalSerializationApi::class)
