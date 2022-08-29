@@ -3,6 +3,9 @@ package com.swmansion.starknet.service.http
 import com.swmansion.starknet.provider.Request
 import java.util.concurrent.CompletableFuture
 
+// Whole HttpResponse is required for deserialization instead of just
+// body while gateway is supported, because gateway errors are returned
+// as http errors with json body.
 internal typealias HttpResponseDeserializer<T> = (HttpResponse) -> T
 
 internal class HttpRequest<T>(
