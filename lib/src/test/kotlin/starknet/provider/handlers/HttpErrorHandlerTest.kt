@@ -65,14 +65,16 @@ class HttpErrorHandlerTest {
 
     @Test
     fun `rpc handler parses rpc error`() {
-        val message = "{\n" +
-            "        \"id\": 0,\n" +
-            "        \"jsonrpc\": \"2.0\",\n" +
-            "        \"error\": {\n" +
-            "            \"code\": 21,\n" +
-            "            \"message\": \"Invalid message selector\"\n" +
-            "        }\n" +
-            "    }"
+        val message = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": 21,
+                    "message": "Invalid message selector"
+                }
+            }
+        """.trimIndent()
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, message)
         }
