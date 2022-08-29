@@ -10,8 +10,18 @@ import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.extensions.toDecimal
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpRequest
+import com.swmansion.starknet.service.http.HttpResponseDeserializer
+import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.HttpService.Payload
+import com.swmansion.starknet.service.http.OkhttpHttpService
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 /**
@@ -25,7 +35,9 @@ class GatewayProvider(
     private val feederGatewayUrl: String,
     private val gatewayUrl: String,
     override val chainId: StarknetChainId,
+    private val httpService: HttpService = OkhttpHttpService(),
 ) : Provider {
+
     @Suppress("SameParameterValue")
     private fun gatewayRequestUrl(method: String): String {
         return "$gatewayUrl/$method"
@@ -48,8 +60,46 @@ class GatewayProvider(
             put("signature", JsonArray(emptyList()))
         }
 
-        return HttpRequest(Payload(url, "POST", params, body), CallContractResponse.serializer())
+        return HttpRequest(
+            Payload(url, "POST", params, body),
+            buildDeserializer(CallContractResponse.serializer()),
+            httpService,
+        )
     }
+
+    @Serializable
+    private data class GatewayError(
+        @SerialName("status_code")
+        val code: Int,
+
+        @SerialName("message")
+        val message: String,
+    )
+
+    private fun handleResponseError(response: HttpResponse): String {
+        if (!response.isSuccessful) {
+            try {
+                val deserializedError = Json.decodeFromString(GatewayError.serializer(), response.body)
+                throw GatewayRequestFailedException(
+                    code = deserializedError.code,
+                    message = deserializedError.message,
+                    payload = response.body,
+                )
+            } catch (e: SerializationException) {
+                throw RequestFailedException(payload = response.body)
+            }
+        }
+
+        return response.body
+    }
+
+    private fun <T> buildDeserializer(deserializationStrategy: DeserializationStrategy<T>): HttpResponseDeserializer<T> =
+        { response ->
+            val body = handleResponseError(response)
+
+            val json = Json { ignoreUnknownKeys = true }
+            json.decodeFromString(deserializationStrategy, body)
+        }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
@@ -77,7 +127,7 @@ class GatewayProvider(
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
-        return HttpRequest(Payload(url, "GET", params), Felt.serializer())
+        return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
     }
 
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
@@ -102,14 +152,22 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_transaction")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        return HttpRequest(Payload(url, "GET", params), GatewayTransactionTransformingSerializer)
+        return HttpRequest(
+            Payload(url, "GET", params),
+            buildDeserializer(GatewayTransactionTransformingSerializer),
+            httpService,
+        )
     }
 
     override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val url = feederGatewayRequestUrl("get_transaction_receipt")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        return HttpRequest(Payload(url, "GET", params), GatewayTransactionReceipt.serializer())
+        return HttpRequest(
+            Payload(url, "GET", params),
+            buildDeserializer(GatewayTransactionReceipt.serializer()),
+            httpService,
+        )
     }
 
     override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
@@ -128,7 +186,11 @@ class GatewayProvider(
             }
         }
 
-        return HttpRequest(Payload(url, "POST", body), InvokeFunctionResponse.serializer())
+        return HttpRequest(
+            Payload(url, "POST", body),
+            buildDeserializer(InvokeFunctionResponse.serializer()),
+            httpService,
+        )
     }
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
@@ -144,7 +206,11 @@ class GatewayProvider(
             put("version", payload.version)
         }
 
-        return HttpRequest(Payload(url, "POST", body), DeployResponse.serializer())
+        return HttpRequest(
+            Payload(url, "POST", body),
+            buildDeserializer(DeployResponse.serializer()),
+            httpService,
+        )
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
@@ -160,7 +226,11 @@ class GatewayProvider(
             put("contract_class", payload.contractDefinition.toJson())
         }
 
-        return HttpRequest(Payload(url, "POST", body), DeclareResponse.serializer())
+        return HttpRequest(
+            Payload(url, "POST", body),
+            buildDeserializer(DeclareResponse.serializer()),
+            httpService,
+        )
     }
 
     override fun getClass(classHash: Felt): Request<ContractClass> {
@@ -171,7 +241,7 @@ class GatewayProvider(
         )
 
         val httpPayload = Payload(url, "GET", params)
-        return HttpRequest(httpPayload, ContractClassGatewaySerializer)
+        return HttpRequest(httpPayload, buildDeserializer(ContractClassGatewaySerializer), httpService)
     }
 
     private fun getClassHashAt(blockParam: Pair<String, String>, contractAddress: Felt): Request<Felt> {
@@ -182,7 +252,7 @@ class GatewayProvider(
         )
 
         val httpPayload = Payload(url, "GET", params)
-        return HttpRequest(httpPayload, Felt.serializer())
+        return HttpRequest(httpPayload, buildDeserializer(Felt.serializer()), httpService)
     }
 
     override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
