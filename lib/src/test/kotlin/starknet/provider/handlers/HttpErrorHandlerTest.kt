@@ -29,7 +29,8 @@ class HttpErrorHandlerTest {
             request.send()
         }
         assertFalse(exception is GatewayRequestFailedException)
-        assertEquals(message, exception.message)
+        assertEquals("Request failed", exception.message)
+        assertEquals(message, exception.payload)
     }
 
     @Test
@@ -45,7 +46,8 @@ class HttpErrorHandlerTest {
             request.send()
         }
         assertFalse(exception is RpcRequestFailedException)
-        assertEquals(message, exception.message)
+        assertEquals("Request failed", exception.message)
+        assertEquals(message, exception.payload)
     }
 
     @Test
