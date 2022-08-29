@@ -19,6 +19,8 @@ sealed class TransactionReceipt {
     abstract val isPending: Boolean
     abstract val type: TransactionReceiptType
 
+    // FIXME: RPC doesn't allow these to be nullable, but they can't have a value
+    // when tx is rejected.
     abstract val blockHash: Felt?
     abstract val blockNumber: Int?
     abstract val status: TransactionStatus?
