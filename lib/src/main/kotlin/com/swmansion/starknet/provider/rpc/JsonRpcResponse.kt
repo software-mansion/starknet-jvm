@@ -33,7 +33,7 @@ internal data class JsonRpcError(
 internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
     return { response ->
         if (!response.isSuccessful) {
-            throw if (response.body == null) RequestFailedException("Request failed") else RequestFailedException(
+            throw RequestFailedException(
                 response.body,
             )
         }
@@ -41,7 +41,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
         val jsonRpcResponse =
             Json.decodeFromString(
                 JsonRpcResponse.serializer(deserializationStrategy),
-                response.body!!,
+                response.body,
             )
 
         if (jsonRpcResponse.error != null) {
@@ -49,8 +49,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
         }
 
         if (jsonRpcResponse.result == null) {
-            // FIXME add more specific error
-            throw RequestFailedException(response.body)
+            throw RequestFailedException("Response did not contain a result")
         }
 
         jsonRpcResponse.result

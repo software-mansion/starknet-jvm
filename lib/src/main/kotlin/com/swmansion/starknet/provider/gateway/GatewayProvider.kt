@@ -77,17 +77,13 @@ class GatewayProvider(
     )
 
     private fun handleResponseError(response: HttpResponse): String {
-        if (!response.isSuccessful && response.body != null) {
+        if (!response.isSuccessful) {
             try {
                 val deserializedError = Json.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(deserializedError.code, deserializedError.message)
             } catch (e: SerializationException) {
                 throw RequestFailedException(response.body)
             }
-        }
-
-        if (!response.isSuccessful || response.body == null) {
-            throw RequestFailedException("Request failed")
         }
 
         return response.body
