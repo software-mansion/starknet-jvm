@@ -8,6 +8,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
@@ -441,27 +442,29 @@ class ProviderTest {
 
     @Test
     fun `get events`() {
-        val getEventsJson = "{\n" +
-            "    \"id\": 0,\n" +
-            "    \"jsonrpc\": \"2.0\",\n" +
-            "    \"result\": {\n" +
-            "        \"events\": [\n" +
-            "            {\n" +
-            "                \"address\": \"0x01\",\n" +
-            "                \"keys\": [\"0x0a\", \"0x0b\"],\n" +
-            "                \"data\": [\"0x0c\", \"0x0d\"],\n" +
-            "                \"block_hash\": \"0x0aaaa\",\n" +
-            "                \"block_number\": 2137,\n" +
-            "                \"transaction_hash\": \"0x02137\"\n" +
-            "            }\n" +
-            "        ],\n" +
-            "        \"page_number\": 1,\n" +
-            "        \"is_last_page\": false\n" +
-            "    }\n" +
-            "}"
+        val events = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "events": [
+                    {
+                        "address": "0x01",
+                        "keys": ["0x0a", "0x0b"],
+                        "data": ["0x0c", "0x0d"],
+                        "block_hash": "0x0aaaa",
+                        "block_number": 2137,
+                        "transaction_hash": "0x02137"
+                    }
+                ],
+                "page_number": 1,
+                "is_last_page": false
+            }
+        }
+        """.trimIndent()
 
         val httpService = mock<HttpService> {
-            on { send(any()) } doReturn getEventsJson
+            on { send(any()) } doReturn HttpResponse(true, 200, events)
         }
         val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
