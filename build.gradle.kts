@@ -7,4 +7,5 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.10" apply false
     id("org.jetbrains.dokka") version "1.7.10" apply false
     id("org.jmailen.kotlinter") version "3.11.1"
+    id("org.jetbrains.kotlinx.kover") version "0.5.1"
 }
