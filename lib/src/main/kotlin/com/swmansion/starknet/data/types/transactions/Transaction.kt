@@ -1,10 +1,7 @@
 package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.data.types.Calldata
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.Signature
-import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,7 +21,7 @@ enum class TransactionType(val txPrefix: Felt) {
 }
 
 enum class TransactionStatus {
-    NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
+    UNKNOWN, NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
 }
 
 @Serializable
@@ -101,7 +98,22 @@ data class InvokeTransaction(
     override val nonce: Felt = Felt.ZERO,
 
     override val type: TransactionType = TransactionType.INVOKE,
-) : Transaction()
+) : Transaction() {
+    fun toPayload(): InvokeFunctionPayload {
+        val invocation = Call(
+            contractAddress = contractAddress,
+            calldata = calldata,
+            entrypoint = entryPointSelector,
+        )
+
+        return InvokeFunctionPayload(
+            invocation = invocation,
+            signature = signature,
+            maxFee = maxFee,
+            version = version,
+        )
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
