@@ -18,18 +18,14 @@ sealed class TransactionReceipt {
     abstract val actualFee: Felt
     abstract val isPending: Boolean
     abstract val type: TransactionReceiptType
-
-    // FIXME: RPC doesn't allow these to be nullable, but they can't have a value
-    // when tx is rejected.
-    abstract val blockHash: Felt?
-    abstract val blockNumber: Int?
-    abstract val status: TransactionStatus?
+    abstract val status: TransactionStatus
 }
 
 @Serializable
 sealed class ProcessedTransactionReceipt : TransactionReceipt() {
+    abstract val blockHash: Felt?
+    abstract val blockNumber: Int?
     override val isPending: Boolean = false
-    abstract override val status: TransactionStatus
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -67,7 +63,7 @@ data class GatewayTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @JsonNames("status")
-    override val status: TransactionStatus,
+    override val status: TransactionStatus = TransactionStatus.UNKNOWN,
 
     @JsonNames("transaction_failure_reason")
     val failureReason: GatewayFailureReason? = null,
@@ -95,13 +91,13 @@ data class InvokeTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt? = null,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int? = null,
+    override val blockNumber: Int,
 
     @JsonNames("status")
-    override val status: TransactionStatus,
+    override val status: TransactionStatus = TransactionStatus.UNKNOWN,
 
     @JsonNames("status_data")
     val rejectionReason: String? = null,
@@ -119,13 +115,13 @@ data class DeclareTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt? = null,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int? = null,
+    override val blockNumber: Int,
 
     @JsonNames("status")
-    override val status: TransactionStatus,
+    override val status: TransactionStatus = TransactionStatus.UNKNOWN,
 
     @JsonNames("status_data")
     val rejectionReason: String? = null,
@@ -143,13 +139,13 @@ data class DeployTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt? = null,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int? = null,
+    override val blockNumber: Int,
 
     @JsonNames("status")
-    override val status: TransactionStatus,
+    override val status: TransactionStatus = TransactionStatus.UNKNOWN,
 
     @JsonNames("status_data")
     val rejectionReason: String? = null,
@@ -170,9 +166,7 @@ data class PendingTransactionReceipt(
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING,
 
-    override val blockHash: Felt? = null,
-    override val blockNumber: Int? = null,
-    override val status: TransactionStatus? = null,
+    override val status: TransactionStatus = TransactionStatus.PENDING,
 ) : TransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -197,7 +191,5 @@ data class PendingInvokeTransactionReceipt(
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING_INVOKE,
 
-    override val blockHash: Felt? = null,
-    override val blockNumber: Int? = null,
-    override val status: TransactionStatus? = null,
+    override val status: TransactionStatus = TransactionStatus.PENDING,
 ) : TransactionReceipt()

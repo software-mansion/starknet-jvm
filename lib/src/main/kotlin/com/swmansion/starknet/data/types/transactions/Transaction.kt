@@ -21,7 +21,7 @@ enum class TransactionType(val txPrefix: Felt) {
 }
 
 enum class TransactionStatus {
-    NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
+    UNKNOWN, NOT_RECEIVED, RECEIVED, PENDING, ACCEPTED_ON_L1, ACCEPTED_ON_L2, REJECTED
 }
 
 @Serializable
