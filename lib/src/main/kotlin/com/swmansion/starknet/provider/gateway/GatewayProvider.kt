@@ -80,9 +80,13 @@ class GatewayProvider(
         if (!response.isSuccessful) {
             try {
                 val deserializedError = Json.decodeFromString(GatewayError.serializer(), response.body)
-                throw GatewayRequestFailedException(deserializedError.code, deserializedError.message)
+                throw GatewayRequestFailedException(
+                    code = deserializedError.code,
+                    message = deserializedError.message,
+                    payload = response.body,
+                )
             } catch (e: SerializationException) {
-                throw RequestFailedException(response.body)
+                throw RequestFailedException(payload = response.body)
             }
         }
 

@@ -34,7 +34,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
     return { response ->
         if (!response.isSuccessful) {
             throw RequestFailedException(
-                response.body,
+                payload = response.body,
             )
         }
 
@@ -45,11 +45,15 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
             )
 
         if (jsonRpcResponse.error != null) {
-            throw RpcRequestFailedException(jsonRpcResponse.error.code, jsonRpcResponse.error.message)
+            throw RpcRequestFailedException(
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                payload = response.body,
+            )
         }
 
         if (jsonRpcResponse.result == null) {
-            throw RequestFailedException("Response did not contain a result")
+            throw RequestFailedException(message = "Response did not contain a result", payload = response.body)
         }
 
         jsonRpcResponse.result
