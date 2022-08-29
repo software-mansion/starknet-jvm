@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture
 data class HttpResponse(
     val isSuccessful: Boolean,
     val code: Int,
-    val body: String?,
+    val body: String,
 )
 
 interface HttpService {

@@ -38,8 +38,12 @@ internal class OkhttpHttpService() : HttpService {
         return urlBuilder.build().toString()
     }
 
-    private fun processHttpResponse(response: Response): HttpResponse =
-        HttpResponse(response.isSuccessful, response.code, response.body?.string())
+    private fun processHttpResponse(response: Response): HttpResponse {
+        if (response.body == null) {
+            throw IOException("HTTP request failed with code = ${response.code}")
+        }
+        return HttpResponse(response.isSuccessful, response.code, response.body!!.string())
+    }
 
     /**
      * Send a synchronous http request.
