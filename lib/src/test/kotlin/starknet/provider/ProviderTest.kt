@@ -4,6 +4,8 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import org.junit.jupiter.api.AfterAll
@@ -403,6 +405,27 @@ class ProviderTest {
         val txrRequest = provider.getTransactionReceipt(response.transactionHash)
         val txr = txrRequest.send()
         assertTrue(isAccepted(txr))
+    }
+
+    @Test
+    fun `rpc provider throws RpcRequestFailedException`() {
+        val request = rpcProvider().getClassAt(BlockTag.LATEST, Felt(0))
+
+        val exception = assertThrows(RpcRequestFailedException::class.java) {
+            request.send()
+        }
+        assertEquals(20, exception.code)
+        assertEquals("Contract not found", exception.message)
+    }
+
+    @Test
+    fun `gateway provider throws GatewayRequestFailedException`() {
+        val request = gatewayProvider().getClass(Felt(0))
+
+        val exception = assertThrows(GatewayRequestFailedException::class.java) {
+            request.send()
+        }
+        assertEquals("Class with hash 0x0 is not declared", exception.message)
     }
 
     @Test

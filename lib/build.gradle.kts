@@ -100,6 +100,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 
+    // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
