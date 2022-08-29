@@ -7,7 +7,6 @@ internal typealias HttpResponseDeserializer<T> = (HttpResponse) -> T
 
 internal class HttpRequest<T>(
     private val payload: HttpService.Payload,
-    // TODO: Probably it could be abstracted, to not depend on kotlinx serialization
     private val deserialize: HttpResponseDeserializer<T>,
     private val service: HttpService,
 ) : Request<T> {
