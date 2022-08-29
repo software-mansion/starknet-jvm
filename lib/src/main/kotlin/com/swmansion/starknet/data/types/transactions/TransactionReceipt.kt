@@ -25,7 +25,10 @@ enum class TransactionStatus {
     ACCEPTED_ON_L2,
 
     @JsonNames("REJECTED")
-    REJECTED
+    REJECTED,
+
+    @JsonNames("UNKNOWN")
+    UNKNOWN,
 }
 
 @Serializable
