@@ -12,6 +12,25 @@ enum class TransactionReceiptType {
     DECLARE, DEPLOY, INVOKE, PENDING, PENDING_INVOKE, GATEWAY
 }
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+enum class TransactionStatus {
+    @JsonNames("PENDING", "NOT_RECEIVED", "RECEIVED")
+    PENDING,
+
+    @JsonNames("ACCEPTED_ON_L1")
+    ACCEPTED_ON_L1,
+
+    @JsonNames("ACCEPTED_ON_L2")
+    ACCEPTED_ON_L2,
+
+    @JsonNames("REJECTED")
+    REJECTED,
+
+    @JsonNames("UNKNOWN")
+    UNKNOWN,
+}
+
 @Serializable
 sealed class TransactionReceipt {
     abstract val hash: Felt
