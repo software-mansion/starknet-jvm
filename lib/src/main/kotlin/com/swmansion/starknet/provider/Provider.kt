@@ -146,9 +146,9 @@ interface Provider {
     fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
 
     /**
-     * estimate a fee.
+     * Estimate a fee.
      *
-     * estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction.
      *
      * @param request invoke transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
@@ -156,9 +156,9 @@ interface Provider {
     fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse>
 
     /**
-     * estimate a fee.
+     * Estimate a fee.
      *
-     * estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction.
      *
      * @param request invoke transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
@@ -166,9 +166,9 @@ interface Provider {
     fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse>
 
     /**
-     * estimate a fee.
+     * Estimate a fee.
      *
-     * estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction.
      *
      * @param request invoke transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
