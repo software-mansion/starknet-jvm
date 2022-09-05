@@ -8,7 +8,6 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import kotlin.math.max
 
 /**
  * Standard account used in StarkNet.
@@ -92,7 +91,7 @@ class StandardAccount(
             maxFee = payload.maxFee,
             version = payload.version,
             signature = payload.signature,
-            nonce = nonce
+            nonce = nonce,
         )
 
         return getEstimateFee(signedTransaction, BlockTag.LATEST).send()

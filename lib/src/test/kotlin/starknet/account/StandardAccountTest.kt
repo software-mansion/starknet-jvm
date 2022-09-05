@@ -139,6 +139,7 @@ class StandardAccountTest {
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
     }
+
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign multiple calls test`(account: Account) {

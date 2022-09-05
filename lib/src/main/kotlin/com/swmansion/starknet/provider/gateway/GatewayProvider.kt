@@ -289,7 +289,7 @@ class GatewayProvider(
         return HttpRequest(
             httpPayload,
             buildDeserializer(EstimateFeeResponse.serializer()),
-            httpService
+            httpService,
         )
     }
 
