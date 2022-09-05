@@ -58,9 +58,8 @@ class StandardAccount(
         val maxFee: Felt = if (params?.maxFee != null) {
             params.maxFee
         } else {
-            val estimateFeeParams = EstimateFeeParams(nonce = nonce)
-            val estimateFeeResponse = estimateFee(calls, estimateFeeParams)
-            Felt(FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee))
+            val estimateFeeResponse = estimateFee(calls, EstimateFeeParams(nonce))
+            FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee)
         }
 
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee, version = version)

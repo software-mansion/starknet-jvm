@@ -1,10 +1,15 @@
 package com.swmansion.starknet.crypto
 
-import kotlin.math.roundToLong
+import com.swmansion.starknet.data.types.Felt
+import java.math.BigInteger
+import kotlin.math.roundToInt
 
 object FeeUtils {
     @JvmStatic
-    fun estimatedFeeToMaxFee(fee: Long, overhead: Double = 0.5): Long {
-        return ((1 + overhead) * fee).roundToLong()
+    fun estimatedFeeToMaxFee(fee: Felt, overhead: Double = 0.5): Felt {
+        val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
+        val result = fee.value.multiply(multiplier).divide(BigInteger.valueOf(100))
+
+        return Felt(result)
     }
 }

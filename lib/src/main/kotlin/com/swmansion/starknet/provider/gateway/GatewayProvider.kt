@@ -288,7 +288,7 @@ class GatewayProvider(
 
         return HttpRequest(
             httpPayload,
-            buildDeserializer(EstimateFeeResponse.serializer()),
+            buildDeserializer(EstimateFeeResponseGatewaySerializer()),
             httpService,
         )
     }

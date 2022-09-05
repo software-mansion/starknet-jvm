@@ -1,9 +1,13 @@
 package com.swmansion.starknet.data.types
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
+import com.swmansion.starknet.extensions.toFelt
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.json.*
+import java.math.BigInteger
 
 @Serializable
 data class CallContractResponse(
@@ -50,11 +54,41 @@ data class TransactionFailureReason(
 @Serializable
 data class EstimateFeeResponse(
     @JsonNames("gas_consumed", "gas_usage")
-    val gasConsumed: Long,
+    val gasConsumed: Felt,
 
     @JsonNames("gas_price")
-    val gasPrice: Long,
+    val gasPrice: Felt,
 
     @JsonNames("overall_fee")
-    val overallFee: Long,
+    val overallFee: Felt,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializer(forClass = EstimateFeeResponse::class)
+class EstimateFeeResponseGatewaySerializer: KSerializer<EstimateFeeResponse> {
+    override fun deserialize(decoder: Decoder): EstimateFeeResponse {
+        val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
+
+        val jsonObject = input.decodeJsonElement().jsonObject
+
+        val gasUsage = jsonObject.getValue("gas_usage").jsonPrimitive.content.toBigInteger().toFelt
+        val gasPrice = jsonObject.getValue("gas_price").jsonPrimitive.content.toBigInteger().toFelt
+        val overallFee = jsonObject.getValue("overall_fee").jsonPrimitive.content.toBigInteger().toFelt
+
+        return EstimateFeeResponse(
+            gasConsumed = gasUsage,
+            gasPrice = gasPrice,
+            overallFee = overallFee
+        )
+    }
+
+    override val descriptor: SerialDescriptor
+        get() = EstimateFeeResponse.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: EstimateFeeResponse) {
+        TODO("Not implemented yet")
+//        val jsonObject = buildJsonObject {
+//            put("gas_usage", value.gasConsumed.value.toString(10))
+//        }
+    }
+}
