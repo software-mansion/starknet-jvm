@@ -5,9 +5,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.json.*
-import java.math.BigInteger
 
 @Serializable
 data class CallContractResponse(
@@ -65,7 +63,7 @@ data class EstimateFeeResponse(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = EstimateFeeResponse::class)
-class EstimateFeeResponseGatewaySerializer: KSerializer<EstimateFeeResponse> {
+class EstimateFeeResponseGatewaySerializer : KSerializer<EstimateFeeResponse> {
     override fun deserialize(decoder: Decoder): EstimateFeeResponse {
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
 
@@ -78,7 +76,7 @@ class EstimateFeeResponseGatewaySerializer: KSerializer<EstimateFeeResponse> {
         return EstimateFeeResponse(
             gasConsumed = gasUsage,
             gasPrice = gasPrice,
-            overallFee = overallFee
+            overallFee = overallFee,
         )
     }
 
