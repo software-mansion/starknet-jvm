@@ -1,14 +1,10 @@
 package com.swmansion.starknet.provider.rpc
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
+import com.swmansion.starknet.service.http.HttpResponseDeserializer
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonElement
 
 @Serializable
 internal data class JsonRpcResponse<T>(
@@ -22,27 +18,44 @@ internal data class JsonRpcResponse<T>(
     val result: T? = null,
 
     @SerialName("error")
-    val error: JsonElement? = null, // FIXME: Add error types
+    val error: JsonRpcError? = null,
 )
 
-internal class JsonRpcResponseDeserializer<T>(private val dataSerializer: KSerializer<T>) : DeserializationStrategy<T> {
-    override val descriptor: SerialDescriptor
-        get() = dataSerializer.descriptor
+@Serializable
+internal data class JsonRpcError(
+    @SerialName("code")
+    val code: Int,
 
-    override fun deserialize(decoder: Decoder): T {
-        require(decoder is JsonDecoder)
+    @SerialName("message")
+    val message: String,
+)
 
-        val responseJson = decoder.decodeJsonElement()
-        val format = Json { ignoreUnknownKeys = true }
-        val response = format.decodeFromJsonElement(JsonRpcResponse.serializer(dataSerializer), responseJson)
-
-        if (response.result != null) {
-            return response.result
-        } else if (response.error != null) {
-            // FIXME: Add custom exception
-            throw Exception("Error")
-        } else {
-            throw Exception("Error")
+internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
+    return { response ->
+        if (!response.isSuccessful) {
+            throw RequestFailedException(
+                payload = response.body,
+            )
         }
+
+        val jsonRpcResponse =
+            Json.decodeFromString(
+                JsonRpcResponse.serializer(deserializationStrategy),
+                response.body,
+            )
+
+        if (jsonRpcResponse.error != null) {
+            throw RpcRequestFailedException(
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                payload = response.body,
+            )
+        }
+
+        if (jsonRpcResponse.result == null) {
+            throw RequestFailedException(message = "Response did not contain a result", payload = response.body)
+        }
+
+        jsonRpcResponse.result
     }
 }

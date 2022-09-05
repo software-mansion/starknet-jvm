@@ -29,3 +29,4 @@ jobs:
         with:
           folder: lib/build/dokka/javadoc
           branch: gh-pages
+          single-commit: true

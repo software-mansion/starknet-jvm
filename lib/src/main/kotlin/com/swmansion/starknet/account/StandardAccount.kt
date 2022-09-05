@@ -8,6 +8,7 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
+import kotlin.math.max
 
 /**
  * Standard account used in StarkNet.
@@ -34,7 +35,7 @@ class StandardAccount(
         StarkCurveSigner(privateKey),
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransaction {
+    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
         val calldata = callsToExecuteCalldata(calls, params.nonce)
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
@@ -45,7 +46,10 @@ class StandardAccount(
             nonce = params.nonce,
             version = params.version,
         )
-        return tx.copy(signature = signer.signTransaction(tx))
+
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
     }
 
     override fun execute(calls: List<Call>, params: CallParams?): InvokeFunctionResponse {
@@ -61,9 +65,7 @@ class StandardAccount(
         }
 
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee, version = version)
-        val signedTransaction = sign(calls, signParams)
-
-        val payload = signedTransaction.toPayload()
+        val payload = sign(calls, signParams)
 
         return invokeFunction(payload).send()
     }
@@ -80,7 +82,18 @@ class StandardAccount(
         val nonce = params?.nonce ?: getNonce()
 
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = Felt.ZERO)
-        val signedTransaction = sign(calls, executionParams)
+        val payload = sign(calls, executionParams)
+
+        val signedTransaction = TransactionFactory.makeInvokeTransaction(
+            contractAddress = payload.invocation.contractAddress,
+            calldata = payload.invocation.calldata,
+            entryPointSelector = payload.invocation.entrypoint,
+            chainId = chainId,
+            maxFee = payload.maxFee,
+            version = payload.version,
+            signature = payload.signature,
+            nonce = nonce
+        )
 
         return getEstimateFee(signedTransaction, BlockTag.LATEST).send()
     }
