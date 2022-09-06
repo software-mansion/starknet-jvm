@@ -284,7 +284,7 @@ class GatewayProvider(
             putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
         }
 
-        val httpPayload = Payload(url, "POST", body)
+        val httpPayload = Payload(url, "POST", listOf(blockParam), body)
 
         return HttpRequest(
             httpPayload,
