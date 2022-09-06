@@ -78,7 +78,7 @@ class StandardAccountTest {
     fun `get nonce test`(account: Account) {
         val nonce = account.getNonce()
 
-        assertEquals(nonce, Felt.ZERO)
+        assertNotNull(nonce)
     }
 
     @ParameterizedTest
