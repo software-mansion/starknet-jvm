@@ -3,7 +3,6 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
