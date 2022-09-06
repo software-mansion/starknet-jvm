@@ -66,12 +66,6 @@ class StandardAccountTest {
             return listOf(account1, account2, account3)
         }
 
-        // TODO: Delete after this becomes a part of Account
-        fun getNonce(account: Account): Felt {
-            val call = Call(contractAddress = account.address, entrypoint = "get_nonce", calldata = listOf())
-            return account.callContract(call, BlockTag.LATEST).send().result.first()
-        }
-
         @JvmStatic
         @AfterAll
         fun after() {
@@ -113,7 +107,7 @@ class StandardAccountTest {
         val params = ExecutionParams(
             version = Felt.ZERO,
             maxFee = Felt(1000000000000000),
-            nonce = getNonce(account),
+            nonce = account.getNonce(),
         )
 
         val payload = account.sign(call, params)
@@ -152,7 +146,7 @@ class StandardAccountTest {
         val params = ExecutionParams(
             version = Felt.ZERO,
             maxFee = Felt(1000000000000000),
-            nonce = getNonce(account),
+            nonce = account.getNonce(),
         )
 
         val payload = account.sign(listOf(call, call, call), params)

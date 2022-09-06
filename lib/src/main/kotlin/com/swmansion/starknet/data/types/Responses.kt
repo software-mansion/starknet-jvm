@@ -3,6 +3,7 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
@@ -84,9 +85,14 @@ class EstimateFeeResponseGatewaySerializer : KSerializer<EstimateFeeResponse> {
         get() = EstimateFeeResponse.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: EstimateFeeResponse) {
-        TODO("Not implemented yet")
-//        val jsonObject = buildJsonObject {
-//            put("gas_usage", value.gasConsumed.value.toString(10))
-//        }
+        val jsonObject = buildJsonObject {
+            put("gas_usage", value.gasConsumed.value.toString(10))
+            put("gas_price", value.gasPrice.value.toString(10))
+            put("overall_fee", value.overallFee.value.toString(10))
+        }
+
+        val output = encoder as? JsonEncoder ?: throw SerializationException("")
+
+        output.encodeJsonElement(jsonObject)
     }
 }
