@@ -15,6 +15,7 @@ import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
+import kotlinx.serialization.builtins.*
 
 /**
  * A provider for interacting with StarkNet JSON-RPC
@@ -224,6 +225,54 @@ class JsonRpcProvider(
         }
 
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
+    }
+
+    override fun getBlockNumber(): Request<GetBlockNumberResponse> {
+        val params = Json.encodeToJsonElement(String())
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_NUMBER,
+            params,
+            GetBlockNumberResponse.serializer()
+        )
+    }
+
+    override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
+        val params = Json.encodeToJsonElement(String())
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_HASH_AND_NUMBER,
+            params,
+            GetBlockHashAndNumberResponse.serializer()
+        )
+    }
+
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<GetBlockTransactionCount> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
+            params,
+            GetBlockTransactionCount.serializer()
+        )
+    }
+
+    override fun getBlockTransactionCount(blockTag: BlockTag): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockHash: Felt): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockNumber: Int): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
+
+        return getBlockTransactionCount(payload)
     }
 
     /**

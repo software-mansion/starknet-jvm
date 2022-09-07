@@ -24,6 +24,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
+import kotlinx.serialization.builtins.*
 
 /**
  * A provider for interacting with StarkNet gateway.
@@ -272,6 +273,48 @@ class GatewayProvider(
         val param = "blockTag" to blockTag.tag
 
         return getClassHashAt(param, contractAddress)
+    }
+
+    override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
+        val url = feederGatewayRequestUrl("get_block")
+        val httpPayload = Payload(url, "GET")
+
+        return HttpRequest(httpPayload, GetBlockHashAndNumberResponse.serializer())
+    }
+
+    override fun getBlockNumber(): Request<GetBlockNumberResponse> {
+        val url = feederGatewayRequestUrl("get_block")
+        val httpPayload = Payload(url, "GET")
+
+        return HttpRequest(httpPayload, GetBlockNumberResponse.serializer())
+    }
+
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<GetBlockTransactionCount> {
+        val url = feederGatewayRequestUrl("get_block")
+        val params = listOf(
+            Pair("blockId", payload.blockId.toString()),
+        )
+
+        val httpPayload = Payload(url, "GET", params)
+        return HttpRequest(httpPayload, GetBlockTransactionCount.serializer())
+    }
+
+    override fun getBlockTransactionCount(blockTag: BlockTag): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockHash: Felt): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockNumber: Int): Request<GetBlockTransactionCount> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
+
+        return getBlockTransactionCount(payload)
     }
 
     companion object Factory {

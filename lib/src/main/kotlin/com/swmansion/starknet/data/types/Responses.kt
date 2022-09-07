@@ -3,7 +3,8 @@ package com.swmansion.starknet.data.types
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
+import kotlinx.serialization.json.*
+import kotlinx.serialization.builtins.*
 
 @Serializable
 data class CallContractResponse(
@@ -45,3 +46,35 @@ data class TransactionFailureReason(
     val code: String,
     val errorMessage: String,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class GetBlockHashAndNumberResponse(
+    @JsonNames("block_hash")
+    val blockHash: Felt,
+
+    @JsonNames("block_number")
+    val blockNumber: Int,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class GetBlockNumberResponse(
+    @JsonNames("block_number")
+    val blockNumber: Int,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class GetBlockTransactionCount(
+    @JsonNames("transaction_receipts")
+    @Serializable(UnwrappingJsonListSerializer::class) val transactionCount: Int,
+)
+
+object UnwrappingJsonListSerializer :
+    JsonTransformingSerializer<Int>(Int.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        if (element !is JsonArray) return element
+        return JsonPrimitive(element.size)
+    }
+}

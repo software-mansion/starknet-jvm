@@ -173,4 +173,45 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
+
+    /**
+     * Get the block number.
+     *
+     * Get the most recent accepted block number.
+     */
+    fun getBlockNumber(): Request<GetBlockNumberResponse>
+
+    /**
+     * Get the hash and number of the block.
+     *
+     * Get the most recent accepted block hash and number.
+     */
+    fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockTag The tag of the block.
+     */
+    fun getBlockTransactionCount(blockTag: BlockTag): Request<GetBlockTransactionCount>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockHash The hash of the block.
+     */
+    fun getBlockTransactionCount(blockHash: Felt): Request<GetBlockTransactionCount>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockNumber The number of the block.
+     */
+    fun getBlockTransactionCount(blockNumber: Int): Request<GetBlockTransactionCount>
 }

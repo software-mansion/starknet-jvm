@@ -487,4 +487,77 @@ class ProviderTest {
 
         assertNotNull(response)
     }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get current block number`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val currentBlock = provider.getBlockNumber()
+        val response = currentBlock.send()
+
+        assertNotNull(response)
+        assertTrue(response is GetBlockNumberResponse)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get current block number and hash`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val currentBlock = provider.getBlockHashAndNumber()
+        val response = currentBlock.send()
+
+        assertNotNull(response)
+        assertTrue(response is GetBlockHashAndNumberResponse)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block tag`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertTrue(response is GetBlockTransactionCount)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block hash`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val latestBlock = devnetClient.getLatestBlock()
+        val blockTransactionCount = provider.getBlockTransactionCount(latestBlock.hash)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertTrue(response is GetBlockTransactionCount)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block id`(provider: Provider) {
+        if (provider is JsonRpcProvider) {
+            return
+        }
+        val latestBlock = devnetClient.getLatestBlock()
+        val blockTransactionCount = provider.getBlockTransactionCount(latestBlock.number)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertTrue(response is GetBlockTransactionCount)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get chain id`(provider: Provider) {
+        assertTrue(provider.chainId is StarknetChainId)
+    }
 }
