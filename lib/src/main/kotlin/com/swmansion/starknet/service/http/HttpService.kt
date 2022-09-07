@@ -3,12 +3,24 @@ package com.swmansion.starknet.service.http
 import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Data class representing a completed http request.
+ *
+ * @param isSuccessful indicates if result completed with code 2xx
+ * @param code http return code
+ * @param body http return body
+ */
 data class HttpResponse(
     val isSuccessful: Boolean,
     val code: Int,
     val body: String,
 )
 
+/**
+ * Service for http communication.
+ *
+ * Implementers of this interface provide methods to facilitate http communication between Providers and StarkNet
+ */
 interface HttpService {
     data class Payload(
         val url: String,
