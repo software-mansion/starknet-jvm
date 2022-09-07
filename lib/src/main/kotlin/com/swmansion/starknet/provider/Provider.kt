@@ -18,7 +18,7 @@ interface Provider {
      *
      * @param call a call to be made
      * @param blockTag
-     * 
+     *
      * @throws RequestFailedException
      */
     fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse>
