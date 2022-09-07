@@ -74,7 +74,7 @@ data class GetBlockTransactionCount(
 object UnwrappingJsonListSerializer :
     JsonTransformingSerializer<Int>(Int.serializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
-        if (element !is JsonArray) return element
+        if (element !is JsonArray) return JsonPrimitive(0)
         return JsonPrimitive(element.size)
     }
 }

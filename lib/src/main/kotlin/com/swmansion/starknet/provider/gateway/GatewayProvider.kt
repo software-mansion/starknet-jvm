@@ -279,14 +279,22 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_block")
         val httpPayload = Payload(url, "GET")
 
-        return HttpRequest(httpPayload, GetBlockHashAndNumberResponse.serializer())
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GetBlockHashAndNumberResponse.serializer()),
+            httpService
+        )
     }
 
     override fun getBlockNumber(): Request<GetBlockNumberResponse> {
         val url = feederGatewayRequestUrl("get_block")
         val httpPayload = Payload(url, "GET")
 
-        return HttpRequest(httpPayload, GetBlockNumberResponse.serializer())
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GetBlockNumberResponse.serializer()),
+            httpService
+        )
     }
 
     private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<GetBlockTransactionCount> {
@@ -296,7 +304,11 @@ class GatewayProvider(
         )
 
         val httpPayload = Payload(url, "GET", params)
-        return HttpRequest(httpPayload, GetBlockTransactionCount.serializer())
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GetBlockTransactionCount.serializer()),
+            httpService
+        )
     }
 
     override fun getBlockTransactionCount(blockTag: BlockTag): Request<GetBlockTransactionCount> {
