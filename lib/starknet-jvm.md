@@ -131,3 +131,48 @@ fun main() {
     future.thenAccept { println(it) }
 }
 ```
+
+# Package com.swmansion.starknet.account
+
+Account interface used to simplify preparing and signing StarkNet transactions.
+
+# Package com.swmansion.starknet.crypto
+
+Cryptography and signature related classes.
+
+# Package com.swmansion.starknet.data
+
+Data classes representing StarkNet objects and utilities for handling them.
+
+# Package com.swmansion.starknet.data.types
+
+Data classes representing StarkNet objects.
+
+# Package com.swmansion.starknet.data.types.transactions
+
+Data classes representing StarkNet transactions.
+
+# Package com.swmansion.starknet.provider
+
+Provider interface used for interacting with StarkNet.
+
+# Package com.swmansion.starknet.provider.exceptions
+
+Exceptions thrown by the StarkNet providers.
+
+# Package com.swmansion.starknet.provider.gateway
+
+Provider utilising StarkNet gateway and feeder gateway for communication with the network.
+
+# Package com.swmansion.starknet.provider.rpc
+
+Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
+to communicate with the network.
+
+# Package com.swmansion.starknet.service.http
+
+Http service used in both provider to communicate with StarkNet.
+
+# Package com.swmansion.starknet.signer
+
+Signer interface used to sign StarkNet transactions.
