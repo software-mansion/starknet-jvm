@@ -8,6 +8,7 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
@@ -231,6 +232,8 @@ class JsonRpcProvider(
      *
      * @param payload get events payload
      * @return GetEventsResult with list of emitted events and additional page info
+     *
+     * @throws RpcRequestFailedException
      */
     fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
         val params = Json.encodeToJsonElement(payload)
