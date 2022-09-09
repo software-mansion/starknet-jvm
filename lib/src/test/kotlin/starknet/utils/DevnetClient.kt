@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
+class DevnetSetupFailedException(message: String) : Exception(message)
+
 class DevnetClient(
     private val host: String = "0.0.0.0",
     private val port: Int = 5050,
@@ -40,17 +42,25 @@ class DevnetClient(
 
     fun start() {
         if (isDevnetRunning) {
-            throw Error("AlreadyRunning")
+            throw DevnetSetupFailedException("Devnet is already running")
         }
 
         devnetProcess =
-            ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString(), "--seed", "1053545547").start()
+            ProcessBuilder(
+                "starknet-devnet",
+                "--host",
+                host,
+                "--port",
+                port.toString(),
+                "--seed",
+                "1053545547",
+            ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
-            throw Error("Could not start devnet process")
+            throw DevnetSetupFailedException("Could not start devnet process")
         }
 
         isDevnetRunning = true
@@ -86,8 +96,7 @@ class DevnetClient(
         )
         val response = httpService.send(payload)
         if (!response.isSuccessful) {
-            // TODO(Add better exception)
-            throw Exception("Prefunding account failed")
+            throw DevnetSetupFailedException("Prefunding account failed")
         }
     }
 
@@ -110,10 +119,7 @@ class DevnetClient(
         deployProcess.waitFor()
 
         val error = String(deployProcess.errorStream.readAllBytes())
-        if (error.isNotEmpty()) {
-            // TODO(Add better exception)
-            throw Exception("Account setup failed")
-        }
+        requireNoErrors("Account setup", error)
 
         val output = String(deployProcess.inputStream.readAllBytes())
         val lines = output.lines()
@@ -137,8 +143,10 @@ class DevnetClient(
 
         deployProcess.waitFor()
 
-        val result = String(deployProcess.inputStream.readAllBytes())
         val error = String(deployProcess.errorStream.readAllBytes())
+        requireNoErrors("Contract deployment", error)
+
+        val result = String(deployProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines)
     }
@@ -163,8 +171,10 @@ class DevnetClient(
 
         declareProcess.waitFor()
 
-        val result = String(declareProcess.inputStream.readAllBytes())
         val error = String(declareProcess.errorStream.readAllBytes())
+        requireNoErrors("Contract declare", error)
+
+        val result = String(declareProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines, offset = 2)
     }
@@ -200,8 +210,10 @@ class DevnetClient(
 
         invokeProcess.waitFor()
 
-        val result = String(invokeProcess.inputStream.readAllBytes())
         val error = String(invokeProcess.errorStream.readAllBytes())
+        requireNoErrors("Invoke contract", error)
+
+        val result = String(invokeProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines, offset = 2)
     }
@@ -241,8 +253,17 @@ class DevnetClient(
             feederGatewayUrl,
         ).start()
 
+        val error = String(getStorageAtProcess.errorStream.readAllBytes())
+        requireNoErrors("Get storage", error)
+
         val result = String(getStorageAtProcess.inputStream.readAllBytes())
         return Felt.fromHex(result.trim())
+    }
+
+    private fun requireNoErrors(methodName: String, errorStream: String) {
+        if (errorStream.isNotEmpty()) {
+            throw DevnetSetupFailedException("Step $methodName failed. error = $errorStream")
+        }
     }
 
     private fun getValueFromLine(line: String, index: Int = 1): String {
