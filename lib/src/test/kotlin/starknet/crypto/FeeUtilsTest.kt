@@ -10,14 +10,14 @@ class FeeUtilsTest {
     fun `estimate fee to max fee - default`() {
         val result = FeeUtils.estimatedFeeToMaxFee(Felt(100))
 
-        assertEquals(result, Felt(150))
+        assertEquals(result, Felt(110))
     }
 
     @Test
     fun `estimate fee to max fee - 10 percent overhead`() {
-        val result = FeeUtils.estimatedFeeToMaxFee(Felt(100), 0.10)
+        val result = FeeUtils.estimatedFeeToMaxFee(Felt(100), 0.50)
 
-        assertEquals(result, Felt(110))
+        assertEquals(result, Felt(150))
     }
 
     @Test
