@@ -6,7 +6,7 @@ import kotlin.math.roundToInt
 
 internal object FeeUtils {
     @JvmStatic
-    fun estimatedFeeToMaxFee(fee: Felt, overhead: Double = 0.5): Felt {
+    fun estimatedFeeToMaxFee(fee: Felt, overhead: Double = 0.1): Felt {
         val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
         val result = fee.value.multiply(multiplier).divide(BigInteger.valueOf(100))
 
