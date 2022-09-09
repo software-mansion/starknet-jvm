@@ -3,6 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
+import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
 import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -47,7 +48,7 @@ class GatewayProvider(
         return "$feederGatewayUrl/$method"
     }
 
-    private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+    private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val url = feederGatewayRequestUrl("call_contract")
 
         val params = listOf(Pair("blockHash", payload.blockId.toString()))
@@ -62,7 +63,7 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "POST", params, body),
-            buildDeserializer(CallContractResponse.serializer()),
+            buildDeserializer(GatewayCallContractTransformingSerializer),
             httpService,
         )
     }
@@ -101,19 +102,19 @@ class GatewayProvider(
             json.decodeFromString(deserializationStrategy, body)
         }
 
-    override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)

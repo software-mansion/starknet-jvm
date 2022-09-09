@@ -66,6 +66,12 @@ class StandardAccountTest {
             return listOf(account1, account2, account3)
         }
 
+        // TODO: Delete after this becomes a part of Account
+        fun getNonce(account: Account): Felt {
+            val call = Call(contractAddress = account.address, entrypoint = "get_nonce", calldata = listOf())
+            return account.callContract(call, BlockTag.LATEST).send().first()
+        }
+
         @JvmStatic
         @AfterAll
         fun after() {

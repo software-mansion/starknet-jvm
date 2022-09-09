@@ -8,10 +8,12 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 
 /**
@@ -50,25 +52,25 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
-    private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+    private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer())
+        return buildRequest(JsonRpcMethod.CALL, params, ListSerializer(Felt.serializer()))
     }
 
-    override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
@@ -222,6 +224,22 @@ class JsonRpcProvider(
         }
 
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
+    }
+
+    /**
+     * Get events
+     *
+     * Returns all events matching the given filter
+     *
+     * @param payload get events payload
+     * @return GetEventsResult with list of emitted events and additional page info
+     *
+     * @throws RpcRequestFailedException
+     */
+    fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
     }
 
     private fun getEstimateFee(payload: EstimateFeePayload): Request<EstimateFeeResponse> {

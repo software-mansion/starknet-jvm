@@ -8,12 +8,17 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.service.http.HttpResponse
+import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 import java.nio.file.Files
 import java.nio.file.Path
@@ -48,20 +53,24 @@ class ProviderTest {
         @JvmStatic
         @BeforeAll
         fun before() {
-            devnetClient.start()
-
-            val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
-            val (_, invokeHash) = devnetClient.invokeTransaction(
-                "increase_balance",
-                deployAddress,
-                Path.of("src/test/resources/compiled/providerTestAbi.json"),
-                0,
-            )
-            val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
-            contractAddress = deployAddress
-            deployTransactionHash = deployHash
-            invokeTransactionHash = invokeHash
-            declareTransactionHash = declareHash
+            try {
+                devnetClient.start()
+                val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                val (_, invokeHash) = devnetClient.invokeTransaction(
+                    "increase_balance",
+                    deployAddress,
+                    Path.of("src/test/resources/compiled/providerTestAbi.json"),
+                    0,
+                )
+                val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                contractAddress = deployAddress
+                deployTransactionHash = deployHash
+                invokeTransactionHash = invokeHash
+                declareTransactionHash = declareHash
+            } catch (ex: Exception) {
+                devnetClient.close()
+                throw ex
+            }
         }
 
         @JvmStatic
@@ -81,9 +90,9 @@ class ProviderTest {
         val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
 
-        assertEquals(1, response.result.size)
+        assertEquals(1, response.size)
 
-        return response.result.first()
+        return response.first()
     }
 
     @ParameterizedTest
@@ -433,6 +442,50 @@ class ProviderTest {
         assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
+    }
+
+    @Test
+    fun `get events`() {
+        val events = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "events": [
+                    {
+                        "address": "0x01",
+                        "keys": ["0x0a", "0x0b"],
+                        "data": ["0x0c", "0x0d"],
+                        "block_hash": "0x0aaaa",
+                        "block_number": 2137,
+                        "transaction_hash": "0x02137"
+                    }
+                ],
+                "page_number": 1,
+                "is_last_page": false
+            }
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, events)
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getEvents(
+            GetEventsPayload(
+                BlockId.Number(1),
+                BlockId.Number(2),
+                Felt(111),
+                listOf(Felt.fromHex("0x0a"), Felt.fromHex("0x0b")),
+                100,
+                1,
+            ),
+        )
+
+        val response = request.send()
+
+        assertNotNull(response)
     }
 
     @ParameterizedTest
