@@ -68,7 +68,7 @@ class StandardAccountTest {
         // TODO: Delete after this becomes a part of Account
         fun getNonce(account: Account): Felt {
             val call = Call(contractAddress = account.address, entrypoint = "get_nonce", calldata = listOf())
-            return account.callContract(call, BlockTag.LATEST).send().result.first()
+            return account.callContract(call, BlockTag.LATEST).send().first()
         }
 
         @JvmStatic

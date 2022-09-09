@@ -1,19 +1,34 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.lang.Exception
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
-class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoCloseable {
-    private var devnetProcess: Process? = null
+class DevnetClient(
+    private val host: String = "0.0.0.0",
+    private val port: Int = 5050,
+    private val httpService: HttpService = OkhttpHttpService(),
+) : AutoCloseable {
+    private val accountDirectory = Paths.get("src/test/resources/account")
+    private val baseUrl: String = "http://$host:$port"
 
-    val gatewayUrl: String
-    val feederGatewayUrl: String
-    val rpcUrl: String
+    private lateinit var accountAddress: Felt
+    private lateinit var devnetProcess: Process
+
+    private var isDevnetRunning = false
+
+    val gatewayUrl: String = "$baseUrl/gateway"
+    val feederGatewayUrl: String = "$baseUrl/feeder_gateway"
+    val rpcUrl: String = "$baseUrl/rpc"
 
     @Serializable
     data class Block(
@@ -23,16 +38,8 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
 
     data class TransactionResult(val address: Felt, val hash: Felt)
 
-    init {
-        val baseUrl = "http://$host:$port"
-
-        gatewayUrl = "$baseUrl/gateway"
-        feederGatewayUrl = "$baseUrl/feeder_gateway"
-        rpcUrl = "$baseUrl/rpc"
-    }
-
     fun start() {
-        if (devnetProcess != null) {
+        if (isDevnetRunning) {
             throw Error("AlreadyRunning")
         }
 
@@ -40,19 +47,79 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
             ProcessBuilder("starknet-devnet", "--host", host, "--port", port.toString(), "--seed", "1053545547").start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess!!.waitFor(10, TimeUnit.SECONDS)
+        devnetProcess.waitFor(10, TimeUnit.SECONDS)
 
-        if (!devnetProcess!!.isAlive) {
+        if (!devnetProcess.isAlive) {
             throw Error("Could not start devnet process")
         }
+
+        isDevnetRunning = true
+
+        if (accountDirectory.exists()) {
+            accountDirectory.toFile().walkTopDown().forEach { it.delete() }
+        }
+        deployAccount()
+        prefundAccount()
     }
 
     override fun close() {
-        devnetProcess?.destroyForcibly()
+        if (!isDevnetRunning) return
+
+        devnetProcess.destroyForcibly()
 
         // Wait for the process to be destroyed
-        devnetProcess?.waitFor()
-        devnetProcess = null
+        devnetProcess.waitFor()
+        isDevnetRunning = false
+    }
+
+    private fun prefundAccount() {
+        val payload = HttpService.Payload(
+            "$baseUrl/mint",
+            "POST",
+            emptyList(),
+            """
+            {
+              "address": "${accountAddress.hexString()}",
+              "amount": 5000000000000000
+            }
+            """.trimIndent(),
+        )
+        val response = httpService.send(payload)
+        if (!response.isSuccessful) {
+            // TODO(Add better exception)
+            throw Exception("Prefunding account failed")
+        }
+    }
+
+    private fun deployAccount() {
+        val deployProcess = ProcessBuilder(
+            "starknet",
+            "deploy_account",
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+            "--account_dir",
+            accountDirectory.toString(),
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "--network",
+            "alpha-goerli",
+        ).start()
+
+        deployProcess.waitFor()
+
+        val error = String(deployProcess.errorStream.readAllBytes())
+        if (error.isNotEmpty()) {
+            // TODO(Add better exception)
+            throw Exception("Account setup failed")
+        }
+
+        val output = String(deployProcess.inputStream.readAllBytes())
+        val lines = output.lines()
+
+        val result = getTransactionResult(lines, offset = 5)
+        accountAddress = result.address
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
@@ -71,6 +138,7 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
         deployProcess.waitFor()
 
         val result = String(deployProcess.inputStream.readAllBytes())
+        val error = String(deployProcess.errorStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines)
     }
@@ -85,14 +153,20 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
             feederGatewayUrl,
             "--contract",
             contractPath.absolutePathString(),
-            "--no_wallet",
+            "--account_dir",
+            accountDirectory.toString(),
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "--network",
+            "alpha-goerli",
         ).start()
 
         declareProcess.waitFor()
 
         val result = String(declareProcess.inputStream.readAllBytes())
+        val error = String(declareProcess.errorStream.readAllBytes())
         val lines = result.lines()
-        return getTransactionResult(lines)
+        return getTransactionResult(lines, offset = 2)
     }
 
     fun invokeTransaction(
@@ -116,14 +190,20 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
             functionName,
             "--inputs",
             inputs.joinToString(separator = " "),
-            "--no_wallet",
+            "--account_dir",
+            accountDirectory.toString(),
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "--network",
+            "alpha-goerli",
         ).start()
 
         invokeProcess.waitFor()
 
         val result = String(invokeProcess.inputStream.readAllBytes())
+        val error = String(invokeProcess.errorStream.readAllBytes())
         val lines = result.lines()
-        return getTransactionResult(lines)
+        return getTransactionResult(lines, offset = 2)
     }
 
     fun getLatestBlock(): Block {
@@ -170,9 +250,9 @@ class DevnetClient(val host: String = "0.0.0.0", val port: Int = 5050) : AutoClo
         return split[index]
     }
 
-    private fun getTransactionResult(lines: List<String>): TransactionResult {
-        val address = Felt.fromHex(getValueFromLine(lines[1]))
-        val hash = Felt.fromHex(getValueFromLine(lines[2]))
+    private fun getTransactionResult(lines: List<String>, offset: Int = 1): TransactionResult {
+        val address = Felt.fromHex(getValueFromLine(lines[offset]))
+        val hash = Felt.fromHex(getValueFromLine(lines[offset + 1]))
         return TransactionResult(address, hash)
     }
 }
