@@ -73,7 +73,7 @@ class StandardAccount(
         val request = provider.callContract(nonceCall, BlockTag.LATEST)
         val response = request.send()
 
-        return response.result.first()
+        return response.first()
     }
 
     override fun estimateFee(calls: List<Call>, params: EstimateFeeParams?): EstimateFeeResponse {
