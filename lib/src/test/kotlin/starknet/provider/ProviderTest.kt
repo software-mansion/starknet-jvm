@@ -53,20 +53,24 @@ class ProviderTest {
         @JvmStatic
         @BeforeAll
         fun before() {
-            devnetClient.start()
-
-            val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
-            val (_, invokeHash) = devnetClient.invokeTransaction(
-                "increase_balance",
-                deployAddress,
-                Path.of("src/test/resources/compiled/providerTestAbi.json"),
-                0,
-            )
-            val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
-            contractAddress = deployAddress
-            deployTransactionHash = deployHash
-            invokeTransactionHash = invokeHash
-            declareTransactionHash = declareHash
+            try {
+                devnetClient.start()
+                val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                val (_, invokeHash) = devnetClient.invokeTransaction(
+                    "increase_balance",
+                    deployAddress,
+                    Path.of("src/test/resources/compiled/providerTestAbi.json"),
+                    0,
+                )
+                val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                contractAddress = deployAddress
+                deployTransactionHash = deployHash
+                invokeTransactionHash = invokeHash
+                declareTransactionHash = declareHash
+            } catch (ex: Exception) {
+                devnetClient.close()
+                throw ex
+            }
         }
 
         @JvmStatic
@@ -86,9 +90,9 @@ class ProviderTest {
         val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
 
-        assertEquals(1, response.result.size)
+        assertEquals(1, response.size)
 
-        return response.result.first()
+        return response.first()
     }
 
     @ParameterizedTest
