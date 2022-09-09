@@ -21,7 +21,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse>
+    fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>>
 
     /**
      * Calls a contract deployed on StarkNet.
@@ -31,7 +31,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse>
+    fun callContract(call: Call, blockHash: Felt): Request<List<Felt>>
 
     /**
      * Calls a contract deployed on StarkNet.
@@ -41,7 +41,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse>
+    fun callContract(call: Call, blockNumber: Int): Request<List<Felt>>
 
     /**
      * Get a value of storage var.
