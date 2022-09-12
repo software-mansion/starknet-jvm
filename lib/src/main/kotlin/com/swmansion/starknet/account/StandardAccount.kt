@@ -22,6 +22,7 @@ class StandardAccount(
     private val signer: Signer,
 ) : Account,
     Provider by provider {
+    private val version = Felt.ONE
 
     /**
      * @param provider a provider used to interact with StarkNet
@@ -35,7 +36,7 @@ class StandardAccount(
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
-        val calldata = callsToExecuteCalldata(calls, params.nonce)
+        val calldata = callsToExecuteCalldata(calls)
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
             entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
@@ -43,7 +44,7 @@ class StandardAccount(
             chainId = provider.chainId,
             maxFee = params.maxFee,
             nonce = params.nonce,
-            version = params.version,
+            version = version,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -53,7 +54,6 @@ class StandardAccount(
 
     override fun execute(calls: List<Call>, params: CallParams?): InvokeFunctionResponse {
         val nonce = params?.nonce ?: getNonce()
-        val version = params?.version ?: Felt(0)
 
         val maxFee: Felt = if (params?.maxFee != null) {
             params.maxFee
@@ -62,24 +62,22 @@ class StandardAccount(
             FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee)
         }
 
-        val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee, version = version)
+        val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
         val payload = sign(calls, signParams)
 
         return invokeFunction(payload).send()
     }
 
     override fun getNonce(): Felt {
-        val nonceCall = Call(address, "get_nonce")
-        val request = provider.callContract(nonceCall, BlockTag.LATEST)
-        val response = request.send()
+        val request = provider.getNonce(address)
 
-        return response.first()
+        return request.send()
     }
 
     override fun estimateFee(calls: List<Call>, params: EstimateFeeParams?): EstimateFeeResponse {
         val nonce = params?.nonce ?: getNonce()
 
-        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO, version = Felt.ZERO)
+        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams)
 
         val signedTransaction = TransactionFactory.makeInvokeTransaction(

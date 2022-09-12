@@ -41,9 +41,9 @@ data class Call(
 }
 
 data class CallParams(
-    val nonce: Felt?,
-    val maxFee: Felt?,
-    val version: Felt?,
+    val nonce: Felt,
+    val maxFee: Felt,
+    val version: Felt,
 )
 
 data class EstimateFeeParams(
@@ -57,7 +57,6 @@ data class CallExtraParams(
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
-    val version: Felt,
 )
 
 @Serializable
@@ -102,7 +101,7 @@ data class EstimateFeePayload(
     val blockId: BlockId,
 )
 
-internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
+internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
@@ -119,6 +118,5 @@ internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> 
         addAll(callArray)
         add(Felt(wholeCalldata.size))
         addAll(wholeCalldata)
-        add(nonce)
     }
 }

@@ -86,16 +86,16 @@ data class InvokeTransaction(
     override val hash: Felt,
 
     @SerialName("max_fee")
-    override val maxFee: Felt = Felt.ZERO,
+    override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: Felt,
 
     @SerialName("signature")
-    override val signature: Signature = emptyList(),
+    override val signature: Signature,
 
     @SerialName("nonce")
-    override val nonce: Felt = Felt.ZERO,
+    override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction() {
@@ -111,6 +111,7 @@ data class InvokeTransaction(
             signature = signature,
             maxFee = maxFee,
             version = version,
+            nonce = nonce,
         )
     }
 }
@@ -131,16 +132,16 @@ data class DeclareTransaction(
     override val hash: Felt,
 
     @SerialName("max_fee")
-    override val maxFee: Felt = Felt.ZERO,
+    override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: Felt,
 
     @SerialName("signature")
-    override val signature: Signature = emptyList(),
+    override val signature: Signature,
 
     @SerialName("nonce")
-    override val nonce: Felt = Felt.ZERO,
+    override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
@@ -152,19 +153,20 @@ object TransactionFactory {
         calldata: Calldata,
         entryPointSelector: Felt,
         chainId: StarknetChainId,
+        version: Felt,
+        nonce: Felt,
         maxFee: Felt = Felt.ZERO,
-        version: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
-        nonce: Felt = Felt.ZERO,
     ): InvokeTransaction {
         val hash = StarknetCurve.pedersenOnElements(
             TransactionType.INVOKE.txPrefix,
             version,
             contractAddress,
-            entryPointSelector,
+            Felt.ZERO,
             StarknetCurve.pedersenOnElements(calldata),
             maxFee,
             chainId.value,
+            nonce,
         )
 
         return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)

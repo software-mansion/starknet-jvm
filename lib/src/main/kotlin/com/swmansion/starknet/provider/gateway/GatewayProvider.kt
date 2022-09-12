@@ -178,14 +178,11 @@ class GatewayProvider(
         val body = buildJsonObject {
             put("type", JsonPrimitive("INVOKE_FUNCTION"))
             put("contract_address", payload.invocation.contractAddress.hexString())
-            put("entry_point_selector", payload.invocation.entrypoint.hexString())
-            putJsonArray("calldata") {
-                payload.invocation.calldata.toDecimal().forEach { add(it) }
-            }
+            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
             put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") {
-                payload.signature.toDecimal().forEach { add(it) }
-            }
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("version", payload.version)
         }
 
         return HttpRequest(
@@ -280,13 +277,12 @@ class GatewayProvider(
         blockParam: Pair<String, String>,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
-
         val body = buildJsonObject {
-            put("contract_address", request.contractAddress)
-            put("entry_point_selector", request.entryPointSelector)
-            put("max_fee", request.maxFee)
+            put("contract_address", request.contractAddress.hexString())
             putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
             putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
+            put("nonce", request.nonce)
+            put("version", request.version)
         }
 
         val httpPayload = Payload(url, "POST", listOf(blockParam), body)
