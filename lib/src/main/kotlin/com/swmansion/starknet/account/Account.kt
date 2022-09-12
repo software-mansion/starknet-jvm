@@ -38,52 +38,68 @@ interface Account : Provider {
     fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload
 
     /**
+     * Execute a list of calls
+     *
+     * Execute list of calls on starknet.
+     *
+     * @param calls a list of calls to be executed.
+     * @param maxFee a max fee to pay for the transaction.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun execute(calls: List<Call>, maxFee: Felt): InvokeFunctionResponse
+
+    /**
      * Execute single call.
      *
      * Execute single call on starknet.
      *
      * @param call a call to be executed.
-     * @param params additional execution parameters for the transaction.
+     * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call, params: CallParams? = null): InvokeFunctionResponse {
-        return execute(listOf(call), params)
+    fun execute(call: Call, maxFee: Felt): InvokeFunctionResponse {
+        return execute(listOf(call), maxFee)
     }
 
     /**
-     * Execute a list of calls.
-     *
-     * Execute a list of calls on starknet.
+     * Execute a list of calls with automatically estimated fee.
      *
      * @param calls a list of calls to be executed.
-     * @param params additional execution parameters for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>, params: CallParams? = null): InvokeFunctionResponse
+    fun execute(calls: List<Call>): InvokeFunctionResponse
+
+    /**
+     * Execute single call with automatically estimated fee
+     *
+     * @param call a call to be executed.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun execute(call: Call): InvokeFunctionResponse {
+        return execute(listOf(call))
+    }
 
     /**
      * Estimate fee for a call.
      *
-     * Estimate fee for a call on starknet.
+     * Estimate fee for a signed call on starknet.
      *
      * @param call a call used to estimate a fee.
-     * @param params additional execution parameters for the transaction.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, params: EstimateFeeParams? = null): EstimateFeeResponse {
-        return estimateFee(listOf(call), params)
+    fun estimateFee(call: Call): EstimateFeeResponse {
+        return estimateFee(listOf(call))
     }
 
     /**
      * Estimate fee for a list of calls.
      *
-     * Estimate fee for a list of calls on starknet.
+     * Estimate fee for a signed list of calls on starknet.
      *
      * @param calls a list of calls used to estimate a fee.
-     * @param params additional execution parameters for the transaction.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>, params: EstimateFeeParams? = null): EstimateFeeResponse
+    fun estimateFee(calls: List<Call>): EstimateFeeResponse
 
     /**
      * Get account nonce.

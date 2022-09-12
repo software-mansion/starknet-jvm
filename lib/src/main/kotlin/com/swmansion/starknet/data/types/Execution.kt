@@ -40,20 +40,6 @@ data class Call(
     )
 }
 
-data class CallParams(
-    val nonce: Felt,
-    val maxFee: Felt,
-    val version: Felt,
-)
-
-data class EstimateFeeParams(
-    val nonce: Felt?,
-)
-
-data class CallExtraParams(
-    val blockId: BlockId,
-)
-
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,

@@ -52,20 +52,18 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun execute(calls: List<Call>, params: CallParams?): InvokeFunctionResponse {
-        val nonce = params?.nonce ?: getNonce()
-
-        val maxFee: Felt = if (params?.maxFee != null) {
-            params.maxFee
-        } else {
-            val estimateFeeResponse = estimateFee(calls, EstimateFeeParams(nonce))
-            FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee)
-        }
-
+    override fun execute(calls: List<Call>, maxFee: Felt): InvokeFunctionResponse {
+        val nonce = getNonce()
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
         val payload = sign(calls, signParams)
 
         return invokeFunction(payload).send()
+    }
+
+    override fun execute(calls: List<Call>): InvokeFunctionResponse {
+        val estimateFeeResponse = estimateFee(calls)
+        val maxFee = FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee)
+        return execute(calls, maxFee)
     }
 
     override fun getNonce(): Felt {
@@ -74,8 +72,8 @@ class StandardAccount(
         return request.send()
     }
 
-    override fun estimateFee(calls: List<Call>, params: EstimateFeeParams?): EstimateFeeResponse {
-        val nonce = params?.nonce ?: getNonce()
+    override fun estimateFee(calls: List<Call>): EstimateFeeResponse {
+        val nonce = getNonce()
 
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams)
