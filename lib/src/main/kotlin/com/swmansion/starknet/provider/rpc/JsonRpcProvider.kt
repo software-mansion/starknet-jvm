@@ -241,4 +241,32 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
     }
+
+    private fun getEstimateFee(payload: EstimateFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Hash(blockHash))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Number(blockNumber))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Tag(blockTag))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getNonce(contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
 }

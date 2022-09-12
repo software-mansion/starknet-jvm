@@ -121,30 +121,6 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `invoke transaction`(provider: Provider) {
-        val invokeValue = Felt(10)
-
-        val call = Call(
-            contractAddress,
-            "increase_balance",
-            listOf(invokeValue),
-        )
-
-        val oldBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
-        val payload = InvokeFunctionPayload(call, dummySig, Felt.ZERO, Felt.ZERO)
-        val request = provider.invokeFunction(payload)
-
-        request.send()
-
-        val newBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        assertEquals(oldBalance.value + invokeValue.value, newBalance.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("getProviders")
     fun `get class`(provider: Provider) {
         val hash = Felt.fromHex("0x1b322dd827d4579c10a08025b9d685c7ed16dcb25c7371dd06a65984cb5426")
 

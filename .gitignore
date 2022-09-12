@@ -42,3 +42,6 @@ local.properties
 
 # Exclude gradle wrapper jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Exclude account temp files
+lib/src/test/resources/account
