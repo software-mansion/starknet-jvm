@@ -7,8 +7,11 @@ on:
 
 jobs:
   test_and_lint:
-    # TODO: Change when feat/gh-build branch is merged
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: ["macos-latest", "ubuntu-latest"]
+
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
         with:
