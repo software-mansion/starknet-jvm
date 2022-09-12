@@ -2,14 +2,13 @@ package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.provider.Provider
 
 /**
  * An account interface.
  *
  * Implementers of this interface provide methods for signing transactions.
  */
-interface Account : Provider {
+interface Account {
     val address: Felt
 
     /**

@@ -20,8 +20,8 @@ class StandardAccount(
     private val provider: Provider,
     override val address: Felt,
     private val signer: Signer,
-) : Account,
-    Provider by provider {
+    private val chainId: StarknetChainId,
+) : Account {
     private val version = Felt.ONE
 
     /**
@@ -33,6 +33,8 @@ class StandardAccount(
         provider,
         address,
         StarkCurveSigner(privateKey),
+        // TODO(make sure using this parameter is a good idea)
+        provider.chainId,
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
@@ -57,7 +59,7 @@ class StandardAccount(
         val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
         val payload = sign(calls, signParams)
 
-        return invokeFunction(payload).send()
+        return provider.invokeFunction(payload).send()
     }
 
     override fun execute(calls: List<Call>): InvokeFunctionResponse {
@@ -89,6 +91,6 @@ class StandardAccount(
             nonce = nonce,
         )
 
-        return getEstimateFee(signedTransaction, BlockTag.LATEST).send()
+        return provider.getEstimateFee(signedTransaction, BlockTag.LATEST).send()
     }
 }
