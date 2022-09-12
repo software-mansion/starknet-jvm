@@ -8,6 +8,6 @@
 
 ## Breaking changes
 
-[ ] This issue contains breaking changes
+- [ ] This issue contains breaking changes
 
 <!-- List all breaking changes introduced by this issue -->
