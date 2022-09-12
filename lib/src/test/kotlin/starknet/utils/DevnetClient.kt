@@ -3,15 +3,17 @@ package starknet.utils
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import java.lang.Exception
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
+import kotlin.io.path.readText
 
 class DevnetSetupFailedException(message: String) : Exception(message)
 
@@ -23,10 +25,11 @@ class DevnetClient(
     private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"
 
-    private lateinit var accountAddress: Felt
     private lateinit var devnetProcess: Process
 
     private var isDevnetRunning = false
+
+    lateinit var accountDetails: AccountDetails
 
     val gatewayUrl: String = "$baseUrl/gateway"
     val feederGatewayUrl: String = "$baseUrl/feeder_gateway"
@@ -89,7 +92,7 @@ class DevnetClient(
             emptyList(),
             """
             {
-              "address": "${accountAddress.hexString()}",
+              "address": "${accountDetails.address.hexString()}",
               "amount": 5000000000000000
             }
             """.trimIndent(),
@@ -121,11 +124,7 @@ class DevnetClient(
         val error = String(deployProcess.errorStream.readAllBytes())
         requireNoErrors("Account setup", error)
 
-        val output = String(deployProcess.inputStream.readAllBytes())
-        val lines = output.lines()
-
-        val result = getTransactionResult(lines, offset = 5)
-        accountAddress = result.address
+        accountDetails = readAccountDetails()
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
@@ -275,5 +274,31 @@ class DevnetClient(
         val address = Felt.fromHex(getValueFromLine(lines[offset]))
         val hash = Felt.fromHex(getValueFromLine(lines[offset + 1]))
         return TransactionResult(address, hash)
+    }
+
+    private fun readAccountDetails(): AccountDetails {
+        val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
+        val contents = accountFile.readText()
+        return Json.decodeFromString(AccountDetailsSerializer(), contents)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Serializable
+    data class AccountDetails(
+        @JsonNames("private_key")
+        val privateKey: Felt,
+
+        @JsonNames("public_key")
+        val publicKey: Felt,
+
+        @JsonNames("address")
+        val address: Felt,
+    )
+
+    class AccountDetailsSerializer : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
+            val accounts = element.jsonObject["alpha-goerli"]!!
+            return accounts.jsonObject["__default__"]!!
+        }
     }
 }
