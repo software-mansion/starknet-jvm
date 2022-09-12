@@ -58,4 +58,3 @@ data class EstimateFeeResponse(
     @JsonNames("overall_fee")
     val overallFee: Felt,
 )
-
