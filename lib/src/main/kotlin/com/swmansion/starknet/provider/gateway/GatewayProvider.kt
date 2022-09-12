@@ -3,6 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
+import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
 import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
 import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
@@ -274,7 +275,10 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
-    private fun getEstimateFee(request: InvokeTransaction, blockParam: Pair<String, String>): Request<EstimateFeeResponse> {
+    private fun getEstimateFee(
+        request: InvokeTransaction,
+        blockParam: Pair<String, String>,
+    ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
 
         val body = buildJsonObject {
@@ -289,7 +293,7 @@ class GatewayProvider(
 
         return HttpRequest(
             httpPayload,
-            buildDeserializer(EstimateFeeResponseGatewaySerializer()),
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
             httpService,
         )
     }
