@@ -316,6 +316,13 @@ class GatewayProvider(
         return getEstimateFee(request, param)
     }
 
+    override fun getNonce(contractAddress: Felt): Request<Felt> {
+        val params = listOf("contractAddress" to contractAddress.hexString())
+        val url = feederGatewayRequestUrl("get_nonce")
+
+        return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
+    }
+
     companion object Factory {
         @JvmStatic
         fun makeTestnetClient(): GatewayProvider {

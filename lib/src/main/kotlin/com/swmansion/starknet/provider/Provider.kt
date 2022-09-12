@@ -203,4 +203,16 @@ interface Provider {
      * @param blockTag a tag of the block in respect to what the query will be made
      */
     fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address
+     *
+     * @param contractAddress address of account contract
+     *
+     * @throws RequestFailedException
+     */
+    // TODO(support block tag)
+    fun getNonce(contractAddress: Felt): Request<Felt>
 }

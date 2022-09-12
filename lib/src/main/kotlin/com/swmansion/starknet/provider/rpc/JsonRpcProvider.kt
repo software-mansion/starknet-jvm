@@ -265,4 +265,8 @@ class JsonRpcProvider(
 
         return getEstimateFee(payload)
     }
+
+    override fun getNonce(contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
 }
