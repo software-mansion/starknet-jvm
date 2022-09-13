@@ -178,13 +178,17 @@ interface Provider {
      * Get the block number.
      *
      * Get the most recent accepted block number.
+     *
+     * @throws RequestFailedException
      */
-    fun getBlockNumber(): Request<GetBlockNumberResponse>
+    fun getBlockNumber(): Request<Int>
 
     /**
      * Get the hash and number of the block.
      *
      * Get the most recent accepted block hash and number.
+     *
+     * @throws RequestFailedException
      */
     fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse>
 
@@ -194,8 +198,9 @@ interface Provider {
      * Get the number of transactions in a given block.
      *
      * @param blockTag The tag of the block.
+     * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockTag: BlockTag): Request<GetBlockTransactionCount>
+    fun getBlockTransactionCount(blockTag: BlockTag): Request<Int>
 
     /**
      * Get the block transaction count.
@@ -203,8 +208,9 @@ interface Provider {
      * Get the number of transactions in a given block.
      *
      * @param blockHash The hash of the block.
+     * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockHash: Felt): Request<GetBlockTransactionCount>
+    fun getBlockTransactionCount(blockHash: Felt): Request<Int>
 
     /**
      * Get the block transaction count.
@@ -212,6 +218,7 @@ interface Provider {
      * Get the number of transactions in a given block.
      *
      * @param blockNumber The number of the block.
+     * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockNumber: Int): Request<GetBlockTransactionCount>
+    fun getBlockTransactionCount(blockNumber: Int): Request<Int>
 }
