@@ -2,6 +2,7 @@ package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.provider.Request
 
 /**
  * An account interface.
@@ -45,7 +46,7 @@ interface Account {
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>, maxFee: Felt): InvokeFunctionResponse
+    fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call.
@@ -56,7 +57,7 @@ interface Account {
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call, maxFee: Felt): InvokeFunctionResponse {
+    fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
         return execute(listOf(call), maxFee)
     }
 
@@ -66,7 +67,7 @@ interface Account {
      * @param calls a list of calls to be executed.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>): InvokeFunctionResponse
+    fun execute(calls: List<Call>): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call with automatically estimated fee
@@ -74,7 +75,7 @@ interface Account {
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call): InvokeFunctionResponse {
+    fun execute(call: Call): Request<InvokeFunctionResponse> {
         return execute(listOf(call))
     }
 
@@ -86,7 +87,7 @@ interface Account {
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call): EstimateFeeResponse {
+    fun estimateFee(call: Call): Request<EstimateFeeResponse> {
         return estimateFee(listOf(call))
     }
 
@@ -98,7 +99,7 @@ interface Account {
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>): EstimateFeeResponse
+    fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse>
 
     /**
      * Get account nonce.
@@ -107,5 +108,5 @@ interface Account {
      *
      * @return nonce as field value.
      */
-    fun getNonce(): Felt
+    fun getNonce(): Request<Felt>
 }
