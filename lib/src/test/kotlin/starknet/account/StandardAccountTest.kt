@@ -122,7 +122,7 @@ class StandardAccountTest {
 
         val params = ExecutionParams(
             maxFee = Felt(1000000000000000),
-            nonce = account.getNonce(),
+            nonce = account.getNonce().send(),
         )
 
         val payload = account.sign(call, params)
@@ -143,7 +143,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val result = account.execute(call)
+        val result = account.execute(call).send()
         assertNotNull(result)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -164,7 +164,7 @@ class StandardAccountTest {
 
         val params = ExecutionParams(
             maxFee = Felt(1000000000000000),
-            nonce = account.getNonce(),
+            nonce = account.getNonce().send(),
         )
 
         val payload = account.sign(listOf(call, call, call), params)
@@ -190,7 +190,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val result = account.execute(listOf(call1, call2))
+        val result = account.execute(listOf(call1, call2)).send()
         assertNotNull(result)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -208,7 +208,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val result = account.execute(call)
+        val result = account.execute(call).send()
         assertNotNull(result)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -220,7 +220,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val result2 = account.execute(call2)
+        val result2 = account.execute(call2).send()
         assertNotNull(result)
 
         val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
