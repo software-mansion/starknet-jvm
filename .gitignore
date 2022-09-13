@@ -39,6 +39,10 @@ local.properties
 
 # OS specific files
 .DS_Store
+venv
 
 # Exclude gradle wrapper jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Test artifacts
+lib/src/test/resources

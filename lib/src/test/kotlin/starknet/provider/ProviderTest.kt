@@ -491,7 +491,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get current block number`(provider: Provider) {
-
         val currentBlock = provider.getBlockNumber()
         val response = currentBlock.send()
 
@@ -519,7 +518,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get block transaction count with block hash`(provider: Provider) {
-
         val blockTransactionCount = provider.getBlockTransactionCount(Felt.fromHex("0x0"))
         val response = blockTransactionCount.send()
 
@@ -530,7 +528,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get block transaction count with block id`(provider: Provider) {
-
         val blockTransactionCount = provider.getBlockTransactionCount(0)
         val response = blockTransactionCount.send()
 

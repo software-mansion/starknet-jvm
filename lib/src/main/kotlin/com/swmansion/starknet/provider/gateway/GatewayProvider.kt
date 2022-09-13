@@ -4,9 +4,9 @@ import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
 import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
-import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
 import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
+import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
@@ -26,7 +26,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
-import kotlinx.serialization.builtins.*
 
 /**
  * A provider for interacting with StarkNet gateway.
@@ -284,7 +283,7 @@ class GatewayProvider(
         return HttpRequest(
             httpPayload,
             buildDeserializer(GetBlockHashAndNumberResponse.serializer()),
-            httpService
+            httpService,
         )
     }
 
@@ -295,7 +294,7 @@ class GatewayProvider(
         return HttpRequest(
             httpPayload,
             buildDeserializer(GatewayGetBlockNumberSerializer),
-            httpService
+            httpService,
         )
     }
 
@@ -309,7 +308,7 @@ class GatewayProvider(
         return HttpRequest(
             httpPayload,
             buildDeserializer(GatewayGetBlockTransactionCountSerializer),
-            httpService
+            httpService,
         )
     }
 

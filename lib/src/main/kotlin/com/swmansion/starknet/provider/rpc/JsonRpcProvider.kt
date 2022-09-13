@@ -1,8 +1,8 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.add
@@ -14,9 +14,8 @@ import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
 
 /**
  * A provider for interacting with StarkNet JSON-RPC
@@ -234,7 +233,7 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_NUMBER,
             params,
-            Int.serializer()
+            Int.serializer(),
         )
     }
 
@@ -244,7 +243,7 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_HASH_AND_NUMBER,
             params,
-            GetBlockHashAndNumberResponse.serializer()
+            GetBlockHashAndNumberResponse.serializer(),
         )
     }
 
@@ -254,7 +253,7 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
             params,
-            Int.serializer()
+            Int.serializer(),
         )
     }
 
@@ -290,12 +289,13 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+    }
 
     /**
      * Get the block synchronization status.
      *
      * Get the starting, current and highest block info or boolean indicating syncing is not in progress.
-     * 
+     *
      * @throws RequestFailedException
      */
     fun getSyncing(): Request<Syncing> {
@@ -304,7 +304,7 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_SYNCING,
             params,
-            JsonRpcSyncPolymorphicSerializer
+            JsonRpcSyncPolymorphicSerializer,
         )
     }
 }
