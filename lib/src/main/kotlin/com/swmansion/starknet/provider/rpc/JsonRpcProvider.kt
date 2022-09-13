@@ -228,7 +228,7 @@ class JsonRpcProvider(
     }
 
     override fun getBlockNumber(): Request<Int> {
-        val params = Json.encodeToJsonElement(JsonArray(listOf()))
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_NUMBER,
@@ -238,7 +238,7 @@ class JsonRpcProvider(
     }
 
     override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
-        val params = Json.encodeToJsonElement(JsonArray(listOf()))
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_HASH_AND_NUMBER,
@@ -299,7 +299,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getSyncing(): Request<Syncing> {
-        val params = Json.encodeToJsonElement(JsonArray(listOf()))
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
             JsonRpcMethod.GET_SYNCING,

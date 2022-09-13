@@ -45,4 +45,4 @@ venv
 !gradle/wrapper/gradle-wrapper.jar
 
 # Test artifacts
-lib/src/test/resources
+lib/src/test/resources/account
