@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd "$(dirname "$0")" || exit
+mkdir -p "compiled"
 
 for file in src/*.cairo; do
   [ -f "$file" ] || break
