@@ -5,7 +5,9 @@ import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 
@@ -20,8 +22,8 @@ class StandardAccount(
     private val provider: Provider,
     override val address: Felt,
     private val signer: Signer,
-) : Account,
-    Provider by provider {
+    private val chainId: StarknetChainId,
+) : Account {
     private val version = Felt.ONE
 
     /**
@@ -33,6 +35,8 @@ class StandardAccount(
         provider,
         address,
         StarkCurveSigner(privateKey),
+        // TODO(make sure using this parameter is a good idea)
+        provider.chainId,
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
@@ -52,29 +56,31 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun execute(calls: List<Call>, maxFee: Felt): InvokeFunctionResponse {
-        val nonce = getNonce()
-        val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
-        val payload = sign(calls, signParams)
+    override fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
+        return getNonce().compose { nonce ->
+            val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
+            val payload = sign(calls, signParams)
 
-        return invokeFunction(payload).send()
+            return@compose provider.invokeFunction(payload)
+        }
     }
 
-    override fun execute(calls: List<Call>): InvokeFunctionResponse {
-        val estimateFeeResponse = estimateFee(calls)
-        val maxFee = FeeUtils.estimatedFeeToMaxFee(estimateFeeResponse.overallFee)
-        return execute(calls, maxFee)
+    override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
+        return estimateFee(calls).compose { estimateFee ->
+            val maxFee = FeeUtils.estimatedFeeToMaxFee(estimateFee.overallFee)
+            execute(calls, maxFee)
+        }
     }
 
-    override fun getNonce(): Felt {
-        val request = provider.getNonce(address)
-
-        return request.send()
+    override fun getNonce(): Request<Felt> {
+        return provider.getNonce(address)
     }
 
-    override fun estimateFee(calls: List<Call>): EstimateFeeResponse {
-        val nonce = getNonce()
+    override fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse> {
+        return getNonce().compose { buildEstimateFeeRequest(calls, it) }
+    }
 
+    private fun buildEstimateFeeRequest(calls: List<Call>, nonce: Felt): Request<EstimateFeeResponse> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams)
 
@@ -89,6 +95,6 @@ class StandardAccount(
             nonce = nonce,
         )
 
-        return getEstimateFee(signedTransaction, BlockTag.LATEST).send()
+        return provider.getEstimateFee(signedTransaction, BlockTag.LATEST)
     }
 }
