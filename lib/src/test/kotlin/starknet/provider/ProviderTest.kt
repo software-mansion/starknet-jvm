@@ -487,4 +487,94 @@ class ProviderTest {
 
         assertNotNull(response)
     }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get current block number`(provider: Provider) {
+        val currentBlock = provider.getBlockNumber()
+        val response = currentBlock.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get current block number and hash`(provider: Provider) {
+        val currentBlock = provider.getBlockHashAndNumber()
+        val response = currentBlock.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block tag`(provider: Provider) {
+        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block hash`(provider: Provider) {
+        val blockTransactionCount = provider.getBlockTransactionCount(Felt.fromHex("0x0"))
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertEquals(0, response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get block transaction count with block id`(provider: Provider) {
+        val blockTransactionCount = provider.getBlockTransactionCount(0)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertEquals(0, response)
+    }
+
+    @Test
+    fun `get sync information node not syncing`() {
+        val provider = rpcProvider()
+        val request = provider.getSyncing()
+        val response = request.send()
+
+        assertNotNull(response)
+        assertFalse(response.status)
+    }
+
+    @Test
+    fun `get sync information node synced`() {
+        val mocked_response = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "starting_block_hash": "0x0",
+                "starting_block_num": 0,
+                "current_block_hash": "0x1",
+                "current_block_num": 1,
+                "highest_block_hash": "0x10",
+                "highest_block_num": 10
+            }
+        }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mocked_response)
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getSyncing()
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response.status)
+        assertEquals(Felt.ZERO, response.startingBlockHash)
+        assertEquals(0, response.startingBlockNumber)
+        assertEquals(Felt.fromHex("0x1"), response.currentBlockHash)
+        assertEquals(1, response.currentBlockNumber)
+        assertEquals(Felt.fromHex("0x10"), response.highestBlockHash)
+        assertEquals(10, response.highestBlockNumber)
+    }
 }

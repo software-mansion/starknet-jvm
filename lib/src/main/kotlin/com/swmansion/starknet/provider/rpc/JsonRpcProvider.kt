@@ -1,5 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
@@ -13,7 +14,7 @@ import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 
 /**
@@ -226,6 +227,54 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
     }
 
+    override fun getBlockNumber(): Request<Int> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_NUMBER,
+            params,
+            Int.serializer(),
+        )
+    }
+
+    override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_HASH_AND_NUMBER,
+            params,
+            GetBlockHashAndNumberResponse.serializer(),
+        )
+    }
+
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<Int> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
+            params,
+            Int.serializer(),
+        )
+    }
+
+    override fun getBlockTransactionCount(blockTag: BlockTag): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockHash: Felt): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockNumber: Int): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
+
+        return getBlockTransactionCount(payload)
+    }
+
     /**
      * Get events
      *
@@ -240,5 +289,22 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+    }
+
+    /**
+     * Get the block synchronization status.
+     *
+     * Get the starting, current and highest block info or boolean indicating syncing is not in progress.
+     *
+     * @throws RequestFailedException
+     */
+    fun getSyncing(): Request<Syncing> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_SYNCING,
+            params,
+            JsonRpcSyncPolymorphicSerializer,
+        )
     }
 }

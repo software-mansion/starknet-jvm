@@ -16,5 +16,9 @@ internal enum class JsonRpcMethod(val methodName: String) {
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
     DECLARE("starknet_addDeclareTransaction"),
     DEPLOY("starknet_addDeployTransaction"),
-    GET_EVENTS("starknet_getEvents")
+    GET_EVENTS("starknet_getEvents"),
+    GET_BLOCK_NUMBER("starknet_blockNumber"),
+    GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
+    GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
+    GET_SYNCING("starknet_syncing")
 }

@@ -45,3 +45,71 @@ data class TransactionFailureReason(
     val code: String,
     val errorMessage: String,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class GetBlockHashAndNumberResponse(
+    @JsonNames("block_hash")
+    val blockHash: Felt,
+
+    @JsonNames("block_number")
+    val blockNumber: Int,
+)
+
+@Serializable
+sealed class Syncing {
+    abstract val status: Boolean
+
+    abstract val startingBlockHash: Felt
+
+    abstract val startingBlockNumber: Int
+
+    abstract val currentBlockHash: Felt
+
+    abstract val currentBlockNumber: Int
+
+    abstract val highestBlockHash: Felt
+
+    abstract val highestBlockNumber: Int
+}
+
+@Serializable
+data class NotSyncingResponse(
+    override val status: Boolean,
+
+    override val startingBlockHash: Felt = Felt.ZERO,
+
+    override val startingBlockNumber: Int = 0,
+
+    override val currentBlockHash: Felt = Felt.ZERO,
+
+    override val currentBlockNumber: Int = 0,
+
+    override val highestBlockHash: Felt = Felt.ZERO,
+
+    override val highestBlockNumber: Int = 0,
+) : Syncing()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class SyncingResponse(
+    override val status: Boolean = true,
+
+    @JsonNames("starting_block_hash")
+    override val startingBlockHash: Felt,
+
+    @JsonNames("starting_block_num")
+    override val startingBlockNumber: Int,
+
+    @JsonNames("current_block_hash")
+    override val currentBlockHash: Felt,
+
+    @JsonNames("current_block_num")
+    override val currentBlockNumber: Int,
+
+    @JsonNames("highest_block_hash")
+    override val highestBlockHash: Felt,
+
+    @JsonNames("highest_block_num")
+    override val highestBlockNumber: Int,
+) : Syncing()

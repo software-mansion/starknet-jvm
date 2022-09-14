@@ -52,6 +52,8 @@ interface HttpService {
             params,
             body.toString(),
         )
+
+        constructor(url: String, method: String) : this(url, method, emptyList(), null)
     }
 
     /**
