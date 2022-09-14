@@ -1,11 +1,13 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import java.lang.Exception
 import java.nio.file.Path
@@ -24,6 +26,7 @@ class DevnetClient(
 ) : AutoCloseable {
     private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"
+    private val json = Json { ignoreUnknownKeys = true }
 
     private lateinit var devnetProcess: Process
 
@@ -85,14 +88,14 @@ class DevnetClient(
         isDevnetRunning = false
     }
 
-    private fun prefundAccount() {
+    fun prefundAccount(accountAddress: Felt) {
         val payload = HttpService.Payload(
             "$baseUrl/mint",
             "POST",
             emptyList(),
             """
             {
-              "address": "${accountDetails.address.hexString()}",
+              "address": "${accountAddress.hexString()}",
               "amount": 5000000000000000
             }
             """.trimIndent(),
@@ -102,6 +105,8 @@ class DevnetClient(
             throw DevnetSetupFailedException("Prefunding account failed")
         }
     }
+
+    private fun prefundAccount() = prefundAccount(accountDetails.address)
 
     private fun deployAccount() {
         val deployProcess = ProcessBuilder(
@@ -182,7 +187,7 @@ class DevnetClient(
         functionName: String,
         contractAddress: Felt,
         abiPath: Path,
-        vararg inputs: Int,
+        inputs: List<Felt>,
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
             "starknet",
@@ -198,7 +203,7 @@ class DevnetClient(
             "--function",
             functionName,
             "--inputs",
-            inputs.joinToString(separator = " "),
+            *inputs.map { it.decString() }.toTypedArray(),
             "--account_dir",
             accountDirectory.toString(),
             "--wallet",
@@ -206,8 +211,6 @@ class DevnetClient(
             "--network",
             "alpha-goerli",
         ).start()
-
-        invokeProcess.waitFor()
 
         val error = String(invokeProcess.errorStream.readAllBytes())
         requireNoErrors("Invoke contract", error)
@@ -257,6 +260,25 @@ class DevnetClient(
 
         val result = String(getStorageAtProcess.inputStream.readAllBytes())
         return Felt.fromHex(result.trim())
+    }
+
+    fun transactionReceipt(transactionHash: Felt): GatewayTransactionReceipt {
+        val getStorageAtProcess = ProcessBuilder(
+            "starknet",
+            "get_transaction_receipt",
+            "--hash",
+            transactionHash.hexString(),
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        val error = String(getStorageAtProcess.errorStream.readAllBytes())
+        requireNoErrors("Get receipt", error)
+
+        val result = String(getStorageAtProcess.inputStream.readAllBytes())
+        return json.decodeFromString(result)
     }
 
     private fun requireNoErrors(methodName: String, errorStream: String) {
