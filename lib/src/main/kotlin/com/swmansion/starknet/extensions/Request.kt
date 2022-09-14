@@ -17,6 +17,8 @@ internal class DependentRequest<T, D>(
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        return dependsOn.sendAsync().thenApply(mapper).thenCompose { r -> r.sendAsync() }
+        return dependsOn.sendAsync()
+            .thenApplyAsync(mapper)
+            .thenComposeAsync(Request<T>::sendAsync)
     }
 }
