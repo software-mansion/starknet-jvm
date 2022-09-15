@@ -68,7 +68,6 @@ class StandardAccountTest {
                         gatewayProvider,
                         accountAddress,
                         signer,
-                        StarknetChainId.TESTNET,
                     ),
                     gatewayProvider,
                 ),
