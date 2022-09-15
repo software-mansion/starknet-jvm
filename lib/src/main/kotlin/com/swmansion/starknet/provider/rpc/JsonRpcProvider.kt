@@ -27,7 +27,6 @@ class JsonRpcProvider(
     override val chainId: StarknetChainId,
     private val httpService: HttpService = OkhttpHttpService(),
 ) : Provider {
-
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
