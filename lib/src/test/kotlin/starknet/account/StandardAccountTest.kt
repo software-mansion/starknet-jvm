@@ -7,12 +7,14 @@ import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.nio.file.Path
 
@@ -20,9 +22,12 @@ class StandardAccountTest {
     companion object {
         @JvmStatic
         private val devnetClient = DevnetClient(port = 5051)
+        private val signer = StarkCurveSigner(Felt(2137))
+
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
         private lateinit var balanceContractAddress: Felt
+        private lateinit var accountAddress: Felt
 
         @JvmStatic
         @BeforeAll
@@ -42,37 +47,27 @@ class StandardAccountTest {
 
             val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
             balanceContractAddress = deployAddress
+
+            deployAccount()
+        }
+
+        private fun deployAccount() {
+            val contractDeployer = ContractDeployer.deployInstance(devnetClient)
+            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/account.json"))
+            accountAddress = contractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
+            devnetClient.prefundAccount(accountAddress)
         }
 
         data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
         fun getAccounts(): List<AccountAndProvider> {
-//            val account1 = StandardAccount(
-//                gatewayProvider,
-//                Felt.fromHex("0x5fa2c31b541653fc9db108f7d6857a1c2feda8e2abffbfa4ab4eaf1fcbfabd8"),
-//                Felt.fromHex("0x5421eb02ce8a5a972addcd89daefd93c"),
-//            )
-
-//            val account2 = StandardAccount(
-//                gatewayProvider,
-//                Felt.fromHex("0x7598217a5d6159c7dc954996eeafacf96b782524a97c44e417e10a8353afbd4"),
-//                Felt.fromHex("0xea119d5bfc687eafb3a40275fae4a74e"),
-//            )
-//
-//            val account3 = StandardAccount(
-//                rpcProvider,
-//                Felt.fromHex("0x2000c94da25e3772c290db227f1f57358c65d3bdda517dcd3dcbdbb04141900"),
-//                Felt.fromHex("0xde49194669e58e796a5e2915289ae880"),
-//            )
-
-//            return listOf(account1, account2, account3)
             return listOf(
                 AccountAndProvider(
                     StandardAccount(
                         gatewayProvider,
-                        devnetClient.accountDetails.address,
-                        devnetClient.accountDetails.privateKey,
+                        accountAddress,
+                        signer,
                     ),
                     gatewayProvider,
                 ),

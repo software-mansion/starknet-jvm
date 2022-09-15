@@ -110,6 +110,17 @@ Run
 ./gradlew addKtlintCheckGitPreCommitHook
 ```
 
+## Running tests
+
+Running tests requires to have both cairo-lang and starknet-devnet installed.
+These are distributed as python packages. Run
+
+```shell
+pip install -r requirements.txt
+```
+
+to install required dependencies.
+
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

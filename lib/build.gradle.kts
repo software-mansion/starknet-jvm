@@ -57,10 +57,15 @@ val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {
     commandLine("${project.projectDir}/build_crypto_cpp.sh")
 }
 
-// For tests we simply use version from crypto build
+val compileContracts = task<Exec>("compileContracts") {
+    commandLine("${project.projectDir}/src/test/resources/compileContracts.sh")
+}
+
+// For tests, we simply use version from crypto build
 // For jars we use version from lib/build/libs/native
 tasks.test {
     dependsOn(buildCryptoCpp)
+    dependsOn(compileContracts)
 
     useJUnitPlatform()
 
