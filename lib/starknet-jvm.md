@@ -183,6 +183,41 @@ public class Main {
 }
 ```
 
+or in Kotlin
+
+```kotlin
+fun main(args: Array<String>) {
+    val provider: Provider = makeTestnetClient()
+    val address = Felt(0x1234)
+    val privateKey = Felt(0x1)
+    val account: Account = StandardAccount(provider, address, privateKey)
+
+    // Execute a single call
+    val maxFee = Felt(10000000L)
+    val contractAddress = Felt(0x1111)
+    val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val request = account.execute(call, maxFee)
+    val response = request.send()
+
+    // Execute multiple calls
+    val call1 = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val call2 = Call(contractAddress, "increase_balance", listOf(Felt(200)))
+    account.execute(listOf(call1, call2), maxFee).send()
+
+    // Use automatic maxFee estimation
+    account.execute(call).send()
+    // or
+    account.execute(listOf(call1, call2)).send()
+
+    // Construct transaction step by step
+    val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val (gasConsumed, gasPrice, overallFee) = account.estimateFee(otherCall).send()
+    val nonce = account.getNonce().send()
+    val signedTransaction = account.sign(otherCall, ExecutionParams(nonce, maxFee))
+    val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
+}
+```
+
 # Package com.swmansion.starknet.crypto
 
 Cryptography and signature related classes.
