@@ -3,7 +3,8 @@
 cd "$(dirname "$0")" || exit
 mkdir -p "compiled"
 
-for file in src/*.cairo; do
+# shellcheck disable=SC2044
+for file in $(find src -name "*.cairo" -type f -print); do
   [ -f "$file" ] || break
 
   name="$(basename -- "$file" .cairo)"
