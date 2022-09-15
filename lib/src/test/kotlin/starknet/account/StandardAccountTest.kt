@@ -9,8 +9,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -83,6 +82,17 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
+    fun `constructor signer creation`(accountAndProvider: AccountAndProvider) {
+        val (_, provider) = accountAndProvider
+        val privateKey = Felt(2137)
+        val account = StandardAccount(provider, Felt.ZERO, privateKey)
+
+        assertNotNull(account.signer)
+        assertEquals(privateKey, account.signer.privateKey)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
     fun `get nonce test`(accountAndProvider: AccountAndProvider) {
         val (account, _) = accountAndProvider
         val nonce = account.getNonce()
@@ -144,6 +154,25 @@ class StandardAccountTest {
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `execute single call with specific fee`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val maxFee = Felt(10000000L)
+        val result = account.execute(call, maxFee).send()
+        assertNotNull(result)
+
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        assertTrue(receipt.actualFee < maxFee)
     }
 
     @ParameterizedTest
