@@ -215,4 +215,52 @@ interface Provider {
      */
     // TODO(support block tag)
     fun getNonce(contractAddress: Felt): Request<Felt>
+
+    /**
+     * Get the block number.
+     *
+     * Get the most recent accepted block number.
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockNumber(): Request<Int>
+
+    /**
+     * Get the hash and number of the block.
+     *
+     * Get the most recent accepted block hash and number.
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockTag The tag of the block.
+     * @throws RequestFailedException
+     */
+    fun getBlockTransactionCount(blockTag: BlockTag): Request<Int>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockHash The hash of the block.
+     * @throws RequestFailedException
+     */
+    fun getBlockTransactionCount(blockHash: Felt): Request<Int>
+
+    /**
+     * Get the block transaction count.
+     *
+     * Get the number of transactions in a given block.
+     *
+     * @param blockNumber The number of the block.
+     * @throws RequestFailedException
+     */
+    fun getBlockTransactionCount(blockNumber: Int): Request<Int>
 }

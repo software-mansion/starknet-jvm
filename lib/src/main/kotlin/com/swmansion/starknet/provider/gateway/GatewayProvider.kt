@@ -5,6 +5,8 @@ import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
 import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
 import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
+import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
+import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
 import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -317,6 +319,60 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_nonce")
 
         return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
+    }
+
+    override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
+        val url = feederGatewayRequestUrl("get_block")
+        val httpPayload = Payload(url, "GET")
+
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GetBlockHashAndNumberResponse.serializer()),
+            httpService,
+        )
+    }
+
+    override fun getBlockNumber(): Request<Int> {
+        val url = feederGatewayRequestUrl("get_block")
+        val httpPayload = Payload(url, "GET")
+
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GatewayGetBlockNumberSerializer),
+            httpService,
+        )
+    }
+
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<Int> {
+        val url = feederGatewayRequestUrl("get_block")
+        val params = listOf(
+            Pair("blockId", payload.blockId.toString()),
+        )
+
+        val httpPayload = Payload(url, "GET", params)
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(GatewayGetBlockTransactionCountSerializer),
+            httpService,
+        )
+    }
+
+    override fun getBlockTransactionCount(blockTag: BlockTag): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockHash: Felt): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockNumber: Int): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
+
+        return getBlockTransactionCount(payload)
     }
 
     companion object Factory {

@@ -88,6 +88,13 @@ data class EstimateFeePayload(
 )
 
 internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
+@Serializable
+data class GetBlockTransactionCountPayload(
+    @SerialName("block_id")
+    val blockId: BlockId,
+)
+
+internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
