@@ -168,7 +168,7 @@ public class Main {
         Call call2 = new Call(contractAddress, "increase_balance", List.of(new Felt(200)));
         account.execute(List.of(call1, call2), maxFee).send();
 
-        // Use automatic maxFee estimatiin
+        // Use automatic maxFee estimation
         account.execute(call).send();
         // or
         account.execute(List.of(call1, call2)).send();
