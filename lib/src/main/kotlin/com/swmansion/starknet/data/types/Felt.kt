@@ -12,7 +12,7 @@ import kotlinx.serialization.encoding.Encoder
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
-data class Felt(val value: BigInteger) {
+data class Felt(val value: BigInteger) : Comparable<Felt> {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 
@@ -23,6 +23,10 @@ data class Felt(val value: BigInteger) {
         if (value > PRIME) {
             throw java.lang.IllegalArgumentException("Default Felt constructor does not accept numbers higher than P, [$value] given.")
         }
+    }
+
+    override fun compareTo(other: Felt): Int {
+        return value.compareTo(other.value)
     }
 
     override fun toString(): String {
