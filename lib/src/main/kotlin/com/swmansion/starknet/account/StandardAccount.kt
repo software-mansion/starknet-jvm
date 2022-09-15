@@ -21,7 +21,7 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 class StandardAccount(
     private val provider: Provider,
     override val address: Felt,
-    private val signer: Signer,
+    internal val signer: Signer,
 ) : Account {
     private val version = Felt.ONE
 
