@@ -21,7 +21,7 @@ class StandardAccountTest {
     companion object {
         @JvmStatic
         private val devnetClient = DevnetClient(port = 5051)
-        private val signer = StarkCurveSigner(Felt(2137))
+        private val signer = StarkCurveSigner(Felt(1234))
 
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
@@ -84,7 +84,7 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `constructor signer creation`(accountAndProvider: AccountAndProvider) {
         val (_, provider) = accountAndProvider
-        val privateKey = Felt(2137)
+        val privateKey = Felt(1234)
         val account = StandardAccount(provider, Felt.ZERO, privateKey)
 
         assertNotNull(account.signer)
