@@ -434,8 +434,8 @@ class ProviderTest {
                         "keys": ["0x0a", "0x0b"],
                         "data": ["0x0c", "0x0d"],
                         "block_hash": "0x0aaaa",
-                        "block_number": 2137,
-                        "transaction_hash": "0x02137"
+                        "block_number": 1234,
+                        "transaction_hash": "0x01234"
                     }
                 ],
                 "page_number": 1,

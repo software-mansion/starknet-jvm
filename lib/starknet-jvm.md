@@ -134,7 +134,89 @@ fun main() {
 
 # Package com.swmansion.starknet.account
 
-Account interface used to simplify preparing and signing StarkNet transactions.
+Account interface used to simplify preparing, signing StarkNet transactions and automatic fee estimation.
+
+Example usages of `StandardAccount`
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.gateway.GatewayProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        Provider provider = GatewayProvider.makeTestnetClient();
+        Felt address = new Felt(0x1234);
+        Felt privateKey = new Felt(0x1);
+        Account account = new StandardAccount(provider, address, privateKey);
+
+        // Execute a single call
+        Felt maxFee = new Felt(10000000L);
+        Felt contractAddress = new Felt(0x1111);
+        Call call = new Call(contractAddress, "increase_balance", List.of(new Felt(100)));
+        Request<InvokeFunctionResponse> request = account.execute(call, maxFee);
+        InvokeFunctionResponse response = request.send();
+
+        // Execute multiple calls
+        Call call1 = new Call(contractAddress, "increase_balance", List.of(new Felt(100)));
+        Call call2 = new Call(contractAddress, "increase_balance", List.of(new Felt(200)));
+        account.execute(List.of(call1, call2), maxFee).send();
+
+        // Use automatic maxFee estimation
+        account.execute(call).send();
+        // or
+        account.execute(List.of(call1, call2)).send();
+
+        // Construct transaction step by step
+        Call otherCall = new Call(contractAddress, "increase_balance", List.of(new Felt(100)));
+        EstimateFeeResponse feeEstimate = account.estimateFee(otherCall).send();
+        Felt nonce = account.getNonce().send();
+        InvokeFunctionPayload signedTransaction = account.sign(otherCall, new ExecutionParams(nonce, maxFee));
+        InvokeFunctionResponse signedInvokeResponse = provider.invokeFunction(signedTransaction).send();
+    }
+}
+```
+
+or in Kotlin
+
+```kotlin
+fun main(args: Array<String>) {
+    val provider: Provider = makeTestnetClient()
+    val address = Felt(0x1234)
+    val privateKey = Felt(0x1)
+    val account: Account = StandardAccount(provider, address, privateKey)
+
+    // Execute a single call
+    val maxFee = Felt(10000000L)
+    val contractAddress = Felt(0x1111)
+    val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val request = account.execute(call, maxFee)
+    val response = request.send()
+
+    // Execute multiple calls
+    val call1 = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val call2 = Call(contractAddress, "increase_balance", listOf(Felt(200)))
+    account.execute(listOf(call1, call2), maxFee).send()
+
+    // Use automatic maxFee estimation
+    account.execute(call).send()
+    // or
+    account.execute(listOf(call1, call2)).send()
+
+    // Construct transaction step by step
+    val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val (gasConsumed, gasPrice, overallFee) = account.estimateFee(otherCall).send()
+    val nonce = account.getNonce().send()
+    val signedTransaction = account.sign(otherCall, ExecutionParams(nonce, maxFee))
+    val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
+}
+```
 
 # Package com.swmansion.starknet.crypto
 
