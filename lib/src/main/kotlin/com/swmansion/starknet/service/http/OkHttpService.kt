@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture
  * wasting resources</a>.
  * @param client OkHttpClient used for making requests
  */
-class OkhttpHttpService(private val client: OkHttpClient) : HttpService {
+class OkHttpService(private val client: OkHttpClient) : HttpService {
     constructor() : this(OkHttpClient())
 
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()

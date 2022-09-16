@@ -42,7 +42,7 @@ class GatewayProvider(
         feederGatewayUrl,
         gatewayUrl,
         chainId,
-        OkhttpHttpService(),
+        OkHttpService(),
     )
 
     @Suppress("SameParameterValue")

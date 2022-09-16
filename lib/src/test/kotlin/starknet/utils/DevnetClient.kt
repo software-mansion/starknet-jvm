@@ -2,7 +2,7 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.service.http.HttpService
-import com.swmansion.starknet.service.http.OkhttpHttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -18,7 +18,7 @@ class DevnetSetupFailedException(message: String) : Exception(message)
 class DevnetClient(
     private val host: String = "0.0.0.0",
     private val port: Int = 5050,
-    private val httpService: HttpService = OkhttpHttpService(),
+    private val httpService: HttpService = OkHttpService(),
 ) : AutoCloseable {
     private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"

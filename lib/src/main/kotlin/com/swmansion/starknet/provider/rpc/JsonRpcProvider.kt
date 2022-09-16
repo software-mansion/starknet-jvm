@@ -12,7 +12,7 @@ import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
-import com.swmansion.starknet.service.http.OkhttpHttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
@@ -30,7 +30,7 @@ class JsonRpcProvider(
     override val chainId: StarknetChainId,
     private val httpService: HttpService,
 ) : Provider {
-    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkhttpHttpService())
+    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
