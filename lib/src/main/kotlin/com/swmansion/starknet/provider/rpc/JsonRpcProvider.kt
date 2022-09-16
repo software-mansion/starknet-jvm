@@ -18,16 +18,19 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet JSON-RPC
+ * A provider for interacting with StarkNet using JSON-RPC. You should reuse it in your application to share the
+ * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
  * @param chainId an id of the network
+ * @param httpService service used for making http requests
  */
 class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId,
-    private val httpService: HttpService = OkhttpHttpService(),
+    private val httpService: HttpService,
 ) : Provider {
+    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkhttpHttpService())
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
