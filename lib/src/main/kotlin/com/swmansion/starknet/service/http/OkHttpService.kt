@@ -13,8 +13,7 @@ import java.util.concurrent.CompletableFuture
 
 /**
  * Service for making http requests using OkHttp library. You can reuse provide it with your client to
- * <a href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared"> avoid
- * wasting resources</a>.
+ * [avoid wasting resources](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
  * @param client OkHttpClient used for making requests
  */
 class OkHttpService(private val client: OkHttpClient) : HttpService {

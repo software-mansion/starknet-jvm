@@ -121,23 +121,6 @@ var provider2 = GatewayProvider.makeTestnetClient();
 var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
-Alternatively you can create a `HttpService` yourself and pass it whenever creating a provider. This way your whole 
-application can use a single `OkHttpClient`. 
-
-```java
-import com.swmansion.starknet.service.http.OkHttpService;
-
-// ...
-
-var httpClient = new OkHttpClient();
-var httpService = new OkHttpService(httpClient);
-
-var provider = GatewayProvider.makeTestnetClient(httpService);
-var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
-var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
-```
-
-
 
 ## Development
 
