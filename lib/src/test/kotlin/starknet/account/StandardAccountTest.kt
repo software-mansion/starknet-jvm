@@ -29,14 +29,14 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 gatewayProvider = GatewayProvider(
-                        devnetClient.feederGatewayUrl,
-                        devnetClient.gatewayUrl,
-                        StarknetChainId.TESTNET,
+                    devnetClient.feederGatewayUrl,
+                    devnetClient.gatewayUrl,
+                    StarknetChainId.TESTNET,
                 )
 
                 rpcProvider = JsonRpcProvider(
-                        devnetClient.rpcUrl,
-                        StarknetChainId.TESTNET,
+                    devnetClient.rpcUrl,
+                    StarknetChainId.TESTNET,
                 )
 
                 val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))

@@ -51,7 +51,7 @@ class DevnetClient(
         ProcessBuilder(
             "pkill",
             "-f",
-            "starknet-devnet.*${port}.*${seed}"
+            "starknet-devnet.*$port.*$seed",
         ).start().waitFor()
 
         devnetProcess =
