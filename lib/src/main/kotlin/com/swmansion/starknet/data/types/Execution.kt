@@ -27,10 +27,6 @@ data class Call(
     )
 }
 
-data class CallExtraParams(
-    val blockId: BlockId,
-)
-
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
@@ -76,6 +72,7 @@ data class GetBlockTransactionCountPayload(
     val blockId: BlockId,
 )
 
+@JvmSynthetic
 internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
