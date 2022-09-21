@@ -328,4 +328,3 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
     GET_SYNCING("starknet_syncing")
 }
-
