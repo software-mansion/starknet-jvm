@@ -13,23 +13,26 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
-import com.swmansion.starknet.service.http.OkhttpHttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet JSON-RPC
+ * A provider for interacting with StarkNet using JSON-RPC. You should reuse it in your application to share the
+ * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
  * @param chainId an id of the network
+ * @param httpService service used for making http requests
  */
 class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId,
-    private val httpService: HttpService = OkhttpHttpService(),
+    private val httpService: HttpService,
 ) : Provider {
+    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(

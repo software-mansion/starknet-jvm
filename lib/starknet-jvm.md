@@ -171,7 +171,23 @@ to communicate with the network.
 
 # Package com.swmansion.starknet.service.http
 
-Http service used in both provider to communicate with StarkNet.
+Http service used to communicate with StarkNet.
+
+You can create a `OkHttpService` yourself and pass it whenever creating a provider. This way your whole
+application can use a single `OkHttpClient`. Read more [here](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
+
+```java
+import com.swmansion.starknet.service.http.OkHttpService;
+
+// ...
+
+var httpClient = new OkHttpClient();
+var httpService = new OkHttpService(httpClient);
+
+var provider = GatewayProvider.makeTestnetClient(httpService);
+var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
+var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
+```
 
 # Package com.swmansion.starknet.signer
 
