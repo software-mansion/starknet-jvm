@@ -9,12 +9,14 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
