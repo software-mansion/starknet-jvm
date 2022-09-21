@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
 
-object GatewayCallContractTransformingSerializer :
+internal object GatewayCallContractTransformingSerializer :
     JsonTransformingSerializer<List<Felt>>(ListSerializer(Felt.serializer())) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
         return element.jsonObject["result"]!!
