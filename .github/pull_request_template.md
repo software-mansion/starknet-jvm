@@ -4,7 +4,9 @@
 
 ## Linked issues
 
-<!-- Reference any GitHub issues resolved by this PR -->
+<!-- Reference any GitHub issues resolved by this PR starting every line with `Closes` -->
+
+Closes
 
 ## Breaking changes
 
