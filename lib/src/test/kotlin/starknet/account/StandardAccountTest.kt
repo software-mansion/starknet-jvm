@@ -25,21 +25,26 @@ class StandardAccountTest {
         @JvmStatic
         @BeforeAll
         fun before() {
-            devnetClient.start()
+            try {
+                devnetClient.start()
 
-            gatewayProvider = GatewayProvider(
-                devnetClient.feederGatewayUrl,
-                devnetClient.gatewayUrl,
-                StarknetChainId.TESTNET,
-            )
+                gatewayProvider = GatewayProvider(
+                    devnetClient.feederGatewayUrl,
+                    devnetClient.gatewayUrl,
+                    StarknetChainId.TESTNET,
+                )
 
-            rpcProvider = JsonRpcProvider(
-                devnetClient.rpcUrl,
-                StarknetChainId.TESTNET,
-            )
+                rpcProvider = JsonRpcProvider(
+                    devnetClient.rpcUrl,
+                    StarknetChainId.TESTNET,
+                )
 
-            val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
-            balanceContractAddress = deployAddress
+                val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                balanceContractAddress = deployAddress
+            } catch (ex: Exception) {
+                devnetClient.close()
+                throw ex
+            }
         }
 
         @JvmStatic

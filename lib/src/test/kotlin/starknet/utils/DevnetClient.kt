@@ -22,6 +22,7 @@ class DevnetClient(
 ) : AutoCloseable {
     private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"
+    private val seed: Int = 1053545547
 
     private lateinit var accountAddress: Felt
     private lateinit var devnetProcess: Process
@@ -45,6 +46,14 @@ class DevnetClient(
             throw DevnetSetupFailedException("Devnet is already running")
         }
 
+        // This kills any zombie devnet processes left over from previous
+        // test runs, if any.
+        ProcessBuilder(
+            "pkill",
+            "-f",
+            "starknet-devnet.*$port.*$seed",
+        ).start().waitFor()
+
         devnetProcess =
             ProcessBuilder(
                 "starknet-devnet",
@@ -53,7 +62,7 @@ class DevnetClient(
                 "--port",
                 port.toString(),
                 "--seed",
-                "1053545547",
+                seed.toString(),
             ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"

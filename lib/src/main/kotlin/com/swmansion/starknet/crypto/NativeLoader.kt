@@ -6,9 +6,23 @@ import java.nio.file.Files
 import java.util.*
 
 internal object NativeLoader {
+    private val operatingSystem: SystemType by lazy {
+        val system = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
+        when {
+            system.contains("mac") || system.contains("darwin") -> SystemType.MacOS
+            system.contains("win") -> SystemType.Windows
+            system.contains("nux") -> SystemType.Linux
+            else -> SystemType.Other
+        }
+    }
+
+    private val architecture: String by lazy {
+        System.getProperty("os.arch")
+    }
+
     fun load(name: String) = load(name, operatingSystem, architecture)
 
-    internal fun load(name: String, operatingSystem: SystemType, architecture: String) {
+    private fun load(name: String, operatingSystem: SystemType, architecture: String) {
         try {
             // Used for tests, on android and in case someone wants to use a library from
             // a class path.
@@ -36,22 +50,8 @@ internal object NativeLoader {
         System.load(tmpFilePath.toString())
     }
 
-    internal enum class SystemType {
+    private enum class SystemType {
         Windows, MacOS, Linux, Other
-    }
-
-    private val operatingSystem: SystemType by lazy {
-        val system = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
-        when {
-            system.contains("mac") || system.contains("darwin") -> SystemType.MacOS
-            system.contains("win") -> SystemType.Windows
-            system.contains("nux") -> SystemType.Linux
-            else -> SystemType.Other
-        }
-    }
-
-    private val architecture: String by lazy {
-        System.getProperty("os.arch")
     }
 
     class UnsupportedPlatform(system: String, architecture: String) :

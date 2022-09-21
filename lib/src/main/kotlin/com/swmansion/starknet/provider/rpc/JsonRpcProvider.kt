@@ -9,12 +9,14 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
@@ -310,4 +312,22 @@ class JsonRpcProvider(
             JsonRpcSyncPolymorphicSerializer,
         )
     }
+}
+
+private enum class JsonRpcMethod(val methodName: String) {
+    CALL("starknet_call"),
+    INVOKE_TRANSACTION("starknet_addInvokeTransaction"),
+    GET_STORAGE_AT("starknet_getStorageAt"),
+    GET_CLASS("starknet_getClass"),
+    GET_CLASS_AT("starknet_getClassAt"),
+    GET_CLASS_HASH_AT("starknet_getClassHashAt"),
+    GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
+    GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    DECLARE("starknet_addDeclareTransaction"),
+    DEPLOY("starknet_addDeployTransaction"),
+    GET_EVENTS("starknet_getEvents"),
+    GET_BLOCK_NUMBER("starknet_blockNumber"),
+    GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
+    GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
+    GET_SYNCING("starknet_syncing")
 }
