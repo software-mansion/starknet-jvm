@@ -7,7 +7,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
 @Serializable
-internal data class JsonRpcResponse<T>(
+private data class JsonRpcResponse<T>(
     @SerialName("id")
     val id: Int,
 
@@ -22,7 +22,7 @@ internal data class JsonRpcResponse<T>(
 )
 
 @Serializable
-internal data class JsonRpcError(
+private data class JsonRpcError(
     @SerialName("code")
     val code: Int,
 
@@ -30,6 +30,7 @@ internal data class JsonRpcError(
     val message: String,
 )
 
+@JvmSynthetic
 internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
     return { response ->
         if (!response.isSuccessful) {
