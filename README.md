@@ -104,7 +104,7 @@ public class Main {
 ## Reusing http clients
 
 Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
-This way you reuse connections and thread pools. You can read more about it [here](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
+This way you reuse connections and thread pools.
 
 ✅ **Do:** 
 ```java

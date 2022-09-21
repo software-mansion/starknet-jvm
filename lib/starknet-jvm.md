@@ -173,9 +173,8 @@ to communicate with the network.
 
 Http service used to communicate with StarkNet.
 
-
 You can create a `OkHttpService` yourself and pass it whenever creating a provider. This way your whole
-application can use a single `OkHttpClient`.
+application can use a single `OkHttpClient`. Read more [here](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
 
 ```java
 import com.swmansion.starknet.service.http.OkHttpService;
