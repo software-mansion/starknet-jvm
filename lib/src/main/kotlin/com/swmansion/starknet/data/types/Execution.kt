@@ -27,10 +27,6 @@ data class Call(
     )
 }
 
-data class CallExtraParams(
-    val blockId: BlockId,
-)
-
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
