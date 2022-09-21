@@ -12,7 +12,7 @@ import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
 /**
- * Service for making http requests using OkHttp library. You can reuse provide it with your client to
+ * Service for making http requests using OkHttp library. You can provide it with your client to
  * [avoid wasting resources](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
  * @param client OkHttpClient used for making requests
  */
