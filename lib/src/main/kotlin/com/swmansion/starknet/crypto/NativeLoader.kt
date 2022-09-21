@@ -8,7 +8,7 @@ import java.util.*
 internal object NativeLoader {
     fun load(name: String) = load(name, operatingSystem, architecture)
 
-    internal fun load(name: String, operatingSystem: SystemType, architecture: String) {
+    private fun load(name: String, operatingSystem: SystemType, architecture: String) {
         try {
             // Used for tests, on android and in case someone wants to use a library from
             // a class path.
@@ -36,7 +36,7 @@ internal object NativeLoader {
         System.load(tmpFilePath.toString())
     }
 
-    internal enum class SystemType {
+    private enum class SystemType {
         Windows, MacOS, Linux, Other
     }
 
