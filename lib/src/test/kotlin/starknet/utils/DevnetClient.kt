@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
-import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
