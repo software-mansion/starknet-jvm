@@ -88,7 +88,11 @@ class StandardAccountTest {
         val account = StandardAccount(provider, Felt.ZERO, privateKey)
 
         assertNotNull(account.signer)
-        assertEquals(privateKey, account.signer.privateKey)
+
+        val privateKeyField = account.signer.javaClass.getDeclaredField("privateKey")
+        privateKeyField.isAccessible = true
+        val signerPrivateKey = privateKeyField.get(account.signer) as Felt
+        assertEquals(privateKey, signerPrivateKey)
     }
 
     @ParameterizedTest
