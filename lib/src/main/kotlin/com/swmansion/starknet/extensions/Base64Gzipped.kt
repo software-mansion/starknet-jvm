@@ -1,5 +1,3 @@
-@file:JvmName("Base64Gzipped")
-
 package com.swmansion.starknet.extensions
 
 import org.bouncycastle.util.encoders.Base64

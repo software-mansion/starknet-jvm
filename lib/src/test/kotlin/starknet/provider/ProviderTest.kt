@@ -28,6 +28,7 @@ class ProviderTest {
         @JvmStatic
         private val devnetClient = DevnetClient()
         private lateinit var contractAddress: Felt
+        private lateinit var classHash: Felt
         private lateinit var deployTransactionHash: Felt
         private lateinit var invokeTransactionHash: Felt
         private lateinit var declareTransactionHash: Felt
@@ -60,13 +61,15 @@ class ProviderTest {
                     "increase_balance",
                     deployAddress,
                     Path.of("src/test/resources/compiled/providerTestAbi.json"),
-                    0,
+                    listOf(Felt.ZERO),
                 )
-                val (_, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
-                contractAddress = deployAddress
-                deployTransactionHash = deployHash
-                invokeTransactionHash = invokeHash
-                declareTransactionHash = declareHash
+                val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
+
+                this.contractAddress = deployAddress
+                this.classHash = classHash
+                this.deployTransactionHash = deployHash
+                this.invokeTransactionHash = invokeHash
+                this.declareTransactionHash = declareHash
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -121,34 +124,8 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `invoke transaction`(provider: Provider) {
-        val invokeValue = Felt(10)
-
-        val call = Call(
-            contractAddress,
-            "increase_balance",
-            listOf(invokeValue),
-        )
-
-        val oldBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        val dummySig = listOf(Felt(0), Felt(0), Felt(0), Felt(0), Felt(0))
-        val payload = InvokeFunctionPayload(call, dummySig, Felt.ZERO, Felt.ZERO)
-        val request = provider.invokeFunction(payload)
-
-        request.send()
-
-        val newBalance = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        assertEquals(oldBalance.value + invokeValue.value, newBalance.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("getProviders")
     fun `get class`(provider: Provider) {
-        val hash = Felt.fromHex("0x1b322dd827d4579c10a08025b9d685c7ed16dcb25c7371dd06a65984cb5426")
-
-        val request = provider.getClass(hash)
+        val request = provider.getClass(classHash)
         val response = request.send()
 
         assertNotNull(response)
@@ -457,8 +434,8 @@ class ProviderTest {
                         "keys": ["0x0a", "0x0b"],
                         "data": ["0x0c", "0x0d"],
                         "block_hash": "0x0aaaa",
-                        "block_number": 2137,
-                        "transaction_hash": "0x02137"
+                        "block_number": 1234,
+                        "transaction_hash": "0x01234"
                     }
                 ],
                 "page_number": 1,

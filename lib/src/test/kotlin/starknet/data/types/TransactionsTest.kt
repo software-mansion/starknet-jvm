@@ -22,7 +22,7 @@ internal class TransactionsTest {
             nonce = Felt.ZERO,
         )
 
-        assertEquals(tx1.hash, Felt.fromHex("0x7d260744de9d8c55e7675a34512d1951a7b262c79e685d26599edd2948de959"))
+        assertEquals(Felt.fromHex("0x5d38f824da44cdde32b52b3932e7c327be1648bb770b117faa94aef71db8c5"), tx1.hash)
 
         val tx2 = TransactionFactory.makeInvokeTransaction(
             contractAddress = Felt(
@@ -55,7 +55,7 @@ internal class TransactionsTest {
             nonce = Felt.ZERO,
         )
 
-        assertEquals(tx2.hash, Felt.fromHex("0x77b27f044ac1402af4e44fc012655822c2da2ac231deb003d797f0359055228"))
+        assertEquals(Felt.fromHex("0x1bce9c419e15ad8715e7487efbefb660cc9201a25c82e98f6371928cb923fa"), tx2.hash)
     }
 
     @Test

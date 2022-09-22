@@ -175,6 +175,48 @@ interface Provider {
     fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
 
     /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address
+     *
+     * @param contractAddress address of account contract
+     *
+     * @throws RequestFailedException
+     */
+    // TODO(support block tag)
+    fun getNonce(contractAddress: Felt): Request<Felt>
+
+    /**
      * Get the block number.
      *
      * Get the most recent accepted block number.

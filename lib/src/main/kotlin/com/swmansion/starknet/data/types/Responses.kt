@@ -48,6 +48,19 @@ data class TransactionFailureReason(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
+data class EstimateFeeResponse(
+    @JsonNames("gas_consumed", "gas_usage")
+    val gasConsumed: Felt,
+
+    @JsonNames("gas_price")
+    val gasPrice: Felt,
+
+    @JsonNames("overall_fee")
+    val overallFee: Felt,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 data class GetBlockHashAndNumberResponse(
     @JsonNames("block_hash")
     val blockHash: Felt,

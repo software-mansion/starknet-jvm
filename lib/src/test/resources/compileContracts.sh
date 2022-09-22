@@ -1,11 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-cd "$(dirname $0)" || exit
+cd "$(dirname "$0")" || exit
+mkdir -p "compiled"
 
-for file in src/*.cairo; do
-  [ -f "$file" ] || break
-
+while IFS= read -r -d '' file; do
   name="$(basename -- "$file" .cairo)"
-
-  starknet-compile "$file" --output "compiled/$name.json" --abi "compiled/${name}Abi.json"
-done
+  if [[ $name == *"account"* ]]; then
+    starknet-compile "$file" --account_contract --output "compiled/$name.json" --abi "compiled/${name}Abi.json"
+  else
+    starknet-compile "$file" --output "compiled/$name.json" --abi "compiled/${name}Abi.json"
+  fi
+done < <(find src -name "*.cairo" -type f -print0)

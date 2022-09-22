@@ -3,6 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
+import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
 import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
 import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
 import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
@@ -183,14 +184,11 @@ class GatewayProvider(
         val body = buildJsonObject {
             put("type", JsonPrimitive("INVOKE_FUNCTION"))
             put("contract_address", payload.invocation.contractAddress.hexString())
-            put("entry_point_selector", payload.invocation.entrypoint.hexString())
-            putJsonArray("calldata") {
-                payload.invocation.calldata.toDecimal().forEach { add(it) }
-            }
+            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
             put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") {
-                payload.signature.toDecimal().forEach { add(it) }
-            }
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("version", payload.version)
         }
 
         return HttpRequest(
@@ -278,6 +276,53 @@ class GatewayProvider(
         val param = "blockTag" to blockTag.tag
 
         return getClassHashAt(param, contractAddress)
+    }
+
+    private fun getEstimateFee(
+        request: InvokeTransaction,
+        blockParam: Pair<String, String>,
+    ): Request<EstimateFeeResponse> {
+        val url = feederGatewayRequestUrl("estimate_fee")
+        val body = buildJsonObject {
+            put("contract_address", request.contractAddress.hexString())
+            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
+            put("nonce", request.nonce)
+            put("version", request.version)
+        }
+
+        val httpPayload = Payload(url, "POST", listOf(blockParam), body)
+
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            httpService,
+        )
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
+        val param = "blockHash" to blockHash.hexString()
+
+        return getEstimateFee(request, param)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
+        val param = "blockNumber" to blockNumber.toString()
+
+        return getEstimateFee(request, param)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val param = "blockTag" to blockTag.tag
+
+        return getEstimateFee(request, param)
+    }
+
+    override fun getNonce(contractAddress: Felt): Request<Felt> {
+        val params = listOf("contractAddress" to contractAddress.hexString())
+        val url = feederGatewayRequestUrl("get_nonce")
+
+        return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
     }
 
     override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {

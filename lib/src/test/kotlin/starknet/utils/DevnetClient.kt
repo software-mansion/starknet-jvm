@@ -1,17 +1,21 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.*
 import java.lang.Exception
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
+import kotlin.io.path.readText
 
 class DevnetSetupFailedException(message: String) : Exception(message)
 
@@ -23,11 +27,13 @@ class DevnetClient(
     private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"
     private val seed: Int = 1053545547
+    private val json = Json { ignoreUnknownKeys = true }
 
-    private lateinit var accountAddress: Felt
     private lateinit var devnetProcess: Process
 
     private var isDevnetRunning = false
+
+    lateinit var accountDetails: AccountDetails
 
     val gatewayUrl: String = "$baseUrl/gateway"
     val feederGatewayUrl: String = "$baseUrl/feeder_gateway"
@@ -91,7 +97,7 @@ class DevnetClient(
         isDevnetRunning = false
     }
 
-    private fun prefundAccount() {
+    fun prefundAccount(accountAddress: Felt) {
         val payload = HttpService.Payload(
             "$baseUrl/mint",
             "POST",
@@ -108,6 +114,8 @@ class DevnetClient(
             throw DevnetSetupFailedException("Prefunding account failed")
         }
     }
+
+    private fun prefundAccount() = prefundAccount(accountDetails.address)
 
     private fun deployAccount() {
         val deployProcess = ProcessBuilder(
@@ -130,11 +138,7 @@ class DevnetClient(
         val error = String(deployProcess.errorStream.readAllBytes())
         requireNoErrors("Account setup", error)
 
-        val output = String(deployProcess.inputStream.readAllBytes())
-        val lines = output.lines()
-
-        val result = getTransactionResult(lines, offset = 5)
-        accountAddress = result.address
+        accountDetails = readAccountDetails()
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
@@ -192,7 +196,7 @@ class DevnetClient(
         functionName: String,
         contractAddress: Felt,
         abiPath: Path,
-        vararg inputs: Int,
+        inputs: List<Felt>,
     ): TransactionResult {
         val invokeProcess = ProcessBuilder(
             "starknet",
@@ -208,7 +212,7 @@ class DevnetClient(
             "--function",
             functionName,
             "--inputs",
-            inputs.joinToString(separator = " "),
+            *inputs.map { it.decString() }.toTypedArray(),
             "--account_dir",
             accountDirectory.toString(),
             "--wallet",
@@ -216,8 +220,6 @@ class DevnetClient(
             "--network",
             "alpha-goerli",
         ).start()
-
-        invokeProcess.waitFor()
 
         val error = String(invokeProcess.errorStream.readAllBytes())
         requireNoErrors("Invoke contract", error)
@@ -269,6 +271,25 @@ class DevnetClient(
         return Felt.fromHex(result.trim())
     }
 
+    fun transactionReceipt(transactionHash: Felt): GatewayTransactionReceipt {
+        val getStorageAtProcess = ProcessBuilder(
+            "starknet",
+            "get_transaction_receipt",
+            "--hash",
+            transactionHash.hexString(),
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        val error = String(getStorageAtProcess.errorStream.readAllBytes())
+        requireNoErrors("Get receipt", error)
+
+        val result = String(getStorageAtProcess.inputStream.readAllBytes())
+        return json.decodeFromString(result)
+    }
+
     private fun requireNoErrors(methodName: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
             throw DevnetSetupFailedException("Step $methodName failed. error = $errorStream")
@@ -284,5 +305,31 @@ class DevnetClient(
         val address = Felt.fromHex(getValueFromLine(lines[offset]))
         val hash = Felt.fromHex(getValueFromLine(lines[offset + 1]))
         return TransactionResult(address, hash)
+    }
+
+    private fun readAccountDetails(): AccountDetails {
+        val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
+        val contents = accountFile.readText()
+        return Json.decodeFromString(AccountDetailsSerializer(), contents)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Serializable
+    data class AccountDetails(
+        @JsonNames("private_key")
+        val privateKey: Felt,
+
+        @JsonNames("public_key")
+        val publicKey: Felt,
+
+        @JsonNames("address")
+        val address: Felt,
+    )
+
+    class AccountDetailsSerializer : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
+            val accounts = element.jsonObject["alpha-goerli"]!!
+            return accounts.jsonObject["__default__"]!!
+        }
     }
 }
