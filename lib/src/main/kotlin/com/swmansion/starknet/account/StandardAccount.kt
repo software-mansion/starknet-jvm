@@ -19,9 +19,9 @@ import com.swmansion.starknet.signer.StarkCurveSigner
  * @param signer a signer instance used to sign transactions
  */
 class StandardAccount(
-    private val provider: Provider,
     override val address: Felt,
     private val signer: Signer,
+    private val provider: Provider,
 ) : Account {
     private val version = Felt.ONE
 
@@ -31,9 +31,9 @@ class StandardAccount(
      * @param privateKey a private key used to create a signer
      */
     constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
-        provider,
         address,
         StarkCurveSigner(privateKey),
+        provider,
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {

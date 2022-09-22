@@ -64,9 +64,9 @@ class StandardAccountTest {
             return listOf(
                 AccountAndProvider(
                     StandardAccount(
-                        gatewayProvider,
                         accountAddress,
                         signer,
+                        gatewayProvider,
                     ),
                     gatewayProvider,
                 ),
