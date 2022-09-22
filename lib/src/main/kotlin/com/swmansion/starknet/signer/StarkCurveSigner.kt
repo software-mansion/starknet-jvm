@@ -9,7 +9,7 @@ import com.swmansion.starknet.data.types.transactions.*
  *
  * @param privateKey a private key to be used by this signer
  */
-class StarkCurveSigner(override val privateKey: Felt) : Signer {
+class StarkCurveSigner(private val privateKey: Felt) : Signer {
 
     // Generating public key takes a while
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }

@@ -23,9 +23,4 @@ interface Signer {
      * Public key used by a signer.
      */
     val publicKey: Felt
-
-    /**
-     * Private key used by a signer
-     */
-    val privateKey: Felt
 }
