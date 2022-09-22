@@ -101,6 +101,27 @@ public class Main {
 }
 ```
 
+## Reusing http clients
+
+Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
+This way you reuse connections and thread pools.
+
+✅ **Do:** 
+```java
+var provider = GatewayProvider.makeTestnetClient();
+var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
+var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
+```
+
+❌ **Don't:**
+```java
+var provider1 = GatewayProvider.makeTestnetClient();
+var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
+var provider2 = GatewayProvider.makeTestnetClient();
+var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
+```
+
+
 ## Development
 
 ### Hooks
@@ -128,6 +149,7 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 2. When using a companion object mark every property/function with `@JvmStatic`. This way they are accessible as static from the class. Without it `Class.INSTANCE` would have to be used.
 3. When defining an immutable constant use `@field:JvmField`. This makes them static properties without getters/setters in java.
 4. If you are not sure how something would work in java just create a new java class, import your code and check yourself.
+5. Avoid using default arguments. It is better to overload a function and specify defaults there.
 
 
 ## Building documentation

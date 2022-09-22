@@ -12,9 +12,12 @@ import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
 /**
- * Service for making http requests.
+ * Service for making http requests using OkHttp library. You can provide it with your client to
+ * [avoid wasting resources](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
+ * @param client OkHttpClient used for making requests
  */
-internal class OkhttpHttpService() : HttpService {
+class OkHttpService(private val client: OkHttpClient) : HttpService {
+    constructor() : this(OkHttpClient())
 
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
@@ -51,7 +54,6 @@ internal class OkhttpHttpService() : HttpService {
      * @param payload a payload to be sent
      */
     override fun send(payload: Payload): HttpResponse {
-        val client = OkHttpClient()
         val httpRequest = buildRequest(payload)
 
         val response = client.newCall(httpRequest).execute()

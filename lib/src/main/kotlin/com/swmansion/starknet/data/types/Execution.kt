@@ -93,6 +93,7 @@ data class GetBlockTransactionCountPayload(
     val blockId: BlockId,
 )
 
+@JvmSynthetic
 internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()

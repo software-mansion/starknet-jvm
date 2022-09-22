@@ -17,11 +17,7 @@ import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
-import com.swmansion.starknet.service.http.HttpRequest
-import com.swmansion.starknet.service.http.HttpResponseDeserializer
-import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.HttpService.Payload
-import com.swmansion.starknet.service.http.OkhttpHttpService
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -29,18 +25,26 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet gateway.
+ * A provider for interacting with StarkNet gateway. You should reuse it in your application to share the
+ * httpService or provide it with your own httpService.
  *
  * @param feederGatewayUrl url of the feeder gateway
  * @param gatewayUrl url of the gateway
  * @param chainId an id of the network
+ * @param httpService service used for making http requests
  */
 class GatewayProvider(
     private val feederGatewayUrl: String,
     private val gatewayUrl: String,
     override val chainId: StarknetChainId,
-    private val httpService: HttpService = OkhttpHttpService(),
+    private val httpService: HttpService,
 ) : Provider {
+    constructor(feederGatewayUrl: String, gatewayUrl: String, chainId: StarknetChainId) : this(
+        feederGatewayUrl,
+        gatewayUrl,
+        chainId,
+        OkHttpService(),
+    )
 
     @Suppress("SameParameterValue")
     private fun gatewayRequestUrl(method: String): String {
@@ -386,11 +390,31 @@ class GatewayProvider(
         }
 
         @JvmStatic
+        fun makeTestnetClient(httpService: HttpService): GatewayProvider {
+            return GatewayProvider(
+                "$TESTNET_URL/feeder_gateway",
+                "$TESTNET_URL/gateway",
+                StarknetChainId.TESTNET,
+                httpService,
+            )
+        }
+
+        @JvmStatic
         fun makeMainnetClient(): GatewayProvider {
             return GatewayProvider(
                 "$MAINNET_URL/feeder_gateway",
                 "$MAINNET_URL/gateway",
                 StarknetChainId.MAINNET,
+            )
+        }
+
+        @JvmStatic
+        fun makeMainnetClient(httpService: HttpService): GatewayProvider {
+            return GatewayProvider(
+                "$MAINNET_URL/feeder_gateway",
+                "$MAINNET_URL/gateway",
+                StarknetChainId.MAINNET,
+                httpService,
             )
         }
     }

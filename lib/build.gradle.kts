@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.0.4"
+version = "0.0.5"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -179,10 +179,27 @@ publishing {
                 url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
             }
         pom.withXml {
-            val dependencyNode = asNode().appendNode("dependencies").appendNode("dependency")
-            dependencyNode.appendNode("groupId", "org.jetbrains.kotlin")
-            dependencyNode.appendNode("artifactId", "kotlin-stdlib-jdk8")
-            dependencyNode.appendNode("version", "1.3.50")
+            val dependencyNode = asNode().appendNode("dependencies")
+
+            val kotlinDependency = dependencyNode.appendNode("dependency")
+            kotlinDependency.appendNode("groupId", "org.jetbrains.kotlin")
+            kotlinDependency.appendNode("artifactId", "kotlin-stdlib-jdk8")
+            kotlinDependency.appendNode("version", "1.3.50")
+
+            val bouncyCastleDependency = dependencyNode.appendNode("dependency")
+            bouncyCastleDependency.appendNode("groupId", "org.bouncycastle")
+            bouncyCastleDependency.appendNode("artifactId", "bcprov-jdk15on")
+            bouncyCastleDependency.appendNode("version", "1.70")
+
+            val okHttpDependency = dependencyNode.appendNode("dependency")
+            okHttpDependency.appendNode("groupId", "com.squareup.okhttp3")
+            okHttpDependency.appendNode("artifactId", "okhttp")
+            okHttpDependency.appendNode("version", "4.10.0")
+
+            val kotlinxDependency = dependencyNode.appendNode("dependency")
+            kotlinxDependency.appendNode("groupId", "org.jetbrains.kotlinx")
+            kotlinxDependency.appendNode("artifactId", "kotlinx-serialization-json")
+            kotlinxDependency.appendNode("version", "1.3.3")
             }
         }
     }
