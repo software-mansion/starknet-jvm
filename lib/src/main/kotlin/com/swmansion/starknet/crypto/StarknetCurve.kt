@@ -37,7 +37,7 @@ private fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
  *
  * Class with utility methods related to starknet curve signatures generation and verification.
  */
-internal object StarknetCurve {
+object StarknetCurve {
 
     @field:JvmField
     val CURVE_ORDER: BigInteger = BigInteger("800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F", 16)
