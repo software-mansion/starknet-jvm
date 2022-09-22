@@ -82,17 +82,10 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `constructor signer creation`(accountAndProvider: AccountAndProvider) {
+    fun `creating account with private key`(accountAndProvider: AccountAndProvider) {
         val (_, provider) = accountAndProvider
         val privateKey = Felt(1234)
-        val account = StandardAccount(provider, Felt.ZERO, privateKey)
-
-        assertNotNull(account.signer)
-
-        val privateKeyField = account.signer.javaClass.getDeclaredField("privateKey")
-        privateKeyField.isAccessible = true
-        val signerPrivateKey = privateKeyField.get(account.signer) as Felt
-        assertEquals(privateKey, signerPrivateKey)
+        StandardAccount(provider, Felt.ZERO, privateKey)
     }
 
     @ParameterizedTest
