@@ -1,6 +1,6 @@
 package com.swmansion.starknet.account
 
-import com.swmansion.starknet.crypto.FeeUtils
+import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
@@ -64,7 +64,7 @@ class StandardAccount(
 
     override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFee(calls).compose { estimateFee ->
-            val maxFee = FeeUtils.estimatedFeeToMaxFee(estimateFee.overallFee)
+            val maxFee = estimatedFeeToMaxFee(estimateFee.overallFee)
             execute(calls, maxFee)
         }
     }
