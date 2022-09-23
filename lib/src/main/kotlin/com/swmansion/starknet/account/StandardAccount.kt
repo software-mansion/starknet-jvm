@@ -30,7 +30,7 @@ class StandardAccount(
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */
-    constructor(provider: Provider, address: Felt, privateKey: Felt) : this(
+    constructor(address: Felt, privateKey: Felt, provider: Provider) : this(
         address,
         StarkCurveSigner(privateKey),
         provider,
