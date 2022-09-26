@@ -18,7 +18,11 @@ class StandardDeployer(
     private val provider: Provider,
     private val account: Account,
 ) : Deployer {
-    override fun deployContract(classHash: Felt, salt: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
+    override fun deployContract(
+        classHash: Felt,
+        salt: Felt,
+        constructorCalldata: Calldata,
+    ): Request<ContractDeployment> {
         val invokeCalldata = listOf(classHash, salt, Felt.ONE, Felt(constructorCalldata.size)) + constructorCalldata
         val call = Call(deployerAddress, "deployContract", invokeCalldata)
 
@@ -39,6 +43,10 @@ class StandardDeployer(
             is GatewayTransactionReceipt -> transactionReceipt.events
             else -> throw AddressRetrievalFailedException("Invalid transaction type")
         }
-        return events.find { it.keys.contains(selectorFromName("ContractDeployed")) }
+        val deploymentEvents = events.filter { it.keys.contains(selectorFromName("ContractDeployed")) }
+        if (deploymentEvents.size > 1) {
+            throw AddressRetrievalFailedException("Transaction contains multiple deployment events which cannot be distinguished.")
+        }
+        return deploymentEvents.firstOrNull()
     }
 }
