@@ -1,4 +1,4 @@
-package com.swmansion.starknet.deployer
+package com.swmansion.starknet.deployercontract
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.data.selectorFromName

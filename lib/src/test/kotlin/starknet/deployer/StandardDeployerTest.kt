@@ -6,8 +6,8 @@ import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
-import com.swmansion.starknet.deployer.Deployer
-import com.swmansion.starknet.deployer.StandardDeployer
+import com.swmansion.starknet.deployercontract.Deployer
+import com.swmansion.starknet.deployercontract.StandardDeployer
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.signer.StarkCurveSigner

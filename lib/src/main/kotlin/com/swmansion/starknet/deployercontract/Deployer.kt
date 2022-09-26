@@ -1,4 +1,4 @@
-package com.swmansion.starknet.deployer
+package com.swmansion.starknet.deployercontract
 
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
