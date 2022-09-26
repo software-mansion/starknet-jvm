@@ -148,12 +148,12 @@ class JsonRpcProvider(
     /**
      * Get the contract class definition.
      *
-     * Get the contract class definition in the given block at the given address .
+     * Get the contract class definition at the given address in the given block.
      *
-     * @param blockHash The hash of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockHash The hash of the requested block.
      */
-    fun getClassAt(blockHash: Felt, contractAddress: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClass> {
         val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
 
         return getClassAt(payload)
@@ -162,12 +162,12 @@ class JsonRpcProvider(
     /**
      * Get the contract class definition.
      *
-     * Get the contract class definition in the given block at the given address .
+     * Get the contract class definition at the given address in the given block.
      *
-     * @param blockNumber The number of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockNumber The number of the requested block.
      */
-    fun getClassAt(blockNumber: Int, contractAddress: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClass> {
         val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
 
         return getClassAt(payload)
@@ -176,15 +176,26 @@ class JsonRpcProvider(
     /**
      * Get the contract class definition.
      *
-     * Get the contract class definition in the given block at the given address .
+     * Get the contract class definition at the given address in the given block.
      *
-     * @param blockTag The tag of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockTag The tag of the requested block.
      */
-    fun getClassAt(blockTag: BlockTag, contractAddress: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClass> {
         val payload = GetClassAtPayload(blockTag.tag, contractAddress)
 
         return getClassAt(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition in the at the given address in the latest block.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     */
+    fun getClassAt(contractAddress: Felt): Request<ContractClass> {
+        return getClassAt(contractAddress, BlockTag.LATEST)
     }
 
     private fun getClassHashAt(payload: GetClassAtPayload): Request<Felt> {
