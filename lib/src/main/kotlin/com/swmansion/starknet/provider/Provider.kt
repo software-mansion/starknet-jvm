@@ -46,6 +46,8 @@ interface Provider {
     /**
      * Calls a contract deployed on StarkNet.
      *
+     * Calls a contract deployed on StarkNet in the latest block.
+     *
      * @param call a call to be made
      *
      * @throws RequestFailedException
