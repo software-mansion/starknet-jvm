@@ -6,7 +6,7 @@ import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
 data class ContractDeployment(
-    val transactionAddress: Felt,
+    val transactionHash: Felt,
 )
 
 class AddressRetrievalFailedException(message: String) : Exception(message)
