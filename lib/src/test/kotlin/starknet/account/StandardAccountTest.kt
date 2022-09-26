@@ -90,7 +90,7 @@ class StandardAccountTest {
     fun `creating account with private key`(accountAndProvider: AccountAndProvider) {
         val (_, provider) = accountAndProvider
         val privateKey = Felt(1234)
-        StandardAccount(provider, Felt.ZERO, privateKey)
+        StandardAccount(Felt.ZERO, privateKey, provider)
     }
 
     @ParameterizedTest
