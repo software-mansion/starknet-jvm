@@ -36,5 +36,5 @@ interface Deployer {
      * @throws RequestFailedException
      * @throws AddressRetrievalFailedException
      */
-    fun contractAddress(contractDeployment: ContractDeployment): Request<Felt>
+    fun findContractAddress(contractDeployment: ContractDeployment): Request<Felt>
 }

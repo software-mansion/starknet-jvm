@@ -60,7 +60,7 @@ object StandardDeployerTest {
     fun `test udc deploy`() {
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/balance.json"))
         val deployment = contractDeployer.deployContract(classHash, Felt(1234), emptyList()).send()
-        val address = contractDeployer.contractAddress(deployment).send()
+        val address = contractDeployer.findContractAddress(deployment).send()
 
         assertNotNull(address)
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
@@ -72,7 +72,7 @@ object StandardDeployerTest {
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/contractWithConstructor.json"))
         val deployment =
             contractDeployer.deployContract(classHash, Felt(1234), listOf(constructorValue, Felt(789))).send()
-        val address = contractDeployer.contractAddress(deployment).send()
+        val address = contractDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_val1"), BlockTag.LATEST).send()
 

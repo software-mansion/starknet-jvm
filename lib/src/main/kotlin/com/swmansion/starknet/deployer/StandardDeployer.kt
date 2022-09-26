@@ -25,7 +25,7 @@ class StandardDeployer(
         return account.execute(call).map { ContractDeployment(it.transactionHash) }
     }
 
-    override fun contractAddress(contractDeployment: ContractDeployment): Request<Felt> {
+    override fun findContractAddress(contractDeployment: ContractDeployment): Request<Felt> {
         return provider.getTransactionReceipt(contractDeployment.transactionAddress).map { receipt ->
             val event = getDeploymentEvent(receipt)
                 ?: throw AddressRetrievalFailedException("No deployment events found for contract deployment $contractDeployment")
