@@ -31,21 +31,27 @@ class StandardDeployer(
 
     override fun findContractAddress(contractDeployment: ContractDeployment): Request<Felt> {
         return provider.getTransactionReceipt(contractDeployment.transactionHash).map { receipt ->
-            val event = getDeploymentEvent(receipt)
-                ?: throw AddressRetrievalFailedException("No deployment events found for contract deployment $contractDeployment")
+            val event = getDeploymentEvent(receipt, contractDeployment)
+                ?: throw AddressRetrievalFailedException("No deployment events found", contractDeployment)
             event.data[0]
         }
     }
 
-    private fun getDeploymentEvent(transactionReceipt: TransactionReceipt): Event? {
+    private fun getDeploymentEvent(
+        transactionReceipt: TransactionReceipt,
+        contractDeployment: ContractDeployment,
+    ): Event? {
         val events = when (transactionReceipt) {
             is InvokeTransactionReceipt -> transactionReceipt.events
             is GatewayTransactionReceipt -> transactionReceipt.events
-            else -> throw AddressRetrievalFailedException("Invalid transaction type")
+            else -> throw AddressRetrievalFailedException("Invalid transaction type", contractDeployment)
         }
         val deploymentEvents = events.filter { it.keys.contains(selectorFromName("ContractDeployed")) }
         if (deploymentEvents.size > 1) {
-            throw AddressRetrievalFailedException("Transaction contains multiple deployment events which cannot be distinguished.")
+            throw AddressRetrievalFailedException(
+                "Transaction contains multiple deployment events which cannot be distinguished.",
+                contractDeployment,
+            )
         }
         return deploymentEvents.firstOrNull()
     }
