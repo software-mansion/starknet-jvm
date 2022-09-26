@@ -22,11 +22,11 @@ interface Deployer {
      *
      * @param classHash a class hash of the declared contract
      * @param salt a salt to be used to calculate deployed contract address
-     * @param calldata constructor calldata
+     * @param constructorCalldata constructor calldata
      *
      * @throws RequestFailedException
      */
-    fun deployContract(classHash: Felt, salt: Felt, calldata: Calldata): Request<ContractDeployment>
+    fun deployContract(classHash: Felt, salt: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
 
     /**
      * Get a contract address from the deployment

@@ -18,8 +18,8 @@ class StandardDeployer(
     private val provider: Provider,
     private val account: Account,
 ) : Deployer {
-    override fun deployContract(classHash: Felt, salt: Felt, calldata: Calldata): Request<ContractDeployment> {
-        val invokeCalldata = listOf(classHash, salt, Felt.ONE, Felt(calldata.size)) + calldata
+    override fun deployContract(classHash: Felt, salt: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
+        val invokeCalldata = listOf(classHash, salt, Felt.ONE, Felt(constructorCalldata.size)) + constructorCalldata
         val call = Call(deployerAddress, "deployContract", invokeCalldata)
 
         return account.execute(call).map { ContractDeployment(it.transactionHash) }
