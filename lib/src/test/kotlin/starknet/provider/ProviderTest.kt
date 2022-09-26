@@ -209,7 +209,6 @@ class ProviderTest {
         assertNotNull(response)
     }
 
-
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash`(provider: Provider) {
