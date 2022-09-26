@@ -44,6 +44,17 @@ interface Provider {
     fun callContract(call: Call, blockNumber: Int): Request<List<Felt>>
 
     /**
+     * Calls a contract deployed on StarkNet.
+     *
+     * @param call a call to be made
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call): Request<List<Felt>> {
+        return callContract(call, BlockTag.LATEST)
+    }
+
+    /**
      * Get a value of storage var.
      *
      * Get a value of a storage variable of contract at the provided address.
@@ -85,7 +96,7 @@ interface Provider {
     /**
      * Get a value of storage var.
      *
-     * Get a value of a storage variable of contract at the provided address and the latest block.
+     * Get a value of a storage variable of contract at the provided address and in the latest block.
      *
      * @param contractAddress an address of the contract
      * @param key an address of the storage variable inside contract
@@ -172,7 +183,21 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag = BlockTag.LATEST): Request<Felt>
+    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
+
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address and in the
+     * latest block.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt): Request<Felt> {
+        return getClassHashAt(contractAddress, BlockTag.LATEST)
+    }
 
     /**
      * Deploy a contract
@@ -225,6 +250,17 @@ interface Provider {
      * @param blockTag a tag of the block in respect to what the query will be made
      */
     fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction in the latest block.
+     *
+     * @param request invoke transaction, for which the fee is to be estimated.
+     */
+    fun getEstimateFee(request: InvokeTransaction): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, BlockTag.LATEST)
+    }
 
     /**
      * Get a nonce.
