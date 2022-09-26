@@ -44,13 +44,26 @@ interface Provider {
     fun callContract(call: Call, blockNumber: Int): Request<List<Felt>>
 
     /**
+     * Calls a contract deployed on StarkNet.
+     *
+     * Calls a contract deployed on StarkNet in the latest block.
+     *
+     * @param call a call to be made
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call): Request<List<Felt>> {
+        return callContract(call, BlockTag.LATEST)
+    }
+
+    /**
      * Get a value of storage var.
      *
      * Get a value of a storage variable of contract at the provided address.
      *
      * @param contractAddress an address of the contract
      * @param key an address of the storage variable inside contract
-     * @param blockTag
+     * @param blockTag The tag of the requested block.
      *
      * @throws RequestFailedException
      */
@@ -81,6 +94,20 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt>
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address and in the latest block.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt> {
+        return getStorageAt(contractAddress, key, BlockTag.LATEST)
+    }
 
     /**
      * Get a transaction.
@@ -126,6 +153,14 @@ interface Provider {
      */
     fun getClass(classHash: Felt): Request<ContractClass>
 
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockHash The hash of the requested block.
+     */
     fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
     /**
@@ -133,8 +168,8 @@ interface Provider {
      *
      * Get the contract class hash in the given block for the contract deployed at the given address.
      *
-     * @param blockNumber The number of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockNumber The number of the requested block.
      *
      * @throws RequestFailedException
      */
@@ -145,12 +180,26 @@ interface Provider {
      *
      * Get the contract class hash in the given block for the contract deployed at the given address.
      *
-     * @param blockTag The tag of the requested block.
      * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockTag The tag of the requested block.
      *
      * @throws RequestFailedException
      */
     fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
+
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address and in the
+     * latest block.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt): Request<Felt> {
+        return getClassHashAt(contractAddress, BlockTag.LATEST)
+    }
 
     /**
      * Deploy a contract
@@ -203,6 +252,17 @@ interface Provider {
      * @param blockTag a tag of the block in respect to what the query will be made
      */
     fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction in the latest block.
+     *
+     * @param request invoke transaction, for which the fee is to be estimated.
+     */
+    fun getEstimateFee(request: InvokeTransaction): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, BlockTag.LATEST)
+    }
 
     /**
      * Get a nonce.
