@@ -7,8 +7,11 @@ on:
 
 jobs:
   test_and_lint:
-    # TODO: Change when feat/gh-build branch is merged
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: ["macos-latest", "ubuntu-latest"]
+
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -21,10 +24,10 @@ jobs:
         uses: jwlawson/actions-setup-cmake@v1.12
         with:
           cmake-version: '3.16.x'
-      - name: Set up Python 3.7.12
+      - name: Set up Python 3.9.12
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7.12
+          python-version: 3.9.12
 
       - name: Install devnet
         run: |

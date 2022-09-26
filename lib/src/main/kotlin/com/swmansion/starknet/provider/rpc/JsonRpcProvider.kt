@@ -1,5 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
@@ -8,21 +9,30 @@ import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet JSON-RPC
+ * A provider for interacting with StarkNet using JSON-RPC. You should reuse it in your application to share the
+ * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
  * @param chainId an id of the network
+ * @param httpService service used for making http requests
  */
 class JsonRpcProvider(
     private val url: String,
     override val chainId: StarknetChainId,
+    private val httpService: HttpService,
 ) : Provider {
+    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
@@ -42,32 +52,31 @@ class JsonRpcProvider(
     ): HttpRequest<T> {
         val requestJson = buildRequestJson(method.methodName, paramsJson)
 
-        val payload = HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
+        val payload =
+            HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
-        val jsonRpcDeserializer = JsonRpcResponseDeserializer(responseSerializer)
-
-        return HttpRequest(payload, jsonRpcDeserializer)
+        return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
-    private fun callContract(payload: CallContractPayload): Request<CallContractResponse> {
+    private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.CALL, params, CallContractResponse.serializer())
+        return buildRequest(JsonRpcMethod.CALL, params, ListSerializer(Felt.serializer()))
     }
 
-    override fun callContract(call: Call, blockTag: BlockTag): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockHash: Felt): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockNumber: Int): Request<CallContractResponse> {
+    override fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
@@ -222,4 +231,132 @@ class JsonRpcProvider(
 
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
     }
+
+    override fun getBlockNumber(): Request<Int> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_NUMBER,
+            params,
+            Int.serializer(),
+        )
+    }
+
+    override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_HASH_AND_NUMBER,
+            params,
+            GetBlockHashAndNumberResponse.serializer(),
+        )
+    }
+
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<Int> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
+            params,
+            Int.serializer(),
+        )
+    }
+
+    override fun getBlockTransactionCount(blockTag: BlockTag): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockHash: Felt): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    override fun getBlockTransactionCount(blockNumber: Int): Request<Int> {
+        val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
+
+        return getBlockTransactionCount(payload)
+    }
+
+    /**
+     * Get events
+     *
+     * Returns all events matching the given filter
+     *
+     * @param payload get events payload
+     * @return GetEventsResult with list of emitted events and additional page info
+     *
+     * @throws RpcRequestFailedException
+     */
+    fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+    }
+
+    private fun getEstimateFee(payload: EstimateFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Hash(blockHash))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Number(blockNumber))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val payload = EstimateFeePayload(request, BlockId.Tag(blockTag))
+
+        return getEstimateFee(payload)
+    }
+
+    override fun getNonce(contractAddress: Felt): Request<Felt> {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Get the block synchronization status.
+     *
+     * Get the starting, current and highest block info or boolean indicating syncing is not in progress.
+     *
+     * @throws RequestFailedException
+     */
+    fun getSyncing(): Request<Syncing> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+            JsonRpcMethod.GET_SYNCING,
+            params,
+            JsonRpcSyncPolymorphicSerializer,
+        )
+    }
+}
+
+private enum class JsonRpcMethod(val methodName: String) {
+    CALL("starknet_call"),
+    INVOKE_TRANSACTION("starknet_addInvokeTransaction"),
+    GET_STORAGE_AT("starknet_getStorageAt"),
+    GET_CLASS("starknet_getClass"),
+    GET_CLASS_AT("starknet_getClassAt"),
+    GET_CLASS_HASH_AT("starknet_getClassHashAt"),
+    GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
+    GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    DECLARE("starknet_addDeclareTransaction"),
+    DEPLOY("starknet_addDeployTransaction"),
+    GET_EVENTS("starknet_getEvents"),
+    GET_BLOCK_NUMBER("starknet_blockNumber"),
+    GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
+    GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
+    GET_SYNCING("starknet_syncing"),
+    ESTIMATE_FEE("starknet_estimateFee"),
 }

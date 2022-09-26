@@ -17,6 +17,9 @@ data class InvokeFunctionPayload(
 
     @SerialName("version")
     val version: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
 )
 
 data class DeployTransactionPayload(

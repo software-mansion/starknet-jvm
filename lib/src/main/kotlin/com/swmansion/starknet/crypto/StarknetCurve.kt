@@ -106,6 +106,7 @@ object StarknetCurve {
      */
     // This function is internal, because invalid generation of k is VERY dangerous.
     @JvmStatic
+    @JvmSynthetic
     internal fun sign(privateKey: Felt, hash: Felt, k: BigInteger): StarknetCurveSignature {
         val signature = sign(
             feltToNative(privateKey),
@@ -125,6 +126,7 @@ object StarknetCurve {
      * @param hash a hash to be signed
      */
     @JvmStatic
+    @JvmSynthetic
     internal fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
         val cal = HMacDSAKCalculator(SHA256Digest()).apply {
             init(CURVE_ORDER, privateKey.value, hash.value.toByteArray())

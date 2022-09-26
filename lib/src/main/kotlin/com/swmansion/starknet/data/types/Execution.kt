@@ -3,6 +3,7 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.data.types.transactions.InvokeTransaction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -25,16 +26,23 @@ data class Call(
         selectorFromName(entrypoint),
         calldata,
     )
-}
 
-data class CallExtraParams(
-    val blockId: BlockId,
-)
+    constructor(contractAddress: Felt, entrypoint: Felt) : this(
+        contractAddress,
+        entrypoint,
+        emptyList(),
+    )
+
+    constructor(contractAddress: Felt, entrypoint: String) : this(
+        contractAddress,
+        entrypoint,
+        emptyList(),
+    )
+}
 
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
-    val version: Felt,
 )
 
 @Serializable
@@ -70,7 +78,23 @@ data class GetTransactionReceiptPayload(
     val transactionHash: Felt,
 )
 
-internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> {
+@Serializable
+data class EstimateFeePayload(
+    @SerialName("request")
+    val request: InvokeTransaction,
+
+    @SerialName("block_id")
+    val blockId: BlockId,
+)
+
+@Serializable
+data class GetBlockTransactionCountPayload(
+    @SerialName("block_id")
+    val blockId: BlockId,
+)
+
+@JvmSynthetic
+internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
@@ -87,6 +111,5 @@ internal fun callsToExecuteCalldata(calls: List<Call>, nonce: Felt): List<Felt> 
         addAll(callArray)
         add(Felt(wholeCalldata.size))
         addAll(wholeCalldata)
-        add(nonce)
     }
 }

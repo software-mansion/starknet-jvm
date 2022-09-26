@@ -1,2 +1,2 @@
-# starknet-devnet==0.2.8
-git+https://github.com/drknzz/starknet-devnet.git@feat/update-rpc
+# Replace this with pypi version once devnet releases our changes
+git+https://github.com/Shard-Labs/starknet-devnet.git@a0d2214898603fa122ce39d329088b946aff1b1f
