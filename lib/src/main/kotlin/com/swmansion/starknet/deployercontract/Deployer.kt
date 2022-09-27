@@ -45,7 +45,7 @@ interface Deployer {
      */
     fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
         val random = SecureRandom()
-        val salt = random.nextLong(1, Long.MAX_VALUE)
+        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow()
         val feltSalt = Felt(salt)
         return deployContract(classHash, true, feltSalt, constructorCalldata)
     }
