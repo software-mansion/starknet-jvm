@@ -1,15 +1,25 @@
-## Describe your changes
+<!-- Please provide a very brief description of the PR in the title above. -->
 
-<!-- A brief description of the changes introduced in this PR -->
+## Usage related changes
+<!-- Changes that affect the users -->
+- ...
 
-## Linked issues
-
-<!-- Reference any GitHub issues resolved by this PR starting every line with `Closes` -->
-
-Closes
+## Development related changes
+<!-- Changes that affect the development of the project -->
+- ...
 
 ## Breaking changes
+<!-- If this PR introduces any breaking changes, please list them below -->
+- ...
 
-- [ ] This issue contains breaking changes
+## Checklist
 
-<!-- List all breaking changes introduced by this issue -->
+- [ ] Performed self-review of the code
+- [ ] Updated the tests
+- [ ] Documented the changes
+  - [ ] Verified kotlin docs
+  - [ ] Verified java docs
+- [ ] Linked the issue that this pr resolves
+
+## Other information
+<!-- Anything else you'd like to share, regarding this PR, please write it below. -->
