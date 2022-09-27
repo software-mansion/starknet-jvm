@@ -1,4 +1,4 @@
-package starknet.deployer
+package starknet.deployercontract
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
@@ -59,7 +59,7 @@ object StandardDeployerTest {
     @Test
     fun `test udc deploy`() {
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/balance.json"))
-        val deployment = contractDeployer.deployContract(classHash, Felt(1234), emptyList()).send()
+        val deployment = contractDeployer.deployContract(classHash, true, Felt(1234), emptyList()).send()
         val address = contractDeployer.findContractAddress(deployment).send()
 
         assertNotNull(address)
@@ -71,7 +71,7 @@ object StandardDeployerTest {
         val constructorValue = Felt(111)
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/contractWithConstructor.json"))
         val deployment =
-            contractDeployer.deployContract(classHash, Felt(1234), listOf(constructorValue, Felt(789))).send()
+            contractDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
         val address = contractDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_val1"), BlockTag.LATEST).send()
