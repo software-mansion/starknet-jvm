@@ -26,7 +26,7 @@ assignees: ''
 3.
 
 ## Version of starknet-jvm
-<!--- Provide version number of the library that you are using -->
+<!--- Provide version number of the starknet-jvm library -->
 
 ## Environment
 <!--- What environment, platforms of frameworks are you using  -->
