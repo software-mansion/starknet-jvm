@@ -22,7 +22,7 @@ class StandardDeployer(
         classHash: Felt,
         unique: Boolean,
         salt: Felt,
-        constructorCalldata: Calldata
+        constructorCalldata: Calldata,
     ): Request<ContractDeployment> {
         val feltUnique = if (unique) Felt.ONE else Felt.ZERO
         val invokeCalldata = listOf(classHash, salt, feltUnique, Felt(constructorCalldata.size)) + constructorCalldata
