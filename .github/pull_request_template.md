@@ -1,9 +1,3 @@
-## Description
-<!-- Provide a brief description of the pr -->
-
-<!-- Write which issue this PR resolves, to automatically close it -->
-Closes #
-
 ## Usage related changes
 <!-- Changes that affect the users -->
 - ...
@@ -15,6 +9,10 @@ Closes #
 ## Breaking changes
 <!-- If this PR introduces any breaking changes, please list them below -->
 - ...
+
+## Linked issues
+<!-- Write which issue this PR resolves, to automatically close it -->
+Closes
 
 ## Checklist
 
