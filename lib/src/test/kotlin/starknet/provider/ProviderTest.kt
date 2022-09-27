@@ -133,8 +133,21 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
+    fun `get class at`(provider: Provider) {
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        val request = provider.getClassAt(contractAddress)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
     fun `get class at block hash`(provider: Provider) {
-        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Devnet only support's "latest" as block id in this method, no endpoint for it in gateway.
         return
 
         if (provider !is JsonRpcProvider) {
@@ -143,7 +156,7 @@ class ProviderTest {
 
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassAt(latestBlock.hash, contractAddress)
+        val request = provider.getClassAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
         assertNotNull(response)
@@ -152,7 +165,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at block number`(provider: Provider) {
-        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
+        // FIXME: Devnet only support's "latest" as block id in this method, no endpoint for it in gateway.
         return
 
         if (provider !is JsonRpcProvider) {
@@ -161,7 +174,7 @@ class ProviderTest {
 
         val latestBlock = devnetClient.getLatestBlock()
 
-        val request = provider.getClassAt(latestBlock.number, contractAddress)
+        val request = provider.getClassAt(contractAddress, latestBlock.number)
         val response = request.send()
 
         assertNotNull(response)
@@ -170,14 +183,11 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at latest block`(provider: Provider) {
-        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
-        return
-
         if (provider !is JsonRpcProvider) {
             return
         }
 
-        val request = provider.getClassAt(BlockTag.LATEST, contractAddress)
+        val request = provider.getClassAt(contractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
@@ -193,7 +203,16 @@ class ProviderTest {
             return
         }
 
-        val request = provider.getClassAt(BlockTag.PENDING, contractAddress)
+        val request = provider.getClassAt(contractAddress, BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get class hash`(provider: Provider) {
+        val request = provider.getClassHashAt(contractAddress)
         val response = request.send()
 
         assertNotNull(response)
@@ -395,7 +414,7 @@ class ProviderTest {
 
     @Test
     fun `rpc provider throws RpcRequestFailedException`() {
-        val request = rpcProvider().getClassAt(BlockTag.LATEST, Felt(0))
+        val request = rpcProvider().getClassAt(Felt(0), BlockTag.LATEST)
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {
             request.send()
