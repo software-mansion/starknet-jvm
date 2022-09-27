@@ -7,6 +7,10 @@ internal fun <T, N> Request<T>.compose(mapping: (value: T) -> Request<N>): Reque
     return DependentRequest(this, mapping)
 }
 
+internal fun <T, N> Request<T>.map(mapping: (value: T) -> N): Request<N> {
+    return MappedRequest(this, mapping)
+}
+
 internal class DependentRequest<T, D>(
     private val dependsOn: Request<D>,
     private val mapper: (D) -> Request<T>,
@@ -20,5 +24,19 @@ internal class DependentRequest<T, D>(
         return dependsOn.sendAsync()
             .thenApplyAsync(mapper)
             .thenComposeAsync(Request<T>::sendAsync)
+    }
+}
+
+internal class MappedRequest<T, D>(
+    private val originalRequest: Request<D>,
+    private val mapper: (D) -> T,
+) : Request<T> {
+    override fun send(): T {
+        return mapper(originalRequest.send())
+    }
+
+    override fun sendAsync(): CompletableFuture<T> {
+        return originalRequest.sendAsync()
+            .thenApplyAsync(mapper)
     }
 }
