@@ -20,10 +20,12 @@ class StandardDeployer(
 ) : Deployer {
     override fun deployContract(
         classHash: Felt,
+        unique: Boolean,
         salt: Felt,
-        constructorCalldata: Calldata,
+        constructorCalldata: Calldata
     ): Request<ContractDeployment> {
-        val invokeCalldata = listOf(classHash, salt, Felt.ONE, Felt(constructorCalldata.size)) + constructorCalldata
+        val feltUnique = if (unique) Felt.ONE else Felt.ZERO
+        val invokeCalldata = listOf(classHash, salt, feltUnique, Felt(constructorCalldata.size)) + constructorCalldata
         val call = Call(deployerAddress, "deployContract", invokeCalldata)
 
         return account.execute(call).map { ContractDeployment(it.transactionHash) }

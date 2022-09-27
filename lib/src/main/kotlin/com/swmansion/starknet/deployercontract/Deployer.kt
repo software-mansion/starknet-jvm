@@ -21,12 +21,13 @@ interface Deployer {
      * Deploy a contract through Universal Deployer Contract (UDC)
      *
      * @param classHash a class hash of the declared contract
+     * @param unique set whether deployed contract address should be based on account address or not
      * @param salt a salt to be used to calculate deployed contract address
      * @param constructorCalldata constructor calldata
      *
      * @throws RequestFailedException
      */
-    fun deployContract(classHash: Felt, salt: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
+    fun deployContract(classHash: Felt, unique: Boolean, salt: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
 
     /**
      * Get a contract address from the deployment
