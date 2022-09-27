@@ -67,6 +67,16 @@ object StandardDeployerTest {
     }
 
     @Test
+    fun `test udc deploy with default parameters`() {
+        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/balance.json"))
+        val deployment = contractDeployer.deployContract(classHash, emptyList()).send()
+        val address = contractDeployer.findContractAddress(deployment).send()
+
+        assertNotNull(address)
+        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+    }
+
+    @Test
     fun `test udc deploy with constructor`() {
         val constructorValue = Felt(111)
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/contractWithConstructor.json"))
