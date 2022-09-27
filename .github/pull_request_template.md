@@ -1,4 +1,8 @@
-<!-- Please provide a very brief description of the PR in the title above. -->
+## Description
+<!-- Provide a brief description of the pr -->
+
+<!-- Write which issue this PR resolves, to automatically close it -->
+Closes #
 
 ## Usage related changes
 <!-- Changes that affect the users -->
@@ -19,7 +23,6 @@
 - [ ] Documented the changes
   - [ ] Verified kotlin docs
   - [ ] Verified java docs
-- [ ] Linked the issue that this pr resolves
 
 ## Other information
 <!-- Anything else you'd like to share, regarding this PR, please write it below. -->
