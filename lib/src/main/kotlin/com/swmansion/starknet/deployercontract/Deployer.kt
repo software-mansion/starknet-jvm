@@ -12,6 +12,8 @@ data class ContractDeployment(
 
 class AddressRetrievalFailedException(message: String, contractDeployment: ContractDeployment) : Exception(message)
 
+class SaltGenerationFailedException : Exception()
+
 /**
  * Universal Deployer Contract module
  *
@@ -41,11 +43,12 @@ interface Deployer {
      *
      * @param classHash a class hash of the declared contract
      * @param constructorCalldata constructor calldata
-     * * @throws RequestFailedException
+     * @throws RequestFailedException
+     * @throws SaltGenerationFailedException
      */
     fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
         val random = SecureRandom()
-        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow()
+        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
         val feltSalt = Felt(salt)
         return deployContract(classHash, true, feltSalt, constructorCalldata)
     }

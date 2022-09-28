@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.1.1"
+version = "0.2.0"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -16,6 +16,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
+    id("io.codearte.nexus-staging") version "0.30.0"
 
     kotlin("plugin.serialization")
 
@@ -141,70 +142,69 @@ publishing {
             artifact("sources-jar/sources.jar"){
                 classifier="sources"
             }
-        pom {
-            name.set("starknet")
-            description.set("StarkNet SDK for JVM languages")
-            url.set("https://github.com/software-mansion/starknet-jvm")
-            licenses {
-                license {
-                    name.set("MIT License")
-                    url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
+            pom {
+                name.set("starknet")
+                description.set("StarkNet SDK for JVM languages")
+                url.set("https://github.com/software-mansion/starknet-jvm")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
+                    }
                 }
-            }
-            developers {
-                developer {
-                    id.set("jakubptak")
-                    name.set("Jakub Ptak")
-                    email.set("jakub.ptak@swmansion.com")
+                developers {
+                    developer {
+                        id.set("jakubptak")
+                        name.set("Jakub Ptak")
+                        email.set("jakub.ptak@swmansion.com")
+                    }
+                    developer {
+                        id.set("arturmichalek")
+                        name.set("Artur Michałek")
+                        email.set("artur.michalek@swmansion.com")
+                    }
+                    developer {
+                        id.set("bartoszrybarski")
+                        name.set("Bartosz Rybarski")
+                        email.set("bartosz.rybarski@swmansion.com")
+                    }
+                    developer {
+                        id.set("wojciechszymczyk")
+                        name.set("Wojciech Szymczyk")
+                        email.set("wojciech.szymczyk@swmansion.com")
+                    }
                 }
-                developer {
-                    id.set("arturmichalek")
-                    name.set("Artur Michałek")
-                    email.set("artur.michalek@swmansion.com")
+                scm {
+                    connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+                    url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
                 }
-                developer {
-                    id.set("bartoszrybarski")
-                    name.set("Bartosz Rybarski")
-                    email.set("bartosz.rybarski@swmansion.com")
-                }
-                developer {
-                    id.set("wojciechszymczyk")
-                    name.set("Wojciech Szymczyk")
-                    email.set("wojciech.szymczyk@swmansion.com")
-                }
-            }
-            scm {
-                connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
-                developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
-                url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
-            }
-        pom.withXml {
-            val dependencyNode = asNode().appendNode("dependencies")
+                pom.withXml {
+                    val dependencyNode = asNode().appendNode("dependencies")
 
-            val kotlinDependency = dependencyNode.appendNode("dependency")
-            kotlinDependency.appendNode("groupId", "org.jetbrains.kotlin")
-            kotlinDependency.appendNode("artifactId", "kotlin-stdlib-jdk8")
-            kotlinDependency.appendNode("version", "1.3.50")
+                    val kotlinDependency = dependencyNode.appendNode("dependency")
+                    kotlinDependency.appendNode("groupId", "org.jetbrains.kotlin")
+                    kotlinDependency.appendNode("artifactId", "kotlin-stdlib-jdk8")
+                    kotlinDependency.appendNode("version", "1.3.50")
 
-            val bouncyCastleDependency = dependencyNode.appendNode("dependency")
-            bouncyCastleDependency.appendNode("groupId", "org.bouncycastle")
-            bouncyCastleDependency.appendNode("artifactId", "bcprov-jdk15on")
-            bouncyCastleDependency.appendNode("version", "1.70")
+                    val bouncyCastleDependency = dependencyNode.appendNode("dependency")
+                    bouncyCastleDependency.appendNode("groupId", "org.bouncycastle")
+                    bouncyCastleDependency.appendNode("artifactId", "bcprov-jdk15on")
+                    bouncyCastleDependency.appendNode("version", "1.70")
 
-            val okHttpDependency = dependencyNode.appendNode("dependency")
-            okHttpDependency.appendNode("groupId", "com.squareup.okhttp3")
-            okHttpDependency.appendNode("artifactId", "okhttp")
-            okHttpDependency.appendNode("version", "4.10.0")
+                    val okHttpDependency = dependencyNode.appendNode("dependency")
+                    okHttpDependency.appendNode("groupId", "com.squareup.okhttp3")
+                    okHttpDependency.appendNode("artifactId", "okhttp")
+                    okHttpDependency.appendNode("version", "4.10.0")
 
-            val kotlinxDependency = dependencyNode.appendNode("dependency")
-            kotlinxDependency.appendNode("groupId", "org.jetbrains.kotlinx")
-            kotlinxDependency.appendNode("artifactId", "kotlinx-serialization-json")
-            kotlinxDependency.appendNode("version", "1.3.3")
+                    val kotlinxDependency = dependencyNode.appendNode("dependency")
+                    kotlinxDependency.appendNode("groupId", "org.jetbrains.kotlinx")
+                    kotlinxDependency.appendNode("artifactId", "kotlinx-serialization-json")
+                    kotlinxDependency.appendNode("version", "1.3.3")
+                }
             }
         }
     }
-}
-
     repositories {
         maven {
             credentials {
@@ -217,6 +217,13 @@ publishing {
         }
 
     }
+}
+
+nexusStaging {
+    serverUrl = "https://s01.oss.sonatype.org/service/local/"
+    packageGroup = "com.swmansion"
+    username = System.getenv("MAVEN_USERNAME")
+    password = System.getenv("MAVEN_PASSWORD")
 }
 
 signing {
