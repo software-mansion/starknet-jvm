@@ -46,7 +46,6 @@ public class Main {
         TransactionReceipt receipt = receiptRequest.send();
         Boolean isAccepted = (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L2) || (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L1);
 
-
         // Manually sign a hash
         Felt hash = Felt.fromHex("0x121212121212");
         StarknetCurveSignature signature = StarknetCurve.sign(privateKey, hash);
