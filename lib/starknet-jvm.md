@@ -1,9 +1,9 @@
 # Module starknet-jvm
 
-StarkNet.kt is a library allowing for easy interaction with StarkNet gateway and nodes, including
+StarkNet-jvm is a library allowing for easy interaction with StarkNet gateway and nodes, including
 querying starknet state, executing transactions and deploying contracts.
 
-Although written in Kotlin, StarkNet.kt has been created with compatibility with Java in mind.
+Although written in Kotlin, StarkNet-jvm has been created with compatibility with Java in mind.
 
 ## Making synchronous requests
 
@@ -261,7 +261,7 @@ application can use a single `OkHttpClient`. Read more [here](https://square.git
 ```java
 import com.swmansion.starknet.service.http.OkHttpService;
 
-// ...
+// (...)
 
 var httpClient = new OkHttpClient();
 var httpService = new OkHttpService(httpClient);
