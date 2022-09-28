@@ -2,6 +2,8 @@ package com.example.javademo;
 
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.crypto.StarknetCurveSignature;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.*;
 import com.swmansion.starknet.provider.Provider;
@@ -43,5 +45,18 @@ public class Main {
         Request<? extends TransactionReceipt> receiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
         TransactionReceipt receipt = receiptRequest.send();
         Boolean isAccepted = (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L2) || (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L1);
+
+
+        // Manually sign a hash
+        Felt hash = Felt.fromHex("0x121212121212");
+        StarknetCurveSignature signature = StarknetCurve.sign(privateKey, hash);
+        Felt r = signature.getR();
+        Felt s = signature.getS();
+
+        // Get a public key for a given private key
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+
+        // Verify a signature
+        boolean isCorrect = StarknetCurve.verify(publicKey, hash, r, s);
     }
 }
