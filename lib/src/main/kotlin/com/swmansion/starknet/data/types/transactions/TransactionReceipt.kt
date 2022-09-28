@@ -38,6 +38,8 @@ sealed class TransactionReceipt {
     abstract val isPending: Boolean
     abstract val type: TransactionReceiptType
     abstract val status: TransactionStatus
+    val isAccepted: Boolean
+        get() = (status == TransactionStatus.ACCEPTED_ON_L1) || (status == TransactionStatus.ACCEPTED_ON_L2)
 }
 
 @Serializable

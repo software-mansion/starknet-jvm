@@ -37,7 +37,7 @@ private fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
  *
  * Class with utility methods related to starknet curve signatures generation and verification.
  */
-internal object StarknetCurve {
+object StarknetCurve {
 
     @field:JvmField
     val CURVE_ORDER: BigInteger = BigInteger("800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F", 16)
@@ -126,8 +126,7 @@ internal object StarknetCurve {
      * @param hash a hash to be signed
      */
     @JvmStatic
-    @JvmSynthetic
-    internal fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
+    fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
         val cal = HMacDSAKCalculator(SHA256Digest()).apply {
             init(CURVE_ORDER, privateKey.value, hash.value.toByteArray())
         }
