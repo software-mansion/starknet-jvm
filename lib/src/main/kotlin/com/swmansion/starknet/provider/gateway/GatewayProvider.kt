@@ -1,13 +1,8 @@
 package com.swmansion.starknet.provider.gateway
 
-import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
-import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
-import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
@@ -223,11 +218,11 @@ class GatewayProvider(
 
         val body = buildJsonObject {
             put("type", "DECLARE")
-            put("sender_address", DECLARE_SENDER_ADDRESS)
+            put("sender_address", payload.senderAddress)
             put("max_fee", payload.maxFee)
             put("nonce", payload.nonce)
             put("version", payload.version)
-            putJsonArray("signature") { payload.signature }
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
             put("contract_class", payload.contractDefinition.toJson())
         }
 
