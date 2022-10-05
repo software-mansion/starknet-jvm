@@ -331,6 +331,18 @@ class JsonRpcProvider(
         return getEstimateFee(payload)
     }
 
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        TODO("Not yet implemented")
+    }
+
     override fun getNonce(contractAddress: Felt): Request<Felt> {
         TODO("Not yet implemented")
     }
