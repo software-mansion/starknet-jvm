@@ -1,2 +1,1 @@
-# Replace this with pypi version once devnet releases our changes
-git+https://github.com/Shard-Labs/starknet-devnet.git@a0d2214898603fa122ce39d329088b946aff1b1f
+starknet-devnet==0.3.2
