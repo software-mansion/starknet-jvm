@@ -276,4 +276,24 @@ class StandardAccountTest {
         val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt2.status)
     }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `estimate fee for declare transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
+        val contractDefinition = ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+        val classHash = Felt.fromHex("0x68704d18de8ccf71da7c9761ee53efd44dcfcfd512eddfac9c396e7d175e234")
+
+        val declareTransactionPayload = account.sign(
+            contractDefinition,
+            classHash,
+            ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+        val request = provider.getEstimateFee(declareTransactionPayload)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
 }
