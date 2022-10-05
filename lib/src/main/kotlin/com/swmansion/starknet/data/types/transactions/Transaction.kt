@@ -121,7 +121,6 @@ data class InvokeTransaction(
 @SerialName("DECLARE")
 data class DeclareTransaction(
     @SerialName("class_hash")
-    @JsonNames("contract_class")
     val classHash: Felt,
 
     @SerialName("sender_address")
