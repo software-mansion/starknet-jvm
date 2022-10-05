@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.nio.file.Path
+import kotlin.io.path.readText
 
 class StandardAccountTest {
     companion object {
@@ -132,7 +133,7 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `estimate fee`(accountAndProvider: AccountAndProvider) {
+    fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
         val (account, _) = accountAndProvider
         val call = Call(
             contractAddress = balanceContractAddress,
