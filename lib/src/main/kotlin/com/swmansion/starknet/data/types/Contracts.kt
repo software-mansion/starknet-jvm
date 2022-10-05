@@ -80,6 +80,7 @@ data class ContractEntryPoint(
     val selector: Felt,
 )
 
+@Serializable
 data class ContractDefinition(private val contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
