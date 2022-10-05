@@ -274,18 +274,10 @@ class GatewayProvider(
     }
 
     private fun getEstimateFee(
-        request: InvokeTransaction,
+        body: JsonObject,
         blockParam: Pair<String, String>,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
-        val body = buildJsonObject {
-            put("contract_address", request.contractAddress.hexString())
-            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
-            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
-            put("nonce", request.nonce)
-            put("version", request.version)
-        }
-
         val httpPayload = Payload(url, "POST", listOf(blockParam), body)
 
         return HttpRequest(
@@ -293,6 +285,20 @@ class GatewayProvider(
             buildDeserializer(EstimateFeeResponseGatewaySerializer),
             httpService,
         )
+    }
+
+    private fun getEstimateFee(
+        request: InvokeTransaction,
+        blockParam: Pair<String, String>,
+    ): Request<EstimateFeeResponse> {
+        val body = buildJsonObject {
+            put("contract_address", request.contractAddress.hexString())
+            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
+            put("nonce", request.nonce)
+            put("version", request.version)
+        }
+        return getEstimateFee(body, blockParam)
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
@@ -311,6 +317,34 @@ class GatewayProvider(
         val param = "blockTag" to blockTag.tag
 
         return getEstimateFee(request, param)
+    }
+
+    private fun getEstimateFee(
+        request: DeclareTransactionPayload,
+        blockParam: Pair<String, String>,
+    ): Request<EstimateFeeResponse> {
+        val body = buildJsonObject {
+            put("type", "DECLARE")
+            put("sender_address", request.senderAddress)
+            put("max_fee", request.maxFee)
+            put("nonce", request.nonce)
+            put("version", request.version)
+            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
+            put("contract_class", request.contractDefinition.toJson())
+        }
+        return getEstimateFee(body, blockParam)
+    }
+
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, "blockHash" to blockHash.hexString())
+    }
+
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, "blockNumber" to blockNumber.toString())
+    }
+
+    override fun getEstimateFee(request: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, "blockTag" to blockTag.tag)
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> {
