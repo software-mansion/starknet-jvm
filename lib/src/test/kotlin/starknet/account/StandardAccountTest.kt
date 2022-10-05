@@ -120,6 +120,29 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
+    fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
+        val contractDefinition = ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+        val classHash = Felt.fromHex("0x68704d18de8ccf71da7c9761ee53efd44dcfcfd512eddfac9c396e7d175e234")
+
+        val declareTransactionPayload = account.sign(
+            contractDefinition,
+            classHash,
+            ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        assertNotNull(result)
+        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
     fun `sign single call test`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         val call = Call(
