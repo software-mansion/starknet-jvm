@@ -143,7 +143,24 @@ data class DeclareTransaction(
     override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.DECLARE,
-) : Transaction()
+
+    private val contractDefinition: ContractDefinition? = null,
+) : Transaction() {
+    @Throws(ConvertingToPayloadFailedException::class)
+    internal fun toPayload(): DeclareTransactionPayload {
+        contractDefinition ?: throw ConvertingToPayloadFailedException()
+        return DeclareTransactionPayload(
+            contractDefinition = contractDefinition,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            nonce = nonce,
+            signature = signature,
+            version = version,
+        )
+    }
+
+    internal class ConvertingToPayloadFailedException : Exception()
+}
 
 object TransactionFactory {
     @JvmStatic
