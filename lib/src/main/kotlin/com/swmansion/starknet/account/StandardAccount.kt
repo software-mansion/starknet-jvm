@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
@@ -72,6 +73,34 @@ class StandardAccount(
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
         return signedTransaction.toPayload()
+    }
+
+    override fun sign(
+        contractDefinition: ContractDefinition,
+        classHash: Felt,
+        params: ExecutionParams,
+    ): DeclareTransactionPayload {
+        val hash = StarknetCurve.pedersenOnElements(
+            TransactionType.DECLARE.txPrefix,
+            version,
+            address,
+            Felt.ZERO,
+            StarknetCurve.pedersenOnElements(classHash),
+            params.maxFee,
+            provider.chainId.value,
+            params.nonce,
+        )
+        val transaction = DeclareTransaction(
+            classHash = classHash,
+            senderAddress = address,
+            hash = hash,
+            maxFee = params.maxFee,
+            version = version,
+            signature = emptyList(),
+            nonce = params.nonce,
+            contractDefinition = contractDefinition,
+        )
+        return transaction.copy(signature = signer.signTransaction(transaction)).toPayload()
     }
 
     override fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
