@@ -6,7 +6,7 @@ plugins {
 
 android {
     compileSdk 32
-    namespace "android"
+    namespace "com.swmmansion.starknet"
 
     defaultConfig {
         minSdk 24
