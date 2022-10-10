@@ -104,9 +104,19 @@ interface Account {
     /**
      * Get account nonce.
      *
-     * Get current account nonce.
+     * Get account nonce from pending block.
      *
      * @return nonce as field value.
      */
     fun getNonce(): Request<Felt>
+
+    /**
+     * Get account nonce.
+     *
+     * Get account nonce for specified block.
+     * @param blockTag block tag used for fetching the value
+     *
+     * @return nonce as field value.
+     */
+    fun getNonce(blockTag: BlockTag): Request<Felt>
 }

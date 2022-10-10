@@ -335,6 +335,10 @@ class JsonRpcProvider(
         TODO("Not yet implemented")
     }
 
+    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Get the block synchronization status.
      *

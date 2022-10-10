@@ -97,9 +97,28 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `get nonce test`(accountAndProvider: AccountAndProvider) {
         val (account, _) = accountAndProvider
-        val nonce = account.getNonce()
+        val nonce = account.getNonce().send()
+        assert(nonce >= Felt.ZERO)
+    }
 
-        assertNotNull(nonce)
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `get nonce twice`(accountAndProvider: AccountAndProvider) {
+        val (account, _) = accountAndProvider
+        val startNonce = account.getNonce().send()
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+        account.execute(call).send()
+
+        val endNonce = account.getNonce().send()
+
+        assertEquals(
+            Felt(startNonce.value + Felt.ONE.value),
+            endNonce,
+        )
     }
 
     @ParameterizedTest

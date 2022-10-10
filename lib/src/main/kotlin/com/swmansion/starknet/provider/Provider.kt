@@ -267,14 +267,25 @@ interface Provider {
     /**
      * Get a nonce.
      *
-     * Get a nonce of an account contract of a given address
+     * Get a nonce of an account contract of a given address using pending block.
      *
      * @param contractAddress address of account contract
      *
      * @throws RequestFailedException
      */
-    // TODO(support block tag)
-    fun getNonce(contractAddress: Felt): Request<Felt>
+    fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, blockTag = BlockTag.PENDING)
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address for pending block
+     *
+     * @param contractAddress address of account contract
+     * @param blockTag block tag used for returning this value
+     *
+     * @throws RequestFailedException
+     */
+    fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
 
     /**
      * Get the block number.

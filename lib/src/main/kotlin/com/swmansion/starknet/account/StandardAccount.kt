@@ -4,7 +4,8 @@ import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload
+import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
@@ -69,10 +70,8 @@ class StandardAccount(
         }
     }
 
-    override fun getNonce(): Request<Felt> {
-        return provider.getNonce(address)
-    }
-
+    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
+    override fun getNonce(blockTag: BlockTag): Request<Felt> = provider.getNonce(address, blockTag)
     override fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse> {
         return getNonce().compose { buildEstimateFeeRequest(calls, it) }
     }
