@@ -25,7 +25,8 @@ internal fun String.encodeShortString(): Felt {
     }
 
     val encoded = this.replace(Regex(".")) {
-            s -> s.value.first().code.toString(16).padStart(2, '0')
+            s ->
+        s.value.first().code.toString(16).padStart(2, '0')
     }
 
     return Felt.fromHex(encoded.addHexPrefix())

@@ -9,21 +9,21 @@ import kotlinx.serialization.json.*
 @Serializable
 sealed class TypedDataChainId {
     @Serializable
-    data class ChainIdString(val chainId: String): TypedDataChainId()
+    data class ChainIdString(val chainId: String) : TypedDataChainId()
 
     @Serializable
-    data class ChainIdNumber(val chainId: Int): TypedDataChainId()
+    data class ChainIdNumber(val chainId: Int) : TypedDataChainId()
 }
 
 @Serializable
 data class StarkNetDomain(
     val name: String?,
     val version: String?,
-    val chainId: TypedDataChainId
+    val chainId: TypedDataChainId,
 ) {
-    constructor(name: String?, version: String?, chainId: String): this(name, version, TypedDataChainId.ChainIdString(chainId))
+    constructor(name: String?, version: String?, chainId: String) : this(name, version, TypedDataChainId.ChainIdString(chainId))
 
-    constructor(name: String?, version: String?, chainId: Int): this(name, version, TypedDataChainId.ChainIdNumber(chainId))
+    constructor(name: String?, version: String?, chainId: Int) : this(name, version, TypedDataChainId.ChainIdNumber(chainId))
 }
 
 @Serializable
@@ -35,7 +35,7 @@ data class TypedData(
     val types: TypedDataTypes,
     val primaryType: String,
     val domain: StarkNetDomain,
-    val message: JsonObject
+    val message: JsonObject,
 ) {
     private fun getDependencies(typeName: String): List<String> {
         val deps = mutableListOf<String>(typeName)
@@ -65,7 +65,7 @@ data class TypedData(
         val newDeps = listOf(deps[0], *sorted)
 
         val result = newDeps.joinToString("") { dependency ->
-            "${dependency}(${types[dependency]?.map { "${it.name}:${it.type}" }?.joinToString(",")})"
+            "$dependency(${types[dependency]?.map { "${it.name}:${it.type}" }?.joinToString(",")})"
         }
 
         return result
@@ -125,7 +125,7 @@ data class TypedData(
             "StarkNet Message".encodeShortString(),
             getStructHash("StarkNetDomain", Json.encodeToJsonElement(domain) as JsonObject),
             accountAddress,
-            getStructHash(primaryType, message)
+            getStructHash(primaryType, message),
         )
     }
 }
