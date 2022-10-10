@@ -101,7 +101,7 @@ class TypedDataTest {
 
     @Test
     fun `type encoding`() {
-        val encoding = encodeType(mockedTypedData.types, "Mail")
+        val encoding = mockedTypedData.encodeType(mockedTypedData.types, "Mail")
 
         assertEquals("Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)", encoding)
     }
