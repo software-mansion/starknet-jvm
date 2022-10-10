@@ -267,7 +267,7 @@ interface Provider {
     /**
      * Get a nonce.
      *
-     * Get a nonce of an account contract of a given address using pending block.
+     * Get a nonce of an account contract of a given address for pending block.
      *
      * @param contractAddress address of account contract
      *
@@ -278,7 +278,7 @@ interface Provider {
     /**
      * Get a nonce.
      *
-     * Get a nonce of an account contract of a given address for pending block
+     * Get a nonce of an account contract of a given address for specified block.
      *
      * @param contractAddress address of account contract
      * @param blockTag block tag used for returning this value
