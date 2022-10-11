@@ -3,11 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
-import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
-import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
@@ -375,14 +371,14 @@ class GatewayProvider(
         return getBlockTransactionCount(payload)
     }
 
-    companion object Factory {
-        // Copied values from TransactionType in cairo-lang
-        private fun transactionTypeToName(type: TransactionType) = when (type) {
-            TransactionType.DECLARE -> "DECLARE"
-            TransactionType.DEPLOY -> "DEPLOY"
-            TransactionType.INVOKE -> "INVOKE_FUNCTION"
-        }
+    // Copied values from TransactionType in cairo-lang
+    private fun transactionTypeToName(type: TransactionType) = when (type) {
+        TransactionType.DECLARE -> "DECLARE"
+        TransactionType.DEPLOY -> "DEPLOY"
+        TransactionType.INVOKE -> "INVOKE_FUNCTION"
+    }
 
+    companion object Factory {
         @JvmStatic
         fun makeTestnetClient(): GatewayProvider {
             return GatewayProvider(
