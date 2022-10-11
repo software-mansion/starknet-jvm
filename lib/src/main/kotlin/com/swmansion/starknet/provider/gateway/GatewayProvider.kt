@@ -310,8 +310,13 @@ class GatewayProvider(
         return getEstimateFee(request, BlockId.Tag(blockTag))
     }
 
-    override fun getNonce(contractAddress: Felt): Request<Felt> {
-        val params = listOf("contractAddress" to contractAddress.hexString())
+    override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
+
+    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
+        val params = listOf(
+            "contractAddress" to contractAddress.hexString(),
+            BlockId.Tag(blockTag).toGatewayParam(),
+        )
         val url = feederGatewayRequestUrl("get_nonce")
 
         return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
