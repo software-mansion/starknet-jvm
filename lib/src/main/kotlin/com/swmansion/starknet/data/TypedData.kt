@@ -11,6 +11,7 @@ data class StarkNetType(val name: String, val type: String)
 
 typealias TypedDataTypes = Map<String, List<StarkNetType>>
 
+@Serializable
 data class TypedData(
     val types: TypedDataTypes,
     val primaryType: String,
@@ -51,6 +52,24 @@ data class TypedData(
         return result
     }
 
+    private fun valueFromPrimitive(primitive: JsonPrimitive): Felt {
+        if (primitive.isString) {
+            val decimal = primitive.content.toLongOrNull()
+
+            if (decimal != null) {
+                return Felt(decimal)
+            }
+
+            return try {
+                Felt.fromHex(primitive.content)
+            } catch (e: Exception) {
+                primitive.content.encodeShortString()
+            }
+        }
+
+        return Felt(primitive.long)
+    }
+
     private fun encodeValue(typeName: String, value: JsonElement): Pair<String, Felt> {
         if (types.containsKey(typeName)) {
             return typeName to getStructHash(typeName, value as JsonObject)
@@ -66,24 +85,13 @@ data class TypedData(
 
         if (typeName == "felt*") {
             val array = value as JsonArray
-            val feltArray = array.map { Felt.fromHex(it.jsonPrimitive.content) }
+            val feltArray = array.map { valueFromPrimitive(it.jsonPrimitive) }
             val hash = StarknetCurve.pedersenOnElements(feltArray)
 
             return typeName to hash
         }
 
-        if (value.jsonPrimitive.isString) {
-            return try {
-                val feltValue = Felt.fromHex(value.jsonPrimitive.content)
-                "felt" to feltValue
-            } catch (e: Exception) {
-                val encodedString = value.jsonPrimitive.content.encodeShortString()
-
-                "felt" to encodedString
-            }
-        }
-
-        return "felt" to Felt(value.jsonPrimitive.int)
+        return "felt" to valueFromPrimitive(value.jsonPrimitive)
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
