@@ -36,6 +36,15 @@ class ProviderTest {
         @JvmStatic
         private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
 
+        private data class BlockHashAndNumber(val hash: Felt, val number: Int)
+
+        @JvmStatic
+        private val latestBlock: BlockHashAndNumber
+            get() {
+                val latestBlock = devnetClient.latestBlock()
+                return BlockHashAndNumber(latestBlock.blockHash, latestBlock.blockNumber)
+            }
+
         @JvmStatic
         private fun gatewayProvider(): GatewayProvider =
             GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
@@ -83,26 +92,57 @@ class ProviderTest {
         }
     }
 
-    private fun getBalance(provider: Provider): Felt {
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `call contract with block number`(provider: Provider) {
+        if (provider is JsonRpcProvider) return
+
         val call = Call(
             contractAddress,
             "get_balance",
             emptyList(),
         )
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
-        val request = provider.callContract(call, BlockTag.LATEST)
+        val request = provider.callContract(call, latestBlock.number)
         val response = request.send()
+        val balance = response.first()
 
-        assertEquals(1, response.size)
-
-        return response.first()
+        assertEquals(expected, balance)
     }
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `call contract`(provider: Provider) {
-        val balance = getBalance(provider)
+    fun `call contract with block hash`(provider: Provider) {
+        if (provider is JsonRpcProvider) return
+
+        val call = Call(
+            contractAddress,
+            "get_balance",
+            emptyList(),
+        )
         val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
+        val request = provider.callContract(call, latestBlock.hash)
+        val response = request.send()
+        val balance = response.first()
+
+        assertEquals(expected, balance)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `call contract with block tag`(provider: Provider) {
+        val call = Call(
+            contractAddress,
+            "get_balance",
+            emptyList(),
+        )
+        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+
+        val request = provider.callContract(call, BlockTag.LATEST)
+        val response = request.send()
+        val balance = response.first()
 
         assertEquals(expected, balance)
     }
