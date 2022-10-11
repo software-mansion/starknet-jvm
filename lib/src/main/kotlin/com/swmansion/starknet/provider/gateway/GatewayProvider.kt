@@ -281,7 +281,7 @@ class GatewayProvider(
 
     private fun getEstimateFee(
         request: InvokeTransaction,
-        blockParam: Pair<String, String>,
+        blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = buildJsonObject {
@@ -292,7 +292,7 @@ class GatewayProvider(
             put("version", request.version)
         }
 
-        val httpPayload = Payload(url, "POST", listOf(blockParam), body)
+        val httpPayload = Payload(url, "POST", listOf(blockId.toParam()), body)
 
         return HttpRequest(
             httpPayload,
@@ -302,21 +302,15 @@ class GatewayProvider(
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
-        val param = "blockHash" to blockHash.hexString()
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Hash(blockHash))
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
-        val param = "blockNumber" to blockNumber.toString()
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Number(blockNumber))
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val param = "blockTag" to blockTag.tag
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Tag(blockTag))
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> {
