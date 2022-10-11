@@ -19,10 +19,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 /**
@@ -76,12 +73,13 @@ class GatewayProvider(
         )
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     private data class GatewayError(
-        @SerialName("status_code")
+        @JsonNames("code")
         val code: Int,
 
-        @SerialName("message")
+        @JsonNames("message")
         val message: String,
     )
 
