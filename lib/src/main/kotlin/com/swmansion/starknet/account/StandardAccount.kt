@@ -70,7 +70,7 @@ class StandardAccount(
         }
     }
 
-    override fun getNonce(blockTag: BlockTag): Request<Felt> = provider.getNonce(address, blockTag)
+    override fun getNonce(): Request<Felt> = provider.getNonce(address, BlockTag.PENDING)
 
     override fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse> {
         return getNonce().compose { buildEstimateFeeRequest(calls, it) }
