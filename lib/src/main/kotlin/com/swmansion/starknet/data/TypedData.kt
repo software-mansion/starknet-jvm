@@ -7,17 +7,15 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 @Serializable
-data class StarkNetType(val name: String, val type: String)
-
-typealias TypedDataTypes = Map<String, List<StarkNetType>>
-
-@Serializable
 data class TypedData(
-    val types: TypedDataTypes,
+    val types: Map<String, List<StarkNetType>>,
     val primaryType: String,
     val domain: JsonObject,
     val message: JsonObject,
 ) {
+    @Serializable
+    data class StarkNetType(val name: String, val type: String)
+
     private fun getDependencies(typeName: String): List<String> {
         val deps = mutableListOf<String>(typeName)
         val toVisit = mutableListOf(typeName)
@@ -123,10 +121,6 @@ data class TypedData(
             getStructHash(primaryType, message),
         )
     }
-}
-
-private fun isPointer(value: String): Boolean {
-    return value.endsWith("*")
 }
 
 private fun stripPointer(value: String): String {
