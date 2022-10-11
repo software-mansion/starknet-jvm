@@ -4,8 +4,8 @@ import com.swmansion.starknet.data.types.BlockId
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toParam
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 class ToParamTest {
     @Test
