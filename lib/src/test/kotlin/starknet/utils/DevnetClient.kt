@@ -1,6 +1,7 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
 import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
@@ -287,6 +288,25 @@ class DevnetClient(
         requireNoErrors("Get receipt", error)
 
         val result = String(getStorageAtProcess.inputStream.readAllBytes())
+        return json.decodeFromString(result)
+    }
+
+    fun latestBlock(): GetBlockHashAndNumberResponse {
+        val getBlockProcess = ProcessBuilder(
+            "starknet",
+            "get_block",
+            "--number",
+            "latest",
+            "--gateway_url",
+            gatewayUrl,
+            "--feeder_gateway_url",
+            feederGatewayUrl,
+        ).start()
+
+        val error = String(getBlockProcess.errorStream.readAllBytes())
+        requireNoErrors("Get receipt", error)
+
+        val result = String(getBlockProcess.inputStream.readAllBytes())
         return json.decodeFromString(result)
     }
 

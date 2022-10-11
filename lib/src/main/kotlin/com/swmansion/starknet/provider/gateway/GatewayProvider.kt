@@ -8,6 +8,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.extensions.toDecimal
+import com.swmansion.starknet.extensions.toGatewayParam
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
@@ -54,7 +55,7 @@ class GatewayProvider(
     private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val url = feederGatewayRequestUrl("call_contract")
 
-        val params = listOf(Pair("blockHash", payload.blockId.toString()))
+        val params = listOf(payload.blockId.toGatewayParam())
 
         val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
         val body = buildJsonObject {
@@ -127,7 +128,7 @@ class GatewayProvider(
         val params = listOf(
             Pair("contractAddress", payload.contractAddress.hexString()),
             Pair("key", payload.key.hexString()),
-            Pair("blockHash", payload.blockId.toString()),
+            payload.blockId.toGatewayParam(),
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
@@ -276,7 +277,7 @@ class GatewayProvider(
 
     private fun getEstimateFee(
         request: InvokeTransaction,
-        blockParam: Pair<String, String>,
+        blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = buildJsonObject {
@@ -287,7 +288,7 @@ class GatewayProvider(
             put("version", request.version)
         }
 
-        val httpPayload = Payload(url, "POST", listOf(blockParam), body)
+        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
 
         return HttpRequest(
             httpPayload,
@@ -297,21 +298,15 @@ class GatewayProvider(
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
-        val param = "blockHash" to blockHash.hexString()
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Hash(blockHash))
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
-        val param = "blockNumber" to blockNumber.toString()
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Number(blockNumber))
     }
 
     override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val param = "blockTag" to blockTag.tag
-
-        return getEstimateFee(request, param)
+        return getEstimateFee(request, BlockId.Tag(blockTag))
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
@@ -348,7 +343,7 @@ class GatewayProvider(
     private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<Int> {
         val url = feederGatewayRequestUrl("get_block")
         val params = listOf(
-            Pair("blockId", payload.blockId.toString()),
+            payload.blockId.toGatewayParam(),
         )
 
         val httpPayload = Payload(url, "GET", params)
