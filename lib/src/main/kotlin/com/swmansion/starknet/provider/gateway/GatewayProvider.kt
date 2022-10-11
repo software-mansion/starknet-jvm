@@ -58,7 +58,10 @@ class GatewayProvider(
     private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val url = feederGatewayRequestUrl("call_contract")
 
-        val params = listOf(Pair("blockHash", payload.blockId.toString()))
+        val params = when (payload.blockId) {
+            is BlockId.Hash -> listOf(Pair("blockHash", payload.blockId.toString()))
+            is BlockId.Number, is BlockId.Tag -> listOf(Pair("blockNumber", payload.blockId.toString()))
+        }
 
         val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
         val body = buildJsonObject {
