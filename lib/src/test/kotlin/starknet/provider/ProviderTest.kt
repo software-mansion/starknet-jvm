@@ -95,6 +95,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block number`(provider: Provider) {
+        // Devnet is not supporting RPC calls with id different from "latest"
         if (provider is JsonRpcProvider) return
 
         val call = Call(
@@ -114,6 +115,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block hash`(provider: Provider) {
+        // Devnet is not supporting RPC calls with id different from "latest"
         if (provider is JsonRpcProvider) return
 
         val call = Call(
