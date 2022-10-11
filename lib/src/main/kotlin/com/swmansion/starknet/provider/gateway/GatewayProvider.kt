@@ -317,7 +317,7 @@ class GatewayProvider(
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
 
     override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
-        val params = listOf("contractAddress" to contractAddress.hexString(), "blockTag" to blockTag.tag)
+        val params = listOf("contractAddress" to contractAddress.hexString(), "blockNumber" to blockTag.tag)
         val url = feederGatewayRequestUrl("get_nonce")
 
         return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
