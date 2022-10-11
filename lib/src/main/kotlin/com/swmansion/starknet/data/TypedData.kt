@@ -3,28 +3,15 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.encodeShortString
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
-
-@Serializable
-sealed class TypedDataChainId {
-    @Serializable
-    data class ChainIdString(val chainId: String) : TypedDataChainId()
-
-    @Serializable
-    data class ChainIdNumber(val chainId: Int) : TypedDataChainId()
-}
-
-@Serializable
-data class StarkNetDomain(
-    val name: String?,
-    val version: String?,
-    val chainId: TypedDataChainId,
-) {
-    constructor(name: String?, version: String?, chainId: String) : this(name, version, TypedDataChainId.ChainIdString(chainId))
-
-    constructor(name: String?, version: String?, chainId: Int) : this(name, version, TypedDataChainId.ChainIdNumber(chainId))
-}
 
 @Serializable
 data class StarkNetType(val name: String, val type: String)
@@ -34,7 +21,7 @@ typealias TypedDataTypes = Map<String, List<StarkNetType>>
 data class TypedData(
     val types: TypedDataTypes,
     val primaryType: String,
-    val domain: StarkNetDomain,
+    val domain: JsonObject,
     val message: JsonObject,
 ) {
     private fun getDependencies(typeName: String): List<String> {
@@ -92,9 +79,18 @@ data class TypedData(
             return typeName to hash
         }
 
-        val encodedString = value.jsonPrimitive.content.encodeShortString()
+        if (value.jsonPrimitive.isString) {
+            return try {
+                val feltValue = Felt.fromHex(value.jsonPrimitive.content)
+                "felt" to feltValue
+            } catch (e: Exception) {
+                val encodedString = value.jsonPrimitive.content.encodeShortString()
 
-        return "felt" to encodedString
+                "felt" to encodedString
+            }
+        }
+
+        return "felt" to Felt(value.jsonPrimitive.int)
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
@@ -115,15 +111,13 @@ data class TypedData(
     fun getStructHash(typeName: String, data: JsonObject): Felt {
         val encodedData = encodeData(typeName, data)
 
-        val hash = StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
-
-        return hash
+        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
         return StarknetCurve.pedersenOnElements(
             "StarkNet Message".encodeShortString(),
-            getStructHash("StarkNetDomain", Json.encodeToJsonElement(domain) as JsonObject),
+            getStructHash("StarkNetDomain", domain),
             accountAddress,
             getStructHash(primaryType, message),
         )
