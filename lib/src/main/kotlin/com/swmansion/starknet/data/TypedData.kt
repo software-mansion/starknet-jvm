@@ -3,14 +3,7 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.encodeShortString
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @Serializable
