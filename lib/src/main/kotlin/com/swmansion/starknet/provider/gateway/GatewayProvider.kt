@@ -12,6 +12,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.extensions.toDecimal
+import com.swmansion.starknet.extensions.toParam
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
@@ -58,7 +59,7 @@ class GatewayProvider(
     private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val url = feederGatewayRequestUrl("call_contract")
 
-        val params = listOf(Pair("blockHash", payload.blockId.toString()))
+        val params = listOf(payload.blockId.toParam())
 
         val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
         val body = buildJsonObject {
@@ -131,7 +132,7 @@ class GatewayProvider(
         val params = listOf(
             Pair("contractAddress", payload.contractAddress.hexString()),
             Pair("key", payload.key.hexString()),
-            Pair("blockHash", payload.blockId.toString()),
+            payload.blockId.toParam(),
         )
         val url = feederGatewayRequestUrl("get_storage_at")
 
@@ -350,7 +351,7 @@ class GatewayProvider(
     private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): Request<Int> {
         val url = feederGatewayRequestUrl("get_block")
         val params = listOf(
-            Pair("blockId", payload.blockId.toString()),
+            payload.blockId.toParam(),
         )
 
         val httpPayload = Payload(url, "GET", params)
