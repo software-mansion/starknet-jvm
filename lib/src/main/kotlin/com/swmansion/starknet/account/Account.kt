@@ -104,7 +104,7 @@ interface Account {
     /**
      * Get account nonce.
      *
-     * Get current account nonce.
+     * Get account nonce for latest state.
      *
      * @return nonce as field value.
      */

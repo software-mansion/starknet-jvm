@@ -3,11 +3,7 @@ package com.swmansion.starknet.provider.gateway
 import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
-import com.swmansion.starknet.data.serializers.EstimateFeeResponseGatewaySerializer
-import com.swmansion.starknet.data.serializers.GatewayCallContractTransformingSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockNumberSerializer
-import com.swmansion.starknet.data.serializers.GatewayGetBlockTransactionCountSerializer
-import com.swmansion.starknet.data.serializers.GatewayTransactionTransformingSerializer
+import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.put
@@ -180,7 +176,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", JsonPrimitive("INVOKE_FUNCTION"))
+            put("type", transactionTypeToName(TransactionType.INVOKE))
             put("contract_address", payload.invocation.contractAddress.hexString())
             putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
             put("max_fee", payload.maxFee.hexString())
@@ -200,7 +196,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", "DEPLOY")
+            put("type", transactionTypeToName(TransactionType.DEPLOY))
             put("contract_address_salt", payload.salt)
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal().forEach { add(it) }
@@ -220,7 +216,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", "DECLARE")
+            put("type", transactionTypeToName(TransactionType.DECLARE))
             put("sender_address", DECLARE_SENDER_ADDRESS)
             put("max_fee", payload.maxFee)
             put("nonce", payload.nonce)
@@ -282,6 +278,7 @@ class GatewayProvider(
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = buildJsonObject {
+            put("type", transactionTypeToName(request.type))
             put("contract_address", request.contractAddress.hexString())
             putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
             putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
@@ -310,8 +307,13 @@ class GatewayProvider(
         return getEstimateFee(request, BlockId.Tag(blockTag))
     }
 
-    override fun getNonce(contractAddress: Felt): Request<Felt> {
-        val params = listOf("contractAddress" to contractAddress.hexString())
+    override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
+
+    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
+        val params = listOf(
+            "contractAddress" to contractAddress.hexString(),
+            BlockId.Tag(blockTag).toGatewayParam(),
+        )
         val url = feederGatewayRequestUrl("get_nonce")
 
         return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
@@ -369,6 +371,13 @@ class GatewayProvider(
         val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
 
         return getBlockTransactionCount(payload)
+    }
+
+    // Copied values from TransactionType in cairo-lang
+    private fun transactionTypeToName(type: TransactionType) = when (type) {
+        TransactionType.DECLARE -> "DECLARE"
+        TransactionType.DEPLOY -> "DEPLOY"
+        TransactionType.INVOKE -> "INVOKE_FUNCTION"
     }
 
     companion object Factory {
