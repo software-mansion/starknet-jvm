@@ -465,21 +465,24 @@ class ProviderTest {
         assertEquals("Contract not found", exception.message)
     }
 
-//    TODO(uncomment this once devnet fixes the error message issue)
-//    @Test
-//    fun `gateway provider throws GatewayRequestFailedException`() {
-//        val request = gatewayProvider().getClass(Felt(0))
-//
-//        val exception = assertThrows(GatewayRequestFailedException::class.java) {
-//            request.send()
-//        }
-//        assertEquals("Class with hash 0x0 is not declared", exception.message)
-//    }
-
     @Test
     fun `gateway provider throws GatewayRequestFailedException`() {
+        val request = gatewayProvider().getClass(Felt(0))
+
+        val exception = assertThrows(GatewayRequestFailedException::class.java) {
+            request.send()
+        }
+        assertEquals("Class with hash 0x0 is not declared", exception.message)
+    }
+
+    @Test
+    fun `gateway provider throws GatewayRequestFailedException on mocked testnet response`() {
         val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(false, 500, "{\"code\": 500, \"message\": \"myError\"}")
+            on { send(any()) } doReturn HttpResponse(
+                false,
+                500,
+                "{\"code\": \"StarknetErrorCode.UNINITIALIZED_CONTRACT\", \"message\": \"Requested contract address 0x1 is not deployed.\"}",
+            )
         }
         val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
         val request = provider.getClass(Felt.ZERO)
@@ -487,7 +490,7 @@ class ProviderTest {
         val exception = assertThrows(GatewayRequestFailedException::class.java) {
             request.send()
         }
-        assertEquals("myError", exception.message)
+        assertEquals("Requested contract address 0x1 is not deployed.", exception.message)
     }
 
     @Test
