@@ -76,19 +76,18 @@ class GatewayProvider(
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     private data class GatewayError(
-        @JsonNames("code")
-        val code: Int,
-
         @JsonNames("message")
         val message: String,
     )
 
+    private val jsonGatewayError = Json { ignoreUnknownKeys = true }
+
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
             try {
-                val deserializedError = Json.decodeFromString(GatewayError.serializer(), response.body)
+                val deserializedError =
+                    jsonGatewayError.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(
-                    code = deserializedError.code,
                     message = deserializedError.message,
                     payload = response.body,
                 )
