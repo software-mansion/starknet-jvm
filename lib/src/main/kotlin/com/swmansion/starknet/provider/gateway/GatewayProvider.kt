@@ -15,10 +15,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 /**
@@ -72,21 +69,21 @@ class GatewayProvider(
         )
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     private data class GatewayError(
-        @SerialName("status_code")
-        val code: Int,
-
-        @SerialName("message")
+        @JsonNames("message")
         val message: String,
     )
+
+    private val jsonGatewayError = Json { ignoreUnknownKeys = true }
 
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
             try {
-                val deserializedError = Json.decodeFromString(GatewayError.serializer(), response.body)
+                val deserializedError =
+                    jsonGatewayError.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(
-                    code = deserializedError.code,
                     message = deserializedError.message,
                     payload = response.body,
                 )
