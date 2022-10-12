@@ -112,11 +112,9 @@ jobs:
           # Mac uses a universal binary
           mkdir -p lib/build/libs/shared/darwin
           cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
-          declare -a archs=("x86_64" "aarch64")
-          for arch in "${archs[@]}"; do
-            mkdir -p lib/build/libs/shared/linux/"$arch"
-            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
-          done
+          mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
+          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
+          cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Rename JAR
