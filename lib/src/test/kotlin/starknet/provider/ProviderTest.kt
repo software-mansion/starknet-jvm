@@ -476,6 +476,24 @@ class ProviderTest {
     }
 
     @Test
+    fun `gateway provider throws GatewayRequestFailedException on mocked testnet response`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                false,
+                500,
+                "{\"code\": \"StarknetErrorCode.UNINITIALIZED_CONTRACT\", \"message\": \"Requested contract address 0x1 is not deployed.\"}",
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+        val request = provider.getClass(Felt.ZERO)
+
+        val exception = assertThrows(GatewayRequestFailedException::class.java) {
+            request.send()
+        }
+        assertEquals("Requested contract address 0x1 is not deployed.", exception.message)
+    }
+
+    @Test
     fun `make contract definition with invalid json`() {
         assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
