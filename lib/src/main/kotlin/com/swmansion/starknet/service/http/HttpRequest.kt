@@ -21,6 +21,6 @@ internal class HttpRequest<T>(
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        return service.sendAsync(payload).thenApply(deserialize)
+        return service.sendAsync(payload).thenApplyAsync(deserialize)
     }
 }
