@@ -14,6 +14,7 @@ import com.swmansion.starknet.service.http.HttpService
 interface Provider {
     val chainId: StarknetChainId
     val httpService: HttpService
+
     /**
      * Calls a contract deployed on StarkNet.
      *
