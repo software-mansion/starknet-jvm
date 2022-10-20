@@ -1,7 +1,6 @@
 package com.swmansion.starknet.extensions
 
 import com.swmansion.starknet.data.types.Felt
-import java.math.BigInteger
 
 @JvmSynthetic
 internal fun List<Felt>.toDecimal(): List<String> {
@@ -9,7 +8,3 @@ internal fun List<Felt>.toDecimal(): List<String> {
         it.decString()
     }
 }
-
-@get:JvmSynthetic
-internal val BigInteger.toFelt: Felt
-    get() = Felt(this)
