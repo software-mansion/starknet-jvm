@@ -11,17 +11,17 @@ typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
 class HttpRequest<T>(
     val payload: HttpService.Payload,
-    val deserialize: HttpResponseDeserializer<T>,
+    val deserializer: HttpResponseDeserializer<T>,
     val service: HttpService,
 ) : Request<T> {
 
     override fun send(): T {
         val response = service.send(payload)
 
-        return deserialize.apply(response)
+        return deserializer.apply(response)
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        return service.sendAsync(payload).thenApplyAsync(deserialize)
+        return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 }

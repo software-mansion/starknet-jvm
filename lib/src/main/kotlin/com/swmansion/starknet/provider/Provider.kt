@@ -3,7 +3,6 @@ package com.swmansion.starknet.provider
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
-import com.swmansion.starknet.service.http.HttpService
 
 /**
  * Provider for interacting with StarkNet.
@@ -13,7 +12,6 @@ import com.swmansion.starknet.service.http.HttpService
  */
 interface Provider {
     val chainId: StarknetChainId
-    val httpService: HttpService
 
     /**
      * Calls a contract deployed on StarkNet.

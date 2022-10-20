@@ -32,7 +32,7 @@ class GatewayProvider(
     val feederGatewayUrl: String,
     val gatewayUrl: String,
     override val chainId: StarknetChainId,
-    override val httpService: HttpService,
+    val httpService: HttpService,
 ) : Provider {
     constructor(feederGatewayUrl: String, gatewayUrl: String, chainId: StarknetChainId) : this(
         feederGatewayUrl,
