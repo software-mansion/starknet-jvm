@@ -9,8 +9,6 @@
 
 rootProject.name = "starknet-jvm"
 include("lib")
-include("android")
-include("androiddemo")
 include("javademo")
 
 pluginManagement {
