@@ -4,7 +4,6 @@ on: push
 jobs:
   build_virt:
     runs-on: ubuntu-latest
-    needs: [ verify_version ]
     strategy:
       matrix:
         include:
