@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 RUN apt-get update && apt-get install -y software-properties-common curl
 RUN curl https://apt.corretto.aws/corretto.key > corretto.key \
     && apt-key add corretto.key \
