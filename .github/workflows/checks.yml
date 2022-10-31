@@ -1,9 +1,5 @@
 name: Checks
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   build_virt:
