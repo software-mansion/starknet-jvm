@@ -1,5 +1,5 @@
-FROM ubuntu:18.04
-RUN apt-get update && apt-get install -y software-properties-common curl
+FROM ubuntu:20.04
+RUN apt-get update && apt-get install -y software-properties-common curl gcc-7 g++-7
 RUN curl https://apt.corretto.aws/corretto.key > corretto.key \
     && apt-key add corretto.key \
     && add-apt-repository 'deb https://apt.corretto.aws stable main' \
@@ -9,4 +9,6 @@ RUN curl https://apt.corretto.aws/corretto.key > corretto.key \
 ENV JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
 COPY . /build/.
 WORKDIR /build/lib
+# Force usage of gcc 7
+RUN rm -r /usr/lib/gcc/x86_64-linux-gnu/8 /usr/lib/gcc/x86_64-linux-gnu/9
 RUN ./build_crypto_cpp.sh
