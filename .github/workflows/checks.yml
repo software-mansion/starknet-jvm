@@ -37,3 +37,15 @@ jobs:
         with:
           name: lib-${{ runner.os }}-${{ steps.vars.outputs.os_arch }}
           path: crypto/build/bindings/libcrypto_jni.*
+      - name: Build android's AAR
+        run: ./gradlew android:build
+        if: matrix.os == 'ubuntu-latest'
+      - name: Rename AAR
+        run: mv android/build/outputs/aar/android-release.aar starknet.aar
+        if: matrix.os == 'ubuntu-latest'
+      - name: Upload the AAR
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: starknet-aar
+          path: starknet.aar
