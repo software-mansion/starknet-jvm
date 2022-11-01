@@ -124,7 +124,7 @@ class GatewayProvider(
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
         val params = listOf(
             Pair("contractAddress", payload.contractAddress.hexString()),
-            Pair("key", payload.key.hexString()),
+            Pair("key", payload.key.decString()),
             payload.blockId.toGatewayParam(),
         )
         val url = feederGatewayRequestUrl("get_storage_at")
