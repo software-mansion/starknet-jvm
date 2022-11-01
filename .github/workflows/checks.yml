@@ -27,7 +27,13 @@ jobs:
           version: 7
           platform: x64
       - name: Force usage of gcc 7
-        run: sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7 && sudo rm -r /usr/lib/gcc/x86_64-linux-gnu/* && sudo mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
+        run: |
+          # First delete any version other than 7
+          sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7
+          sudo rm -r /usr/lib/gcc/x86_64-linux-gnu/* 
+          sudo mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
+          echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
         shell: bash
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
