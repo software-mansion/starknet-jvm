@@ -10,5 +10,5 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
 COPY . /build/.
 WORKDIR /build/lib
 # Force usage of gcc 7
-RUN rm -r /usr/lib/gcc/x86_64-linux-gnu/8 /usr/lib/gcc/x86_64-linux-gnu/9
+RUN rm -r /usr/lib/gcc/amd64-linux-gnu/8 /usr/lib/gcc/amd64-linux-gnu/9
 RUN ./build_crypto_cpp.sh
