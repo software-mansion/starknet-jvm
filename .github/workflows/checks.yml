@@ -2,41 +2,38 @@ name: Checks
 on: push
 
 jobs:
-  build_virt:
-    runs-on: ubuntu-latest
+  build_x64:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-          - virt_platform: arm64
+        os: [ ubuntu-latest ]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Set up qemu
-        uses: docker/setup-qemu-action@v2
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.12
         with:
-          platforms: ${{ matrix.virt_platform }}
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v2
+          cmake-version: '3.16.x'
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          driver: docker
-      - name: Build platform specific lib
-        uses: docker/build-push-action@v3
+          java-version: 11
+          distribution: 'corretto'
+          cache: 'gradle'
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v1
         with:
-          context: .
-          file: .github/workflows/Dockerfile.multiarch
-          platforms: linux/${{ matrix.virt_platform }}
-          push: false
-          tags: build:latest
+          version: 7
+          platform: x64
       - name: Set arch variable
         id: vars
-        run: echo "::set-output name=os_arch::$(docker run --platform linux/${{ matrix.virt_platform }} -t build bash -c 'uname -m')"
-      - name: Extract lib
-        run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so
+        run: echo "::set-output name=os_arch::$(uname -m)"
+
+      - name: Build platform specific lib
+        run: ./gradlew buildCryptoCpp
       - name: Upload the shared lib
         uses: actions/upload-artifact@v2
         with:
-          name: lib-Linux-${{ steps.vars.outputs.os_arch }}
-          path: libcrypto_jni.so
-    outputs:
-      archs: ${{ steps.vars.outputs.os_arch }}
+          name: lib-${{ runner.os }}-${{ steps.vars.outputs.os_arch }}
+          path: crypto/build/bindings/libcrypto_jni.*
