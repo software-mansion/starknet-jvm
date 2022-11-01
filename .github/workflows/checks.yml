@@ -26,6 +26,8 @@ jobs:
         with:
           version: 7
           platform: x64
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - name: Set arch variable
         id: vars
         run: echo "::set-output name=os_arch::$(uname -m)"
