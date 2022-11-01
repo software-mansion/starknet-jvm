@@ -27,7 +27,7 @@ jobs:
           version: 7
           platform: x64
       - name: Force usage of gcc 7
-        run: sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7 && rm -r /usr/lib/gcc/x86_64-linux-gnu/* && mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
+        run: sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7 && sudo rm -r /usr/lib/gcc/x86_64-linux-gnu/* && sudo mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
         shell: bash
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
