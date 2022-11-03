@@ -176,7 +176,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", transactionTypeToName(TransactionType.INVOKE))
+            put("type", "INVOKE_FUNCTION")
             put("contract_address", payload.invocation.contractAddress.hexString())
             putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
             put("max_fee", payload.maxFee.hexString())
@@ -196,7 +196,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", transactionTypeToName(TransactionType.DEPLOY))
+            put("type", "DEPLOY")
             put("contract_address_salt", payload.salt)
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal().forEach { add(it) }
@@ -216,7 +216,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", transactionTypeToName(TransactionType.DECLARE))
+            put("type", "DECLARE")
             put("sender_address", DECLARE_SENDER_ADDRESS)
             put("max_fee", payload.maxFee)
             put("nonce", payload.nonce)
@@ -278,7 +278,7 @@ class GatewayProvider(
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = buildJsonObject {
-            put("type", transactionTypeToName(request.type))
+            put("type", "INVOKE_FUNCTION")
             put("contract_address", request.contractAddress.hexString())
             putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
             putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
@@ -371,13 +371,6 @@ class GatewayProvider(
         val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
 
         return getBlockTransactionCount(payload)
-    }
-
-    // Copied values from TransactionType in cairo-lang
-    private fun transactionTypeToName(type: TransactionType) = when (type) {
-        TransactionType.DECLARE -> "DECLARE"
-        TransactionType.DEPLOY -> "DEPLOY"
-        TransactionType.INVOKE -> "INVOKE_FUNCTION"
     }
 
     companion object Factory {
