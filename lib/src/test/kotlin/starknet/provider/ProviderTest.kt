@@ -441,7 +441,6 @@ class ProviderTest {
         assertTrue(response is InvokeTransactionReceipt)
     }
 
-    // FIXME(This test will fail until devnet is updated to the newest rpc spec)
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy transaction`(provider: Provider) {
