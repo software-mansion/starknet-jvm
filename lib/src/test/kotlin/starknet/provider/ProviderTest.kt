@@ -340,6 +340,78 @@ class ProviderTest {
         assertTrue(response is GatewayTransactionReceipt)
     }
 
+    @Test
+    fun `get l1 handler transaction receipt gateway`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                {
+                    "status": "ACCEPTED_ON_L2",
+                    "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
+                    "block_number": 392723,
+                    "transaction_index": 13,
+                    "transaction_hash": "0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7",
+                    "l1_to_l2_consumed_message": {
+                        "from_address": "0xc3511006C04EF1d78af4C8E0e74Ec18A6E64Ff9e",
+                        "to_address": "0x73314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82",
+                        "selector": "0x2d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5",
+                        "payload": [
+                            "0x4a5a3df7914b59feff1b52164c314d3df0666c053997dfd7c5ff79676984fe6",
+                            "0x58d15e176280000",
+                            "0x0"
+                        ],
+                        "nonce": "0x402af"
+                    },
+                    "l2_to_l1_messages": [],
+                    "events": [
+                        {
+                            "from_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                            "keys": [
+                                "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9"
+                            ],
+                            "data": [
+                                "0x0",
+                                "0x4a5a3df7914b59feff1b52164c314d3df0666c053997dfd7c5ff79676984fe6",
+                                "0x58d15e176280000",
+                                "0x0"
+                            ]
+                        },
+                        {
+                            "from_address": "0x73314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82",
+                            "keys": [
+                                "0x221e5a5008f7a28564f0eaa32cdeb0848d10657c449aed3e15d12150a7c2db3"
+                            ],
+                            "data": [
+                                "0x4a5a3df7914b59feff1b52164c314d3df0666c053997dfd7c5ff79676984fe6",
+                                "0x58d15e176280000",
+                                "0x0"
+                            ]
+                        }
+                    ],
+                    "execution_resources": {
+                        "n_steps": 673,
+                        "builtin_instance_counter": {
+                            "pedersen_builtin": 2,
+                            "range_check_builtin": 12
+                        },
+                        "n_memory_holes": 22
+                    },
+                    "actual_fee": "0x0"
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransactionReceipt(Felt.ZERO)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
+
     // FIXME this test will fail until devnet spec is updated as there is no way to differentiate between declare
     //  and deploy tx receipts currently
 //    @Test
@@ -399,6 +471,47 @@ class ProviderTest {
         assertNotNull(response)
         assertNotEquals(declareTransactionHash, deployTransactionHash)
         assertTrue(response is DeclareTransaction)
+    }
+
+    // FIXME(Extend this to rpc provider this once devnet supports rpc 0.2.1 spec
+    @Test
+    fun `get l1 handler transaction`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                {
+                    "status": "ACCEPTED_ON_L1",
+                    "block_hash": "0x38ce7678420eaff5cd62597643ca515d0887579a8be69563067fe79a624592b",
+                    "block_number": 370459,
+                    "transaction_index": 9,
+                    "transaction": {
+                        "version": "0x0",
+                        "contract_address": "0x278f24c3e74cbf7a375ec099df306289beb0605a346277d200b791a7f811a19",
+                        "entry_point_selector": "0x2d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5",
+                        "nonce": "0x34c20",
+                        "calldata": [
+                            "0xd8beaa22894cd33f24075459cfba287a10a104e4",
+                            "0x3f9c67ef1d31e24b386184b4ede63a869c4659de093ef437ee235cae4daf2be",
+                            "0x3635c9adc5dea00000",
+                            "0x0",
+                            "0x7cb4539b69a2371f75d21160026b76a7a7c1cacb"
+                        ],
+                        "transaction_hash": "0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9",
+                        "type": "L1_HANDLER",
+                    },
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransaction(Felt.ZERO)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is L1HandlerTransaction)
     }
 
     @ParameterizedTest
