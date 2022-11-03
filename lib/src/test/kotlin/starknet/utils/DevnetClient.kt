@@ -119,78 +119,63 @@ class DevnetClient(
     private fun prefundAccount() = prefundAccount(accountDetails.address)
 
     private fun deployAccount() {
-        val deployProcess = ProcessBuilder(
-            "starknet",
-            "deploy_account",
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
+        val params = arrayOf(
             "--account_dir",
             accountDirectory.toString(),
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-            "--network",
-            "alpha-goerli",
-        ).start()
+        )
 
-        deployProcess.waitFor()
+        runStarknetCli(
+            "Create account config",
+            "new_account",
+            *params,
+        )
 
-        val error = String(deployProcess.errorStream.readAllBytes())
-        requireNoErrors("Account setup", error)
+        runStarknetCli(
+            "Account deployment",
+            "deploy_account",
+            *params,
+        )
 
         accountDetails = readAccountDetails()
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
-        val deployProcess = ProcessBuilder(
-            "starknet",
+        val (classHash, _) = declareContract(contractPath)
+        println("CLASS HASH")
+        println(classHash)
+        val result = runStarknetCli(
+            "Contract deployment",
             "deploy",
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
-            "--contract",
-            contractPath.absolutePathString(),
-            "--no_wallet",
-        ).start()
+            "--class_hash",
+            classHash.hexString(),
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+        )
 
-        deployProcess.waitFor()
-
-        val error = String(deployProcess.errorStream.readAllBytes())
-        requireNoErrors("Contract deployment", error)
-
-        val result = String(deployProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines)
     }
 
     fun declareContract(contractPath: Path): TransactionResult {
-        val declareProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Contract declare",
             "declare",
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
+            "--no_wallet",
             "--contract",
             contractPath.absolutePathString(),
             "--account_dir",
             accountDirectory.toString(),
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-            "--network",
-            "alpha-goerli",
-        ).start()
+            // Any address is accepted as the sender here
+            "--sender", "0x7754f1c8af9126d6fbf38b1ca2ccf8f92e0b267c8a96704e4964060b119b78d",
+//            "--wallet",
+//            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+        )
 
-        declareProcess.waitFor()
-
-        val error = String(declareProcess.errorStream.readAllBytes())
-        requireNoErrors("Contract declare", error)
-
-        val result = String(declareProcess.inputStream.readAllBytes())
         val lines = result.lines()
-        return getTransactionResult(lines, offset = 2)
+        println(lines)
+        return getTransactionResult(lines, offset = 1)
     }
 
     fun invokeTransaction(
@@ -199,13 +184,9 @@ class DevnetClient(
         abiPath: Path,
         inputs: List<Felt>,
     ): TransactionResult {
-        val invokeProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Invoke contract",
             "invoke",
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
             "--address",
             contractAddress.hexString(),
             "--abi",
@@ -218,31 +199,17 @@ class DevnetClient(
             accountDirectory.toString(),
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-            "--network",
-            "alpha-goerli",
-        ).start()
+        )
 
-        val error = String(invokeProcess.errorStream.readAllBytes())
-        requireNoErrors("Invoke contract", error)
-
-        val result = String(invokeProcess.inputStream.readAllBytes())
         val lines = result.lines()
         return getTransactionResult(lines, offset = 2)
     }
 
     fun getLatestBlock(): Block {
-        val getBlockProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Get latest block",
             "get_block",
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
-        ).start()
-
-        getBlockProcess.waitFor()
-
-        val result = String(getBlockProcess.inputStream.readAllBytes())
+        )
 
         val json = Json {
             ignoreUnknownKeys = true
@@ -252,62 +219,58 @@ class DevnetClient(
     }
 
     fun getStorageAt(contractAddress: Felt, storageKey: Felt): Felt {
-        val getStorageAtProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Get storage",
             "get_storage_at",
             "--contract_address",
             contractAddress.hexString(),
             "--key",
             storageKey.decString(),
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
-        ).start()
+        )
 
-        val error = String(getStorageAtProcess.errorStream.readAllBytes())
-        requireNoErrors("Get storage", error)
-
-        val result = String(getStorageAtProcess.inputStream.readAllBytes())
         return Felt.fromHex(result.trim())
     }
 
     fun transactionReceipt(transactionHash: Felt): GatewayTransactionReceipt {
-        val getStorageAtProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Get receipt",
             "get_transaction_receipt",
             "--hash",
             transactionHash.hexString(),
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
-        ).start()
+        )
 
-        val error = String(getStorageAtProcess.errorStream.readAllBytes())
-        requireNoErrors("Get receipt", error)
-
-        val result = String(getStorageAtProcess.inputStream.readAllBytes())
         return json.decodeFromString(result)
     }
 
     fun latestBlock(): GetBlockHashAndNumberResponse {
-        val getBlockProcess = ProcessBuilder(
-            "starknet",
+        val result = runStarknetCli(
+            "Get receipt",
             "get_block",
             "--number",
             "latest",
+        )
+
+        return json.decodeFromString(result)
+    }
+
+    private fun runStarknetCli(name: String, command: String, vararg args: String): String {
+        val process = ProcessBuilder(
+            "starknet",
+            command,
+            *args,
             "--gateway_url",
             gatewayUrl,
             "--feeder_gateway_url",
             feederGatewayUrl,
+            "--network",
+            "alpha-goerli",
         ).start()
+        process.waitFor()
 
-        val error = String(getBlockProcess.errorStream.readAllBytes())
-        requireNoErrors("Get receipt", error)
+        val error = String(process.errorStream.readAllBytes())
+        requireNoErrors(name, error)
 
-        val result = String(getBlockProcess.inputStream.readAllBytes())
-        return json.decodeFromString(result)
+        return String(process.inputStream.readAllBytes())
     }
 
     private fun requireNoErrors(methodName: String, errorStream: String) {
@@ -330,7 +293,7 @@ class DevnetClient(
     private fun readAccountDetails(): AccountDetails {
         val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
         val contents = accountFile.readText()
-        return Json.decodeFromString(AccountDetailsSerializer(), contents)
+        return json.decodeFromString(AccountDetailsSerializer(), contents)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -344,6 +307,9 @@ class DevnetClient(
 
         @JsonNames("address")
         val address: Felt,
+
+        @JsonNames("salt")
+        val salt: Felt,
     )
 
     class AccountDetailsSerializer : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {

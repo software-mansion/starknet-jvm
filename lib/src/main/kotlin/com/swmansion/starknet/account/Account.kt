@@ -25,9 +25,8 @@ interface Account {
         return sign(listOf(call), params)
     }
 
-    // TODO: ABI?
     /**
-     * Sign multiple transactions.
+     * Sign multiple calls as a single transaction.
      *
      * Sign a list of calls to be executed on StarkNet.
      *
@@ -36,6 +35,8 @@ interface Account {
      * @return signed invoke function payload
      */
     fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload
+
+    fun signDeployAccount(classHash: Felt, calldata: Calldata, salt: Felt, maxFee: Felt): DeployAccountTransactionPayload
 
     /**
      * Execute a list of calls

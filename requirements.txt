@@ -1,1 +1,1 @@
-starknet-devnet==0.3.3
+starknet-devnet==0.3.5
