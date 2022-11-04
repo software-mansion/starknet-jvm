@@ -329,7 +329,8 @@ class GatewayProvider(
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = serializeDeployAccountTransactionPayload(payload)
-        println("WOLOLOLO")
+        println("BODY")
+        println(body)
 
         return HttpRequest(
             Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
@@ -441,7 +442,9 @@ class GatewayProvider(
             put("version", payload.version)
             put("nonce", payload.nonce)
             put("max_fee", payload.maxFee)
-            putJsonArray("signature") { payload.signature }
+            putJsonArray("signature") {
+                payload.signature.toDecimal().forEach { add(it) }
+            }
         }
 
     companion object Factory {

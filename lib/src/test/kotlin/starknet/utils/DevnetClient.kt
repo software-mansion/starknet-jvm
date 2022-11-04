@@ -3,6 +3,7 @@ package starknet.utils
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
 import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -10,6 +11,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import java.lang.Exception
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -132,50 +135,62 @@ class DevnetClient(
             *params,
         )
 
+        accountDetails = readAccountDetails()
+        prefundAccount(accountDetails.address)
+
         runStarknetCli(
             "Account deployment",
             "deploy_account",
             *params,
         )
-
-        accountDetails = readAccountDetails()
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
         val (classHash, _) = declareContract(contractPath)
         println("CLASS HASH")
         println(classHash)
+        println(accountDetails)
         val result = runStarknetCli(
             "Contract deployment",
             "deploy",
             "--class_hash",
             classHash.hexString(),
+            "--account_dir",
+            accountDirectory.toString(),
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "--max_fee",
+            "0",
         )
 
         val lines = result.lines()
-        return getTransactionResult(lines)
+        val tx = getTransactionResult(lines)
+        val receipt = transactionReceipt(tx.hash)
+
+        assertTxPassed(receipt.hash)
+
+        return tx
     }
 
     fun declareContract(contractPath: Path): TransactionResult {
         val result = runStarknetCli(
             "Contract declare",
             "declare",
-            "--no_wallet",
             "--contract",
             contractPath.absolutePathString(),
             "--account_dir",
             accountDirectory.toString(),
-            // Any address is accepted as the sender here
-            "--sender", "0x7754f1c8af9126d6fbf38b1ca2ccf8f92e0b267c8a96704e4964060b119b78d",
-//            "--wallet",
-//            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
         )
 
         val lines = result.lines()
         println(lines)
-        return getTransactionResult(lines, offset = 1)
+        val tx = getTransactionResult(lines, offset = 2)
+
+        assertTxPassed(tx.hash)
+
+        return tx
     }
 
     fun invokeTransaction(
@@ -202,7 +217,11 @@ class DevnetClient(
         )
 
         val lines = result.lines()
-        return getTransactionResult(lines, offset = 2)
+        val tx = getTransactionResult(lines, offset = 2)
+
+        assertTxPassed(tx.hash)
+
+        return tx
     }
 
     fun getLatestBlock(): Block {
@@ -253,6 +272,12 @@ class DevnetClient(
         return json.decodeFromString(result)
     }
 
+    private fun assertTxPassed(txHash: Felt) {
+        val receipt = transactionReceipt(txHash)
+        assertNull(receipt.failureReason)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, transactionReceipt(txHash).status)
+    }
+
     private fun runStarknetCli(name: String, command: String, vararg args: String): String {
         val process = ProcessBuilder(
             "starknet",
@@ -268,9 +293,14 @@ class DevnetClient(
         process.waitFor()
 
         val error = String(process.errorStream.readAllBytes())
+        println(name + "ERROR")
+        println(error)
         requireNoErrors(name, error)
 
-        return String(process.inputStream.readAllBytes())
+        val result = String(process.inputStream.readAllBytes())
+        println(name + "RESULT")
+        println(result)
+        return result
     }
 
     private fun requireNoErrors(methodName: String, errorStream: String) {

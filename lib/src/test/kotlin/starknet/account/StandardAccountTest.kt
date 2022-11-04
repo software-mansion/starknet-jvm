@@ -279,12 +279,16 @@ class StandardAccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `deploy account works`(accountAndProvider: AccountAndProvider) {
-        val privateKey = Felt(6789)
+        val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
         val classHash = accountClassHash
-        val calldata = listOf(publicKey)
         val salt = Felt.ONE
+        val calldata = listOf(
+//            classHash, salt, Felt.ONE,
+            publicKey,
+        )
+        println(publicKey)
         val address = ContractAddress.calculateAddressFromHash(
             salt = salt,
             classHash = classHash,
@@ -305,6 +309,7 @@ class StandardAccountTest {
             calldata = calldata,
             maxFee = Felt.ZERO,
         )
+        println(payloadForFeeEstimation)
         val fee = provider.getEstimateFee(payloadForFeeEstimation).send()
         val maxFee = fee.overallFee
         val payload = account.signDeployAccount(

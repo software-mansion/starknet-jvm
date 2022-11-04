@@ -50,6 +50,9 @@ class StandardAccount(
             version = version,
         )
 
+        println("INVOKE")
+        println(tx)
+
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
         return signedTransaction.toPayload()
@@ -70,6 +73,8 @@ class StandardAccount(
             version = version,
             nonce = Felt.ZERO,
         )
+        println("TX")
+        println(tx)
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
         return signedTransaction.toPayload()

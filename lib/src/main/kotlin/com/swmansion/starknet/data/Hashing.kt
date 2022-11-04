@@ -24,7 +24,7 @@ object Hashing {
         calldata = calldata,
         maxFee = maxFee,
         chainId = chainId,
-        additionalData = listOf(nonce),
+        nonce = nonce,
     )
 
     @JvmStatic
@@ -41,8 +41,8 @@ object Hashing {
             salt = salt,
             classHash = classHash,
             calldata = calldata,
-            deployerAddress = Felt.ZERO,
         )
+        println("ADDRESS " + contractAddress.hexString())
         return transactionHashCommon(
             txType = TransactionType.DEPLOY_ACCOUNT,
             version = version,
@@ -51,7 +51,7 @@ object Hashing {
             calldata = listOf(classHash, salt, *calldata.toTypedArray()),
             maxFee = maxFee,
             chainId = chainId,
-            additionalData = listOf(nonce),
+            nonce = nonce,
         )
     }
 
@@ -63,7 +63,7 @@ object Hashing {
         calldata: Calldata,
         maxFee: Felt,
         chainId: StarknetChainId,
-        additionalData: List<Felt>,
+        nonce: Felt,
     ): Felt = StarknetCurve.pedersenOnElements(
         txType.txPrefix,
         version,
@@ -72,6 +72,6 @@ object Hashing {
         StarknetCurve.pedersenOnElements(calldata),
         maxFee,
         chainId.value,
-        *additionalData.toTypedArray(),
+        nonce,
     )
 }

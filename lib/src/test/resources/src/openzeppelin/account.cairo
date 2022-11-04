@@ -1,56 +1,24 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.4.0b (utils/constants/library.cairo)
+// OpenZeppelin Contracts for Cairo v0.5.0 (account/presets/Account.cairo)
 
 %lang starknet
 
-//
-// Numbers
-//
-
-const UINT8_MAX = 255;
-
-//
-// Interface Ids
-//
-
-// ERC165
-const IERC165_ID = 0x01ffc9a7;
-const INVALID_ID = 0xffffffff;
-
-// Account
-const IACCOUNT_ID = 0xa66bd575;
-
-// ERC721
-const IERC721_ID = 0x80ac58cd;
-const IERC721_RECEIVER_ID = 0x150b7a02;
-const IERC721_METADATA_ID = 0x5b5e139f;
-const IERC721_ENUMERABLE_ID = 0x780e9d63;
-
-// AccessControl
-const IACCESSCONTROL_ID = 0x7965db0b;
-
-//
-// Roles
-//
-
-const DEFAULT_ADMIN_ROLE = 0;
-
-
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.4.0b (account/presets/Account.cairo)
-
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin, BitwiseBuiltin
-from starkware.starknet.common.syscalls import get_tx_info
-
+from starkware.starknet.common.syscalls import (
+    call_contract,
+    get_caller_address,
+    get_contract_address,
+    get_tx_info
+)
 //
 // Constructor
 //
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    public_key: felt
+    publicKey: felt
 ) {
-    Account.initializer(public_key);
+    Account.initializer(publicKey);
     return ();
 }
 
@@ -116,6 +84,22 @@ func __validate_declare__{
 }
 
 @external
+func __validate_deploy__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    ecdsa_ptr: SignatureBuiltin*,
+    range_check_ptr
+} (
+    class_hash: felt,
+    salt: felt,
+    publicKey: felt
+) {
+    let (tx_info) = get_tx_info();
+    Account.is_valid_signature(tx_info.transaction_hash, tx_info.signature_len, tx_info.signature);
+    return ();
+}
+
+@external
 func __execute__{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
@@ -131,11 +115,52 @@ func __execute__{
     return (response_len, response);
 }
 
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.5.0 (utils/constants/library.cairo)
 
+
+//
+// Numbers
+//
+
+const UINT8_MAX = 255;
+
+//
+// Interface Ids
+//
+
+// ERC165
+const IERC165_ID = 0x01ffc9a7;
+const INVALID_ID = 0xffffffff;
+
+// Account
+const IACCOUNT_ID = 0xa66bd575;
+
+// ERC721
+const IERC721_ID = 0x80ac58cd;
+const IERC721_RECEIVER_ID = 0x150b7a02;
+const IERC721_METADATA_ID = 0x5b5e139f;
+const IERC721_ENUMERABLE_ID = 0x780e9d63;
+
+// AccessControl
+const IACCESSCONTROL_ID = 0x7965db0b;
+
+//
+// Roles
+//
+
+const DEFAULT_ADMIN_ROLE = 0;
+
+//
+// Starknet
+//
+
+const TRANSACTION_VERSION = 1;
 
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.4.0b (account/library.cairo)
+// OpenZeppelin Contracts for Cairo v0.5.0 (account/library.cairo)
+
 
 from starkware.cairo.common.registers import get_fp_and_pc
 from starkware.cairo.common.signature import verify_ecdsa_signature
@@ -143,12 +168,8 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.math import split_felt
+from starkware.cairo.common.math_cmp import is_le_felt
 from starkware.cairo.common.bool import TRUE, FALSE
-from starkware.starknet.common.syscalls import (
-    call_contract,
-    get_caller_address,
-    get_contract_address,
-)
 from starkware.cairo.common.cairo_secp.signature import verify_eth_signature_uint256
 
 //
@@ -306,13 +327,14 @@ namespace Account {
         alloc_locals;
 
         let (tx_info) = get_tx_info();
-        with_attr error_message("Account: invalid tx version") {
-            assert tx_info.version = 1;
+        // Disallow deprecated tx versions
+        with_attr error_message("Account: deprecated tx version") {
+            assert is_le_felt(TRANSACTION_VERSION, tx_info.version) = TRUE;
         }
 
-        // assert not a reentrant call
+        // Assert not a reentrant call
         let (caller) = get_caller_address();
-        with_attr error_message("Account: no reentrant call") {
+        with_attr error_message("Account: reentrant call") {
             assert caller = 0;
         }
 
@@ -321,7 +343,7 @@ namespace Account {
         _from_call_array_to_call(call_array_len, call_array, calldata, calls);
         let calls_len = call_array_len;
 
-        // execute call
+        // Execute call
         let (response: felt*) = alloc();
         let (response_len) = _execute_list(calls_len, calls, response);
 
