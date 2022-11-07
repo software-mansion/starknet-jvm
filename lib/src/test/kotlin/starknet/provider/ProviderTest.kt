@@ -498,8 +498,8 @@ class ProviderTest {
                             "0x7cb4539b69a2371f75d21160026b76a7a7c1cacb"
                         ],
                         "transaction_hash": "0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9",
-                        "type": "L1_HANDLER",
-                    },
+                        "type": "L1_HANDLER"
+                    }
                 }
                 """.trimIndent(),
             )
