@@ -96,6 +96,20 @@ interface Provider {
     fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt>
 
     /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address and in the latest block.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt> {
+        return getStorageAt(contractAddress, key, BlockTag.LATEST)
+    }
+
+    /**
      * Get a transaction.
      *
      * Get the details of a submitted transaction.

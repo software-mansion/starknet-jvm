@@ -392,7 +392,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction`(provider: Provider) {
-        // FIXME: devnet fails when tx doesn't have entry_point_selector
+        // FIXME: devnet fails when tx doesn't have entry_point_selector, remove condition after bumping devnet
         if (provider is JsonRpcProvider) {
             return
         }

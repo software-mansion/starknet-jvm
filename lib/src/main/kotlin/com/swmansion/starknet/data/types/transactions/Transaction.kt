@@ -106,7 +106,7 @@ data class InvokeTransaction(
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata,
-            entrypoint = entryPointSelector ?: Felt.ZERO,
+            entrypoint = entryPointSelector,
         )
 
         return InvokeFunctionPayload(

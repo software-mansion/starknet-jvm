@@ -146,9 +146,6 @@ class DevnetClient(
 
     fun deployContract(contractPath: Path): TransactionResult {
         val (classHash, _) = declareContract(contractPath)
-        println("CLASS HASH")
-        println(classHash)
-        println(accountDetails)
         val result = runStarknetCli(
             "Contract deployment",
             "deploy",
