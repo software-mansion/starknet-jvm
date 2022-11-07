@@ -11,7 +11,6 @@ object Hashing {
     fun calculateInvokeTxHash(
         contractAddress: Felt,
         calldata: Calldata,
-        entryPointSelector: Felt,
         chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
@@ -20,7 +19,7 @@ object Hashing {
         txType = TransactionType.INVOKE,
         version = version,
         contractAddress = contractAddress,
-        entryPointSelector = entryPointSelector,
+        entryPointSelector = Felt.ZERO,
         calldata = calldata,
         maxFee = maxFee,
         chainId = chainId,
@@ -42,7 +41,6 @@ object Hashing {
             classHash = classHash,
             calldata = calldata,
         )
-        println("ADDRESS " + contractAddress.hexString())
         return transactionHashCommon(
             txType = TransactionType.DEPLOY_ACCOUNT,
             version = version,

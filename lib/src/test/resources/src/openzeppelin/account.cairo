@@ -91,7 +91,7 @@ func __validate_deploy__{
     range_check_ptr
 } (
     class_hash: felt,
-    salt: felt,
+    contract_address_salt: felt,
     publicKey: felt
 ) {
     let (tx_info) = get_tx_info();

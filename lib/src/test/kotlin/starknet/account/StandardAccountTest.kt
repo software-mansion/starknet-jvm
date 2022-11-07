@@ -284,11 +284,7 @@ class StandardAccountTest {
 
         val classHash = accountClassHash
         val salt = Felt.ONE
-        val calldata = listOf(
-//            classHash, salt, Felt.ONE,
-            publicKey,
-        )
-        println(publicKey)
+        val calldata = listOf(publicKey)
         val address = ContractAddress.calculateAddressFromHash(
             salt = salt,
             classHash = classHash,
@@ -309,7 +305,6 @@ class StandardAccountTest {
             calldata = calldata,
             maxFee = Felt.ZERO,
         )
-        println(payloadForFeeEstimation)
         val fee = provider.getEstimateFee(payloadForFeeEstimation).send()
         val maxFee = fee.overallFee
         val payload = account.signDeployAccount(
@@ -321,7 +316,7 @@ class StandardAccountTest {
 
         val response = provider.deployAccount(payload).send()
 
-        // Make sure the address matches calculated one
+        // Make sure the address matches the calculated one
         assertEquals(address, response.address)
 
         // Make sure tx matches what we sent

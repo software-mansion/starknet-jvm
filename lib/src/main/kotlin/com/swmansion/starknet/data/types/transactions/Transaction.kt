@@ -82,7 +82,7 @@ data class InvokeTransaction(
     val calldata: Calldata,
 
     @SerialName("entry_point_selector")
-    val entryPointSelector: Felt,
+    val entryPointSelector: Felt = Felt.ZERO,
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -106,7 +106,7 @@ data class InvokeTransaction(
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata,
-            entrypoint = entryPointSelector,
+            entrypoint = entryPointSelector ?: Felt.ZERO,
         )
 
         return InvokeFunctionPayload(
@@ -210,7 +210,6 @@ object TransactionFactory {
         val hash = Hashing.calculateInvokeTxHash(
             contractAddress = contractAddress,
             calldata = calldata,
-            entryPointSelector = entryPointSelector,
             chainId = chainId,
             version = version,
             nonce = nonce,

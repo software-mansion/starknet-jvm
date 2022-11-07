@@ -13,7 +13,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
-import java.lang.Exception
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -185,7 +184,6 @@ class DevnetClient(
         )
 
         val lines = result.lines()
-        println(lines)
         val tx = getTransactionResult(lines, offset = 2)
 
         assertTxPassed(tx.hash)
@@ -293,13 +291,9 @@ class DevnetClient(
         process.waitFor()
 
         val error = String(process.errorStream.readAllBytes())
-        println(name + "ERROR")
-        println(error)
         requireNoErrors(name, error)
 
         val result = String(process.inputStream.readAllBytes())
-        println(name + "RESULT")
-        println(result)
         return result
     }
 

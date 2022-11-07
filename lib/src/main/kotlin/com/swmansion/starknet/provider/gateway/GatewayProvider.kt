@@ -329,8 +329,6 @@ class GatewayProvider(
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = serializeDeployAccountTransactionPayload(payload)
-        println("BODY")
-        println(body)
 
         return HttpRequest(
             Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
