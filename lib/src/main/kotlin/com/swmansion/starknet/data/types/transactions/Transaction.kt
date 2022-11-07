@@ -21,7 +21,7 @@ enum class TransactionType(val txPrefix: Felt) {
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 
     @SerialName("L1_HANDLER")
-    L1_HANDLER(Felt.fromHex("0x6c315f68616e646c6572")) // encodeShortString('1_handler')
+    L1_HANDLER(Felt.fromHex("0x6c315f68616e646c6572")) // encodeShortString('l1_handler')
 }
 
 @Serializable
