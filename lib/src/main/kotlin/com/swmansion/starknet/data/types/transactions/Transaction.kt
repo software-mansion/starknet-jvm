@@ -149,6 +149,7 @@ data class DeclareTransaction(
     override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
@@ -161,7 +162,8 @@ data class L1HandlerTransaction(
     @SerialName("entry_point_selector")
     val entryPointSelector: Felt,
 
-    @SerialName("hash")
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
     override val hash: Felt,
 
     @SerialName("max_fee")
