@@ -149,6 +149,7 @@ data class DeclareTransaction(
     override val type: TransactionType = TransactionType.DECLARE,
 ) : Transaction()
 
+@Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
     @SerialName("contract_address")
