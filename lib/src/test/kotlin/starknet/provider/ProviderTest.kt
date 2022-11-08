@@ -32,6 +32,7 @@ class ProviderTest {
         private lateinit var deployTransactionHash: Felt
         private lateinit var invokeTransactionHash: Felt
         private lateinit var declareTransactionHash: Felt
+        private lateinit var deployAccountTransactionHash: Felt
 
         @JvmStatic
         private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
@@ -82,12 +83,13 @@ class ProviderTest {
                     listOf(Felt.ZERO),
                 )
                 val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
-
+                val (_, deployAccountHash) = devnetClient.deployAccount()
                 this.contractAddress = deployTx.contractAddress
                 this.classHash = classHash
                 this.deployTransactionHash = deployTx.transactionHash
                 this.invokeTransactionHash = invokeHash
                 this.declareTransactionHash = declareHash
+                this.deployAccountTransactionHash = deployAccountHash
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -401,6 +403,22 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is InvokeTransaction)
+    }
+
+    @Test
+    fun `get deploy account transaction`() {
+        val provider = gatewayProvider()
+        val tx = provider.getTransaction(deployAccountTransactionHash).send()
+
+        assertTrue(tx is DeployAccountTransaction)
+    }
+
+    @Test
+    fun `get deploy account transaction receipt`() {
+        val provider = gatewayProvider()
+        val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
+
+        assertTrue(receipt is GatewayTransactionReceipt)
     }
 
     @ParameterizedTest

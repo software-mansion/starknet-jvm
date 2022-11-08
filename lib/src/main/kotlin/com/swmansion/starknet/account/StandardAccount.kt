@@ -68,7 +68,6 @@ class StandardAccount(
             chainId = provider.chainId,
             maxFee = maxFee,
             version = version,
-            nonce = Felt.ZERO,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 

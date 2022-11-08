@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
@@ -86,8 +87,7 @@ class DevnetClient(
         if (accountDirectory.exists()) {
             accountDirectory.toFile().walkTopDown().forEach { it.delete() }
         }
-        deployAccount()
-        prefundAccount()
+        accountDetails = deployAccount("__default__").details
     }
 
     override fun close() {
@@ -118,12 +118,19 @@ class DevnetClient(
         }
     }
 
-    private fun prefundAccount() = prefundAccount(accountDetails.address)
+    data class DeployAccountResult(
+        val details: AccountDetails,
+        val txHash: Felt,
+    )
 
-    private fun deployAccount() {
+    fun deployAccount(name: String? = null): DeployAccountResult {
+        // We have to generate unique name for the account as a global namespace is used
+        val accountName = name ?: UUID.randomUUID().toString()
         val params = arrayOf(
             "--account_dir",
             accountDirectory.toString(),
+            "--account",
+            accountName,
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
         )
@@ -134,14 +141,19 @@ class DevnetClient(
             *params,
         )
 
-        accountDetails = readAccountDetails()
-        prefundAccount(accountDetails.address)
+        val details = readAccountDetails(accountName)
+        prefundAccount(details.address)
 
-        runStarknetCli(
+        val result = runStarknetCli(
             "Account deployment",
             "deploy_account",
             *params,
         )
+        val tx = getTransactionResult(result.lines(), offset = 3)
+
+        assertTxPassed(tx.hash)
+
+        return DeployAccountResult(details, tx.hash)
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
@@ -161,9 +173,8 @@ class DevnetClient(
 
         val lines = result.lines()
         val tx = getTransactionResult(lines)
-        val receipt = transactionReceipt(tx.hash)
 
-        assertTxPassed(receipt.hash)
+        assertTxPassed(tx.hash)
 
         return tx
     }
@@ -311,10 +322,10 @@ class DevnetClient(
         return TransactionResult(address, hash)
     }
 
-    private fun readAccountDetails(): AccountDetails {
+    private fun readAccountDetails(accountName: String): AccountDetails {
         val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
         val contents = accountFile.readText()
-        return json.decodeFromString(AccountDetailsSerializer(), contents)
+        return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -333,10 +344,10 @@ class DevnetClient(
         val salt: Felt,
     )
 
-    class AccountDetailsSerializer : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
+    class AccountDetailsSerializer(val name: String) : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
         override fun transformDeserialize(element: JsonElement): JsonElement {
             val accounts = element.jsonObject["alpha-goerli"]!!
-            return accounts.jsonObject["__default__"]!!
+            return accounts.jsonObject[name]!!
         }
     }
 }
