@@ -22,6 +22,9 @@ enum class TransactionType(val txPrefix: Felt) {
     @SerialName("INVOKE")
     @JsonNames("INVOKE_FUNCTION")
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
+
+    @SerialName("L1_HANDLER")
+    L1_HANDLER(Felt.fromHex("0x6c315f68616e646c6572")) // encodeShortString('l1_handler')
 }
 
 @Serializable
@@ -147,6 +150,38 @@ data class DeclareTransaction(
     override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.DECLARE,
+) : Transaction()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@SerialName("L1_HANDLER")
+data class L1HandlerTransaction(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("calldata")
+    val calldata: Calldata,
+
+    @SerialName("entry_point_selector")
+    val entryPointSelector: Felt,
+
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt,
+
+    @SerialName("max_fee")
+    override val maxFee: Felt = Felt.ZERO,
+
+    @SerialName("version")
+    override val version: Felt,
+
+    @SerialName("signature")
+    override val signature: Signature = emptyList(),
+
+    @SerialName("nonce")
+    override val nonce: Felt,
+
+    override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
