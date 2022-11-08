@@ -11,8 +11,7 @@ object ContractAddressCalculator {
     /**
      * Prefix used for calculating addresses in StarkNet. It is a hex encoding of string "STARKNET_CONTRACT_ADDRESS".
      */
-    @JvmStatic
-    val CONTRACT_ADDRESS_PREFIX = Felt.fromHex("0x535441524b4e45545f434f4e54524143545f41444452455353")
+    private val CONTRACT_ADDRESS_PREFIX = Felt.fromHex("0x535441524b4e45545f434f4e54524143545f41444452455353")
 
     /**
      * Calculate address of a contract on StarkNet.
@@ -25,8 +24,8 @@ object ContractAddressCalculator {
     @JvmStatic
     fun calculateAddressFromHash(
         classHash: Felt,
-        salt: Felt,
         calldata: Calldata,
+        salt: Felt,
         deployerAddress: Felt,
     ): Felt = StarknetCurve.pedersenOnElements(
         CONTRACT_ADDRESS_PREFIX,
@@ -46,12 +45,12 @@ object ContractAddressCalculator {
     @JvmStatic
     fun calculateAddressFromHash(
         classHash: Felt,
-        salt: Felt,
         calldata: Calldata,
+        salt: Felt,
     ): Felt = calculateAddressFromHash(
         classHash = classHash,
-        salt = salt,
         calldata = calldata,
+        salt = salt,
         deployerAddress = Felt.ZERO,
     )
 }

@@ -59,9 +59,9 @@ object TransactionHashCalculator {
         maxFee: Felt,
     ): Felt {
         val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
-            salt = salt,
             classHash = classHash,
             calldata = calldata,
+            salt = salt,
         )
         return transactionHashCommon(
             txType = TransactionType.DEPLOY_ACCOUNT,
