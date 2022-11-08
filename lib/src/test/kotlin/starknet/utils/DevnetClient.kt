@@ -2,6 +2,7 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
+import com.swmansion.starknet.data.types.transactions.GatewayFailureReason
 import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.service.http.HttpService
@@ -11,17 +12,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class DevnetSetupFailedException(message: String) : Exception(message)
+
+class DevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
+    Exception(failureReason?.errorMessage ?: "Devnet operation failed")
 
 class DevnetClient(
     private val host: String = "0.0.0.0",
@@ -280,8 +282,9 @@ class DevnetClient(
 
     private fun assertTxPassed(txHash: Felt) {
         val receipt = transactionReceipt(txHash)
-        assertNull(receipt.failureReason)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, transactionReceipt(txHash).status)
+        if (receipt.failureReason != null || receipt.status != TransactionStatus.ACCEPTED_ON_L2) {
+            throw DevnetOperationFailed(receipt.failureReason, receipt.status)
+        }
     }
 
     private fun runStarknetCli(name: String, command: String, vararg args: String): String {
@@ -344,7 +347,8 @@ class DevnetClient(
         val salt: Felt,
     )
 
-    class AccountDetailsSerializer(val name: String) : JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
+    class AccountDetailsSerializer(val name: String) :
+        JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
         override fun transformDeserialize(element: JsonElement): JsonElement {
             val accounts = element.jsonObject["alpha-goerli"]!!
             return accounts.jsonObject[name]!!

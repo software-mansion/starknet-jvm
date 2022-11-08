@@ -4,15 +4,20 @@ import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
-import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.ExecutionParams
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
@@ -66,7 +71,7 @@ class StandardAccountTest {
             devnetClient.prefundAccount(accountAddress)
         }
 
-        data class AccountAndProvider(val account: Account, val provider: GatewayProvider)
+        data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
         fun getAccounts(): List<AccountAndProvider> {
@@ -276,9 +281,40 @@ class StandardAccountTest {
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt2.status)
     }
 
-    @ParameterizedTest
-    @MethodSource("getAccounts")
-    fun `deploy account works`(accountAndProvider: AccountAndProvider) {
+    @Test
+    fun `estimate deploy account fee`() {
+        val provider = gatewayProvider
+        val privateKey = Felt(11111)
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountClassHash
+        val salt = Felt.ONE
+        val calldata = listOf(publicKey)
+        val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+        )
+
+        val account = StandardAccount(
+            address,
+            privateKey,
+            provider,
+        )
+        val payloadForFeeEstimation = account.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.ZERO,
+        )
+        val feePayload = provider.getEstimateFee(payloadForFeeEstimation).send()
+        assertTrue(feePayload.overallFee.value > Felt.ONE.value)
+        println(feePayload)
+    }
+
+    @Test
+    fun `deploy account`() {
+        val provider = gatewayProvider
         val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -292,26 +328,17 @@ class StandardAccountTest {
         )
         devnetClient.prefundAccount(address)
 
-        val (_, provider) = accountAndProvider
-
         val account = StandardAccount(
             address,
             privateKey,
             provider,
         )
-        val payloadForFeeEstimation = account.signDeployAccount(
-            classHash = classHash,
-            salt = salt,
-            calldata = calldata,
-            maxFee = Felt.ZERO,
-        )
-        val fee = provider.getEstimateFee(payloadForFeeEstimation).send()
-        val maxFee = fee.overallFee
         val payload = account.signDeployAccount(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
-            maxFee = maxFee,
+            // 10*fee from estimate deploy account fee
+            maxFee = Felt.fromHex("0x11fcc58c7f7000"),
         )
 
         val response = provider.deployAccount(payload).send()
