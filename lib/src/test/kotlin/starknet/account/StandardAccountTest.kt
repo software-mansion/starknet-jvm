@@ -3,7 +3,7 @@ package starknet.account
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.data.ContractAddress
+import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
@@ -285,10 +285,10 @@ class StandardAccountTest {
         val classHash = accountClassHash
         val salt = Felt.ONE
         val calldata = listOf(publicKey)
-        val address = ContractAddress.calculateAddressFromHash(
-            salt = salt,
+        val address = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
             calldata = calldata,
+            salt = salt,
         )
         devnetClient.prefundAccount(address)
 

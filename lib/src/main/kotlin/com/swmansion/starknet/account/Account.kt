@@ -36,6 +36,16 @@ interface Account {
      */
     fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload
 
+    /**
+     * Sign deploy account transaction.
+     *
+     * Sign a deploy account transaction that requires prefunding deployed address.
+     *
+     * @param classHash hash of the contract that will be deployed. Has to be declared first!
+     * @param calldata constructor calldata for the contract deployment
+     * @param salt salt used to calculate address of the new contract
+     * @return signed deploy account payload
+     */
     fun signDeployAccount(classHash: Felt, calldata: Calldata, salt: Felt, maxFee: Felt): DeployAccountTransactionPayload
 
     /**

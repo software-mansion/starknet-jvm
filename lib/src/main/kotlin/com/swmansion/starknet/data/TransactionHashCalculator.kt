@@ -6,7 +6,20 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.TransactionType
 
-object Hashing {
+/**
+ * Toolkit for calculating hashes of transactions.
+ */
+object TransactionHashCalculator {
+    /**
+     * Calculate hash of invoke function transaction.
+     *
+     * @param contractAddress address of account that executes transaction
+     * @param calldata calldata sent to the account
+     * @param chainId id of the chain used
+     * @param version version of the tx
+     * @param nonce account's nonce
+     * @param maxFee maximum fee that account will use for the execution
+     */
     @JvmStatic
     fun calculateInvokeTxHash(
         contractAddress: Felt,
@@ -26,17 +39,26 @@ object Hashing {
         nonce = nonce,
     )
 
+    /**
+     * Calculate hash of deploy account transaction.
+     *
+     * @param classHash hash of the contract code
+     * @param calldata constructor calldata used for deployment
+     * @param salt salt used to calculate address
+     * @param chainId id of the chain used
+     * @param version version of the tx
+     * @param maxFee maximum fee that account will use for the execution
+     */
     @JvmStatic
     fun calculateDeployAccountTxHash(
         classHash: Felt,
-        salt: Felt,
         calldata: Calldata,
+        salt: Felt,
         chainId: StarknetChainId,
         version: Felt,
-        nonce: Felt,
-        maxFee: Felt = Felt.ZERO,
+        maxFee: Felt,
     ): Felt {
-        val contractAddress = ContractAddress.calculateAddressFromHash(
+        val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
             salt = salt,
             classHash = classHash,
             calldata = calldata,
@@ -49,7 +71,7 @@ object Hashing {
             calldata = listOf(classHash, salt, *calldata.toTypedArray()),
             maxFee = maxFee,
             chainId = chainId,
-            nonce = nonce,
+            nonce = Felt.ZERO,
         )
     }
 

@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.Hashing
+import com.swmansion.starknet.data.TransactionHashCalculator
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -207,7 +207,7 @@ object TransactionFactory {
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
     ): InvokeTransaction {
-        val hash = Hashing.calculateInvokeTxHash(
+        val hash = TransactionHashCalculator.calculateInvokeTxHash(
             contractAddress = contractAddress,
             calldata = calldata,
             chainId = chainId,
@@ -226,17 +226,16 @@ object TransactionFactory {
         calldata: Calldata,
         chainId: StarknetChainId,
         version: Felt,
-        nonce: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
     ): DeployAccountTransaction {
-        val hash = Hashing.calculateDeployAccountTxHash(
+        val nonce = Felt.ZERO
+        val hash = TransactionHashCalculator.calculateDeployAccountTxHash(
             classHash = classHash,
-            salt = salt,
             calldata = calldata,
+            salt = salt,
             chainId = chainId,
             version = version,
-            nonce = nonce,
             maxFee = maxFee,
         )
         return DeployAccountTransaction(
