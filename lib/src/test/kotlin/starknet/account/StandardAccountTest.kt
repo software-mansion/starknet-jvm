@@ -309,7 +309,6 @@ class StandardAccountTest {
         )
         val feePayload = provider.getEstimateFee(payloadForFeeEstimation).send()
         assertTrue(feePayload.overallFee.value > Felt.ONE.value)
-        println(feePayload)
     }
 
     @Test
