@@ -17,6 +17,7 @@ import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.util.function.Function
 
 /**
  * A provider for interacting with StarkNet gateway. You should reuse it in your application to share the
@@ -28,8 +29,8 @@ import kotlinx.serialization.json.*
  * @param httpService service used for making http requests
  */
 class GatewayProvider(
-    private val feederGatewayUrl: String,
-    private val gatewayUrl: String,
+    val feederGatewayUrl: String,
+    val gatewayUrl: String,
     override val chainId: StarknetChainId,
     private val httpService: HttpService,
 ) : Provider {
@@ -96,7 +97,7 @@ class GatewayProvider(
     }
 
     private fun <T> buildDeserializer(deserializationStrategy: DeserializationStrategy<T>): HttpResponseDeserializer<T> =
-        { response ->
+        Function { response ->
             val body = handleResponseError(response)
 
             val json = Json { ignoreUnknownKeys = true }
