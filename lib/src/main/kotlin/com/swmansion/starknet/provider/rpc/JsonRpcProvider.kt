@@ -30,7 +30,7 @@ import kotlinx.serialization.json.*
 class JsonRpcProvider(
     val url: String,
     override val chainId: StarknetChainId,
-    val httpService: HttpService,
+    private val httpService: HttpService,
 ) : Provider {
     constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
 

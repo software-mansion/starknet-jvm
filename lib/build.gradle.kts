@@ -43,6 +43,17 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
+tasks.dokkaJavadoc {
+    dokkaSourceSets {
+        configureEach {
+            perPackageOption {
+                matchingRegex.set("com.swmansion.starknet.extensions")
+                suppress.set(true)
+            }
+        }
+    }
+}
+
 tasks.jar {
     manifest {
         attributes(
@@ -127,6 +138,7 @@ tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
         (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
     }
+    exclude("com.swmansion.starknet.extensions")
 }
 
 
