@@ -105,7 +105,7 @@ data class InvokeTransaction(
 
     override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction() {
-    internal fun toPayload(): InvokeFunctionPayload {
+    fun toPayload(): InvokeFunctionPayload {
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata,

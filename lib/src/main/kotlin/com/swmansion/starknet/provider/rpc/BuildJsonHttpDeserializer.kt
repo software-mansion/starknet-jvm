@@ -5,6 +5,7 @@ import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpResponseDeserializer
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
+import java.util.function.Function
 
 @Serializable
 private data class JsonRpcResponse<T>(
@@ -32,7 +33,7 @@ private data class JsonRpcError(
 
 @JvmSynthetic
 internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
-    return { response ->
+    return Function { response ->
         if (!response.isSuccessful) {
             throw RequestFailedException(
                 payload = response.body,
