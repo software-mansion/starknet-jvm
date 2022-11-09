@@ -68,7 +68,7 @@ class ProviderTest {
                 devnetClient.start()
 
                 val contract = Path.of("src/test/resources/compiled/providerTest.json").toFile().readText()
-                val (contractAddress, deployHash) = gatewayProvider().deployContract(
+                val (deployHash, contractAddress) = gatewayProvider().deployContract(
                     DeployTransactionPayload(
                         contractDefinition = ContractDefinition(contract),
                         constructorCalldata = listOf(),
