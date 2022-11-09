@@ -68,7 +68,7 @@ class ProviderTest {
                 devnetClient.start()
 
                 val contract = Path.of("src/test/resources/compiled/providerTest.json").toFile().readText()
-                val deployTx = gatewayProvider().deployContract(
+                val (contractAddress, deployHash) = gatewayProvider().deployContract(
                     DeployTransactionPayload(
                         contractDefinition = ContractDefinition(contract),
                         constructorCalldata = listOf(),
@@ -78,15 +78,15 @@ class ProviderTest {
                 ).send()
                 val (_, invokeHash) = devnetClient.invokeTransaction(
                     "increase_balance",
-                    deployTx.contractAddress,
+                    contractAddress,
                     Path.of("src/test/resources/compiled/providerTestAbi.json"),
                     listOf(Felt.ZERO),
                 )
                 val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
                 val (_, deployAccountHash) = devnetClient.deployAccount()
-                this.contractAddress = deployTx.contractAddress
+                this.contractAddress = contractAddress
                 this.classHash = classHash
-                this.deployTransactionHash = deployTx.transactionHash
+                this.deployTransactionHash = deployHash
                 this.invokeTransactionHash = invokeHash
                 this.declareTransactionHash = declareHash
                 this.deployAccountTransactionHash = deployAccountHash

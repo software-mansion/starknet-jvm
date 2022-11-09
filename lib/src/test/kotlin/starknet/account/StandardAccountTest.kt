@@ -311,6 +311,7 @@ class StandardAccountTest {
         assertTrue(feePayload.overallFee.value > Felt.ONE.value)
     }
 
+    // FIXME: Add tests with RPC provider once it supports deploy account
     @Test
     fun `deploy account`() {
         val provider = gatewayProvider
@@ -347,7 +348,13 @@ class StandardAccountTest {
 
         // Make sure tx matches what we sent
         val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransaction
-        assertEquals(payload, tx.toPayload())
+        assertEquals(payload.classHash, tx.classHash)
+        assertEquals(payload.salt, tx.contractAddressSalt)
+        assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+        assertEquals(payload.version, tx.version)
+        assertEquals(payload.nonce, tx.nonce)
+        assertEquals(payload.maxFee, tx.maxFee)
+        assertEquals(payload.signature, tx.signature)
 
         // Invoke function to make sure the account was deployed properly
         val call = Call(
