@@ -32,6 +32,7 @@ class ProviderTest {
         private lateinit var deployTransactionHash: Felt
         private lateinit var invokeTransactionHash: Felt
         private lateinit var declareTransactionHash: Felt
+        private lateinit var deployAccountTransactionHash: Felt
 
         @JvmStatic
         private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
@@ -65,20 +66,30 @@ class ProviderTest {
         fun before() {
             try {
                 devnetClient.start()
-                val (deployAddress, deployHash) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+
+                val contract = Path.of("src/test/resources/compiled/providerTest.json").toFile().readText()
+                val (deployHash, contractAddress) = gatewayProvider().deployContract(
+                    DeployTransactionPayload(
+                        contractDefinition = ContractDefinition(contract),
+                        constructorCalldata = listOf(),
+                        salt = Felt.ONE,
+                        version = Felt.ZERO,
+                    ),
+                ).send()
                 val (_, invokeHash) = devnetClient.invokeTransaction(
                     "increase_balance",
-                    deployAddress,
+                    contractAddress,
                     Path.of("src/test/resources/compiled/providerTestAbi.json"),
                     listOf(Felt.ZERO),
                 )
                 val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
-
-                this.contractAddress = deployAddress
+                val (_, deployAccountHash) = devnetClient.deployAccount()
+                this.contractAddress = contractAddress
                 this.classHash = classHash
                 this.deployTransactionHash = deployHash
                 this.invokeTransactionHash = invokeHash
                 this.declareTransactionHash = declareHash
+                this.deployAccountTransactionHash = deployAccountHash
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -454,11 +465,31 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction`(provider: Provider) {
+        // FIXME: devnet fails when tx doesn't have entry_point_selector, remove condition after bumping devnet
+        if (provider is JsonRpcProvider) {
+            return
+        }
         val request = provider.getTransaction(invokeTransactionHash)
         val response = request.send()
 
         assertNotNull(response)
         assertTrue(response is InvokeTransaction)
+    }
+
+    @Test
+    fun `get deploy account transaction`() {
+        val provider = gatewayProvider()
+        val tx = provider.getTransaction(deployAccountTransactionHash).send()
+
+        assertTrue(tx is DeployAccountTransaction)
+    }
+
+    @Test
+    fun `get deploy account transaction receipt`() {
+        val provider = gatewayProvider()
+        val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
+
+        assertTrue(receipt is GatewayTransactionReceipt)
     }
 
     @ParameterizedTest

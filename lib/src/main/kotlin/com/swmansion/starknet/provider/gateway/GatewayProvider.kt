@@ -15,7 +15,10 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
@@ -233,6 +236,17 @@ class GatewayProvider(
         )
     }
 
+    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+        val url = gatewayRequestUrl("add_transaction")
+        val body = serializeDeployAccountTransactionPayload(payload)
+
+        return HttpRequest(
+            Payload(url, "POST", body),
+            buildDeserializer(DeployAccountResponse.serializer()),
+            httpService,
+        )
+    }
+
     override fun getClass(classHash: Felt): Request<ContractClass> {
         val url = feederGatewayRequestUrl("get_class_by_hash")
 
@@ -273,6 +287,8 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
+    // TODO: Accept payload instead of tx
+    // TODO: Move serialization to a method
     private fun getEstimateFee(
         request: InvokeTransaction,
         blockId: BlockId,
@@ -306,6 +322,36 @@ class GatewayProvider(
 
     override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
         return getEstimateFee(request, BlockId.Tag(blockTag))
+    }
+
+    private fun getEstimateFee(
+        payload: DeployAccountTransactionPayload,
+        blockId: BlockId,
+    ): Request<EstimateFeeResponse> {
+        val url = feederGatewayRequestUrl("estimate_fee")
+        val body = serializeDeployAccountTransactionPayload(payload)
+
+        return HttpRequest(
+            Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            httpService,
+        )
+    }
+
+    fun getEstimateFee(request: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, BlockId.Hash(blockHash))
+    }
+
+    fun getEstimateFee(request: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, BlockId.Number(blockNumber))
+    }
+
+    fun getEstimateFee(request: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(request, BlockId.Tag(blockTag))
+    }
+
+    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockTag.LATEST)
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
@@ -373,6 +419,24 @@ class GatewayProvider(
 
         return getBlockTransactionCount(payload)
     }
+
+    private fun serializeDeployAccountTransactionPayload(
+        payload: DeployAccountTransactionPayload,
+    ): JsonObject =
+        buildJsonObject {
+            put("type", "DEPLOY_ACCOUNT")
+            put("class_hash", payload.classHash)
+            put("contract_address_salt", payload.salt)
+            putJsonArray("constructor_calldata") {
+                payload.constructorCalldata.toDecimal().forEach { add(it) }
+            }
+            put("version", payload.version)
+            put("nonce", payload.nonce)
+            put("max_fee", payload.maxFee)
+            putJsonArray("signature") {
+                payload.signature.toDecimal().forEach { add(it) }
+            }
+        }
 
     companion object Factory {
         @JvmStatic

@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.TransactionHashCalculator
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -15,6 +15,9 @@ enum class TransactionType(val txPrefix: Felt) {
 
     @SerialName("DEPLOY")
     DEPLOY(Felt.fromHex("0x6465706c6f79")), // encodeShortString('deploy'),
+
+    @SerialName("DEPLOY_ACCOUNT")
+    DEPLOY_ACCOUNT(Felt.fromHex("0x6465706c6f795f6163636f756e74")), // encodeShortString('deploy_account'),
 
     @SerialName("INVOKE")
     @JsonNames("INVOKE_FUNCTION")
@@ -82,7 +85,7 @@ data class InvokeTransaction(
     val calldata: Calldata,
 
     @SerialName("entry_point_selector")
-    val entryPointSelector: Felt,
+    val entryPointSelector: Felt = Felt.ZERO,
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -181,6 +184,52 @@ data class L1HandlerTransaction(
     override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : Transaction()
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@SerialName("DEPLOY_ACCOUNT")
+data class DeployAccountTransaction(
+    @SerialName("class_hash")
+    @JsonNames("contract_class")
+    val classHash: Felt,
+
+    @SerialName("contract_address_salt")
+    val contractAddressSalt: Felt,
+
+    @SerialName("constructor_calldata")
+    @JsonNames("calldata")
+    val constructorCalldata: Calldata,
+
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt,
+
+    @SerialName("max_fee")
+    override val maxFee: Felt,
+
+    @SerialName("version")
+    override val version: Felt,
+
+    @SerialName("signature")
+    override val signature: Signature,
+
+    @SerialName("nonce")
+    override val nonce: Felt,
+
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+) : Transaction() {
+    internal fun toPayload(): DeployAccountTransactionPayload {
+        return DeployAccountTransactionPayload(
+            classHash = classHash,
+            salt = contractAddressSalt,
+            constructorCalldata = constructorCalldata,
+            version = version,
+            nonce = nonce,
+            maxFee = maxFee,
+            signature = signature,
+        )
+    }
+}
+
 object TransactionFactory {
     @JvmStatic
     fun makeInvokeTransaction(
@@ -193,17 +242,46 @@ object TransactionFactory {
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
     ): InvokeTransaction {
-        val hash = StarknetCurve.pedersenOnElements(
-            TransactionType.INVOKE.txPrefix,
-            version,
-            contractAddress,
-            Felt.ZERO,
-            StarknetCurve.pedersenOnElements(calldata),
-            maxFee,
-            chainId.value,
-            nonce,
+        val hash = TransactionHashCalculator.calculateInvokeTxHash(
+            contractAddress = contractAddress,
+            calldata = calldata,
+            chainId = chainId,
+            version = version,
+            nonce = nonce,
+            maxFee = maxFee,
         )
 
         return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+    }
+
+    @JvmStatic
+    fun makeDeployAccountTransaction(
+        classHash: Felt,
+        salt: Felt,
+        calldata: Calldata,
+        chainId: StarknetChainId,
+        version: Felt,
+        maxFee: Felt = Felt.ZERO,
+        signature: Signature = emptyList(),
+    ): DeployAccountTransaction {
+        val nonce = Felt.ZERO
+        val hash = TransactionHashCalculator.calculateDeployAccountTxHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+            chainId = chainId,
+            version = version,
+            maxFee = maxFee,
+        )
+        return DeployAccountTransaction(
+            classHash = classHash,
+            contractAddressSalt = salt,
+            constructorCalldata = calldata,
+            version = version,
+            nonce = nonce,
+            maxFee = maxFee,
+            hash = hash,
+            signature = signature,
+        )
     }
 }

@@ -4,6 +4,7 @@ import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
 import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload
 import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.extensions.compose
@@ -49,6 +50,25 @@ class StandardAccount(
             version = version,
         )
 
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
+    override fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        maxFee: Felt,
+    ): DeployAccountTransactionPayload {
+        val tx = TransactionFactory.makeDeployAccountTransaction(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            chainId = provider.chainId,
+            maxFee = maxFee,
+            version = version,
+        )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
         return signedTransaction.toPayload()
