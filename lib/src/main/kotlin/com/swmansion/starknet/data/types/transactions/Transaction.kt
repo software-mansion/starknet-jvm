@@ -34,6 +34,21 @@ sealed class Transaction {
     abstract val type: TransactionType
 }
 
+/**
+ * Implementers of this interface allow conversion to the
+ * [com.swmansion.starknet.data.types.transactions.TransactionPayload] type to be used in Providers
+ *
+ * @param T: Subclass of the TransactionPayload that will be returned by the conversion
+ */
+interface ConvertibleToTransactionPayload<T : TransactionPayload> {
+    /**
+     * Convert class to payload
+     *
+     * @return a payload
+     */
+    fun toPayload(): T
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY")
@@ -101,8 +116,8 @@ data class InvokeTransaction(
     override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.INVOKE,
-) : Transaction() {
-    fun toPayload(): InvokeFunctionPayload {
+) : Transaction(), ConvertibleToTransactionPayload<InvokeFunctionPayload> {
+    override fun toPayload(): InvokeFunctionPayload {
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata,
