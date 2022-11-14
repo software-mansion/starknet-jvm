@@ -21,6 +21,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         // Set up an account
         Felt address = Felt.fromHex("0x1234");
+        // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
+        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRA️FICALLY SAFE TOOLS!
         Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         Provider provider = GatewayProvider.makeTestnetClient();
         Account account = new StandardAccount(address, privateKey, provider);
