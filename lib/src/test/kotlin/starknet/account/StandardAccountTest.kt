@@ -155,7 +155,12 @@ class StandardAccountTest {
         val nonce = account.getNonce().send()
         val classHash = Felt.fromHex("0x68704d18de8ccf71da7c9761ee53efd44dcfcfd512eddfac9c396e7d175e234")
 
-        val declareTransactionPayload = account.sign(
+        // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
+        // changes, this causes changes in the class hash.
+        // If this tests starts randomly falling, try recalculating class hash.
+        val classHash = Felt.fromHex("0x37a54ffa21547ffaef9b75dc2a65d4c0e1f23f3dc2f523fb95df578e12a4293")
+
+        val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
             ExecutionParams(nonce, Felt(1000000000000000)),

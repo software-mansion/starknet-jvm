@@ -74,7 +74,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun sign(
+    override fun signDeclare(
         contractDefinition: ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,

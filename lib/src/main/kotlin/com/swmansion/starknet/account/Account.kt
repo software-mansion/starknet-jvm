@@ -46,7 +46,12 @@ interface Account {
      * @param salt salt used to calculate address of the new contract
      * @return signed deploy account payload
      */
-    fun signDeployAccount(classHash: Felt, calldata: Calldata, salt: Felt, maxFee: Felt): DeployAccountTransactionPayload
+    fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        maxFee: Felt,
+    ): DeployAccountTransactionPayload
 
     /**
      * Sign a declare transaction.
@@ -57,7 +62,11 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed declare transaction payload
      */
-    fun sign(contractDefinition: ContractDefinition, classHash: Felt, params: ExecutionParams): DeclareTransactionPayload
+    fun signDeclare(
+        contractDefinition: ContractDefinition,
+        classHash: Felt,
+        params: ExecutionParams,
+    ): DeclareTransactionPayload
 
     /**
      * Execute a list of calls
