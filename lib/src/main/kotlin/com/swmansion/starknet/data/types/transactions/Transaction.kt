@@ -300,4 +300,35 @@ object TransactionFactory {
             signature = signature,
         )
     }
+
+    @JvmStatic
+    fun makeDeclareTransaction(
+        classHash: Felt,
+        senderAddress: Felt,
+        contractDefinition: ContractDefinition,
+        chainId: StarknetChainId,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+        signature: Signature = emptyList(),
+    ): DeclareTransaction {
+        val hash = TransactionHashCalculator.calculateDeclareTxHash(
+            classHash = classHash,
+            chainId = chainId,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            version = version,
+            nonce = nonce,
+        )
+        return DeclareTransaction(
+            classHash = classHash,
+            senderAddress = senderAddress,
+            contractDefinition = contractDefinition,
+            hash = hash,
+            maxFee = maxFee,
+            version = version,
+            signature = signature,
+            nonce = nonce,
+        )
+    }
 }
