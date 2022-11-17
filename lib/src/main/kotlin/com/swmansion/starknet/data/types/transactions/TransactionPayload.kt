@@ -1,6 +1,5 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -37,15 +36,7 @@ data class DeclareTransactionPayload(
     val nonce: Felt,
     val signature: Signature,
     val version: Felt,
-) {
-    constructor(
-        contractDefinition: ContractDefinition,
-        maxFee: Felt,
-        nonce: Felt,
-        signature: Signature,
-        version: Felt,
-    ) : this(contractDefinition, DECLARE_SENDER_ADDRESS, maxFee, nonce, signature, version)
-}
+)
 
 data class DeployAccountTransactionPayload(
     val classHash: Felt,
