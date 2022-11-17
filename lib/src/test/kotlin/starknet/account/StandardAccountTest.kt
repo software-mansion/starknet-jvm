@@ -4,10 +4,7 @@ import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
-import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.ExecutionParams
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
@@ -153,7 +150,6 @@ class StandardAccountTest {
         val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
         val contractDefinition = ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
-        val classHash = Felt.fromHex("0x68704d18de8ccf71da7c9761ee53efd44dcfcfd512eddfac9c396e7d175e234")
 
         // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
@@ -171,6 +167,7 @@ class StandardAccountTest {
 
         assertNotNull(result)
         assertNotNull(receipt)
+        println(receipt)
         assertTrue(receipt.isAccepted)
     }
 
