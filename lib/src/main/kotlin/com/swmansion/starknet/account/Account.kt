@@ -59,6 +59,7 @@ interface Account {
      * Prepare and sign a declare transaction to be executed on StarkNet.
      *
      * @param contractDefinition a definition of the contract to be declared
+     * @param classHash a class hash of the contract to be declared
      * @param params additional execution parameters for the transaction
      * @return signed declare transaction payload
      */
