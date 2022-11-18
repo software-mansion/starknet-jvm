@@ -167,7 +167,6 @@ class StandardAccountTest {
 
         assertNotNull(result)
         assertNotNull(receipt)
-        println(receipt)
         assertTrue(receipt.isAccepted)
     }
 
