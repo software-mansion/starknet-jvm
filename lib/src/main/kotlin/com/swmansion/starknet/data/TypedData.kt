@@ -6,14 +6,23 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 @Serializable
-data class TypedData(
+data class TypedData private constructor(
     val types: Map<String, List<Type>>,
     val primaryType: String,
-    val domainJSON: String,
-    val messageJSON: String,
+    val domain: JsonObject,
+    val message: JsonObject,
 ) {
-    private val domain: JsonObject by lazy { Json.parseToJsonElement(domainJSON).jsonObject }
-    private val message: JsonObject by lazy { Json.parseToJsonElement(messageJSON).jsonObject }
+    constructor(
+        types: Map<String, List<Type>>,
+        primaryType: String,
+        domain: String,
+        message: String,
+    ) : this(
+        types = types,
+        primaryType = primaryType,
+        domain = Json.parseToJsonElement(domain).jsonObject,
+        message = Json.parseToJsonElement(message).jsonObject,
+    )
 
     @Serializable
     data class Type(val name: String, val type: String)
@@ -132,5 +141,16 @@ data class TypedData(
             accountAddress,
             getStructHash(primaryType, message),
         )
+    }
+
+    companion object {
+        /**
+         * Create TypedData from JSON string.
+         *
+         * @param typedData json of typed data
+         */
+        @JvmStatic
+        fun fromJsonString(typedData: String): TypedData =
+            Json.decodeFromString(TypedData.serializer(), typedData)
     }
 }

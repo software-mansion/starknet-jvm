@@ -35,14 +35,24 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
         return "Felt(${value.toHex()})"
     }
 
+    /**
+     * Encode as hexadecimal string, including "0x" prefix.
+     */
     fun hexString(): String {
         return value.toHex()
     }
 
+    /**
+     * Encode as decimal string.
+     */
     fun decString(): String {
         return value.toString(10)
     }
 
+    /**
+     * Encode as ASCII string, with up to 31 characters.
+     * Example: 0x68656c6c6f -> "hello".
+     */
     fun toShortString(): String {
         var hexString = this.hexString().removeHexPrefix()
 
@@ -67,16 +77,27 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
         @field:JvmField
         val ONE = Felt(BigInteger.ONE)
 
+        /**
+         * Create Felt from hex string. It must start with "0x" prefix.
+         *
+         * @param value hex string.
+         */
         @JvmStatic
         fun fromHex(value: String): Felt = Felt(parseHex(value))
 
+        /**
+         * Create Felt from ASCII string. It must be shorter than 32 characters and only contain ASCII encoding.
+         * Example: "hello" -> 0x68656c6c6f.
+         *
+         * @param value string transformed to felt.
+         */
         @JvmStatic
         fun fromShortString(value: String): Felt {
-            if (!this.isShortString(value)) {
-                throw Error("Short string cannot be longer than 31 characters")
+            if (value.length > 31) {
+                throw IllegalArgumentException("Short string cannot be longer than 31 characters.")
             }
-            if (!isAsciiString(value)) {
-                throw Error("String to be encoded must be an ascii string")
+            if (!isAscii(value)) {
+                throw IllegalArgumentException("String to be encoded must be an ascii string.")
             }
 
             val encoded = value.replace(Regex(".")) { s ->
@@ -86,11 +107,7 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
             return fromHex(encoded.addHexPrefix())
         }
 
-        private fun isShortString(string: String): Boolean {
-            return string.length <= 31
-        }
-
-        private fun isAsciiString(string: String): Boolean {
+        private fun isAscii(string: String): Boolean {
             for (char in string) {
                 if (char.code < 0 || char.code > 127) {
                     return false

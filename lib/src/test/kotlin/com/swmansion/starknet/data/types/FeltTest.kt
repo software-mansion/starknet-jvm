@@ -14,14 +14,14 @@ internal class FeltTest {
 
     @Test
     fun `fromShortString too long string should fail`() {
-        assertThrows<Error>("Short string cannot be longer than 31 characters") {
+        assertThrows<java.lang.IllegalArgumentException>("Short string cannot be longer than 31 characters") {
             Felt.fromShortString("a".repeat(32))
         }
     }
 
     @Test
     fun `fromShortString non ascii string should fail`() {
-        assertThrows<Error>("String to be encoded must be an ascii string") {
+        assertThrows<java.lang.IllegalArgumentException>("String to be encoded must be an ascii string") {
             Felt.fromShortString("hello\uD83D\uDE00")
         }
     }

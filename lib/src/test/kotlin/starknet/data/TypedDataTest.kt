@@ -2,6 +2,7 @@ package starknet.data
 
 import com.swmansion.starknet.data.*
 import com.swmansion.starknet.data.types.Felt
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,7 +13,7 @@ import java.io.File
 fun loadTypedData(name: String): TypedData {
     val content = File("src/test/resources/typed-data/$name").readText()
 
-    return Json.decodeFromString(TypedData.serializer(), content)
+    return TypedData.fromJsonString(content)
 }
 
 class TypedDataTest {
@@ -66,12 +67,12 @@ class TypedDataTest {
     @MethodSource("getStructHashArguments")
     fun `struct hash calculation`(data: TypedData, typeName: String, dataSource: String, expectedResult: String) {
         val dataStruct = if (dataSource == "domain") {
-            data.domainJSON
+            data.domain
         } else {
-            data.domainJSON
+            data.message
         }
 
-        val hash = data.getStructHash(typeName, dataStruct)
+        val hash = data.getStructHash(typeName, Json.encodeToString(dataStruct))
 
         assertEquals(Felt.fromHex(expectedResult), hash)
     }
