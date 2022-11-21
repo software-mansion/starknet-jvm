@@ -2,7 +2,6 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.extensions.*
-import com.swmansion.starknet.extensions.addHexPrefix
 import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -54,7 +53,7 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
      * Example: 0x68656c6c6f -> "hello".
      */
     fun toShortString(): String {
-        var hexString = this.hexString().removeHexPrefix()
+        var hexString = this.value.toString(16)
 
         if (hexString.length % 2 == 1) {
             hexString = hexString.padStart(hexString.length + 1, '0')
@@ -104,7 +103,7 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
                 s.value.first().code.toString(16).padStart(2, '0')
             }
 
-            return fromHex(encoded.addHexPrefix())
+            return fromHex("0x$encoded")
         }
 
         private fun isAscii(string: String): Boolean {
