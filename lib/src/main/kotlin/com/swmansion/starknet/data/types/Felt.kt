@@ -22,8 +22,8 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
         if (value < BigInteger.ZERO) {
             throw java.lang.IllegalArgumentException("Default Felt constructor does not accept negative numbers, [$value] given.")
         }
-        if (value > PRIME) {
-            throw java.lang.IllegalArgumentException("Default Felt constructor does not accept numbers higher than P, [$value] given.")
+        if (value >= PRIME) {
+            throw java.lang.IllegalArgumentException("Default Felt constructor accepts values smaller than Felt.PRIME, [$value] given.")
         }
     }
 

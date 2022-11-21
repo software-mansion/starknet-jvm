@@ -1,10 +1,35 @@
 package com.swmansion.starknet.data.types
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.math.BigInteger
 
 internal class FeltTest {
+    @Test
+    fun `Felt can't be created with a negative value`() {
+        assertThrows<java.lang.IllegalArgumentException>("Default Felt constructor does not accept negative numbers, [-1] given.") {
+            Felt(BigInteger.valueOf(-1))
+        }
+    }
+
+    @Test
+    fun `Felt can't be created with a value bigger than PRIME`() {
+        assertThrows<java.lang.IllegalArgumentException>(
+            "Default Felt constructor accepts values smaller than Felt.PRIME, [3618502788666131213697322783095070105623107215331596699973092056135872020481] given.",
+        ) {
+            Felt(Felt.PRIME)
+        }
+    }
+
+    @Test
+    fun feltToString() {
+        assertEquals(
+            "Felt(0xabcdef01234567890)",
+            Felt.fromHex("0xabcdef01234567890").toString(),
+        )
+    }
+
     @Test
     fun `fromShortString short string`() {
         val encoded = Felt.fromShortString("hello")
