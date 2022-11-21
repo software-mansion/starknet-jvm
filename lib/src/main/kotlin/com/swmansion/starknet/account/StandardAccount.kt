@@ -4,7 +4,9 @@ import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
+import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload
+import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
@@ -53,6 +55,25 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
+    override fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        maxFee: Felt,
+    ): DeployAccountTransactionPayload {
+        val tx = TransactionFactory.makeDeployAccountTransaction(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            chainId = provider.chainId,
+            maxFee = maxFee,
+            version = version,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
     override fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
@@ -69,9 +90,7 @@ class StandardAccount(
         }
     }
 
-    override fun getNonce(): Request<Felt> {
-        return provider.getNonce(address)
-    }
+    override fun getNonce(): Request<Felt> = provider.getNonce(address, BlockTag.PENDING)
 
     override fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse> {
         return getNonce().compose { buildEstimateFeeRequest(calls, it) }

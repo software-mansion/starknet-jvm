@@ -34,6 +34,25 @@ jobs:
           java-version: 11
           distribution: 'corretto'
           cache: 'gradle'
+
+      # See https://github.com/software-mansion/starknet-jvm/issues/171
+      - name: Set up GCC 7
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 7
+          platform: x64
+        if: matrix.os == 'ubuntu-latest'
+      - name: Force usage of gcc 7
+        run: |
+          # First delete any version other than 7
+          sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7
+          sudo rm -r /usr/lib/gcc/x86_64-linux-gnu/* 
+          sudo mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
+          echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
+        shell: bash
+        if: matrix.os == 'ubuntu-latest'
+
       - name: Set arch variable
         id: vars
         run: echo "::set-output name=os_arch::$(uname -m)"
@@ -112,11 +131,9 @@ jobs:
           # Mac uses a universal binary
           mkdir -p lib/build/libs/shared/darwin
           cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
-          declare -a archs=("x86_64" "aarch64")
-          for arch in "${archs[@]}"; do
-            mkdir -p lib/build/libs/shared/linux/"$arch"
-            cp -r download/lib-Linux-"$arch"/* lib/build/libs/shared/linux/"$arch"/
-          done
+          mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
+          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
+          cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Rename JAR

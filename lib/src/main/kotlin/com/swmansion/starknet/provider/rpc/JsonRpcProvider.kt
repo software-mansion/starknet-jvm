@@ -28,7 +28,7 @@ import kotlinx.serialization.json.*
  * @param httpService service used for making http requests
  */
 class JsonRpcProvider(
-    private val url: String,
+    val url: String,
     override val chainId: StarknetChainId,
     private val httpService: HttpService,
 ) : Provider {
@@ -331,7 +331,7 @@ class JsonRpcProvider(
         return getEstimateFee(payload)
     }
 
-    override fun getNonce(contractAddress: Felt): Request<Felt> {
+    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         TODO("Not yet implemented")
     }
 

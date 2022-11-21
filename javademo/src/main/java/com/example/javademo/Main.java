@@ -15,13 +15,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         // Set up an account
         Felt address = Felt.fromHex("0x1234");
-        Felt privateKey = new Felt(new Random().nextLong(1, Long.MAX_VALUE));
+        // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
+        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRA️FICALLY SAFE TOOLS!
+        Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         Provider provider = GatewayProvider.makeTestnetClient();
         Account account = new StandardAccount(address, privateKey, provider);
 

@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.2.0"
+version = "0.3.0"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -39,6 +39,17 @@ tasks.withType<DokkaTask>().configureEach {
     dokkaSourceSets {
         configureEach {
             includes.from("starknet-jvm.md")
+        }
+    }
+}
+
+tasks.dokkaJavadoc {
+    dokkaSourceSets {
+        configureEach {
+            perPackageOption {
+                matchingRegex.set("com.swmansion.starknet.extensions")
+                suppress.set(true)
+            }
         }
     }
 }
@@ -100,7 +111,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50")
 
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
@@ -127,6 +138,7 @@ tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
         (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
     }
+    exclude("com.swmansion.starknet.extensions")
 }
 
 
@@ -180,27 +192,16 @@ publishing {
                     url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
                 }
                 pom.withXml {
-                    val dependencyNode = asNode().appendNode("dependencies")
+                    val dependenciesNode = asNode().appendNode("dependencies")
 
-                    val kotlinDependency = dependencyNode.appendNode("dependency")
-                    kotlinDependency.appendNode("groupId", "org.jetbrains.kotlin")
-                    kotlinDependency.appendNode("artifactId", "kotlin-stdlib-jdk8")
-                    kotlinDependency.appendNode("version", "1.3.50")
-
-                    val bouncyCastleDependency = dependencyNode.appendNode("dependency")
-                    bouncyCastleDependency.appendNode("groupId", "org.bouncycastle")
-                    bouncyCastleDependency.appendNode("artifactId", "bcprov-jdk15on")
-                    bouncyCastleDependency.appendNode("version", "1.70")
-
-                    val okHttpDependency = dependencyNode.appendNode("dependency")
-                    okHttpDependency.appendNode("groupId", "com.squareup.okhttp3")
-                    okHttpDependency.appendNode("artifactId", "okhttp")
-                    okHttpDependency.appendNode("version", "4.10.0")
-
-                    val kotlinxDependency = dependencyNode.appendNode("dependency")
-                    kotlinxDependency.appendNode("groupId", "org.jetbrains.kotlinx")
-                    kotlinxDependency.appendNode("artifactId", "kotlinx-serialization-json")
-                    kotlinxDependency.appendNode("version", "1.3.3")
+                    configurations["implementation"].allDependencies.forEach {
+                        if (it.group != null && it.version != null) {
+                            val dependencyNode = dependenciesNode.appendNode("dependency")
+                            dependencyNode.appendNode("groupId", it.group)
+                            dependencyNode.appendNode("artifactId", it.name)
+                            dependencyNode.appendNode("version", it.version)
+                        }
+                    }
                 }
             }
         }

@@ -36,6 +36,16 @@ data class DeclareResponse(
     val classHash: Felt,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class DeployAccountResponse(
+    @JsonNames("transaction_hash")
+    val transactionHash: Felt,
+
+    @JsonNames("address")
+    val address: Felt,
+)
+
 @Serializable
 data class GetStorageAtResponse(
     val result: Felt,

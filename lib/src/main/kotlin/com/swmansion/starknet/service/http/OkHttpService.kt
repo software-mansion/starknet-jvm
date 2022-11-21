@@ -67,7 +67,6 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
      * @param payload a payload to be sent
      */
     override fun sendAsync(payload: Payload): CompletableFuture<HttpResponse> {
-        val client = OkHttpClient()
         val httpRequest = buildRequest(payload)
 
         val future = CompletableFuture<HttpResponse>()

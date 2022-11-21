@@ -36,3 +36,13 @@ data class DeclareTransactionPayload(
     val signature: Signature,
     val version: Felt,
 )
+
+data class DeployAccountTransactionPayload(
+    val classHash: Felt,
+    val salt: Felt,
+    val constructorCalldata: Calldata,
+    val version: Felt,
+    val nonce: Felt,
+    val maxFee: Felt,
+    val signature: Signature,
+)
