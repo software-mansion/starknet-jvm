@@ -66,9 +66,9 @@ class TypedDataTest {
     @MethodSource("getStructHashArguments")
     fun `struct hash calculation`(data: TypedData, typeName: String, dataSource: String, expectedResult: String) {
         val dataStruct = if (dataSource == "domain") {
-            data.domain
+            data.domainJSON
         } else {
-            data.message
+            data.domainJSON
         }
 
         val hash = data.getStructHash(typeName, dataStruct)

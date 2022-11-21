@@ -1,6 +1,8 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex
+import com.swmansion.starknet.extensions.*
+import com.swmansion.starknet.extensions.addHexPrefix
 import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -41,6 +43,20 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
         return value.toString(10)
     }
 
+    fun toShortString(): String {
+        var hexString = this.hexString().removeHexPrefix()
+
+        if (hexString.length % 2 == 1) {
+            hexString = hexString.padStart(hexString.length + 1, '0')
+        }
+
+        val decoded = hexString.replace(Regex(".{2}")) { hex ->
+            hex.value.toInt(16).toChar().toString()
+        }
+
+        return decoded
+    }
+
     companion object {
         @field:JvmField
         val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
@@ -53,6 +69,36 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
 
         @JvmStatic
         fun fromHex(value: String): Felt = Felt(parseHex(value))
+
+        @JvmStatic
+        fun fromShortString(value: String): Felt {
+            if (!this.isShortString(value)) {
+                throw Error("Short string cannot be longer than 31 characters")
+            }
+            if (!isAsciiString(value)) {
+                throw Error("String to be encoded must be an ascii string")
+            }
+
+            val encoded = value.replace(Regex(".")) { s ->
+                s.value.first().code.toString(16).padStart(2, '0')
+            }
+
+            return fromHex(encoded.addHexPrefix())
+        }
+
+        private fun isShortString(string: String): Boolean {
+            return string.length <= 31
+        }
+
+        private fun isAsciiString(string: String): Boolean {
+            for (char in string) {
+                if (char.code < 0 || char.code > 127) {
+                    return false
+                }
+            }
+
+            return true
+        }
     }
 }
 

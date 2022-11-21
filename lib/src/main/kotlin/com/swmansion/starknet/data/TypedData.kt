@@ -2,22 +2,24 @@ package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.extensions.encodeShortString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 @Serializable
 data class TypedData(
-    val types: Map<String, List<StarkNetType>>,
+    val types: Map<String, List<Type>>,
     val primaryType: String,
-    val domain: JsonObject,
-    val message: JsonObject,
+    val domainJSON: String,
+    val messageJSON: String,
 ) {
+    private val domain: JsonObject by lazy { Json.parseToJsonElement(domainJSON).jsonObject }
+    private val message: JsonObject by lazy { Json.parseToJsonElement(messageJSON).jsonObject }
+
     @Serializable
-    data class StarkNetType(val name: String, val type: String)
+    data class Type(val name: String, val type: String)
 
     private fun getDependencies(typeName: String): List<String> {
-        val deps = mutableListOf<String>(typeName)
+        val deps = mutableListOf(typeName)
         val toVisit = mutableListOf(typeName)
 
         while (toVisit.isNotEmpty()) {
@@ -61,7 +63,7 @@ data class TypedData(
             return try {
                 Felt.fromHex(primitive.content)
             } catch (e: Exception) {
-                primitive.content.encodeShortString()
+                Felt.fromShortString(primitive.content)
             }
         }
 
@@ -107,22 +109,28 @@ data class TypedData(
         return selectorFromName(encodeType(typeName))
     }
 
-    fun getStructHash(typeName: String, data: JsonObject): Felt {
+    private fun getStructHash(typeName: String, data: JsonObject): Felt {
         val encodedData = encodeData(typeName, data)
+
+        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
+    }
+
+    private fun stripPointer(value: String): String {
+        return value.removeSuffix("*")
+    }
+
+    fun getStructHash(typeName: String, data: String): Felt {
+        val encodedData = encodeData(typeName, Json.parseToJsonElement(data).jsonObject)
 
         return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
         return StarknetCurve.pedersenOnElements(
-            "StarkNet Message".encodeShortString(),
+            Felt.fromShortString("StarkNet Message"),
             getStructHash("StarkNetDomain", domain),
             accountAddress,
             getStructHash(primaryType, message),
         )
     }
-}
-
-private fun stripPointer(value: String): String {
-    return value.removeSuffix("*")
 }
