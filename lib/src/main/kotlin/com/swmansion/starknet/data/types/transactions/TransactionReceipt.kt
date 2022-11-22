@@ -34,7 +34,7 @@ enum class TransactionStatus {
 @Serializable
 sealed class TransactionReceipt {
     abstract val hash: Felt
-    abstract val actualFee: Felt
+    abstract val actualFee: Felt?
     abstract val isPending: Boolean
     abstract val type: TransactionReceiptType
     abstract val status: TransactionStatus
@@ -75,7 +75,7 @@ data class GatewayTransactionReceipt(
     override val hash: Felt,
 
     @JsonNames("actual_fee")
-    override val actualFee: Felt,
+    override val actualFee: Felt? = null,
 
     @JsonNames("block_hash")
     override val blockHash: Felt? = null,

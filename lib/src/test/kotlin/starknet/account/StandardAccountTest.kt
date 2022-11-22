@@ -227,7 +227,7 @@ class StandardAccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.actualFee < maxFee)
+        assertTrue(receipt.actualFee!! < maxFee)
     }
 
     @ParameterizedTest
