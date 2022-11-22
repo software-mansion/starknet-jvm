@@ -97,8 +97,8 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
                 throw IllegalArgumentException("String to be encoded must be an ascii string.")
             }
 
-            val encoded = value.replace(Regex(".")) { s ->
-                s.value.first().code.toString(16).padStart(2, '0')
+            val encoded = value.toCharArray().joinToString("") { c ->
+                c.code.toString(16).padStart(2, '0')
             }
 
             return fromHex("0x$encoded")
