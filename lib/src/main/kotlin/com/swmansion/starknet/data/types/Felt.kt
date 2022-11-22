@@ -19,10 +19,10 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
 
     init {
         if (value < BigInteger.ZERO) {
-            throw java.lang.IllegalArgumentException("Default Felt constructor does not accept negative numbers, [$value] given.")
+            throw IllegalArgumentException("Default Felt constructor does not accept negative numbers, [$value] given.")
         }
         if (value >= PRIME) {
-            throw java.lang.IllegalArgumentException("Default Felt constructor accepts values smaller than Felt.PRIME, [$value] given.")
+            throw IllegalArgumentException("Default Felt constructor accepts values smaller than Felt.PRIME, [$value] given.")
         }
     }
 
@@ -59,11 +59,9 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
             hexString = hexString.padStart(hexString.length + 1, '0')
         }
 
-        val decoded = hexString.replace(Regex(".{2}")) { hex ->
-            hex.value.toInt(16).toChar().toString()
+        return hexString.chunked(2).joinToString { hex ->
+            hex.toInt(16).toChar().toString()
         }
-
-        return decoded
     }
 
     companion object {

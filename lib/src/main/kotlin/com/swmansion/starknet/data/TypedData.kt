@@ -33,7 +33,7 @@ data class TypedData private constructor(
 
         while (toVisit.isNotEmpty()) {
             val type = toVisit.removeFirst()
-            val params = types[type] ?: return emptyList()
+            val params = types[type] ?: emptyList()
 
             for (param in params) {
                 val typeStripped = stripPointer(param.type)
@@ -71,7 +71,7 @@ data class TypedData private constructor(
 
             return try {
                 Felt.fromHex(primitive.content)
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
                 Felt.fromShortString(primitive.content)
             }
         }
