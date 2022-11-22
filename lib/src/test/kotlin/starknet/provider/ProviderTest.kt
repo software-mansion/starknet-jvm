@@ -779,6 +779,7 @@ class ProviderTest {
 
     @Test
     fun `received gateway receipt`() {
+        val hash = Felt.fromHex("0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5")
         // There is no way for us to recreate this behaviour as devnet processes txs right away
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
@@ -795,11 +796,9 @@ class ProviderTest {
             )
         }
         val provider = GatewayProvider.makeTestnetClient(httpService)
-        val receipt = provider.getTransactionReceipt(
-            Felt.fromHex("0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5"),
-        ).send() as GatewayTransactionReceipt
+        val receipt = provider.getTransactionReceipt(hash).send() as GatewayTransactionReceipt
 
-        assertEquals(Felt.fromHex("0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5"), receipt.hash)
+        assertEquals(hash, receipt.hash)
         assertEquals(TransactionStatus.PENDING, receipt.status)
         assertEquals(emptyList<MessageToL1>(), receipt.messagesToL1)
         assertEquals(emptyList<Event>(), receipt.events)
