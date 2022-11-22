@@ -59,7 +59,7 @@ data class Felt(val value: BigInteger) : Comparable<Felt> {
             hexString = hexString.padStart(hexString.length + 1, '0')
         }
 
-        return hexString.chunked(2).joinToString { hex ->
+        return hexString.chunked(2).joinToString("") { hex ->
             hex.toInt(16).toChar().toString()
         }
     }

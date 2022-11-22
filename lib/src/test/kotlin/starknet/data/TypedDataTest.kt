@@ -1,10 +1,12 @@
 package starknet.data
 
-import com.swmansion.starknet.data.*
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -39,20 +41,86 @@ class TypedDataTest {
 
         @JvmStatic
         fun getStructHashArguments() = listOf(
-            Arguments.of(TD, "StarkNetDomain", "domain", "0x54833b121883a3e3aebff48ec08a962f5742e5f7b973469c1f8f4f55d470b07"),
+            Arguments.of(
+                TD,
+                "StarkNetDomain",
+                "domain",
+                "0x54833b121883a3e3aebff48ec08a962f5742e5f7b973469c1f8f4f55d470b07",
+            ),
             Arguments.of(TD, "Mail", "message", "0x4758f1ed5e7503120c228cbcaba626f61514559e9ef5ed653b0b885e0f38aec"),
-            Arguments.of(TD_STRING, "Mail", "message", "0x1d16b9b96f7cb7a55950b26cc8e01daa465f78938c47a09d5a066ca58f9936f"),
-            Arguments.of(TD_FELT_ARR, "Mail", "message", "0x26186b02dddb59bf12114f771971b818f48fad83c373534abebaaa39b63a7ce"),
-            Arguments.of(TD_STRUCT_ARR, "Mail", "message", "0x5650ec45a42c4776a182159b9d33118a46860a6e6639bb8166ff71f3c41eaef"),
+            Arguments.of(
+                TD_STRING,
+                "Mail",
+                "message",
+                "0x1d16b9b96f7cb7a55950b26cc8e01daa465f78938c47a09d5a066ca58f9936f",
+            ),
+            Arguments.of(
+                TD_FELT_ARR,
+                "Mail",
+                "message",
+                "0x26186b02dddb59bf12114f771971b818f48fad83c373534abebaaa39b63a7ce",
+            ),
+            Arguments.of(
+                TD_STRUCT_ARR,
+                "Mail",
+                "message",
+                "0x5650ec45a42c4776a182159b9d33118a46860a6e6639bb8166ff71f3c41eaef",
+            ),
         )
 
         @JvmStatic
         fun getMessageHashArguments() = listOf(
-            Arguments.of(TD, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826", "0x6fcff244f63e38b9d88b9e3378d44757710d1b244282b435cb472053c8d78d0"),
-            Arguments.of(TD_STRING, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826", "0x691b977ee0ee645647336f01d724274731f544ad0d626b078033d2541ee641d"),
-            Arguments.of(TD_FELT_ARR, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826", "0x30ab43ef724b08c3b0a9bbe425e47c6173470be75d1d4c55fd5bf9309896bce"),
-            Arguments.of(TD_STRUCT_ARR, "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826", "0x5914ed2764eca2e6a41eb037feefd3d2e33d9af6225a9e7fe31ac943ff712c"),
+            Arguments.of(
+                TD,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x6fcff244f63e38b9d88b9e3378d44757710d1b244282b435cb472053c8d78d0",
+            ),
+            Arguments.of(
+                TD_STRING,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x691b977ee0ee645647336f01d724274731f544ad0d626b078033d2541ee641d",
+            ),
+            Arguments.of(
+                TD_FELT_ARR,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x30ab43ef724b08c3b0a9bbe425e47c6173470be75d1d4c55fd5bf9309896bce",
+            ),
+            Arguments.of(
+                TD_STRUCT_ARR,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x5914ed2764eca2e6a41eb037feefd3d2e33d9af6225a9e7fe31ac943ff712c",
+            ),
         )
+    }
+
+    @Test
+    fun `invalid types`() {
+        assertThrows<IllegalArgumentException>(
+            "Types must not contain felt.",
+        ) {
+            TypedData(mapOf("felt" to emptyList()), "felt", "{}", "{\"felt\": 1}")
+        }
+        assertThrows<IllegalArgumentException>(
+            "Types must not contain felt*.",
+        ) {
+            TypedData(mapOf("felt*" to emptyList()), "felt*", "{}", "{\"felt*\": 1}")
+        }
+    }
+
+    @Test
+    fun `missing dependency`() {
+        assertThrows<IllegalArgumentException>(
+            "Dependency [ice cream] is not defined in types.",
+        ) {
+            TypedData(
+                mapOf(
+                    "house" to listOf(TypedData.Type("fridge", "ice cream")),
+                ),
+                "felt",
+                "{}",
+                "{}",
+            ).getStructHash("house", "{\"fridge\": 1}")
+        }
     }
 
     @ParameterizedTest

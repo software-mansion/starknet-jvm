@@ -12,6 +12,11 @@ data class TypedData private constructor(
     val domain: JsonObject,
     val message: JsonObject,
 ) {
+    init {
+        require("felt" !in types) { "Types must not contain felt." }
+        require("felt*" !in types) { "Types must not contain felt*." }
+    }
+
     constructor(
         types: Map<String, List<Type>>,
         primaryType: String,
@@ -54,14 +59,12 @@ data class TypedData private constructor(
         val sorted = deps.subList(1, deps.size).sorted()
         val newDeps = listOf(deps[0]) + sorted
 
-        val result = newDeps.joinToString("", transform = ::encodeDependency)
-
-        return result
+        return newDeps.joinToString("", transform = ::encodeDependency)
     }
 
     private fun encodeDependency(dependency: String): String {
-        val fields = types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] not defined in types.")
-        val encodedFields = fields.map { "${it.name}:${it.type}" }.joinToString(",")
+        val fields = types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
+        val encodedFields = fields.joinToString(",") { "${it.name}:${it.type}" }
         return "$dependency($encodedFields)"
     }
 
@@ -104,7 +107,11 @@ data class TypedData private constructor(
             return typeName to hash
         }
 
-        return "felt" to valueFromPrimitive(value.jsonPrimitive)
+        if (typeName == "felt") {
+            return "felt" to valueFromPrimitive(value.jsonPrimitive)
+        }
+
+        throw IllegalArgumentException("Type [$typeName] is not defined in types.")
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
