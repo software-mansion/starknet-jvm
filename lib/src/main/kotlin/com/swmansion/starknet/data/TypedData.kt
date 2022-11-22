@@ -51,14 +51,18 @@ data class TypedData private constructor(
     private fun encodeType(type: String): String {
         val deps = getDependencies(type)
 
-        val sorted = deps.subList(1, deps.size).sorted().toTypedArray()
-        val newDeps = listOf(deps[0], *sorted)
+        val sorted = deps.subList(1, deps.size).sorted()
+        val newDeps = listOf(deps[0]) + sorted
 
-        val result = newDeps.joinToString("") { dependency ->
-            "$dependency(${types[dependency]?.map { "${it.name}:${it.type}" }?.joinToString(",")})"
-        }
+        val result = newDeps.joinToString("", transform = ::encodeDependency)
 
         return result
+    }
+
+    private fun encodeDependency(dependency: String): String {
+        val fields = types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] not defined in types.")
+        val encodedFields = fields.map { "${it.name}:${it.type}" }.joinToString(",")
+        return "$dependency($encodedFields)"
     }
 
     private fun valueFromPrimitive(primitive: JsonPrimitive): Felt {
