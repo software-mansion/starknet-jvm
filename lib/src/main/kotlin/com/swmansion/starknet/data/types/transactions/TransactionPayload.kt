@@ -31,6 +31,7 @@ data class DeployTransactionPayload(
 
 data class DeclareTransactionPayload(
     val contractDefinition: ContractDefinition,
+    val senderAddress: Felt,
     val maxFee: Felt,
     val nonce: Felt,
     val signature: Signature,

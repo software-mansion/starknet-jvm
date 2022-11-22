@@ -1,5 +1,6 @@
 package starknet.provider
 
+import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -585,7 +586,14 @@ class ProviderTest {
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload =
-            DeclareTransactionPayload(ContractDefinition(contents), Felt.ZERO, Felt.ZERO, emptyList(), Felt(0))
+            DeclareTransactionPayload(
+                ContractDefinition(contents),
+                DECLARE_SENDER_ADDRESS,
+                Felt.ZERO,
+                Felt.ZERO,
+                emptyList(),
+                Felt.ZERO,
+            )
 
         val request = provider.declareContract(payload)
         val response = request.send()

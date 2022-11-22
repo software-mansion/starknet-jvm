@@ -235,6 +235,10 @@ class JsonRpcProvider(
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+        if (payload.signature.isNotEmpty()) {
+            throw IllegalArgumentException("JsonRpcProvider does not currently support signed Declare transactions.")
+        }
+
         val params = buildJsonObject {
             put("contract_class", payload.contractDefinition.toRpcJson())
             put("version", payload.version)

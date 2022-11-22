@@ -127,7 +127,6 @@ data class InvokeTransaction(
 @SerialName("DECLARE")
 data class DeclareTransaction(
     @SerialName("class_hash")
-    @JsonNames("contract_class")
     val classHash: Felt,
 
     @SerialName("sender_address")
@@ -150,7 +149,24 @@ data class DeclareTransaction(
     override val nonce: Felt,
 
     override val type: TransactionType = TransactionType.DECLARE,
-) : Transaction()
+
+    private val contractDefinition: ContractDefinition? = null,
+) : Transaction() {
+    @Throws(ConvertingToPayloadFailedException::class)
+    internal fun toPayload(): DeclareTransactionPayload {
+        contractDefinition ?: throw ConvertingToPayloadFailedException()
+        return DeclareTransactionPayload(
+            contractDefinition = contractDefinition,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            nonce = nonce,
+            signature = signature,
+            version = version,
+        )
+    }
+
+    internal class ConvertingToPayloadFailedException : Exception()
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -282,6 +298,37 @@ object TransactionFactory {
             maxFee = maxFee,
             hash = hash,
             signature = signature,
+        )
+    }
+
+    @JvmStatic
+    fun makeDeclareTransaction(
+        classHash: Felt,
+        senderAddress: Felt,
+        contractDefinition: ContractDefinition,
+        chainId: StarknetChainId,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+        signature: Signature = emptyList(),
+    ): DeclareTransaction {
+        val hash = TransactionHashCalculator.calculateDeclareTxHash(
+            classHash = classHash,
+            chainId = chainId,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            version = version,
+            nonce = nonce,
+        )
+        return DeclareTransaction(
+            classHash = classHash,
+            senderAddress = senderAddress,
+            contractDefinition = contractDefinition,
+            hash = hash,
+            maxFee = maxFee,
+            version = version,
+            signature = signature,
+            nonce = nonce,
         )
     }
 }
