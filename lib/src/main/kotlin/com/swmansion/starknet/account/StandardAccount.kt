@@ -127,6 +127,6 @@ class StandardAccount(
             signature = payload.signature,
         )
 
-        return provider.getEstimateFee(signedTransaction, BlockTag.LATEST)
+        return provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
     }
 }
