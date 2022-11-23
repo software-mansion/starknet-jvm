@@ -140,7 +140,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse>
+    fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse>
 
     /**
      * Get the contract class definition.

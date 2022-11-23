@@ -176,7 +176,7 @@ class GatewayProvider(
         )
     }
 
-    override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
+    override fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse> {
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
