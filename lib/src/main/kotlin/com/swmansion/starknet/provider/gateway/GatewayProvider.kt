@@ -286,20 +286,20 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
-    // TODO: Accept payload instead of tx
     // TODO: Move serialization to a method
     private fun getEstimateFee(
-        request: InvokeTransaction,
+        payload: InvokeTransactionPayload,
         blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
         val body = buildJsonObject {
             put("type", "INVOKE_FUNCTION")
-            put("contract_address", request.contractAddress.hexString())
-            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
-            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
-            put("nonce", request.nonce)
-            put("version", request.version)
+            put("contract_address", payload.invocation.contractAddress.hexString())
+            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
+            put("max_fee", payload.maxFee.hexString())
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("version", payload.version)
         }
 
         val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
@@ -311,16 +311,16 @@ class GatewayProvider(
         )
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Hash(blockHash))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Number(blockNumber))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Tag(blockTag))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
     private fun getEstimateFee(
