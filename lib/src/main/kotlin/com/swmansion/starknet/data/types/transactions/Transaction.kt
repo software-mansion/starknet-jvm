@@ -7,6 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
+@JvmSynthetic
 internal val INVOKE_VERSION = Felt.ONE
 
 @OptIn(ExperimentalSerializationApi::class)
