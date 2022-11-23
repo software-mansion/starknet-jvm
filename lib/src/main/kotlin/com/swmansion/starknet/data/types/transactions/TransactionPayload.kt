@@ -4,8 +4,9 @@ import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeFunctionPayload(
+data class InvokeFunctionPayload private constructor(
     @SerialName("function_invocation")
     val invocation: Call,
 
@@ -20,7 +21,15 @@ data class InvokeFunctionPayload(
 
     @SerialName("nonce")
     val nonce: Felt,
-)
+) {
+    constructor(invocation: Call, signature: Signature, maxFee: Felt, nonce: Felt) : this(
+        invocation,
+        signature,
+        maxFee,
+        INVOKE_VERSION,
+        nonce,
+    )
+}
 
 data class DeployTransactionPayload(
     val contractDefinition: ContractDefinition,

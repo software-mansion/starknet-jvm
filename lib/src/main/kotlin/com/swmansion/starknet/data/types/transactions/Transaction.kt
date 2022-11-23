@@ -7,6 +7,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
+@JvmSynthetic
+internal val INVOKE_VERSION = Felt.ONE
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionType(val txPrefix: Felt) {
@@ -116,7 +119,6 @@ data class InvokeTransaction(
             invocation = invocation,
             signature = signature,
             maxFee = maxFee,
-            version = version,
             nonce = nonce,
         )
     }
@@ -253,7 +255,6 @@ object TransactionFactory {
         calldata: Calldata,
         entryPointSelector: Felt,
         chainId: StarknetChainId,
-        version: Felt,
         nonce: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
@@ -262,12 +263,12 @@ object TransactionFactory {
             contractAddress = contractAddress,
             calldata = calldata,
             chainId = chainId,
-            version = version,
+            version = INVOKE_VERSION,
             nonce = nonce,
             maxFee = maxFee,
         )
 
-        return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, version, signature, nonce)
+        return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, INVOKE_VERSION, signature, nonce)
     }
 
     @JvmStatic

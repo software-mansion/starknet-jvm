@@ -41,12 +41,11 @@ class StandardAccount(
         val calldata = callsToExecuteCalldata(calls)
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
-            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             calldata = calldata,
+            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             chainId = provider.chainId,
-            maxFee = params.maxFee,
             nonce = params.nonce,
-            version = version,
+            maxFee = params.maxFee,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -123,10 +122,9 @@ class StandardAccount(
             calldata = payload.invocation.calldata,
             entryPointSelector = payload.invocation.entrypoint,
             chainId = provider.chainId,
-            maxFee = payload.maxFee,
-            version = payload.version,
-            signature = payload.signature,
             nonce = nonce,
+            maxFee = payload.maxFee,
+            signature = payload.signature,
         )
 
         return provider.getEstimateFee(signedTransaction, BlockTag.LATEST)
