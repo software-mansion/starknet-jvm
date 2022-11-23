@@ -122,6 +122,22 @@ data class InvokeTransaction(
             nonce = nonce,
         )
     }
+
+    companion object {
+        @JvmStatic
+        internal fun fromPayload(payload: InvokeTransactionPayload): InvokeTransaction {
+            return InvokeTransaction(
+                contractAddress = payload.invocation.contractAddress,
+                calldata = payload.invocation.calldata,
+                entryPointSelector = payload.invocation.entrypoint,
+                hash = Felt.ZERO,
+                maxFee = payload.maxFee,
+                version = payload.version,
+                signature = payload.signature,
+                nonce = payload.nonce,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -268,7 +284,16 @@ object TransactionFactory {
             maxFee = maxFee,
         )
 
-        return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, INVOKE_VERSION, signature, nonce)
+        return InvokeTransaction(
+            contractAddress,
+            calldata,
+            entryPointSelector,
+            hash,
+            maxFee,
+            INVOKE_VERSION,
+            signature,
+            nonce,
+        )
     }
 
     @JvmStatic
