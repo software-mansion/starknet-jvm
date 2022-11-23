@@ -125,7 +125,7 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeFunctionPayload,
+        payload: InvokeTransactionPayload,
     ): Request<InvokeFunctionResponse> {
         val params = Json.encodeToJsonElement(payload)
 
