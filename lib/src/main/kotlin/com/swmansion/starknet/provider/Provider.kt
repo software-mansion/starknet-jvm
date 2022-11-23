@@ -228,40 +228,40 @@ interface Provider {
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
      */
-    fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
      */
-    fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
      */
-    fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
      *
      * Estimate a fee for a provided transaction in the latest block.
      *
-     * @param request invoke transaction, for which the fee is to be estimated.
+     * @param payload invoke transaction, for which the fee is to be estimated.
      */
-    fun getEstimateFee(request: InvokeTransaction): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockTag.LATEST)
+    fun getEstimateFee(payload: InvokeTransactionPayload): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockTag.LATEST)
     }
 
     /**
