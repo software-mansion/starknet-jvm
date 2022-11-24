@@ -4,9 +4,8 @@ import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
-import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload
-import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
@@ -42,12 +41,11 @@ class StandardAccount(
         val calldata = callsToExecuteCalldata(calls)
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
-            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             calldata = calldata,
+            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             chainId = provider.chainId,
-            maxFee = params.maxFee,
             nonce = params.nonce,
-            version = version,
+            maxFee = params.maxFee,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -67,6 +65,25 @@ class StandardAccount(
             calldata = calldata,
             chainId = provider.chainId,
             maxFee = maxFee,
+            version = version,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
+    override fun signDeclare(
+        contractDefinition: ContractDefinition,
+        classHash: Felt,
+        params: ExecutionParams,
+    ): DeclareTransactionPayload {
+        val tx = TransactionFactory.makeDeclareTransaction(
+            contractDefinition = contractDefinition,
+            classHash = classHash,
+            senderAddress = address,
+            chainId = provider.chainId,
+            nonce = params.nonce,
+            maxFee = params.maxFee,
             version = version,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -105,10 +122,9 @@ class StandardAccount(
             calldata = payload.invocation.calldata,
             entryPointSelector = payload.invocation.entrypoint,
             chainId = provider.chainId,
-            maxFee = payload.maxFee,
-            version = payload.version,
-            signature = payload.signature,
             nonce = nonce,
+            maxFee = payload.maxFee,
+            signature = payload.signature,
         )
 
         return provider.getEstimateFee(signedTransaction, BlockTag.LATEST)

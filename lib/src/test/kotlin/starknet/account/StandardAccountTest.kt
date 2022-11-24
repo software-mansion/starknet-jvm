@@ -4,10 +4,7 @@ import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
-import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.ExecutionParams
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
@@ -23,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.nio.file.Path
+import kotlin.io.path.readText
 
 class StandardAccountTest {
     companion object {
@@ -132,7 +130,7 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `estimate fee`(accountAndProvider: AccountAndProvider) {
+    fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
         val (account, _) = accountAndProvider
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -143,6 +141,33 @@ class StandardAccountTest {
         val feeEstimate = account.estimateFee(call)
 
         assertNotNull(feeEstimate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
+        val contractDefinition = ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+
+        // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
+        // changes, this causes changes in the class hash.
+        // If this tests starts randomly falling, try recalculating class hash.
+        val classHash = Felt.fromHex("0x37a54ffa21547ffaef9b75dc2a65d4c0e1f23f3dc2f523fb95df578e12a4293")
+
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            classHash,
+            ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        assertNotNull(result)
+        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest
@@ -202,7 +227,7 @@ class StandardAccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.actualFee < maxFee)
+        assertTrue(receipt.actualFee!! < maxFee)
     }
 
     @ParameterizedTest

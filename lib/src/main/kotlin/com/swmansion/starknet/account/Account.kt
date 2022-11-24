@@ -46,7 +46,28 @@ interface Account {
      * @param salt salt used to calculate address of the new contract
      * @return signed deploy account payload
      */
-    fun signDeployAccount(classHash: Felt, calldata: Calldata, salt: Felt, maxFee: Felt): DeployAccountTransactionPayload
+    fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        maxFee: Felt,
+    ): DeployAccountTransactionPayload
+
+    /**
+     * Sign a declare transaction.
+     *
+     * Prepare and sign a declare transaction to be executed on StarkNet.
+     *
+     * @param contractDefinition a definition of the contract to be declared
+     * @param classHash a class hash of the contract to be declared
+     * @param params additional execution parameters for the transaction
+     * @return signed declare transaction payload
+     */
+    fun signDeclare(
+        contractDefinition: ContractDefinition,
+        classHash: Felt,
+        params: ExecutionParams,
+    ): DeclareTransactionPayload
 
     /**
      * Execute a list of calls

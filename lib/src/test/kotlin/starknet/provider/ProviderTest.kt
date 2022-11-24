@@ -1,5 +1,6 @@
 package starknet.provider
 
+import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -585,7 +586,14 @@ class ProviderTest {
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload =
-            DeclareTransactionPayload(ContractDefinition(contents), Felt.ZERO, Felt.ZERO, emptyList(), Felt(0))
+            DeclareTransactionPayload(
+                ContractDefinition(contents),
+                DECLARE_SENDER_ADDRESS,
+                Felt.ZERO,
+                Felt.ZERO,
+                emptyList(),
+                Felt.ZERO,
+            )
 
         val request = provider.declareContract(payload)
         val response = request.send()
@@ -746,7 +754,7 @@ class ProviderTest {
 
     @Test
     fun `get sync information node synced`() {
-        val mocked_response = """
+        val mockedResponse = """
         {
             "id": 0,
             "jsonrpc": "2.0",
@@ -761,7 +769,7 @@ class ProviderTest {
         }
         """.trimIndent()
         val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mocked_response)
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getSyncing()
@@ -775,5 +783,35 @@ class ProviderTest {
         assertEquals(1, response.currentBlockNumber)
         assertEquals(Felt.fromHex("0x10"), response.highestBlockHash)
         assertEquals(10, response.highestBlockNumber)
+    }
+
+    @Test
+    fun `received gateway receipt`() {
+        val hash = Felt.fromHex("0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5")
+        // There is no way for us to recreate this behaviour as devnet processes txs right away
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                {
+                    "status": "RECEIVED", 
+                    "transaction_hash": "0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5", 
+                    "l2_to_l1_messages": [], 
+                    "events": []
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider.makeTestnetClient(httpService)
+        val receipt = provider.getTransactionReceipt(hash).send() as GatewayTransactionReceipt
+
+        assertEquals(hash, receipt.hash)
+        assertEquals(TransactionStatus.PENDING, receipt.status)
+        assertEquals(emptyList<MessageToL1>(), receipt.messagesToL1)
+        assertEquals(emptyList<Event>(), receipt.events)
+        assertNull(receipt.messageToL2)
+        assertNull(receipt.actualFee)
+        assertNull(receipt.failureReason)
     }
 }

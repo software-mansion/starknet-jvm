@@ -75,6 +75,27 @@ object TransactionHashCalculator {
         )
     }
 
+    @JvmStatic
+    fun calculateDeclareTxHash(
+        classHash: Felt,
+        chainId: StarknetChainId,
+        senderAddress: Felt,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+    ): Felt {
+        return transactionHashCommon(
+            txType = TransactionType.DECLARE,
+            version = version,
+            contractAddress = senderAddress,
+            entryPointSelector = Felt.ZERO,
+            calldata = listOf(classHash),
+            maxFee = maxFee,
+            chainId = chainId,
+            nonce = nonce,
+        )
+    }
+
     private fun transactionHashCommon(
         txType: TransactionType,
         version: Felt,
