@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeFunctionPayload private constructor(
+data class InvokeTransactionPayload private constructor(
     @SerialName("function_invocation")
     val invocation: Call,
 

@@ -108,19 +108,35 @@ data class InvokeTransaction(
 
     override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction() {
-    fun toPayload(): InvokeFunctionPayload {
+    fun toPayload(): InvokeTransactionPayload {
         val invocation = Call(
             contractAddress = contractAddress,
             calldata = calldata,
             entrypoint = entryPointSelector,
         )
 
-        return InvokeFunctionPayload(
+        return InvokeTransactionPayload(
             invocation = invocation,
             signature = signature,
             maxFee = maxFee,
             nonce = nonce,
         )
+    }
+
+    companion object {
+        @JvmStatic
+        internal fun fromPayload(payload: InvokeTransactionPayload): InvokeTransaction {
+            return InvokeTransaction(
+                contractAddress = payload.invocation.contractAddress,
+                calldata = payload.invocation.calldata,
+                entryPointSelector = payload.invocation.entrypoint,
+                hash = Felt.ZERO,
+                maxFee = payload.maxFee,
+                version = payload.version,
+                signature = payload.signature,
+                nonce = payload.nonce,
+            )
+        }
     }
 }
 
@@ -268,7 +284,16 @@ object TransactionFactory {
             maxFee = maxFee,
         )
 
-        return InvokeTransaction(contractAddress, calldata, entryPointSelector, hash, maxFee, INVOKE_VERSION, signature, nonce)
+        return InvokeTransaction(
+            contractAddress,
+            calldata,
+            entryPointSelector,
+            hash,
+            maxFee,
+            INVOKE_VERSION,
+            signature,
+            nonce,
+        )
     }
 
     @JvmStatic
