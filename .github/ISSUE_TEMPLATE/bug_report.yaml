@@ -48,3 +48,5 @@ body:
         - Mac
     validations:
       required: true
+
+# Thanks to https://github.com/MarketingPipeline/Awesome-Repo-Template
