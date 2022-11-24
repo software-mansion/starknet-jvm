@@ -23,7 +23,7 @@ body:
     attributes:
       label: Steps to reproduce
       description: Please provide the steps required to reproduce the issue
-      value: 1.
+      value: "1."
     validations:
       required: true
 
