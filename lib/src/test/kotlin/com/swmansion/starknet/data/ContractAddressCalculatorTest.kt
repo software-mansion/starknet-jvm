@@ -1,9 +1,7 @@
 package com.swmansion.starknet.data
 
-import com.swmansion.starknet.crypto.keccak
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toFelt
-import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -24,6 +22,7 @@ internal class ContractAddressCalculatorTest {
 
     companion object {
         // List of (address, valid checksum address)
+        // Correct values generated with starknet.js
         @JvmStatic
         fun checksumAddresses() = listOf(
             ChecksumTestCase(
@@ -37,6 +36,14 @@ internal class ContractAddressCalculatorTest {
             ChecksumTestCase(
                 "0xfedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafedcbafe",
                 "0x00fEdCBafEdcbafEDCbAFedCBAFeDCbafEdCBAfeDcbaFeDCbAfEDCbAfeDcbAFE",
+            ),
+            ChecksumTestCase(
+                "0xa",
+                "0x000000000000000000000000000000000000000000000000000000000000000A",
+            ),
+            ChecksumTestCase(
+                "0x0",
+                "0x0000000000000000000000000000000000000000000000000000000000000000",
             ),
         )
     }
@@ -85,47 +92,5 @@ internal class ContractAddressCalculatorTest {
     fun `isChecksumAddressValid works`(case: ChecksumTestCase) {
         assertTrue(ContractAddressCalculator.isChecksumAddressValid(case.correct))
         assertFalse(ContractAddressCalculator.isChecksumAddressValid(case.incorrect))
-    }
-
-    fun byteArrayToHex(a: ByteArray): String {
-        val sb = StringBuilder(a.size * 2)
-        for (b in a) sb.append(String.format("%02x", b))
-        return sb.toString()
-    }
-
-    @Test
-    fun kck() {
-//        assertEquals(
-//            "0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2",
-//            keccak(byteArrayOf(1)).toHex(),
-//        )
-//        val list = mutableListOf<Byte>()
-//        list.addAll(
-//            HexFormat.of().parseHex("0x00abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab")
-//        )
-        val byteArray = BigInteger("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab", 16).toByteArray()
-        println("HEX STRING")
-        println(Felt.fromHex("0xabcdefabcdefab").hexString())
-//        val byteArray = HexFormat.of().parseHex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab")
-
-//        list.add(0.toByte())
-        assertEquals(32, byteArray.size)
-        println(byteArray[0])
-        println(BigInteger("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefab", 16))
-//        assertEquals(
-//            "0xd5b179671f1663119ae493ffd1c621cba08fb301ae370dd5c828192d293a35f3",
-//            keccak(
-//                list.toByteArray(),
-//            ).toHex(),
-//        )
-
-        val keccak = Keccak.Digest256().apply {
-            update(byteArray)
-        }
-        val keccakResult = keccak.digest()
-        assertEquals(
-            "d5b179671f1663119ae493ffd1c621cba08fb301ae370dd5c828192d293a35f3",
-            byteArrayToHex(keccakResult),
-        )
     }
 }
