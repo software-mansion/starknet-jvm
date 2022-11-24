@@ -30,7 +30,7 @@ body:
       required: false
 
   - type: input
-    id: other-language
+    id: language-version
     attributes:
       label: Language version
       description: Please specify the version of the language you are using
