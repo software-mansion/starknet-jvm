@@ -26,6 +26,7 @@ body:
     attributes:
       label: Language
       description: If you selected `Other` in previous question, please specify here
+      placeholder: n/a
     validations:
       required: false
 
