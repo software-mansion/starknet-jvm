@@ -12,7 +12,7 @@ private val MASK_250 = BigInteger.valueOf(2).pow(250) - BigInteger.ONE
 /**
  * Compute a keccak hash.
  *
- * Computes a keccak of provided and applies 250bit mask to fit it in a felt.
+ * Computes a keccak of provided input and applies 250bit mask to fit it in a felt.
  *
  * @param input a ByteArray from which keccak will be generated
  * @return a felt with computed keccak
