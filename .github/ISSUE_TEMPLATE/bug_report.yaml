@@ -9,6 +9,15 @@ body:
       description: Describe the issue here.
     validations:
       required: true
+
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK Version
+      description: What SDK version are you using?
+    validations:
+      required: true
+
   - type: dropdown
     id: language
     attributes:
