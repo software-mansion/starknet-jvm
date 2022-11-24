@@ -47,3 +47,5 @@ venv
 # Exclude account temp files
 lib/src/test/resources/account
 lib/src/test/resources/compiled
+
+*.js
