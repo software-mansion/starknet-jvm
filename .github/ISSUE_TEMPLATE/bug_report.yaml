@@ -19,14 +19,6 @@ body:
       required: true
 
   - type: textarea
-    id: logs
-    attributes:
-      label: Stack trace
-      description: Please provide stack trace output of the error
-    validations:
-      required: true
-
-  - type: textarea
     id: steps-to-reproduce
     attributes:
       label: Steps to reproduce
