@@ -5,8 +5,33 @@ body:
   - type: textarea
     id: what-happened
     attributes:
-      label: What happened?
+      label: What happened
       description: Describe the issue here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Stack trace
+      description: Please provide stack trace output of the error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Stack trace
+      description: Please provide stack trace output of the error
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Please provide the steps required to reproduce the issue
+      value: 1.
     validations:
       required: true
 
@@ -21,7 +46,8 @@ body:
   - type: dropdown
     id: language
     attributes:
-      label: What language are you using?
+      label: Language
+      description: What language are you using?
       options:
         - Java
         - Kotlin
@@ -43,7 +69,7 @@ body:
     id: language-version
     attributes:
       label: Language version
-      description: Please specify the version of the language you are using
+      description: What version of the language selected are you using?
     validations:
       required: true
 
@@ -58,5 +84,12 @@ body:
         - Mac
     validations:
       required: true
+
+  - type: checkboxes
+    id: verified-not-exists
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have verified that an issue for this problem does not already exist
 
 # Thanks to https://github.com/MarketingPipeline/Awesome-Repo-Template
