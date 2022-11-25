@@ -1,13 +1,14 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import java.math.BigInteger
 
 private val MAX: BigInteger = BigInteger.valueOf(2).pow(256).minus(BigInteger.ONE)
 private val SHIFT = 128
 private val SHIFT_MOD: BigInteger = BigInteger.valueOf(2).pow(128)
 
-data class Uint256(val value: BigInteger) {
+data class Uint256(val value: BigInteger) : ConvertibleToCalldata {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
     constructor(value: Felt) : this(value.value)
@@ -23,11 +24,23 @@ data class Uint256(val value: BigInteger) {
         }
     }
 
+    /**
+     * Get low 128 bits of Uint256
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
     val low: Felt
         get() = Felt(value.mod(SHIFT_MOD))
 
+    /**
+     * Get high 128 bits of Uint256
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
     val high: Felt
         get() = Felt(value.shiftRight(SHIFT))
+
+    override fun toCalldata(): List<Felt> {
+        return listOf(low, high)
+    }
 
     companion object {
         @field:JvmField
