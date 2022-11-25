@@ -178,15 +178,7 @@ class GatewayProvider(
     override fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse> {
         val url = gatewayRequestUrl("add_transaction")
 
-        val body = buildJsonObject {
-            put("type", "INVOKE_FUNCTION")
-            put("contract_address", payload.invocation.contractAddress.hexString())
-            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
-            put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
-            put("nonce", payload.nonce)
-            put("version", payload.version)
-        }
+        val body = serializeInvokeTransactionPayload(payload)
 
         return HttpRequest(
             Payload(url, "POST", body),
@@ -286,12 +278,23 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
-    // TODO: Move serialization to a method
     private fun getEstimateFee(
         payload: InvokeTransactionPayload,
         blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
+        val body = serializeInvokeTransactionPayload(payload)
+
+        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
+
+        return HttpRequest(
+            httpPayload,
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            httpService,
+        )
+    }
+
+    private fun serializeInvokeTransactionPayload(payload: InvokeTransactionPayload): JsonObject {
         val body = buildJsonObject {
             put("type", "INVOKE_FUNCTION")
             put("contract_address", payload.invocation.contractAddress.hexString())
@@ -301,14 +304,7 @@ class GatewayProvider(
             put("nonce", payload.nonce)
             put("version", payload.version)
         }
-
-        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
-
-        return HttpRequest(
-            httpPayload,
-            buildDeserializer(EstimateFeeResponseGatewaySerializer),
-            httpService,
-        )
+        return body
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
