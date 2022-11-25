@@ -16,7 +16,7 @@ internal class BigIntegerKtTest {
     @Test
     fun `toBytes works on 0`() {
         val result = BigInteger.valueOf(0).toBytes()
-        assertArrayEquals(ByteArray(1) { 0.toByte() }, result)
+        assertArrayEquals(byteArrayOf(0), result)
     }
 
     @Test
@@ -30,6 +30,6 @@ internal class BigIntegerKtTest {
         // bit length is 16 here, toByteArray would return [0, 0xff]
         // as it adds one bit for the sign
         val value = BigInteger("ff", 16)
-        assertArrayEquals(ByteArray(1) { 255.toByte() }, value.toBytes())
+        assertArrayEquals(byteArrayOf(255.toByte()), value.toBytes())
     }
 }

@@ -87,7 +87,7 @@ object ContractAddressCalculator {
         for (i in chars.indices) {
             // We subtract from 256, because we use bits starting from the end
             if (chars[i].isLetter() && hashed.testBit(256 - 4 * i - 1)) {
-                chars[i] = chars[i].uppercase(Locale.ENGLISH)[0]
+                chars[i] = chars[i].uppercaseChar()
             }
         }
 

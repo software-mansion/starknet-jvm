@@ -7,11 +7,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigInteger
-import java.util.*
 
 data class ChecksumTestCase(
-    val incorrect: String,
-    val correct: String,
+    val notFormatted: String,
+    val formatted: String,
 )
 
 internal class ContractAddressCalculatorTest {
@@ -78,19 +77,19 @@ internal class ContractAddressCalculatorTest {
     @MethodSource("checksumAddresses")
     fun `calculateChecksumAddress returns proper addresses`(case: ChecksumTestCase) {
         assertEquals(
-            case.correct,
-            ContractAddressCalculator.calculateChecksumAddress(Felt.fromHex(case.incorrect)),
+            case.formatted,
+            ContractAddressCalculator.calculateChecksumAddress(Felt.fromHex(case.notFormatted)),
         )
         assertEquals(
-            case.correct,
-            ContractAddressCalculator.calculateChecksumAddress(Felt.fromHex(case.correct)),
+            case.formatted,
+            ContractAddressCalculator.calculateChecksumAddress(Felt.fromHex(case.formatted)),
         )
     }
 
     @ParameterizedTest
     @MethodSource("checksumAddresses")
     fun `isChecksumAddressValid works`(case: ChecksumTestCase) {
-        assertTrue(ContractAddressCalculator.isChecksumAddressValid(case.correct))
-        assertFalse(ContractAddressCalculator.isChecksumAddressValid(case.incorrect))
+        assertTrue(ContractAddressCalculator.isChecksumAddressValid(case.formatted))
+        assertFalse(ContractAddressCalculator.isChecksumAddressValid(case.notFormatted))
     }
 }
