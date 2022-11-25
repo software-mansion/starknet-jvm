@@ -587,7 +587,7 @@ class ProviderTest {
         val payload =
             DeclareTransactionPayload(
                 ContractDefinition(contents),
-                Felt.ONE,  // Declare tx version 0 has a sender address of 0x1
+                Felt.ONE, // Declare tx version 0 has a sender address of 0x1
                 Felt.ZERO,
                 Felt.ZERO,
                 emptyList(),
