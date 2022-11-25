@@ -46,16 +46,6 @@ data class DeployAccountResponse(
     val address: Felt,
 )
 
-@Serializable
-data class GetStorageAtResponse(
-    val result: Felt,
-)
-
-data class TransactionFailureReason(
-    val code: String,
-    val errorMessage: String,
-)
-
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EstimateFeeResponse(
