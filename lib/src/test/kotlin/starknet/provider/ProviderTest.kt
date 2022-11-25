@@ -1,6 +1,5 @@
 package starknet.provider
 
-import com.swmansion.starknet.data.DECLARE_SENDER_ADDRESS
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -588,7 +587,7 @@ class ProviderTest {
         val payload =
             DeclareTransactionPayload(
                 ContractDefinition(contents),
-                DECLARE_SENDER_ADDRESS,
+                Felt.ONE,  // Declare tx version 0 has a sender address of 0x1
                 Felt.ZERO,
                 Felt.ZERO,
                 emptyList(),
