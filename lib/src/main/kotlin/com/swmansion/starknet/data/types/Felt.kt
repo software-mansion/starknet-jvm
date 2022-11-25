@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex
-import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.data.serializers.FeltSerializer
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
@@ -112,4 +112,3 @@ data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata
         }
     }
 }
-
