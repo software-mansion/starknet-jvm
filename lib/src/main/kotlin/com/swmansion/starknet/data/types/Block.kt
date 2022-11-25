@@ -9,7 +9,7 @@ enum class BlockTag(val tag: String) {
 }
 
 @Serializable(with = BlockIdSerializer::class)
-sealed class BlockId() {
+sealed class BlockId {
     data class Hash(
         val blockHash: Felt,
     ) : BlockId() {
