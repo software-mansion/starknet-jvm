@@ -4,8 +4,8 @@ import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import java.math.BigInteger
 
+private const val SHIFT = 128
 private val MAX: BigInteger = BigInteger.valueOf(2).pow(256).minus(BigInteger.ONE)
-private val SHIFT = 128
 private val SHIFT_MOD: BigInteger = BigInteger.valueOf(2).pow(128)
 
 data class Uint256(val value: BigInteger) : ConvertibleToCalldata {
@@ -17,10 +17,10 @@ data class Uint256(val value: BigInteger) : ConvertibleToCalldata {
 
     init {
         if (value < BigInteger.ZERO) {
-            throw java.lang.IllegalArgumentException("Default Uint256 constructor does not accept negative numbers, [$value] given.")
+            throw IllegalArgumentException("Default Uint256 constructor does not accept negative numbers, [$value] given.")
         }
         if (value > MAX) {
-            throw java.lang.IllegalArgumentException("Default Uint256 constructor does not accept numbers higher than 2^256-1, [$value] given.")
+            throw IllegalArgumentException("Default Uint256 constructor does not accept numbers higher than 2^256-1, [$value] given.")
         }
     }
 
