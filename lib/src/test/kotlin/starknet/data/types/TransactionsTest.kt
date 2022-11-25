@@ -1,5 +1,6 @@
 package starknet.data.types
 
+import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
@@ -58,19 +59,19 @@ internal class TransactionsTest {
 
     @Test
     fun `serialize blockId with hash`() {
-        val json = Json.encodeToJsonElement(BlockIdSerializer(), BlockId.Hash(Felt.fromHex("0x859")))
+        val json = Json.encodeToJsonElement(BlockIdSerializer, BlockId.Hash(Felt.fromHex("0x859")))
         assertEquals("{\"block_hash\":\"0x859\"}", json.toString())
     }
 
     @Test
     fun `serialize blockId with number`() {
-        val json = Json.encodeToJsonElement(BlockIdSerializer(), BlockId.Number(20))
+        val json = Json.encodeToJsonElement(BlockIdSerializer, BlockId.Number(20))
         assertEquals("{\"block_number\":20}", json.toString())
     }
 
     @Test
     fun `serialize blockId with tag`() {
-        val json = Json.encodeToJsonElement(BlockIdSerializer(), BlockId.Tag(BlockTag.LATEST))
+        val json = Json.encodeToJsonElement(BlockIdSerializer, BlockId.Tag(BlockTag.LATEST))
         assertEquals("\"latest\"", json.toString())
     }
 
