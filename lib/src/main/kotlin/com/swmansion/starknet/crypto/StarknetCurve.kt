@@ -1,6 +1,7 @@
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.extensions.toBytes
 import com.swmansion.starknet.extensions.toFelt
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator
@@ -15,7 +16,7 @@ import java.math.BigInteger
  * @return small endian byte array
  */
 private fun bigintToNative(input: BigInteger): ByteArray {
-    val converted = input.toByteArray().apply { reverse() }
+    val converted = input.toBytes().apply { reverse() }
     if (converted.size == 32) {
         return converted
     }
@@ -128,7 +129,7 @@ object StarknetCurve {
     @JvmStatic
     fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
         val cal = HMacDSAKCalculator(SHA256Digest()).apply {
-            init(CURVE_ORDER, privateKey.value, hash.value.toByteArray())
+            init(CURVE_ORDER, privateKey.value, hash.value.toBytes())
         }
 
         // Generated K might not be suitable for signing. Probability of it is very low.
