@@ -40,6 +40,19 @@ data class Call(
         entrypoint,
         emptyList(),
     )
+
+    companion object {
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: Felt, arguments: CallArguments): Call {
+            val calldata = arguments.flatMap { it.toCalldata() }
+            return Call(contractAddress, entrypoint, calldata)
+        }
+
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: String, arguments: CallArguments): Call {
+            return fromCallArguments(contractAddress, selectorFromName(entrypoint), arguments)
+        }
+    }
 }
 
 data class ExecutionParams(
