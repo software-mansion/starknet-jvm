@@ -3,12 +3,14 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.data.types.transactions.InvokeTransaction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
+typealias CallArguments = List<ConvertibleToCalldata>
 
 @Serializable
 data class Call(
