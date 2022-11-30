@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
+import com.swmansion.starknet.extensions.toDecimal
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -132,11 +133,64 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
     }
 
-    override fun getClass(classHash: Felt): Request<ContractClass> {
-        val payload = GetClassPayload(classHash)
+    private fun getClass(payload: GetClassPayload): Request<ContractClass> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClass.serializer())
+    }
+
+    override fun getClass(classHash: Felt): Request<ContractClass> {
+        val payload = GetClassPayload(classHash, BlockTag.LATEST.tag)
+
+        return getClass(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition associated with the given hash.
+     *
+     * @param classHash The hash of the requested contract class.
+     * @param blockHash The hash of requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClass> {
+        val payload = GetClassPayload(classHash, blockHash.hexString())
+
+        return getClass(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition associated with the given hash.
+     *
+     * @param classHash The hash of the requested contract class.
+     * @param blockNumber The number of requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClass> {
+        val payload = GetClassPayload(classHash, blockNumber.toString())
+
+        return getClass(payload)
+    }
+
+    /**
+     * Get the contract class definition.
+     *
+     * Get the contract class definition associated with the given hash.
+     *
+     * @param classHash The hash of the requested contract class.
+     * @param blockTag The tag of requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClass> {
+        val payload = GetClassPayload(classHash, blockTag.tag)
+
+        return getClass(payload)
     }
 
     private fun getClassAt(payload: GetClassAtPayload): Request<ContractClass> {
@@ -223,25 +277,35 @@ class JsonRpcProvider(
     }
 
     override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
-        val params = buildJsonObject {
-            put("contract_definition", payload.contractDefinition.toRpcJson())
+        val inner = buildJsonObject {
+            put("contract_class", payload.contractDefinition.toJson())
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.forEach { add(it) }
             }
             put("contract_address_salt", payload.salt)
+            put("version", payload.version)
+            put("type", TransactionType.DEPLOY.toString())
+        }
+        val params = buildJsonObject {
+            put("deploy_transaction", inner)
         }
 
         return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-        if (payload.signature.isNotEmpty()) {
-            throw IllegalArgumentException("JsonRpcProvider does not currently support signed Declare transactions.")
-        }
 
-        val params = buildJsonObject {
-            put("contract_class", payload.contractDefinition.toRpcJson())
+        val inner = buildJsonObject {
+            put("contract_class", payload.contractDefinition.toJson())
+            put("sender_address", payload.senderAddress.hexString())
             put("version", payload.version)
+            put("max_fee", payload.maxFee.hexString())
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("type", TransactionType.DECLARE.toString())
+        }
+        val params = buildJsonObject {
+            put("declare_transaction", inner)
         }
 
         return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
@@ -335,8 +399,48 @@ class JsonRpcProvider(
         return getEstimateFee(payload)
     }
 
+    private fun getNonce(payload: GetNoncePayload): Request<Felt> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_NONCE, jsonPayload, Felt.serializer())
+    }
+
     override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
-        TODO("Not yet implemented")
+        val payload = GetNoncePayload(contractAddress, BlockId.Tag(blockTag))
+
+        return getNonce(payload)
+    }
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address for specified block number.
+     *
+     * @param contractAddress address of account contract
+     * @param blockNumber block number used for returning this value
+     *
+     * @throws RequestFailedException
+     */
+    fun getNonce(contractAddress: Felt, blockNumber: Int): Request<Felt> {
+        val payload = GetNoncePayload(contractAddress, BlockId.Number(blockNumber))
+
+        return getNonce(payload)
+    }
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address for specified block hash.
+     *
+     * @param contractAddress address of account contract
+     * @param blockHash block hash used for returning this value
+     *
+     * @throws RequestFailedException
+     */
+    fun getNonce(contractAddress: Felt, blockHash: Felt): Request<Felt> {
+        val payload = GetNoncePayload(contractAddress, BlockId.Hash(blockHash))
+
+        return getNonce(payload)
     }
 
     /**
@@ -354,6 +458,44 @@ class JsonRpcProvider(
             params,
             JsonRpcSyncPolymorphicSerializer,
         )
+    }
+
+    fun getBlockWithTxs(blockTag: BlockTag): Request<Transaction> {
+        TODO("cos innego")
+    }
+    fun getBlockWithTxs(blockHash: Felt): Request<Transaction> {
+        TODO("cos innego")
+    }
+    fun getBlockWithTxs(blockNumber: Int): Request<Transaction> {
+        TODO("cos innego")
+    }
+
+    fun getStateUpdate(blockTag: BlockTag): Request<Int> {
+        TODO("cos innego")
+    }
+
+    fun getStateUpdate(blockHash: Felt): Request<Int> {
+        TODO("cos innego")
+    }
+
+    fun getStateUpdate(blockNumber: Int): Request<Int> {
+        TODO("cos innego")
+    }
+
+    fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): Request<Transaction> {
+        TODO("cos innego")
+    }
+
+    fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): Request<Transaction> {
+        TODO("cos innego")
+    }
+
+    fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction> {
+        TODO("cos innego")
+    }
+
+    fun getPendingTransactions(): Request<List<Transaction>> {
+        TODO("cos innego")
     }
 }
 
@@ -374,4 +516,10 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
     GET_SYNCING("starknet_syncing"),
     ESTIMATE_FEE("starknet_estimateFee"),
+    GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
+    GET_STATE_UPDATE("starknet_getBlockWithTxs"),
+    GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
+    GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
+    GET_NONCE("starknet_getNonce"),
+    DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
 }

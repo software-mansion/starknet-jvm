@@ -27,7 +27,7 @@ internal object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
         // FIXME: It doesn't produce the same output as the rpc endpoint
 
-        return ContractClass(program, response.entryPointsByType)
+        return ContractClass(program, response.entryPointsByType, null)
     }
 
     override val descriptor: SerialDescriptor

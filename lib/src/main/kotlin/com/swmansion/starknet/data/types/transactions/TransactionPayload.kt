@@ -36,15 +36,17 @@ data class DeployTransactionPayload(
     val salt: Felt,
     val constructorCalldata: Calldata,
     val version: Felt,
+    val type: TransactionType = TransactionType.DEPLOY,
 )
 
 data class DeclareTransactionPayload(
     val contractDefinition: ContractDefinition,
-    val senderAddress: Felt,
     val maxFee: Felt,
     val nonce: Felt,
     val signature: Signature,
     val version: Felt,
+    val senderAddress: Felt,
+    val type: TransactionType = TransactionType.DECLARE,
 )
 
 data class DeployAccountTransactionPayload(

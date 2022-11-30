@@ -51,3 +51,12 @@ data class GetBlockTransactionCountPayload(
     @SerialName("block_id")
     val blockId: BlockId,
 )
+
+@Serializable
+data class GetNoncePayload(
+        @SerialName("contract_address")
+        val contractAddress: Felt,
+
+        @SerialName("block_id")
+        val blockId: BlockId,
+)

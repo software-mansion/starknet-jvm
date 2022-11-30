@@ -423,16 +423,14 @@ class ProviderTest {
         assertTrue(response is GatewayTransactionReceipt)
     }
 
-    // FIXME this test will fail until devnet spec is updated as there is no way to differentiate between declare
-    //  and deploy tx receipts currently
-//    @Test
-//    fun `get deploy transaction receipt rpc`() {
-//        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
-//        val response = request.send()
-//
-//        assertNotNull(response)
-//        assertTrue(response is DeployTransactionReceipt)
-//    }
+    @Test
+    fun `get deploy transaction receipt rpc`() {
+        val request = rpcProvider().getTransactionReceipt(deployTransactionHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is DeployRpcTransactionReceipt)
+    }
 
     @Test
     fun `get declare transaction receipt rpc`() {
@@ -440,7 +438,8 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is DeclareTransactionReceipt)
+        assertTrue(response is RpcTransactionReceipt)
+        assertTrue(response.type == TransactionReceiptType.DECLARE)
     }
 
     @Test
@@ -449,7 +448,8 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is InvokeTransactionReceipt)
+        assertTrue(response is RpcTransactionReceipt)
+        assertTrue(response.type == TransactionReceiptType.INVOKE)
     }
 
     @ParameterizedTest
@@ -585,14 +585,14 @@ class ProviderTest {
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload =
-            DeclareTransactionPayload(
-                ContractDefinition(contents),
-                Felt.ONE, // Declare tx version 0 has a sender address of 0x1
-                Felt.ZERO,
-                Felt.ZERO,
-                emptyList(),
-                Felt.ZERO,
-            )
+                DeclareTransactionPayload(
+                        ContractDefinition(contents),
+                        Felt.ZERO,
+                        Felt.ZERO,
+                        emptyList(),
+                        Felt.ZERO,
+                        Felt.ONE, // Declare tx version 0 has a sender address of 0x1
+                )
 
         val request = provider.declareContract(payload)
         val response = request.send()
@@ -622,7 +622,7 @@ class ProviderTest {
         val exception = assertThrows(GatewayRequestFailedException::class.java) {
             request.send()
         }
-        assertEquals("Class with hash 0x0 is not declared", exception.message)
+        assertEquals("Class with hash 0x0 is not declared.", exception.message)
     }
 
     @Test

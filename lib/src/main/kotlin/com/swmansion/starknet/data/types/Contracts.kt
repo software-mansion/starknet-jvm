@@ -4,72 +4,66 @@ import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-enum class AbiEntryType {
-    FELT,
-    FELT_ARRAY,
-    STRING
-}
-
 @Serializable
-data class AbiEntry(
-    val name: String,
-    val type: AbiEntryType,
-)
+enum class AbiEntryType {
+    @JsonNames("function")
+    FUNCTION,
+
+    @JsonNames("constructor")
+    CONSTRUCTOR,
+
+    @JsonNames("l1_handler")
+    L1_HANDLER,
+
+    @JsonNames("struct")
+    STRUCT,
+
+    @JsonNames("event")
+    EVENT,
+}
 
 @Serializable
 sealed class AbiElement
 
 @Serializable
-data class FunctionAbi(
+data class AbiEntry(
+        val name: String,
+        val type: String,
+)
+
+@SerialName("function")
+@Serializable
+data class FunctionAbiEntry(
     val name: String,
     val inputs: List<AbiEntry>,
     val outputs: List<AbiEntry>,
+    val type: AbiEntryType,
+) : AbiElement()
+
+@SerialName("event")
+@Serializable
+data class EventAbiEntry(
+        val name: String,
+        val keys: List<AbiEntry>,
+        val data: List<AbiEntry>,
+        val type: AbiEntryType = AbiEntryType.EVENT,
 ) : AbiElement()
 
 @Serializable
-data class StructAbi(
-    val name: String,
+data class StructMember(
+        val name: String,
+        val type: String,
+        val offset: Int,
+)
+
+@SerialName("struct")
+@Serializable
+data class StructAbiEntry(
+        val name: String,
+        val size: Int,
+        val members: List<StructMember>,
+        val type: AbiEntryType = AbiEntryType.STRUCT,
 ) : AbiElement()
-
-@Serializable
-data class Abi(
-    val values: List<AbiElement>,
-)
-
-@Serializable
-data class Program(
-    val code: String,
-)
-
-@Serializable
-data class EntryPoint(
-    val selector: Felt,
-    val offset: Felt,
-)
-
-@Serializable
-data class EntryPointsByType(
-    @SerialName("CONSTRUCTOR")
-    val constructor: List<EntryPoint>,
-
-    @SerialName("EXTERNAL")
-    val external: List<EntryPoint>,
-
-    @SerialName("L1_HANDLER")
-    val l1Handler: List<EntryPoint>,
-)
-
-@Serializable
-data class CompiledContract(
-    @SerialName("entry_points_by_type")
-    val entryPointsByType: EntryPointsByType,
-
-    @SerialName("program")
-    val program: String,
-
-    @SerialName("abi")
-    val abi: List<String> = emptyList(),
-)
 
 @Serializable
 data class ContractEntryPoint(
@@ -109,13 +103,6 @@ data class ContractDefinition(private val contract: String) {
             if (abi != null) put("abi", abi) else putJsonArray("abi") { emptyList<Any>() }
         }
     }
-
-    fun toRpcJson(): JsonObject {
-        return buildJsonObject {
-            put("program", program.toString().base64Gzipped())
-            put("entry_points_by_type", entryPointsByType)
-        }
-    }
 }
 
 @Serializable
@@ -124,6 +111,8 @@ data class ContractClass(
 
     @SerialName("entry_points_by_type")
     val entryPointsByType: EntryPointsByType,
+
+    val abi: List<AbiElement>?,
 ) {
     @Serializable
     data class EntryPointsByType(
@@ -142,6 +131,9 @@ data class ContractClass(
 data class GetClassPayload(
     @SerialName("class_hash")
     val classHash: Felt,
+
+    @SerialName("block_id")
+    var blockId: String,
 )
 
 @Serializable
