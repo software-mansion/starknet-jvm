@@ -3,12 +3,14 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.data.types.transactions.InvokeTransaction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
+typealias CallArguments = List<ConvertibleToCalldata>
 
 @Serializable
 data class Call(
@@ -38,6 +40,19 @@ data class Call(
         entrypoint,
         emptyList(),
     )
+
+    companion object {
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: Felt, arguments: CallArguments): Call {
+            val calldata = arguments.flatMap { it.toCalldata() }
+            return Call(contractAddress, entrypoint, calldata)
+        }
+
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: String, arguments: CallArguments): Call {
+            return fromCallArguments(contractAddress, selectorFromName(entrypoint), arguments)
+        }
+    }
 }
 
 data class ExecutionParams(
