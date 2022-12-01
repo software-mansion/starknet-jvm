@@ -75,15 +75,15 @@ sealed class Syncing {
 
     abstract val startingBlockHash: Felt
 
-    abstract val startingBlockNumber: Int
+    abstract val startingBlockNumber: Felt
 
     abstract val currentBlockHash: Felt
 
-    abstract val currentBlockNumber: Int
+    abstract val currentBlockNumber: Felt
 
     abstract val highestBlockHash: Felt
 
-    abstract val highestBlockNumber: Int
+    abstract val highestBlockNumber: Felt
 }
 
 @Serializable
@@ -92,15 +92,15 @@ data class NotSyncingResponse(
 
     override val startingBlockHash: Felt = Felt.ZERO,
 
-    override val startingBlockNumber: Int = 0,
+    override val startingBlockNumber: Felt = Felt.ZERO,
 
     override val currentBlockHash: Felt = Felt.ZERO,
 
-    override val currentBlockNumber: Int = 0,
+    override val currentBlockNumber: Felt = Felt.ZERO,
 
     override val highestBlockHash: Felt = Felt.ZERO,
 
-    override val highestBlockNumber: Int = 0,
+    override val highestBlockNumber: Felt = Felt.ZERO,
 ) : Syncing()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -112,17 +112,17 @@ data class SyncingResponse(
     override val startingBlockHash: Felt,
 
     @JsonNames("starting_block_num")
-    override val startingBlockNumber: Int,
+    override val startingBlockNumber: Felt,
 
     @JsonNames("current_block_hash")
     override val currentBlockHash: Felt,
 
     @JsonNames("current_block_num")
-    override val currentBlockNumber: Int,
+    override val currentBlockNumber: Felt,
 
     @JsonNames("highest_block_hash")
     override val highestBlockHash: Felt,
 
     @JsonNames("highest_block_num")
-    override val highestBlockNumber: Int,
+    override val highestBlockNumber: Felt,
 ) : Syncing()

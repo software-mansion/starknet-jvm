@@ -228,6 +228,36 @@ interface Provider {
      *
      * Estimate a fee for a provided transaction.
      *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param request deploy account transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param request deploy account transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
      * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
      */
@@ -242,7 +272,6 @@ interface Provider {
      * @param blockNumber a number of the block in respect to what the query will be made
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
-
     /**
      * Estimate a fee.
      *
@@ -252,7 +281,6 @@ interface Provider {
      * @param blockTag a tag of the block in respect to what the query will be made
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
-
     /**
      * Estimate a fee.
      *
@@ -261,6 +289,17 @@ interface Provider {
      * @param payload invoke transaction, for which the fee is to be estimated.
      */
     fun getEstimateFee(payload: InvokeTransactionPayload): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockTag.LATEST)
+    }
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction in the latest block.
+     *
+     * @param request deploy account transaction, for which the fee is to be estimated.
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockTag.LATEST)
     }
 
@@ -334,4 +373,6 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getBlockTransactionCount(blockNumber: Int): Request<Int>
+
+    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse>
 }

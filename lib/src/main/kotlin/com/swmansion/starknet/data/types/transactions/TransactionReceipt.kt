@@ -172,22 +172,22 @@ data class PendingRpcTransactionReceipt(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class PendingRpcDeployTransactionReceipt(
-        @JsonNames("transaction_hash", "txn_hash")
-        override val hash: Felt,
+    @JsonNames("transaction_hash", "txn_hash")
+    override val hash: Felt,
 
-        @JsonNames("actual_fee")
-        override val actualFee: Felt,
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
 
-        @JsonNames("messages_sent")
-        val messagesSent: List<MessageToL1>,
+    @JsonNames("messages_sent")
+    val messagesSent: List<MessageToL1>,
 
-        @JsonNames("events")
-        val events: List<Event>,
+    @JsonNames("events")
+    val events: List<Event>,
 
-        override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
+    override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
 
-        override val status: TransactionStatus = TransactionStatus.PENDING,
+    override val status: TransactionStatus = TransactionStatus.PENDING,
 
-        @JsonNames("contract_address")
-        val contractAddress: Felt,
+    @JsonNames("contract_address")
+    val contractAddress: Felt,
 ) : TransactionReceipt()

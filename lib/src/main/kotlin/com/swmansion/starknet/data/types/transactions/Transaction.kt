@@ -66,7 +66,7 @@ data class DeployTransaction(
     override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: Felt,
 
     @SerialName("signature")
     override val signature: Signature = emptyList(),
@@ -81,14 +81,12 @@ data class DeployTransaction(
 @Serializable
 @SerialName("INVOKE_FUNCTION")
 data class InvokeTransaction(
-    @SerialName("contract_address")
-    val contractAddress: Felt,
 
     @SerialName("calldata")
     val calldata: Calldata,
 
-    @SerialName("entry_point_selector")
-    val entryPointSelector: Felt = Felt.ZERO,
+    @SerialName("sender_address")
+    val senderAddress: Felt = Felt.ZERO, // TODO(to chyba nie powinno tak być, ale gateway nie zwraca sender_address)
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -109,17 +107,13 @@ data class InvokeTransaction(
     override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction() {
     fun toPayload(): InvokeTransactionPayload {
-        val invocation = Call(
-            contractAddress = contractAddress,
-            calldata = calldata,
-            entrypoint = entryPointSelector,
-        )
-
         return InvokeTransactionPayload(
-            invocation = invocation,
+            calldata = calldata,
             signature = signature,
             maxFee = maxFee,
             nonce = nonce,
+            senderAddress = senderAddress,
+            version = INVOKE_VERSION,
         )
     }
 
@@ -127,9 +121,8 @@ data class InvokeTransaction(
         @JvmStatic
         internal fun fromPayload(payload: InvokeTransactionPayload): InvokeTransaction {
             return InvokeTransaction(
-                contractAddress = payload.invocation.contractAddress,
-                calldata = payload.invocation.calldata,
-                entryPointSelector = payload.invocation.entrypoint,
+                senderAddress = payload.senderAddress,
+                calldata = payload.calldata,
                 hash = Felt.ZERO,
                 maxFee = payload.maxFee,
                 version = payload.version,
@@ -226,6 +219,9 @@ data class DeployAccountTransaction(
     @JsonNames("contract_class")
     val classHash: Felt,
 
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
@@ -269,7 +265,6 @@ object TransactionFactory {
     fun makeInvokeTransaction(
         contractAddress: Felt,
         calldata: Calldata,
-        entryPointSelector: Felt,
         chainId: StarknetChainId,
         nonce: Felt,
         maxFee: Felt = Felt.ZERO,
@@ -283,22 +278,13 @@ object TransactionFactory {
             nonce = nonce,
             maxFee = maxFee,
         )
-
-        return InvokeTransaction(
-            contractAddress,
-            calldata,
-            entryPointSelector,
-            hash,
-            maxFee,
-            INVOKE_VERSION,
-            signature,
-            nonce,
-        )
+        return InvokeTransaction(calldata, contractAddress, hash, maxFee, INVOKE_VERSION, signature, nonce)
     }
 
     @JvmStatic
     fun makeDeployAccountTransaction(
         classHash: Felt,
+        contractAddress: Felt,
         salt: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
@@ -317,6 +303,7 @@ object TransactionFactory {
         )
         return DeployAccountTransaction(
             classHash = classHash,
+            contractAddress = contractAddress,
             contractAddressSalt = salt,
             constructorCalldata = calldata,
             version = version,

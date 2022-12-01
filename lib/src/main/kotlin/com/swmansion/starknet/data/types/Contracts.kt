@@ -27,8 +27,8 @@ sealed class AbiElement
 
 @Serializable
 data class AbiEntry(
-        val name: String,
-        val type: String,
+    val name: String,
+    val type: String,
 )
 
 @SerialName("function")
@@ -43,26 +43,26 @@ data class FunctionAbiEntry(
 @SerialName("event")
 @Serializable
 data class EventAbiEntry(
-        val name: String,
-        val keys: List<AbiEntry>,
-        val data: List<AbiEntry>,
-        val type: AbiEntryType = AbiEntryType.EVENT,
+    val name: String,
+    val keys: List<AbiEntry>,
+    val data: List<AbiEntry>,
+    val type: AbiEntryType = AbiEntryType.EVENT,
 ) : AbiElement()
 
 @Serializable
 data class StructMember(
-        val name: String,
-        val type: String,
-        val offset: Int,
+    val name: String,
+    val type: String,
+    val offset: Int,
 )
 
 @SerialName("struct")
 @Serializable
 data class StructAbiEntry(
-        val name: String,
-        val size: Int,
-        val members: List<StructMember>,
-        val type: AbiEntryType = AbiEntryType.STRUCT,
+    val name: String,
+    val size: Int,
+    val members: List<StructMember>,
+    val type: AbiEntryType = AbiEntryType.STRUCT,
 ) : AbiElement()
 
 @Serializable

@@ -249,9 +249,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at pending block`(provider: Provider) {
-        // FIXME: Rpc endpoint not supported in devnet, and no gateway endpoint for it
-        return
-
         if (provider !is JsonRpcProvider) {
             return
         }
@@ -274,11 +271,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class hash at pending block`(provider: Provider) {
-        // Devnet only support's "latest" as block id in this method
-        if (provider is JsonRpcProvider) {
-            return
-        }
-
         val request = provider.getClassHashAt(contractAddress, BlockTag.PENDING)
         val response = request.send()
 
@@ -465,10 +457,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction`(provider: Provider) {
-        // FIXME: devnet fails when tx doesn't have entry_point_selector, remove condition after bumping devnet
-        if (provider is JsonRpcProvider) {
-            return
-        }
         val request = provider.getTransaction(invokeTransactionHash)
         val response = request.send()
 
@@ -667,8 +655,7 @@ class ProviderTest {
                         "transaction_hash": "0x01234"
                     }
                 ],
-                "page_number": 1,
-                "is_last_page": false
+                "continuation_token": "event123"
             }
         }
         """.trimIndent()
@@ -685,7 +672,7 @@ class ProviderTest {
                 Felt(111),
                 listOf(Felt.fromHex("0x0a"), Felt.fromHex("0x0b")),
                 100,
-                1,
+                "event123",
             ),
         )
 
@@ -770,11 +757,11 @@ class ProviderTest {
             "jsonrpc": "2.0",
             "result": {
                 "starting_block_hash": "0x0",
-                "starting_block_num": 0,
+                "starting_block_num": "0x0",
                 "current_block_hash": "0x1",
-                "current_block_num": 1,
-                "highest_block_hash": "0x10",
-                "highest_block_num": 10
+                "current_block_num": "0x1",
+                "highest_block_hash": "0x9",
+                "highest_block_num": "0x9"
             }
         }
         """.trimIndent()
@@ -788,11 +775,11 @@ class ProviderTest {
         assertNotNull(response)
         assertTrue(response.status)
         assertEquals(Felt.ZERO, response.startingBlockHash)
-        assertEquals(0, response.startingBlockNumber)
+        assertEquals(Felt.ZERO, response.startingBlockNumber)
         assertEquals(Felt.fromHex("0x1"), response.currentBlockHash)
-        assertEquals(1, response.currentBlockNumber)
-        assertEquals(Felt.fromHex("0x10"), response.highestBlockHash)
-        assertEquals(10, response.highestBlockNumber)
+        assertEquals(Felt.ONE, response.currentBlockNumber)
+        assertEquals(Felt.fromHex("0x9"), response.highestBlockHash)
+        assertEquals(Felt(9), response.highestBlockNumber)
     }
 
     @Test

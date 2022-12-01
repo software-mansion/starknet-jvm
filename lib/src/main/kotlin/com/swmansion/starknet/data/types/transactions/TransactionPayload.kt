@@ -4,11 +4,14 @@ import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeTransactionPayload private constructor(
-    @SerialName("function_invocation")
-    val invocation: Call,
+data class InvokeTransactionPayload(
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
+    @SerialName("calldata")
+    val calldata: Calldata,
 
     @SerialName("signature")
     val signature: Signature,
@@ -21,9 +24,14 @@ data class InvokeTransactionPayload private constructor(
 
     @SerialName("nonce")
     val nonce: Felt,
-) {
-    constructor(invocation: Call, signature: Signature, maxFee: Felt, nonce: Felt) : this(
-        invocation,
+
+){
+    @SerialName("type")
+    val type: TransactionType = TransactionType.INVOKE
+
+    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
+        senderAddress,
+        calldata,
         signature,
         maxFee,
         INVOKE_VERSION,
@@ -49,6 +57,7 @@ data class DeclareTransactionPayload(
     val type: TransactionType = TransactionType.DECLARE,
 )
 
+@Serializable
 data class DeployAccountTransactionPayload(
     val classHash: Felt,
     val salt: Felt,
@@ -57,4 +66,5 @@ data class DeployAccountTransactionPayload(
     val nonce: Felt,
     val maxFee: Felt,
     val signature: Signature,
+    val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 )

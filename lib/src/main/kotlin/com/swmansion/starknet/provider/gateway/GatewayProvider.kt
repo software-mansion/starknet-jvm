@@ -178,7 +178,6 @@ class GatewayProvider(
 
     override fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse> {
         val url = gatewayRequestUrl("add_transaction")
-
         val body = serializeInvokeTransactionPayload(payload)
 
         return HttpRequest(
@@ -228,7 +227,7 @@ class GatewayProvider(
         )
     }
 
-    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+    override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
         val url = gatewayRequestUrl("add_transaction")
         val body = serializeDeployAccountTransactionPayload(payload)
 
@@ -295,19 +294,6 @@ class GatewayProvider(
         )
     }
 
-    private fun serializeInvokeTransactionPayload(payload: InvokeTransactionPayload): JsonObject {
-        val body = buildJsonObject {
-            put("type", "INVOKE_FUNCTION")
-            put("contract_address", payload.invocation.contractAddress.hexString())
-            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
-            put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
-            put("nonce", payload.nonce)
-            put("version", payload.version)
-        }
-        return body
-    }
-
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
@@ -334,20 +320,16 @@ class GatewayProvider(
         )
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Hash(blockHash))
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Number(blockNumber))
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Tag(blockTag))
-    }
-
-    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockTag.LATEST)
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
@@ -415,6 +397,19 @@ class GatewayProvider(
 
         return getBlockTransactionCount(payload)
     }
+
+    private fun serializeInvokeTransactionPayload(
+        payload: InvokeTransactionPayload,
+    ): JsonObject =
+        buildJsonObject {
+            put("type", "INVOKE_FUNCTION")
+            put("contract_address", payload.senderAddress.hexString())
+            putJsonArray("calldata") { payload.calldata.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("version", payload.version)
+            put("max_fee", payload.maxFee)
+        }
 
     private fun serializeDeployAccountTransactionPayload(
         payload: DeployAccountTransactionPayload,

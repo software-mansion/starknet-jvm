@@ -83,6 +83,10 @@ class JsonRpcProvider(
         return callContract(payload)
     }
 
+    override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+        TODO("cos innego")
+    }
+
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
         val params = Json.encodeToJsonElement(payload)
 
@@ -382,21 +386,75 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val payload = EstimateFeePayload(InvokeTransaction.fromPayload(payload), BlockId.Hash(blockHash))
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
 
-        return getEstimateFee(payload)
+        return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val payload = EstimateFeePayload(InvokeTransaction.fromPayload(payload), BlockId.Number(blockNumber))
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
 
-        return getEstimateFee(payload)
+        return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val payload = EstimateFeePayload(InvokeTransaction.fromPayload(payload), BlockId.Tag(blockTag))
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
 
-        return getEstimateFee(payload)
+        return getEstimateFee(estimatePayload)
+    }
+
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeployTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeployTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeployTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+
+        return getEstimateFee(estimatePayload)
+    }
+
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+
+        return getEstimateFee(estimatePayload)
     }
 
     private fun getNonce(payload: GetNoncePayload): Request<Felt> {
