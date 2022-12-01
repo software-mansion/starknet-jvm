@@ -37,9 +37,17 @@ public class Main {
         Request<DeployResponse> deployRequest = provider.deployContract(payload);
         DeployResponse deployResponse = deployRequest.send();
 
-        // Invoke a contract
+        // Create a call from plain calldata
         Felt contractAddress = deployResponse.getContractAddress();
         Call call = new Call(contractAddress, "increaseBalance", List.of(new Felt(1000)));
+        // Or using any objects implementing ConvertibleToCalldata
+        Call callFromCallArguments = Call.fromCallArguments(
+                contractAddress,
+                "increaseBalance",
+                List.of(Uint256.fromHex("0x9148582852675472"), new Felt(1000))
+        );
+
+        // Invoke a contract
         Request<InvokeFunctionResponse> executeRequest = account.execute(call);
         InvokeFunctionResponse executeResponse = executeRequest.send();
 
