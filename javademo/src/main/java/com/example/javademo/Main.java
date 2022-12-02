@@ -22,7 +22,7 @@ public class Main {
         // Set up an account
         Felt address = Felt.fromHex("0x1234");
         // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
-        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRA️FICALLY SAFE TOOLS!
+        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRAPHICALLY SAFE TOOLS!
         Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         Provider provider = GatewayProvider.makeTestnetClient();
         Account account = new StandardAccount(address, privateKey, provider);
@@ -33,20 +33,32 @@ public class Main {
 
         // Deploy a contract
         ContractDefinition contractDefinition = new ContractDefinition(contract);
-        DeployTransactionPayload payload = new DeployTransactionPayload(contractDefinition, Felt.fromHex("0x1234"), Collections.emptyList(), Felt.ZERO);
+        DeployTransactionPayload payload = new DeployTransactionPayload(
+                contractDefinition,
+                Felt.fromHex("0x1234"),
+                Collections.emptyList(), Felt.ZERO
+        );
         Request<DeployResponse> deployRequest = provider.deployContract(payload);
         DeployResponse deployResponse = deployRequest.send();
 
-        // Invoke a contract
+        // Create a call from plain calldata
         Felt contractAddress = deployResponse.getContractAddress();
         Call call = new Call(contractAddress, "increaseBalance", List.of(new Felt(1000)));
+        // Or using any objects implementing ConvertibleToCalldata interface
+        Call callFromCallArguments = Call.fromCallArguments(
+                contractAddress,
+                "increaseBalance",
+                List.of(Uint256.fromHex("0x9148582852675472"), new Felt(1000))
+        );
+
+        // Invoke a contract
         Request<InvokeFunctionResponse> executeRequest = account.execute(call);
         InvokeFunctionResponse executeResponse = executeRequest.send();
 
         // Make sure that the transaction succeeded
         Request<? extends TransactionReceipt> receiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
         TransactionReceipt receipt = receiptRequest.send();
-        Boolean isAccepted = (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L2) || (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L1);
+        Boolean isAccepted = receipt.isAccepted();
 
         // Manually sign a hash
         Felt hash = Felt.fromHex("0x121212121212");
