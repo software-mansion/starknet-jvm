@@ -5,6 +5,7 @@ import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
     val types: Map<String, List<Type>>,
@@ -162,6 +163,6 @@ data class TypedData private constructor(
          */
         @JvmStatic
         fun fromJsonString(typedData: String): TypedData =
-            Json.decodeFromString(TypedData.serializer(), typedData)
+            Json.decodeFromString(serializer(), typedData)
     }
 }

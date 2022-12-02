@@ -1,15 +1,10 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.parseHex
+import com.swmansion.starknet.data.serializers.FeltSerializer
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
@@ -115,19 +110,5 @@ data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata
 
             return true
         }
-    }
-}
-
-internal object FeltSerializer : KSerializer<Felt> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Felt", PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): Felt {
-        val hex = decoder.decodeString()
-
-        return Felt.fromHex(hex)
-    }
-
-    override fun serialize(encoder: Encoder, value: Felt) {
-        encoder.encodeString(value.value.toHex())
     }
 }
