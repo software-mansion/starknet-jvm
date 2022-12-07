@@ -45,9 +45,6 @@ sealed class Transaction {
 @SerialName("DEPLOY")
 // OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployTransaction(
-    @SerialName("contract_address")
-    val contractAddress: Felt,
-
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
@@ -86,8 +83,9 @@ data class InvokeTransaction(
     @SerialName("calldata")
     val calldata: Calldata,
 
+    // Tx v1
     @SerialName("sender_address")
-    val senderAddress: Felt = Felt.ZERO, // TODO(gateway does not return sender_address)
+    val senderAddress: Felt = Felt.ZERO,
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -107,6 +105,14 @@ data class InvokeTransaction(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
+
+    // Tx v0
+    @SerialName("contract_address")
+    val contractAddress: Felt = Felt.ZERO,
+
+    // Tx v0
+    @SerialName("entry_point_selector")
+    val entryPointSelector: Felt = Felt.ZERO,
 ) : Transaction() {
     fun toPayload(): InvokeTransactionPayload {
         return InvokeTransactionPayload(
@@ -115,7 +121,7 @@ data class InvokeTransaction(
             maxFee = maxFee,
             nonce = nonce,
             senderAddress = senderAddress,
-            version = INVOKE_VERSION,
+            // type = type,
         )
     }
 
@@ -223,8 +229,9 @@ data class DeployAccountTransaction(
     @JsonNames("contract_class")
     val classHash: Felt,
 
+    // not in RPC spec
     @SerialName("contract_address")
-    val contractAddress: Felt = Felt.ZERO, // FIXME: rpc does not return contract_address
+    val contractAddress: Felt = Felt.ZERO,
 
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
@@ -283,7 +290,7 @@ object TransactionFactory {
             nonce = nonce,
             maxFee = maxFee,
         )
-        return InvokeTransaction(calldata, contractAddress, hash, maxFee, INVOKE_VERSION, signature, nonce)
+        return InvokeTransaction(calldata, contractAddress, hash, maxFee, INVOKE_VERSION, signature, nonce, TransactionType.INVOKE)
     }
 
     @JvmStatic

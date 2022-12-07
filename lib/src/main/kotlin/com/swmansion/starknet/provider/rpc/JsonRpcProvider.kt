@@ -5,12 +5,10 @@ import com.swmansion.starknet.data.serializers.JsonRpcGetBlockWithTransactionsPo
 import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.serializeDeployAccountTransactionPayload
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
-import com.swmansion.starknet.extensions.toDecimal
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -87,10 +85,12 @@ class JsonRpcProvider(
     }
 
     override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
-        val body = serializeDeployAccountTransactionPayload(payload)
-        val params = Json.encodeToJsonElement(body)
+        val params = Json.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("deploy_account_transaction", params)
+        }
 
-        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, params, DeployAccountResponse.serializer())
+        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
     }
 
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
@@ -139,8 +139,11 @@ class JsonRpcProvider(
         payload: InvokeTransactionPayload,
     ): Request<InvokeFunctionResponse> {
         val params = Json.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("invoke_transaction", params)
+        }
 
-        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, params, InvokeFunctionResponse.serializer())
+        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
 
     private fun getClass(payload: GetClassPayload): Request<ContractClass> {
@@ -294,7 +297,7 @@ class JsonRpcProvider(
             }
             put("contract_address_salt", payload.salt)
             put("version", payload.version)
-            put("type", TransactionType.DEPLOY.toString())
+            put("type", payload.type.toString())
         }
         val params = buildJsonObject {
             put("deploy_transaction", inner)
@@ -303,16 +306,15 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
     }
 
-    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> { // todo
         val inner = buildJsonObject {
             put("contract_class", payload.contractDefinition.toJson())
             put("sender_address", payload.senderAddress.hexString())
             put("version", payload.version)
             put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { payload.signature.forEach { add(it) } }
             put("nonce", payload.nonce)
-            put("type", TransactionType.DECLARE.toString())
+            put("type", payload.type.toString())
         }
         val params = buildJsonObject {
             put("declare_transaction", inner)
@@ -385,44 +387,62 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
     }
 
-    private fun getEstimateFee(payload: EstimateFeePayload): Request<EstimateFeeResponse> {
-        val jsonPayload = Json.encodeToJsonElement(payload)
+    private fun getEstimateFee(payload: EstimateInvokeFunctionFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    private fun getEstimateFee(payload: EstimateDeployTransactionFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    private fun getEstimateFee(payload: EstimateDeployAccountTransactionFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    private fun getEstimateFee(payload: EstimateDeclareTransactionFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+        val estimatePayload = EstimateDeployAccountTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+        val estimatePayload = EstimateDeployAccountTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+        val estimatePayload = EstimateDeployAccountTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
@@ -438,7 +458,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeployTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
@@ -454,7 +474,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeployTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
@@ -470,7 +490,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeployTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
@@ -486,7 +506,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
+        val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
@@ -502,7 +522,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
+        val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
@@ -518,7 +538,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
+        val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
@@ -704,7 +724,8 @@ class JsonRpcProvider(
     fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): Request<Transaction> {
         val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index)
 
-        return getTransactionByBlockIdAndIndex(payload)    }
+        return getTransactionByBlockIdAndIndex(payload)
+    }
 
     /**
      * Get transaction by block id and index.
@@ -718,7 +739,8 @@ class JsonRpcProvider(
     fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): Request<Transaction> {
         val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index)
 
-        return getTransactionByBlockIdAndIndex(payload)       }
+        return getTransactionByBlockIdAndIndex(payload)
+    }
 
     /**
      * Get transaction by block id and index.
@@ -732,7 +754,8 @@ class JsonRpcProvider(
     fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction> {
         val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index)
 
-        return getTransactionByBlockIdAndIndex(payload)    }
+        return getTransactionByBlockIdAndIndex(payload)
+    }
 
     /**
      * Get pending transactions.
@@ -745,9 +768,9 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
-                JsonRpcMethod.GET_PENDING_TRANSACTIONS,
-                params,
-                ListSerializer(JsonRpcTransactionPolymorphicSerializer),
+            JsonRpcMethod.GET_PENDING_TRANSACTIONS,
+            params,
+            ListSerializer(JsonRpcTransactionPolymorphicSerializer),
         )
     }
 }

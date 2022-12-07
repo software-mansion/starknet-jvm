@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.types.transactions.InvokeTransaction
-import com.swmansion.starknet.data.types.transactions.InvokeTransactionPayload
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -39,12 +38,39 @@ data class GetTransactionReceiptPayload(
 )
 
 @Serializable
-data class EstimateFeePayload(
+data class EstimateInvokeFunctionFeePayload(
         @SerialName("request")
-    val request: InvokeTransactionPayload,
+        val request: InvokeTransactionPayload,
 
         @SerialName("block_id")
-    val blockId: BlockId,
+        val blockId: BlockId,
+)
+
+@Serializable
+data class EstimateDeployTransactionFeePayload(
+        @SerialName("request")
+        val request: DeployTransactionPayload,
+
+        @SerialName("block_id")
+        val blockId: BlockId,
+)
+
+@Serializable
+data class EstimateDeployAccountTransactionFeePayload(
+        @SerialName("request")
+        val request: DeployAccountTransactionPayload,
+
+        @SerialName("block_id")
+        val blockId: BlockId,
+)
+
+@Serializable
+data class EstimateDeclareTransactionFeePayload(
+        @SerialName("request")
+        val request: DeclareTransactionPayload,
+
+        @SerialName("block_id")
+        val blockId: BlockId,
 )
 
 @Serializable

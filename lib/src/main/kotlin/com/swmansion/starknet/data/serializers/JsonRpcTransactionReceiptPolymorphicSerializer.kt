@@ -19,8 +19,9 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
         }
 
     private fun selectDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> =
-        when (element["type"]!!.jsonPrimitive) {
-            JsonPrimitive(TransactionReceiptType.DEPLOY.name) -> DeployRpcTransactionReceipt.serializer()
+        when (element["type"]!!.jsonPrimitive.content) {
+            "DEPLOY" -> DeployRpcTransactionReceipt.serializer()
+            "DEPLOY_ACCOUNT" -> DeployRpcTransactionReceipt.serializer()
             else -> RpcTransactionReceipt.serializer()
         }
 }

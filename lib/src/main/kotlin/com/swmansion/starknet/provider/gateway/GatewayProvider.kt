@@ -191,7 +191,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", "DEPLOY")
+            put("type", payload.type.toString())
             put("contract_address_salt", payload.salt)
             putJsonArray("constructor_calldata") {
                 payload.constructorCalldata.toDecimal().forEach { add(it) }
@@ -211,7 +211,7 @@ class GatewayProvider(
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", "DECLARE")
+            put("type", payload.type.toString())
             put("sender_address", payload.senderAddress)
             put("max_fee", payload.maxFee)
             put("nonce", payload.nonce)
@@ -398,8 +398,26 @@ class GatewayProvider(
         return getBlockTransactionCount(payload)
     }
 
+    internal fun serializeDeployAccountTransactionPayload(
+        payload: DeployAccountTransactionPayload,
+    ): JsonObject =
+        buildJsonObject {
+            put("type", "DEPLOY_ACCOUNT")
+            put("class_hash", payload.classHash)
+            put("contract_address_salt", payload.salt)
+            putJsonArray("constructor_calldata") {
+                payload.constructorCalldata.toDecimal().forEach { add(it) }
+            }
+            put("version", payload.version)
+            put("nonce", payload.nonce)
+            put("max_fee", payload.maxFee)
+            putJsonArray("signature") {
+                payload.signature.toDecimal().forEach { add(it) }
+            }
+        }
+
     private fun serializeInvokeTransactionPayload(
-        payload: InvokeTransactionPayload,
+            payload: InvokeTransactionPayload,
     ): JsonObject =
         buildJsonObject {
             put("type", "INVOKE_FUNCTION")

@@ -16,7 +16,6 @@ internal class TransactionsTest {
         val tx1 = TransactionFactory.makeInvokeTransaction(
             contractAddress = Felt.fromHex("0x2a"),
             calldata = listOf(),
-            entryPointSelector = Felt.fromHex("0x64"),
             chainId = StarknetChainId.TESTNET,
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
@@ -45,9 +44,6 @@ internal class TransactionsTest {
                 Felt(
                     BigInteger("2"),
                 ),
-            ),
-            entryPointSelector = Felt(
-                BigInteger("617075754465154585683856897856256838130216341506379215893724690153393808813"),
             ),
             chainId = StarknetChainId.TESTNET,
             nonce = Felt.ZERO,

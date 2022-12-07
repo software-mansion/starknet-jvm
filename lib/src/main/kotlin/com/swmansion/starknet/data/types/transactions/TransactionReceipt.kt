@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 enum class TransactionReceiptType {
-    DECLARE, DEPLOY, INVOKE, PENDING, PENDING_DEPLOY, GATEWAY, DECLARE_ACCOUNT, L1_HANDLER
+    DECLARE, DEPLOY, INVOKE, PENDING, PENDING_DEPLOY, GATEWAY, DEPLOY_ACCOUNT, L1_HANDLER
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -104,10 +104,10 @@ data class RpcTransactionReceipt(
     override val status: TransactionStatus,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt?,
 
     @JsonNames("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int?,
 
     override val type: TransactionReceiptType,
 
@@ -132,10 +132,10 @@ data class DeployRpcTransactionReceipt(
     override val status: TransactionStatus,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt?,
 
     @JsonNames("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int?,
 
     override val type: TransactionReceiptType,
 

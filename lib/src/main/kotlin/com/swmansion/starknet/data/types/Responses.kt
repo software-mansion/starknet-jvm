@@ -139,102 +139,101 @@ sealed class GetBlockWithTransactionsResponse {
 
 @Serializable
 data class BlockWithTransactionsResponse(
-        @SerialName("status")
-        val status: TransactionStatus,
+    @SerialName("status")
+    val status: TransactionStatus,
 
-        @SerialName("parent_hash")
-        override val parentHash: Felt,
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
 
-        @SerialName("block_hash")
-        val blockHash: Felt,
+    @SerialName("block_hash")
+    val blockHash: Felt,
 
-        @SerialName("block_number")
-        val blockNumber: Int,
+    @SerialName("block_number")
+    val blockNumber: Int,
 
-        @SerialName("new_root")
-        val newRoot: Felt,
+    @SerialName("new_root")
+    val newRoot: Felt,
 
-        @SerialName("transactions")
-        override val transactions: List<Transaction>,
+    @SerialName("transactions")
+    override val transactions: List<Transaction>,
 
-        @SerialName("timestamp")
-        override val timestamp: Int,
+    @SerialName("timestamp")
+    override val timestamp: Int,
 
-        @SerialName("sequencer_address")
-        override val sequencerAddress: Felt,
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
-        @SerialName("parent_hash")
-        override val parentHash: Felt,
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
 
-        @SerialName("transactions")
-        override val transactions: List<Transaction>,
+    @SerialName("transactions")
+    override val transactions: List<Transaction>,
 
-        @SerialName("timestamp")
-        override val timestamp: Int,
+    @SerialName("timestamp")
+    override val timestamp: Int,
 
-        @SerialName("sequencer_address")
-        override val sequencerAddress: Felt,
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
 data class StorageEntries(
-        @SerialName("key")
-        val key: Felt,
+    @SerialName("key")
+    val key: Felt,
 
-        @SerialName("value")
-        val value: Felt,
+    @SerialName("value")
+    val value: Felt,
 )
 
 @Serializable
 data class StorageDiffItem(
-        @SerialName("address")
-        val address: Felt,
+    @SerialName("address")
+    val address: Felt,
 
-        @SerialName("storage_entries")
-        val storageEntries: List<StorageEntries>,
+    @SerialName("storage_entries")
+    val storageEntries: List<StorageEntries>,
 )
 
 @Serializable
 data class DeployedContractItem(
-        @SerialName("address")
-        val address: Felt,
+    @SerialName("address")
+    val address: Felt,
 
-        @SerialName("class_hash")
-        val classHash: Felt,
+    @SerialName("class_hash")
+    val classHash: Felt,
 )
 
 @Serializable
 data class NonceItem(
-        @SerialName("contract_address")
-        val contractAddress: Felt,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
 
-        @SerialName("nonce")
-        val nonce: Felt,
+    @SerialName("nonce")
+    val nonce: Felt,
 )
 
 @Serializable
 data class StateDiff(
-        @SerialName("storage_diffs")
-        val storageDiffs: List<StorageDiffItem?>,
+    @SerialName("storage_diffs")
+    val storageDiffs: List<StorageDiffItem?>,
 
-        @SerialName("declared_contract_hashes")
-        val declaredContractHashes: List<Felt?>,
+    @SerialName("declared_contract_hashes")
+    val declaredContractHashes: List<Felt?>,
 
-        @SerialName("deployed_contracts")
-        val deployedContracts: List<DeployedContractItem?>,
+    @SerialName("deployed_contracts")
+    val deployedContracts: List<DeployedContractItem?>,
 
-        @SerialName("nonces")
-        val nonces: List<NonceItem?>,
+    @SerialName("nonces")
+    val nonces: List<NonceItem?>,
 )
 
 @Serializable
 data class StateUpdateResponse(
     @SerialName("block_hash")
     val blockHash: Felt,
-
 
     @SerialName("new_root")
     val newRoot: Felt,

@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InvokeTransactionPayload(
+data class InvokeTransactionPayload constructor(
 
     @SerialName("sender_address")
     val senderAddress: Felt,
@@ -24,8 +24,7 @@ data class InvokeTransactionPayload(
 
     @SerialName("nonce")
     val nonce: Felt,
-
-){
+) {
     @SerialName("type")
     val type: TransactionType = TransactionType.INVOKE
 
@@ -39,31 +38,67 @@ data class InvokeTransactionPayload(
     )
 }
 
+@Serializable
 data class DeployTransactionPayload(
-    val contractDefinition: ContractDefinition,
-    val salt: Felt,
-    val constructorCalldata: Calldata,
-    val version: Felt,
-    val type: TransactionType = TransactionType.DEPLOY,
-)
 
+    @SerialName("contract_address_salt")
+    val salt: Felt,
+
+    @SerialName("constructor_calldata")
+    val constructorCalldata: Calldata,
+
+    @SerialName("version")
+    val version: Felt,
+) {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DEPLOY
+}
+
+@Serializable
 data class DeclareTransactionPayload(
-    val contractDefinition: ContractDefinition,
-    val maxFee: Felt,
-    val nonce: Felt,
-    val signature: Signature,
-    val version: Felt,
-    val senderAddress: Felt,
-    val type: TransactionType = TransactionType.DECLARE,
-)
 
-data class DeployAccountTransactionPayload(
-    val classHash: Felt,
-    val salt: Felt,
-    val constructorCalldata: Calldata,
-    val version: Felt,
-    val nonce: Felt,
+    @SerialName("max_fee")
     val maxFee: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("signature")
     val signature: Signature,
-    val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-)
+
+    @SerialName("version")
+    val version: Felt,
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+) {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DECLARE
+}
+
+@Serializable
+data class DeployAccountTransactionPayload(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
+    @SerialName("contract_address_salt")
+    val salt: Felt,
+
+    @SerialName("constructor_calldata")
+    val constructorCalldata: Calldata,
+
+    @SerialName("version")
+    val version: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("max_fee")
+    val maxFee: Felt,
+
+    @SerialName("signature")
+    val signature: Signature,
+) {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+}

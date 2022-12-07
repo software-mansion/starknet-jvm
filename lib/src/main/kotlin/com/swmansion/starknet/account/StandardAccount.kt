@@ -40,7 +40,6 @@ class StandardAccount(
         val tx = TransactionFactory.makeInvokeTransaction(
             contractAddress = address,
             calldata = calldata,
-            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             chainId = provider.chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
