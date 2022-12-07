@@ -2,6 +2,7 @@ package com.swmansion.starknet.provider.gateway
 
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
+import com.swmansion.starknet.data.NetUrls.TESTNET2_URL
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -19,6 +20,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
+import java.lang.IllegalArgumentException
 import java.util.function.Function
 
 /**
@@ -439,23 +441,38 @@ class GatewayProvider(
 
     companion object Factory {
         @JvmStatic
-        fun makeTestnetClient(): GatewayProvider {
-            return GatewayProvider(
-                "$TESTNET_URL/feeder_gateway",
-                "$TESTNET_URL/gateway",
-                StarknetChainId.TESTNET,
-            )
-        }
+        fun makeTestnetClient(testnetId: StarknetChainId = StarknetChainId.TESTNET): GatewayProvider =
+            when (testnetId) {
+                StarknetChainId.TESTNET -> GatewayProvider(
+                        "$TESTNET_URL/feeder_gateway",
+                        "$TESTNET_URL/gateway",
+                        testnetId,
+                )
+                StarknetChainId.TESTNET2 -> GatewayProvider(
+                        "$TESTNET2_URL/feeder_gateway",
+                        "$TESTNET2_URL/gateway",
+                        testnetId,
+                )
+                else -> throw IllegalArgumentException("Invalid testnet id")
+            }
 
         @JvmStatic
-        fun makeTestnetClient(httpService: HttpService): GatewayProvider {
-            return GatewayProvider(
-                "$TESTNET_URL/feeder_gateway",
-                "$TESTNET_URL/gateway",
-                StarknetChainId.TESTNET,
-                httpService,
-            )
-        }
+        fun makeTestnetClient(httpService: HttpService, testnetId: StarknetChainId = StarknetChainId.TESTNET): GatewayProvider =
+                when (testnetId) {
+                    StarknetChainId.TESTNET -> GatewayProvider(
+                            "$TESTNET_URL/feeder_gateway",
+                            "$TESTNET_URL/gateway",
+                            testnetId,
+                            httpService,
+                    )
+                    StarknetChainId.TESTNET2 -> GatewayProvider(
+                            "$TESTNET2_URL/feeder_gateway",
+                            "$TESTNET2_URL/gateway",
+                            testnetId,
+                            httpService,
+                    )
+                    else -> throw IllegalArgumentException("Invalid testnet id")
+                }
 
         @JvmStatic
         fun makeMainnetClient(): GatewayProvider {
