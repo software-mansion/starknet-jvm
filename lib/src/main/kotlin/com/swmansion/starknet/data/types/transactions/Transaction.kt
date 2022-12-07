@@ -74,6 +74,7 @@ data class DeployTransaction(
     @SerialName("nonce")
     override val nonce: Felt = Felt.ZERO,
 
+    @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY,
 ) : Transaction()
 
@@ -86,7 +87,7 @@ data class InvokeTransaction(
     val calldata: Calldata,
 
     @SerialName("sender_address")
-    val senderAddress: Felt = Felt.ZERO, // TODO(to chyba nie powinno tak być, ale gateway nie zwraca sender_address)
+    val senderAddress: Felt = Felt.ZERO, // TODO(gateway does not return sender_address)
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -104,6 +105,7 @@ data class InvokeTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
+    @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
 ) : Transaction() {
     fun toPayload(): InvokeTransactionPayload {
@@ -159,6 +161,7 @@ data class DeclareTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
+    @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
     private val contractDefinition: ContractDefinition? = null,
@@ -208,6 +211,7 @@ data class L1HandlerTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
+    @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : Transaction()
 
@@ -220,7 +224,7 @@ data class DeployAccountTransaction(
     val classHash: Felt,
 
     @SerialName("contract_address")
-    val contractAddress: Felt,
+    val contractAddress: Felt = Felt.ZERO, // FIXME: rpc does not return contract_address
 
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
@@ -245,6 +249,7 @@ data class DeployAccountTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
+    @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : Transaction() {
     internal fun toPayload(): DeployAccountTransactionPayload {

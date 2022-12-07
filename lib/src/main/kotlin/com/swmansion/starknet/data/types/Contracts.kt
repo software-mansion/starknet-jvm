@@ -4,6 +4,7 @@ import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializable
 enum class AbiEntryType {
     @JsonNames("function")

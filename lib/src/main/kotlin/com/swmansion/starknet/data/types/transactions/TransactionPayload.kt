@@ -57,7 +57,6 @@ data class DeclareTransactionPayload(
     val type: TransactionType = TransactionType.DECLARE,
 )
 
-@Serializable
 data class DeployAccountTransactionPayload(
     val classHash: Felt,
     val salt: Felt,

@@ -184,6 +184,17 @@ class ProviderTest {
         assertNotNull(response)
     }
 
+    @Test
+    fun `get class definition at latest block`() {
+        // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
+        // After it's fixed add tests with 1) block hash 2) block number
+        val provider = rpcProvider()
+        val request = provider.getClass(classHash, BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get class at`(provider: Provider) {
@@ -788,9 +799,9 @@ class ProviderTest {
         // There is no way for us to recreate this behaviour as devnet processes txs right away
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                 {
                     "status": "RECEIVED", 
                     "transaction_hash": "0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5", 
@@ -810,5 +821,150 @@ class ProviderTest {
         assertNull(receipt.messageToL2)
         assertNull(receipt.actualFee)
         assertNull(receipt.failureReason)
+
+        @Test
+        fun `get nonce with block number`() {
+            val provider = rpcProvider()
+            val request = provider.getNonce(contractAddress, latestBlock.number)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get nonce with block hash`() {
+            val provider = rpcProvider()
+            val request = provider.getNonce(contractAddress, latestBlock.hash)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get block with transactions with block tag`() {
+            // FIXME: We should also test for 'pending' tag, but atm they are not supported in devnet
+            val provider = rpcProvider()
+            val request = provider.getBlockWithTxs(BlockTag.LATEST)
+            val response = request.send()
+
+            assertNotNull(response)
+            assertTrue(response is BlockWithTransactionsResponse)
+        }
+
+        @Test
+        fun `get block with transactions with block hash`() {
+            val provider = rpcProvider()
+            val request = provider.getBlockWithTxs(latestBlock.hash)
+            val response = request.send()
+
+            assertNotNull(response)
+            assertTrue(response is BlockWithTransactionsResponse)
+        }
+
+        @Test
+        fun `get block with transactions with block number`() {
+            val provider = rpcProvider()
+            val request = provider.getBlockWithTxs(latestBlock.number)
+            val response = request.send()
+
+            assertNotNull(response)
+            assertTrue(response is BlockWithTransactionsResponse)
+        }
+
+        @Test
+        fun `get state of block with tag`() {
+            val provider = rpcProvider()
+            val request = provider.getStateUpdate(BlockTag.LATEST)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get state of block with hash`() {
+            val provider = rpcProvider()
+            val request = provider.getStateUpdate(latestBlock.hash)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get state of block with number`() {
+            val provider = rpcProvider()
+            val request = provider.getStateUpdate(latestBlock.number)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get transactions by block tag and index`() {
+            val provider = rpcProvider()
+            val request = provider.getTransactionByBlockIdAndIndex(BlockTag.LATEST, 0)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get transactions by block hash and index`() {
+            val provider = rpcProvider()
+            val request = provider.getTransactionByBlockIdAndIndex(latestBlock.hash, 0)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get transactions by block number and index`() {
+            val provider = rpcProvider()
+            val request = provider.getTransactionByBlockIdAndIndex(latestBlock.number, 0)
+            val response = request.send()
+
+            assertNotNull(response)
+        }
+
+        @Test
+        fun `get pending transactions`() {
+            val mocked_response = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "transaction_hash": "0x01",
+                    "class_hash": "0x98",
+                    "version": "0x0",
+                    "type": "DEPLOY",
+                    "max_fee": "0x1",
+                    "contract_address": "0x14",
+                    "signature": [],
+                    "nonce": "0x1",
+                    "contract_address_salt": "0x0",
+                    "constructor_calldata": []
+                },
+                {
+                    "transaction_hash": "0x02",
+                    "class_hash": "0x99",
+                    "version": "0x1",
+                    "max_fee": "0x1",
+                    "type": "DECLARE",
+                    "sender_address": "0x15",
+                    "signature": [],
+                    "nonce": "0x1"
+                }
+            ]
+        }
+        """.trimIndent()
+            val httpService = mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mocked_response)
+            }
+            val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+            val request = provider.getPendingTransactions()
+            val response = request.send()
+
+            assertNotNull(response)
+        }
     }
 }

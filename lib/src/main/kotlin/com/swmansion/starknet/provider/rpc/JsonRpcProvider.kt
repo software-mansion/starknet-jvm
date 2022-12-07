@@ -1,8 +1,11 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.serializers.*
+import com.swmansion.starknet.data.serializers.JsonRpcGetBlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.serializeDeployAccountTransactionPayload
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.add
@@ -84,7 +87,10 @@ class JsonRpcProvider(
     }
 
     override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
-        TODO("cos innego")
+        val body = serializeDeployAccountTransactionPayload(payload)
+        val params = Json.encodeToJsonElement(body)
+
+        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, params, DeployAccountResponse.serializer())
     }
 
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
@@ -421,36 +427,96 @@ class JsonRpcProvider(
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeployTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeployTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeployTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
     fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateFeePayload(payload, BlockId.Tag(blockTag))
 
@@ -518,42 +584,171 @@ class JsonRpcProvider(
         )
     }
 
-    fun getBlockWithTxs(blockTag: BlockTag): Request<Transaction> {
-        TODO("cos innego")
-    }
-    fun getBlockWithTxs(blockHash: Felt): Request<Transaction> {
-        TODO("cos innego")
-    }
-    fun getBlockWithTxs(blockNumber: Int): Request<Transaction> {
-        TODO("cos innego")
+    private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TXS, jsonPayload, JsonRpcGetBlockWithTransactionsPolymorphicSerializer)
     }
 
-    fun getStateUpdate(blockTag: BlockTag): Request<Int> {
-        TODO("cos innego")
+    /**
+     * Get a block with transactions.
+     *
+     * Get block information with full transactions given the block id.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockTag: BlockTag): Request<GetBlockWithTransactionsResponse> {
+        val payload = GetBlockWithTransactionsPayload(BlockId.Tag(blockTag))
+
+        return getBlockWithTxs(payload)
     }
 
-    fun getStateUpdate(blockHash: Felt): Request<Int> {
-        TODO("cos innego")
+    /**
+     * Get a block with transactions.
+     *
+     * Get block information with full transactions given the block id.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockHash: Felt): Request<GetBlockWithTransactionsResponse> {
+        val payload = GetBlockWithTransactionsPayload(BlockId.Hash(blockHash))
+
+        return getBlockWithTxs(payload)
     }
 
-    fun getStateUpdate(blockNumber: Int): Request<Int> {
-        TODO("cos innego")
+    /**
+     * Get a block with transactions.
+     *
+     * Get block information with full transactions given the block id.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockNumber: Int): Request<GetBlockWithTransactionsResponse> {
+        val payload = GetBlockWithTransactionsPayload(BlockId.Number(blockNumber))
+
+        return getBlockWithTxs(payload)
     }
 
+    private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdateResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_STATE_UPDATE, jsonPayload, StateUpdateResponse.serializer())
+    }
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockTag: BlockTag): Request<StateUpdateResponse> {
+        val payload = GetStateUpdatePayload(BlockId.Tag(blockTag))
+
+        return getStateUpdate(payload)
+    }
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockHash: Felt): Request<StateUpdateResponse> {
+        val payload = GetStateUpdatePayload(BlockId.Hash(blockHash))
+
+        return getStateUpdate(payload)
+    }
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockNumber: Int): Request<StateUpdateResponse> {
+        val payload = GetStateUpdatePayload(BlockId.Number(blockNumber))
+
+        return getStateUpdate(payload)
+    }
+
+    private fun getTransactionByBlockIdAndIndex(payload: GetTreansactionByBlockIdAndIndexPayload): Request<Transaction> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, Transaction.serializer())
+    }
+
+    /**
+     * Get transaction by block id and index.
+     *
+     * Get the details of a transaction by a given block id and index.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
     fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): Request<Transaction> {
-        TODO("cos innego")
-    }
+        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index)
 
+        return getTransactionByBlockIdAndIndex(payload)    }
+
+    /**
+     * Get transaction by block id and index.
+     *
+     * Get the details of a transaction by a given block id and index.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
     fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): Request<Transaction> {
-        TODO("cos innego")
-    }
+        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index)
 
+        return getTransactionByBlockIdAndIndex(payload)       }
+
+    /**
+     * Get transaction by block id and index.
+     *
+     * Get the details of a transaction by a given block id and index.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
     fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction> {
-        TODO("cos innego")
-    }
+        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index)
 
+        return getTransactionByBlockIdAndIndex(payload)    }
+
+    /**
+     * Get pending transactions.
+     *
+     * Returns the transactions in the transaction pool, recognized by this sequencer.
+     *
+     * @throws RequestFailedException
+     */
     fun getPendingTransactions(): Request<List<Transaction>> {
-        TODO("cos innego")
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(
+                JsonRpcMethod.GET_PENDING_TRANSACTIONS,
+                params,
+                ListSerializer(JsonRpcTransactionPolymorphicSerializer),
+        )
     }
 }
 
@@ -575,7 +770,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_SYNCING("starknet_syncing"),
     ESTIMATE_FEE("starknet_estimateFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
-    GET_STATE_UPDATE("starknet_getBlockWithTxs"),
+    GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
     GET_NONCE("starknet_getNonce"),
