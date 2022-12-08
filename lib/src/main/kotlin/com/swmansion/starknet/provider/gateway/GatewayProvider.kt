@@ -15,10 +15,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
@@ -99,12 +96,19 @@ class GatewayProvider(
         return response.body
     }
 
-    private fun <T> buildDeserializer(deserializationStrategy: DeserializationStrategy<T>): HttpResponseDeserializer<T> =
+    private fun <T> buildDeserializer(
+        deserializationStrategy: DeserializationStrategy<T>,
+        deserializationExceptionHandler: ((String) -> Exception?)? = null,
+    ): HttpResponseDeserializer<T> =
         Function { response ->
             val body = handleResponseError(response)
 
             val json = Json { ignoreUnknownKeys = true }
-            json.decodeFromString(deserializationStrategy, body)
+            try {
+                json.decodeFromString(deserializationStrategy, body)
+            } catch (e: SerializationException) {
+                throw deserializationExceptionHandler?.invoke(body) ?: e
+            }
         }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
@@ -158,9 +162,24 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_transaction")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
+        val deserializationFallback: (String) -> Exception? = {
+            @Serializable
+            data class MissingTransactionResponse(val status: TransactionStatus)
+
+            val missingTransaction = Json.decodeFromString(MissingTransactionResponse.serializer(), it)
+            when (missingTransaction.status) {
+                TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> GatewayRequestFailedException(
+                    message = "Transaction not received or unknown",
+                    payload = it,
+                )
+
+                else -> null
+            }
+        }
+
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionTransformingSerializer),
+            buildDeserializer(GatewayTransactionTransformingSerializer, deserializationFallback),
             httpService,
         )
     }
@@ -456,11 +475,13 @@ class GatewayProvider(
                     "$TESTNET_URL/gateway",
                     testnetId,
                 )
+
                 StarknetChainId.TESTNET2 -> GatewayProvider(
                     "$TESTNET2_URL/feeder_gateway",
                     "$TESTNET2_URL/gateway",
                     testnetId,
                 )
+
                 else -> throw IllegalArgumentException("Invalid testnet id")
             }
 
@@ -483,12 +504,14 @@ class GatewayProvider(
                     testnetId,
                     httpService,
                 )
+
                 StarknetChainId.TESTNET2 -> GatewayProvider(
                     "$TESTNET2_URL/feeder_gateway",
                     "$TESTNET2_URL/gateway",
                     testnetId,
                     httpService,
                 )
+
                 else -> throw IllegalArgumentException("Invalid testnet id")
             }
 
