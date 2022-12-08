@@ -6,11 +6,13 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
+import kotlinx.serialization.SerializationException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -325,6 +327,15 @@ class ProviderTest {
         assertNotNull(response)
     }
 
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get transaction receipt throws on incorrect hash`(provider: Provider) {
+        val request = provider.getTransactionReceipt(Felt.ZERO)
+        assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
+    }
+
     @Test
     fun `get deploy transaction receipt gateway`() {
         val request = gatewayProvider().getTransactionReceipt(deployTransactionHash)
@@ -543,6 +554,31 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is L1HandlerTransaction)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get transaction throws on incorrect hash`(provider: Provider) {
+        val request = provider.getTransaction(Felt.ZERO)
+        assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
+    }
+
+    @Test
+    fun `get transaction throws serialization exception on invalid transaction format`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                "{\"not\": \"a\", \"transaction\": false}",
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+        val request = provider.getTransaction(Felt.ZERO)
+        assertThrows(SerializationException::class.java) {
+            request.send()
+        }
     }
 
     @ParameterizedTest
