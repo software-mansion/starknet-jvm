@@ -19,7 +19,7 @@ jobs:
     needs: [verify_version]
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-20.04, macos-latest ]
     steps:
       - uses: actions/checkout@v2
         with:
