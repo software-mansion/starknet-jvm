@@ -5,6 +5,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -158,6 +159,21 @@ class ProviderTest {
         val balance = response.first()
 
         assertEquals(expected, balance)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `call contract with incorrect address throws`(provider: Provider) {
+        val call = Call(
+            Felt.ZERO,
+            "get_balance",
+            emptyList(),
+        )
+        val request = provider.callContract(call, BlockTag.LATEST)
+
+        assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
     }
 
     @ParameterizedTest
