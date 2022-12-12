@@ -77,13 +77,13 @@ class GatewayProvider(
         val message: String,
     )
 
-    private val jsonGatewayError = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true }
 
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
             try {
                 val deserializedError =
-                    jsonGatewayError.decodeFromString(GatewayError.serializer(), response.body)
+                    json.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(
                     message = deserializedError.message,
                     payload = response.body,
@@ -98,17 +98,35 @@ class GatewayProvider(
 
     private fun <T> buildDeserializer(
         deserializationStrategy: DeserializationStrategy<T>,
-        deserializationExceptionHandler: ((String) -> Exception?)? = null,
     ): HttpResponseDeserializer<T> =
         Function { response ->
             val body = handleResponseError(response)
 
-            val json = Json { ignoreUnknownKeys = true }
+            json.decodeFromString(deserializationStrategy, body)
+        }
+
+    private fun buildTransactionDeserializer(): HttpResponseDeserializer<Transaction> =
+        Function { response ->
+            val body = handleResponseError(response)
+
+            @Serializable
+            data class MissingTransactionResponse(val status: TransactionStatus)
+
             try {
-                json.decodeFromString(deserializationStrategy, body)
-            } catch (e: SerializationException) {
-                throw deserializationExceptionHandler?.invoke(body) ?: e
+                val missingTransaction = Json.decodeFromString(MissingTransactionResponse.serializer(), body)
+                when (missingTransaction.status) {
+                    TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> throw GatewayRequestFailedException(
+                        message = "Transaction not received or unknown",
+                        payload = body,
+                    )
+
+                    else -> {}
+                }
+            } catch (_: SerializationException) {
+                // Transaction wasn't exactly a MissingTransactionResponse, continue parsing
             }
+
+            json.decodeFromString(GatewayTransactionTransformingSerializer, body)
         }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
@@ -162,24 +180,9 @@ class GatewayProvider(
         val url = feederGatewayRequestUrl("get_transaction")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
 
-        val deserializationFallback: (String) -> Exception? = {
-            @Serializable
-            data class MissingTransactionResponse(val status: TransactionStatus)
-
-            val missingTransaction = Json.decodeFromString(MissingTransactionResponse.serializer(), it)
-            when (missingTransaction.status) {
-                TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> GatewayRequestFailedException(
-                    message = "Transaction not received or unknown",
-                    payload = it,
-                )
-
-                else -> null
-            }
-        }
-
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionTransformingSerializer, deserializationFallback),
+            buildTransactionDeserializer(),
             httpService,
         )
     }
