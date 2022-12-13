@@ -112,14 +112,10 @@ class GatewayProvider(
         data class MissingTransactionResponse(val status: TransactionStatus)
 
         val missingTransaction = json.decodeFromString(MissingTransactionResponse.serializer(), body)
-        when (missingTransaction.status) {
-            TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> throw GatewayRequestFailedException(
-                message = "Transaction not received or unknown",
-                payload = body,
-            )
-
-            else -> {}
-        }
+        if (missingTransaction.status == TransactionStatus.UNKNOWN) throw GatewayRequestFailedException(
+            message = "Transaction not received or unknown",
+            payload = body,
+        )
 
         return body
     }
