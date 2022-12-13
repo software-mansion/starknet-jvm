@@ -105,27 +105,32 @@ class GatewayProvider(
             json.decodeFromString(deserializationStrategy, body)
         }
 
+    private fun handleMissingTransaction(response: HttpResponse): String {
+        val body = handleResponseError(response)
+
+        @Serializable
+        data class MissingTransactionResponse(val status: TransactionStatus)
+
+        try {
+            val missingTransaction = Json.decodeFromString(MissingTransactionResponse.serializer(), body)
+            when (missingTransaction.status) {
+                TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> throw GatewayRequestFailedException(
+                    message = "Transaction not received or unknown",
+                    payload = body,
+                )
+
+                else -> {}
+            }
+        } catch (_: SerializationException) {
+            // Transaction wasn't exactly a MissingTransactionResponse, continue parsing
+        }
+
+        return body
+    }
+
     private fun buildTransactionDeserializer(): HttpResponseDeserializer<Transaction> =
         Function { response ->
-            val body = handleResponseError(response)
-
-            @Serializable
-            data class MissingTransactionResponse(val status: TransactionStatus)
-
-            try {
-                val missingTransaction = Json.decodeFromString(MissingTransactionResponse.serializer(), body)
-                when (missingTransaction.status) {
-                    TransactionStatus.UNKNOWN, TransactionStatus.PENDING -> throw GatewayRequestFailedException(
-                        message = "Transaction not received or unknown",
-                        payload = body,
-                    )
-
-                    else -> {}
-                }
-            } catch (_: SerializationException) {
-                // Transaction wasn't exactly a MissingTransactionResponse, continue parsing
-            }
-
+            val body = handleMissingTransaction(response)
             json.decodeFromString(GatewayTransactionTransformingSerializer, body)
         }
 
