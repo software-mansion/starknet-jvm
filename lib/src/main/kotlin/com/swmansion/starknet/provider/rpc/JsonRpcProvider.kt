@@ -7,7 +7,6 @@ import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSeri
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
@@ -290,16 +289,7 @@ class JsonRpcProvider(
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-//        val params = Json.encodeToJsonElement(payload) , todo
-        val params = buildJsonObject {
-            put("contract_class", payload.contractDefinition.toJson())
-            put("sender_address", payload.senderAddress.hexString())
-            put("version", payload.version)
-            put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") { payload.signature.forEach { add(it) } }
-            put("nonce", payload.nonce)
-            put("type", payload.type.toString())
-        }
+        val params = Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
