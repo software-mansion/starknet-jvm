@@ -46,7 +46,7 @@ class TransactionMappingTest {
     }
 
     @Test
-    fun `not received transaction is mapped to pending`() {
+    fun `not received transaction is mapped to unknown`() {
         val txr = """
             {
                 "status": "NOT_RECEIVED",
@@ -71,7 +71,7 @@ class TransactionMappingTest {
         val result = provider.getTransactionReceipt(Felt(1)).send()
 
         require(result is GatewayTransactionReceipt)
-        assertEquals(TransactionStatus.PENDING, result.status)
+        assertEquals(TransactionStatus.UNKNOWN, result.status)
     }
 
     @Test
