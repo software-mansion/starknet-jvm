@@ -124,12 +124,6 @@ class GatewayProvider(
         return body
     }
 
-    private fun buildTransactionDeserializer(): HttpResponseDeserializer<Transaction> =
-        Function { response ->
-            val body = handleMissingTransaction(response)
-            json.decodeFromString(GatewayTransactionTransformingSerializer, body)
-        }
-
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
@@ -183,7 +177,10 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "GET", params),
-            buildTransactionDeserializer(),
+            { response ->
+                val body = handleMissingTransaction(response)
+                json.decodeFromString(GatewayTransactionTransformingSerializer, body)
+            },
             httpService,
         )
     }
