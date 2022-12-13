@@ -204,17 +204,6 @@ interface Provider {
     }
 
     /**
-     * Deploy a contract
-     *
-     * Deploy a contract on StarkNet.
-     *
-     * @param payload deploy transaction payload
-     *
-     * @throws RequestFailedException
-     */
-    fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
-
-    /**
      * Declare contract
      *
      * Declare a contract on StarkNet.

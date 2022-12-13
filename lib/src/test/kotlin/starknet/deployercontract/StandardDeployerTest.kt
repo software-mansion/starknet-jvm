@@ -38,14 +38,14 @@ object StandardDeployerTest {
 
             testContractDeployer = TestContractDeployer.deployInstance(devnetClient)
             gatewayProvider = GatewayProvider(
-                    devnetClient.feederGatewayUrl,
-                    devnetClient.gatewayUrl,
-                    StarknetChainId.TESTNET
+                devnetClient.feederGatewayUrl,
+                devnetClient.gatewayUrl,
+                StarknetChainId.TESTNET,
             )
 
             rpcProvider = JsonRpcProvider(
-                    devnetClient.rpcUrl,
-                    StarknetChainId.TESTNET
+                devnetClient.rpcUrl,
+                StarknetChainId.TESTNET,
             )
 
             val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/deployer.json"))
@@ -70,22 +70,25 @@ object StandardDeployerTest {
     @JvmStatic
     fun getStandardDeployerAndProvider(): List<StandardDeployerAndProvider> {
         return listOf(
-                StandardDeployerAndProvider(
+            StandardDeployerAndProvider(
                 StandardDeployer(
-                        gatewayDeployerAddress,
-                        gatewayProvider,
-                        StandardAccount(accountAddress, signer, gatewayProvider),
+                    gatewayDeployerAddress,
+                    gatewayProvider,
+                    StandardAccount(accountAddress, signer, gatewayProvider),
                 ),
-                gatewayProvider),
-                StandardDeployerAndProvider(
+                gatewayProvider,
+            ),
+            StandardDeployerAndProvider(
                 StandardDeployer(
-                        rpcDeployerAddress,
-                        rpcProvider,
-                        StandardAccount(accountAddress, signer, rpcProvider),
+                    rpcDeployerAddress,
+                    rpcProvider,
+                    StandardAccount(accountAddress, signer, rpcProvider),
                 ),
-                rpcProvider),
-            )
-        }
+                rpcProvider,
+            ),
+        )
+    }
+
     @ParameterizedTest
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy`(standardDeployerAndProvider: StandardDeployerAndProvider) {
@@ -118,7 +121,7 @@ object StandardDeployerTest {
         val constructorValue = Felt(111)
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/contractWithConstructor.json"))
         val deployment =
-                standardDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
+            standardDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_val1"), BlockTag.LATEST).send()

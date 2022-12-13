@@ -187,26 +187,6 @@ class GatewayProvider(
         )
     }
 
-    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
-        val url = gatewayRequestUrl("add_transaction")
-
-        val body = buildJsonObject {
-            put("type", payload.type.toString())
-            put("contract_address_salt", payload.salt)
-            putJsonArray("constructor_calldata") {
-                payload.constructorCalldata.toDecimal().forEach { add(it) }
-            }
-            put("contract_definition", payload.contractDefinition.toJson())
-            put("version", payload.version)
-        }
-
-        return HttpRequest(
-            Payload(url, "POST", body),
-            buildDeserializer(DeployResponse.serializer()),
-            httpService,
-        )
-    }
-
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
         val url = gatewayRequestUrl("add_transaction")
 

@@ -6,6 +6,8 @@ import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.crypto.StarknetCurveSignature;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.*;
+import com.swmansion.starknet.deployercontract.ContractDeployment;
+import com.swmansion.starknet.deployercontract.StandardDeployer;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.gateway.GatewayProvider;
@@ -16,6 +18,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static java.util.Collections.emptyList;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -31,18 +35,22 @@ public class Main {
         Path contractPath = Paths.get("balance.cairo");
         String contract = String.join("", Files.readAllLines(contractPath));
 
-        // Deploy a contract
+        // Declare a contract
+        // Class hash has to be calculated manually
         ContractDefinition contractDefinition = new ContractDefinition(contract);
-        DeployTransactionPayload payload = new DeployTransactionPayload(
-                contractDefinition,
-                Felt.fromHex("0x1234"),
-                Collections.emptyList(), Felt.ZERO
-        );
-        Request<DeployResponse> deployRequest = provider.deployContract(payload);
-        DeployResponse deployResponse = deployRequest.send();
+        Felt classHash = Felt.fromHex("0x399998c787e0a063c3ac1d2abac084dcbe09954e3b156d53a8c43a02aa27d35");
+        Felt maxFee = Felt.ZERO;
+        Felt nonce = account.getNonce().send();
+        ExecutionParams executionParams = new ExecutionParams(nonce, maxFee);
+        DeclareTransactionPayload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, executionParams);
+        DeclareResponse declareResponse = provider.declareContract(declareTransactionPayload).send();
 
-        // Create a call from plain calldata
-        Felt contractAddress = deployResponse.getContractAddress();
+        // Deploy a contract with Universal Deployer Contract
+        StandardDeployer contractDeployer = new StandardDeployer(Felt.fromHex("0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf"), provider, account);
+        ContractDeployment deployResponse = contractDeployer.deployContract(classHash, true, Felt.fromHex("0x12345678"), emptyList()).send();
+
+        // Invoke a contract
+        Felt contractAddress = contractDeployer.findContractAddress(deployResponse).send();
         Call call = new Call(contractAddress, "increaseBalance", List.of(new Felt(1000)));
         // Or using any objects implementing ConvertibleToCalldata interface
         Call callFromCallArguments = Call.fromCallArguments(

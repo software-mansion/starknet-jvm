@@ -39,22 +39,6 @@ data class InvokeTransactionPayload constructor(
 }
 
 @Serializable
-data class DeployTransactionPayload(
-
-    @SerialName("contract_address_salt")
-    val salt: Felt,
-
-    @SerialName("constructor_calldata")
-    val constructorCalldata: Calldata,
-
-    @SerialName("version")
-    val version: Felt,
-) {
-    @SerialName("type")
-    val type: TransactionType = TransactionType.DEPLOY
-}
-
-@Serializable
 data class DeclareTransactionPayload(
 
     @SerialName("max_fee")

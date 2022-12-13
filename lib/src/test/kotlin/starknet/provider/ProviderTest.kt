@@ -29,7 +29,6 @@ class ProviderTest {
         private val devnetClient = DevnetClient()
         private lateinit var contractAddress: Felt
         private lateinit var classHash: Felt
-        private lateinit var deployTransactionHash: Felt
         private lateinit var invokeTransactionHash: Felt
         private lateinit var declareTransactionHash: Felt
         private lateinit var deployAccountTransactionHash: Felt
@@ -67,15 +66,7 @@ class ProviderTest {
             try {
                 devnetClient.start()
 
-                val contract = Path.of("src/test/resources/compiled/providerTest.json").toFile().readText()
-                val (deployHash, contractAddress) = gatewayProvider().deployContract(
-                    DeployTransactionPayload(
-                        contractDefinition = ContractDefinition(contract),
-                        constructorCalldata = listOf(),
-                        salt = Felt.ONE,
-                        version = Felt.ZERO,
-                    ),
-                ).send()
+                val (contractAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
                 val (_, invokeHash) = devnetClient.invokeTransaction(
                     "increase_balance",
                     contractAddress,
@@ -86,7 +77,6 @@ class ProviderTest {
                 val (_, deployAccountHash) = devnetClient.deployAccount()
                 this.contractAddress = contractAddress
                 this.classHash = classHash
-                this.deployTransactionHash = deployHash
                 this.invokeTransactionHash = invokeHash
                 this.declareTransactionHash = declareHash
                 this.deployAccountTransactionHash = deployAccountHash
@@ -327,19 +317,82 @@ class ProviderTest {
         assertNotNull(response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy transaction receipt`(provider: Provider) {
-        val request = provider.getTransactionReceipt(deployTransactionHash)
+    @Test
+    fun `get deploy transaction receipt gateway`() {
+        // Mocked response of GOL2 test contract deploy
+        // Fetched from testnet using
+        // starknet get_transaction_receipt --hash 0x01a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                    {
+                        "actual_fee": "0x0",
+                        "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
+                        "block_number": 264715,
+                        "events": [],
+                        "execution_resources": {
+                            "builtin_instance_counter": {
+                                "bitwise_builtin": 0,
+                                "ecdsa_builtin": 0,
+                                "output_builtin": 0,
+                                "pedersen_builtin": 0,
+                                "range_check_builtin": 0
+                            },
+                            "n_memory_holes": 0,
+                            "n_steps": 41
+                        },
+                        "l2_to_l1_messages": [],
+                        "status": "ACCEPTED_ON_L1",
+                        "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                        "transaction_index": 8
+                    }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
 
-        assertNotNull(response)
+        assertTrue(response is GatewayTransactionReceipt)
+    }
 
-        if (provider is GatewayProvider) {
-            assertTrue(response is GatewayTransactionReceipt)
-        } else if (provider is JsonRpcProvider) {
-            assertTrue(response is DeployRpcTransactionReceipt)
+    @Test
+    fun `get deploy transaction receipt rpc`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                    {
+                        "id": 0,
+                        "jsonrpc": "2.0",
+                        "result":
+                        {
+                            "actual_fee": "0x0",
+                            "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
+                            "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
+                            "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                            "status": "ACCEPTED_ON_L1",
+                            "block_number": 264715,
+                            "type": "DEPLOY",
+                            "events":
+                            [],
+                            "messages_sent":
+                            []
+                        }
+                    }
+                """.trimIndent(),
+            )
         }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransactionReceipt(Felt.ZERO)
+        val response = request.send()
+
+        assertTrue(response is DeployRpcTransactionReceipt)
     }
 
     @ParameterizedTest
@@ -501,13 +554,75 @@ class ProviderTest {
         assertTrue(response is RpcTransactionReceipt)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy transaction`(provider: Provider) {
-        val request = provider.getTransaction(deployTransactionHash)
+    @Test
+    fun `get deploy transaction gateway`() {
+        // Mocked response of GOL2 test contract deploy
+        // Fetched from testnet using
+        // starknet get_transaction --hash 0x01a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                    {
+                        "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
+                        "block_number": 264715,
+                        "status": "ACCEPTED_ON_L1",
+                        "transaction": {
+                            "class_hash": "0xc6529e402abdc91cc51f61ae71df2337bc6c535fd96eb79235b1a32bbc6fdc",
+                            "constructor_calldata": [
+                                "0x12d3ad59161fd2a72d5bc8501bb2f2ca1acd34706d2dfa31a90aadb4b41e050"
+                            ],
+                            "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
+                            "contract_address_salt": "0x204c6f0c41cb17c5cb5ef00e46952a6679123185c6f9443dae6e31ae042d119",
+                            "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                            "type": "DEPLOY",
+                            "version": "0x0"
+                        },
+                        "transaction_index": 8
+                    }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider("", "", StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
 
-        assertNotNull(response)
+        assertTrue(response is DeployTransaction)
+    }
+
+    @Test
+    fun `get deploy transaction rpc`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                    {
+                        "id": 0,
+                        "jsonrpc": "2.0",
+                        "result":
+                        {
+                            "class_hash": "0xc6529e402abdc91cc51f61ae71df2337bc6c535fd96eb79235b1a32bbc6fdc",
+                            "constructor_calldata":
+                            [
+                                "0x12d3ad59161fd2a72d5bc8501bb2f2ca1acd34706d2dfa31a90aadb4b41e050"
+                            ],
+                            "contract_address_salt": "0x204c6f0c41cb17c5cb5ef00e46952a6679123185c6f9443dae6e31ae042d119",
+                            "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                            "type": "DEPLOY",
+                            "version": "0x0"
+                        }
+                    }
+                """.trimIndent(),
+            )
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+
+        val request = provider.getTransaction(Felt.ZERO)
+        val response = request.send()
+
         assertTrue(response is DeployTransaction)
     }
 
@@ -548,7 +663,6 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertNotEquals(declareTransactionHash, deployTransactionHash)
         assertTrue(response is DeclareTransaction)
     }
 
@@ -623,46 +737,11 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
-        val request = provider.getTransaction(Felt.fromHex("0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9"))
+        val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
 
         assertNotNull(response)
         assertTrue(response is L1HandlerTransaction)
-    }
-
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `deploy contract`(provider: Provider) {
-        val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
-        val contents = Files.readString(contractPath)
-        val payload = DeployTransactionPayload(ContractDefinition(contents), Felt(1), emptyList(), Felt(0))
-
-        val request = provider.deployContract(payload)
-        val response = request.send()
-
-        assertNotNull(response)
-
-        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
-        val txr = txrRequest.send()
-        assertTrue(isAccepted(txr))
-    }
-
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `deploy with constructor calldata`(provider: Provider) {
-        val contractPath = Path.of("src/test/resources/compiled/contractWithConstructor.json")
-        val contents = Files.readString(contractPath)
-        val payload =
-            DeployTransactionPayload(ContractDefinition(contents), Felt(1), listOf(Felt(123), Felt(456)), Felt(0))
-
-        val request = provider.deployContract(payload)
-        val response = request.send()
-
-        assertNotNull(response)
-
-        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
-        val txr = txrRequest.send()
-        assertTrue(isAccepted(txr))
     }
 
     @ParameterizedTest
@@ -1015,7 +1094,7 @@ class ProviderTest {
 
     @Test
     fun `get pending transactions`() {
-        val mocked_response = """
+        val mockedResponse = """
         {
             "id": 0,
             "jsonrpc": "2.0",
@@ -1045,7 +1124,7 @@ class ProviderTest {
         }
         """.trimIndent()
         val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mocked_response)
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getPendingTransactions()

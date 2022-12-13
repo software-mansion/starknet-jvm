@@ -289,25 +289,9 @@ class JsonRpcProvider(
         return getClassHashAt(payload)
     }
 
-    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
-        val inner = buildJsonObject {
-            put("contract_class", payload.contractDefinition.toJson())
-            putJsonArray("constructor_calldata") {
-                payload.constructorCalldata.forEach { add(it) }
-            }
-            put("contract_address_salt", payload.salt)
-            put("version", payload.version)
-            put("type", payload.type.toString())
-        }
+    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+//        val params = Json.encodeToJsonElement(payload) , todo
         val params = buildJsonObject {
-            put("deploy_transaction", inner)
-        }
-
-        return buildRequest(JsonRpcMethod.DEPLOY, params, DeployResponse.serializer())
-    }
-
-    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> { // todo
-        val inner = buildJsonObject {
             put("contract_class", payload.contractDefinition.toJson())
             put("sender_address", payload.senderAddress.hexString())
             put("version", payload.version)
@@ -316,11 +300,11 @@ class JsonRpcProvider(
             put("nonce", payload.nonce)
             put("type", payload.type.toString())
         }
-        val params = buildJsonObject {
-            put("declare_transaction", inner)
+        val jsonPayload = buildJsonObject {
+            put("declare_transaction", params)
         }
 
-        return buildRequest(JsonRpcMethod.DECLARE, params, DeclareResponse.serializer())
+        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
     override fun getBlockNumber(): Request<Int> {
@@ -387,13 +371,7 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
     }
 
-    private fun getEstimateFee(payload: EstimateInvokeFunctionFeePayload): Request<EstimateFeeResponse> {
-        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
-
-        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
-    }
-
-    private fun getEstimateFee(payload: EstimateDeployTransactionFeePayload): Request<EstimateFeeResponse> {
+    private fun getEstimateFee(payload: EstimateInvokeTransactionFeePayload): Request<EstimateFeeResponse> {
         val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
@@ -412,19 +390,19 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Hash(blockHash))
+        val estimatePayload = EstimateInvokeTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Number(blockNumber))
+        val estimatePayload = EstimateInvokeTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
     override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateInvokeFunctionFeePayload(payload, BlockId.Tag(blockTag))
+        val estimatePayload = EstimateInvokeTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
@@ -452,55 +430,7 @@ class JsonRpcProvider(
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockHash a hash of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeployTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Hash(blockHash))
-
-        return getEstimateFee(estimatePayload)
-    }
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockNumber a number of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeployTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Number(blockNumber))
-
-        return getEstimateFee(estimatePayload)
-    }
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockTag a tag of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeployTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateDeployTransactionFeePayload(payload, BlockId.Tag(blockTag))
-
-        return getEstimateFee(estimatePayload)
-    }
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param payload declare transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
@@ -516,7 +446,7 @@ class JsonRpcProvider(
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param payload declare transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
@@ -532,7 +462,7 @@ class JsonRpcProvider(
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload invoke transaction, for which the fee is to be estimated.
+     * @param payload declare transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
@@ -785,7 +715,6 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
     DECLARE("starknet_addDeclareTransaction"),
-    DEPLOY("starknet_addDeployTransaction"),
     GET_EVENTS("starknet_getEvents"),
     GET_BLOCK_NUMBER("starknet_blockNumber"),
     GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
