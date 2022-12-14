@@ -9,7 +9,7 @@ jobs:
   test_and_lint:
     strategy:
       matrix:
-        os: ["macos-latest", "ubuntu-latest"]
+        os: ["macos-latest", "ubuntu-20.04"]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -21,7 +21,7 @@ jobs:
           distribution: temurin
           java-version: 11
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.12
+        uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
         with:
           cmake-version: '3.16.x'
       - name: Set up Python 3.9.12
