@@ -121,7 +121,6 @@ data class InvokeTransaction(
             maxFee = maxFee,
             nonce = nonce,
             senderAddress = senderAddress,
-            // type = type,
         )
     }
 
