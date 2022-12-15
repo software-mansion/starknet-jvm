@@ -189,5 +189,5 @@ data class PendingRpcDeployTransactionReceipt(
     override val status: TransactionStatus = TransactionStatus.PENDING,
 
     @JsonNames("contract_address")
-    val contractAddress: Felt,
+    val contractAddress: Felt? = null,
 ) : TransactionReceipt()

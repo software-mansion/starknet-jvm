@@ -168,9 +168,9 @@ class StandardAccountTest {
         val contractDefinition = ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
+        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
-        // If this tests starts randomly falling, try recalculating class hash.
+        // If this test starts randomly falling, try recalculating class hash.
         val classHash = Felt.fromHex("0x399998c787e0a063c3ac1d2abac084dcbe09954e3b156d53a8c43a02aa27d35")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
@@ -202,9 +202,9 @@ class StandardAccountTest {
         val contractDefinition = ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
+        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
-        // If this tests starts randomly falling, try recalculating class hash.
+        // If this test starts randomly falling, try recalculating class hash.
         val classHash = Felt.fromHex("0x399998c787e0a063c3ac1d2abac084dcbe09954e3b156d53a8c43a02aa27d35")
 
         val declareTransactionPayload = account.signDeclare(
@@ -275,6 +275,8 @@ class StandardAccountTest {
         val maxFee = Felt(10000000L)
         val result = account.execute(call, maxFee).send()
         assertNotNull(result)
+
+        println(result)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 

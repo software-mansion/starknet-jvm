@@ -989,6 +989,15 @@ class ProviderTest {
         assertNull(receipt.failureReason)
     }
 
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get nonce with block tag`(provider: Provider) {
+        val request = provider.getNonce(contractAddress, BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
+
     @Test
     fun `get nonce with block number`() {
         val provider = rpcProvider()

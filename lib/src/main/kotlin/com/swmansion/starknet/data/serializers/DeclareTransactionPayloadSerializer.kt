@@ -17,6 +17,8 @@ object DeclareTransactionPayloadSerializer : KSerializer<DeclareTransactionPaylo
         get() = DeclareTransactionPayload.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: DeclareTransactionPayload) {
+        require(encoder is JsonEncoder)
+
         val jsonObject = buildJsonObject {
             put("contract_class", value.contractDefinition.toJson())
             put("sender_address", value.senderAddress.hexString())
@@ -27,12 +29,10 @@ object DeclareTransactionPayloadSerializer : KSerializer<DeclareTransactionPaylo
             put("type", value.type.toString())
         }
 
-        val output = encoder as? JsonEncoder ?: throw SerializationException("")
-
-        output.encodeJsonElement(jsonObject)
+        encoder.encodeJsonElement(jsonObject)
     }
 
     override fun deserialize(decoder: Decoder): DeclareTransactionPayload {
-        throw Exception("Class used for serialization only.")
+        throw SerializationException("Class used for serialization only.")
     }
 }

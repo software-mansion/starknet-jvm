@@ -113,7 +113,7 @@ data class ContractClass(
     @SerialName("entry_points_by_type")
     val entryPointsByType: EntryPointsByType,
 
-    val abi: List<AbiElement>?,
+    val abi: List<AbiElement>? = null,
 ) {
     @Serializable
     data class EntryPointsByType(

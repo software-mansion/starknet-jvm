@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.types.transactions.Transaction
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -129,7 +128,7 @@ sealed class GetBlockWithTransactionsResponse {
 @Serializable
 data class BlockWithTransactionsResponse(
     @SerialName("status")
-    val status: TransactionStatus,
+    val status: BlockStatus,
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
@@ -207,16 +206,16 @@ data class NonceItem(
 @Serializable
 data class StateDiff(
     @SerialName("storage_diffs")
-    val storageDiffs: List<StorageDiffItem?>,
+    val storageDiffs: List<StorageDiffItem?> = emptyList(),
 
     @SerialName("declared_contract_hashes")
-    val declaredContractHashes: List<Felt?>,
+    val declaredContractHashes: List<Felt?> = emptyList(),
 
     @SerialName("deployed_contracts")
-    val deployedContracts: List<DeployedContractItem?>,
+    val deployedContracts: List<DeployedContractItem?> = emptyList(),
 
     @SerialName("nonces")
-    val nonces: List<NonceItem?>,
+    val nonces: List<NonceItem?> = emptyList(),
 )
 
 @Serializable

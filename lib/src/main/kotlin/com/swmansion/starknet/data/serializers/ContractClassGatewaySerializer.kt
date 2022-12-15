@@ -21,10 +21,8 @@ internal object ContractClassGatewaySerializer : KSerializer<ContractClass> {
 
     override fun deserialize(decoder: Decoder): ContractClass {
         val response = ContractClassGateway.serializer().deserialize(decoder)
-
         val programString = response.program.toString()
         val program = programString.base64Gzipped()
-
         // FIXME: It doesn't produce the same output as the rpc endpoint
 
         return ContractClass(program, response.entryPointsByType, null)
