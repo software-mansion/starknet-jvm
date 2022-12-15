@@ -183,7 +183,7 @@ data class DeclareTransaction(
         )
     }
 
-    internal class ConvertingToPayloadFailedException : Exception()
+    internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
 @OptIn(ExperimentalSerializationApi::class)

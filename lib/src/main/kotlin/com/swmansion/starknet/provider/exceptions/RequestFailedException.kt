@@ -6,4 +6,4 @@ package com.swmansion.starknet.provider.exceptions
  * @param message error message
  * @param payload payload returned by the service used to communicate with StarkNet
  */
-open class RequestFailedException(message: String = "Request failed", val payload: String) : Exception(message)
+open class RequestFailedException(message: String = "Request failed", val payload: String) : RuntimeException(message)
