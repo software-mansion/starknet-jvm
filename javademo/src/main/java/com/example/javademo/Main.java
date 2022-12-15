@@ -27,7 +27,7 @@ public class Main {
         // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
         // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRAPHICALLY SAFE TOOLS!
         Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
-        Provider provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetProvider();
         Account account = new StandardAccount(address, privateKey, provider);
 
         // Read contract source code
