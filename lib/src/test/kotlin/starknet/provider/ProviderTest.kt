@@ -721,6 +721,17 @@ class ProviderTest {
         assertNotNull(response)
     }
 
+    @Test
+    fun `get block transaction count with block tag for testnet2`() {
+        val provider = GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET2)
+        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
+        val response = blockTransactionCount.send()
+
+        assertNotNull(response)
+        assertEquals(0, response)
+        assertTrue(provider.chainId == StarknetChainId.TESTNET2)
+    }
+
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get block transaction count with block hash`(provider: Provider) {
