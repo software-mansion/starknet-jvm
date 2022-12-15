@@ -120,7 +120,7 @@ jobs:
     needs: [build_x64, build_virt]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           path: download
       - name: Move shared libs
