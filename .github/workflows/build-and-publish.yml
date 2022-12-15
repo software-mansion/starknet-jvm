@@ -39,7 +39,7 @@ jobs:
 
       # See https://github.com/software-mansion/starknet-jvm/issues/171
       - name: Set up GCC 7
-        run: apt update && apt install -y g++-7
+        run: sudo apt update && sudo apt install -y g++-7
         if: matrix.os == 'ubuntu-20.04'
       - name: Force usage of gcc 7
         run: |
