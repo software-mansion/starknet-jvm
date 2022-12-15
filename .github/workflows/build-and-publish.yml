@@ -2,10 +2,8 @@ name: Build And Publish Packages
 
 on:
   push:
-    # tags:
-    #   - '*'
-    branches:
-      - szymczyk/189_171-update_actions
+    tags:
+      - '*'
 
 jobs:
   verify_version:
@@ -15,7 +13,7 @@ jobs:
       - name: Verify correct version
         run: |
           [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
-          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; } # exit 1; }
+          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
   build_x64:
     runs-on: ${{ matrix.os }}
     needs: [verify_version]
@@ -163,32 +161,32 @@ jobs:
           name: sources-jar
           path: sources.jar
 
-  # publish:
-  #   runs-on: ubuntu-20.04
-  #   needs: [package_jar, generate_javadoc_and_sources]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         path: lib/
-  #     - name: Set up Java
-  #       uses: actions/setup-java@v3
-  #       with:
-  #         java-version: 11
-  #         distribution: 'corretto'
-  #     - name: Publish package
-  #       uses: gradle/gradle-build-action@v2
-  #       with:
-  #         arguments: publish closeAndReleaseRepository
-  #       env:
-  #         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-  #         MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-  #         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
-  #         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
-  #     - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-  #       with:
-  #         files: |
-  #           lib/javadoc-jar/*.jar
-  #           lib/sources-jar/*.jar
-  #           lib/starknet-jar/*.jar
-  #           lib/starknet-aar/*.aar
+  publish:
+    runs-on: ubuntu-20.04
+    needs: [package_jar, generate_javadoc_and_sources]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: lib/
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'corretto'
+      - name: Publish package
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: publish closeAndReleaseRepository
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+      - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+        with:
+          files: |
+            lib/javadoc-jar/*.jar
+            lib/sources-jar/*.jar
+            lib/starknet-jar/*.jar
+            lib/starknet-aar/*.aar
