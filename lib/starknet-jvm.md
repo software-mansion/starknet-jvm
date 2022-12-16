@@ -279,7 +279,7 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 Provider utilising StarkNet gateway and feeder gateway for communication with the network.
 
 ```java
-// Create a provider using a factory
+// Create a provider using GatewayProvider static methods
 GatewayProvider.makeTestnetProvider();
 // Chain id can be specified
 GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2);
