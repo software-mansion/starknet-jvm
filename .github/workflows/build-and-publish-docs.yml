@@ -32,7 +32,7 @@ jobs:
           cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@66b02ca51987e10cad29b320023d7c39eff2d4ca
         with:
           folder: lib/build/dokka/javadoc
           branch: gh-pages
