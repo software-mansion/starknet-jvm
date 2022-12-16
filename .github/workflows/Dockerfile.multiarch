@@ -4,9 +4,14 @@ RUN curl https://apt.corretto.aws/corretto.key > corretto.key \
     && apt-key add corretto.key \
     && add-apt-repository 'deb https://apt.corretto.aws stable main' \
     && apt update \
-    && apt install -y cmake clang java-11-amazon-corretto-jdk \
+    && apt install -y cmake clang java-11-amazon-corretto-jdk g++-7 \
+    # Inside the /usr/lib/gcc/aarch64-linux-gnu/ find all the directories that aren't named '7'
+    # And then remove them recursively, to force the usage of gcc-7
+    && find /usr/lib/gcc/aarch64-linux-gnu/ -maxdepth 1 -mindepth 1 ! -name 7 -exec rm -rf {} + \
     && mkdir /build
 ENV JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
+ENV CC=/usr/bin/gcc-7
+ENV CXX=/usr/bin/g++-7
 COPY . /build/.
 WORKDIR /build/lib
 RUN ./build_crypto_cpp.sh

@@ -9,7 +9,7 @@ jobs:
   verify_version:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Verify correct version
         run: |
           [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
@@ -21,11 +21,11 @@ jobs:
       matrix:
         os: [ ubuntu-20.04, macos-latest ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.12
+        uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
         with:
           cmake-version: '3.16.x'
       - name: Set up Java
@@ -37,17 +37,12 @@ jobs:
 
       # See https://github.com/software-mansion/starknet-jvm/issues/171
       - name: Set up GCC 7
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: 7
-          platform: x64
+        run: sudo apt update && sudo apt install -y g++-7
         if: matrix.os == 'ubuntu-20.04'
       - name: Force usage of gcc 7
         run: |
           # First delete any version other than 7
-          sudo mv /usr/lib/gcc/x86_64-linux-gnu/7 /tmp/gcc7
-          sudo rm -r /usr/lib/gcc/x86_64-linux-gnu/* 
-          sudo mv /tmp/gcc7 /usr/lib/gcc/x86_64-linux-gnu/7
+          sudo find /usr/lib/gcc/x86_64-linux-gnu/ -maxdepth 1 -mindepth 1 ! -name 7 -exec rm -rf {} +
           echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
           echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
         shell: bash
@@ -55,12 +50,12 @@ jobs:
 
       - name: Set arch variable
         id: vars
-        run: echo "::set-output name=os_arch::$(uname -m)"
+        run: echo "os_arch=$(uname -m)" >> $GITHUB_OUTPUT
 
       - name: Build platform specific lib
         run: ./gradlew buildCryptoCpp
       - name: Upload the shared lib
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lib-${{ runner.os }}-${{ steps.vars.outputs.os_arch }}
           path: crypto/build/bindings/libcrypto_jni.*
@@ -73,7 +68,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
       - name: Upload the AAR
         if: matrix.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: starknet-aar
           path: starknet.aar
@@ -86,7 +81,7 @@ jobs:
         include:
           - virt_platform: arm64
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Set up qemu
@@ -107,11 +102,11 @@ jobs:
           tags: build:latest
       - name: Set arch variable
         id: vars
-        run: echo "::set-output name=os_arch::$(docker run --platform linux/${{ matrix.virt_platform }} -t build bash -c 'uname -m')"
+        run: echo "os_arch=$(docker run --platform linux/${{ matrix.virt_platform }} -t build bash -c 'uname -m')" >> $GITHUB_OUTPUT
       - name: Extract lib
         run: docker cp $(docker create build):/build/crypto/build/bindings/libcrypto_jni.so libcrypto_jni.so 
       - name: Upload the shared lib
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lib-Linux-${{ steps.vars.outputs.os_arch }}
           path: libcrypto_jni.so
@@ -122,8 +117,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [build_x64, build_virt]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
           path: download
       - name: Move shared libs
@@ -139,7 +134,7 @@ jobs:
       - name: Rename JAR
         run: mv lib/build/libs/lib-[0-9].[0-9].[0-9].jar starknet.jar
       - name: Upload the JAR
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: starknet-jar
           path: starknet.jar
@@ -148,7 +143,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [build_x64, build_virt]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate javadoc JAR
         run: ./gradlew javadocJar
       - name: Generate sources JAR
@@ -156,12 +151,12 @@ jobs:
       - name: Rename JARS
         run: mv lib/build/libs/lib-[0-9].[0-9].[0-9]-javadoc.jar javadoc.jar && mv lib/build/libs/lib-[0-9].[0-9].[0-9]-sources.jar sources.jar
       - name: Upload javadoc JAR
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: javadoc-jar
           path: javadoc.jar
       - name: Upload sources JAR
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sources-jar
           path: sources.jar
@@ -170,7 +165,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [package_jar, generate_javadoc_and_sources]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           path: lib/
@@ -180,7 +175,7 @@ jobs:
           java-version: 11
           distribution: 'corretto'
       - name: Publish package
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: publish closeAndReleaseRepository
         env:
@@ -188,10 +183,8 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
-      - uses: marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1
+      - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
           files: |
             lib/javadoc-jar/*.jar
             lib/sources-jar/*.jar
