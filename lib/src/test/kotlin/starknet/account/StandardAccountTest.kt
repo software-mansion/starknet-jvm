@@ -155,15 +155,10 @@ class StandardAccountTest {
         assertNotNull(feeEstimate)
     }
 
-    @Test
-    fun `estimate fee for declare transaction`() {
-        val provider = rpcProvider
-        val account = StandardAccount(
-            accountAddress,
-            signer,
-            rpcProvider,
-        )
-
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `estimate fee for declare transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
         val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
         val contractDefinition = ContractDefinition(contractCode)
         val nonce = account.getNonce().send()

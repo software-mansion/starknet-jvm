@@ -414,49 +414,19 @@ class JsonRpcProvider(
         return getEstimateFee(estimatePayload)
     }
 
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockHash a hash of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockNumber a number of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockTag a tag of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
         val estimatePayload = EstimateDeclareTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)

@@ -323,6 +323,32 @@ class GatewayProvider(
         return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
+    private fun getEstimateFee(
+        payload: DeclareTransactionPayload,
+        blockId: BlockId,
+    ): Request<EstimateFeeResponse> {
+        val url = feederGatewayRequestUrl("estimate_fee")
+        val body = Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload).jsonObject
+
+        return HttpRequest(
+            Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            httpService,
+        )
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
+    }
+
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
 
     override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
