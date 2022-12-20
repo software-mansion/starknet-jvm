@@ -38,7 +38,7 @@ class StandardAccount(
     override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload {
         val calldata = callsToExecuteCalldata(calls)
         val tx = TransactionFactory.makeInvokeTransaction(
-            contractAddress = address,
+            senderAddress = address,
             calldata = calldata,
             chainId = provider.chainId,
             nonce = params.nonce,
@@ -116,7 +116,7 @@ class StandardAccount(
         val payload = sign(calls, executionParams)
 
         val signedTransaction = TransactionFactory.makeInvokeTransaction(
-            contractAddress = payload.senderAddress,
+            senderAddress = payload.senderAddress,
             calldata = payload.calldata,
             chainId = provider.chainId,
             nonce = nonce,

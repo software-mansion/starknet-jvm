@@ -3,11 +3,10 @@ package com.swmansion.starknet.provider.rpc
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.serializers.JsonRpcGetBlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.JsonRpcTransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.extensions.put
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -120,7 +119,7 @@ class JsonRpcProvider(
         val payload = GetTransactionByHashPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, JsonRpcTransactionPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionPolymorphicSerializer)
     }
 
     override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
@@ -690,7 +689,7 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_PENDING_TRANSACTIONS,
             params,
-            ListSerializer(JsonRpcTransactionPolymorphicSerializer),
+            ListSerializer(TransactionPolymorphicSerializer),
         )
     }
 }

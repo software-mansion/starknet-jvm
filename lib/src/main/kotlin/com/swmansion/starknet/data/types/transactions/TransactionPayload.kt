@@ -40,6 +40,8 @@ data class InvokeTransactionPayload constructor(
 
 @Serializable
 data class DeclareTransactionPayload(
+    @SerialName("contract_class")
+    val contractDefinition: ContractDefinition,
 
     @SerialName("max_fee")
     val maxFee: Felt,

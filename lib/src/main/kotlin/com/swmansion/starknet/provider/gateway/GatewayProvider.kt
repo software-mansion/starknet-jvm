@@ -15,10 +15,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
@@ -80,13 +77,13 @@ class GatewayProvider(
         val message: String,
     )
 
-    private val jsonGatewayError = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true }
 
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
             try {
                 val deserializedError =
-                    jsonGatewayError.decodeFromString(GatewayError.serializer(), response.body)
+                    json.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(
                     message = deserializedError.message,
                     payload = response.body,
@@ -106,6 +103,18 @@ class GatewayProvider(
             val json = Json { ignoreUnknownKeys = true }
             json.decodeFromString(deserializationStrategy, body)
         }
+
+    private fun transformResponseForTransactionAndSerialize(response: HttpResponse): Transaction {
+        val body = handleResponseError(response)
+
+        try {
+            val transformedResponse = json.parseToJsonElement(body).jsonObject["transaction"]
+            val encodedResponse = json.encodeToString(transformedResponse)
+            return json.decodeFromString(TransactionPolymorphicSerializer, encodedResponse)
+        } catch (e: IllegalArgumentException) {
+            throw RequestFailedException(payload = "Response is not a valid transaction: $body")
+        }
+    }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
@@ -160,7 +169,9 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionTransformingSerializer),
+            { response ->
+                transformResponseForTransactionAndSerialize(response)
+            },
             httpService,
         )
     }

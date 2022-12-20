@@ -75,17 +75,23 @@ data class DeployTransaction(
     override val type: TransactionType = TransactionType.DEPLOY,
 ) : Transaction()
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("INVOKE_FUNCTION")
-data class InvokeTransaction(
+sealed class InvokeTransaction() : Transaction() {
+    abstract val calldata: Calldata
+    override val type: TransactionType = TransactionType.INVOKE
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class InvokeTransactionV1(
 
     @SerialName("calldata")
-    val calldata: Calldata,
+    override val calldata: Calldata,
 
-    // Tx v1
     @SerialName("sender_address")
-    val senderAddress: Felt = Felt.ZERO,
+    @JsonNames("contract_address")
+    val senderAddress: Felt,
 
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -95,7 +101,7 @@ data class InvokeTransaction(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt,
+    override val version: Felt = INVOKE_VERSION,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -103,17 +109,7 @@ data class InvokeTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
-
-    // Tx v0
-    @SerialName("contract_address")
-    val contractAddress: Felt = Felt.ZERO,
-
-    // Tx v0
-    @SerialName("entry_point_selector")
-    val entryPointSelector: Felt = Felt.ZERO,
-) : Transaction() {
+) : InvokeTransaction() {
     fun toPayload(): InvokeTransactionPayload {
         return InvokeTransactionPayload(
             calldata = calldata,
@@ -127,7 +123,7 @@ data class InvokeTransaction(
     companion object {
         @JvmStatic
         internal fun fromPayload(payload: InvokeTransactionPayload): InvokeTransaction {
-            return InvokeTransaction(
+            return InvokeTransactionV1(
                 senderAddress = payload.senderAddress,
                 calldata = payload.calldata,
                 hash = Felt.ZERO,
@@ -139,6 +135,36 @@ data class InvokeTransaction(
         }
     }
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class InvokeTransactionV0(
+
+    @SerialName("calldata")
+    override val calldata: Calldata,
+
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt,
+
+    @SerialName("max_fee")
+    override val maxFee: Felt,
+
+    @SerialName("version")
+    override val version: Felt = Felt.ZERO,
+
+    @SerialName("signature")
+    override val signature: Signature,
+
+    @SerialName("nonce")
+    override val nonce: Felt,
+
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("entry_point_selector")
+    val entryPointSelector: Felt,
+) : InvokeTransaction()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -274,22 +300,22 @@ data class DeployAccountTransaction(
 object TransactionFactory {
     @JvmStatic
     fun makeInvokeTransaction(
-        contractAddress: Felt,
+        senderAddress: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
         nonce: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
-    ): InvokeTransaction {
+    ): InvokeTransactionV1 {
         val hash = TransactionHashCalculator.calculateInvokeTxHash(
-            contractAddress = contractAddress,
+            contractAddress = senderAddress,
             calldata = calldata,
             chainId = chainId,
             version = INVOKE_VERSION,
             nonce = nonce,
             maxFee = maxFee,
         )
-        return InvokeTransaction(calldata, contractAddress, hash, maxFee, INVOKE_VERSION, signature, nonce, TransactionType.INVOKE)
+        return InvokeTransactionV1(calldata, senderAddress, hash, maxFee, INVOKE_VERSION, signature, nonce)
     }
 
     @JvmStatic
