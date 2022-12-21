@@ -427,6 +427,8 @@ class ProviderTest {
 
     @Test
     fun `get l1 handler transaction receipt gateway`() {
+        // Fetched from testnet using
+        // starknet get_transaction_receipt --hash 0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
                 true,
@@ -668,6 +670,8 @@ class ProviderTest {
 
     @Test
     fun `get l1 handler transaction`() {
+        // Fetched from testnet using
+        // starknet get_transaction --hash 0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
                 true,
@@ -952,11 +956,11 @@ class ProviderTest {
         assertNotNull(response)
         assertTrue(response.status)
         assertEquals(Felt.ZERO, response.startingBlockHash)
-        assertEquals(Felt.ZERO, response.startingBlockNumber)
+        assertEquals("0x0", response.startingBlockNumber)
         assertEquals(Felt.fromHex("0x1"), response.currentBlockHash)
-        assertEquals(Felt.ONE, response.currentBlockNumber)
+        assertEquals("0x1", response.currentBlockNumber)
         assertEquals(Felt.fromHex("0x9"), response.highestBlockHash)
-        assertEquals(Felt(9), response.highestBlockNumber)
+        assertEquals("0x9", response.highestBlockNumber)
     }
 
     @Test

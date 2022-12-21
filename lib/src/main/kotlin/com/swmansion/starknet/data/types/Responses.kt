@@ -65,15 +65,15 @@ sealed class Syncing {
 
     abstract val startingBlockHash: Felt
 
-    abstract val startingBlockNumber: Felt
+    abstract val startingBlockNumber: String
 
     abstract val currentBlockHash: Felt
 
-    abstract val currentBlockNumber: Felt
+    abstract val currentBlockNumber: String
 
     abstract val highestBlockHash: Felt
 
-    abstract val highestBlockNumber: Felt
+    abstract val highestBlockNumber: String
 }
 
 @Serializable
@@ -82,15 +82,15 @@ data class NotSyncingResponse(
 
     override val startingBlockHash: Felt = Felt.ZERO,
 
-    override val startingBlockNumber: Felt = Felt.ZERO,
+    override val startingBlockNumber: String = "0x0",
 
     override val currentBlockHash: Felt = Felt.ZERO,
 
-    override val currentBlockNumber: Felt = Felt.ZERO,
+    override val currentBlockNumber: String = "0x0",
 
     override val highestBlockHash: Felt = Felt.ZERO,
 
-    override val highestBlockNumber: Felt = Felt.ZERO,
+    override val highestBlockNumber: String = "0x0",
 ) : Syncing()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -102,19 +102,19 @@ data class SyncingResponse(
     override val startingBlockHash: Felt,
 
     @JsonNames("starting_block_num")
-    override val startingBlockNumber: Felt,
+    override val startingBlockNumber: String,
 
     @JsonNames("current_block_hash")
     override val currentBlockHash: Felt,
 
     @JsonNames("current_block_num")
-    override val currentBlockNumber: Felt,
+    override val currentBlockNumber: String,
 
     @JsonNames("highest_block_hash")
     override val highestBlockHash: Felt,
 
     @JsonNames("highest_block_num")
-    override val highestBlockNumber: Felt,
+    override val highestBlockNumber: String,
 ) : Syncing()
 
 @Serializable
@@ -206,16 +206,16 @@ data class NonceItem(
 @Serializable
 data class StateDiff(
     @SerialName("storage_diffs")
-    val storageDiffs: List<StorageDiffItem?> = emptyList(),
+    val storageDiffs: List<StorageDiffItem>,
 
     @SerialName("declared_contract_hashes")
-    val declaredContractHashes: List<Felt?> = emptyList(),
+    val declaredContractHashes: List<Felt>,
 
     @SerialName("deployed_contracts")
-    val deployedContracts: List<DeployedContractItem?> = emptyList(),
+    val deployedContracts: List<DeployedContractItem>,
 
     @SerialName("nonces")
-    val nonces: List<NonceItem?> = emptyList(),
+    val nonces: List<NonceItem>,
 )
 
 @Serializable

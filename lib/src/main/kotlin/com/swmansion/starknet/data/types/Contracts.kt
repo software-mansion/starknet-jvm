@@ -47,8 +47,9 @@ data class EventAbiEntry(
     val name: String,
     val keys: List<AbiEntry>,
     val data: List<AbiEntry>,
-    val type: AbiEntryType = AbiEntryType.EVENT,
-) : AbiElement()
+) : AbiElement() {
+    val type: AbiEntryType = AbiEntryType.EVENT
+}
 
 @Serializable
 data class StructMember(
@@ -63,8 +64,9 @@ data class StructAbiEntry(
     val name: String,
     val size: Int,
     val members: List<StructMember>,
-    val type: AbiEntryType = AbiEntryType.STRUCT,
-) : AbiElement()
+) : AbiElement() {
+    val type: AbiEntryType = AbiEntryType.STRUCT
+}
 
 @Serializable
 data class ContractEntryPoint(

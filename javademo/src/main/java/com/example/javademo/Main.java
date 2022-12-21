@@ -35,7 +35,7 @@ public class Main {
         String contract = String.join("", Files.readAllLines(contractPath));
 
         // Declare a contract
-        // Class hash has to be calculated manually
+        // Class hash is calculated using the tools you used for compilation
         ContractDefinition contractDefinition = new ContractDefinition(contract);
         Felt classHash = Felt.fromHex("0x1234");
         Felt maxFee = Felt.ZERO;
@@ -45,11 +45,16 @@ public class Main {
         DeclareResponse declareResponse = provider.declareContract(declareTransactionPayload).send();
 
         // Deploy a contract with Universal Deployer Contract
-        StandardDeployer contractDeployer = new StandardDeployer(Felt.fromHex("0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf"), provider, account);
-        ContractDeployment deployResponse = contractDeployer.deployContract(classHash, true, Felt.fromHex("0x12345678"), Collections.emptyList()).send();
+        // Please note the account must be deployed and have enough funds to cover the deployment
+        Felt udcTestnetAddress = Felt.fromHex("0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf");
+        Felt salt = Felt.fromHex("0x12345678");
+        StandardDeployer contractDeployer = new StandardDeployer(udcTestnetAddress, provider, account);
+        ContractDeployment deployResponse = contractDeployer.deployContract(classHash, true, salt, Collections.emptyList()).send();
+
+        // Find the address of deployed contract
+        Felt contractAddress = contractDeployer.findContractAddress(deployResponse).send();
 
         // Invoke a contract
-        Felt contractAddress = contractDeployer.findContractAddress(deployResponse).send();
         Call call = new Call(contractAddress, "increaseBalance", List.of(new Felt(1000)));
         // Or using any objects implementing ConvertibleToCalldata interface
         Call callFromCallArguments = Call.fromCallArguments(

@@ -5,6 +5,7 @@ import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -32,6 +33,6 @@ internal object ContractClassGatewaySerializer : KSerializer<ContractClass> {
         get() = ContractClass.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: ContractClass) {
-        throw Exception("Class used for deserialization only.")
+        throw SerializationException("Class used for deserialization only.")
     }
 }

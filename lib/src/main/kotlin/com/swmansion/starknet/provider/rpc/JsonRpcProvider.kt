@@ -175,7 +175,7 @@ class JsonRpcProvider(
     /**
      * Get the contract class definition.
      *
-     * Get the contract class definition associated with the given hash.
+     * Get the contract class definition associated with the given block number.
      *
      * @param classHash The hash of the requested contract class.
      * @param blockNumber The number of requested block.
@@ -191,7 +191,7 @@ class JsonRpcProvider(
     /**
      * Get the contract class definition.
      *
-     * Get the contract class definition associated with the given hash.
+     * Get the contract class definition associated with the given block tag.
      *
      * @param classHash The hash of the requested contract class.
      * @param blockTag The tag of requested block.
@@ -595,7 +595,7 @@ class JsonRpcProvider(
         return getStateUpdate(payload)
     }
 
-    private fun getTransactionByBlockIdAndIndex(payload: GetTreansactionByBlockIdAndIndexPayload): Request<Transaction> {
+    private fun getTransactionByBlockIdAndIndex(payload: GetTransactionByBlockIdAndIndexPayload): Request<Transaction> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, Transaction.serializer())
@@ -611,7 +611,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): Request<Transaction> {
-        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index)
+        val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
@@ -626,7 +626,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): Request<Transaction> {
-        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index)
+        val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
@@ -641,7 +641,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction> {
-        val payload = GetTreansactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index)
+        val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
