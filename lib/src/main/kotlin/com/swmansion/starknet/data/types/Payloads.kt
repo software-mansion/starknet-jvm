@@ -11,97 +11,96 @@ sealed class PayloadWithBlockId {
 
 @Serializable
 data class CallContractPayload(
-        @SerialName("request")
-        val request: Call,
+    @SerialName("request")
+    val request: Call,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetStorageAtPayload(
-        @SerialName("contract_address")
-        val contractAddress: Felt,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
 
-        @SerialName("key")
-        val key: Felt,
+    @SerialName("key")
+    val key: Felt,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetTransactionByHashPayload(
-        @SerialName("transaction_hash")
-        val transactionHash: Felt,
+    @SerialName("transaction_hash")
+    val transactionHash: Felt,
 )
 
 @Serializable
 data class GetTransactionReceiptPayload(
-        @SerialName("transaction_hash")
-        val transactionHash: Felt,
+    @SerialName("transaction_hash")
+    val transactionHash: Felt,
 )
 
 @Serializable
 data class EstimateInvokeTransactionFeePayload(
-        @SerialName("request")
-        val request: InvokeTransactionPayload,
+    @SerialName("request")
+    val request: InvokeTransactionPayload,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class EstimateDeployAccountTransactionFeePayload(
-        @SerialName("request")
-        val request: DeployAccountTransactionPayload,
+    @SerialName("request")
+    val request: DeployAccountTransactionPayload,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class EstimateDeclareTransactionFeePayload(
-        @SerialName("request")
-        val request: DeclareTransactionPayload,
+    @SerialName("request")
+    val request: DeclareTransactionPayload,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetBlockTransactionCountPayload(
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetNoncePayload(
-        @SerialName("contract_address")
-        val contractAddress: Felt,
+    @SerialName("contract_address")
+    val contractAddress: Felt,
 
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetBlockWithTransactionsPayload(
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetStateUpdatePayload(
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
 data class GetTransactionByBlockIdAndIndexPayload(
-        @SerialName("block_id")
-        override val blockId: BlockId,
+    @SerialName("block_id")
+    override val blockId: BlockId,
 
-        @SerialName("index")
-        val index: Int,
+    @SerialName("index")
+    val index: Int,
 ) : PayloadWithBlockId()
-

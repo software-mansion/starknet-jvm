@@ -2,7 +2,6 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
-
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 

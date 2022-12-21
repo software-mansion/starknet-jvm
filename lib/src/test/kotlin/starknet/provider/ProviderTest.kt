@@ -754,14 +754,14 @@ class ProviderTest {
         val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
         val contents = Files.readString(contractPath)
         val payload =
-                DeclareTransactionPayload(
-                        ContractDefinition(contents),
-                        Felt.ZERO,
-                        Felt.ZERO,
-                        emptyList(),
-                        Felt.ZERO,
-                        Felt.ONE, // Declare tx version 0 has a sender address of 0x1
-                )
+            DeclareTransactionPayload(
+                ContractDefinition(contents),
+                Felt.ZERO,
+                Felt.ZERO,
+                emptyList(),
+                Felt.ZERO,
+                Felt.ONE, // Declare tx version 0 has a sender address of 0x1
+            )
 
         val request = provider.declareContract(payload)
         val response = request.send()

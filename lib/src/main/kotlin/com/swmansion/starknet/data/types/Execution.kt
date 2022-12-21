@@ -3,7 +3,6 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
-
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

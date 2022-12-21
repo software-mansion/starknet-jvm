@@ -273,6 +273,7 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+
     /**
      * Estimate a fee.
      *
@@ -284,6 +285,7 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+
     /**
      * Estimate a fee.
      *

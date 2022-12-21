@@ -434,7 +434,7 @@ class GatewayProvider(
         }
 
     private fun serializeInvokeTransactionPayload(
-            payload: InvokeTransactionPayload,
+        payload: InvokeTransactionPayload,
     ): JsonObject =
         buildJsonObject {
             put("type", "INVOKE_FUNCTION")
