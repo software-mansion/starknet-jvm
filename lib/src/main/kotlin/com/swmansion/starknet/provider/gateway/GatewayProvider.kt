@@ -415,7 +415,7 @@ class GatewayProvider(
         return getBlockTransactionCount(payload)
     }
 
-    internal fun serializeDeployAccountTransactionPayload(
+    private fun serializeDeployAccountTransactionPayload(
         payload: DeployAccountTransactionPayload,
     ): JsonObject =
         buildJsonObject {

@@ -270,8 +270,6 @@ class StandardAccountTest {
         val result = account.execute(call, maxFee).send()
         assertNotNull(result)
 
-        println(result)
-
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.actualFee!! < maxFee)

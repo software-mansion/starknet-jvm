@@ -669,7 +669,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get l1 handler transaction`() {
+    fun `get l1 handler transaction gateway`() {
         // Fetched from testnet using
         // starknet get_transaction --hash 0x7e1ed66dbccf915857c6367fc641c24292c063e54a5dd55947c2d958d94e1a9
         val httpService = mock<HttpService> {
