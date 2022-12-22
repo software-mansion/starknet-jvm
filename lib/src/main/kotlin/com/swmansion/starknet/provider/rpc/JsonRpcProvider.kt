@@ -34,6 +34,8 @@ class JsonRpcProvider(
 ) : Provider {
     constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
 
+    private val jsonWithDefaults = Json { encodeDefaults = true }
+
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
@@ -361,19 +363,19 @@ class JsonRpcProvider(
     }
 
     private fun getEstimateFee(payload: EstimateInvokeTransactionFeePayload): Request<EstimateFeeResponse> {
-        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
     }
 
     private fun getEstimateFee(payload: EstimateDeployAccountTransactionFeePayload): Request<EstimateFeeResponse> {
-        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
     }
 
     private fun getEstimateFee(payload: EstimateDeclareTransactionFeePayload): Request<EstimateFeeResponse> {
-        val jsonPayload = Json { encodeDefaults = true }.encodeToJsonElement(payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
     }

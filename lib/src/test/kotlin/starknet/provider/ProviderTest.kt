@@ -942,7 +942,7 @@ class ProviderTest {
                 "current_block_hash": "0x1",
                 "current_block_num": "0x1",
                 "highest_block_hash": "0x9",
-                "highest_block_num": "0x9"
+                "highest_block_num": "0xA"
             }
         }
         """.trimIndent()
@@ -956,11 +956,11 @@ class ProviderTest {
         assertNotNull(response)
         assertTrue(response.status)
         assertEquals(Felt.ZERO, response.startingBlockHash)
-        assertEquals("0x0", response.startingBlockNumber)
+        assertEquals(0, response.startingBlockNumber)
         assertEquals(Felt.fromHex("0x1"), response.currentBlockHash)
-        assertEquals("0x1", response.currentBlockNumber)
+        assertEquals(1, response.currentBlockNumber)
         assertEquals(Felt.fromHex("0x9"), response.highestBlockHash)
-        assertEquals("0x9", response.highestBlockNumber)
+        assertEquals(10, response.highestBlockNumber)
     }
 
     @Test

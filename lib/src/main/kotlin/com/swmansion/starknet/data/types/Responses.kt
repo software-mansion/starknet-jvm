@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.HexToIntSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -65,15 +66,15 @@ sealed class Syncing {
 
     abstract val startingBlockHash: Felt
 
-    abstract val startingBlockNumber: String
+    abstract val startingBlockNumber: Int
 
     abstract val currentBlockHash: Felt
 
-    abstract val currentBlockNumber: String
+    abstract val currentBlockNumber: Int
 
     abstract val highestBlockHash: Felt
 
-    abstract val highestBlockNumber: String
+    abstract val highestBlockNumber: Int
 }
 
 @Serializable
@@ -82,15 +83,15 @@ data class NotSyncingResponse(
 
     override val startingBlockHash: Felt = Felt.ZERO,
 
-    override val startingBlockNumber: String = "0x0",
+    override val startingBlockNumber: Int = 0,
 
     override val currentBlockHash: Felt = Felt.ZERO,
 
-    override val currentBlockNumber: String = "0x0",
+    override val currentBlockNumber: Int = 0,
 
     override val highestBlockHash: Felt = Felt.ZERO,
 
-    override val highestBlockNumber: String = "0x0",
+    override val highestBlockNumber: Int = 0,
 ) : Syncing()
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -101,20 +102,23 @@ data class SyncingResponse(
     @JsonNames("starting_block_hash")
     override val startingBlockHash: Felt,
 
+    @Serializable(with = HexToIntSerializer::class)
     @JsonNames("starting_block_num")
-    override val startingBlockNumber: String,
+    override val startingBlockNumber: Int,
 
     @JsonNames("current_block_hash")
     override val currentBlockHash: Felt,
 
+    @Serializable(with = HexToIntSerializer::class)
     @JsonNames("current_block_num")
-    override val currentBlockNumber: String,
+    override val currentBlockNumber: Int,
 
     @JsonNames("highest_block_hash")
     override val highestBlockHash: Felt,
 
+    @Serializable(with = HexToIntSerializer::class)
     @JsonNames("highest_block_num")
-    override val highestBlockNumber: String,
+    override val highestBlockNumber: Int,
 ) : Syncing()
 
 @Serializable
