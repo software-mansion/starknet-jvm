@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.serializers.HexToIntSerializer
+import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -102,21 +102,21 @@ data class SyncingResponse(
     @JsonNames("starting_block_hash")
     override val startingBlockHash: Felt,
 
-    @Serializable(with = HexToIntSerializer::class)
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("starting_block_num")
     override val startingBlockNumber: Int,
 
     @JsonNames("current_block_hash")
     override val currentBlockHash: Felt,
 
-    @Serializable(with = HexToIntSerializer::class)
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("current_block_num")
     override val currentBlockNumber: Int,
 
     @JsonNames("highest_block_hash")
     override val highestBlockHash: Felt,
 
-    @Serializable(with = HexToIntSerializer::class)
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("highest_block_num")
     override val highestBlockNumber: Int,
 ) : Syncing()

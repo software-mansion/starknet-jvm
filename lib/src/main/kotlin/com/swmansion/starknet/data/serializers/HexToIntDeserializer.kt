@@ -1,14 +1,13 @@
 package com.swmansion.starknet.data.serializers
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-internal object HexToIntSerializer : KSerializer<Int> {
+internal object HexToIntDeserializer : KSerializer<Int> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("HexToInt", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Int {
@@ -18,6 +17,6 @@ internal object HexToIntSerializer : KSerializer<Int> {
     }
 
     override fun serialize(encoder: Encoder, value: Int) {
-        throw SerializationException("Class used for deserialization only.")
+        throw UnsupportedOperationException("Class used for deserialization only.")
     }
 }

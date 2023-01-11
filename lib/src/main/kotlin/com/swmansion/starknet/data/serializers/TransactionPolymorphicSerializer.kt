@@ -7,6 +7,7 @@ import kotlinx.serialization.json.*
 
 internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSerializer<Transaction>(Transaction::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Transaction> =
+        // pick deserializer based on transaction type field
         when (element.jsonObject["type"]?.jsonPrimitive?.content) {
             "INVOKE_FUNCTION" -> selectInvokeDeserializer(element)
             "INVOKE" -> selectInvokeDeserializer(element)
@@ -14,7 +15,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             "DEPLOY" -> DeployTransaction.serializer()
             "DEPLOY_ACCOUNT" -> DeployAccountTransaction.serializer()
             "L1_HANDLER" -> L1HandlerTransaction.serializer()
-            else -> throw IllegalArgumentException("Invalid transaction type")
+            else -> throw IllegalArgumentException("Invalid transaction type ${element.jsonObject["type"]?.jsonPrimitive?.content}")
         }
 
     private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> =

@@ -112,7 +112,7 @@ class GatewayProvider(
             val encodedResponse = json.encodeToString(transformedResponse)
             return json.decodeFromString(TransactionPolymorphicSerializer, encodedResponse)
         } catch (e: IllegalArgumentException) {
-            throw RequestFailedException(payload = "Response is not a valid transaction: $body")
+            throw RequestFailedException(payload = "Response is not a valid transaction", message = body)
         }
     }
 
