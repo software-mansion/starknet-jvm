@@ -15,7 +15,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             "DEPLOY" -> DeployTransaction.serializer()
             "DEPLOY_ACCOUNT" -> DeployAccountTransaction.serializer()
             "L1_HANDLER" -> L1HandlerTransaction.serializer()
-            else -> throw IllegalArgumentException("Invalid transaction type ${element.jsonObject["type"]?.jsonPrimitive?.content}")
+            else -> throw IllegalArgumentException("Invalid transaction type '${element.jsonObject["type"]?.jsonPrimitive?.content}'")
         }
 
     private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> =
