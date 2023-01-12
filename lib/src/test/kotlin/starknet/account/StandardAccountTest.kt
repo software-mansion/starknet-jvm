@@ -6,6 +6,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
+import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
@@ -14,7 +15,6 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
@@ -72,6 +72,9 @@ class StandardAccountTest {
         data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider, rpcProvider)
+
+        @JvmStatic
         fun getAccounts(): List<AccountAndProvider> {
             return listOf(
                 AccountAndProvider(
@@ -81,6 +84,14 @@ class StandardAccountTest {
                         gatewayProvider,
                     ),
                     gatewayProvider,
+                ),
+                AccountAndProvider(
+                    StandardAccount(
+                        accountAddress,
+                        signer,
+                        rpcProvider,
+                    ),
+                    rpcProvider,
                 ),
             )
         }
@@ -145,16 +156,50 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
+    fun `estimate fee for declare transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
+        val contractDefinition = ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+
+        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
+        // changes, this causes changes in the class hash.
+        // If this test starts randomly falling, try recalculating class hash.
+        val classHash = Felt.fromHex("0x399998c787e0a063c3ac1d2abac084dcbe09954e3b156d53a8c43a02aa27d35")
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            classHash,
+            ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+
+        val signedTransaction = TransactionFactory.makeDeclareTransaction(
+            classHash = classHash,
+            senderAddress = declareTransactionPayload.senderAddress,
+            contractDefinition = declareTransactionPayload.contractDefinition,
+            chainId = provider.chainId,
+            nonce = nonce,
+            maxFee = declareTransactionPayload.maxFee,
+            signature = declareTransactionPayload.signature,
+            version = declareTransactionPayload.version,
+        )
+
+        val feeEstimate = provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
+
+        assertNotNull(feeEstimate)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
         val contractDefinition = ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this tests. Compiled contract format sometimes
+        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
-        // If this tests starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x37a54ffa21547ffaef9b75dc2a65d4c0e1f23f3dc2f523fb95df578e12a4293")
+        // If this test starts randomly falling, try recalculating class hash.
+        val classHash = Felt.fromHex("0x399998c787e0a063c3ac1d2abac084dcbe09954e3b156d53a8c43a02aa27d35")
 
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
@@ -306,9 +351,9 @@ class StandardAccountTest {
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt2.status)
     }
 
-    @Test
-    fun `estimate deploy account fee`() {
-        val provider = gatewayProvider
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `estimate deploy account fee`(provider: Provider) {
         val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -336,10 +381,9 @@ class StandardAccountTest {
         assertTrue(feePayload.overallFee.value > Felt.ONE.value)
     }
 
-    // FIXME: Add tests with RPC provider once it supports deploy account
-    @Test
-    fun `deploy account`() {
-        val provider = gatewayProvider
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `deploy account`(provider: Provider) {
         val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 

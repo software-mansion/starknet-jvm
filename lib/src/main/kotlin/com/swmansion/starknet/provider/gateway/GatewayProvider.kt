@@ -15,10 +15,7 @@ import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
@@ -80,13 +77,13 @@ class GatewayProvider(
         val message: String,
     )
 
-    private val jsonGatewayError = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true }
 
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
             try {
                 val deserializedError =
-                    jsonGatewayError.decodeFromString(GatewayError.serializer(), response.body)
+                    json.decodeFromString(GatewayError.serializer(), response.body)
                 throw GatewayRequestFailedException(
                     message = deserializedError.message,
                     payload = response.body,
@@ -106,6 +103,18 @@ class GatewayProvider(
             val json = Json { ignoreUnknownKeys = true }
             json.decodeFromString(deserializationStrategy, body)
         }
+
+    private fun transformResponseForTransactionAndSerialize(response: HttpResponse): Transaction {
+        val body = handleResponseError(response)
+
+        try {
+            val transformedResponse = json.parseToJsonElement(body).jsonObject["transaction"]
+            val encodedResponse = json.encodeToString(transformedResponse)
+            return json.decodeFromString(TransactionPolymorphicSerializer, encodedResponse)
+        } catch (e: IllegalArgumentException) {
+            throw RequestFailedException(payload = "Response is not a valid transaction", message = body)
+        }
+    }
 
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
@@ -160,7 +169,9 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionTransformingSerializer),
+            { response ->
+                transformResponseForTransactionAndSerialize(response)
+            },
             httpService,
         )
     }
@@ -176,18 +187,9 @@ class GatewayProvider(
         )
     }
 
-    override fun invokeFunction(payload: InvokeFunctionPayload): Request<InvokeFunctionResponse> {
+    override fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse> {
         val url = gatewayRequestUrl("add_transaction")
-
-        val body = buildJsonObject {
-            put("type", "INVOKE_FUNCTION")
-            put("contract_address", payload.invocation.contractAddress.hexString())
-            putJsonArray("calldata") { payload.invocation.calldata.toDecimal().forEach { add(it) } }
-            put("max_fee", payload.maxFee.hexString())
-            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
-            put("nonce", payload.nonce)
-            put("version", payload.version)
-        }
+        val body = serializeInvokeTransactionPayload(payload)
 
         return HttpRequest(
             Payload(url, "POST", body),
@@ -196,31 +198,11 @@ class GatewayProvider(
         )
     }
 
-    override fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse> {
-        val url = gatewayRequestUrl("add_transaction")
-
-        val body = buildJsonObject {
-            put("type", "DEPLOY")
-            put("contract_address_salt", payload.salt)
-            putJsonArray("constructor_calldata") {
-                payload.constructorCalldata.toDecimal().forEach { add(it) }
-            }
-            put("contract_definition", payload.contractDefinition.toJson())
-            put("version", payload.version)
-        }
-
-        return HttpRequest(
-            Payload(url, "POST", body),
-            buildDeserializer(DeployResponse.serializer()),
-            httpService,
-        )
-    }
-
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
-            put("type", "DECLARE")
+            put("type", payload.type.toString())
             put("sender_address", payload.senderAddress)
             put("max_fee", payload.maxFee)
             put("nonce", payload.nonce)
@@ -236,7 +218,7 @@ class GatewayProvider(
         )
     }
 
-    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+    override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
         val url = gatewayRequestUrl("add_transaction")
         val body = serializeDeployAccountTransactionPayload(payload)
 
@@ -287,21 +269,12 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
-    // TODO: Accept payload instead of tx
-    // TODO: Move serialization to a method
     private fun getEstimateFee(
-        request: InvokeTransaction,
+        payload: InvokeTransactionPayload,
         blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
-        val body = buildJsonObject {
-            put("type", "INVOKE_FUNCTION")
-            put("contract_address", request.contractAddress.hexString())
-            putJsonArray("calldata") { request.calldata.toDecimal().forEach { add(it) } }
-            putJsonArray("signature") { request.signature.toDecimal().forEach { add(it) } }
-            put("nonce", request.nonce)
-            put("version", request.version)
-        }
+        val body = serializeInvokeTransactionPayload(payload)
 
         val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
 
@@ -312,16 +285,16 @@ class GatewayProvider(
         )
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Hash(blockHash))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Number(blockNumber))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    override fun getEstimateFee(request: InvokeTransaction, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Tag(blockTag))
+    override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
     private fun getEstimateFee(
@@ -338,20 +311,42 @@ class GatewayProvider(
         )
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Hash(blockHash))
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Number(blockNumber))
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    fun getEstimateFee(request: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(request, BlockId.Tag(blockTag))
+    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
-    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockTag.LATEST)
+    private fun getEstimateFee(
+        payload: DeclareTransactionPayload,
+        blockId: BlockId,
+    ): Request<EstimateFeeResponse> {
+        val url = feederGatewayRequestUrl("estimate_fee")
+        val body = Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload).jsonObject
+
+        return HttpRequest(
+            Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
+            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            httpService,
+        )
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Hash(blockHash))
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Number(blockNumber))
+    }
+
+    override fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
@@ -436,6 +431,19 @@ class GatewayProvider(
             putJsonArray("signature") {
                 payload.signature.toDecimal().forEach { add(it) }
             }
+        }
+
+    private fun serializeInvokeTransactionPayload(
+        payload: InvokeTransactionPayload,
+    ): JsonObject =
+        buildJsonObject {
+            put("type", "INVOKE_FUNCTION")
+            put("contract_address", payload.senderAddress.hexString())
+            putJsonArray("calldata") { payload.calldata.toDecimal().forEach { add(it) } }
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("nonce", payload.nonce)
+            put("version", payload.version)
+            put("max_fee", payload.maxFee)
         }
 
     companion object Factory {

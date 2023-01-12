@@ -1,5 +1,7 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.HexToIntDeserializer
+import com.swmansion.starknet.data.types.transactions.Transaction
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,17 +15,6 @@ data class CallContractResponse(
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt,
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-// OptIn needed because @JsonNames is part of the experimental serialization api
-data class DeployResponse(
-    @JsonNames("transaction_hash")
-    val transactionHash: Felt,
-
-    @JsonNames("contract_address", "address")
-    val contractAddress: Felt,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -42,18 +33,8 @@ data class DeployAccountResponse(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 
-    @JsonNames("address")
+    @JsonNames("address", "contract_address")
     val address: Felt,
-)
-
-@Serializable
-data class GetStorageAtResponse(
-    val result: Felt,
-)
-
-data class TransactionFailureReason(
-    val code: String,
-    val errorMessage: String,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -121,18 +102,137 @@ data class SyncingResponse(
     @JsonNames("starting_block_hash")
     override val startingBlockHash: Felt,
 
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("starting_block_num")
     override val startingBlockNumber: Int,
 
     @JsonNames("current_block_hash")
     override val currentBlockHash: Felt,
 
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("current_block_num")
     override val currentBlockNumber: Int,
 
     @JsonNames("highest_block_hash")
     override val highestBlockHash: Felt,
 
+    @Serializable(with = HexToIntDeserializer::class)
     @JsonNames("highest_block_num")
     override val highestBlockNumber: Int,
 ) : Syncing()
+
+@Serializable
+sealed class GetBlockWithTransactionsResponse {
+    abstract val transactions: List<Transaction>
+    abstract val timestamp: Int
+    abstract val sequencerAddress: Felt
+    abstract val parentHash: Felt
+}
+
+@Serializable
+data class BlockWithTransactionsResponse(
+    @SerialName("status")
+    val status: BlockStatus,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+
+    @SerialName("block_hash")
+    val blockHash: Felt,
+
+    @SerialName("block_number")
+    val blockNumber: Int,
+
+    @SerialName("new_root")
+    val newRoot: Felt,
+
+    @SerialName("transactions")
+    override val transactions: List<Transaction>,
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+) : GetBlockWithTransactionsResponse()
+
+@Serializable
+data class PendingBlockWithTransactionsResponse(
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+
+    @SerialName("transactions")
+    override val transactions: List<Transaction>,
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+) : GetBlockWithTransactionsResponse()
+
+@Serializable
+data class StorageEntries(
+    @SerialName("key")
+    val key: Felt,
+
+    @SerialName("value")
+    val value: Felt,
+)
+
+@Serializable
+data class StorageDiffItem(
+    @SerialName("address")
+    val address: Felt,
+
+    @SerialName("storage_entries")
+    val storageEntries: List<StorageEntries>,
+)
+
+@Serializable
+data class DeployedContractItem(
+    @SerialName("address")
+    val address: Felt,
+
+    @SerialName("class_hash")
+    val classHash: Felt,
+)
+
+@Serializable
+data class NonceItem(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+)
+
+@Serializable
+data class StateDiff(
+    @SerialName("storage_diffs")
+    val storageDiffs: List<StorageDiffItem>,
+
+    @SerialName("declared_contract_hashes")
+    val declaredContractHashes: List<Felt>,
+
+    @SerialName("deployed_contracts")
+    val deployedContracts: List<DeployedContractItem>,
+
+    @SerialName("nonces")
+    val nonces: List<NonceItem>,
+)
+
+@Serializable
+data class StateUpdateResponse(
+    @SerialName("block_hash")
+    val blockHash: Felt,
+
+    @SerialName("new_root")
+    val newRoot: Felt,
+
+    @SerialName("old_root")
+    val oldRoot: Felt,
+
+    @SerialName("state_diff")
+    val stateDiff: StateDiff,
+)

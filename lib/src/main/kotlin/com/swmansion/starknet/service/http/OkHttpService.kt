@@ -1,5 +1,6 @@
 package com.swmansion.starknet.service.http
 
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.HttpService.Payload
 import okhttp3.Call
 import okhttp3.Callback
@@ -43,7 +44,7 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
 
     private fun processHttpResponse(response: Response): HttpResponse {
         if (response.body == null) {
-            throw IOException("HTTP request failed with code = ${response.code}")
+            throw RequestFailedException("HTTP request failed with code = ${response.code}", "")
         }
         return HttpResponse(response.isSuccessful, response.code, response.body!!.string())
     }
@@ -74,7 +75,7 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
         client.newCall(httpRequest).enqueue(
             object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    future.completeExceptionally(e)
+                    future.completeExceptionally(RequestFailedException(e.message ?: "Unknown HTTP error.", ""))
                 }
 
                 override fun onResponse(call: Call, response: Response) {

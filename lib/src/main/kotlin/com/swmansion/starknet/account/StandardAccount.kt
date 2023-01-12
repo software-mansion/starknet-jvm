@@ -1,8 +1,6 @@
 package com.swmansion.starknet.account
 
 import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
-import com.swmansion.starknet.data.EXECUTE_ENTRY_POINT_NAME
-import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
@@ -37,12 +35,11 @@ class StandardAccount(
         provider,
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeFunctionPayload {
+    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload {
         val calldata = callsToExecuteCalldata(calls)
         val tx = TransactionFactory.makeInvokeTransaction(
-            contractAddress = address,
+            senderAddress = address,
             calldata = calldata,
-            entryPointSelector = selectorFromName(EXECUTE_ENTRY_POINT_NAME),
             chainId = provider.chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
@@ -61,6 +58,7 @@ class StandardAccount(
     ): DeployAccountTransactionPayload {
         val tx = TransactionFactory.makeDeployAccountTransaction(
             classHash = classHash,
+            contractAddress = address,
             salt = salt,
             calldata = calldata,
             chainId = provider.chainId,
@@ -118,15 +116,14 @@ class StandardAccount(
         val payload = sign(calls, executionParams)
 
         val signedTransaction = TransactionFactory.makeInvokeTransaction(
-            contractAddress = payload.invocation.contractAddress,
-            calldata = payload.invocation.calldata,
-            entryPointSelector = payload.invocation.entrypoint,
+            senderAddress = payload.senderAddress,
+            calldata = payload.calldata,
             chainId = provider.chainId,
             nonce = nonce,
             maxFee = payload.maxFee,
             signature = payload.signature,
         )
 
-        return provider.getEstimateFee(signedTransaction, BlockTag.LATEST)
+        return provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
     }
 }

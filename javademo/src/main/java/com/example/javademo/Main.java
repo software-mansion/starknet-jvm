@@ -6,6 +6,8 @@ import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.crypto.StarknetCurveSignature;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.*;
+import com.swmansion.starknet.deployercontract.ContractDeployment;
+import com.swmansion.starknet.deployercontract.StandardDeployer;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.gateway.GatewayProvider;
@@ -17,12 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+
 public class Main {
     public static void main(String[] args) throws Exception {
         // Set up an account
         Felt address = Felt.fromHex("0x1234");
         // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
-        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRA️FICALLY SAFE TOOLS!
+        // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRAPHICALLY SAFE TOOLS!
         Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         Provider provider = GatewayProvider.makeTestnetClient();
         Account account = new StandardAccount(address, privateKey, provider);
@@ -31,22 +34,43 @@ public class Main {
         Path contractPath = Paths.get("balance.cairo");
         String contract = String.join("", Files.readAllLines(contractPath));
 
-        // Deploy a contract
+        // Declare a contract
+        // Class hash is calculated using the tools you used for compilation
         ContractDefinition contractDefinition = new ContractDefinition(contract);
-        DeployTransactionPayload payload = new DeployTransactionPayload(contractDefinition, Felt.fromHex("0x1234"), Collections.emptyList(), Felt.ZERO);
-        Request<DeployResponse> deployRequest = provider.deployContract(payload);
-        DeployResponse deployResponse = deployRequest.send();
+        Felt classHash = Felt.fromHex("0x1234");
+        Felt maxFee = Felt.ZERO;
+        Felt nonce = account.getNonce().send();
+        ExecutionParams executionParams = new ExecutionParams(nonce, maxFee);
+        DeclareTransactionPayload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, executionParams);
+        DeclareResponse declareResponse = provider.declareContract(declareTransactionPayload).send();
+
+        // Deploy a contract with Universal Deployer Contract
+        // Please note the account must be deployed and have enough funds to cover the deployment
+        Felt udcTestnetAddress = Felt.fromHex("0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf");
+        Felt salt = Felt.fromHex("0x12345678");
+        StandardDeployer contractDeployer = new StandardDeployer(udcTestnetAddress, provider, account);
+        ContractDeployment deployResponse = contractDeployer.deployContract(classHash, true, salt, Collections.emptyList()).send();
+
+        // Find the address of deployed contract
+        Felt contractAddress = contractDeployer.findContractAddress(deployResponse).send();
 
         // Invoke a contract
-        Felt contractAddress = deployResponse.getContractAddress();
         Call call = new Call(contractAddress, "increaseBalance", List.of(new Felt(1000)));
+        // Or using any objects implementing ConvertibleToCalldata interface
+        Call callFromCallArguments = Call.fromCallArguments(
+                contractAddress,
+                "increaseBalance",
+                List.of(Uint256.fromHex("0x9148582852675472"), new Felt(1000))
+        );
+
+        // Invoke a contract
         Request<InvokeFunctionResponse> executeRequest = account.execute(call);
         InvokeFunctionResponse executeResponse = executeRequest.send();
 
         // Make sure that the transaction succeeded
         Request<? extends TransactionReceipt> receiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
         TransactionReceipt receipt = receiptRequest.send();
-        Boolean isAccepted = (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L2) || (receipt.getStatus() == TransactionStatus.ACCEPTED_ON_L1);
+        Boolean isAccepted = receipt.isAccepted();
 
         // Manually sign a hash
         Felt hash = Felt.fromHex("0x121212121212");
