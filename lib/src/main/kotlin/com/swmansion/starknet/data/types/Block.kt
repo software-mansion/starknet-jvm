@@ -1,11 +1,32 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
 
 @Serializable
 enum class BlockTag(val tag: String) {
     LATEST("latest"), PENDING("pending")
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+enum class BlockStatus {
+    @JsonNames("PENDING")
+    PENDING,
+
+    @JsonNames("ACCEPTED_ON_L1")
+    ACCEPTED_ON_L1,
+
+    @JsonNames("ACCEPTED_ON_L2")
+    ACCEPTED_ON_L2,
+
+    @JsonNames("REJECTED")
+    REJECTED,
+
+    @JsonNames("UNKNOWN")
+    UNKNOWN,
 }
 
 @Serializable(with = BlockIdSerializer::class)

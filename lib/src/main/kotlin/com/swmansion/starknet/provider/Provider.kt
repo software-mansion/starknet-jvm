@@ -160,6 +160,8 @@ interface Provider {
      *
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockHash The hash of the requested block.
+     *
+     * @throws RequestFailedException
      */
     fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
@@ -202,17 +204,6 @@ interface Provider {
     }
 
     /**
-     * Deploy a contract
-     *
-     * Deploy a contract on StarkNet.
-     *
-     * @param payload deploy transaction payload
-     *
-     * @throws RequestFailedException
-     */
-    fun deployContract(payload: DeployTransactionPayload): Request<DeployResponse>
-
-    /**
      * Declare contract
      *
      * Declare a contract on StarkNet.
@@ -228,8 +219,46 @@ interface Provider {
      *
      * Estimate a fee for a provided transaction.
      *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
      * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
 
@@ -240,6 +269,8 @@ interface Provider {
      *
      * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
 
@@ -250,8 +281,46 @@ interface Provider {
      *
      * @param payload invoke transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload declare transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload declare transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction.
+     *
+     * @param payload declare transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
@@ -259,8 +328,36 @@ interface Provider {
      * Estimate a fee for a provided transaction in the latest block.
      *
      * @param payload invoke transaction, for which the fee is to be estimated.
+     *
+     * @throws RequestFailedException
      */
     fun getEstimateFee(payload: InvokeTransactionPayload): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockTag.LATEST)
+    }
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction in the latest block.
+     *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
+        return getEstimateFee(payload, BlockTag.LATEST)
+    }
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction in the latest block.
+     *
+     * @param payload deploy account transaction, for which the fee is to be estimated.
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: DeclareTransactionPayload): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockTag.LATEST)
     }
 
@@ -278,7 +375,7 @@ interface Provider {
     /**
      * Get a nonce.
      *
-     * Get a nonce of an account contract of a given address for specified block.
+     * Get a nonce of an account contract of a given address for specified block tag.
      *
      * @param contractAddress address of account contract
      * @param blockTag block tag used for returning this value
@@ -334,4 +431,15 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getBlockTransactionCount(blockNumber: Int): Request<Int>
+
+    /**
+     * Deploy an account contract.
+     *
+     * Deploy a new account contract on StarkNet.
+     *
+     * @param payload deploy account transaction payload
+     *
+     * @throws RequestFailedException
+     */
+    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse>
 }

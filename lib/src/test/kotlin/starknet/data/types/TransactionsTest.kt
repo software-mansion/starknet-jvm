@@ -14,9 +14,8 @@ internal class TransactionsTest {
     @Test
     fun getHash() {
         val tx1 = TransactionFactory.makeInvokeTransaction(
-            contractAddress = Felt.fromHex("0x2a"),
+            senderAddress = Felt.fromHex("0x2a"),
             calldata = listOf(),
-            entryPointSelector = Felt.fromHex("0x64"),
             chainId = StarknetChainId.TESTNET,
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
@@ -25,7 +24,7 @@ internal class TransactionsTest {
         assertEquals(Felt.fromHex("0x22294fe217f962c39e4cb694a5db3f71e1132988451a9b2abc2d2ea8512088e"), tx1.hash)
 
         val tx2 = TransactionFactory.makeInvokeTransaction(
-            contractAddress = Felt(
+            senderAddress = Felt(
                 BigInteger("468485892896389608042320470922610020674017592380673471682128582128678525733"),
             ),
             calldata = listOf(
@@ -45,9 +44,6 @@ internal class TransactionsTest {
                 Felt(
                     BigInteger("2"),
                 ),
-            ),
-            entryPointSelector = Felt(
-                BigInteger("617075754465154585683856897856256838130216341506379215893724690153393808813"),
             ),
             chainId = StarknetChainId.TESTNET,
             nonce = Felt.ZERO,

@@ -2,10 +2,8 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.json.JsonContentPolymorphicSerializer
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.*
 
 internal object JsonRpcTransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
@@ -17,14 +15,15 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
 
     private fun selectPendingDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> =
         when {
-            "messages_sent" in element -> PendingInvokeTransactionReceipt.serializer()
-            else -> PendingTransactionReceipt.serializer()
+            "contract_address" in element -> PendingRpcDeployTransactionReceipt.serializer()
+            else -> PendingRpcTransactionReceipt.serializer()
         }
 
     private fun selectDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> =
-        // FIXME(we should be able to distinguish between declare and deploy receipts but it's impossible with the current rpc spec)
-        when {
-            "messages_sent" in element -> InvokeTransactionReceipt.serializer()
-            else -> DeclareTransactionReceipt.serializer()
+        when (element["type"]?.jsonPrimitive?.content) {
+            "DEPLOY" -> DeployRpcTransactionReceipt.serializer()
+            "DEPLOY_ACCOUNT" -> DeployRpcTransactionReceipt.serializer()
+            null -> throw SerializationException("Input element does not contain mandatory field 'type'")
+            else -> RpcTransactionReceipt.serializer()
         }
 }

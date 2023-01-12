@@ -1,8 +1,13 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.types.transactions.InvokeTransaction
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+@Serializable
+sealed class PayloadWithBlockId {
+    abstract val blockId: BlockId
+}
 
 @Serializable
 data class CallContractPayload(
@@ -10,8 +15,8 @@ data class CallContractPayload(
     val request: Call,
 
     @SerialName("block_id")
-    val blockId: BlockId,
-)
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
 
 @Serializable
 data class GetStorageAtPayload(
@@ -22,8 +27,8 @@ data class GetStorageAtPayload(
     val key: Felt,
 
     @SerialName("block_id")
-    val blockId: BlockId,
-)
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
 
 @Serializable
 data class GetTransactionByHashPayload(
@@ -38,16 +43,64 @@ data class GetTransactionReceiptPayload(
 )
 
 @Serializable
-data class EstimateFeePayload(
+data class EstimateInvokeTransactionFeePayload(
     @SerialName("request")
-    val request: InvokeTransaction,
+    val request: InvokeTransactionPayload,
 
     @SerialName("block_id")
-    val blockId: BlockId,
-)
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class EstimateDeployAccountTransactionFeePayload(
+    @SerialName("request")
+    val request: DeployAccountTransactionPayload,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class EstimateDeclareTransactionFeePayload(
+    @SerialName("request")
+    val request: DeclareTransactionPayload,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
 
 @Serializable
 data class GetBlockTransactionCountPayload(
     @SerialName("block_id")
-    val blockId: BlockId,
-)
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class GetNoncePayload(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class GetBlockWithTransactionsPayload(
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class GetStateUpdatePayload(
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
+data class GetTransactionByBlockIdAndIndexPayload(
+    @SerialName("block_id")
+    override val blockId: BlockId,
+
+    @SerialName("index")
+    val index: Int,
+) : PayloadWithBlockId()
