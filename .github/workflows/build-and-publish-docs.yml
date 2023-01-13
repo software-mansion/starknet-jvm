@@ -1,5 +1,6 @@
 name: Build And Publish Docs
 on: 
+  workflow_dispatch:
   workflow_run:
     workflows: [Build And Publish Packages]
     types:
