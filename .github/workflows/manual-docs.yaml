@@ -1,0 +1,36 @@
+name: Manual Build And Publish Docs
+on: 
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-publish-docs:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      # https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#Descriptions
+      - name: Replace whitespaces after dots with non breaking spaces.
+        # Look for '. ' or '.\newline' and replace it with '.&nbsp;'
+        run: sed -i 's/\(\.\s\|\.$\)/.\&nbsp;/g' lib/starknet-jvm.md
+
+      # Build java and kotlin style docs and copy kotlin output to the java folder
+      # so that the deployed github page has java docs at `/` and kotlin docs at `/kotlin`
+      - name: Build docs
+        run: |
+          ./gradlew :lib:dokkaJavadoc
+          ./gradlew :lib:dokkaHtml
+          cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6
+        with:
+          folder: lib/build/dokka/javadoc
+          branch: gh-pages
+          single-commit: true
