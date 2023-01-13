@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.swmansion.starknet:starknet:0.3.4")
+    implementation("com.swmansion.starknet:starknet:0.4.0")
 }
 
 application {
