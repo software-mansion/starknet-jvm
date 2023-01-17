@@ -219,145 +219,38 @@ interface Provider {
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param payload transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: TransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param payload transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: TransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
 
     /**
      * Estimate a fee.
      *
      * Estimate a fee for a provided transaction.
      *
-     * @param payload deploy account transaction, for which the fee is to be estimated.
+     * @param payload transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: TransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
 
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockHash a hash of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockNumber a number of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     * @param blockTag a tag of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockHash a hash of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockNumber a number of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction.
-     *
-     * @param payload declare transaction, for which the fee is to be estimated.
-     * @param blockTag a tag of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction in the latest block.
-     *
-     * @param payload invoke transaction, for which the fee is to be estimated.
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: InvokeTransactionPayload): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockTag.LATEST)
-    }
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction in the latest block.
-     *
-     * @param payload deploy account transaction, for which the fee is to be estimated.
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeployAccountTransactionPayload): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockTag.LATEST)
-    }
-
-    /**
-     * Estimate a fee.
-     *
-     * Estimate a fee for a provided transaction in the latest block.
-     *
-     * @param payload deploy account transaction, for which the fee is to be estimated.
-     *
-     * @throws RequestFailedException
-     */
-    fun getEstimateFee(payload: DeclareTransactionPayload): Request<EstimateFeeResponse> {
+    fun getEstimateFee(payload: TransactionPayload): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockTag.LATEST)
     }
 

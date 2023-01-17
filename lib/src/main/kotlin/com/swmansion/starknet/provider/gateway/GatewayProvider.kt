@@ -270,14 +270,17 @@ class GatewayProvider(
     }
 
     private fun getEstimateFee(
-        payload: InvokeTransactionPayload,
+        payload: TransactionPayload,
         blockId: BlockId,
     ): Request<EstimateFeeResponse> {
         val url = feederGatewayRequestUrl("estimate_fee")
-        val body = serializeInvokeTransactionPayload(payload)
+        val body = when (payload) {
+            is InvokeTransactionPayload -> serializeInvokeTransactionPayload(payload)
+            is DeployAccountTransactionPayload -> serializeDeployAccountTransactionPayload(payload)
+            is DeclareTransactionPayload -> Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload).jsonObject
+        }
 
         val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
-
         return HttpRequest(
             httpPayload,
             buildDeserializer(EstimateFeeResponseGatewaySerializer),
@@ -285,67 +288,15 @@ class GatewayProvider(
         )
     }
 
-    override fun getEstimateFee(payload: InvokeTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: TransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    override fun getEstimateFee(payload: InvokeTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: TransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    override fun getEstimateFee(payload: InvokeTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Tag(blockTag))
-    }
-
-    private fun getEstimateFee(
-        payload: DeployAccountTransactionPayload,
-        blockId: BlockId,
-    ): Request<EstimateFeeResponse> {
-        val url = feederGatewayRequestUrl("estimate_fee")
-        val body = serializeDeployAccountTransactionPayload(payload)
-
-        return HttpRequest(
-            Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
-            buildDeserializer(EstimateFeeResponseGatewaySerializer),
-            httpService,
-        )
-    }
-
-    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Hash(blockHash))
-    }
-
-    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Number(blockNumber))
-    }
-
-    override fun getEstimateFee(payload: DeployAccountTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Tag(blockTag))
-    }
-
-    private fun getEstimateFee(
-        payload: DeclareTransactionPayload,
-        blockId: BlockId,
-    ): Request<EstimateFeeResponse> {
-        val url = feederGatewayRequestUrl("estimate_fee")
-        val body = Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload).jsonObject
-
-        return HttpRequest(
-            Payload(url, "POST", listOf(blockId.toGatewayParam()), body),
-            buildDeserializer(EstimateFeeResponseGatewaySerializer),
-            httpService,
-        )
-    }
-
-    override fun getEstimateFee(payload: DeclareTransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Hash(blockHash))
-    }
-
-    override fun getEstimateFee(payload: DeclareTransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
-        return getEstimateFee(payload, BlockId.Number(blockNumber))
-    }
-
-    override fun getEstimateFee(payload: DeclareTransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: TransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
         return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 

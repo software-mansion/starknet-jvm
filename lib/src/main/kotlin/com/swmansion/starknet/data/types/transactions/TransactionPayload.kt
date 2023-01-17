@@ -1,8 +1,12 @@
 package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.serializers.JsonRpcTransactionPayloadPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+@Serializable(with = JsonRpcTransactionPayloadPolymorphicSerializer::class)
+sealed class TransactionPayload
 
 @Serializable
 data class InvokeTransactionPayload constructor(
@@ -24,7 +28,7 @@ data class InvokeTransactionPayload constructor(
 
     @SerialName("nonce")
     val nonce: Felt,
-) {
+) : TransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.INVOKE
 
@@ -57,7 +61,7 @@ data class DeclareTransactionPayload(
 
     @SerialName("sender_address")
     val senderAddress: Felt,
-) {
+) : TransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DECLARE
 }
@@ -84,7 +88,7 @@ data class DeployAccountTransactionPayload(
 
     @SerialName("signature")
     val signature: Signature,
-) {
+) : TransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 }
