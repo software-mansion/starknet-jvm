@@ -558,6 +558,15 @@ class ProviderTest {
         assertTrue(response is RpcTransactionReceipt)
     }
 
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get transaction receipt throws on incorrect hash`(provider: Provider) {
+        val request = provider.getTransactionReceipt(Felt.ZERO)
+        assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
+    }
+
     @Test
     fun `get deploy transaction gateway`() {
         // Mocked response of GOL2 test contract deploy

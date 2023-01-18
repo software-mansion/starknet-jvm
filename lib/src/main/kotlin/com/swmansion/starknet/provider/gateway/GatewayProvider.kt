@@ -198,7 +198,10 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionReceipt.serializer()),
+            { response ->
+                val body = handleMissingTransaction(response)
+                json.decodeFromString(GatewayTransactionReceipt.serializer(), body)
+            },
             httpService,
         )
     }
