@@ -192,6 +192,9 @@ object StarknetCurve {
      */
     @JvmStatic
     fun getPublicKey(privateKey: Felt): Felt {
+        if (privateKey == Felt.ZERO) {
+            throw IllegalArgumentException("Private key is invalid")
+        }
         val publicKey = getPublicKey(feltToNative(privateKey)).apply { reverse() }
         return BigInteger(publicKey).toFelt
     }

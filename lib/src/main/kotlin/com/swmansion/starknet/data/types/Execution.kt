@@ -3,12 +3,13 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
-import com.swmansion.starknet.data.types.transactions.InvokeTransaction
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias Calldata = List<Felt>
 typealias Signature = List<Felt>
+typealias CallArguments = List<ConvertibleToCalldata>
 
 @Serializable
 data class Call(
@@ -38,59 +39,61 @@ data class Call(
         entrypoint,
         emptyList(),
     )
+
+    companion object {
+        /**
+         * Construct a Call object using any objects conforming to ConvertibleToCalldata as calldata
+         * instead of plain Felts.
+         *
+         * For example:
+         * ```
+         * Call.fromCallArguments(
+         *      Felt.fromHex("0x1234"),
+         *      Felt.fromHex("0x111"),
+         *      Collections.listOf(Uint256.fromHex("0x1394924"), Felt.ZERO)
+         * );
+         * ```
+         *
+         * @param contractAddress an address to be called
+         * @param entrypoint a selector of the entrypoint to be called
+         * @param arguments CallArguments to be used in a call
+         *
+         * @return a Call object
+         */
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: Felt, arguments: CallArguments): Call {
+            val calldata = arguments.flatMap { it.toCalldata() }
+            return Call(contractAddress, entrypoint, calldata)
+        }
+
+        /**
+         * Construct a Call object using any objects conforming to ConvertibleToCalldata as calldata
+         * instead of plain Felts, using selector name.
+         *
+         * For example:
+         * ```
+         * Call.fromCallArguments(
+         *      Felt.fromHex("0x1234"),
+         *      "mySelector",
+         *      Collections.listOf(Uint256.fromHex("0x1394924"), Felt.ZERO)
+         * );
+         *
+         * @param contractAddress an address to be called
+         * @param entrypoint a name of the entrypoint to be called
+         * @param arguments CallArguments to be used in a call
+         *
+         * @return a Call object
+         */
+        @JvmStatic
+        fun fromCallArguments(contractAddress: Felt, entrypoint: String, arguments: CallArguments): Call {
+            return fromCallArguments(contractAddress, selectorFromName(entrypoint), arguments)
+        }
+    }
 }
 
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
-)
-
-@Serializable
-data class CallContractPayload(
-    @SerialName("request")
-    val request: Call,
-
-    @SerialName("block_id")
-    val blockId: BlockId,
-)
-
-@Serializable
-data class GetStorageAtPayload(
-    @SerialName("contract_address")
-    val contractAddress: Felt,
-
-    @SerialName("key")
-    val key: Felt,
-
-    @SerialName("block_id")
-    val blockId: BlockId,
-)
-
-@Serializable
-data class GetTransactionByHashPayload(
-    @SerialName("transaction_hash")
-    val transactionHash: Felt,
-)
-
-@Serializable
-data class GetTransactionReceiptPayload(
-    @SerialName("transaction_hash")
-    val transactionHash: Felt,
-)
-
-@Serializable
-data class EstimateFeePayload(
-    @SerialName("request")
-    val request: InvokeTransaction,
-
-    @SerialName("block_id")
-    val blockId: BlockId,
-)
-
-@Serializable
-data class GetBlockTransactionCountPayload(
-    @SerialName("block_id")
-    val blockId: BlockId,
 )
 
 @JvmSynthetic

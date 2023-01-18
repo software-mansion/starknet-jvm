@@ -1,5 +1,6 @@
 name: Build And Publish Docs
 on: 
+  workflow_dispatch:
   workflow_run:
     workflows: [Build And Publish Packages]
     types:
@@ -32,7 +33,7 @@ jobs:
           cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@66b02ca51987e10cad29b320023d7c39eff2d4ca
+        uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6
         with:
           folder: lib/build/dokka/javadoc
           branch: gh-pages

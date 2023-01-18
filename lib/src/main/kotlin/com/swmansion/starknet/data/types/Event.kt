@@ -54,11 +54,11 @@ data class GetEventsPayload(
     @SerialName("keys")
     val keys: List<Felt>,
 
-    @SerialName("page_size")
-    val pagesSize: Int,
+    @SerialName("chunk_size")
+    val chunkSize: Int,
 
-    @SerialName("page_number")
-    val pageNumber: Int,
+    @SerialName("continuation_token")
+    val continuationToken: String? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -67,9 +67,6 @@ data class GetEventsResult(
     @JsonNames("events")
     val events: List<EmittedEvent>,
 
-    @JsonNames("page_number")
-    val pageNumber: Int,
-
-    @JsonNames("is_last_page")
-    val isLastPage: Boolean,
+    @JsonNames("continuation_token")
+    val continuationToken: String? = null,
 )
