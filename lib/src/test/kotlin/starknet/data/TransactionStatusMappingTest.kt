@@ -26,7 +26,7 @@ class TransactionStatusMappingTest {
     }
 
     @Test
-    fun `unknown transaction type throws exception`() {
+    fun `unknown transaction status throws exception`() {
         val statusString = "\"RANDOM_STATUS\""
 
         assertThrows<SerializationException> {
