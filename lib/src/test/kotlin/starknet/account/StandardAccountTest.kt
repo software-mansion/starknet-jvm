@@ -16,6 +16,8 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
@@ -24,6 +26,7 @@ import java.math.BigInteger
 import java.nio.file.Path
 import kotlin.io.path.readText
 
+@Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
     companion object {
         @JvmStatic

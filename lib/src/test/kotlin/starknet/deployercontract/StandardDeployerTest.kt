@@ -12,12 +12,15 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
 import java.nio.file.Path
 import starknet.utils.ContractDeployer as TestContractDeployer
 
+@Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
     @JvmStatic
     private val devnetClient = DevnetClient(port = 5052)
