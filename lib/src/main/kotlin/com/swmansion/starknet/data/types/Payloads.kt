@@ -43,27 +43,9 @@ data class GetTransactionReceiptPayload(
 )
 
 @Serializable
-data class EstimateInvokeTransactionFeePayload(
+data class EstimateTransactionFeePayload(
     @SerialName("request")
-    val request: InvokeTransactionPayload,
-
-    @SerialName("block_id")
-    override val blockId: BlockId,
-) : PayloadWithBlockId()
-
-@Serializable
-data class EstimateDeployAccountTransactionFeePayload(
-    @SerialName("request")
-    val request: DeployAccountTransactionPayload,
-
-    @SerialName("block_id")
-    override val blockId: BlockId,
-) : PayloadWithBlockId()
-
-@Serializable
-data class EstimateDeclareTransactionFeePayload(
-    @SerialName("request")
-    val request: DeclareTransactionPayload,
+    val request: TransactionPayload,
 
     @SerialName("block_id")
     override val blockId: BlockId,
