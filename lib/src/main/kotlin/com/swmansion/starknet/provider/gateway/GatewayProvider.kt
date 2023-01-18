@@ -120,8 +120,7 @@ class GatewayProvider(
         return body
     }
 
-    private fun transformResponseForTransactionAndSerialize(response: HttpResponse): Transaction {
-        val body = handleResponseError(response)
+    private fun transformResponseForTransactionAndSerialize(body: String): Transaction {
 
         try {
             val transformedResponse = json.parseToJsonElement(body).jsonObject["transaction"]
@@ -186,7 +185,8 @@ class GatewayProvider(
         return HttpRequest(
             Payload(url, "GET", params),
             { response ->
-                transformResponseForTransactionAndSerialize(response)
+                val body = handleMissingTransaction(response)
+                transformResponseForTransactionAndSerialize(body)
             },
             httpService,
         )
