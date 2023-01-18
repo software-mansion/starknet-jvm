@@ -18,7 +18,7 @@ class TransactionStatusMappingTest {
     }
 
     @Test
-    fun `not received transaction is mapped to unknown`() {
+    fun `not received status is mapped to unknown`() {
         val statusString = "\"NOT_RECEIVED\""
         val status = Json.decodeFromString(TransactionStatus.serializer(), statusString)
 
