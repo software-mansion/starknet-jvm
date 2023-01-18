@@ -121,7 +121,6 @@ class GatewayProvider(
     }
 
     private fun transformResponseForTransactionAndSerialize(body: String): Transaction {
-
         try {
             val transformedResponse = json.parseToJsonElement(body).jsonObject["transaction"]
             val encodedResponse = json.encodeToString(transformedResponse)
