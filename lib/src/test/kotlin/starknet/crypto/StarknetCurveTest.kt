@@ -95,6 +95,13 @@ internal class StarknetCurveTest {
     }
 
     @Test
+    fun getPublicKeyInvalid() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StarknetCurve.getPublicKey(Felt.ZERO)
+        }
+    }
+
+    @Test
     fun pedersen() {
         val maxFelt = (Felt.PRIME - BigInteger.ONE).toFelt
         // Generated using cairo-lang package
