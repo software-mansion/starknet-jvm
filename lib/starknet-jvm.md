@@ -21,7 +21,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        Provider provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetProvider();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -49,7 +49,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider.makeTestnetClient()
+    val provider = GatewayProvider.makeTestnetProvider()
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -68,7 +68,7 @@ fun main() {
 
 ## Making asynchronous requests
 
-It is also possible to make asynchronous requests. `Request.sendAsync()` returs a `CompletableFuture`
+It is also possible to make asynchronous requests. `Request.sendAsync()` returns a `CompletableFuture`
 that can be than handled in preferred way.
 
 ### In Java
@@ -87,7 +87,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        Provider provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetProvider();
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -115,7 +115,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider.makeTestnetClient()
+    val provider = GatewayProvider.makeTestnetProvider()
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -151,7 +151,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Provider provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetProvider();
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
         Account account = new StandardAccount(provider, address, privateKey);
@@ -187,7 +187,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    val provider: Provider = makeTestnetClient()
+    val provider: Provider = makeTestnetProvider()
     val address = Felt(0x1234)
     val privateKey = Felt(0x1)
     val account: Account = StandardAccount(provider, address, privateKey)
@@ -221,6 +221,8 @@ fun main(args: Array<String>) {
 # Package com.swmansion.starknet.crypto
 
 Cryptography and signature related classes.
+This is a low level module. Recommended way of using is through
+Signer and Account implementations.
 
 # Package com.swmansion.starknet.data
 
@@ -236,20 +238,71 @@ Data classes representing StarkNet transactions.
 
 # Package com.swmansion.starknet.provider
 
-Provider interface used for interacting with StarkNet.
+Provider interface and its implementations.
+
+```java
+// Create a provider instance
+Provider provider = ...
+
+// Get a storage value request
+Request<Felt> request = provider.getStorageAt(address, key);
+// Send a request
+Felt response = request.send();
+
+// For most methods block hash, number or tag can be specified
+Request<Felt> request = provider.getStorageAt(address, key, Felt.fromHex("0x123..."));
+Request<Felt> request = provider.getStorageAt(address, key, 1234);
+Request<Felt> request = provider.getStorageAt(address, key, BlockTag.LATEST);
+```
 
 # Package com.swmansion.starknet.provider.exceptions
 
 Exceptions thrown by the StarkNet providers.
 
+`Request.send()` throws `RequestFailedException` unchecked exception.
+It can optionally be handled.
+
+```java
+Request<Felt> request = ...
+// Send a request
+try {
+    Felt response = request.send();
+} catch (RequestFailedException e) {
+    // Handle an exception
+}
+```
+
+In the case of `Request.sendAsync()`, an exception would have to be handled in the returned `CompletableFuture`.
+
 # Package com.swmansion.starknet.provider.gateway
 
 Provider utilising StarkNet gateway and feeder gateway for communication with the network.
+
+```java
+// Create a provider using GatewayProvider static methods
+GatewayProvider.makeTestnetProvider();
+// Chain id can be specified
+GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2);
+// As well as the custom HttpService
+GatewayProvider.makeTestnetProvider(myHttpService, StarknetChainId.TESTNET2);
+
+// Provider can be also created using a constructor
+new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
+// or with a custom HttpService
+new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET, myHttpService); 
+```
 
 # Package com.swmansion.starknet.provider.rpc
 
 Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
+
+```java
+// JsonRpcProvider can only be created using constructor
+new JsonRpcProvider("rpcNodeUrl", StarknetChainId.TESTNET);
+// or with a custom HttpService
+new JsonRpcProvider("rpcNodeUrl", StarknetChainId.TESTNET, myHttpService);
+```
 
 # Package com.swmansion.starknet.service.http
 
@@ -263,14 +316,22 @@ import com.swmansion.starknet.service.http.OkHttpService;
 
 // (...)
 
-var httpClient = new OkHttpClient();
-var httpService = new OkHttpService(httpClient);
-
-var provider = GatewayProvider.makeTestnetClient(httpService);
-var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
-var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
+OkHttpClient httpClient = new OkHttpClient();
+OkHttpService httpService = new OkHttpService(httpClient);
 ```
 
 # Package com.swmansion.starknet.signer
 
-Signer interface used to sign StarkNet transactions.
+Signer interface and its implementations. 
+Recommended way of using Signer is through an Account.
+
+```java
+// Create a signer
+Signer signer = ...
+        
+// Sign a transaction
+List<Felt> signature = signer.signTransaction(tx);
+
+// Get a public key
+Felt publicKey = signer.getPublicKey();
+```

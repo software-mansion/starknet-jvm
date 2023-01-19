@@ -1017,7 +1017,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = GatewayProvider.makeTestnetClient(httpService)
+        val provider = GatewayProvider.makeTestnetProvider(httpService)
         val receipt = provider.getTransactionReceipt(hash).send() as GatewayTransactionReceipt
 
         assertEquals(hash, receipt.hash)

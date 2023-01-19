@@ -417,7 +417,7 @@ class GatewayProvider(
 
     companion object Factory {
         @JvmStatic
-        fun makeTestnetClient(): GatewayProvider {
+        fun makeTestnetProvider(): GatewayProvider {
             return GatewayProvider(
                 "$TESTNET_URL/feeder_gateway",
                 "$TESTNET_URL/gateway",
@@ -426,7 +426,7 @@ class GatewayProvider(
         }
 
         @JvmStatic
-        fun makeTestnetClient(testnetId: StarknetChainId): GatewayProvider =
+        fun makeTestnetProvider(testnetId: StarknetChainId): GatewayProvider =
             when (testnetId) {
                 StarknetChainId.TESTNET -> GatewayProvider(
                     "$TESTNET_URL/feeder_gateway",
@@ -444,7 +444,7 @@ class GatewayProvider(
             }
 
         @JvmStatic
-        fun makeTestnetClient(httpService: HttpService): GatewayProvider {
+        fun makeTestnetProvider(httpService: HttpService): GatewayProvider {
             return GatewayProvider(
                 "$TESTNET_URL/feeder_gateway",
                 "$TESTNET_URL/gateway",
@@ -454,7 +454,7 @@ class GatewayProvider(
         }
 
         @JvmStatic
-        fun makeTestnetClient(testnetId: StarknetChainId, httpService: HttpService): GatewayProvider =
+        fun makeTestnetProvider(testnetId: StarknetChainId, httpService: HttpService): GatewayProvider =
             when (testnetId) {
                 StarknetChainId.TESTNET -> GatewayProvider(
                     "$TESTNET_URL/feeder_gateway",
@@ -474,7 +474,7 @@ class GatewayProvider(
             }
 
         @JvmStatic
-        fun makeMainnetClient(): GatewayProvider {
+        fun makeMainnetProvider(): GatewayProvider {
             return GatewayProvider(
                 "$MAINNET_URL/feeder_gateway",
                 "$MAINNET_URL/gateway",
@@ -483,7 +483,7 @@ class GatewayProvider(
         }
 
         @JvmStatic
-        fun makeMainnetClient(httpService: HttpService): GatewayProvider {
+        fun makeMainnetProvider(httpService: HttpService): GatewayProvider {
             return GatewayProvider(
                 "$MAINNET_URL/feeder_gateway",
                 "$MAINNET_URL/gateway",
