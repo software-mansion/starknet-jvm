@@ -68,7 +68,7 @@ fun main() {
 
 ## Making asynchronous requests
 
-It is also possible to make asynchronous requests. `Request.sendAsync()` returs a `CompletableFuture`
+It is also possible to make asynchronous requests. `Request.sendAsync()` returns a `CompletableFuture`
 that can be than handled in preferred way.
 
 ### In Java
@@ -286,7 +286,7 @@ GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2);
 // As well as the custom HttpService
 GatewayProvider.makeTestnetProvider(myHttpService, StarknetChainId.TESTNET2);
 
-// Provider can be also created using a construcotr
+// Provider can be also created using a constructor
 new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
 // or with a custom HttpService
 new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET, myHttpService); 
