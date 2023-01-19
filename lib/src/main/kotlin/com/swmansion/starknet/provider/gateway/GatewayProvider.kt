@@ -96,17 +96,31 @@ class GatewayProvider(
         return response.body
     }
 
-    private fun <T> buildDeserializer(deserializationStrategy: DeserializationStrategy<T>): HttpResponseDeserializer<T> =
+    private fun <T> buildDeserializer(
+        deserializationStrategy: DeserializationStrategy<T>,
+    ): HttpResponseDeserializer<T> =
         Function { response ->
             val body = handleResponseError(response)
 
-            val json = Json { ignoreUnknownKeys = true }
             json.decodeFromString(deserializationStrategy, body)
         }
 
-    private fun transformResponseForTransactionAndSerialize(response: HttpResponse): Transaction {
+    private fun handleMissingTransaction(response: HttpResponse): String {
         val body = handleResponseError(response)
 
+        @Serializable
+        data class MissingTransactionResponse(val status: TransactionStatus)
+
+        val missingTransaction = json.decodeFromString(MissingTransactionResponse.serializer(), body)
+        if (missingTransaction.status == TransactionStatus.UNKNOWN) throw GatewayRequestFailedException(
+            message = "Transaction not received or unknown",
+            payload = body,
+        )
+
+        return body
+    }
+
+    private fun transformResponseForTransactionAndSerialize(body: String): Transaction {
         try {
             val transformedResponse = json.parseToJsonElement(body).jsonObject["transaction"]
             val encodedResponse = json.encodeToString(transformedResponse)
@@ -170,7 +184,8 @@ class GatewayProvider(
         return HttpRequest(
             Payload(url, "GET", params),
             { response ->
-                transformResponseForTransactionAndSerialize(response)
+                val body = handleMissingTransaction(response)
+                transformResponseForTransactionAndSerialize(body)
             },
             httpService,
         )
@@ -182,7 +197,10 @@ class GatewayProvider(
 
         return HttpRequest(
             Payload(url, "GET", params),
-            buildDeserializer(GatewayTransactionReceipt.serializer()),
+            { response ->
+                val body = handleMissingTransaction(response)
+                json.decodeFromString(GatewayTransactionReceipt.serializer(), body)
+            },
             httpService,
         )
     }
@@ -415,11 +433,13 @@ class GatewayProvider(
                     "$TESTNET_URL/gateway",
                     testnetId,
                 )
+
                 StarknetChainId.TESTNET2 -> GatewayProvider(
                     "$TESTNET2_URL/feeder_gateway",
                     "$TESTNET2_URL/gateway",
                     testnetId,
                 )
+
                 else -> throw IllegalArgumentException("Invalid testnet id")
             }
 
@@ -442,12 +462,14 @@ class GatewayProvider(
                     testnetId,
                     httpService,
                 )
+
                 StarknetChainId.TESTNET2 -> GatewayProvider(
                     "$TESTNET2_URL/feeder_gateway",
                     "$TESTNET2_URL/gateway",
                     testnetId,
                     httpService,
                 )
+
                 else -> throw IllegalArgumentException("Invalid testnet id")
             }
 
