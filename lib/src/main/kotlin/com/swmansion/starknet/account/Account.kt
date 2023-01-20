@@ -34,7 +34,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke function payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload
+    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload
 
     /**
      * Sign deploy account transaction.
@@ -51,6 +51,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
+        forFeeEstimate: Boolean = false,
     ): DeployAccountTransactionPayload
 
     /**
@@ -67,6 +68,7 @@ interface Account {
         contractDefinition: ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
+        forFeeEstimate: Boolean = false,
     ): DeclareTransactionPayload
 
     /**

@@ -9,6 +9,7 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
+import java.math.BigInteger
 
 /**
  * Standard account used in StarkNet.
@@ -23,6 +24,7 @@ class StandardAccount(
     private val provider: Provider,
 ) : Account {
     private val version = Felt.ONE
+    private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(BigInteger(version.decString()))
 
     /**
      * @param provider a provider used to interact with StarkNet
@@ -35,14 +37,19 @@ class StandardAccount(
         provider,
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload {
+    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
         val calldata = callsToExecuteCalldata(calls)
+        val signVersion = when(forFeeEstimate) {
+            true -> Felt(estimateVersion)
+            false -> version
+        }
         val tx = TransactionFactory.makeInvokeTransaction(
             senderAddress = address,
             calldata = calldata,
             chainId = provider.chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
+            version = signVersion,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -55,7 +62,12 @@ class StandardAccount(
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
+        forFeeEstimate: Boolean,
     ): DeployAccountTransactionPayload {
+        val signVersion = when(forFeeEstimate) {
+            true -> Felt(estimateVersion)
+            false -> version
+        }
         val tx = TransactionFactory.makeDeployAccountTransaction(
             classHash = classHash,
             contractAddress = address,
@@ -63,7 +75,7 @@ class StandardAccount(
             calldata = calldata,
             chainId = provider.chainId,
             maxFee = maxFee,
-            version = version,
+            version = signVersion,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -74,7 +86,12 @@ class StandardAccount(
         contractDefinition: ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
+        forFeeEstimate: Boolean,
     ): DeclareTransactionPayload {
+        val signVersion = when(forFeeEstimate) {
+            true -> Felt(estimateVersion)
+            false -> version
+        }
         val tx = TransactionFactory.makeDeclareTransaction(
             contractDefinition = contractDefinition,
             classHash = classHash,
@@ -82,7 +99,7 @@ class StandardAccount(
             chainId = provider.chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
-            version = version,
+            version = signVersion,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -113,7 +130,7 @@ class StandardAccount(
 
     private fun buildEstimateFeeRequest(calls: List<Call>, nonce: Felt): Request<EstimateFeeResponse> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
-        val payload = sign(calls, executionParams)
+        val payload = sign(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeTransaction(
             senderAddress = payload.senderAddress,
@@ -122,6 +139,7 @@ class StandardAccount(
             nonce = nonce,
             maxFee = payload.maxFee,
             signature = payload.signature,
+            version = payload.version,
         )
 
         return provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
