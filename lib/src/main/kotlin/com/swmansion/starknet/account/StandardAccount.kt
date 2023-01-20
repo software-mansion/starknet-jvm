@@ -39,7 +39,7 @@ class StandardAccount(
 
     override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
         val calldata = callsToExecuteCalldata(calls)
-        val signVersion = when(forFeeEstimate) {
+        val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
@@ -64,7 +64,7 @@ class StandardAccount(
         maxFee: Felt,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionPayload {
-        val signVersion = when(forFeeEstimate) {
+        val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
@@ -88,7 +88,7 @@ class StandardAccount(
         params: ExecutionParams,
         forFeeEstimate: Boolean,
     ): DeclareTransactionPayload {
-        val signVersion = when(forFeeEstimate) {
+        val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
