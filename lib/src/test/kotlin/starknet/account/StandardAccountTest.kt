@@ -19,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
+import java.math.BigInteger
 import java.nio.file.Path
 import kotlin.io.path.readText
 
@@ -376,7 +377,10 @@ class StandardAccountTest {
             salt = salt,
             calldata = calldata,
             maxFee = Felt.ZERO,
+            forFeeEstimate = true,
         )
+        assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
+
         val feePayload = provider.getEstimateFee(payloadForFeeEstimation).send()
         assertTrue(feePayload.overallFee.value > Felt.ONE.value)
     }

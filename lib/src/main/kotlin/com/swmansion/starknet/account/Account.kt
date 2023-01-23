@@ -19,10 +19,11 @@ interface Account {
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate parameter indicating whether the sign will be only used for cost estimation
      * @return signed invoke function payload
      */
-    fun sign(call: Call, params: ExecutionParams): InvokeTransactionPayload {
-        return sign(listOf(call), params)
+    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload {
+        return sign(listOf(call), params, forFeeEstimate)
     }
 
     /**
@@ -32,6 +33,7 @@ interface Account {
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate parameter indicating whether the sign will be only used for cost estimation
      * @return signed invoke function payload
      */
     fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload
@@ -62,6 +64,7 @@ interface Account {
      * @param contractDefinition a definition of the contract to be declared
      * @param classHash a class hash of the contract to be declared
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate parameter indicating whether the sign will be only used for cost estimation
      * @return signed declare transaction payload
      */
     fun signDeclare(
