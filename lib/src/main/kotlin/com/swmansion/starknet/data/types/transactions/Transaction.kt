@@ -307,7 +307,7 @@ object TransactionFactory {
         nonce: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
-        version: Felt = INVOKE_VERSION,
+        version: Felt,
     ): InvokeTransactionV1 {
         val hash = TransactionHashCalculator.calculateInvokeTxHash(
             contractAddress = senderAddress,

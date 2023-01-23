@@ -9,6 +9,7 @@ import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
 import com.swmansion.starknet.data.types.transactions.TransactionFactory
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
@@ -438,5 +439,39 @@ class StandardAccountTest {
         val result = account.execute(call).send()
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `send transaction signed for fee estimation`(provider: Provider) {
+        val privateKey = Felt(11111)
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountClassHash
+        val salt = Felt.ONE
+        val calldata = listOf(publicKey)
+        val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+        )
+
+        val account = StandardAccount(
+            address,
+            privateKey,
+            provider,
+        )
+        val payloadForFeeEstimation = account.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.ZERO,
+            forFeeEstimate = true,
+        )
+        assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
+
+        assertThrows(RequestFailedException::class.java) {
+            provider.deployAccount(payloadForFeeEstimation).send()
+        }
     }
 }

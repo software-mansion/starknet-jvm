@@ -24,7 +24,7 @@ class StandardAccount(
     private val provider: Provider,
 ) : Account {
     private val version = Felt.ONE
-    private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(BigInteger(version.decString()))
+    private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
 
     /**
      * @param provider a provider used to interact with StarkNet
