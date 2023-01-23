@@ -117,6 +117,7 @@ data class InvokeTransactionV1(
             maxFee = maxFee,
             nonce = nonce,
             senderAddress = senderAddress,
+            version = version,
         )
     }
 
@@ -306,16 +307,17 @@ object TransactionFactory {
         nonce: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
+        version: Felt,
     ): InvokeTransactionV1 {
         val hash = TransactionHashCalculator.calculateInvokeTxHash(
             contractAddress = senderAddress,
             calldata = calldata,
             chainId = chainId,
-            version = INVOKE_VERSION,
+            version = version,
             nonce = nonce,
             maxFee = maxFee,
         )
-        return InvokeTransactionV1(calldata, senderAddress, hash, maxFee, INVOKE_VERSION, signature, nonce)
+        return InvokeTransactionV1(calldata, senderAddress, hash, maxFee, version, signature, nonce)
     }
 
     @JvmStatic

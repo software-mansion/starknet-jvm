@@ -19,10 +19,11 @@ interface Account {
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(call: Call, params: ExecutionParams): InvokeTransactionPayload {
-        return sign(listOf(call), params)
+    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload {
+        return sign(listOf(call), params, forFeeEstimate)
     }
 
     /**
@@ -32,9 +33,10 @@ interface Account {
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload
+    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload
 
     /**
      * Sign deploy account transaction.
@@ -44,6 +46,8 @@ interface Account {
      * @param classHash hash of the contract that will be deployed. Has to be declared first!
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
+     * @param maxFee max fee to be consumed by this transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
      */
     fun signDeployAccount(
@@ -51,6 +55,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
+        forFeeEstimate: Boolean = false,
     ): DeployAccountTransactionPayload
 
     /**
@@ -61,12 +66,14 @@ interface Account {
      * @param contractDefinition a definition of the contract to be declared
      * @param classHash a class hash of the contract to be declared
      * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
      */
     fun signDeclare(
         contractDefinition: ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
+        forFeeEstimate: Boolean = false,
     ): DeclareTransactionPayload
 
     /**
