@@ -16,18 +16,22 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.math.BigInteger
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.readText
 
+@Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient(port = 5051)
+        private val devnetClient = DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
         private val signer = StarkCurveSigner(Felt(1234))
 
         private lateinit var gatewayProvider: GatewayProvider

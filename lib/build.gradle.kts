@@ -84,6 +84,8 @@ tasks.test {
     systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
     systemProperty("java.library.path", file("${rootDir}/crypto/build/bindings").absolutePath)
 
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+
     testLogging {
         events("PASSED", "SKIPPED", "FAILED")
         showStandardStreams = true

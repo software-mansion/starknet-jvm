@@ -29,8 +29,8 @@ class DevnetClient(
     private val host: String = "0.0.0.0",
     private val port: Int = 5050,
     private val httpService: HttpService = OkHttpService(),
+    private val accountDirectory: Path = Paths.get("src/test/resources/account"),
 ) : AutoCloseable {
-    private val accountDirectory = Paths.get("src/test/resources/account")
     private val baseUrl: String = "http://$host:$port"
     private val seed: Int = 1053545547
     private val json = Json { ignoreUnknownKeys = true }
