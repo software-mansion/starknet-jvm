@@ -24,11 +24,12 @@ import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 
 class ProviderTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient()
+        private val devnetClient = DevnetClient(accountDirectory = Paths.get("src/test/resources/provider_test_account"))
         private lateinit var contractAddress: Felt
         private lateinit var classHash: Felt
         private lateinit var invokeTransactionHash: Felt

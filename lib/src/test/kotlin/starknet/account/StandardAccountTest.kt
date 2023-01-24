@@ -24,14 +24,15 @@ import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.math.BigInteger
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient(port = 5051)
-        private val signer = StarkCurveSigner(Felt(1234))
+        private val devnetClient = DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
+        private val signer = StarkCurveSigner(Felt(1234567))
 
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider

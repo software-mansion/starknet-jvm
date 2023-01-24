@@ -18,12 +18,13 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
 import java.nio.file.Path
+import java.nio.file.Paths
 import starknet.utils.ContractDeployer as TestContractDeployer
 
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
     @JvmStatic
-    private val devnetClient = DevnetClient(port = 5052)
+    private val devnetClient = DevnetClient(port = 5052, accountDirectory = Paths.get("src/test/resources/standard_deployer_test_account"))
     private val signer = StarkCurveSigner(Felt(1234))
 
     private lateinit var testContractDeployer: TestContractDeployer
