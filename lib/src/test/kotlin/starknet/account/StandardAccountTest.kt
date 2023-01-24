@@ -32,7 +32,7 @@ class StandardAccountTest {
     companion object {
         @JvmStatic
         private val devnetClient = DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
-        private val signer = StarkCurveSigner(Felt(1234567))
+        private val signer = StarkCurveSigner(Felt(1234))
 
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
