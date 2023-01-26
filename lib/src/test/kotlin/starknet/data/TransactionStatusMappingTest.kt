@@ -10,11 +10,11 @@ import org.junit.jupiter.api.assertThrows
 class TransactionStatusMappingTest {
 
     @Test
-    fun `received status is mapped to pending`() {
+    fun `received status is mapped to received`() {
         val statusString = "\"RECEIVED\""
         val status = Json.decodeFromString(TransactionStatus.serializer(), statusString)
 
-        assertEquals(TransactionStatus.PENDING, status)
+        assertEquals(TransactionStatus.RECEIVED, status)
     }
 
     @Test

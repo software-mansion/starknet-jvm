@@ -15,8 +15,11 @@ enum class TransactionReceiptType {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionStatus {
-    @JsonNames("PENDING", "RECEIVED")
+    @JsonNames("PENDING")
     PENDING,
+
+    @JsonNames("RECEIVED")
+    RECEIVED,
 
     @JsonNames("ACCEPTED_ON_L1")
     ACCEPTED_ON_L1,
