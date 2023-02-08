@@ -5,6 +5,51 @@ import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+/**
+ * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/argentlabs/argent-x/discussions/14).
+ *
+ * ```java
+ * String typedDataString = """
+ * {
+ *     "types": {
+ *         "StarkNetDomain": [
+ *             {"name": "name", "type": "felt"},
+ *             {"name": "version", "type": "felt"},
+ *             {"name": "chainId", "type": "felt"},
+ *         ],
+ *         "Person": [
+ *             {"name": "name", "type": "felt"},
+ *             {"name": "wallet", "type": "felt"},
+ *         ],
+ *         "Mail": [
+ *             {"name": "from", "type": "Person"},
+ *             {"name": "to", "type": "Person"},
+ *             {"name": "contents", "type": "felt"},
+ *         ],
+ *     },
+ *     "primaryType": "Mail",
+ *     "domain": {"name": "StarkNet Mail", "version": "1", "chainId": 1},
+ *     "message": {
+ *         "from": {
+ *             "name": "Cow",
+ *             "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826",
+ *         },
+ *         "to": {
+ *             "name": "Bob",
+ *             "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
+ *         },
+ *         "contents": "Hello, Bob!",
+ *     },
+ * }
+ * """;
+ *
+ * // Create a TypedData instance from string
+ * TypedData typedData = TypedData.fromJsonString(typedDataString);
+ *
+ * // Get a message hash
+ * Felt messageHash = typedData.getMessageHash(accountAddress);
+ * ```
+ */
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
@@ -64,7 +109,8 @@ data class TypedData private constructor(
     }
 
     private fun encodeDependency(dependency: String): String {
-        val fields = types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
+        val fields =
+            types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
         val encodedFields = fields.joinToString(",") { "${it.name}:${it.type}" }
         return "$dependency($encodedFields)"
     }
