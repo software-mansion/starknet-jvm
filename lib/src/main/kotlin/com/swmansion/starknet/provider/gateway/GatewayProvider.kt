@@ -120,15 +120,6 @@ class GatewayProvider(
         return body
     }
 
-    private fun transformResponseForTransactionAndSerialize(body: String): Transaction {
-        try {
-            val transformedResponse = json.parseToJsonElement(body).jsonObject.getValue("transaction")
-            return json.decodeFromJsonElement(TransactionPolymorphicSerializer, transformedResponse)
-        } catch (e: Exception) {
-            throw RequestFailedException(payload = "Response is not a valid transaction", message = body)
-        }
-    }
-
     override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
@@ -184,7 +175,7 @@ class GatewayProvider(
             Payload(url, "GET", params),
             { response ->
                 val body = handleMissingTransaction(response)
-                transformResponseForTransactionAndSerialize(body)
+                json.decodeFromString(GatewayTransactionTransformingSerializer, body)
             },
             httpService,
         )
