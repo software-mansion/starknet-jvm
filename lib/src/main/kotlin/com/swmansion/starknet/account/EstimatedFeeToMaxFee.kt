@@ -1,4 +1,4 @@
-package com.swmansion.starknet.crypto
+package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.types.Felt
 import java.math.BigInteger
