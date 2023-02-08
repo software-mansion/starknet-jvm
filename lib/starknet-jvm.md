@@ -252,7 +252,7 @@ Request<ContractDeployment> request = deployer.deployContract(
         List.of(constructorCalldata1, constructorCalldata2, ...));
 ContractDeployment result = request.send();
 
-// Get a address of the deployed contract
+// Get an address of the deployed contract
 Request<Felt> addressRequest = deployer.findContractAddress(result);
 Felt address = addressRequest.send();
 ```
