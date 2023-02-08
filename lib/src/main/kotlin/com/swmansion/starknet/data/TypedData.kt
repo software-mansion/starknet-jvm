@@ -109,7 +109,8 @@ data class TypedData private constructor(
     }
 
     private fun encodeDependency(dependency: String): String {
-        val fields = types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
+        val fields =
+            types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
         val encodedFields = fields.joinToString(",") { "${it.name}:${it.type}" }
         return "$dependency($encodedFields)"
     }
