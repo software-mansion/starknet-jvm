@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Request
@@ -75,6 +76,23 @@ interface Account {
         params: ExecutionParams,
         forFeeEstimate: Boolean = false,
     ): DeclareTransactionPayload
+
+    /**
+     * Sign TypedData for off-chain usage with this account privateKey
+     *
+     * @param typedData a TypedData instance to sign
+     * @return a signature of typedData provided
+     */
+    fun signTypedData(typedData: TypedData): Signature
+
+    /**
+     * Verify a signature of TypedData on StarkNet
+     *
+     * @param typedData a TypedData instance which signature will be verified
+     * @param signature a signature of typedData
+     * @return `true` if signature is valid, `false` otherwise
+     */
+    fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean>
 
     /**
      * Execute a list of calls

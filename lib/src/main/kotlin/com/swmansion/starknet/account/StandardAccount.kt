@@ -1,15 +1,18 @@
 package com.swmansion.starknet.account
 
 import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import java.math.BigInteger
+import java.util.concurrent.CompletableFuture
 
 /**
  * Standard account used in StarkNet.
@@ -104,6 +107,45 @@ class StandardAccount(
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
         return signedTransaction.toPayload()
+    }
+
+    override fun signTypedData(typedData: TypedData): Signature {
+        return signer.signTypedData(typedData, address)
+    }
+
+    override fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean> {
+        val messageHash = typedData.getMessageHash(address)
+        val calldata = listOf(messageHash, Felt(signature.size)) + signature
+        val call = Call(address, "isValidSignature", calldata)
+        val request = provider.callContract(call)
+
+        return object : Request<Boolean> {
+            override fun send(): Boolean {
+                return try {
+                    val result = request.send()
+                    result[0] > Felt.ZERO
+                } catch (e: RequestFailedException) {
+                    return handleValidationError(e)
+                }
+            }
+
+            override fun sendAsync(): CompletableFuture<Boolean> {
+                return request.sendAsync().handle { result, exception ->
+                    if (exception is RequestFailedException) {
+                        return@handle handleValidationError(exception)
+                    }
+                    return@handle result[0] > Felt.ZERO
+                }
+            }
+        }
+    }
+
+    private fun handleValidationError(e: RequestFailedException): Boolean {
+        val regex = """Signature\s.+,\sis\sinvalid""".toRegex()
+        if (e.message?.let { regex.containsMatchIn(it) } == true) {
+            return false
+        }
+        throw e
     }
 
     override fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {

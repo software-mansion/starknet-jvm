@@ -1,5 +1,6 @@
 package com.swmansion.starknet.signer
 
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 
@@ -15,9 +16,15 @@ interface Signer {
      * @param transaction a transaction to be signed
      * @return a signature of provided transaction
      */
-    // TODO: sign message
-    // TODO: add more params
     fun signTransaction(transaction: Transaction): Signature
+
+    /**
+     * Sign TypedData
+     *
+     * @param typedData TypedData instance to sign
+     * @return a signature of provided typedData
+     */
+    fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature
 
     /**
      * Public key used by a signer.

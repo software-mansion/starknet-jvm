@@ -1,6 +1,7 @@
 package com.swmansion.starknet.signer
 
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 
@@ -16,5 +17,10 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
 
     override fun signTransaction(transaction: Transaction): Signature {
         return StarknetCurve.sign(privateKey, transaction.hash).toList()
+    }
+
+    override fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature {
+        val messageHash = typedData.getMessageHash(accountAddress)
+        return StarknetCurve.sign(privateKey, messageHash).toList()
     }
 }
