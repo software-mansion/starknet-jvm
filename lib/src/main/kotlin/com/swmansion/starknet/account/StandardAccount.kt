@@ -140,6 +140,13 @@ class StandardAccount(
         }
     }
 
+    /**
+     * Check if the error message contains part like `Signature ..., is invalid`
+     *
+     * Account contract `isValidSignature` signature raises an error instead of
+     * returning `0` on invalid signature. We have to check the call error to verify
+     * if it was caused by invalid signature or some other problem.
+     */
     private fun handleValidationError(e: RequestFailedException): Boolean {
         val regex = """Signature\s.+,\sis\sinvalid""".toRegex()
         if (e.message?.let { regex.containsMatchIn(it) } == true) {
