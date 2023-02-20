@@ -154,7 +154,7 @@ public class Main {
         Provider provider = GatewayProvider.makeTestnetProvider();
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
-        Account account = new StandardAccount(provider, address, privateKey);
+        Account account = new StandardAccount(address, privateKey, provider);
 
         // Execute a single call
         Felt maxFee = new Felt(10000000L);
@@ -170,15 +170,24 @@ public class Main {
 
         // Use automatic maxFee estimation
         account.execute(call).send();
-        // or
+        // or 
         account.execute(List.of(call1, call2)).send();
 
         // Construct transaction step by step
         Call otherCall = new Call(contractAddress, "increase_balance", List.of(new Felt(100)));
         EstimateFeeResponse feeEstimate = account.estimateFee(otherCall).send();
         Felt nonce = account.getNonce().send();
-        InvokeFunctionPayload signedTransaction = account.sign(otherCall, new ExecutionParams(nonce, maxFee));
+        InvokeTransactionPayload signedTransaction = account.sign(otherCall, new ExecutionParams(nonce, maxFee));
         InvokeFunctionResponse signedInvokeResponse = provider.invokeFunction(signedTransaction).send();
+
+        // Sign transaction for fee estimation only
+        InvokeTransactionPayload transactionForFeeEstimation = account.sign(call, new ExecutionParams(nonce, Felt.ZERO), true);
+
+        // Sign and verify TypedData signature
+        TypedData typedData = TypedData.fromJsonString("...");
+        List<Felt> typedDataSignature = account.signTypedData(typedData);
+        Request<Boolean> isValidSignatureRequest = account.verifyTypedDataSignature(typedData, typedDataSignature);
+        boolean isValidSignature = isValidSignatureRequest.send();
     }
 }
 ```
@@ -190,7 +199,7 @@ fun main(args: Array<String>) {
     val provider: Provider = makeTestnetProvider()
     val address = Felt(0x1234)
     val privateKey = Felt(0x1)
-    val account: Account = StandardAccount(provider, address, privateKey)
+    val account: Account = StandardAccount(address, privateKey, provider)
 
     // Execute a single call
     val maxFee = Felt(10000000L)
@@ -215,6 +224,15 @@ fun main(args: Array<String>) {
     val nonce = account.getNonce().send()
     val signedTransaction = account.sign(otherCall, ExecutionParams(nonce, maxFee))
     val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
+    
+    // Sign transaction for fee estimation only
+    val transactionForFeeEstimation = account.sign(call, ExecutionParams(nonce, Felt.ZERO), true)
+
+    // Sign and verify TypedData signature
+    val typedData = TypedData.fromJsonString("...");
+    val typedDataSignature = account.signTypedData(typedData)
+    val isValidSignatureRequest = account.verifyTypedDataSignature(typedData, typedDataSignature)
+    val isValidSignature = isValidSignatureRequest.send()
 }
 ```
 

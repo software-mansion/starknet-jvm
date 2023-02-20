@@ -12,14 +12,21 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.service.http.HttpResponse
+import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import starknet.data.loadTypedData
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
 import java.math.BigInteger
@@ -31,7 +38,8 @@ import kotlin.io.path.readText
 class StandardAccountTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
+        private val devnetClient =
+            DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
         private val signer = StarkCurveSigner(Felt(1234))
 
         private lateinit var gatewayProvider: GatewayProvider
@@ -242,6 +250,53 @@ class StandardAccountTest {
         val receipt = provider.getTransactionReceipt(response.transactionHash).send()
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign TypedData`(accountAndProvider: AccountAndProvider) {
+        val (account, _) = accountAndProvider
+        val typedData = loadTypedData("typed_data_struct_array_example.json")
+
+        // Sign typedData
+        val signature = account.signTypedData(typedData)
+        assertTrue(signature.isNotEmpty())
+
+        // Verify the signature
+        val request = account.verifyTypedDataSignature(typedData, signature)
+        val isValid = request.send()
+        assertTrue(isValid)
+
+        // Verify invalid signature does not pass
+        val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
+        val isValid2 = request2.send()
+        assertFalse(isValid2)
+    }
+
+    @Test
+    fun `sign TypedData rethrows exceptions other than signature related`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                false,
+                500,
+                """
+                {
+                    "something": "broke"    
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = GatewayProvider.makeTestnetProvider(httpService)
+        val account = StandardAccount(Felt.ONE, Felt.ONE, provider)
+
+        val typedData = loadTypedData("typed_data_struct_array_example.json")
+        val signature = account.signTypedData(typedData)
+        assertTrue(signature.isNotEmpty())
+
+        val request = account.verifyTypedDataSignature(typedData, signature)
+        assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
     }
 
     @ParameterizedTest

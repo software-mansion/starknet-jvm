@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Request
@@ -22,8 +23,21 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload {
+    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
         return sign(listOf(call), params, forFeeEstimate)
+    }
+
+    /**
+     * Sign a transaction.
+     *
+     * Sign a transaction to be executed on StarkNet.
+     *
+     * @param call a call to be signed
+     * @param params additional execution parameters for the transaction
+     * @return signed invoke function payload
+     */
+    fun sign(call: Call, params: ExecutionParams): InvokeTransactionPayload {
+        return sign(listOf(call), params, false)
     }
 
     /**
@@ -36,7 +50,20 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean = false): InvokeTransactionPayload
+    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload
+
+    /**
+     * Sign multiple calls as a single transaction.
+     *
+     * Sign a list of calls to be executed on StarkNet.
+     *
+     * @param calls a list of calls to be signed
+     * @param params additional execution parameters for the transaction
+     * @return signed invoke function payload
+     */
+    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload {
+        return sign(calls, params, false)
+    }
 
     /**
      * Sign deploy account transaction.
@@ -55,8 +82,28 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
-        forFeeEstimate: Boolean = false,
+        forFeeEstimate: Boolean,
     ): DeployAccountTransactionPayload
+
+    /**
+     * Sign deploy account transaction.
+     *
+     * Sign a deploy account transaction that requires prefunding deployed address.
+     *
+     * @param classHash hash of the contract that will be deployed. Has to be declared first!
+     * @param calldata constructor calldata for the contract deployment
+     * @param salt salt used to calculate address of the new contract
+     * @param maxFee max fee to be consumed by this transaction
+     * @return signed deploy account payload
+     */
+    fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        maxFee: Felt,
+    ): DeployAccountTransactionPayload {
+        return signDeployAccount(classHash, calldata, salt, maxFee, false)
+    }
 
     /**
      * Sign a declare transaction.
@@ -75,6 +122,23 @@ interface Account {
         params: ExecutionParams,
         forFeeEstimate: Boolean = false,
     ): DeclareTransactionPayload
+
+    /**
+     * Sign TypedData for off-chain usage with this account privateKey
+     *
+     * @param typedData a TypedData instance to sign
+     * @return a signature of typedData provided
+     */
+    fun signTypedData(typedData: TypedData): Signature
+
+    /**
+     * Verify a signature of TypedData on StarkNet
+     *
+     * @param typedData a TypedData instance which signature will be verified
+     * @param signature a signature of typedData
+     * @return `true` if signature is valid, `false` otherwise
+     */
+    fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean>
 
     /**
      * Execute a list of calls
