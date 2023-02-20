@@ -254,6 +254,47 @@ Data classes representing StarkNet objects.
 
 Data classes representing StarkNet transactions.
 
+# Package com.swmansion.starknet.deployercontract
+
+Classes for interacting with Universal Deployer Contract (UDC).
+
+```java
+// Create a deployer instance
+Deployer deployer = new StandardDeployer(address, provider, account);
+
+// Create a deploment request and send it
+Request<ContractDeployment> request = deployer.deployContract(
+        classHash,
+        unique,
+        salt,
+        List.of(constructorCalldata1, constructorCalldata2, ...));
+ContractDeployment result = request.send();
+
+// Get an address of the deployed contract
+Request<Felt> addressRequest = deployer.findContractAddress(result);
+Felt address = addressRequest.send();
+```
+
+or in Kotlin
+
+```kotlin
+// Create a deployer instance
+val deployer: Deployer = StandardDeployer(address, provider, account)
+
+// Create a deploment request and send it
+val request = deployer.deployContract(
+    classHash,
+    unique,
+    salt,
+    listOf(constructorCalldata1, constructorCalldata2),
+)
+val result = request.send()
+
+// Get an address of the deployed contract
+val addressRequest = deployer.findContractAddress(result)
+val (value) = addressRequest.send()
+```
+
 # Package com.swmansion.starknet.provider
 
 Provider interface and its implementations.
