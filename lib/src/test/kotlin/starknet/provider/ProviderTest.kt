@@ -3,6 +3,7 @@ package starknet.provider
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.extensions.toGatewayParam
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.GatewayRequestFailedException
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -22,6 +23,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -190,9 +192,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block number`(provider: Provider) {
-        // Devnet is not supporting RPC calls with id different from "latest"
-        if (provider is JsonRpcProvider) return
-
         val call = Call(
             contractAddress,
             "get_balance",
@@ -207,25 +206,25 @@ class ProviderTest {
         assertEquals(expected, balance)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `call contract with block hash`(provider: Provider) {
-        // Devnet is not supporting RPC calls with id different from "latest"
-        if (provider is JsonRpcProvider) return
-
-        val call = Call(
-            contractAddress,
-            "get_balance",
-            emptyList(),
-        )
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        val request = provider.callContract(call, latestBlock.hash)
-        val response = request.send()
-        val balance = response.first()
-
-        assertEquals(expected, balance)
-    }
+//      TODO: devnet stopped supporting hashes?
+//       https://github.com/Shard-Labs/starknet-devnet/commit/79d27845690bd05d72a92aa5393cd550a722278b#diff-cde437d5cbdd037c127c451d8799223daf13136b13431d93612ccb6b38ff73b6R97
+//
+//    @ParameterizedTest
+//    @MethodSource("getProviders")
+//    fun `call contract with block hash`(provider: Provider) {
+//        val call = Call(
+//            contractAddress,
+//            "get_balance",
+//            emptyList(),
+//        )
+//        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+//
+//        val request = provider.callContract(call, latestBlock.hash)
+//        val response = request.send()
+//        val balance = response.first()
+//
+//        assertEquals(expected, balance)
+//    }
 
     @ParameterizedTest
     @MethodSource("getProviders")
@@ -269,7 +268,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at latest block`() {
+    fun `get class definition at latest block with a tag`() {
         // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
         // After it's fixed add tests with 1) block hash 2) block number
         val provider = rpcProvider()
@@ -302,8 +301,6 @@ class ProviderTest {
             return
         }
 
-        val latestBlock = devnetClient.getLatestBlock()
-
         val request = provider.getClassAt(contractAddress, latestBlock.hash)
         val response = request.send()
 
@@ -315,12 +312,9 @@ class ProviderTest {
     fun `get class at block number`(provider: Provider) {
         // FIXME: Devnet only support's "latest" as block id in this method, no endpoint for it in gateway.
         return
-
         if (provider !is JsonRpcProvider) {
             return
         }
-
-        val latestBlock = devnetClient.getLatestBlock()
 
         val request = provider.getClassAt(contractAddress, latestBlock.number)
         val response = request.send()
@@ -945,6 +939,36 @@ class ProviderTest {
         assertThrows(ContractDefinition.InvalidContractException::class.java) {
             ContractDefinition("{}")
         }
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `dupa`(provider: Provider) {
+
+        if (provider !is JsonRpcProvider) {
+            return
+        }
+
+        //                fromBlockId = BlockId.Hash(Felt.ZERO),
+        //                toBlockId = BlockId.Hash(latestBlock.hash),
+
+        val request = provider.getEvents(GetEventsPayload(
+                fromBlockId = BlockId.Hash(Felt.ZERO),
+                toBlockId = BlockId.Tag(BlockTag.LATEST),
+                address = contractAddress,
+                keys = listOf(Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))),
+                chunkSize = 10,
+        ))
+        val response = request.send()
+
+        assertNotNull(response)
+        //assertEquals(contractAddress, response.events[0].address)
+        println(response)
+
+        println(Felt.fromShortString("balance_increased"))
+        println(Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031")))
+        // sprawdz
     }
 
     @Test

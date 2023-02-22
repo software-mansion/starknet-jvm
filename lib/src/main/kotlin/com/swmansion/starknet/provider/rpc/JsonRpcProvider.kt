@@ -57,6 +57,8 @@ class JsonRpcProvider(
         val payload =
             HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
+        println(payload)
+
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
@@ -358,8 +360,11 @@ class JsonRpcProvider(
      */
     fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
         val params = Json.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("filter", params)
+        }
 
-        return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+        return buildRequest(JsonRpcMethod.GET_EVENTS, jsonPayload, GetEventsResult.serializer())
     }
 
     private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<EstimateFeeResponse> {

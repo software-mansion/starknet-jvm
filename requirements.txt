@@ -1,1 +1,1 @@
-starknet-devnet==0.4.2
+git+https://github.com/Shard-Labs/starknet-devnet@71b1fd7438867d721dce9cb12c70ec68b626a573
