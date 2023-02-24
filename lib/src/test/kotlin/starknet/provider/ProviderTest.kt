@@ -208,6 +208,7 @@ class ProviderTest {
         assertEquals(expected, balance)
     }
 
+<<<<<<< HEAD
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block hash`(provider: Provider) {
@@ -1003,11 +1004,11 @@ class ProviderTest {
     @Test
     fun `get block transaction count with block tag for testnet2`() {
         val provider = GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET2)
-        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
+        val blockTransactionCount = provider.getBlockTransactionCount(0)
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(1, response)
+        assertEquals(17, response)
         assertTrue(provider.chainId == StarknetChainId.TESTNET2)
     }
 
