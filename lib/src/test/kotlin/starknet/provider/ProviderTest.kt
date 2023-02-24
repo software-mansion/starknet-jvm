@@ -22,6 +22,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -948,47 +949,31 @@ class ProviderTest {
         }
     }
 
-    @Test
-    fun `get events`() {
-        val events = """
-        {
-            "id": 0,
-            "jsonrpc": "2.0",
-            "result": {
-                "events": [
-                    {
-                        "address": "0x01",
-                        "keys": ["0x0a", "0x0b"],
-                        "data": ["0x0c", "0x0d"],
-                        "block_hash": "0x0aaaa",
-                        "block_number": 1234,
-                        "transaction_hash": "0x01234"
-                    }
-                ],
-                "continuation_token": "event123"
-            }
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get event`(provider: Provider) {
+
+        if (provider !is JsonRpcProvider) {
+            return
         }
-        """.trimIndent()
+        val key = Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, events)
-        }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
-
-        val request = provider.getEvents(
-            GetEventsPayload(
-                BlockId.Number(1),
-                BlockId.Number(2),
-                Felt(111),
-                listOf(Felt.fromHex("0x0a"), Felt.fromHex("0x0b")),
-                100,
-                "event123",
-            ),
-        )
-
+        val request = provider.getEvents(GetEventsPayload(
+                fromBlockId = BlockId.Hash(Felt.ZERO),
+                toBlockId = BlockId.Tag(BlockTag.LATEST),
+                address = contractAddress,
+                keys = listOf(key),
+                chunkSize = 10,
+        ))
         val response = request.send()
 
         assertNotNull(response)
+
+        val event = response.events[0]
+        assertEquals(contractAddress, event.address)
+        assertEquals(key, event.keys[0])
+        assertEquals(Felt.ZERO, event.data[0])
+        assertEquals(invokeTransactionHash, event.transactionHash)
     }
 
     @ParameterizedTest
