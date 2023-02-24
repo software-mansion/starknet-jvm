@@ -953,8 +953,7 @@ class ProviderTest {
         }
         val key = Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))
 
-        val request = provider.getEvents(
-            GetEventsPayload(
+        val request = provider.getEvents(GetEventsPayload(
                 fromBlockId = BlockId.Hash(Felt.ZERO),
                 toBlockId = BlockId.Tag(BlockTag.LATEST),
                 address = contractAddress,
