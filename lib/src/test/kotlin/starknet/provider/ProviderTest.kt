@@ -116,25 +116,26 @@ class ProviderTest {
         assertEquals(expected, balance)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `call contract with block hash`(provider: Provider) {
-        // Devnet is not supporting RPC calls with id different from "latest"
-        if (provider is JsonRpcProvider) return
-
-        val call = Call(
-            contractAddress,
-            "get_balance",
-            emptyList(),
-        )
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
-
-        val request = provider.callContract(call, latestBlock.hash)
-        val response = request.send()
-        val balance = response.first()
-
-        assertEquals(expected, balance)
-    }
+//    @ParameterizedTest
+//    @MethodSource("getProviders")
+//    fun `call contract with block hash`(provider: Provider) {
+//        // Devnet is not supporting RPC calls with id different from "latest"
+//        // Devnet gateway stopped supporting hashes
+//        if (provider is JsonRpcProvider) return
+//
+//        val call = Call(
+//            contractAddress,
+//            "get_balance",
+//            emptyList(),
+//        )
+//        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+//
+//        val request = provider.callContract(call, latestBlock.hash)
+//        val response = request.send()
+//        val balance = response.first()
+//
+//        assertEquals(expected, balance)
+//    }
 
     @ParameterizedTest
     @MethodSource("getProviders")
@@ -929,11 +930,11 @@ class ProviderTest {
     @Test
     fun `get block transaction count with block tag for testnet2`() {
         val provider = GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET2)
-        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
+        val blockTransactionCount = provider.getBlockTransactionCount(0)
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(17, response)
         assertTrue(provider.chainId == StarknetChainId.TESTNET2)
     }
 
@@ -944,7 +945,7 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(17, response)
     }
 
     @ParameterizedTest
@@ -954,7 +955,7 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(17, response)
     }
 
     @Test
