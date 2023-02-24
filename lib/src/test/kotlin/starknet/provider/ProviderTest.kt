@@ -130,9 +130,9 @@ class ProviderTest {
         val blockNumber = 123456789
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                     {
                         "block_hash": "0x0",
                         "block_number": 123456789,
@@ -208,7 +208,6 @@ class ProviderTest {
         assertEquals(expected, balance)
     }
 
-<<<<<<< HEAD
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block hash`(provider: Provider) {
