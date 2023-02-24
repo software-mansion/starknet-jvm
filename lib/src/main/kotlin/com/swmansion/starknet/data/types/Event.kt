@@ -58,7 +58,7 @@ data class GetEventsPayload(
     val chunkSize: Int,
 
     @SerialName("continuation_token")
-    val continuationToken: String? = null,
+    val continuationToken: String? = "0",
 )
 
 @OptIn(ExperimentalSerializationApi::class)
