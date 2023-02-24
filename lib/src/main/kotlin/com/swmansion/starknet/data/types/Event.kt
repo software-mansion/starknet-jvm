@@ -68,5 +68,5 @@ data class GetEventsResult(
     val events: List<EmittedEvent>,
 
     @JsonNames("continuation_token")
-    val continuationToken: String? = null,
+    val continuationToken: String? = "0",
 )
