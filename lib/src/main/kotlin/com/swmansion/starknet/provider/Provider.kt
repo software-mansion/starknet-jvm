@@ -151,7 +151,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt): Request<ContractClass>
+    fun getClass(classHash: Felt): Request<ContractClassBase>
 
     /**
      * Get the contract class hash.

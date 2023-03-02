@@ -146,13 +146,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
 
-    private fun getClass(payload: GetClassPayload): Request<ContractClass> {
+    private fun getClass(payload: GetClassPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClass.serializer())
+        return buildRequest(JsonRpcMethod.GET_CLASS, params, JsonRpcContractClassPolymorphicSerializer)
     }
 
-    override fun getClass(classHash: Felt): Request<ContractClass> {
+    override fun getClass(classHash: Felt): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, BlockTag.LATEST.tag)
 
         return getClass(payload)
@@ -168,7 +168,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockHash.hexString())
 
         return getClass(payload)
@@ -184,7 +184,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockNumber.toString())
 
         return getClass(payload)
@@ -200,16 +200,16 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockTag.tag)
 
         return getClass(payload)
     }
 
-    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClass> {
+    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, ContractClass.serializer())
+        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, JsonRpcContractClassPolymorphicSerializer)
     }
 
     /**
@@ -220,7 +220,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockHash The hash of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
 
         return getClassAt(payload)
@@ -234,7 +234,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockNumber The number of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
 
         return getClassAt(payload)
@@ -248,7 +248,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockTag The tag of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockTag.tag, contractAddress)
 
         return getClassAt(payload)
@@ -261,7 +261,7 @@ class JsonRpcProvider(
      *
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassAt(contractAddress: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt): Request<ContractClassBase> {
         return getClassAt(contractAddress, BlockTag.LATEST)
     }
 

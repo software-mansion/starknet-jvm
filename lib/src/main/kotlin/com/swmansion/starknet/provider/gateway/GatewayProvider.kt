@@ -237,7 +237,7 @@ class GatewayProvider(
         )
     }
 
-    override fun getClass(classHash: Felt): Request<ContractClass> {
+    override fun getClass(classHash: Felt): Request<ContractClassBase> {
         val url = feederGatewayRequestUrl("get_class_by_hash")
 
         val params = listOf(
@@ -245,7 +245,7 @@ class GatewayProvider(
         )
 
         val httpPayload = Payload(url, "GET", params)
-        return HttpRequest(httpPayload, buildDeserializer(ContractClassGatewaySerializer), httpService)
+        return HttpRequest(httpPayload, buildDeserializer(GatewayContractClassPolymorphicSerializer), httpService)
     }
 
     private fun getClassHashAt(blockParam: Pair<String, String>, contractAddress: Felt): Request<Felt> {
