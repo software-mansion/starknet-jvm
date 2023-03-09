@@ -272,7 +272,7 @@ class GatewayProvider(
     }
 
     override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
-        val param = "blockTag" to blockTag.tag
+        val param = "blockNumber" to blockTag.tag
 
         return getClassHashAt(param, contractAddress)
     }
