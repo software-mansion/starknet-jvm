@@ -75,6 +75,7 @@ class DevnetClient(
                 port.toString(),
                 "--seed",
                 seed.toString(),
+                "--disable-rpc-request-validation",
             ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
