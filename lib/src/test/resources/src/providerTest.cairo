@@ -8,6 +8,11 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 func balance() -> (res: felt) {
 }
 
+// Define an event.
+@event
+func balance_increased(by_amount: felt) {
+}
+
 // Increases the balance by the given amount.
 @external
 func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -15,6 +20,7 @@ func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 ) {
     let (res) = balance.read();
     balance.write(res + amount);
+    balance_increased.emit(by_amount=amount);
     return ();
 }
 

@@ -22,6 +22,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
+import java.math.BigInteger
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -96,6 +97,97 @@ class ProviderTest {
         }
     }
 
+    @Test
+    fun `make default gateway testnet client`() {
+        val provider = GatewayProvider.makeTestnetProvider()
+        assertEquals("https://alpha4.starknet.io/feeder_gateway", provider.feederGatewayUrl)
+        assertEquals("https://alpha4.starknet.io/gateway", provider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET, provider.chainId)
+    }
+
+    @Test
+    fun `make specific testnet gateway client`() {
+        val testnet1Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET)
+        val testnet2Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2)
+
+        assertEquals("https://alpha4.starknet.io/feeder_gateway", testnet1Provider.feederGatewayUrl)
+        assertEquals("https://alpha4.starknet.io/gateway", testnet1Provider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET, testnet1Provider.chainId)
+
+        assertEquals("https://alpha4-2.starknet.io/feeder_gateway", testnet2Provider.feederGatewayUrl)
+        assertEquals("https://alpha4-2.starknet.io/gateway", testnet2Provider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET2, testnet2Provider.chainId)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            GatewayProvider.makeTestnetProvider(StarknetChainId.MAINNET)
+        }
+    }
+
+    @Test
+    fun `make specific testnet gateway client with custom httpservice`() {
+        // starknet --gateway_url http://127.0.0.1:5050/ --feeder_gateway_url http://127.0.0.1:5050/ get_block
+        // Modified block number to something outrageously big to verify private httpService
+        val blockNumber = 123456789
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                    {
+                        "block_hash": "0x0",
+                        "block_number": 123456789,
+                        "gas_price": "0x174876e800",
+                        "parent_block_hash": "0x0",
+                        "sequencer_address": "0x3711666a3506c99c9d78c4d4013409a87a962b7a0880a1c24af9fe193dafc01",
+                        "starknet_version": "0.10.3",
+                        "state_root": "0000000000000000000000000000000000000000000000000000000000000000",
+                        "status": "ACCEPTED_ON_L2",
+                        "timestamp": 1675079650,
+                        "transaction_receipts": [],
+                        "transactions": []
+                    }
+                """.trimIndent(),
+            )
+        }
+
+        val testnet1Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET, httpService)
+        val testnet2Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2, httpService)
+
+        assertEquals("https://alpha4.starknet.io/feeder_gateway", testnet1Provider.feederGatewayUrl)
+        assertEquals("https://alpha4.starknet.io/gateway", testnet1Provider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET, testnet1Provider.chainId)
+
+        val t1Block = testnet1Provider.getBlockNumber()
+        val t1Response = t1Block.send()
+        assertEquals(blockNumber, t1Response)
+
+        assertEquals("https://alpha4-2.starknet.io/feeder_gateway", testnet2Provider.feederGatewayUrl)
+        assertEquals("https://alpha4-2.starknet.io/gateway", testnet2Provider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET2, testnet2Provider.chainId)
+
+        val t2Block = testnet2Provider.getBlockNumber()
+        val t2Response = t2Block.send()
+        assertEquals(blockNumber, t2Response)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            GatewayProvider.makeTestnetProvider(StarknetChainId.MAINNET)
+        }
+    }
+
+    @Test
+    fun `make gateway mainnet client`() {
+        val defaultProvider = GatewayProvider.makeMainnetProvider()
+        assertEquals("https://alpha-mainnet.starknet.io/feeder_gateway", defaultProvider.feederGatewayUrl)
+        assertEquals("https://alpha-mainnet.starknet.io/gateway", defaultProvider.gatewayUrl)
+        assertEquals(StarknetChainId.MAINNET, defaultProvider.chainId)
+
+        val httpService = mock<HttpService>()
+        val withHttpProvider = GatewayProvider.makeMainnetProvider(httpService)
+        assertEquals("https://alpha-mainnet.starknet.io/feeder_gateway", withHttpProvider.feederGatewayUrl)
+        assertEquals("https://alpha-mainnet.starknet.io/gateway", withHttpProvider.gatewayUrl)
+        assertEquals(StarknetChainId.MAINNET, withHttpProvider.chainId)
+    }
+
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block number`(provider: Provider) {
@@ -119,9 +211,6 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract with block hash`(provider: Provider) {
-        // Devnet is not supporting RPC calls with id different from "latest"
-        if (provider is JsonRpcProvider) return
-
         val call = Call(
             contractAddress,
             "get_balance",
@@ -856,47 +945,32 @@ class ProviderTest {
         }
     }
 
-    @Test
-    fun `get events`() {
-        val events = """
-        {
-            "id": 0,
-            "jsonrpc": "2.0",
-            "result": {
-                "events": [
-                    {
-                        "address": "0x01",
-                        "keys": ["0x0a", "0x0b"],
-                        "data": ["0x0c", "0x0d"],
-                        "block_hash": "0x0aaaa",
-                        "block_number": 1234,
-                        "transaction_hash": "0x01234"
-                    }
-                ],
-                "continuation_token": "event123"
-            }
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get event`(provider: Provider) {
+        if (provider !is JsonRpcProvider) {
+            return
         }
-        """.trimIndent()
-
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, events)
-        }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val key = Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))
 
         val request = provider.getEvents(
             GetEventsPayload(
-                BlockId.Number(1),
-                BlockId.Number(2),
-                Felt(111),
-                listOf(Felt.fromHex("0x0a"), Felt.fromHex("0x0b")),
-                100,
-                "event123",
+                fromBlockId = BlockId.Hash(Felt.ZERO),
+                toBlockId = BlockId.Tag(BlockTag.LATEST),
+                address = contractAddress,
+                keys = listOf(key),
+                chunkSize = 10,
             ),
         )
-
         val response = request.send()
 
         assertNotNull(response)
+
+        val event = response.events[0]
+        assertEquals(contractAddress, event.address)
+        assertEquals(key, event.keys[0])
+        assertEquals(Felt.ZERO, event.data[0])
+        assertEquals(invokeTransactionHash, event.transactionHash)
     }
 
     @ParameterizedTest
@@ -933,7 +1007,7 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(1, response)
         assertTrue(provider.chainId == StarknetChainId.TESTNET2)
     }
 
@@ -944,7 +1018,7 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(17, response)
     }
 
     @ParameterizedTest
@@ -954,7 +1028,7 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-        assertEquals(0, response)
+        assertEquals(17, response)
     }
 
     @Test

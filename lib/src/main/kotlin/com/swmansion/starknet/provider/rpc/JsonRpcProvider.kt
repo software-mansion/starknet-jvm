@@ -85,7 +85,7 @@ class JsonRpcProvider(
     }
 
     override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
-        val params = Json.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
         }
@@ -138,7 +138,7 @@ class JsonRpcProvider(
     override fun invokeFunction(
         payload: InvokeTransactionPayload,
     ): Request<InvokeFunctionResponse> {
-        val params = Json.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
         }
@@ -290,7 +290,7 @@ class JsonRpcProvider(
     }
 
     override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-        val params = Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload)
+        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
@@ -358,8 +358,11 @@ class JsonRpcProvider(
      */
     fun getEvents(payload: GetEventsPayload): Request<GetEventsResult> {
         val params = Json.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("filter", params)
+        }
 
-        return buildRequest(JsonRpcMethod.GET_EVENTS, params, GetEventsResult.serializer())
+        return buildRequest(JsonRpcMethod.GET_EVENTS, jsonPayload, GetEventsResult.serializer())
     }
 
     private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<EstimateFeeResponse> {
