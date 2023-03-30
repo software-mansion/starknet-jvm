@@ -130,9 +130,9 @@ class ProviderTest {
         val blockNumber = 123456789
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                    true,
-                    200,
-                    """
+                true,
+                200,
+                """
                     {
                         "block_hash": "0x0",
                         "block_number": 123456789,
@@ -948,19 +948,20 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get event`(provider: Provider) {
-
         if (provider !is JsonRpcProvider) {
             return
         }
         val key = Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))
 
-        val request = provider.getEvents(GetEventsPayload(
+        val request = provider.getEvents(
+            GetEventsPayload(
                 fromBlockId = BlockId.Hash(Felt.ZERO),
                 toBlockId = BlockId.Tag(BlockTag.LATEST),
                 address = contractAddress,
                 keys = listOf(key),
                 chunkSize = 10,
-        ))
+            ),
+        )
         val response = request.send()
 
         assertNotNull(response)
