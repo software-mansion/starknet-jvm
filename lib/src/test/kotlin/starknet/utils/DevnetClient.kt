@@ -69,6 +69,7 @@ class DevnetClient(
         devnetProcess =
             ProcessBuilder(
                 "starknet-devnet",
+                "--disable-rpc-request-validation",
                 "--host",
                 host,
                 "--port",
