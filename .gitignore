@@ -48,3 +48,11 @@ venv
 # Exclude account temp files
 lib/src/test/resources/*account
 lib/src/test/resources/compiled
+
+# Exclude native builds outputs
+crypto/pedersen/crypto-cpp/src/starkware/crypto/ffi/js/libcrypto_c_exports.*
+crypto/poseidon/poseidon/sources/*.o
+crypto/poseidon/poseidon/sources/*.so
+crypto/poseidon/*.dylib
+crypto/poseidon/*.so
+
