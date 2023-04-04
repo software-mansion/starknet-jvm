@@ -14,4 +14,4 @@ ENV CC=/usr/bin/gcc-7
 ENV CXX=/usr/bin/g++-7
 COPY . /build/.
 WORKDIR /build/lib
-RUN ./build_crypto_cpp.sh
+RUN ./build_crypto.sh

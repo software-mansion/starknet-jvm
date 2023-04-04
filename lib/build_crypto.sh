@@ -2,7 +2,8 @@
 set -e
 
 mkdir -p build/libs/shared
-(cd ../crypto && ./build.sh) || exit
+(cd ../crypto/pedersen && ./build_crypto_cpp.sh) || exit
+(cd ../crypto/poseidon && ./build_poseidon.sh) || exit
 
 # Move libraries to a proper directory
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -17,4 +18,6 @@ else
 fi
 
 mkdir -p build/libs/shared/$SUFFIX
-cp -f ../crypto/build/bindings/libcrypto_jni.* build/libs/shared/$SUFFIX
+cp -f ../crypto/pedersen/build/bindings/libcrypto_jni.* build/libs/shared/$SUFFIX
+cp -f ../crypto/poseidon/libposeidon_jni.* build/libs/shared/$SUFFIX
+cp -f ../crypto/poseidon/lib_pos.* build/libs/shared/$SUFFIX
