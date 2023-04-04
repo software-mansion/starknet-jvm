@@ -65,8 +65,8 @@ tasks.jar {
     }
 }
 
-val buildCryptoCpp = task<Exec>("BuildCryptoCpp") {
-    commandLine("${project.projectDir}/build_crypto_cpp.sh")
+val buildCrypto = task<Exec>("BuildCrypto") {
+    commandLine("${project.projectDir}/build_crypto.sh")
 }
 
 val compileContracts = task<Exec>("compileContracts") {
@@ -76,13 +76,16 @@ val compileContracts = task<Exec>("compileContracts") {
 // For tests, we simply use version from crypto build
 // For jars we use version from lib/build/libs/native
 tasks.test {
-    dependsOn(buildCryptoCpp)
+    dependsOn(buildCrypto)
     dependsOn(compileContracts)
 
     useJUnitPlatform()
 
-    systemProperty("java.library.path", file("$buildDir/libs/shared").absolutePath)
-    systemProperty("java.library.path", file("${rootDir}/crypto/build/bindings").absolutePath)
+    val libsSharedPath = file("$buildDir/libs/shared").absolutePath
+    val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
+    val poseidonPath = file("${rootDir}/crypto/poseidon").absolutePath
+
+    systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
 
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 
@@ -104,7 +107,7 @@ tasks.jar {
 }
 
 val jarWithNative = task("jarWithNative") {
-    dependsOn(buildCryptoCpp)
+    dependsOn(buildCrypto)
     finalizedBy(tasks.jar)
 }
 
