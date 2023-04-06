@@ -1,9 +1,9 @@
 #include <jni.h>
 
 #include "./starknet_crypto_Poseidon.h"
-#include "../poseidon/sources/f251.h"
-#include "../poseidon/sources/poseidon.h"
-#include "../poseidon/sources/poseidon_rc.h"
+#include "f251.h"
+#include "poseidon.h"
+#include "poseidon_rc.h"
 
 JNIEXPORT jobjectArray JNICALL Java_com_swmansion_starknet_crypto_Poseidon_hades
   (JNIEnv *env, jclass obj, jobjectArray values) {

@@ -66,7 +66,6 @@ private fun unsplitBigInteger(arr: LongArray): BigInteger {
 object Poseidon {
 
     init {
-        NativeLoader.load("_pos")
         NativeLoader.load("poseidon_jni")
     }
 

@@ -1,0 +1,2 @@
+add_library(poseidon_jni SHARED starknet_crypto_Poseidon.c)
+target_link_libraries(poseidon_jni poseidon)

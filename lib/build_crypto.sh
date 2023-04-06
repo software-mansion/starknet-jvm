@@ -19,5 +19,4 @@ fi
 
 mkdir -p build/libs/shared/$SUFFIX
 cp -f ../crypto/pedersen/build/bindings/libcrypto_jni.* build/libs/shared/$SUFFIX
-cp -f ../crypto/poseidon/libposeidon_jni.* build/libs/shared/$SUFFIX
-cp -f ../crypto/poseidon/lib_pos.* build/libs/shared/$SUFFIX
+cp -f ../crypto/poseidon/build/bindings/libposeidon_jni.* build/libs/shared/$SUFFIX
