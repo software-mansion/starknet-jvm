@@ -48,10 +48,10 @@ private fun toBigIntegerArray(longArray: LongArray): Array<BigInteger> {
  */
 private fun unsplitBigInteger(arr: LongArray): BigInteger {
     val powersOfTwo = listOf(
-            BigInteger.valueOf(2).pow(0),
-            BigInteger.valueOf(2).pow(64),
-            BigInteger.valueOf(2).pow(128),
-            BigInteger.valueOf(2).pow(192)
+        BigInteger.valueOf(2).pow(0),
+        BigInteger.valueOf(2).pow(64),
+        BigInteger.valueOf(2).pow(128),
+        BigInteger.valueOf(2).pow(192),
     )
     val barr = toBigIntegerArray(arr)
     // w * 2**0 + x * 2**64 + y * 2**128 + z * 2**192
@@ -65,6 +65,9 @@ private fun unsplitBigInteger(arr: LongArray): BigInteger {
  */
 object Poseidon {
 
+    private val m = 3
+    private val r = 2
+
     init {
         NativeLoader.load("poseidon_jni")
     }
@@ -74,7 +77,7 @@ object Poseidon {
      */
     @JvmStatic
     private external fun hades(
-            values: Array<LongArray>,
+        values: Array<LongArray>,
     ): Array<LongArray>
 
     /**
@@ -85,13 +88,14 @@ object Poseidon {
     @JvmStatic
     fun poseidonHash(x: Felt): Felt {
         return unsplitBigInteger(
-                hades(
-                        arrayOf(
-                                splitBigInteger(BigInteger(x.decString())),
-                                longArrayOf(0, 0, 0, 0),
-                                longArrayOf(1, 0, 0, 0)
-                        )
-                )[0]).toFelt
+            hades(
+                arrayOf(
+                    splitBigInteger(BigInteger(x.decString())),
+                    longArrayOf(0, 0, 0, 0),
+                    longArrayOf(1, 0, 0, 0),
+                ),
+            )[0],
+        ).toFelt
     }
 
     /**
@@ -103,38 +107,52 @@ object Poseidon {
     @JvmStatic
     fun poseidonHash(x: Felt, y: Felt): Felt {
         return unsplitBigInteger(
-                hades(
-                        arrayOf(
-                                splitBigInteger(BigInteger(x.decString())),
-                                splitBigInteger(BigInteger(y.decString())),
-                                longArrayOf(2, 0, 0, 0)
-                        )
-                )[0]).toFelt
+            hades(
+                arrayOf(
+                    splitBigInteger(BigInteger(x.decString())),
+                    splitBigInteger(BigInteger(y.decString())),
+                    longArrayOf(2, 0, 0, 0),
+                ),
+            )[0],
+        ).toFelt
     }
 
     /**
-     * Compute poseidon hash on three Felts.
+     * Compute poseidon hash on many Felts.
      *
-     * @param x Felt
-     * @param y Felt
-     * @param z Felt
+     * @param values List of Felts
      */
     @JvmStatic
-    fun poseidonHash(x: Felt, y: Felt, z: Felt): Felt {
-        val firstIter = hades(
-                        arrayOf(
-                                splitBigInteger(BigInteger(x.decString())),
-                                splitBigInteger(BigInteger(y.decString())),
-                                splitBigInteger(BigInteger.ZERO)
-                        )
-                )
+    fun poseidonHash(values: List<Felt>): Felt {
+        val inputValues = values.toMutableList().apply {
+            add(Felt.ONE)
+            if (size % r == 1) add(Felt.ZERO)
+        }
 
-        val secondIter = hades(arrayOf(
-                splitBigInteger(unsplitBigInteger(firstIter[0]) + BigInteger(z.decString())),
-                splitBigInteger(unsplitBigInteger(firstIter[1]) + BigInteger.ONE),
-                firstIter[2]
-        ))
+        var state = arrayOf(
+            longArrayOf(0, 0, 0, 0),
+            longArrayOf(0, 0, 0, 0),
+            longArrayOf(0, 0, 0, 0),
+        )
 
-        return unsplitBigInteger(secondIter[0]).toFelt
+        for (iter in 0 until inputValues.size step 2) {
+            state = hades(
+                arrayOf(
+                    splitBigInteger(unsplitBigInteger(state[0]) + BigInteger(inputValues[iter].decString())),
+                    splitBigInteger(unsplitBigInteger(state[1]) + BigInteger(inputValues[iter + 1].decString())),
+                    state[2],
+                ),
+            )
+        }
+
+        return unsplitBigInteger(state[0]).toFelt
     }
+
+    /**
+     * Compute poseidon hash on variable number of arguments.
+     *
+     * @param values any number of Felts
+     */
+    @JvmStatic
+    fun poseidonHash(vararg values: Felt): Felt = poseidonHash(values.asList())
 }

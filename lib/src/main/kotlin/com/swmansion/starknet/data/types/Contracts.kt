@@ -1,6 +1,5 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.serializers.JsonRpcContractClassPolymorphicSerializer
 import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -77,9 +76,9 @@ data class DeprecatedCairoEntryPoint(
 
 @Serializable
 data class SierraEntryPoint(
-        @SerialName("function_idx")
-        val functionIdx: Int,
-        val selector: Felt,
+    @SerialName("function_idx")
+    val functionIdx: Int,
+    val selector: Felt,
 )
 
 @Serializable
@@ -116,7 +115,7 @@ data class ContractDefinition(private val contract: String) {
     }
 }
 
-//@Serializable(with = JsonRpcContractClassPolymorphicSerializer::class)
+// @Serializable(with = JsonRpcContractClassPolymorphicSerializer::class)
 sealed class ContractClassBase
 
 @Serializable
@@ -143,27 +142,27 @@ data class DeprecatedContractClass(
 
 @Serializable
 data class ContractClass(
-        @SerialName("sierra_program")
-        val sierraProgram: List<Felt>,
+    @SerialName("sierra_program")
+    val sierraProgram: List<Felt>,
 
-        @SerialName("sierra_version")
-        val sierraVersion: String,
+    @SerialName("sierra_version")
+    val sierraVersion: String,
 
-        @SerialName("entry_points_by_type")
-        val entryPointsByType: EntryPointsByType,
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType,
 
-        val abi: String,
+    val abi: String,
 ) : ContractClassBase() {
     @Serializable
     data class EntryPointsByType(
-            @SerialName("CONSTRUCTOR")
-            val constructor: List<SierraEntryPoint>,
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<SierraEntryPoint>,
 
-            @SerialName("EXTERNAL")
-            val external: List<SierraEntryPoint>,
+        @SerialName("EXTERNAL")
+        val external: List<SierraEntryPoint>,
 
-            @SerialName("L1_HANDLER")
-            val l1Handler: List<SierraEntryPoint>,
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<SierraEntryPoint>,
     )
 }
 

@@ -12,7 +12,6 @@ import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
-
 internal object GatewayContractClassPolymorphicSerializer : JsonContentPolymorphicSerializer<ContractClassBase>(ContractClassBase::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out ContractClassBase> {
         return if ("sierra_program" in element.jsonObject) (ContractClass.serializer()) else ContractClassGatewaySerializer
