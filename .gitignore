@@ -50,9 +50,8 @@ lib/src/test/resources/*account
 lib/src/test/resources/compiled
 
 # Exclude native builds outputs
-crypto/pedersen/crypto-cpp/src/starkware/crypto/ffi/js/libcrypto_c_exports.*
-crypto/poseidon/poseidon/sources/*.o
-crypto/poseidon/poseidon/sources/*.so
+crypto/pedersen/crypto-cpp
+crypto/poseidon/poseidon
 crypto/poseidon/*.dylib
 crypto/poseidon/*.so
 
