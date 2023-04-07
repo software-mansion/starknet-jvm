@@ -45,21 +45,22 @@ if (NOT HAVE_UINT128)
   FetchContent_MakeAvailable(boostorg)
 endif()
 
+if (NOT DEFINED JAVA_INCLUDE_PATH)
+  set(JAVA_AWT_LIBRARY NotNeeded)
+  set(JAVA_JVM_LIBRARY NotNeeded)
+  set(JAVA_AWT_INCLUDE_PATH NotNeeded)
+  set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
+  set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin;$ENV{JAVA_HOME}/include/linux")
+
+  find_package(Java REQUIRED)
+  find_package(JNI REQUIRED)
+  include_directories(${JNI_INCLUDE_DIRS})
+endif()
+
 include(CTest)
 enable_testing()
 include_directories("${CMAKE_SOURCE_DIR}/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/bindings")
-
-
-set(JAVA_AWT_LIBRARY NotNeeded)
-set(JAVA_JVM_LIBRARY NotNeeded)
-set(JAVA_AWT_INCLUDE_PATH NotNeeded)
-set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
-set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/darwin;$ENV{JAVA_HOME}/include/linux")
-
-find_package(Java REQUIRED)
-find_package(JNI REQUIRED)
-include_directories(${JNI_INCLUDE_DIRS})
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
