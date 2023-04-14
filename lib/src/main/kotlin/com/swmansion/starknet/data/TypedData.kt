@@ -117,7 +117,10 @@ data class TypedData private constructor(
 
     private fun valueFromPrimitive(primitive: JsonPrimitive): Felt {
         if (primitive.isString) {
-            val decimal = primitive.content.toLongOrNull()
+            if (primitive.content == "") {
+                return Felt.ZERO
+            }
+            val decimal = primitive.content.toBigIntegerOrNull()
 
             if (decimal != null) {
                 return Felt(decimal)
