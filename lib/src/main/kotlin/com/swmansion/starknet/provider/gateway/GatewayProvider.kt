@@ -16,6 +16,7 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.HttpService.Payload
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
@@ -206,7 +207,7 @@ class GatewayProvider(
         )
     }
 
-    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
+    override fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse> {
         val url = gatewayRequestUrl("add_transaction")
 
         val body = buildJsonObject {
@@ -223,6 +224,27 @@ class GatewayProvider(
             Payload(url, "POST", body),
             buildDeserializer(DeclareResponse.serializer()),
             httpService,
+        )
+    }
+
+    override fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse> {
+        val url = gatewayRequestUrl("add_transaction")
+
+        val body = buildJsonObject {
+            put("type", payload.type.toString())
+            put("sender_address", payload.senderAddress)
+            put("max_fee", payload.maxFee)
+            put("nonce", payload.nonce)
+            put("version", payload.version)
+            putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
+            put("contract_class", payload.contractDefinition.toJson())
+            put("compiled_class_hash", payload.compiledClassHash)
+        }
+
+        return HttpRequest(
+                Payload(url, "POST", body),
+                buildDeserializer(DeclareResponse.serializer()),
+                httpService,
         )
     }
 
@@ -278,33 +300,38 @@ class GatewayProvider(
     }
 
     private fun getEstimateFee(
-        payload: TransactionPayload,
+        payload: List<TransactionPayload>,
         blockId: BlockId,
-    ): Request<EstimateFeeResponse> {
-        val url = feederGatewayRequestUrl("estimate_fee")
-        val body = when (payload) {
-            is InvokeTransactionPayload -> serializeInvokeTransactionPayload(payload)
-            is DeployAccountTransactionPayload -> serializeDeployAccountTransactionPayload(payload)
-            is DeclareTransactionPayload -> Json.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload).jsonObject
+    ): Request<List<EstimateFeeResponse>> {
+        val url = feederGatewayRequestUrl("estimate_fee_bulk")
+        val body = mutableListOf<JsonObject>()
+
+        for (tx in payload) {
+            when (tx) {
+                is InvokeTransactionPayload -> body.add(serializeInvokeTransactionPayload(tx))
+                is DeployAccountTransactionPayload -> body.add(serializeDeployAccountTransactionPayload(tx))
+                is DeclareTransactionV1Payload -> body.add(Json.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, tx).jsonObject)
+                is DeclareTransactionV2Payload -> body.add(Json.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, tx).jsonObject)
+            }
         }
 
-        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), body)
+        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), JsonArray(body))
         return HttpRequest(
             httpPayload,
-            buildDeserializer(EstimateFeeResponseGatewaySerializer),
+            buildDeserializer(ListSerializer(EstimateFeeResponseGatewaySerializer)),
             httpService,
         )
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockId.Hash(blockHash))
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockId.Number(blockNumber))
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockId.Tag(blockTag))
     }
 

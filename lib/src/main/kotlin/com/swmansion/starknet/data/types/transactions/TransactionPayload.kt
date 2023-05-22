@@ -43,7 +43,10 @@ data class InvokeTransactionPayload constructor(
 }
 
 @Serializable
-data class DeclareTransactionPayload(
+sealed class DeclareTransactionPayload() : TransactionPayload()
+
+@Serializable
+data class DeclareTransactionV1Payload(
     @SerialName("contract_class")
     val contractDefinition: ContractDefinition,
 
@@ -56,14 +59,41 @@ data class DeclareTransactionPayload(
     @SerialName("signature")
     val signature: Signature,
 
-    @SerialName("version")
-    val version: Felt,
-
     @SerialName("sender_address")
     val senderAddress: Felt,
-) : TransactionPayload() {
+) : DeclareTransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DECLARE
+
+    @SerialName("version")
+    val version: Felt = Felt.ONE
+}
+
+@Serializable
+data class DeclareTransactionV2Payload(
+        @SerialName("contract_class")
+        val contractDefinition: ContractDefinition,
+
+        @SerialName("max_fee")
+        val maxFee: Felt,
+
+        @SerialName("nonce")
+        val nonce: Felt,
+
+        @SerialName("signature")
+        val signature: Signature,
+
+        @SerialName("sender_address")
+        val senderAddress: Felt,
+
+        @SerialName("compiled_class_hash")
+        val compiledClassHash: Felt,
+) : DeclareTransactionPayload() {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DECLARE
+
+    @SerialName("version")
+    val version: Felt = Felt(2)
 }
 
 @Serializable

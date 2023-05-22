@@ -70,7 +70,7 @@ data class StructAbiEntry(
 
 @Serializable
 data class DeprecatedCairoEntryPoint(
-    val offset: Felt,
+    val offset: Int, // to powinien być Felt (albo String wg rpc speca), ale nagle został zmieniony w Inta?
     val selector: Felt,
 )
 
@@ -115,7 +115,6 @@ data class ContractDefinition(private val contract: String) {
     }
 }
 
-// @Serializable(with = JsonRpcContractClassPolymorphicSerializer::class)
 sealed class ContractClassBase
 
 @Serializable
@@ -145,13 +144,13 @@ data class ContractClass(
     @SerialName("sierra_program")
     val sierraProgram: List<Felt>,
 
-    @SerialName("sierra_version")
-    val sierraVersion: String,
+    @SerialName("contract_class_version")
+    val contractClassVersion: String,
 
     @SerialName("entry_points_by_type")
     val entryPointsByType: EntryPointsByType,
 
-    val abi: String,
+    val abi: String? = null,
 ) : ContractClassBase() {
     @Serializable
     data class EntryPointsByType(

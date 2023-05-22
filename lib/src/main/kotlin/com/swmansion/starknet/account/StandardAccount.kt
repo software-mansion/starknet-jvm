@@ -90,12 +90,12 @@ class StandardAccount(
         classHash: Felt,
         params: ExecutionParams,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionPayload {
+    ): DeclareTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
-        val tx = TransactionFactory.makeDeclareTransaction(
+        val tx = TransactionFactory.makeDeclareV1Transaction(
             contractDefinition = contractDefinition,
             classHash = classHash,
             senderAddress = address,
@@ -103,6 +103,32 @@ class StandardAccount(
             nonce = params.nonce,
             maxFee = params.maxFee,
             version = signVersion,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
+    override fun signDeclare(
+            contractDefinition: ContractDefinition,
+            classHash: Felt,
+            params: ExecutionParams,
+            compiledClassHash: Felt,
+            forFeeEstimate: Boolean,
+    ): DeclareTransactionV2Payload {
+        val signVersion = when (forFeeEstimate) {
+            true -> Felt(estimateVersion)
+            false -> version
+        }
+        val tx = TransactionFactory.makeDeclareV2Transaction(
+                contractDefinition = contractDefinition,
+                classHash = classHash,
+                senderAddress = address,
+                chainId = provider.chainId,
+                nonce = params.nonce,
+                maxFee = params.maxFee,
+                version = signVersion,
+                compiledClassHash = compiledClassHash,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -166,18 +192,18 @@ class StandardAccount(
 
     override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFee(calls).compose { estimateFee ->
-            val maxFee = estimatedFeeToMaxFee(estimateFee.overallFee)
+            val maxFee = estimatedFeeToMaxFee(estimateFee.first().overallFee)
             execute(calls, maxFee)
         }
     }
 
     override fun getNonce(): Request<Felt> = provider.getNonce(address, BlockTag.PENDING)
 
-    override fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse> {
+    override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return getNonce().compose { buildEstimateFeeRequest(calls, it) }
     }
 
-    private fun buildEstimateFeeRequest(calls: List<Call>, nonce: Felt): Request<EstimateFeeResponse> {
+    private fun buildEstimateFeeRequest(calls: List<Call>, nonce: Felt): Request<List<EstimateFeeResponse>> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams, true)
 
@@ -190,7 +216,6 @@ class StandardAccount(
             signature = payload.signature,
             version = payload.version,
         )
-
-        return provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
+        return provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
     }
 }

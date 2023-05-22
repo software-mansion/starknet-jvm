@@ -215,3 +215,6 @@ data class TypedData private constructor(
             Json.decodeFromString(serializer(), typedData)
     }
 }
+
+
+// chyba git

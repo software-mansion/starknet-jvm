@@ -1,10 +1,12 @@
 package com.swmansion.starknet.data
 
+import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.TransactionType
+import java.lang.IllegalArgumentException
 
 /**
  * Toolkit for calculating hashes of transactions.
@@ -105,14 +107,53 @@ object TransactionHashCalculator {
         maxFee: Felt,
         chainId: StarknetChainId,
         nonce: Felt,
-    ): Felt = StarknetCurve.pedersenOnElements(
-        txType.txPrefix,
-        version,
-        contractAddress,
-        entryPointSelector,
-        StarknetCurve.pedersenOnElements(calldata),
-        maxFee,
-        chainId.value,
-        nonce,
-    )
+    ): Felt = when (txType) {
+        TransactionType.DECLARE -> declareTransactionHash(
+                txType,
+                version,
+                contractAddress,
+                entryPointSelector,
+                calldata,
+                maxFee,
+                chainId,
+                nonce,
+        )
+        else -> StarknetCurve.pedersenOnElements(
+                txType.txPrefix,
+                version,
+                contractAddress,
+                entryPointSelector,
+                StarknetCurve.pedersenOnElements(calldata),
+                maxFee,
+                chainId.value,
+                nonce,
+        )
+    }
+
+    private fun declareTransactionHash(
+            txType: TransactionType,
+            version: Felt,
+            contractAddress: Felt,
+            entryPointSelector: Felt,
+            calldata: Calldata,
+            maxFee: Felt,
+            chainId: StarknetChainId,
+            nonce: Felt,
+    ): Felt {
+        val hash = when (version) {
+            Felt.ONE -> StarknetCurve.pedersenOnElements(calldata)
+            Felt(2) -> Poseidon.poseidonHash(calldata)
+            else -> throw IllegalArgumentException("Declare version $version not supported")
+        }
+        return StarknetCurve.pedersenOnElements(
+                txType.txPrefix,
+                version,
+                contractAddress,
+                entryPointSelector,
+                hash,
+                maxFee,
+                chainId.value,
+                nonce,
+        )
+    }
 }

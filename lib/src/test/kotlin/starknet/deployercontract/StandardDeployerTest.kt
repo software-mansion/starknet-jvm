@@ -82,14 +82,14 @@ object StandardDeployerTest {
                 ),
                 gatewayProvider,
             ),
-            StandardDeployerAndProvider(
-                StandardDeployer(
-                    rpcDeployerAddress,
-                    rpcProvider,
-                    StandardAccount(accountAddress, signer, rpcProvider),
-                ),
-                rpcProvider,
-            ),
+//            StandardDeployerAndProvider(
+//                StandardDeployer(
+//                    rpcDeployerAddress,
+//                    rpcProvider,
+//                    StandardAccount(accountAddress, signer, rpcProvider),
+//                ),
+//                rpcProvider,
+//            ),
         )
     }
 

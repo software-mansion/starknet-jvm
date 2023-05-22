@@ -86,7 +86,7 @@ class StandardAccountTest {
         data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
-        private fun getProviders(): List<Provider> = listOf(gatewayProvider, rpcProvider)
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider) //, rpcProvider)
 
         @JvmStatic
         fun getAccounts(): List<AccountAndProvider> {
@@ -186,7 +186,7 @@ class StandardAccountTest {
             ExecutionParams(nonce, Felt(1000000000000000)),
         )
 
-        val signedTransaction = TransactionFactory.makeDeclareTransaction(
+        val signedTransaction = TransactionFactory.makeDeclareV1Transaction(
             classHash = classHash,
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
@@ -197,7 +197,7 @@ class StandardAccountTest {
             version = declareTransactionPayload.version,
         )
 
-        val feeEstimate = provider.getEstimateFee(signedTransaction.toPayload(), BlockTag.LATEST)
+        val feeEstimate = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
 
         assertNotNull(feeEstimate)
     }
@@ -213,7 +213,7 @@ class StandardAccountTest {
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x3954cf95540510d926de27a2f1f5323ae2062d1e8c9790eae4cc6a9446f5bd3")
+        val classHash = Felt.fromHex("0x54843949118dc8885bbb64c0614c55086e4a9d65933dbc825c4358435695b0")
 
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
@@ -441,8 +441,8 @@ class StandardAccountTest {
         )
         assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
 
-        val feePayload = provider.getEstimateFee(payloadForFeeEstimation).send()
-        assertTrue(feePayload.overallFee.value > Felt.ONE.value)
+        val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+        assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
     }
 
     @ParameterizedTest

@@ -106,9 +106,9 @@ interface Account {
     }
 
     /**
-     * Sign a declare transaction.
+     * Sign a version 1 declare transaction.
      *
-     * Prepare and sign a declare transaction to be executed on StarkNet.
+     * Prepare and sign a version 1 declare transaction to be executed on StarkNet.
      *
      * @param contractDefinition a definition of the contract to be declared
      * @param classHash a class hash of the contract to be declared
@@ -121,7 +121,27 @@ interface Account {
         classHash: Felt,
         params: ExecutionParams,
         forFeeEstimate: Boolean = false,
-    ): DeclareTransactionPayload
+    ): DeclareTransactionV1Payload
+
+    /**
+     * Sign a version 2 declare transaction.
+     *
+     * Prepare and sign a version 2 declare transaction to be executed on StarkNet.
+     *
+     * @param contractDefinition a definition of the contract to be declared
+     * @param classHash a class hash of the contract to be declared
+     * @param params additional execution parameters for the transaction
+     * @param compiledClassHash compiled class hash
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @return signed declare transaction payload
+     */
+    fun signDeclare(
+            contractDefinition: ContractDefinition,
+            classHash: Felt,
+            params: ExecutionParams,
+            compiledClassHash: Felt,
+            forFeeEstimate: Boolean = false,
+    ): DeclareTransactionV2Payload
 
     /**
      * Sign TypedData for off-chain usage with this account privateKey
@@ -190,7 +210,7 @@ interface Account {
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call): Request<EstimateFeeResponse> {
+    fun estimateFee(call: Call): Request<List<EstimateFeeResponse>> {
         return estimateFee(listOf(call))
     }
 
@@ -202,7 +222,7 @@ interface Account {
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>): Request<EstimateFeeResponse>
+    fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>>
 
     /**
      * Get account nonce.

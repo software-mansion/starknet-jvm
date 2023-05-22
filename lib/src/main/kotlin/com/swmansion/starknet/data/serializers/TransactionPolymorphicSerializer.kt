@@ -11,7 +11,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         when (element.jsonObject["type"]?.jsonPrimitive?.content) {
             "INVOKE_FUNCTION" -> selectInvokeDeserializer(element)
             "INVOKE" -> selectInvokeDeserializer(element)
-            "DECLARE" -> DeclareTransaction.serializer()
+            "DECLARE" -> selectDeclareDeserializer(element)
             "DEPLOY" -> DeployTransaction.serializer()
             "DEPLOY_ACCOUNT" -> DeployAccountTransaction.serializer()
             "L1_HANDLER" -> L1HandlerTransaction.serializer()
@@ -24,4 +24,11 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             Felt.ZERO.hexString() -> InvokeTransactionV0.serializer()
             else -> throw IllegalArgumentException("Invalid invoke transaction version")
         }
+
+    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> =
+            when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+                Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
+                Felt(2).hexString() -> DeclareTransactionV2.serializer()
+                else -> throw IllegalArgumentException("Invalid invoke transaction version")
+            }
 }

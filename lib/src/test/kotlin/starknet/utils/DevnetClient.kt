@@ -171,7 +171,7 @@ class DevnetClient(
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
             "--max_fee",
-            "0",
+            "3115000000000000",
         )
 
         val lines = result.lines()
@@ -186,12 +186,56 @@ class DevnetClient(
         val result = runStarknetCli(
             "Contract declare",
             "declare",
+            "--deprecated",
             "--contract",
             contractPath.absolutePathString(),
             "--account_dir",
             accountDirectory.toString(),
             "--wallet",
             "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+        )
+
+        val lines = result.lines()
+        val tx = getTransactionResult(lines, offset = 2)
+
+        assertTxPassed(tx.hash)
+
+        return tx
+    }
+
+    fun deployV2Contract(contractPath: Path): TransactionResult {
+        val (classHash, _) = declareV2Contract(contractPath)
+        val result = runStarknetCli(
+                "Contract deployment",
+                "deploy",
+                "--class_hash",
+                classHash.hexString(),
+                "--account_dir",
+                accountDirectory.toString(),
+                "--wallet",
+                "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+                "--max_fee",
+                "3115000000000000",
+        )
+
+        val lines = result.lines()
+        val tx = getTransactionResult(lines)
+
+        assertTxPassed(tx.hash)
+
+        return tx
+    }
+
+    fun declareV2Contract(contractPath: Path): TransactionResult {
+        val result = runStarknetCli(
+                "Contract declare",
+                "declare",
+                "--contract",
+                contractPath.absolutePathString(),
+                "--account_dir",
+                accountDirectory.toString(),
+                "--wallet",
+                "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
         )
 
         val lines = result.lines()
