@@ -29,6 +29,7 @@ import java.util.function.Function
  * @param chainId an id of the network
  * @param httpService service used for making http requests
  */
+@Deprecated("GatewayProvider is deprecated and soon will be removed. Consider using JsonRpcProvider.")
 class GatewayProvider(
     val feederGatewayUrl: String,
     val gatewayUrl: String,
@@ -78,7 +79,7 @@ class GatewayProvider(
         val message: String,
     )
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
     private fun handleResponseError(response: HttpResponse): String {
         if (!response.isSuccessful) {
@@ -237,14 +238,14 @@ class GatewayProvider(
             put("nonce", payload.nonce)
             put("version", payload.version)
             putJsonArray("signature") { payload.signature.toDecimal().forEach { add(it) } }
-            put("contract_class", payload.contractDefinition.toJson())
+            put("contract_class", payload.contractDefinition.toGatewayJson())
             put("compiled_class_hash", payload.compiledClassHash)
         }
 
         return HttpRequest(
-                Payload(url, "POST", body),
-                buildDeserializer(DeclareResponse.serializer()),
-                httpService,
+            Payload(url, "POST", body),
+            buildDeserializer(DeclareResponse.serializer()),
+            httpService,
         )
     }
 

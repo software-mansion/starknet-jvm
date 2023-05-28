@@ -5,6 +5,8 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, StarkNet-jvm has been created with compatibility with Java in mind.
 
+⚠️Gateway provider is currently marked as deprecated and will soon be removed.
+
 ## Making synchronous requests
 
 ### In Java
@@ -28,7 +30,7 @@ public class Main {
         Felt privateKey = Felt.fromHex("0x425125");
         Account account = new StandardAccount(provider, accountAddress, privateKey);
 
-        // Make a request
+        // Make a request⚠︎
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
         Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
