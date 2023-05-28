@@ -63,19 +63,7 @@ data class GetEventsPayload(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class EventsChunk(
-    @JsonNames("events")
-    val events: List<EmittedEvent>,
-
-    @JsonNames("continuation_token")
-    val continuationToken: String? = "0",
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
 data class GetEventsResult(
-//    @JsonNames("events")
-//    val events: EventsChunk,
     @JsonNames("events")
     val events: List<EmittedEvent>,
 

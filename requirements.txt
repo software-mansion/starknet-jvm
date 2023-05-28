@@ -1,2 +1,1 @@
 starknet-devnet==v0.5.2
-#git+ssh://git@github.com/0xSpaceShard/starknet-devnet.git
