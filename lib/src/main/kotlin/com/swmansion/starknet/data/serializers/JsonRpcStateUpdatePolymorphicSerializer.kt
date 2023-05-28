@@ -10,6 +10,6 @@ internal object JsonRpcStateUpdatePolymorphicSerializer : JsonContentPolymorphic
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out StateUpdate> {
         val jsonElement = element.jsonObject
         val isPending = "block_hash" !in jsonElement
-        return if (isPending) StateUpdateResponse.serializer() else PendingStateUpdateResponse.serializer()
+        return if (isPending) PendingStateUpdateResponse.serializer() else StateUpdateResponse.serializer()
     }
 }
