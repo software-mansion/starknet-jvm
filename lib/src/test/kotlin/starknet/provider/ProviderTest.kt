@@ -23,7 +23,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 import java.math.BigInteger
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -38,7 +37,7 @@ class ProviderTest {
         private lateinit var deployAccountTransactionHash: Felt
 
         @JvmStatic
-        private fun getProviders(): List<Provider> = listOf(gatewayProvider()) //, rpcProvider())
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider(), rpcProvider())
 
         private data class BlockHashAndNumber(val hash: Felt, val number: Int)
 
@@ -70,14 +69,14 @@ class ProviderTest {
             try {
                 devnetClient.start()
 
-                val (contractAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                val (contractAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
                 val (_, invokeHash) = devnetClient.invokeTransaction(
                     "increase_balance",
                     contractAddress,
-                    Path.of("src/test/resources/compiled/providerTestAbi.json"),
+                    Path.of("src/test/resources/compiled_v0/providerTestAbi.json"),
                     listOf(Felt.ZERO),
                 )
-                val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
                 val (_, deployAccountHash) = devnetClient.deployAccount()
                 this.contractAddress = contractAddress
                 this.classHash = classHash
@@ -874,54 +873,6 @@ class ProviderTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `declare v1 contract`(provider: Provider) {
-        val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
-        val contents = Files.readString(contractPath)
-        val payload =
-            DeclareTransactionV1Payload(
-                ContractDefinition(contents),
-                Felt(3115000000000000),
-                Felt.ZERO,
-                emptyList(),
-                Felt.ONE, // Declare tx version 0 has a sender address of 0x1
-            )
-
-        val request = provider.declareContract(payload)
-        val response = request.send()
-
-        assertNotNull(response)
-
-        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
-        val txr = txrRequest.send()
-        assertTrue(isAccepted(txr))
-    }
-
-//    @ParameterizedTest
-//    @MethodSource("getProviders")
-//    fun `declare v2 contract`(provider: Provider) {
-//        val contractPath = Path.of("src/test/resources/compiled/providerTest.json")
-//        val contents = Files.readString(contractPath)
-//        val payload =
-//                DeclareTransactionV2Payload(
-//                        ContractDefinition(contents),
-//                        Felt.ZERO,
-//                        Felt.ZERO,
-//                        emptyList(),
-//                        Felt.ONE, // Declare tx version 0 has a sender address of 0x1
-//                )
-//
-//        val request = provider.declareContract(payload)
-//        val response = request.send()
-//
-//        assertNotNull(response)
-//
-//        val txrRequest = provider.getTransactionReceipt(response.transactionHash)
-//        val txr = txrRequest.send()
-//        assertTrue(isAccepted(txr))
-//    }
-
     @Test
     fun `rpc provider throws RpcRequestFailedException`() {
         val request = rpcProvider().getClassAt(Felt(0), BlockTag.LATEST)
@@ -963,8 +914,8 @@ class ProviderTest {
 
     @Test
     fun `make contract definition with invalid json`() {
-        assertThrows(ContractDefinition.InvalidContractException::class.java) {
-            ContractDefinition("{}")
+        assertThrows(Cairo0ContractDefinition.InvalidContractException::class.java) {
+            Cairo0ContractDefinition("{}")
         }
     }
 
@@ -974,7 +925,7 @@ class ProviderTest {
         if (provider !is JsonRpcProvider) {
             return
         }
-        val key = Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031"))
+        val key = listOf(Felt(BigInteger("1693986747384444883019945263944467198055030340532126334167406248528974657031")))
 
         val request = provider.getEvents(
             GetEventsPayload(
@@ -991,7 +942,7 @@ class ProviderTest {
 
         val event = response.events[0]
         assertEquals(contractAddress, event.address)
-        assertEquals(key, event.keys[0])
+        assertEquals(key[0], event.keys[0])
         assertEquals(Felt.ZERO, event.data[0])
         assertEquals(invokeTransactionHash, event.transactionHash)
     }
@@ -1186,12 +1137,43 @@ class ProviderTest {
     }
 
     @Test
-    fun `get state of block with tag`() {
+    fun `get state of block with latest tag`() {
         val provider = rpcProvider()
         val request = provider.getStateUpdate(BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
+        assertTrue(response is StateUpdateResponse)
+    }
+
+    @Test
+    fun `get state of block with pending tag`() {
+        val mockedResponse = """
+            {
+                "id":0,
+                "jsonrpc":"2.0",
+                "result":{
+                    "old_root":"0x0",
+                    "state_diff":{
+                        "declared_classes":[],
+                        "deployed_contracts":[],
+                        "deprecated_declared_classes":[],
+                        "nonces":[],
+                        "replaced_classes":[],
+                        "storage_diffs":[]
+                    }
+                }
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getStateUpdate(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingStateUpdateResponse)
     }
 
     @Test
@@ -1201,6 +1183,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+        assertTrue(response is StateUpdateResponse)
     }
 
     @Test
@@ -1210,6 +1193,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+        assertTrue(response is StateUpdateResponse)
     }
 
     @Test

@@ -22,7 +22,7 @@ class ContractDeployer(
         val (_, transactionHash) = devnetClient.invokeTransaction(
             "deployContract",
             address,
-            Path.of("src/test/resources/compiled/deployerAbi.json"),
+            Path.of("src/test/resources/compiled_v0/deployerAbi.json"),
             invokeCalldata,
         )
         val receipt = devnetClient.transactionReceipt(transactionHash)
@@ -35,7 +35,7 @@ class ContractDeployer(
 
     companion object {
         fun deployInstance(devnetClient: DevnetClient): ContractDeployer {
-            val (deployerAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/deployer.json"))
+            val (deployerAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
             return ContractDeployer(deployerAddress, devnetClient)
         }
     }

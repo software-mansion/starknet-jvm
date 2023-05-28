@@ -37,7 +37,7 @@ public class Main {
 
         // Declare a contract
         // Class hash is calculated using the tools you used for compilation
-        ContractDefinition contractDefinition = new ContractDefinition(contract);
+        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contract);
         Felt classHash = Felt.fromHex("0x1234");
         Felt maxFee = Felt.ZERO;
         Felt nonce = account.getNonce().send();

@@ -1,12 +1,10 @@
 package com.swmansion.starknet.data
 
-import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.TransactionType
-import java.lang.IllegalArgumentException
 
 /**
  * Toolkit for calculating hashes of transactions.
@@ -78,7 +76,7 @@ object TransactionHashCalculator {
     }
 
     @JvmStatic
-    fun calculateDeclareTxHash(
+    fun calculateDeclareV1TxHash(
         classHash: Felt,
         chainId: StarknetChainId,
         senderAddress: Felt,
@@ -86,15 +84,40 @@ object TransactionHashCalculator {
         version: Felt,
         nonce: Felt,
     ): Felt {
-        return transactionHashCommon(
-            txType = TransactionType.DECLARE,
-            version = version,
-            contractAddress = senderAddress,
-            entryPointSelector = Felt.ZERO,
-            calldata = listOf(classHash),
-            maxFee = maxFee,
-            chainId = chainId,
-            nonce = nonce,
+        val hash = StarknetCurve.pedersenOnElements(listOf(classHash))
+        return StarknetCurve.pedersenOnElements(
+            TransactionType.DECLARE.txPrefix,
+            version,
+            senderAddress,
+            Felt.ZERO,
+            hash,
+            maxFee,
+            chainId.value,
+            nonce,
+        )
+    }
+
+    @JvmStatic
+    fun calculateDeclareV2TxHash(
+        classHash: Felt,
+        chainId: StarknetChainId,
+        senderAddress: Felt,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+        compiledClassHash: Felt,
+    ): Felt {
+        val calldataHash = StarknetCurve.pedersenOnElements(listOf(classHash))
+        return StarknetCurve.pedersenOnElements(
+            TransactionType.DECLARE.txPrefix,
+            version,
+            senderAddress,
+            Felt.ZERO,
+            calldataHash,
+            maxFee,
+            chainId.value,
+            nonce,
+            compiledClassHash,
         )
     }
 
@@ -107,53 +130,16 @@ object TransactionHashCalculator {
         maxFee: Felt,
         chainId: StarknetChainId,
         nonce: Felt,
-    ): Felt = when (txType) {
-        TransactionType.DECLARE -> declareTransactionHash(
-                txType,
-                version,
-                contractAddress,
-                entryPointSelector,
-                calldata,
-                maxFee,
-                chainId,
-                nonce,
-        )
-        else -> StarknetCurve.pedersenOnElements(
-                txType.txPrefix,
-                version,
-                contractAddress,
-                entryPointSelector,
-                StarknetCurve.pedersenOnElements(calldata),
-                maxFee,
-                chainId.value,
-                nonce,
-        )
-    }
-
-    private fun declareTransactionHash(
-            txType: TransactionType,
-            version: Felt,
-            contractAddress: Felt,
-            entryPointSelector: Felt,
-            calldata: Calldata,
-            maxFee: Felt,
-            chainId: StarknetChainId,
-            nonce: Felt,
     ): Felt {
-        val hash = when (version) {
-            Felt.ONE -> StarknetCurve.pedersenOnElements(calldata)
-            Felt(2) -> Poseidon.poseidonHash(calldata)
-            else -> throw IllegalArgumentException("Declare version $version not supported")
-        }
         return StarknetCurve.pedersenOnElements(
-                txType.txPrefix,
-                version,
-                contractAddress,
-                entryPointSelector,
-                hash,
-                maxFee,
-                chainId.value,
-                nonce,
+            txType.txPrefix,
+            version,
+            contractAddress,
+            entryPointSelector,
+            StarknetCurve.pedersenOnElements(calldata),
+            maxFee,
+            chainId.value,
+            nonce,
         )
     }
 }

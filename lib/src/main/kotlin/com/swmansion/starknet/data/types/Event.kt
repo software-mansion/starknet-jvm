@@ -52,7 +52,7 @@ data class GetEventsPayload(
     val address: Felt,
 
     @SerialName("keys")
-    val keys: List<Felt>,
+    val keys: List<List<Felt>>,
 
     @SerialName("chunk_size")
     val chunkSize: Int,
@@ -64,11 +64,11 @@ data class GetEventsPayload(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EventsChunk(
-        @JsonNames("events")
-        val events: List<EmittedEvent>,
+    @JsonNames("events")
+    val events: List<EmittedEvent>,
 
-        @JsonNames("continuation_token")
-        val continuationToken: String? = "0",
+    @JsonNames("continuation_token")
+    val continuationToken: String? = "0",
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -76,9 +76,9 @@ data class EventsChunk(
 data class GetEventsResult(
 //    @JsonNames("events")
 //    val events: EventsChunk,
-        @JsonNames("events")
-        val events: List<EmittedEvent>,
+    @JsonNames("events")
+    val events: List<EmittedEvent>,
 
-        @JsonNames("continuation_token")
-        val continuationToken: String? = "0",
+    @JsonNames("continuation_token")
+    val continuationToken: String? = "0",
 )

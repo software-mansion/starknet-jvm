@@ -94,4 +94,3 @@ object ContractAddressCalculator {
         return "0x${chars.concatToString()}"
     }
 }
-// chyba git wszystko

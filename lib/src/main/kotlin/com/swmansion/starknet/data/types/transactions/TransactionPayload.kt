@@ -48,7 +48,7 @@ sealed class DeclareTransactionPayload() : TransactionPayload()
 @Serializable
 data class DeclareTransactionV1Payload(
     @SerialName("contract_class")
-    val contractDefinition: ContractDefinition,
+    val contractDefinition: Cairo0ContractDefinition,
 
     @SerialName("max_fee")
     val maxFee: Felt,
@@ -71,23 +71,23 @@ data class DeclareTransactionV1Payload(
 
 @Serializable
 data class DeclareTransactionV2Payload(
-        @SerialName("contract_class")
-        val contractDefinition: ContractDefinition,
+    @SerialName("contract_class")
+    val contractDefinition: Cairo1ContractDefinition,
 
-        @SerialName("max_fee")
-        val maxFee: Felt,
+    @SerialName("max_fee")
+    val maxFee: Felt,
 
-        @SerialName("nonce")
-        val nonce: Felt,
+    @SerialName("nonce")
+    val nonce: Felt,
 
-        @SerialName("signature")
-        val signature: Signature,
+    @SerialName("signature")
+    val signature: Signature,
 
-        @SerialName("sender_address")
-        val senderAddress: Felt,
+    @SerialName("sender_address")
+    val senderAddress: Felt,
 
-        @SerialName("compiled_class_hash")
-        val compiledClassHash: Felt,
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
 ) : DeclareTransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DECLARE

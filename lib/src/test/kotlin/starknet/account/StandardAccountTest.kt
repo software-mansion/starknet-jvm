@@ -3,11 +3,10 @@ package starknet.account
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.DeployAccountTransaction
-import com.swmansion.starknet.data.types.transactions.TransactionFactory
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
@@ -65,7 +64,7 @@ class StandardAccountTest {
                     StarknetChainId.TESTNET,
                 )
 
-                val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled/providerTest.json"))
+                val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
                 balanceContractAddress = deployAddress
 
                 deployAccount()
@@ -77,7 +76,7 @@ class StandardAccountTest {
 
         private fun deployAccount() {
             val contractDeployer = ContractDeployer.deployInstance(devnetClient)
-            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/account.json"))
+            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
             accountClassHash = classHash
             accountAddress = contractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
             devnetClient.prefundAccount(accountAddress)
@@ -86,7 +85,7 @@ class StandardAccountTest {
         data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
-        private fun getProviders(): List<Provider> = listOf(gatewayProvider) //, rpcProvider)
+        private fun getProviders(): List<Provider> = listOf(gatewayProvider, rpcProvider)
 
         @JvmStatic
         fun getAccounts(): List<AccountAndProvider> {
@@ -172,14 +171,14 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `estimate fee for declare transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
-        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
-        val contractDefinition = ContractDefinition(contractCode)
+        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x3954cf95540510d926de27a2f1f5323ae2062d1e8c9790eae4cc6a9446f5bd3")
+        val classHash = Felt.fromHex("0x2dd60aa62a6b8782fc1e07ef49af1138dc2c3fdc55cb4d48a7c919ffa2914a9")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -206,24 +205,52 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
-        val contractCode = Path.of("src/test/resources/compiled/providerTest.json").readText()
-        val contractDefinition = ContractDefinition(contractCode)
+        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x54843949118dc8885bbb64c0614c55086e4a9d65933dbc825c4358435695b0")
-
+        val classHash = Felt.fromHex("0x2dd60aa62a6b8782fc1e07ef49af1138dc2c3fdc55cb4d48a7c919ffa2914a9")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
             ExecutionParams(nonce, Felt(1000000000000000)),
         )
+
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
+        assertNotNull(result)
+        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
+        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val contractHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
+        val casmHash = Cairo1ClassHashCalculator.computeCasmClassHash(contractCasmDefinition)
+
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            contractHash,
+            ExecutionParams(nonce, Felt(1000000000000000)),
+            casmHash,
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
         assertNotNull(result)
         assertNotNull(receipt)
         assertTrue(receipt.isAccepted)

@@ -199,7 +199,7 @@ data class DeclareTransactionV1(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
-    private val contractDefinition: ContractDefinition? = null,
+    private val contractDefinition: Cairo0ContractDefinition? = null,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV1Payload {
@@ -220,46 +220,46 @@ data class DeclareTransactionV1(
 @Serializable
 @SerialName("DECLARE")
 data class DeclareTransactionV2(
-        @SerialName("class_hash")
-        val classHash: Felt,
+    @SerialName("class_hash")
+    val classHash: Felt,
 
-        @SerialName("sender_address")
-        val senderAddress: Felt,
+    @SerialName("sender_address")
+    val senderAddress: Felt,
 
-        @SerialName("transaction_hash")
-        @JsonNames("txn_hash")
-        override val hash: Felt,
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt,
 
-        @SerialName("max_fee")
-        override val maxFee: Felt,
+    @SerialName("max_fee")
+    override val maxFee: Felt,
 
-        @SerialName("version")
-        override val version: Felt = Felt(2),
+    @SerialName("version")
+    override val version: Felt = Felt(2),
 
-        @SerialName("signature")
-        override val signature: Signature,
+    @SerialName("signature")
+    override val signature: Signature,
 
-        @SerialName("nonce")
-        override val nonce: Felt,
+    @SerialName("nonce")
+    override val nonce: Felt,
 
-        @SerialName("compiled_class_hash")
-        val compiledClassHash: Felt,
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
 
-        @SerialName("type")
-        override val type: TransactionType = TransactionType.DECLARE,
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
 
-        private val contractDefinition: ContractDefinition? = null,
+    private val contractDefinition: Cairo1ContractDefinition? = null,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
         return DeclareTransactionV2Payload(
-                contractDefinition = contractDefinition,
-                senderAddress = senderAddress,
-                maxFee = maxFee,
-                nonce = nonce,
-                signature = signature,
-                compiledClassHash = compiledClassHash,
+            contractDefinition = contractDefinition,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            nonce = nonce,
+            signature = signature,
+            compiledClassHash = compiledClassHash,
         )
     }
 
@@ -409,14 +409,14 @@ object TransactionFactory {
     fun makeDeclareV1Transaction(
         classHash: Felt,
         senderAddress: Felt,
-        contractDefinition: ContractDefinition,
+        contractDefinition: Cairo0ContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,
         nonce: Felt,
         signature: Signature = emptyList(),
     ): DeclareTransactionV1 {
-        val hash = TransactionHashCalculator.calculateDeclareTxHash(
+        val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
             classHash = classHash,
             chainId = chainId,
             senderAddress = senderAddress,
@@ -438,34 +438,35 @@ object TransactionFactory {
 
     @JvmStatic
     fun makeDeclareV2Transaction(
-            classHash: Felt,
-            senderAddress: Felt,
-            contractDefinition: ContractDefinition,
-            chainId: StarknetChainId,
-            maxFee: Felt,
-            version: Felt,
-            nonce: Felt,
-            compiledClassHash: Felt,
-            signature: Signature = emptyList(),
+        classHash: Felt,
+        senderAddress: Felt,
+        contractDefinition: Cairo1ContractDefinition,
+        chainId: StarknetChainId,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+        compiledClassHash: Felt,
+        signature: Signature = emptyList(),
     ): DeclareTransactionV2 {
-        val hash = TransactionHashCalculator.calculateDeclareTxHash(
-                classHash = classHash,
-                chainId = chainId,
-                senderAddress = senderAddress,
-                maxFee = maxFee,
-                version = version,
-                nonce = nonce,
+        val hash = TransactionHashCalculator.calculateDeclareV2TxHash(
+            classHash = classHash,
+            chainId = chainId,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            version = version,
+            nonce = nonce,
+            compiledClassHash = compiledClassHash,
         )
         return DeclareTransactionV2(
-                classHash = classHash,
-                senderAddress = senderAddress,
-                contractDefinition = contractDefinition,
-                hash = hash,
-                maxFee = maxFee,
-                version = version,
-                signature = signature,
-                nonce = nonce,
-                compiledClassHash = compiledClassHash,
+            classHash = classHash,
+            senderAddress = senderAddress,
+            contractDefinition = contractDefinition,
+            hash = hash,
+            maxFee = maxFee,
+            version = version,
+            signature = signature,
+            nonce = nonce,
+            compiledClassHash = compiledClassHash,
         )
     }
 }

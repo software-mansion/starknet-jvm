@@ -57,15 +57,15 @@ interface HttpService {
         constructor(url: String, method: String) : this(url, method, emptyList(), null)
 
         constructor(
-                url: String,
-                method: String,
-                params: List<Pair<String, String>>,
-                body: JsonArray,
+            url: String,
+            method: String,
+            params: List<Pair<String, String>>,
+            body: JsonArray,
         ) : this(
-                url,
-                method,
-                params,
-                body.toString(),
+            url,
+            method,
+            params,
+            body.toString(),
         )
     }
 

@@ -129,7 +129,7 @@ object Poseidon {
             if (size % r == 1) add(Felt.ZERO)
         }
 
-        var state = Array(m) {longArrayOf(0, 0, 0, 0)}
+        var state = Array(m) { longArrayOf(0, 0, 0, 0) }
 
         for (iter in 0 until inputValues.size step 2) {
             state = hades(

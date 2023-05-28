@@ -76,6 +76,8 @@ class DevnetClient(
                 port.toString(),
                 "--seed",
                 seed.toString(),
+                "--sierra-compiler-path",
+                "../cairo/target/debug/starknet-sierra-compile",
             ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
@@ -203,39 +205,16 @@ class DevnetClient(
         return tx
     }
 
-    fun deployV2Contract(contractPath: Path): TransactionResult {
-        val (classHash, _) = declareV2Contract(contractPath)
-        val result = runStarknetCli(
-                "Contract deployment",
-                "deploy",
-                "--class_hash",
-                classHash.hexString(),
-                "--account_dir",
-                accountDirectory.toString(),
-                "--wallet",
-                "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-                "--max_fee",
-                "3115000000000000",
-        )
-
-        val lines = result.lines()
-        val tx = getTransactionResult(lines)
-
-        assertTxPassed(tx.hash)
-
-        return tx
-    }
-
     fun declareV2Contract(contractPath: Path): TransactionResult {
         val result = runStarknetCli(
-                "Contract declare",
-                "declare",
-                "--contract",
-                contractPath.absolutePathString(),
-                "--account_dir",
-                accountDirectory.toString(),
-                "--wallet",
-                "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
+            "Contract declare",
+            "declare",
+            "--contract",
+            contractPath.absolutePathString(),
+            "--account_dir",
+            accountDirectory.toString(),
+            "--wallet",
+            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
         )
 
         val lines = result.lines()

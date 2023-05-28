@@ -16,9 +16,9 @@ internal object JsonRpcTransactionPayloadPolymorphicSerializer :
         }
 
     private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransactionPayload> =
-            when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-                Felt.ONE.hexString() -> DeclareTransactionV1Payload.serializer()
-                Felt(2).hexString() -> DeclareTransactionV2Payload.serializer()
-                else -> throw IllegalArgumentException("Invalid invoke transaction version")
-            }
+        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+            Felt.ONE.hexString() -> DeclareTransactionV1Payload.serializer()
+            Felt(2).hexString() -> DeclareTransactionV2Payload.serializer()
+            else -> throw IllegalArgumentException("Invalid invoke transaction version")
+        }
 }

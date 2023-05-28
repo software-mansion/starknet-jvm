@@ -117,7 +117,7 @@ interface Account {
      * @return signed declare transaction payload
      */
     fun signDeclare(
-        contractDefinition: ContractDefinition,
+        contractDefinition: Cairo0ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
         forFeeEstimate: Boolean = false,
@@ -136,11 +136,11 @@ interface Account {
      * @return signed declare transaction payload
      */
     fun signDeclare(
-            contractDefinition: ContractDefinition,
-            classHash: Felt,
-            params: ExecutionParams,
-            compiledClassHash: Felt,
-            forFeeEstimate: Boolean = false,
+        contractDefinition: Cairo1ContractDefinition,
+        classHash: Felt,
+        params: ExecutionParams,
+        compiledClassHash: Felt,
+        forFeeEstimate: Boolean = false,
     ): DeclareTransactionV2Payload
 
     /**

@@ -52,7 +52,7 @@ object StandardDeployerTest {
                 StarknetChainId.TESTNET,
             )
 
-            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/deployer.json"))
+            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
             rpcDeployerAddress = testContractDeployer.deployContract(classHash)
             gatewayDeployerAddress = testContractDeployer.deployContract(classHash)
 
@@ -64,7 +64,7 @@ object StandardDeployerTest {
     }
 
     private fun deployAccount() {
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/account.json"))
+        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
         accountAddress = testContractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
         devnetClient.prefundAccount(accountAddress)
     }
@@ -82,14 +82,14 @@ object StandardDeployerTest {
                 ),
                 gatewayProvider,
             ),
-//            StandardDeployerAndProvider(
-//                StandardDeployer(
-//                    rpcDeployerAddress,
-//                    rpcProvider,
-//                    StandardAccount(accountAddress, signer, rpcProvider),
-//                ),
-//                rpcProvider,
-//            ),
+            StandardDeployerAndProvider(
+                StandardDeployer(
+                    rpcDeployerAddress,
+                    rpcProvider,
+                    StandardAccount(accountAddress, signer, rpcProvider),
+                ),
+                rpcProvider,
+            ),
         )
     }
 
@@ -97,7 +97,7 @@ object StandardDeployerTest {
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/balance.json"))
+        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, true, Felt(1234), emptyList()).send()
 
         val address = standardDeployer.findContractAddress(deployment).send()
@@ -110,7 +110,7 @@ object StandardDeployerTest {
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy with default parameters`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/balance.json"))
+        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, emptyList()).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
@@ -123,7 +123,7 @@ object StandardDeployerTest {
     fun `test udc deploy with constructor`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
         val constructorValue = Felt(111)
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled/contractWithConstructor.json"))
+        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/contractWithConstructor.json"))
         val deployment =
             standardDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
         val address = standardDeployer.findContractAddress(deployment).send()
@@ -133,4 +133,17 @@ object StandardDeployerTest {
         assertNotNull(address)
         assertEquals(listOf(constructorValue), contractValue)
     }
+
+//    This test will fail on systemc other than linux x64, because of sierra compiler
+//    @ParameterizedTest
+//    @MethodSource("getStandardDeployerAndProvider")
+//    fun `test udc deploy with cairo1 contract`(standardDeployerAndProvider: StandardDeployerAndProvider) {
+//        val (standardDeployer, provider) = standardDeployerAndProvider
+//        val (classHash, _) = devnetClient.declareV2Contract(Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json"))
+//        val deployment = standardDeployer.deployContract(classHash, emptyList()).send()
+//        val address = standardDeployer.findContractAddress(deployment).send()
+//
+//        assertNotNull(address)
+//        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+//    }
 }

@@ -55,6 +55,7 @@ object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2P
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("nonce", value.nonce)
             put("type", value.type.toString())
+            put("compiled_class_hash", value.compiledClassHash.hexString())
         }
 
         encoder.encodeJsonElement(jsonObject)
