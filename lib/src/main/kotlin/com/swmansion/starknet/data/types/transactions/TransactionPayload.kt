@@ -63,7 +63,7 @@ data class DeclareTransactionV1Payload(
     val senderAddress: Felt,
 
     @SerialName("version")
-    val version: Felt = Felt.ONE
+    val version: Felt = Felt.ONE,
 ) : DeclareTransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DECLARE
@@ -90,7 +90,7 @@ data class DeclareTransactionV2Payload(
     val compiledClassHash: Felt,
 
     @SerialName("version")
-    val version: Felt = Felt(2)
+    val version: Felt = Felt(2),
 ) : DeclareTransactionPayload() {
     @SerialName("type")
     val type: TransactionType = TransactionType.DECLARE

@@ -3,7 +3,6 @@ package starknet.account
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
-import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
