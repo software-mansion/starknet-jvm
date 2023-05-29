@@ -265,16 +265,16 @@ class ProviderTest {
         assertNotNull(response)
     }
 
-//    @Test
-//    fun `get class definition at latest block`() {
-//        // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
-//        // After it's fixed add tests with 1) block hash 2) block number
-//        val provider = rpcProvider()
-//        val request = provider.getClass(classHash, BlockTag.LATEST)
-//        val response = request.send()
-//
-//        assertNotNull(response)
-//    }
+    @Test
+    fun `get class definition at latest block`() {
+        // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
+        // After it's fixed add tests with 1) block hash 2) block number
+        val provider = rpcProvider()
+        val request = provider.getClass(classHash, BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+    }
 
     @ParameterizedTest
     @MethodSource("getProviders")

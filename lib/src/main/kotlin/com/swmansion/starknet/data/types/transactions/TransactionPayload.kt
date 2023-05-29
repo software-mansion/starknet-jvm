@@ -61,12 +61,12 @@ data class DeclareTransactionV1Payload(
 
     @SerialName("sender_address")
     val senderAddress: Felt,
-) : DeclareTransactionPayload() {
-    @SerialName("type")
-    val type: TransactionType = TransactionType.DECLARE
 
     @SerialName("version")
     val version: Felt = Felt.ONE
+) : DeclareTransactionPayload() {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DECLARE
 }
 
 @Serializable
@@ -88,12 +88,12 @@ data class DeclareTransactionV2Payload(
 
     @SerialName("compiled_class_hash")
     val compiledClassHash: Felt,
-) : DeclareTransactionPayload() {
-    @SerialName("type")
-    val type: TransactionType = TransactionType.DECLARE
 
     @SerialName("version")
     val version: Felt = Felt(2)
+) : DeclareTransactionPayload() {
+    @SerialName("type")
+    val type: TransactionType = TransactionType.DECLARE
 }
 
 @Serializable

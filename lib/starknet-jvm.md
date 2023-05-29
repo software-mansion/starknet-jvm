@@ -30,7 +30,7 @@ public class Main {
         Felt privateKey = Felt.fromHex("0x425125");
         Account account = new StandardAccount(provider, accountAddress, privateKey);
 
-        // Make a request⚠︎
+        // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
         Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
