@@ -29,7 +29,7 @@ import java.util.function.Function
  * @param chainId an id of the network
  * @param httpService service used for making http requests
  */
-@Deprecated("GatewayProvider is deprecated and soon will be removed. Consider using JsonRpcProvider.")
+@Deprecated("Consider using JsonRpcProvider instead.")
 class GatewayProvider(
     val feederGatewayUrl: String,
     val gatewayUrl: String,
