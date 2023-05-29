@@ -239,14 +239,10 @@ class StandardAccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val contractHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
-        val casmHash = Cairo1ClassHashCalculator.computeCasmClassHash(contractCasmDefinition)
-
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
-            contractHash,
+            contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000)),
-            casmHash,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()

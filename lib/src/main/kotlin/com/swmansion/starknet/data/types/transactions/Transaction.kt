@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -438,16 +439,17 @@ object TransactionFactory {
 
     @JvmStatic
     fun makeDeclareV2Transaction(
-        classHash: Felt,
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,
         nonce: Felt,
-        compiledClassHash: Felt,
+        casmContractDefinition: CasmContractDefinition,
         signature: Signature = emptyList(),
     ): DeclareTransactionV2 {
+        val classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
+        val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition)
         val hash = TransactionHashCalculator.calculateDeclareV2TxHash(
             classHash = classHash,
             chainId = chainId,
