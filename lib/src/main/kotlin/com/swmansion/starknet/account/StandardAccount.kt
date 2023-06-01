@@ -65,6 +65,7 @@ class StandardAccount(
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
+        nonce: Felt,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionPayload {
         val signVersion = when (forFeeEstimate) {
@@ -79,6 +80,7 @@ class StandardAccount(
             chainId = provider.chainId,
             maxFee = maxFee,
             version = signVersion,
+            nonce = nonce,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 

@@ -74,6 +74,7 @@ interface Account {
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
      * @param maxFee max fee to be consumed by this transaction
+     * @param nonce nonce
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
      */
@@ -82,6 +83,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
+        nonce: Felt,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionPayload
 
@@ -102,7 +104,7 @@ interface Account {
         salt: Felt,
         maxFee: Felt,
     ): DeployAccountTransactionPayload {
-        return signDeployAccount(classHash, calldata, salt, maxFee, false)
+        return signDeployAccount(classHash, calldata, salt, maxFee, Felt.ZERO, false)
     }
 
     /**

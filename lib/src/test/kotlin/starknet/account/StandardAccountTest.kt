@@ -459,6 +459,7 @@ class StandardAccountTest {
             salt = salt,
             calldata = calldata,
             maxFee = Felt.ZERO,
+            nonce = Felt.ZERO,
             forFeeEstimate = true,
         )
         assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
@@ -547,6 +548,7 @@ class StandardAccountTest {
             salt = salt,
             calldata = calldata,
             maxFee = Felt.ZERO,
+            nonce = Felt.ONE,
             forFeeEstimate = true,
         )
         assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))

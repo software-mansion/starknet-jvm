@@ -57,6 +57,7 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         version: Felt,
         maxFee: Felt,
+        nonce: Felt,
     ): Felt {
         val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
@@ -71,7 +72,7 @@ object TransactionHashCalculator {
             calldata = listOf(classHash, salt, *calldata.toTypedArray()),
             maxFee = maxFee,
             chainId = chainId,
-            nonce = Felt.ZERO,
+            nonce = nonce,
         )
     }
 

@@ -383,8 +383,8 @@ object TransactionFactory {
         version: Felt,
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
+        nonce: Felt = Felt.ZERO,
     ): DeployAccountTransaction {
-        val nonce = Felt.ZERO
         val hash = TransactionHashCalculator.calculateDeployAccountTxHash(
             classHash = classHash,
             calldata = calldata,
@@ -392,6 +392,7 @@ object TransactionFactory {
             chainId = chainId,
             version = version,
             maxFee = maxFee,
+            nonce = nonce,
         )
         return DeployAccountTransaction(
             classHash = classHash,
