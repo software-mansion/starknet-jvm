@@ -177,7 +177,7 @@ class StandardAccountTest {
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x2dd60aa62a6b8782fc1e07ef49af1138dc2c3fdc55cb4d48a7c919ffa2914a9")
+        val classHash = Felt.fromHex("0x48e8cd3b3d95cb6d9cbc9b3c0a39b1a7341f04b7daa5a13461dbc3116c5423")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -211,7 +211,7 @@ class StandardAccountTest {
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x2dd60aa62a6b8782fc1e07ef49af1138dc2c3fdc55cb4d48a7c919ffa2914a9")
+        val classHash = Felt.fromHex("0x48e8cd3b3d95cb6d9cbc9b3c0a39b1a7341f04b7daa5a13461dbc3116c5423")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,

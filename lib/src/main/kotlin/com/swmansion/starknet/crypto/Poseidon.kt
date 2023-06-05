@@ -5,7 +5,7 @@ import com.swmansion.starknet.extensions.toFelt
 import java.math.BigInteger
 
 /**
- * Split a BigInteger into an array of 4 Long values, each representing a 64-bit chunk of the original BigInteger.
+ * Split a BigInteger into a little endian array of 4 Long values, each representing a 64-bit chunk of the original BigInteger.
  *
  * @param bigInt the BigInteger to split
  * @return a LongArray containing the 64-bit chunks of the original BigInteger

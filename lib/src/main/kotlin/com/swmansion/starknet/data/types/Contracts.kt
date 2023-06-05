@@ -23,6 +23,13 @@ enum class AbiEntryType {
     EVENT,
 }
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@Serializable
+enum class StateMutabilityType {
+    @JsonNames("view")
+    VIEW
+}
+
 @Serializable
 sealed class AbiElement
 
@@ -39,6 +46,7 @@ data class FunctionAbiEntry(
     val inputs: List<AbiEntry>,
     val outputs: List<AbiEntry>,
     val type: AbiEntryType,
+    val stateMutability: StateMutabilityType? = null,
 ) : AbiElement()
 
 @SerialName("event")
