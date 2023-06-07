@@ -1,6 +1,5 @@
 package com.swmansion.starknet.account
 
-import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
