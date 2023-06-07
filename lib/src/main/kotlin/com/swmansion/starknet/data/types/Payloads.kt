@@ -45,7 +45,7 @@ data class GetTransactionReceiptPayload(
 @Serializable
 data class EstimateTransactionFeePayload(
     @SerialName("request")
-    val request: TransactionPayload,
+    val request: List<TransactionPayload>,
 
     @SerialName("block_id")
     override val blockId: BlockId,

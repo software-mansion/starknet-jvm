@@ -57,6 +57,7 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         version: Felt,
         maxFee: Felt,
+        nonce: Felt,
     ): Felt {
         val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
@@ -71,12 +72,12 @@ object TransactionHashCalculator {
             calldata = listOf(classHash, salt, *calldata.toTypedArray()),
             maxFee = maxFee,
             chainId = chainId,
-            nonce = Felt.ZERO,
+            nonce = nonce,
         )
     }
 
     @JvmStatic
-    fun calculateDeclareTxHash(
+    fun calculateDeclareV1TxHash(
         classHash: Felt,
         chainId: StarknetChainId,
         senderAddress: Felt,
@@ -84,15 +85,40 @@ object TransactionHashCalculator {
         version: Felt,
         nonce: Felt,
     ): Felt {
-        return transactionHashCommon(
-            txType = TransactionType.DECLARE,
-            version = version,
-            contractAddress = senderAddress,
-            entryPointSelector = Felt.ZERO,
-            calldata = listOf(classHash),
-            maxFee = maxFee,
-            chainId = chainId,
-            nonce = nonce,
+        val hash = StarknetCurve.pedersenOnElements(listOf(classHash))
+        return StarknetCurve.pedersenOnElements(
+            TransactionType.DECLARE.txPrefix,
+            version,
+            senderAddress,
+            Felt.ZERO,
+            hash,
+            maxFee,
+            chainId.value,
+            nonce,
+        )
+    }
+
+    @JvmStatic
+    fun calculateDeclareV2TxHash(
+        classHash: Felt,
+        chainId: StarknetChainId,
+        senderAddress: Felt,
+        maxFee: Felt,
+        version: Felt,
+        nonce: Felt,
+        compiledClassHash: Felt,
+    ): Felt {
+        val calldataHash = StarknetCurve.pedersenOnElements(listOf(classHash))
+        return StarknetCurve.pedersenOnElements(
+            TransactionType.DECLARE.txPrefix,
+            version,
+            senderAddress,
+            Felt.ZERO,
+            calldataHash,
+            maxFee,
+            chainId.value,
+            nonce,
+            compiledClassHash,
         )
     }
 
@@ -105,14 +131,16 @@ object TransactionHashCalculator {
         maxFee: Felt,
         chainId: StarknetChainId,
         nonce: Felt,
-    ): Felt = StarknetCurve.pedersenOnElements(
-        txType.txPrefix,
-        version,
-        contractAddress,
-        entryPointSelector,
-        StarknetCurve.pedersenOnElements(calldata),
-        maxFee,
-        chainId.value,
-        nonce,
-    )
+    ): Felt {
+        return StarknetCurve.pedersenOnElements(
+            txType.txPrefix,
+            version,
+            contractAddress,
+            entryPointSelector,
+            StarknetCurve.pedersenOnElements(calldata),
+            maxFee,
+            chainId.value,
+            nonce,
+        )
+    }
 }

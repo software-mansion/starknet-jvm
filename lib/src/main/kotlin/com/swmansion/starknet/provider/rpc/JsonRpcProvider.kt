@@ -146,13 +146,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
 
-    private fun getClass(payload: GetClassPayload): Request<ContractClass> {
+    private fun getClass(payload: GetClassPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClass.serializer())
+        return buildRequest(JsonRpcMethod.GET_CLASS, params, JsonRpcContractClassPolymorphicSerializer)
     }
 
-    override fun getClass(classHash: Felt): Request<ContractClass> {
+    override fun getClass(classHash: Felt): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, BlockTag.LATEST.tag)
 
         return getClass(payload)
@@ -168,7 +168,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockHash.hexString())
 
         return getClass(payload)
@@ -184,7 +184,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockNumber.toString())
 
         return getClass(payload)
@@ -200,16 +200,16 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClass> {
+    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClassBase> {
         val payload = GetClassPayload(classHash, blockTag.tag)
 
         return getClass(payload)
     }
 
-    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClass> {
+    private fun getClassAt(payload: GetClassAtPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, ContractClass.serializer())
+        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, JsonRpcContractClassPolymorphicSerializer)
     }
 
     /**
@@ -220,7 +220,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockHash The hash of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
 
         return getClassAt(payload)
@@ -234,7 +234,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockNumber The number of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
 
         return getClassAt(payload)
@@ -248,7 +248,7 @@ class JsonRpcProvider(
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockTag The tag of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClassBase> {
         val payload = GetClassAtPayload(blockTag.tag, contractAddress)
 
         return getClassAt(payload)
@@ -261,7 +261,7 @@ class JsonRpcProvider(
      *
      * @param contractAddress The address of the contract whose class definition will be returned.
      */
-    fun getClassAt(contractAddress: Felt): Request<ContractClass> {
+    fun getClassAt(contractAddress: Felt): Request<ContractClassBase> {
         return getClassAt(contractAddress, BlockTag.LATEST)
     }
 
@@ -289,8 +289,17 @@ class JsonRpcProvider(
         return getClassHashAt(payload)
     }
 
-    override fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionPayloadSerializer, payload)
+    override fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, payload)
+        val jsonPayload = buildJsonObject {
+            put("declare_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
+    }
+
+    override fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
@@ -365,25 +374,25 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_EVENTS, jsonPayload, GetEventsResult.serializer())
     }
 
-    private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<EstimateFeeResponse> {
+    private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<List<EstimateFeeResponse>> {
         val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockHash: Felt): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockNumber: Int): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: TransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
@@ -501,10 +510,10 @@ class JsonRpcProvider(
         return getBlockWithTxs(payload)
     }
 
-    private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdateResponse> {
+    private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_STATE_UPDATE, jsonPayload, StateUpdateResponse.serializer())
+        return buildRequest(JsonRpcMethod.GET_STATE_UPDATE, jsonPayload, JsonRpcStateUpdatePolymorphicSerializer)
     }
 
     /**
@@ -516,7 +525,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockTag: BlockTag): Request<StateUpdateResponse> {
+    fun getStateUpdate(blockTag: BlockTag): Request<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Tag(blockTag))
 
         return getStateUpdate(payload)
@@ -531,7 +540,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockHash: Felt): Request<StateUpdateResponse> {
+    fun getStateUpdate(blockHash: Felt): Request<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Hash(blockHash))
 
         return getStateUpdate(payload)
@@ -546,7 +555,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockNumber: Int): Request<StateUpdateResponse> {
+    fun getStateUpdate(blockNumber: Int): Request<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Number(blockNumber))
 
         return getStateUpdate(payload)

@@ -1,5 +1,6 @@
 package com.swmansion.starknet.service.http
 
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.CompletableFuture
 
@@ -54,6 +55,18 @@ interface HttpService {
         )
 
         constructor(url: String, method: String) : this(url, method, emptyList(), null)
+
+        constructor(
+            url: String,
+            method: String,
+            params: List<Pair<String, String>>,
+            body: JsonArray,
+        ) : this(
+            url,
+            method,
+            params,
+            body.toString(),
+        )
     }
 
     /**

@@ -5,6 +5,8 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, StarkNet-jvm has been created with compatibility with Java in mind.
 
+⚠️Gateway provider is currently marked as deprecated and will soon be removed.
+
 ## Making synchronous requests
 
 ### In Java

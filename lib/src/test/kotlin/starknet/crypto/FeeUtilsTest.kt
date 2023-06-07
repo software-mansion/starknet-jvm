@@ -1,6 +1,6 @@
 package starknet.crypto
 
-import com.swmansion.starknet.crypto.estimatedFeeToMaxFee
+import com.swmansion.starknet.account.estimatedFeeToMaxFee
 import com.swmansion.starknet.data.types.Felt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

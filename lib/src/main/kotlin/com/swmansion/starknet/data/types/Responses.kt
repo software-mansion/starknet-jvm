@@ -212,15 +212,45 @@ data class StateDiff(
     @SerialName("storage_diffs")
     val storageDiffs: List<StorageDiffItem>,
 
-    @SerialName("declared_contract_hashes")
-    val declaredContractHashes: List<Felt>,
+    @SerialName("deprecated_declared_classes")
+    val deprecatedDeclaredClasses: List<Felt>,
+
+    @SerialName("declared_classes")
+    val declaredClasses: List<DeclaredClassItem>,
 
     @SerialName("deployed_contracts")
     val deployedContracts: List<DeployedContractItem>,
 
+    @SerialName("replaced_classes")
+    val replacedClasses: List<ReplacedClassItem>,
+
     @SerialName("nonces")
     val nonces: List<NonceItem>,
 )
+
+@Serializable
+data class DeclaredClassItem(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
+)
+
+@Serializable
+data class ReplacedClassItem(
+    @SerialName("contract_address")
+    val address: Felt,
+
+    @SerialName("class_hash")
+    val classHash: Felt,
+)
+
+@Serializable
+sealed class StateUpdate {
+    abstract val oldRoot: Felt
+    abstract val stateDiff: StateDiff
+}
 
 @Serializable
 data class StateUpdateResponse(
@@ -231,8 +261,17 @@ data class StateUpdateResponse(
     val newRoot: Felt,
 
     @SerialName("old_root")
-    val oldRoot: Felt,
+    override val oldRoot: Felt,
 
     @SerialName("state_diff")
-    val stateDiff: StateDiff,
-)
+    override val stateDiff: StateDiff,
+) : StateUpdate()
+
+@Serializable
+data class PendingStateUpdateResponse(
+    @SerialName("old_root")
+    override val oldRoot: Felt,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff,
+) : StateUpdate()

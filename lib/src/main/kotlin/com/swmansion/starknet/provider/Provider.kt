@@ -151,7 +151,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt): Request<ContractClass>
+    fun getClass(classHash: Felt): Request<ContractClassBase>
 
     /**
      * Get the contract class hash.
@@ -204,53 +204,64 @@ interface Provider {
     }
 
     /**
-     * Declare contract
+     * Declare version 1 contract
      *
-     * Declare a contract on StarkNet.
+     * Declare a version 1 contract on StarkNet.
      *
-     * @param payload declare transaction payload
+     * @param payload declare transaction version 1 payload
      *
      * @throws RequestFailedException
      */
-    fun declareContract(payload: DeclareTransactionPayload): Request<DeclareResponse>
+    fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse>
+
+    /**
+     * Declare version 2 contract
+     *
+     * Declare a version 2 contract on StarkNet.
+     *
+     * @param payload declare transaction version 2 payload
+     *
+     * @throws RequestFailedException
+     */
+    fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse>
 
     /**
      * Estimate a fee.
      *
-     * Estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction list.
      *
      * @param payload transaction, for which the fee is to be estimated.
      * @param blockHash a hash of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: TransactionPayload, blockHash: Felt): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
      *
-     * Estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction list.
      *
      * @param payload transaction, for which the fee is to be estimated.
      * @param blockNumber a number of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: TransactionPayload, blockNumber: Int): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
      *
-     * Estimate a fee for a provided transaction.
+     * Estimate a fee for a provided transaction list.
      *
      * @param payload transaction, for which the fee is to be estimated.
      * @param blockTag a tag of the block in respect to what the query will be made
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: TransactionPayload, blockTag: BlockTag): Request<EstimateFeeResponse>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
 
-    fun getEstimateFee(payload: TransactionPayload): Request<EstimateFeeResponse> {
+    fun getEstimateFee(payload: List<TransactionPayload>): Request<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockTag.LATEST)
     }
 

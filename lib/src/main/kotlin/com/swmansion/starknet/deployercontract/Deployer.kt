@@ -10,9 +10,9 @@ data class ContractDeployment(
     val transactionHash: Felt,
 )
 
-class AddressRetrievalFailedException(message: String, contractDeployment: ContractDeployment) : Exception(message)
+class AddressRetrievalFailedException(message: String, contractDeployment: ContractDeployment) : RuntimeException(message)
 
-class SaltGenerationFailedException : Exception()
+class SaltGenerationFailedException : RuntimeException()
 
 /**
  * Universal Deployer Contract module

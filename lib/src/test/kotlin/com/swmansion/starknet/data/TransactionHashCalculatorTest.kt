@@ -35,6 +35,7 @@ internal class TransactionHashCalculatorTest {
             chainId = chainId,
             version = version,
             maxFee = maxFee,
+            nonce = Felt.ZERO,
         )
         val expected = Felt.fromHex("0x68beaf15e356928a1850cf343be85032efad964324b0abca4a9a57ff2057ef7")
 

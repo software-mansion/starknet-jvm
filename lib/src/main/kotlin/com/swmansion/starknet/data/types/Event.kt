@@ -52,7 +52,7 @@ data class GetEventsPayload(
     val address: Felt,
 
     @SerialName("keys")
-    val keys: List<Felt>,
+    val keys: List<List<Felt>>,
 
     @SerialName("chunk_size")
     val chunkSize: Int,

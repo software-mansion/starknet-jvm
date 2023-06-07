@@ -28,7 +28,7 @@ public class Main {
         // ⚠️ WARNING ⚠️ The key generated here is just for demonstration purposes.
         // DO NOT GENERATE YOUR KEYS THIS WAY. USE CRYPTOGRAPHICALLY SAFE TOOLS!
         Felt privateKey = new Felt(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
-        Provider provider = GatewayProvider.makeTestnetClient();
+        Provider provider = GatewayProvider.makeTestnetProvider();
         Account account = new StandardAccount(address, privateKey, provider);
 
         // Read contract source code
@@ -37,12 +37,12 @@ public class Main {
 
         // Declare a contract
         // Class hash is calculated using the tools you used for compilation
-        ContractDefinition contractDefinition = new ContractDefinition(contract);
+        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contract);
         Felt classHash = Felt.fromHex("0x1234");
         Felt maxFee = Felt.ZERO;
         Felt nonce = account.getNonce().send();
         ExecutionParams executionParams = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionPayload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, executionParams);
+        DeclareTransactionPayload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, executionParams, false);
         DeclareResponse declareResponse = provider.declareContract(declareTransactionPayload).send();
 
         // Deploy a contract with Universal Deployer Contract

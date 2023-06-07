@@ -16,7 +16,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
         externalNativeBuild {
             cmake {
-                targets "crypto_jni"
+                targets "crypto_jni", "poseidon_jni"
                 arguments "-DCMAKE_BUILD_TYPE=Release"
             }
         }

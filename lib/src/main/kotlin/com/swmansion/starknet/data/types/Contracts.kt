@@ -23,6 +23,13 @@ enum class AbiEntryType {
     EVENT,
 }
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@Serializable
+enum class StateMutabilityType {
+    @JsonNames("view")
+    VIEW
+}
+
 @Serializable
 sealed class AbiElement
 
@@ -39,6 +46,7 @@ data class FunctionAbiEntry(
     val inputs: List<AbiEntry>,
     val outputs: List<AbiEntry>,
     val type: AbiEntryType,
+    val stateMutability: StateMutabilityType? = null,
 ) : AbiElement()
 
 @SerialName("event")
@@ -69,13 +77,20 @@ data class StructAbiEntry(
 }
 
 @Serializable
-data class ContractEntryPoint(
-    val offset: Felt,
+data class DeprecatedCairoEntryPoint(
+    val offset: String,
     val selector: Felt,
 )
 
 @Serializable
-data class ContractDefinition(private val contract: String) {
+data class SierraEntryPoint(
+    @SerialName("function_idx")
+    val functionIdx: Int,
+    val selector: Felt,
+)
+
+@Serializable
+data class Cairo0ContractDefinition(private val contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
     private val abi: JsonElement?
@@ -109,24 +124,222 @@ data class ContractDefinition(private val contract: String) {
 }
 
 @Serializable
-data class ContractClass(
+data class Cairo1ContractDefinition(private val contract: String) {
+    private val sierraProgram: JsonElement
+    private val entryPointsByType: JsonElement
+    private val contractClassVersion: JsonElement
+    private val abi: JsonElement?
+
+    class InvalidContractException(missingKey: String) :
+        RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
+
+    init {
+        val (sierraProgram, entryPointsByType, contractClassVersion, abi) = parseContract(contract)
+        this.sierraProgram = sierraProgram
+        this.entryPointsByType = entryPointsByType
+        this.contractClassVersion = contractClassVersion
+        this.abi = abi
+    }
+
+    private fun parseContract(contract: String): Array<JsonElement> {
+        val compiledContract = Json.parseToJsonElement(contract).jsonObject
+        val sierraProgram = compiledContract["sierra_program"] ?: throw InvalidContractException("sierra_program")
+        val entryPointsByType =
+            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val contractClassVersion = compiledContract["contract_class_version"] ?: throw InvalidContractException("contract_class_version")
+        val abi = compiledContract["abi"] ?: JsonPrimitive("")
+        return arrayOf(sierraProgram, entryPointsByType, contractClassVersion, abi)
+    }
+
+    fun toJson(): JsonObject {
+        return buildJsonObject {
+            put("sierra_program", sierraProgram)
+            put("entry_points_by_type", entryPointsByType)
+            put("contract_class_version", contractClassVersion)
+            if (abi != null) put(
+                "abi",
+                Json { prettyPrint = true }.encodeToString(abi)
+                    .lineSequence().map { it.trim() }.joinToString("\n")
+                    .replace("\n", "")
+                    .replace(",\"", ", \"")
+                    .replace(",{", ", {")
+                    .replace(",[", ", ["),
+            ) else put("abi", "")
+        }
+    }
+
+    fun toGatewayJson(): JsonObject {
+        return buildJsonObject {
+            put("sierra_program", sierraProgram.toString().base64Gzipped())
+            put("entry_points_by_type", entryPointsByType)
+            put("contract_class_version", contractClassVersion)
+            if (abi != null) put(
+                "abi",
+                Json { prettyPrint = true }.encodeToString(abi)
+                    .lineSequence().map { it.trim() }.joinToString("\n")
+                    .replace("\n", "")
+                    .replace(",\"", ", \"")
+                    .replace(",{", ", {")
+                    .replace(",[", ", ["),
+            ) else put("abi", "")
+        }
+    }
+}
+
+@Serializable
+data class CasmContractDefinition(private val contract: String) {
+    private val casmClassVersion: JsonElement = JsonPrimitive("COMPILED_CLASS_V1")
+    private val prime: JsonElement
+    private val hints: JsonElement
+    private val compilerVersion: JsonElement
+    private val entryPointsByType: JsonElement
+    private val bytecode: JsonElement
+
+    class InvalidContractException(missingKey: String) :
+        RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
+
+    init {
+        val (entryPointsByType, bytecode, prime, hints, compilerVersion) = parseContract(contract)
+        this.entryPointsByType = entryPointsByType
+        this.bytecode = bytecode
+        this.prime = prime
+        this.hints = hints
+        this.compilerVersion = compilerVersion
+    }
+
+    private fun parseContract(contract: String): Array<JsonElement> {
+        val compiledContract = Json.parseToJsonElement(contract).jsonObject
+        val entryPointsByType =
+            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val bytecode = compiledContract["bytecode"] ?: throw InvalidContractException("bytecode")
+        val prime = compiledContract["prime"] ?: throw InvalidContractException("prime")
+        val hints = compiledContract["hints"] ?: throw InvalidContractException("hints")
+        val compilerVersion = compiledContract["compiler_version"] ?: throw InvalidContractException("compiler_version")
+        return arrayOf(entryPointsByType, bytecode, prime, hints, compilerVersion)
+    }
+
+    fun toJson(): JsonObject {
+        return buildJsonObject {
+            put("casm_class_version", casmClassVersion)
+            put("entry_points_by_type", entryPointsByType)
+            put("bytecode", bytecode)
+            put("prime", prime)
+            put("hints", buildJsonArray { hints.toString() })
+            put("compiler_version", compilerVersion)
+        }
+    }
+}
+
+sealed class ContractClassBase
+
+@Serializable
+data class DeprecatedContractClass(
     val program: String,
 
     @SerialName("entry_points_by_type")
     val entryPointsByType: EntryPointsByType,
 
     val abi: List<AbiElement>? = null,
+) : ContractClassBase() {
+    @Serializable
+    data class EntryPointsByType(
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<DeprecatedCairoEntryPoint>,
+
+        @SerialName("EXTERNAL")
+        val external: List<DeprecatedCairoEntryPoint>,
+
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<DeprecatedCairoEntryPoint>,
+    )
+}
+
+@Serializable
+data class ContractClass(
+    @SerialName("sierra_program")
+    val sierraProgram: List<Felt>,
+
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType,
+
+    @SerialName("contract_class_version")
+    val contractClassVersion: String,
+
+    val abi: String? = null,
+) : ContractClassBase() {
+    @Serializable
+    data class EntryPointsByType(
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<SierraEntryPoint>,
+
+        @SerialName("EXTERNAL")
+        val external: List<SierraEntryPoint>,
+
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<SierraEntryPoint>,
+    )
+}
+
+@Serializable
+data class CasmContractClass(
+    @SerialName("casm_class_version")
+    val casmClassVersion: String = "COMPILED_CLASS_V1",
+
+    val prime: String,
+
+    val hints: List<String>,
+
+    @SerialName("compiler_version")
+    val compilerVersion: String,
+
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType,
+
+    val bytecode: List<Felt>,
 ) {
     @Serializable
     data class EntryPointsByType(
         @SerialName("CONSTRUCTOR")
-        val constructor: List<ContractEntryPoint>,
+        val constructor: List<CasmEntryPoint>,
 
         @SerialName("EXTERNAL")
-        val external: List<ContractEntryPoint>,
+        val external: List<CasmEntryPoint>,
 
         @SerialName("L1_HANDLER")
-        val l1Handler: List<ContractEntryPoint>,
+        val l1Handler: List<CasmEntryPoint>,
+    )
+}
+
+@Serializable
+data class CasmEntryPoint(
+    val selector: Felt,
+    val offset: Int,
+    val builtins: List<String>? = null,
+)
+
+@Serializable
+data class GatewayContractClass(
+    @SerialName("sierra_program")
+    val sierraProgram: String,
+
+    @SerialName("entry_points_by_type")
+    val entryPointsByType: EntryPointsByType,
+
+    @SerialName("contract_class_version")
+    val contractClassVersion: String,
+
+    val abi: String? = null,
+) : ContractClassBase() {
+    @Serializable
+    data class EntryPointsByType(
+        @SerialName("CONSTRUCTOR")
+        val constructor: List<SierraEntryPoint>,
+
+        @SerialName("EXTERNAL")
+        val external: List<SierraEntryPoint>,
+
+        @SerialName("L1_HANDLER")
+        val l1Handler: List<SierraEntryPoint>,
     )
 }
 

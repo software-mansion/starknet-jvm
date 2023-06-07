@@ -7,6 +7,7 @@ import com.swmansion.starknet.extensions.toFelt
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import java.math.BigInteger
 
+@Suppress("PrivatePropertyName")
 private val MASK_250 = BigInteger.valueOf(2).pow(250) - BigInteger.ONE
 
 /**
