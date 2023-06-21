@@ -14,6 +14,7 @@ jobs:
         run: |
           [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
           || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
+
   build_x64:
     runs-on: ${{ matrix.os }}
     needs: [verify_version]
@@ -54,13 +55,19 @@ jobs:
 
       - name: Build platform specific lib
         run: ./gradlew buildCrypto
+
+      - name: Prepare libs to upload
+        run: |
+          cp crypto/pedersen/build/bindings/libcrypto_jni.* .
+          cp crypto/poseidon/build/bindings/libposeidon_jni.* .
+
       - name: Upload the shared libs
         uses: actions/upload-artifact@v3
         with:
           name: lib-${{ runner.os }}-${{ steps.vars.outputs.os_arch }}
           path: |
-            crypto/pedersen/build/bindings/libcrypto_jni.*
-            crypto/poseidon/build/bindings/libposeidon_jni.*
+            libcrypto_jni.*
+            libposeidon_jni.*
 
       - name: Build android's AAR
         run: ./gradlew android:build
