@@ -20,6 +20,16 @@ data class Event(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
+data class EventContent(
+    @JsonNames("keys")
+    val keys: List<Felt>,
+
+    @JsonNames("data")
+    val data: List<Felt>,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 data class EmittedEvent(
     @JsonNames("address", "from_address")
     val address: Felt,
