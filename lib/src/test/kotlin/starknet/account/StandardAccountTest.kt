@@ -4,9 +4,9 @@ import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
+import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
@@ -444,15 +444,13 @@ class StandardAccountTest {
         )
 
         val call2 = Call(
-            contractAddress = Felt(999), 
-            calldata = listOf(),
-            entrypoint = "empty_calldata"
+            contractAddress = Felt(999), calldata = listOf(),
+            entrypoint = "empty_calldata",
         )
 
         val call3 = Call(
-            contractAddress = Felt(123), 
-            calldata = listOf(Felt(100), Felt(200)),
-            entrypoint = "another_method"
+            contractAddress = Felt(123), calldata = listOf(Felt(100), Felt(200)),
+            entrypoint = "another_method",
         )
 
         val account = StandardAccount(accountAddress, signer, rpcProvider, Felt(1))
@@ -476,7 +474,7 @@ class StandardAccountTest {
             Felt(100),
             Felt(200),
         )
-        
+
         assertEquals(expectedCalldata, signedTx.calldata)
 
         val signedEmptyTx = account.sign(listOf<Call>(), params)

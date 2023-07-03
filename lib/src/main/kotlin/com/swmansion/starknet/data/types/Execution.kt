@@ -141,4 +141,3 @@ internal fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt
 
     return callsToExecuteCalldataCairo0(calls)
 }
-
