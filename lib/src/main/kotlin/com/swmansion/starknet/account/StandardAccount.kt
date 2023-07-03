@@ -24,6 +24,7 @@ class StandardAccount(
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
+    private val cairoVersion: Felt = Felt.ZERO
 ) : Account {
     private val version = Felt.ONE
     private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
@@ -33,14 +34,15 @@ class StandardAccount(
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */
-    constructor(address: Felt, privateKey: Felt, provider: Provider) : this(
+    constructor(address: Felt, privateKey: Felt, provider: Provider, cairoVersion: Felt = Felt.ZERO) : this(
         address,
         StarkCurveSigner(privateKey),
         provider,
+        cairoVersion
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
-        val calldata = callsToExecuteCalldata(calls)
+        val calldata = callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version

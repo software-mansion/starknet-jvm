@@ -97,7 +97,23 @@ data class ExecutionParams(
 )
 
 @JvmSynthetic
-internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
+private fun callsToExecuteCalldataCairo1(calls: List<Call>): List<Felt> {
+    val result = mutableListOf<Felt>()
+
+    result.add(Felt(calls.size))
+
+    for (call in calls) {
+        result.add(call.contractAddress)
+        result.add(call.entrypoint)
+        result.add(Felt(call.calldata.size))
+        result.addAll(call.calldata)
+    }
+
+    return result
+}
+
+@JvmSynthetic
+private fun callsToExecuteCalldataCairo0(calls: List<Call>): List<Felt> {
     val wholeCalldata = mutableListOf<Felt>()
     val callArray = mutableListOf<Felt>()
     for (call in calls) {
@@ -116,3 +132,13 @@ internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
         addAll(wholeCalldata)
     }
 }
+
+@JvmSynthetic
+internal fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
+    if (cairoVersion == Felt.ONE) {
+        return callsToExecuteCalldataCairo1(calls)
+    }
+
+    return callsToExecuteCalldataCairo0(calls)
+}
+
