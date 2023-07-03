@@ -6,6 +6,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.gateway.GatewayProvider
@@ -432,6 +433,55 @@ class StandardAccountTest {
 
         val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt2.status)
+    }
+
+    @Test
+    fun `cairo1 account calldata`() {
+        val call1 = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10), Felt(20), Felt(30)),
+            entrypoint = "increase_balance",
+        )
+
+        val call2 = Call(
+            contractAddress = Felt(999), 
+            calldata = listOf(),
+            entrypoint = "empty_calldata"
+        )
+
+        val call3 = Call(
+            contractAddress = Felt(123), 
+            calldata = listOf(Felt(100), Felt(200)),
+            entrypoint = "another_method"
+        )
+
+        val account = StandardAccount(accountAddress, signer, rpcProvider, Felt(1))
+        val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
+        val signedTx = account.sign(listOf(call1, call2, call3), params)
+
+        val expectedCalldata = listOf(
+            Felt(3),
+            balanceContractAddress,
+            selectorFromName("increase_balance"),
+            Felt(3),
+            Felt(10),
+            Felt(20),
+            Felt(30),
+            Felt(999),
+            selectorFromName("empty_calldata"),
+            Felt(0),
+            Felt(123),
+            selectorFromName("another_method"),
+            Felt(2),
+            Felt(100),
+            Felt(200),
+        )
+        
+        assertEquals(expectedCalldata, signedTx.calldata)
+
+        val signedEmptyTx = account.sign(listOf<Call>(), params)
+
+        assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
     }
 
     @ParameterizedTest
