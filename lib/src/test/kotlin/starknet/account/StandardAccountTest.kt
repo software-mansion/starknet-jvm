@@ -444,12 +444,14 @@ class StandardAccountTest {
         )
 
         val call2 = Call(
-            contractAddress = Felt(999), calldata = listOf(),
+            contractAddress = Felt(999),
+            calldata = listOf(),
             entrypoint = "empty_calldata",
         )
 
         val call3 = Call(
-            contractAddress = Felt(123), calldata = listOf(Felt(100), Felt(200)),
+            contractAddress = Felt(123),
+            calldata = listOf(Felt(100), Felt(200)),
             entrypoint = "another_method",
         )
 
