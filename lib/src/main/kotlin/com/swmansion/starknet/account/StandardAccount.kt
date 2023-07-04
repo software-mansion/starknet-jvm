@@ -42,7 +42,7 @@ class StandardAccount(
     )
 
     override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
-        val calldata = callsToExecuteCalldata(calls, cairoVersion)
+        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
