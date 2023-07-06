@@ -639,39 +639,36 @@ class JsonRpcProvider(
      *
      * @param transactions list of transactions to be simulated
      * @param blockTag tag of the block that should be used for simulation
-     * @param simulationFlags set of flags to be used for simulation 
-     * @return a list of transaction simulations
+     * @param simulationFlags set of flags to be used for simulation * @return a list of transaction simulations
      */
     fun simulateTransactions(transactions: List<TransactionPayload>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Tag(blockTag), simulationFlags)
 
-        return simulateTransactions(payload) 
+        return simulateTransactions(payload)
     }
 
     /** Simulate executing a list of transactions
      *
      * @param transactions list of transactions to be simulated
      * @param blockNumber number of the block that should be used for simulation
-     * @param simulationFlags set of flags to be used for simulation 
-     * @return a list of transaction simulations
+     * @param simulationFlags set of flags to be used for simulation * @return a list of transaction simulations
      */
     fun simulateTransactions(transactions: List<TransactionPayload>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Number(blockNumber), simulationFlags)
 
-        return simulateTransactions(payload) 
+        return simulateTransactions(payload)
     }
-    
+
     /** Simulate executing a list of transactions
      *
      * @param transactions list of transactions to be simulated
      * @param blockHash hash of the block that should be used for simulation
-     * @param simulationFlags set of flags to be used for simulation 
-     * @return a list of transaction simulations
+     * @param simulationFlags set of flags to be used for simulation * @return a list of transaction simulations
      */
     fun simulateTransactions(transactions: List<TransactionPayload>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Hash(blockHash), simulationFlags)
 
-        return simulateTransactions(payload) 
+        return simulateTransactions(payload)
     }
 }
 

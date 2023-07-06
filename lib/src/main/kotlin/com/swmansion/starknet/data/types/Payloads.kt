@@ -96,6 +96,5 @@ data class SimulateTransactionsPayload(
     override val blockId: BlockId,
 
     @SerialName("simulation_flags")
-    val simulationFlags: Set<SimulationFlag>
+    val simulationFlags: Set<SimulationFlag>,
 ) : PayloadWithBlockId()
-
