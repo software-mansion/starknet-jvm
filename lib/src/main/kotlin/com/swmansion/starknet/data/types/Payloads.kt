@@ -86,3 +86,16 @@ data class GetTransactionByBlockIdAndIndexPayload(
     @SerialName("index")
     val index: Int,
 ) : PayloadWithBlockId()
+
+@Serializable
+data class SimulateTransactionsPayload(
+    @SerialName("transactions")
+    val transactions: List<TransactionPayload>,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+
+    @SerialName("simulation_flags")
+    val simulationFlags: Set<SimulationFlag>
+) : PayloadWithBlockId()
+
