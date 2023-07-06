@@ -96,23 +96,50 @@ data class ExecutionParams(
     val maxFee: Felt,
 )
 
-@JvmSynthetic
-internal fun callsToExecuteCalldata(calls: List<Call>): List<Felt> {
-    val wholeCalldata = mutableListOf<Felt>()
-    val callArray = mutableListOf<Felt>()
-    for (call in calls) {
-        callArray.add(call.contractAddress) // to
-        callArray.add(call.entrypoint) // selector
-        callArray.add(Felt(wholeCalldata.size)) // offset
-        callArray.add(Felt(call.calldata.size)) // len
+object AccountCalldataTransformer {
+    @JvmSynthetic
+    private fun callsToExecuteCalldataCairo1(calls: List<Call>): List<Felt> {
+        val result = mutableListOf<Felt>()
 
-        wholeCalldata.addAll(call.calldata)
+        result.add(Felt(calls.size))
+
+        for (call in calls) {
+            result.add(call.contractAddress)
+            result.add(call.entrypoint)
+            result.add(Felt(call.calldata.size))
+            result.addAll(call.calldata)
+        }
+
+        return result
     }
 
-    return buildList {
-        add(Felt(calls.size))
-        addAll(callArray)
-        add(Felt(wholeCalldata.size))
-        addAll(wholeCalldata)
+    @JvmSynthetic
+    private fun callsToExecuteCalldataCairo0(calls: List<Call>): List<Felt> {
+        val wholeCalldata = mutableListOf<Felt>()
+        val callArray = mutableListOf<Felt>()
+        for (call in calls) {
+            callArray.add(call.contractAddress) // to
+            callArray.add(call.entrypoint) // selector
+            callArray.add(Felt(wholeCalldata.size)) // offset
+            callArray.add(Felt(call.calldata.size)) // len
+
+            wholeCalldata.addAll(call.calldata)
+        }
+
+        return buildList {
+            add(Felt(calls.size))
+            addAll(callArray)
+            add(Felt(wholeCalldata.size))
+            addAll(wholeCalldata)
+        }
+    }
+
+    @JvmStatic
+    public fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
+        if (cairoVersion == Felt.ONE) {
+            return callsToExecuteCalldataCairo1(calls)
+        }
+
+        return callsToExecuteCalldataCairo0(calls)
     }
 }
