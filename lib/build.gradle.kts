@@ -95,9 +95,6 @@ tasks.test {
     }
 }
 
-kotlinter {
-    disabledRules = arrayOf("no-wildcard-imports")
-}
 
 // Used by CI. Locally you should use jarWithNative task
 tasks.jar {
@@ -116,22 +113,22 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
 
     // Use the JUnit test library.
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
 
     // Crypto provider
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15to18
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
 
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }
 
 java {
