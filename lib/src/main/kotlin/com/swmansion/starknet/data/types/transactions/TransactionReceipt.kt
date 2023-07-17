@@ -2,8 +2,8 @@ package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.types.Event
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageToL1
-import com.swmansion.starknet.data.types.MessageToL2
+import com.swmansion.starknet.data.types.MessageL1ToL2
+import com.swmansion.starknet.data.types.MessageL2ToL1
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -64,10 +64,10 @@ data class GatewayTransactionReceipt(
     val events: List<Event>,
 
     @JsonNames("l2_to_l1_messages")
-    val messagesToL1: List<MessageToL1>,
+    val messagesToL1: List<MessageL2ToL1>,
 
     @JsonNames("l1_to_l2_consumed_message")
-    val messageToL2: MessageToL2? = null,
+    val messageL1ToL2: MessageL1ToL2? = null,
 
     @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
@@ -112,7 +112,7 @@ data class RpcTransactionReceipt(
     override val type: TransactionReceiptType,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<MessageToL1>,
+    val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     val events: List<Event>,
@@ -140,7 +140,7 @@ data class DeployRpcTransactionReceipt(
     override val type: TransactionReceiptType,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<MessageToL1>,
+    val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     val events: List<Event>,
@@ -159,7 +159,7 @@ data class PendingRpcTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<MessageToL1>,
+    val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     val events: List<Event>,
@@ -179,7 +179,7 @@ data class PendingRpcDeployTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<MessageToL1>,
+    val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     val events: List<Event>,

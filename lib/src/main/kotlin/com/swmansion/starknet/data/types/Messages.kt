@@ -6,7 +6,10 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class MessageToL1(
+data class MessageL2ToL1(
+    @JsonNames("from_address")
+    val fromAddress: Felt,
+
     @JsonNames("to_address")
     val toAddress: Felt,
 
@@ -16,9 +19,12 @@ data class MessageToL1(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class MessageToL2(
+data class MessageL1ToL2(
     @JsonNames("from_address")
     val fromAddress: Felt,
+
+    @JsonNames("to_address")
+    val toAddress: Felt,
 
     @JsonNames("payload")
     val payload: List<Felt>,
