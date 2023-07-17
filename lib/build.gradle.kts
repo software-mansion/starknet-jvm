@@ -17,6 +17,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
     id("io.codearte.nexus-staging") version "0.30.0"
+    id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
 
