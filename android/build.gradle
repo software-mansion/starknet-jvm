@@ -2,16 +2,16 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
-    id("org.jetbrains.kotlinx.kover")
+    id('org.jetbrains.kotlinx.kover')
 }
 
 android {
-    compileSdk 34
+    compileSdk 32
     namespace "com.swmansion.starknet"
 
     defaultConfig {
         minSdk 24
-        targetSdk 34
+        targetSdk 32
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

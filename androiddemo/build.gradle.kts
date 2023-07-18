@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.androiddemo"
-    compileSdk = 34
+    compileSdk = 32
 
     defaultConfig {
         applicationId = "com.example.androiddemo"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0"
 
@@ -37,8 +37,8 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.8.0") // highest version available for sdk 32
+    implementation("androidx.appcompat:appcompat:1.5.1") // highest version available for sdk 32
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.swmansion.starknet:starknet:0.6.1@aar")
