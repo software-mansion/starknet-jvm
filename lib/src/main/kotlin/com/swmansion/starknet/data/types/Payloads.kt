@@ -54,7 +54,10 @@ data class EstimateTransactionFeePayload(
 @Serializable
 data class EstimateMessageFeePayload(
     @SerialName("message")
-    val message: MessageL1ToL2,
+    val message: Call,
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
 
     @SerialName("block_id")
     override val blockId: BlockId,

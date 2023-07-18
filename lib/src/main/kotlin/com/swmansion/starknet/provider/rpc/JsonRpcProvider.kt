@@ -413,8 +413,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
@@ -429,8 +429,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
     }
@@ -445,8 +445,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
     }
