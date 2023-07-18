@@ -607,4 +607,53 @@ class StandardAccountTest {
             provider.deployAccount(payloadForFeeEstimation).send()
         }
     }
+
+    @Test
+    fun `simulate transactions`() {
+        val account = StandardAccount(accountAddress, signer, rpcProvider)
+
+        val nonce = account.getNonce().send()
+        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+        val params = ExecutionParams(nonce, Felt(1000000000))
+
+        val invokeTx = account.sign(call, params)
+
+        val privateKey = Felt(22222)
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+        val accountClassHash = accountClassHash
+        val salt = Felt.ONE
+        val calldata = listOf(publicKey)
+
+        val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = accountClassHash,
+            calldata = calldata,
+            salt = salt,
+        )
+        val newAccount = StandardAccount(
+            address,
+            privateKey,
+            rpcProvider,
+        )
+        devnetClient.prefundAccount(address)
+        val deployAccountTx = newAccount.signDeployAccount(
+            classHash = accountClassHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+        )
+
+        val simulationResult = rpcProvider.simulateTransactions(listOf(invokeTx, deployAccountTx), BlockTag.LATEST, setOf()).send()
+        assertEquals(2, simulationResult.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+
+        val invokeTxWithoutSignature = InvokeTransactionPayload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
+        val deployAccountTxWithoutSignature = DeployAccountTransactionPayload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+
+        val simulationResult2 = rpcProvider.simulateTransactions(listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature), BlockTag.LATEST, setOf(SimulationFlag.SKIP_VALIDATE)).send()
+
+        assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+    }
 }
