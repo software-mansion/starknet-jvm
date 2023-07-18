@@ -148,7 +148,10 @@ data class BlockWithTransactionsResponse(
     val newRoot: Felt,
 
     @SerialName("transactions")
-    override val transactions: List<@Serializable(with = TransactionPolymorphicSerializer::class) Transaction>,
+    override val transactions: List<
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
+        >,
 
     @SerialName("timestamp")
     override val timestamp: Int,
@@ -163,7 +166,10 @@ data class PendingBlockWithTransactionsResponse(
     override val parentHash: Felt,
 
     @SerialName("transactions")
-    override val transactions: List<@Serializable(with = TransactionPolymorphicSerializer::class) Transaction>,
+    override val transactions: List<
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
+        >,
 
     @SerialName("timestamp")
     override val timestamp: Int,
