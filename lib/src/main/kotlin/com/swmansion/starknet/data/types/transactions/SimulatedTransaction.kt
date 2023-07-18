@@ -13,19 +13,19 @@ import kotlinx.serialization.Serializable
 enum class EntryPointType(val value: String) {
     EXTERNAL("EXTERNAL"),
     L1_HANDLER("L1_HANDLER"),
-    CONSTRUCTOR("CONSTRUCTOR")
+    CONSTRUCTOR("CONSTRUCTOR"),
 }
 
 @Serializable
 enum class CallType(val value: String) {
     CALL("CALL"),
-    LIBRARY_CALL("LIBRARY_CALL")
+    LIBRARY_CALL("LIBRARY_CALL"),
 }
 
 @Serializable
 enum class SimulationFlag(val value: String) {
     SKIP_VALIDATE("SKIP_VALIDATE"),
-    SKIP_EXECUTE("SKIP_EXECUTE")
+    SKIP_EXECUTE("SKIP_EXECUTE"),
 }
 
 @Serializable
