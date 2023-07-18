@@ -30,7 +30,7 @@ plugins {
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     dokkaSourceSets.create("dokkaHtmlJava") {
         dependencies {
-            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.10")
+            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
         }
     }
 }
