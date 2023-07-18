@@ -209,9 +209,9 @@ class StandardAccountTest {
 
         val gasConsumed = Felt(45100)
         val gasPrice = Felt(2)
-        val overallFee = Felt(45100*2)
+        val overallFee = Felt(45100 * 2)
         val mockedResponse =
-        """
+            """
         {
             "id": 0,
             "jsonrpc": "2.0",
@@ -222,13 +222,13 @@ class StandardAccountTest {
                 "overall_fee": "${overallFee.hexString()}"
             }
         }
-        """.trimIndent()
+            """.trimIndent()
         val blockNumber = 123456789
         val httpService = mock<HttpService> {
-            on {send(any())} doReturn HttpResponse(
-                    isSuccessful = true,
-                    code = 200,
-                    body = mockedResponse
+            on { send(any()) } doReturn HttpResponse(
+                isSuccessful = true,
+                code = 200,
+                body = mockedResponse,
             )
         }
         val messageCall = Call(
@@ -239,16 +239,16 @@ class StandardAccountTest {
 
         val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getEstimateMessageFee(
-                message = messageCall,
-                senderAddress = balanceContractAddress,
-                blockNumber = blockNumber,
+            message = messageCall,
+            senderAddress = balanceContractAddress,
+            blockNumber = blockNumber,
         )
         val response = request.send()
 
         assertNotNull(response)
-        assertEquals(gasPrice,response.gasPrice)
-        assertEquals(gasConsumed,response.gasConsumed)
-        assertEquals(overallFee,response.overallFee)
+        assertEquals(gasPrice, response.gasPrice)
+        assertEquals(gasConsumed, response.gasConsumed)
+        assertEquals(overallFee, response.overallFee)
     }
 
     @Test
