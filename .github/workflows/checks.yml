@@ -43,7 +43,15 @@ jobs:
 
       - name: Lint
         run: ./gradlew :lib:lintKotlin
-
+      
+      - name: Cache cairo target debug (test)
+        uses: actions/cache@v2
+        with:
+          path: cairo/target/debug
+          key: ${{ runner.os }}-cairo-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cairo-target-debug-
+      
       - name: Run tests and generate coverage report
         run: ./gradlew :lib:koverXmlReport --info
 
