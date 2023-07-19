@@ -251,12 +251,6 @@ class StandardAccountTest {
         assertEquals(overallFee, response.overallFee)
     }
 
-    @Test
-    fun `estimate message fee`() {
-        // TODO: test provider.getEstimateMessageFee
-        // BLOCKED: pending devnet update
-    }
-
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
