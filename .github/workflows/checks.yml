@@ -27,14 +27,12 @@ jobs:
         uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
         with:
           cmake-version: '3.16.x'
-      - name: Set up Python 3.9.12
+      - name: Set up Python 3.9.12 and devnet
         uses: actions/setup-python@v4.5.0
         with:
           python-version: 3.9.12
           cache: 'pip'
-
-      - name: Install devnet
-        run: |
+      - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
