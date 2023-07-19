@@ -397,6 +397,59 @@ class JsonRpcProvider(
 
         return getEstimateFee(estimatePayload)
     }
+    private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): Request<EstimateFeeResponse> {
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+    }
+
+    /**
+     * Estimate a message fee.
+     *
+     * Estimate the L2 fee of a provided message sent on L1.
+     *
+     * @param message message, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Hash(blockHash))
+
+        return getEstimateMessageFee(estimatePayload)
+    }
+
+    /**
+     * Estimate a message fee.
+     *
+     * Estimate the L2 fee of a provided message sent on L1.
+     *
+     * @param message message, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Number(blockNumber))
+
+        return getEstimateMessageFee(estimatePayload)
+    }
+
+    /**
+     * Estimate a message fee.
+     *
+     * Estimate the L2 fee of a provided message sent on L1.
+     *
+     * @param message message, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Tag(blockTag))
+
+        return getEstimateMessageFee(estimatePayload)
+    }
 
     private fun getNonce(payload: GetNoncePayload): Request<Felt> {
         val jsonPayload = Json.encodeToJsonElement(payload)
@@ -688,6 +741,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
     GET_SYNCING("starknet_syncing"),
     ESTIMATE_FEE("starknet_estimateFee"),
+    ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
