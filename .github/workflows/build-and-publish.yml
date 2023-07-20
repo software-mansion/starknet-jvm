@@ -1,23 +1,21 @@
 name: Build And Publish Packages
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
 
 jobs:
-  verify_version:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Verify correct version
-        run: |
-          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
-          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
+  # verify_version:
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Verify correct version
+  #       run: |
+  #         [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
+  #         || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
 
   build_x64:
     runs-on: ${{ matrix.os }}
-    needs: [verify_version]
+    # needs: [verify_version]
     strategy:
       matrix:
         os: [ ubuntu-20.04, macos-latest ]
@@ -82,126 +80,126 @@ jobs:
           name: starknet-aar
           path: starknet.aar
 
-  build_virt:
-    runs-on: ubuntu-20.04
-    needs: [verify_version]
-    strategy:
-      matrix:
-        include:
-          - virt_platform: arm64
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Set up qemu
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: ${{ matrix.virt_platform }}
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          driver: docker
-      - name: Build platform specific lib
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: .github/workflows/Dockerfile.multiarch
-          platforms: linux/${{ matrix.virt_platform }}
-          push: false
-          tags: build:latest
-      - name: Set arch variable
-        id: vars
-        run: echo "os_arch=$(docker run --platform linux/${{ matrix.virt_platform }} -t build bash -c 'uname -m')" >> $GITHUB_OUTPUT
-      - name: Extract libs
-        run: |
-          container=$(docker create build)
-          docker cp $container:/build/crypto/pedersen/build/bindings/libcrypto_jni.so libcrypto_jni.so
-          docker cp $container:/build/crypto/poseidon/build/bindings/libposeidon_jni.so libposeidon_jni.so
-      - name: Upload the shared lib
-        uses: actions/upload-artifact@v3
-        with:
-          name: lib-Linux-${{ steps.vars.outputs.os_arch }}
-          path: |
-            libcrypto_jni.so
-            libposeidon_jni.so
+  # build_virt:
+  #   runs-on: ubuntu-20.04
+  #   # needs: [verify_version]
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - virt_platform: arm64
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
+  #     - name: Set up qemu
+  #       uses: docker/setup-qemu-action@v2
+  #       with:
+  #         platforms: ${{ matrix.virt_platform }}
+  #     - name: Set up Buildx
+  #       uses: docker/setup-buildx-action@v2
+  #       with:
+  #         driver: docker
+  #     - name: Build platform specific lib
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: .
+  #         file: .github/workflows/Dockerfile.multiarch
+  #         platforms: linux/${{ matrix.virt_platform }}
+  #         push: false
+  #         tags: build:latest
+  #     - name: Set arch variable
+  #       id: vars
+  #       run: echo "os_arch=$(docker run --platform linux/${{ matrix.virt_platform }} -t build bash -c 'uname -m')" >> $GITHUB_OUTPUT
+  #     - name: Extract libs
+  #       run: |
+  #         container=$(docker create build)
+  #         docker cp $container:/build/crypto/pedersen/build/bindings/libcrypto_jni.so libcrypto_jni.so
+  #         docker cp $container:/build/crypto/poseidon/build/bindings/libposeidon_jni.so libposeidon_jni.so
+  #     - name: Upload the shared lib
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: lib-Linux-${{ steps.vars.outputs.os_arch }}
+  #         path: |
+  #           libcrypto_jni.so
+  #           libposeidon_jni.so
 
-    outputs:
-      archs: ${{ steps.vars.outputs.os_arch }}
+  #   outputs:
+  #     archs: ${{ steps.vars.outputs.os_arch }}
 
-  package_jar:
-    runs-on: ubuntu-20.04
-    needs: [build_x64, build_virt]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          path: download
-      - name: Move shared libs
-        run: |
-          # Mac uses a universal binary
-          mkdir -p lib/build/libs/shared/darwin
-          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
-          mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
-          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
-          cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
-      - name: Bundle universal JAR
-        run: ./gradlew lib:jar
-      - name: Rename JAR
-        run: mv lib/build/libs/lib-[0-9].[0-9].[0-9].jar starknet.jar
-      - name: Upload the JAR
-        uses: actions/upload-artifact@v3
-        with:
-          name: starknet-jar
-          path: starknet.jar
+  # package_jar:
+  #   runs-on: ubuntu-20.04
+  #   needs: [build_x64, build_virt]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         path: download
+  #     - name: Move shared libs
+  #       run: |
+  #         # Mac uses a universal binary
+  #         mkdir -p lib/build/libs/shared/darwin
+  #         cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
+  #         mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
+  #         cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
+  #         cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
+  #     - name: Bundle universal JAR
+  #       run: ./gradlew lib:jar
+  #     - name: Rename JAR
+  #       run: mv lib/build/libs/lib-[0-9].[0-9].[0-9].jar starknet.jar
+  #     - name: Upload the JAR
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: starknet-jar
+  #         path: starknet.jar
 
-  generate_javadoc_and_sources:
-    runs-on: ubuntu-20.04
-    needs: [build_x64, build_virt]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Generate javadoc JAR
-        run: ./gradlew javadocJar
-      - name: Generate sources JAR
-        run: ./gradlew sourcesJar
-      - name: Rename JARS
-        run: mv lib/build/libs/lib-[0-9].[0-9].[0-9]-javadoc.jar javadoc.jar && mv lib/build/libs/lib-[0-9].[0-9].[0-9]-sources.jar sources.jar
-      - name: Upload javadoc JAR
-        uses: actions/upload-artifact@v3
-        with:
-          name: javadoc-jar
-          path: javadoc.jar
-      - name: Upload sources JAR
-        uses: actions/upload-artifact@v3
-        with:
-          name: sources-jar
-          path: sources.jar
+  # generate_javadoc_and_sources:
+  #   runs-on: ubuntu-20.04
+  #   needs: [build_x64, build_virt]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Generate javadoc JAR
+  #       run: ./gradlew javadocJar
+  #     - name: Generate sources JAR
+  #       run: ./gradlew sourcesJar
+  #     - name: Rename JARS
+  #       run: mv lib/build/libs/lib-[0-9].[0-9].[0-9]-javadoc.jar javadoc.jar && mv lib/build/libs/lib-[0-9].[0-9].[0-9]-sources.jar sources.jar
+  #     - name: Upload javadoc JAR
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: javadoc-jar
+  #         path: javadoc.jar
+  #     - name: Upload sources JAR
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: sources-jar
+  #         path: sources.jar
 
-  publish:
-    runs-on: ubuntu-20.04
-    needs: [package_jar, generate_javadoc_and_sources]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          path: lib/
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: 'corretto'
-      - name: Publish package
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: publish closeAndReleaseRepository
-        env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
-      - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-        with:
-          files: |
-            lib/javadoc-jar/*.jar
-            lib/sources-jar/*.jar
-            lib/starknet-jar/*.jar
-            lib/starknet-aar/*.aar
+  # publish:
+  #   runs-on: ubuntu-20.04
+  #   needs: [package_jar, generate_javadoc_and_sources]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         path: lib/
+  #     - name: Set up Java
+  #       uses: actions/setup-java@v3
+  #       with:
+  #         java-version: 11
+  #         distribution: 'corretto'
+  #     - name: Publish package
+  #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         arguments: publish closeAndReleaseRepository
+  #       env:
+  #         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+  #         MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+  #         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
+  #         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+  #     - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+  #       with:
+  #         files: |
+  #           lib/javadoc-jar/*.jar
+  #           lib/sources-jar/*.jar
+  #           lib/starknet-jar/*.jar
+  #           lib/starknet-aar/*.aar
