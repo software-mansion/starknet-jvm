@@ -43,7 +43,17 @@ jobs:
 
       - name: Lint
         run: ./gradlew :lib:lintKotlin
-      
+
+      - name: Cache compiled contracts
+        uses: actions/cache@v2
+        with:
+          path: |
+            lib/src/test/resources/compiled_v0
+            lib/src/test/resources/compiled_v1
+          key: ${{ runner.os }}-compiled-contracts
+          restore-keys: |
+            ${{ runner.os }}-compiled-contracts
+
       - name: Cache cairo target debug (test)
         uses: actions/cache@v2
         with:
