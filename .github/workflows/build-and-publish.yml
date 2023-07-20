@@ -1,7 +1,9 @@
 name: Build And Publish Packages
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - szymczyk/testrel
 
 jobs:
   # verify_version:
