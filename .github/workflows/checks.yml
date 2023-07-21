@@ -70,7 +70,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-compiled-contracts
 
-      - name: Cache cairo target debug (test)
+      - name: Cache cairo (rust) compiled deps
         uses: actions/cache@v2
         with:
           path: cairo/target/debug
