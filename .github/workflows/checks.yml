@@ -44,6 +44,22 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
+      - name: Cache pedersen build
+        uses: actions/cache@v2
+        with:
+          path: crypto/pedersen/build
+          key: ${{ runner.os }}-pedersen-build-${{ hashFiles('crypto/pedersen/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pedersen-build-
+
+      - name: Cache poseidon build
+        uses: actions/cache@v2
+        with:
+          path: crypto/poseidon/build
+          key: ${{ runner.os }}-poseidon-build-${{ hashFiles('crypto/poseidon/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-poseidon-build-
+
       - name: Cache compiled contracts
         uses: actions/cache@v2
         with:
