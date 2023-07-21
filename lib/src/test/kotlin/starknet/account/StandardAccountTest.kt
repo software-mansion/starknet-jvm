@@ -201,6 +201,56 @@ class StandardAccountTest {
         assertNotNull(feeEstimate)
     }
 
+    @Test
+    fun `mock estimate message fee`() {
+        // Note for future developers experiencing failures in this test:
+        // This test is designed with RPC 0.3.1 in mind (which was never released).
+        // The schema will be changed as of RPC 0.4.0 and provider.getEstimateMessageFee will have a different payload.
+
+        val gasConsumed = Felt(45100)
+        val gasPrice = Felt(2)
+        val overallFee = Felt(45100 * 2)
+        val mockedResponse =
+            """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result":
+            {
+                "gas_consumed": "${gasConsumed.hexString()}",
+                "gas_price": "${gasPrice.hexString()}",
+                "overall_fee": "${overallFee.hexString()}"
+            }
+        }
+            """.trimIndent()
+        val blockNumber = 123456789
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                isSuccessful = true,
+                code = 200,
+                body = mockedResponse,
+            )
+        }
+        val messageCall = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getEstimateMessageFee(
+            message = messageCall,
+            senderAddress = balanceContractAddress,
+            blockNumber = blockNumber,
+        )
+        val response = request.send()
+
+        assertNotNull(response)
+        assertEquals(gasPrice, response.gasPrice)
+        assertEquals(gasConsumed, response.gasConsumed)
+        assertEquals(overallFee, response.overallFee)
+    }
+
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
