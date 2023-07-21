@@ -6,7 +6,17 @@ import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class MessageL2ToL1(
+data class GatewayMessageL2ToL1(
+    @JsonNames("to_address")
+    val toAddress: Felt,
+
+    @JsonNames("payload")
+    val payload: List<Felt>,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class GatewayMessageL1ToL2(
     @JsonNames("from_address")
     val fromAddress: Felt,
 
@@ -19,7 +29,20 @@ data class MessageL2ToL1(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class MessageL1ToL2(
+data class RpcMessageL2ToL1(
+    @JsonNames("from_address")
+    val fromAddress: Felt,
+
+    @JsonNames("to_address")
+    val toAddress: Felt,
+
+    @JsonNames("payload")
+    val payload: List<Felt>,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class RpcMessageL1ToL2(
     @JsonNames("from_address")
     val fromAddress: Felt,
 

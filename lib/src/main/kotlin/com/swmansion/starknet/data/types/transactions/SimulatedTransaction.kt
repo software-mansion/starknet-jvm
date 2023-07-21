@@ -5,7 +5,7 @@ import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.EstimateFeeResponse
 import com.swmansion.starknet.data.types.EventContent
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL2ToL1
+import com.swmansion.starknet.data.types.RpcMessageL2ToL1
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -61,7 +61,7 @@ data class FunctionInvocation(
     val events: List<EventContent>?,
 
     @SerialName("messages")
-    val messages: List<MessageL2ToL1>?,
+    val messages: List<RpcMessageL2ToL1>?,
 )
 
 @Serializable

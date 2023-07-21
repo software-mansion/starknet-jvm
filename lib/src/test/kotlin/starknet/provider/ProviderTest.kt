@@ -1071,7 +1071,7 @@ class ProviderTest {
 
         assertEquals(hash, receipt.hash)
         assertEquals(TransactionStatus.PENDING, receipt.status)
-        assertEquals(emptyList<MessageL2ToL1>(), receipt.messagesToL1)
+        assertEquals(emptyList<GatewayMessageL2ToL1>(), receipt.messagesL2ToL1)
         assertEquals(emptyList<Event>(), receipt.events)
         assertNull(receipt.messageL1ToL2)
         assertNull(receipt.actualFee)
