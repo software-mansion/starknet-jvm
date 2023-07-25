@@ -2,6 +2,7 @@ package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
+import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -33,13 +34,26 @@ enum class TransactionType(val txPrefix: Felt) {
 
 @Serializable
 sealed class Transaction {
-//    abstract val hash: Felt
+    abstract val hash: Felt
     abstract val maxFee: Felt
     abstract val version: Felt
     abstract val signature: Signature
     abstract val nonce: Felt
     abstract val type: TransactionType
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class TransactionHashPair(
+    @Serializable(with = TransactionPolymorphicSerializer::class)
+    @SerialName("transaction")
+    @JsonNames("txn")
+    val transaction: Transaction,
+
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    val hash: Felt,
+)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
