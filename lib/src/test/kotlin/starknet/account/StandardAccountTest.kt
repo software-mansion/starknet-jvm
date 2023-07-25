@@ -322,7 +322,7 @@ class StandardAccountTest {
         val response = request.send()
         val receipt = provider.getTransactionReceipt(response.transactionHash).send()
 
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest
@@ -387,7 +387,7 @@ class StandardAccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest
@@ -429,7 +429,7 @@ class StandardAccountTest {
         val response = provider.invokeFunction(payload).send()
         val receipt = provider.getTransactionReceipt(response.transactionHash).send()
 
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest
@@ -453,7 +453,7 @@ class StandardAccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest
@@ -470,7 +470,7 @@ class StandardAccountTest {
         assertNotNull(result)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
 
         val call2 = Call(
             contractAddress = balanceContractAddress,
@@ -482,7 +482,7 @@ class StandardAccountTest {
         assertNotNull(result)
 
         val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt2.status)
+        assertTrue(receipt2.isAccepted)
     }
 
     @Test
@@ -620,7 +620,7 @@ class StandardAccountTest {
         )
         val result = account.execute(call).send()
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, receipt.status)
+        assertTrue(receipt.isAccepted)
     }
 
     @ParameterizedTest

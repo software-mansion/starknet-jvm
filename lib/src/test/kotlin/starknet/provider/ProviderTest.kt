@@ -60,7 +60,7 @@ class ProviderTest {
             if (receipt !is ProcessedTransactionReceipt) {
                 return false
             }
-            return receipt.status == TransactionStatus.ACCEPTED_ON_L2 || receipt.status == TransactionStatus.ACCEPTED_ON_L1
+            return receipt.executionStatus == TransactionExecutionStatus.SUCCEEDED
         }
 
         @JvmStatic
