@@ -121,7 +121,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.3")
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")   // Highest version that works with Gradle 7.6.2
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15to18
