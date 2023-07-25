@@ -201,6 +201,56 @@ class StandardAccountTest {
         assertNotNull(feeEstimate)
     }
 
+    @Test
+    fun `mock estimate message fee`() {
+        // Note for future developers experiencing failures in this test:
+        // This test is designed with RPC 0.3.1 in mind (which was never released).
+        // The schema will be changed as of RPC 0.4.0 and provider.getEstimateMessageFee will have a different payload.
+
+        val gasConsumed = Felt(45100)
+        val gasPrice = Felt(2)
+        val overallFee = Felt(45100 * 2)
+        val mockedResponse =
+            """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result":
+            {
+                "gas_consumed": "${gasConsumed.hexString()}",
+                "gas_price": "${gasPrice.hexString()}",
+                "overall_fee": "${overallFee.hexString()}"
+            }
+        }
+            """.trimIndent()
+        val blockNumber = 123456789
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                isSuccessful = true,
+                code = 200,
+                body = mockedResponse,
+            )
+        }
+        val messageCall = Call(
+            contractAddress = balanceContractAddress,
+            calldata = listOf(Felt(10)),
+            entrypoint = "increase_balance",
+        )
+
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getEstimateMessageFee(
+            message = messageCall,
+            senderAddress = balanceContractAddress,
+            blockNumber = blockNumber,
+        )
+        val response = request.send()
+
+        assertNotNull(response)
+        assertEquals(gasPrice, response.gasPrice)
+        assertEquals(gasConsumed, response.gasConsumed)
+        assertEquals(overallFee, response.overallFee)
+    }
+
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
@@ -606,5 +656,54 @@ class StandardAccountTest {
         assertThrows(RequestFailedException::class.java) {
             provider.deployAccount(payloadForFeeEstimation).send()
         }
+    }
+
+    @Test
+    fun `simulate transactions`() {
+        val account = StandardAccount(accountAddress, signer, rpcProvider)
+
+        val nonce = account.getNonce().send()
+        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+        val params = ExecutionParams(nonce, Felt(1000000000))
+
+        val invokeTx = account.sign(call, params)
+
+        val privateKey = Felt(22222)
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+        val accountClassHash = accountClassHash
+        val salt = Felt.ONE
+        val calldata = listOf(publicKey)
+
+        val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = accountClassHash,
+            calldata = calldata,
+            salt = salt,
+        )
+        val newAccount = StandardAccount(
+            address,
+            privateKey,
+            rpcProvider,
+        )
+        devnetClient.prefundAccount(address)
+        val deployAccountTx = newAccount.signDeployAccount(
+            classHash = accountClassHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+        )
+
+        val simulationResult = rpcProvider.simulateTransactions(listOf(invokeTx, deployAccountTx), BlockTag.LATEST, setOf()).send()
+        assertEquals(2, simulationResult.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+
+        val invokeTxWithoutSignature = InvokeTransactionPayload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
+        val deployAccountTxWithoutSignature = DeployAccountTransactionPayload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+
+        val simulationResult2 = rpcProvider.simulateTransactions(listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature), BlockTag.LATEST, setOf(SimulationFlag.SKIP_VALIDATE)).send()
+
+        assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
     }
 }

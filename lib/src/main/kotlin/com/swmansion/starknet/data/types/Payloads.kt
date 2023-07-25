@@ -52,6 +52,18 @@ data class EstimateTransactionFeePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
+data class EstimateMessageFeePayload(
+    @SerialName("message")
+    val message: Call,
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
 data class GetBlockTransactionCountPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
@@ -85,4 +97,16 @@ data class GetTransactionByBlockIdAndIndexPayload(
 
     @SerialName("index")
     val index: Int,
+) : PayloadWithBlockId()
+
+@Serializable
+data class SimulateTransactionsPayload(
+    @SerialName("transactions")
+    val transactions: List<TransactionPayload>,
+
+    @SerialName("block_id")
+    override val blockId: BlockId,
+
+    @SerialName("simulation_flags")
+    val simulationFlags: Set<SimulationFlag>,
 ) : PayloadWithBlockId()

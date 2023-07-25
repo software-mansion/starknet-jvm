@@ -1071,9 +1071,9 @@ class ProviderTest {
 
         assertEquals(hash, receipt.hash)
         assertEquals(TransactionStatus.PENDING, receipt.status)
-        assertEquals(emptyList<MessageToL1>(), receipt.messagesToL1)
+        assertEquals(emptyList<GatewayMessageL2ToL1>(), receipt.messagesL2ToL1)
         assertEquals(emptyList<Event>(), receipt.events)
-        assertNull(receipt.messageToL2)
+        assertNull(receipt.messageL1ToL2)
         assertNull(receipt.actualFee)
         assertNull(receipt.failureReason)
     }
@@ -1106,8 +1106,55 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transactions with block tag`() {
+    fun `get pending block with transactions`() {
         // FIXME: We should also test for 'pending' tag, but atm they are not supported in devnet
+        val mockedResponse = """
+            {
+                "id":0,
+                "jsonrpc":"2.0",
+                "result":{
+                    "parent_hash": "0x123",
+                    "timestamp": 7312,
+                    "sequencer_address": "0x1234",
+                    "transactions": [
+                        {
+                            "transaction_hash": "0x01",
+                            "class_hash": "0x98",
+                            "version": "0x0",
+                            "type": "DEPLOY",
+                            "max_fee": "0x1",
+                            "signature": [],
+                            "nonce": "0x1",
+                            "contract_address_salt": "0x0",
+                            "constructor_calldata": []
+                        },
+                        {
+                            "transaction_hash": "0x02",
+                            "class_hash": "0x99",
+                            "version": "0x1",
+                            "max_fee": "0x1",
+                            "type": "DECLARE",
+                            "sender_address": "0x15",
+                            "signature": [],
+                            "nonce": "0x1"
+                        } 
+                    ]
+                }
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getBlockWithTxs(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingBlockWithTransactionsResponse)
+    }
+
+    @Test
+    fun `get block with transactions with block tag`() {
         val provider = rpcProvider()
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
