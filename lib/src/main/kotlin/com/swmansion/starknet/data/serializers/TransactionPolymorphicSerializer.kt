@@ -26,8 +26,6 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         }
 
     private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> {
-        // TODO: add additional condition that checks that either contract_class or class_hash is present
-
         if ((element.jsonObject["contract_class"] == null) && (element.jsonObject["class_hash"] == null)) {
             throw IllegalArgumentException("Either classHash or contractDefinition must be present.")
         }
