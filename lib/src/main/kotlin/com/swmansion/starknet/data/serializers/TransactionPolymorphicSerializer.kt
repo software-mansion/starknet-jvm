@@ -25,31 +25,17 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             else -> throw IllegalArgumentException("Invalid invoke transaction version")
         }
 
-//    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> =
-//        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-//            Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
-//            Felt(2).hexString() -> DeclareTransactionV2.serializer()
-//            else -> throw IllegalArgumentException("Invalid invoke transaction version")
-//        }
     private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> {
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ONE.hexString() -> {
-                when {
-                    element.jsonObject["contract_class"] != null -> return DeclareTransactionV1ContractClass.serializer()
-                    element.jsonObject["class_hash"] != null -> return DeclareTransactionV1ClassHash.serializer()
-                    else -> throw IllegalArgumentException("Invalid declare transaction format for version 1")
-                }
-            }
-            Felt(2).hexString() -> {
-                when {
-                    element.jsonObject["contract_class"] != null -> return DeclareTransactionV2ContractClass.serializer()
-                    element.jsonObject["class_hash"] != null -> return DeclareTransactionV2ClassHash.serializer()
-                    else -> throw IllegalArgumentException("Invalid declare transaction format for version 2")
-                }
-            }
-            else -> throw IllegalArgumentException("Invalid declare transaction version")
+        // TODO: add additional condition that checks that either contract_class or class_hash is present
+
+        if ((element.jsonObject["contract_class"] == null) && (element.jsonObject["class_hash"] == null)) {
+            throw IllegalArgumentException("Either classHash or contractDefinition must be present.")
         }
 
-        throw IllegalArgumentException("Unable to select deserializer")
+        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+            Felt.ONE.hexString() -> return DeclareTransactionV1.serializer()
+            Felt(2).hexString() -> return DeclareTransactionV2.serializer()
+            else -> throw IllegalArgumentException("Invalid invoke transaction version")
+        }
     }
 }
