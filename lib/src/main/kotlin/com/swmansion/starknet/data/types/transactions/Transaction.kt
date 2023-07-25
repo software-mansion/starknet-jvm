@@ -305,6 +305,7 @@ data class DeclareTransactionV2(
 @Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
+    // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt = Felt.ZERO,
