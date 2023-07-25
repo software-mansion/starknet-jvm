@@ -86,8 +86,8 @@ data class DeclareTransactionV2Payload(
     @SerialName("sender_address")
     val senderAddress: Felt,
 
-    @SerialName("compiled_class_hash")
-    val compiledClassHash: Felt,
+//    @SerialName("compiled_class_hash")
+//    val compiledClassHash: Felt,
 
     @SerialName("version")
     val version: Felt = Felt(2),
