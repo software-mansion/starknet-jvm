@@ -20,9 +20,6 @@ data class GatewayMessageL1ToL2(
     @JsonNames("from_address")
     val fromAddress: Felt,
 
-    @JsonNames("to_address")
-    val toAddress: Felt,
-
     @JsonNames("payload")
     val payload: List<Felt>,
 )
