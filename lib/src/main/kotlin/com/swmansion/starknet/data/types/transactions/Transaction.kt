@@ -264,7 +264,7 @@ data class DeclareTransactionV2(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ONE,
+    override val version: Felt = Felt(2),
 
     @SerialName("signature")
     override val signature: Signature,
