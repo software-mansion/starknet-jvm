@@ -46,6 +46,9 @@ data class RpcMessageL1ToL2(
     @JsonNames("to_address")
     val toAddress: Felt,
 
+    @JsonNames("entry_point_selector")
+    val selector: Felt,
+
     @JsonNames("payload")
     val payload: List<Felt>,
 )
