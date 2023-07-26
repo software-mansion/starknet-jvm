@@ -40,6 +40,9 @@ enum class TransactionExecutionStatus {
 
     @JsonNames("REVERTED")
     REVERTED,
+
+    @JsonNames("REJECTED")
+    REJECTED,
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -50,6 +53,9 @@ enum class TransactionFinalityStatus {
 
     @JsonNames("ACCEPTED_ON_L2")
     ACCEPTED_ON_L2,
+
+    @JsonNames("RECEIVED")
+    RECEIVED,
 }
 
 @Serializable
