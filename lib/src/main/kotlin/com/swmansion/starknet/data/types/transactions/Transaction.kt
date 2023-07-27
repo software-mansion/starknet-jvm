@@ -60,6 +60,13 @@ data class TransactionHashPair(
 @SerialName("DEPLOY")
 // OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployTransaction(
+    @SerialName("contract_address_salt")
+    val contractAddressSalt: Felt,
+
+    @SerialName("constructor_calldata")
+    @JsonNames("calldata")
+    val constructorCalldata: Calldata,
+
     @SerialName("class_hash")
     val classHash: Felt,
 
@@ -84,16 +91,6 @@ data class DeployTransaction(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY,
-
-    @SerialName("contract_address_salt")
-    val contractAddressSalt: Felt,
-
-    @SerialName("constructor_calldata")
-    @JsonNames("calldata")
-    val constructorCalldata: Calldata,
-
-
-
 ) : Transaction()
 
 @Serializable
@@ -260,8 +257,6 @@ data class DeclareTransactionV2(
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
-
-
     @SerialName("sender_address")
     val senderAddress: Felt,
 
@@ -280,8 +275,8 @@ data class DeclareTransactionV2(
     @SerialName("compiled_class_hash")
     val compiledClassHash: Felt,
 
-//        @SerialName("contract_class")
-//        val contractClass: ContractClass,
+//  @SerialName("contract_class")
+//  val contractClass: ContractClass,
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
@@ -322,7 +317,6 @@ data class L1HandlerTransaction(
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
-
 
     @SerialName("max_fee")
     override val maxFee: Felt = Felt.ZERO,
@@ -379,8 +373,6 @@ data class DeployAccountTransaction(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-
-
 ) : Transaction() {
     internal fun toPayload(): DeployAccountTransactionPayload {
         return DeployAccountTransactionPayload(
@@ -414,7 +406,6 @@ object TransactionFactory {
             nonce = nonce,
             maxFee = maxFee,
         )
-
         return InvokeTransactionV1(
             hash = hash,
             senderAddress = senderAddress,
@@ -479,7 +470,6 @@ object TransactionFactory {
                 version = version,
                 nonce = nonce,
             )
-
         return DeclareTransactionV1(
             classHash = classHash,
             senderAddress = senderAddress,
