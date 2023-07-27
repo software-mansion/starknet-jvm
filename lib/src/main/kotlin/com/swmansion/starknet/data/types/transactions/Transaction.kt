@@ -34,7 +34,7 @@ enum class TransactionType(val txPrefix: Felt) {
 
 @Serializable
 sealed class Transaction {
-    abstract val hash: Felt
+    abstract val hash: Felt?
     abstract val maxFee: Felt
     abstract val version: Felt
     abstract val signature: Signature
@@ -63,7 +63,7 @@ data class DeployTransaction(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("version")
     override val version: Felt,
@@ -107,7 +107,7 @@ data class InvokeTransactionV1(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("sender_address")
     @JsonNames("contract_address")
@@ -162,7 +162,7 @@ data class InvokeTransactionV0(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -198,7 +198,7 @@ data class DeclareTransactionV1(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -220,7 +220,7 @@ data class DeclareTransactionV1(
 
     // Make this nullable instead?
     @SerialName("class_hash")
-    val classHash: Felt = Felt.ZERO,
+    val classHash: Felt? = null,
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
@@ -252,7 +252,7 @@ data class DeclareTransactionV2(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -280,7 +280,7 @@ data class DeclareTransactionV2(
 
     // Make this nullable instead?
     @SerialName("class_hash")
-    val classHash: Felt = Felt.ZERO,
+    val classHash: Felt? = null,
 
     @SerialName("compiled_class_hash")
     val compiledClassHash: Felt,
@@ -308,7 +308,7 @@ data class L1HandlerTransaction(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
@@ -342,7 +342,7 @@ data class DeployAccountTransaction(
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
-    override val hash: Felt = Felt.ZERO,
+    override val hash: Felt? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
@@ -456,34 +456,22 @@ object TransactionFactory {
     @JvmStatic
     fun makeDeclareV1Transaction(
         senderAddress: Felt,
-        //  contractDefinition: Cairo0ContractDefinition? = null,
-        // TODO: Not sure we want @contractDefition to be nullable.
-        //       It wasn't before as makeDeclareV1Transaction was used only for actually declaring contracts, not creating the object for already executed declare transaction.
-        //       Besides, it's likely to break StarkCurveSigner.signTransaction()
         contractDefinition: Cairo0ContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,
         nonce: Felt,
         signature: Signature = emptyList(),
-        classHash: Felt? = null,
+        classHash: Felt,
     ): DeclareTransactionV1 {
-        if ((classHash == null) && (contractDefinition == null)) {
-            throw IllegalArgumentException("Either classHash or contractDefinition must be not null.")
-        }
-
-        val hash = classHash?.let {
-            TransactionHashCalculator.calculateDeclareV1TxHash(
-                classHash = it,
+        val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
+                classHash = classHash,
                 chainId = chainId,
                 senderAddress = senderAddress,
                 maxFee = maxFee,
                 version = version,
                 nonce = nonce,
             )
-        } ?: Felt.ZERO
-
-        val classHash = classHash ?: Felt.ZERO
 
         return DeclareTransactionV1(
             classHash = classHash,
@@ -501,9 +489,6 @@ object TransactionFactory {
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
-//            contractDefinition: Cairo1ContractDefinition? = null,
-        // TODO: Not sure we want @contractDefition to be nullable.
-        //       It wasn't before as makeDeclareV2Transaction was used only for actually declaring contracts, not creating the object for already executed declare transaction.
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,

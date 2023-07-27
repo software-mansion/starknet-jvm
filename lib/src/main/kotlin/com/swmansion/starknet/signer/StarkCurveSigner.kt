@@ -16,7 +16,11 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
     override fun signTransaction(transaction: Transaction): Signature {
-        return StarknetCurve.sign(privateKey, transaction.hash).toList()
+        if (transaction.hash == null) {
+            throw IllegalArgumentException("Transaction hash must be set before signing")
+        }
+
+        return StarknetCurve.sign(privateKey, transaction.hash!!).toList()
     }
 
     override fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature {
