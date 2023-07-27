@@ -252,13 +252,13 @@ data class DeclareTransactionV2(
     @SerialName("class_hash")
     val classHash: Felt? = null,
 
-    // not in RPC spec
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
+        // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
-
-    @SerialName("sender_address")
-    val senderAddress: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
