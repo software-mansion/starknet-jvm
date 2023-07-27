@@ -60,13 +60,27 @@ data class TransactionHashPair(
 @SerialName("DEPLOY")
 // OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployTransaction(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
+    // not in RPC spec
+    @SerialName("max_fee")
+    override val maxFee: Felt = Felt.ZERO,
+
     @SerialName("version")
     override val version: Felt,
+
+    // not in RPC spec
+    @SerialName("signature")
+    override val signature: Signature = emptyList(),
+
+    @SerialName("nonce")
+    override val nonce: Felt = Felt.ZERO,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY,
@@ -78,19 +92,7 @@ data class DeployTransaction(
     @JsonNames("calldata")
     val constructorCalldata: Calldata,
 
-    @SerialName("class_hash")
-    val classHash: Felt,
 
-    // not in RPC spec
-    @SerialName("max_fee")
-    override val maxFee: Felt = Felt.ZERO,
-
-    // not in RPC spec
-    @SerialName("signature")
-    override val signature: Signature = emptyList(),
-
-    @SerialName("nonce")
-    override val nonce: Felt = Felt.ZERO,
 
 ) : Transaction()
 
@@ -104,17 +106,17 @@ sealed class InvokeTransaction() : Transaction() {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class InvokeTransactionV1(
-    // not in RPC spec
-    @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
-    override val hash: Felt? = null,
+    @SerialName("calldata")
+    override val calldata: Calldata,
 
     @SerialName("sender_address")
     @JsonNames("contract_address")
     val senderAddress: Felt,
 
-    @SerialName("calldata")
-    override val calldata: Calldata,
+    // not in RPC spec
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -159,6 +161,9 @@ data class InvokeTransactionV1(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class InvokeTransactionV0(
+    @SerialName("calldata")
+    override val calldata: Calldata,
+
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
@@ -174,18 +179,15 @@ data class InvokeTransactionV0(
     override val signature: Signature,
 
     // not in RPC spec
+    // TODO: consider make it nullable so it's not included in serialized json
     @SerialName("nonce")
     override val nonce: Felt = Felt.ZERO,
-    // TODO: consider make it nullable so it's not included in serialized json
 
     @SerialName("contract_address")
     val contractAddress: Felt,
 
     @SerialName("entry_point_selector")
     val entryPointSelector: Felt,
-
-    @SerialName("calldata")
-    override val calldata: Calldata,
 ) : InvokeTransaction()
 
 @Serializable
@@ -195,16 +197,16 @@ sealed class DeclareTransaction() : Transaction()
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareTransactionV1(
+    @SerialName("class_hash")
+    val classHash: Felt? = null,
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
-
-    @SerialName("sender_address")
-    val senderAddress: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -218,9 +220,8 @@ data class DeclareTransactionV1(
     @SerialName("nonce")
     override val nonce: Felt,
 
-    // Make this nullable instead?
-    @SerialName("class_hash")
-    val classHash: Felt? = null,
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
@@ -249,13 +250,17 @@ data class DeclareTransactionV1(
 @Serializable
 @SerialName("DECLARE")
 data class DeclareTransactionV2(
+    // TODO: Make this Felt.ZERO instead?
+    //       There shouldn't be any situation where we create this dataclasses with this value set to null
+    @SerialName("class_hash")
+    val classHash: Felt? = null,
+
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
+
 
     @SerialName("sender_address")
     val senderAddress: Felt,
@@ -272,18 +277,17 @@ data class DeclareTransactionV2(
     @SerialName("nonce")
     override val nonce: Felt,
 
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
+
 //        @SerialName("contract_class")
 //        val contractClass: ContractClass,
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
 
-    // Make this nullable instead?
-    @SerialName("class_hash")
-    val classHash: Felt? = null,
-
-    @SerialName("compiled_class_hash")
-    val compiledClassHash: Felt,
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
@@ -305,14 +309,6 @@ data class DeclareTransactionV2(
 @Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
-    // not in RPC spec
-    @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
-    override val hash: Felt? = null,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.L1_HANDLER,
-
     @SerialName("contract_address")
     val contractAddress: Felt,
 
@@ -321,6 +317,12 @@ data class L1HandlerTransaction(
 
     @SerialName("entry_point_selector")
     val entryPointSelector: Felt,
+
+    // not in RPC spec
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt? = null,
+
 
     @SerialName("max_fee")
     override val maxFee: Felt = Felt.ZERO,
@@ -333,19 +335,35 @@ data class L1HandlerTransaction(
 
     @SerialName("nonce")
     override val nonce: Felt,
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : Transaction()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY_ACCOUNT")
 data class DeployAccountTransaction(
+    // TODO: check whether this should actually be contract_class in case of gateway
+    @SerialName("class_hash")
+    @JsonNames("contract_class")
+    val classHash: Felt,
+
+    // not in RPC spec
+    @SerialName("contract_address")
+    val contractAddress: Felt = Felt.ZERO,
+
+    @SerialName("contract_address_salt")
+    val contractAddressSalt: Felt,
+
+    @SerialName("constructor_calldata")
+    @JsonNames("calldata")
+    val constructorCalldata: Calldata,
+
     // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -359,21 +377,10 @@ data class DeployAccountTransaction(
     @SerialName("nonce")
     override val nonce: Felt,
 
-    // not in RPC spec
-    @SerialName("contract_address")
-    val contractAddress: Felt = Felt.ZERO,
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 
-    @SerialName("contract_address_salt")
-    val contractAddressSalt: Felt,
 
-    @SerialName("constructor_calldata")
-    @JsonNames("calldata")
-    val constructorCalldata: Calldata,
-
-    // TODO: check whether this should actually be contract_class in case of gateway
-    @SerialName("class_hash")
-    @JsonNames("contract_class")
-    val classHash: Felt,
 ) : Transaction() {
     internal fun toPayload(): DeployAccountTransactionPayload {
         return DeployAccountTransactionPayload(
@@ -441,7 +448,6 @@ object TransactionFactory {
             nonce = nonce,
         )
         return DeployAccountTransaction(
-            hash = hash,
             classHash = classHash,
             contractAddress = contractAddress,
             contractAddressSalt = salt,
@@ -449,12 +455,14 @@ object TransactionFactory {
             version = version,
             nonce = nonce,
             maxFee = maxFee,
+            hash = hash,
             signature = signature,
         )
     }
 
     @JvmStatic
     fun makeDeclareV1Transaction(
+        classHash: Felt,
         senderAddress: Felt,
         contractDefinition: Cairo0ContractDefinition,
         chainId: StarknetChainId,
@@ -462,7 +470,6 @@ object TransactionFactory {
         version: Felt,
         nonce: Felt,
         signature: Signature = emptyList(),
-        classHash: Felt,
     ): DeclareTransactionV1 {
         val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
                 classHash = classHash,
