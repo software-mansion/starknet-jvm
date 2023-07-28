@@ -2,9 +2,6 @@
 
 pushd "$(dirname "$0")" || exit
 
-OUT_DIR_V0="$(dirname "$0")/compiled_v0"
-OUT_DIR_V1="$(dirname "$0")/compiled_v1"
-
 mkdir -p "compiled_v0"
 
 echo "Compiling v0 contracts.."
