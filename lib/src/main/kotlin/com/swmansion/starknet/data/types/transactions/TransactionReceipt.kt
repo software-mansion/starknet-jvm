@@ -56,6 +56,9 @@ enum class TransactionFinalityStatus {
 
     @JsonNames("RECEIVED")
     RECEIVED,
+
+    @JsonNames("NOT_RECEIVED")
+    NOT_RECEIVED,
 }
 
 @Serializable
