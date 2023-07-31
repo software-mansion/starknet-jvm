@@ -21,31 +21,31 @@ get_release_url() {
   local ARCH_DLOAD="unknown-Aarch"
   local EXT="tar.gz"
 
-#  if [ "$OS" == "Linux" ]; then
-#    OS_DLOAD="unknown-linux-musl"
-#    ARCH_DLOAD="x86_64"
-#    EXT="tar.gz"
-#  elif [ "$OS" == "Darwin" ]; then
-#    OS_DLOAD="apple-darwin"
-#    ARCH_DLOAD="aarch64"
-#    EXT="tar"
-#  else
-#    echo "Unsupported OS: $OS"
-#    exit 1
-#  fi
+  #  if [ "$OS" == "Linux" ]; then
+  #    OS_DLOAD="unknown-linux-musl"
+  #    ARCH_DLOAD="x86_64"
+  #    EXT="tar.gz"
+  #  elif [ "$OS" == "Darwin" ]; then
+  #    OS_DLOAD="apple-darwin"
+  #    ARCH_DLOAD="aarch64"
+  #    EXT="tar"
+  #  else
+  #    echo "Unsupported OS: $OS"
+  #    exit 1
+  #  fi
 
-    if [ "$ARCH" == "x86_64" ]; then
-      OS_DLOAD="unknown-linux-musl"
-      ARCH_DLOAD="x86_64"
-      EXT="tar.gz"
-    elif [ "$ARCH" == "arm64" ]; then
-      OS_DLOAD="apple-darwin"
-      ARCH_DLOAD="aarch64"
-      EXT="tar"
-      else
-        echo "Unsupported architrecture: $ARCH"
-        exit 1
-    fi
+  if [ "$ARCH" == "x86_64" ]; then
+    OS_DLOAD="unknown-linux-musl"
+    ARCH_DLOAD="x86_64"
+    EXT="tar.gz"
+  elif [ "$ARCH" == "arm64" ]; then
+    OS_DLOAD="apple-darwin"
+    ARCH_DLOAD="aarch64"
+    EXT="tar"
+  else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+  fi
 
   echo "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-${ARCH_DLOAD}-${OS_DLOAD}.${EXT}"
 }
