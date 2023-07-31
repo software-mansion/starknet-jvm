@@ -1,13 +1,13 @@
 #[starknet::interface]
 trait IOtherContract<TContractState> {
-    fn decrease_allowed(self: @TContractState) -> bool;
+    fn gw_decrease_allowed(self: @TContractState) -> bool;
 }
 
 #[starknet::interface]
 trait ICounterContract<TContractState> {
-    fn increase_counter(ref self: TContractState, amount: u128);
-    fn decrease_counter(ref self: TContractState, amount: u128);
-    fn get_counter(self: @TContractState) -> u128;
+    fn gw_increase_counter(ref self: TContractState, amount: u128);
+    fn gw_decrease_counter(ref self: TContractState, amount: u128);
+    fn gw_get_counter(self: @TContractState) -> u128;
 }
 
 #[starknet::contract]
@@ -52,18 +52,18 @@ mod counter_contract {
 
     #[external(v0)]
     impl CounterContract of super::ICounterContract<ContractState> {
-        fn get_counter(self: @ContractState) -> u128 {
+        fn gw_get_counter(self: @ContractState) -> u128 {
             self.counter.read()
         }
 
-        fn increase_counter(ref self: ContractState, amount: u128) {
+        fn gw_increase_counter(ref self: ContractState, amount: u128) {
             let current = self.counter.read();
             self.counter.write(current + amount);
             self.emit(CounterIncreased { amount });
         }
 
-        fn decrease_counter(ref self: ContractState, amount: u128) {
-            let allowed = self.other_contract.read().decrease_allowed();
+        fn gw_decrease_counter(ref self: ContractState, amount: u128) {
+            let allowed = self.other_contract.read().gw_decrease_allowed();
             if allowed {
                 let current = self.counter.read();
                 self.counter.write(current - amount);
