@@ -58,13 +58,13 @@ fetch_compilers() {
     exit 1
   fi
 
-  COMPILER_PATH=$(dirname "$0")/"$OUT_DIR"/cairo/bin/starknet-compile
-  SIERRA_PATH=$(dirname "$0")/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
+  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
+  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
 
   echo "Done!"
 }
 
-pushd "$(dirname "$0")" || exit
+pushd "$(dirname "$0")" || exit 1
 mkdir -p "$V0_ARTIFACT_PATH"
 
 echo "Compiling v0 contracts.."
@@ -80,9 +80,9 @@ done < <(find "$V0_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
-fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
 
 pushd "$(dirname "$0")" || exit 1
+fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
 mkdir -p "$V1_ARTIFACT_PATH"
 
 echo "Compiling v1 contracts.."
@@ -95,9 +95,9 @@ done < <(find "$V1_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
-fetch_compilers "2.0.2" "$COMPILER_BIN_V2"
 
 pushd "$(dirname "$0")" || exit 1
+fetch_compilers "2.0.2" "$COMPILER_BIN_V2"
 mkdir -p "$V2_ARTIFACT_PATH"
 
 echo "Compiling v2 contracts.."
