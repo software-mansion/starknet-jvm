@@ -9,7 +9,10 @@ jobs:
   test_and_lint:
     strategy:
       matrix:
-        os: ["macos-latest", "ubuntu-20.04"]
+        os: [
+          "macos-latest",
+          "ubuntu-20.04"
+        ]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -25,9 +28,10 @@ jobs:
         with:
           cmake-version: '3.16.x'
       - name: Set up Python 3.9.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4.5.0
         with:
           python-version: 3.9.12
+          cache: 'pip'
 
       - name: Install devnet
         run: |
@@ -36,10 +40,18 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+        with: 
+          cache-read-only: false
 
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
+      - name: Cache cairo (rust) compiled deps
+        uses: actions/cache@v3
+        with:
+          path: cairo/target/debug
+          key: ${{ runner.os }}-cairo-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+      
       - name: Run tests and generate coverage report
         run: ./gradlew :lib:koverXmlReport --info
 
