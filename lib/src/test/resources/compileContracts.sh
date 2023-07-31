@@ -52,7 +52,7 @@ fetch_compilers() {
   echo "URL: $COMPILER_URL"
 
   mkdir -p "$OUT_DIR"
-  curl -LsSf "$COMPILER_URL" | tar -x -C "$OUT_DIR" || exit 1
+  curl -LsSf "$COMPILER_URL" | tar -xz -C "$OUT_DIR" || exit 1
 
   COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
   SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
