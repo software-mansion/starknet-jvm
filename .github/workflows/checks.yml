@@ -46,7 +46,7 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Cache cairo (rust) compiled deps
+      - name: Cache Cairo (Rust) compiled deps
         uses: actions/cache@v3
         with:
           path: cairo/target/debug

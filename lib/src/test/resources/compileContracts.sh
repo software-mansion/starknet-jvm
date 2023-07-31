@@ -1,5 +1,7 @@
 #!/bin/bash
 
+REPO_ROOT=$(dirname "$0")/../../../..
+
 V0_CONTRACT_PATH="src_v0"
 V1_CONTRACT_PATH="src_v1"
 V2_CONTRACT_PATH="src_v2"
@@ -10,6 +12,29 @@ V2_ARTIFACT_PATH="compiled_v2"
 
 COMPILER_BIN_V1="compilers/v1"
 COMPILER_BIN_V2="compilers/v2"
+
+build_cairo_compilers() {
+  local VERSION=$1
+  local OUT_DIR=$2
+
+  local VERSION_SHORT=${VERSION:0:1}
+
+  if ! which cargo >/dev/null; then
+    echo "Installing rust..."
+    curl -sSf https://sh.rustup.rs | sh -s -- -y
+  fi
+
+  echo "Building starknet compiler"
+  pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
+  cargo build
+  cargo run --bin starknet-compile -- --version
+  cargo run --bin starknet-sierra-compile -- --version
+  popd
+
+  mkdir -p "$(pwd)/$OUT_DIR/cairo/bin"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
+}
 
 fetch_compilers() {
   local VERSION=$1
@@ -27,8 +52,7 @@ fetch_compilers() {
   elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "x86_64" ]; then
-    #    TODO: fetch from somewhere else or compile
-    exit 1
+    build_cairo_compilers "$VERSION" "$OUT_DIR"
   else
     echo "Unsupported OS or architecture: $ARCH-$OS"
     exit 1
@@ -56,8 +80,9 @@ done < <(find "$V0_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
-pushd "$(dirname "$0")" || exit 1
 fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
+
+pushd "$(dirname "$0")" || exit 1
 mkdir -p "$V1_ARTIFACT_PATH"
 
 echo "Compiling v1 contracts.."
@@ -70,8 +95,9 @@ done < <(find "$V1_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
+fetch_compilers "2.0.2" "$COMPILER_BIN_V2"
+
 pushd "$(dirname "$0")" || exit 1
-fetch_compilers "2.0.0" "$COMPILER_BIN_V2"
 mkdir -p "$V2_ARTIFACT_PATH"
 
 echo "Compiling v2 contracts.."
