@@ -249,7 +249,7 @@ data class DeclareTransactionV2(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
-    private val contractDefinition: Cairo1ContractDefinition? = null,
+    private val contractDefinition: CairoContractDefinition? = null,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
@@ -441,7 +441,7 @@ object TransactionFactory {
     @JvmStatic
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
-        contractDefinition: Cairo1ContractDefinition,
+        contractDefinition: CairoContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,

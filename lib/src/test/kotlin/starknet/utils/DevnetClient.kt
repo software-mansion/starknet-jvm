@@ -66,9 +66,10 @@ class DevnetClient(
             "starknet-devnet.*$port.*$seed",
         ).start().waitFor()
 
-        devnetProcess =
+        val devnetProcessBuilder =
             ProcessBuilder(
                 "starknet-devnet",
+                "--verbose",
                 "--disable-rpc-request-validation",
                 "--host",
                 host,

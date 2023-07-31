@@ -309,7 +309,7 @@ class StandardAccountTest {
         val contractCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.json").readText()
         val casmCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.casm").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractDefinition = Cairo2ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 

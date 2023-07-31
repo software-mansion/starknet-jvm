@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 
 object Cairo1ClassHashCalculator {
 
-    fun computeSierraClassHash(contract: Cairo1ContractDefinition): Felt {
+    fun computeSierraClassHash(contract: CairoContractDefinition): Felt {
         val contractClass = Json.decodeFromJsonElement(ContractClass.serializer(), contract.toJson())
 
         val sierraVersion = Felt.fromShortString("CONTRACT_CLASS_V" + contractClass.contractClassVersion)
