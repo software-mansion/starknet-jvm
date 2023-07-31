@@ -77,7 +77,7 @@ class DevnetClient(
                 "--seed",
                 seed.toString(),
                 "--sierra-compiler-path",
-                "../cairo/target/debug/starknet-sierra-compile",
+                "src/test/resources/cairo_compilers_v2/cairo/bin/starknet-sierra-compile",
             ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"

@@ -304,6 +304,30 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
+    fun `sign and send declare v2 transaction (cairo compiler v2)`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        val contractCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_new_syntax_test_contract.json").readText()
+        val casmCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_new_syntax_test_contract.casm").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val declareTransactionPayload = account.signDeclare(
+                contractDefinition,
+                contractCasmDefinition,
+                ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+        assertNotNull(result)
+        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
     fun `sign single call test`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         val call = Call(
