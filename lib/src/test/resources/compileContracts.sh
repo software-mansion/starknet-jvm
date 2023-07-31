@@ -21,24 +21,31 @@ get_release_url() {
   local ARCH_DLOAD="unknown-Aarch"
   local EXT="tar.gz"
 
-  if [ "$OS" == "Linux" ]; then
-    OS_DLOAD="unknown-linux-musl"
-    ARCH_DLOAD="x86_64"
-    EXT="tar.gz"
-  elif [ "$OS" == "Darwin" ]; then
-    OS_DLOAD="apple-darwin"
-    ARCH_DLOAD="aarch64"
-    EXT="tar"
-  else
-    echo "Unsupported OS: $OS"
-    exit 1
-  fi
+#  if [ "$OS" == "Linux" ]; then
+#    OS_DLOAD="unknown-linux-musl"
+#    ARCH_DLOAD="x86_64"
+#    EXT="tar.gz"
+#  elif [ "$OS" == "Darwin" ]; then
+#    OS_DLOAD="apple-darwin"
+#    ARCH_DLOAD="aarch64"
+#    EXT="tar"
+#  else
+#    echo "Unsupported OS: $OS"
+#    exit 1
+#  fi
 
-  #  if [ "$ARCH" == "x86_64" ]; then
-  #    ARCH_DLOAD="x86_64"
-  #  elif [ "$ARCH" == "arm64" ]; then
-  #    ARCH_DLOAD="aarch64"
-  #  fi
+    if [ "$ARCH" == "x86_64" ]; then
+      OS_DLOAD="unknown-linux-musl"
+      ARCH_DLOAD="x86_64"
+      EXT="tar.gz"
+    elif [ "$ARCH" == "arm64" ]; then
+      OS_DLOAD="apple-darwin"
+      ARCH_DLOAD="aarch64"
+      EXT="tar"
+      else
+        echo "Unsupported architrecture: $ARCH"
+        exit 1
+    fi
 
   echo "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-${ARCH_DLOAD}-${OS_DLOAD}.${EXT}"
 }
@@ -52,7 +59,12 @@ fetch_compilers() {
   echo "URL: $COMPILER_URL"
 
   mkdir -p "$OUT_DIR"
-  curl -LsSf "$COMPILER_URL" | tar -xz -C "$OUT_DIR" || exit 1
+
+  if [[ $COMPILER_URL == *.tar ]]; then
+    curl -LsSf "$COMPILER_URL" | tar -x -C "$OUT_DIR" || exit 1
+  else
+    curl -LsSf "$COMPILER_URL" | tar -xz -C "$OUT_DIR" || exit 1
+  fi
 
   COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
   SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
