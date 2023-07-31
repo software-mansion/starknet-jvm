@@ -50,13 +50,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: cairo1/target/debug
-          key: ${{ runner.os }}-cairo1-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+          key: ${{ runner.os }}-cairo1-target-debug-${{ hashFiles('cairo1/Cargo.lock') }}
 
       - name: Cache Cairo (Rust) compiled deps (Cairo 2.x.x)
         uses: actions/cache@v3
         with:
           path: cairo2/target/debug
-          key: ${{ runner.os }}-cairo2-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+          key: ${{ runner.os }}-cairo2-target-debug-${{ hashFiles('cairo2/Cargo.lock') }}
       
       - name: Run tests and generate coverage report
         run: ./gradlew :lib:koverXmlReport --info
