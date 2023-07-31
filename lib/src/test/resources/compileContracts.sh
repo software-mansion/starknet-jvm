@@ -32,8 +32,8 @@ build_cairo_compilers() {
   popd
 
   mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(dirname "$0")/$OUT_DIR/cairo/bin/starknet-compile"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(dirname "$0")/$OUT_DIR/cairo/bin/starknet-sierra-compile"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
 }
 
 fetch_compilers() {
