@@ -70,7 +70,22 @@ val buildCrypto = task<Exec>("BuildCrypto") {
 }
 
 val compileContracts = task<Exec>("compileContracts") {
-    commandLine("${project.projectDir}/src/test/resources/compileContracts.sh")
+    val compileScriptPath = "${project.projectDir}/src/test/resources/compileContracts.sh"
+
+    val sourceDirectoryV0 = "${project.projectDir}/src/test/resources/src_v0"
+    val sourceDirectoryV1 = "${project.projectDir}/src/test/resources/src_v1"
+
+    val compileDirectoryV0 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v0")
+    val compileDirectoryV1 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v1")
+
+    inputs.file(compileScriptPath)
+    inputs.dir(sourceDirectoryV0)
+    inputs.dir(sourceDirectoryV1)
+
+    outputs.dir(compileDirectoryV0)
+    outputs.dir(compileDirectoryV1)
+
+    commandLine(compileScriptPath)
 }
 
 // For tests, we simply use version from crypto build
