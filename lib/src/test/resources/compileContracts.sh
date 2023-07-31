@@ -1,7 +1,6 @@
 #!/bin/bash
 
 pushd "$(dirname "$0")" || exit
-
 mkdir -p "compiled_v0"
 
 echo "Compiling v0 contracts.."
