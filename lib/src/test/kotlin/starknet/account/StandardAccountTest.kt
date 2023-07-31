@@ -306,8 +306,8 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction (cairo compiler v2)`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
-        val contractCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_new_syntax_test_contract.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_new_syntax_test_contract.casm").readText()
+        val contractCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.json").readText()
+        val casmCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.casm").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)

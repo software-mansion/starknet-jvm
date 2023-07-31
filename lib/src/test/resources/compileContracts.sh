@@ -1,69 +1,37 @@
 #!/bin/bash
 
-SRC_V0="src_v0"
-SRC_V1="src_v1"
-SRC_V2="src_v2"
+V0_CONTRACT_PATH="src_v0"
+V1_CONTRACT_PATH="src_v1"
+V2_CONTRACT_PATH="src_v2"
 
-COMPILE_V0="compiled_v0"
-COMPILE_V1="compiled_v1"
-COMPILE_V2="compiled_v2"
+V0_ARTIFACT_PATH="compiled_v0"
+V1_ARTIFACT_PATH="compiled_v1"
+V2_ARTIFACT_PATH="compiled_v2"
 
-COMPILER_BIN_V1="cairo_compilers_v1"
-COMPILER_BIN_V2="cairo_compilers_v2"
-
-get_release_url() {
-  local VERSION=$1
-
-  OS=$(uname)
-  ARCH=$(uname -m)
-
-  local OS_DLOAD="unknown-os"
-  local ARCH_DLOAD="unknown-Aarch"
-  local EXT="tar.gz"
-
-  #  if [ "$OS" == "Linux" ]; then
-  #    OS_DLOAD="unknown-linux-musl"
-  #    ARCH_DLOAD="x86_64"
-  #    EXT="tar.gz"
-  #  elif [ "$OS" == "Darwin" ]; then
-  #    OS_DLOAD="apple-darwin"
-  #    ARCH_DLOAD="aarch64"
-  #    EXT="tar"
-  #  else
-  #    echo "Unsupported OS: $OS"
-  #    exit 1
-  #  fi
-
-  if [ "$ARCH" == "x86_64" ]; then
-    OS_DLOAD="unknown-linux-musl"
-    ARCH_DLOAD="x86_64"
-    EXT="tar.gz"
-  elif [ "$ARCH" == "arm64" ]; then
-    OS_DLOAD="apple-darwin"
-    ARCH_DLOAD="aarch64"
-    EXT="tar"
-  else
-    echo "Unsupported architecture: $ARCH"
-    exit 1
-  fi
-
-  echo "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-${ARCH_DLOAD}-${OS_DLOAD}.${EXT}"
-}
+COMPILER_BIN_V1="compilers/v1"
+COMPILER_BIN_V2="compilers/v2"
 
 fetch_compilers() {
   local VERSION=$1
   local OUT_DIR=$2
-  local COMPILER_URL=$(get_release_url "$VERSION")
 
   echo "Fetching compiler v$VERSION binaries..."
-  echo "URL: $COMPILER_URL"
 
   mkdir -p "$OUT_DIR"
 
-  if [[ $COMPILER_URL == *.tar ]]; then
-    curl -LsSf "$COMPILER_URL" | tar -x -C "$OUT_DIR" || exit 1
+  OS=$(uname)
+  ARCH=$(uname -m)
+
+  if [ "$OS" == "Linux" -a "$ARCH" == "x86_64" ]; then
+    curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$OUT_DIR" || exit 1
+  elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
+    curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
+  elif [ "$OS" == "Darwin" -a "$ARCH" == "x86_64" ]; then
+    #    TODO: fetch from somewhere else or compile
+    exit 1
   else
-    curl -LsSf "$COMPILER_URL" | tar -xz -C "$OUT_DIR" || exit 1
+    echo "Unsupported OS or architecture: $ARCH-$OS"
+    exit 1
   fi
 
   COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
@@ -73,45 +41,45 @@ fetch_compilers() {
 }
 
 pushd "$(dirname "$0")" || exit
-mkdir -p "$COMPILE_V0"
+mkdir -p "$V0_ARTIFACT_PATH"
 
 echo "Compiling v0 contracts.."
 
 while IFS= read -r -d '' file; do
   name="$(basename -- "$file" .cairo)"
   if [[ $name == *"account"* ]]; then
-    starknet-compile-deprecated "$file" --account_contract --output "$COMPILE_V0/$name.json" --abi "$COMPILE_V0/${name}Abi.json" || exit 1
+    starknet-compile-deprecated "$file" --account_contract --output "$V0_ARTIFACT_PATH/$name.json" --abi "$V0_ARTIFACT_PATH/${name}Abi.json" || exit 1
   else
-    starknet-compile-deprecated "$file" --output "$COMPILE_V0/$name.json" --abi "$COMPILE_V0/${name}Abi.json" || exit 1
+    starknet-compile-deprecated "$file" --output "$V0_ARTIFACT_PATH/$name.json" --abi "$V0_ARTIFACT_PATH/${name}Abi.json" || exit 1
   fi
-done < <(find "$SRC_V0" -name "*.cairo" -type f -print0)
+done < <(find "$V0_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
 pushd "$(dirname "$0")" || exit 1
 fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
-mkdir -p "$COMPILE_V1"
+mkdir -p "$V1_ARTIFACT_PATH"
 
 echo "Compiling v1 contracts.."
 
 while IFS= read -r -d '' file; do
   name="$(basename -- "$file" .cairo)"
-  $COMPILER_PATH --allowed-libfuncs-list-name experimental_v0.1.0 "$file" "$COMPILE_V1/$name.json" || exit 1
-  $SIERRA_PATH --allowed-libfuncs-list-name experimental_v0.1.0 --add-pythonic-hints "$COMPILE_V1/$name.json" "$COMPILE_V1/$name.casm" || exit 1
-done < <(find "$SRC_V1" -name "*.cairo" -type f -print0)
+  $COMPILER_PATH --allowed-libfuncs-list-name experimental_v0.1.0 "$file" "$V1_ARTIFACT_PATH/$name.json" || exit 1
+  $SIERRA_PATH --allowed-libfuncs-list-name experimental_v0.1.0 --add-pythonic-hints "$V1_ARTIFACT_PATH/$name.json" "$V1_ARTIFACT_PATH/$name.casm" || exit 1
+done < <(find "$V1_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
 pushd "$(dirname "$0")" || exit 1
 fetch_compilers "2.0.0" "$COMPILER_BIN_V2"
-mkdir -p "$COMPILE_V2"
+mkdir -p "$V2_ARTIFACT_PATH"
 
 echo "Compiling v2 contracts.."
 
 while IFS= read -r -d '' file; do
   name="$(basename -- "$file" .cairo)"
-  $COMPILER_PATH "$file" "$COMPILE_V2/$name.json" || exit 1
-  $SIERRA_PATH --add-pythonic-hints "$COMPILE_V2/$name.json" "$COMPILE_V2/$name.casm" || exit 1
-done < <(find "$SRC_V2" -name "*.cairo" -type f -print0)
+  $COMPILER_PATH "$file" "$V2_ARTIFACT_PATH/$name.json" || exit 1
+  $SIERRA_PATH --add-pythonic-hints "$V2_ARTIFACT_PATH/$name.json" "$V2_ARTIFACT_PATH/$name.casm" || exit 1
+done < <(find "$V2_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
