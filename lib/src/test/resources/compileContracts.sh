@@ -31,9 +31,9 @@ build_cairo_compilers() {
   cargo run --bin starknet-sierra-compile -- --version
   popd
 
-  mkdir -p "$(pwd)/$OUT_DIR/cairo/bin"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
+  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(dirname "$0")/$OUT_DIR/cairo/bin/starknet-compile"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(dirname "$0")/$OUT_DIR/cairo/bin/starknet-sierra-compile"
 }
 
 fetch_compilers() {
@@ -58,8 +58,8 @@ fetch_compilers() {
     exit 1
   fi
 
-  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
-  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
+  COMPILER_PATH=$(dirname "$0")/"$OUT_DIR"/cairo/bin/starknet-compile
+  SIERRA_PATH=$(dirname "$0")/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
 
   echo "Done!"
 }
