@@ -46,11 +46,17 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Cache Cairo (Rust) compiled deps
+      - name: Cache Cairo (Rust) compiled deps (Cairo 1.x.x)
         uses: actions/cache@v3
         with:
-          path: cairo/target/debug
-          key: ${{ runner.os }}-cairo-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+          path: cairo1/target/debug
+          key: ${{ runner.os }}-cairo1-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
+
+      - name: Cache Cairo (Rust) compiled deps (Cairo 2.x.x)
+        uses: actions/cache@v3
+        with:
+          path: cairo2/target/debug
+          key: ${{ runner.os }}-cairo2-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
       
       - name: Run tests and generate coverage report
         run: ./gradlew :lib:koverXmlReport --info
