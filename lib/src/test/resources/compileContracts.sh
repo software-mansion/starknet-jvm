@@ -32,9 +32,8 @@ build_cairo_compilers() {
     popd
   fi
 
-  #  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
-  #  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
-  #  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
+  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
+  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug" "$(pwd)/$OUT_DIR/cairo/bin/"
 }
 
 fetch_compilers() {
@@ -50,21 +49,19 @@ fetch_compilers() {
   OS=$(uname)
   ARCH=$(uname -m)
 
-  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
-  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
-
   if [ "$OS" == "Linux" -a "$ARCH" == "x86_64" ]; then
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "x86_64" ]; then
     build_cairo_compilers "$VERSION" "$OUT_DIR"
-    COMPILER_PATH="$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile"
-    SIERRA_PATH="$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile"
   else
     echo "Unsupported OS or architecture: $ARCH-$OS"
     exit 1
   fi
+
+  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
+  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
 
   echo "Done!"
 }
