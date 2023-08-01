@@ -40,6 +40,8 @@ fetch_compilers() {
   local VERSION=$1
   local OUT_DIR=$2
 
+  local VERSION_SHORT=${VERSION:0:1}
+
   echo "Fetching compiler v$VERSION binaries..."
 
   mkdir -p "$OUT_DIR"
