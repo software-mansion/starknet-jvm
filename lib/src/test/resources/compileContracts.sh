@@ -31,9 +31,9 @@ build_cairo_compilers() {
   cargo run --bin starknet-sierra-compile -- --version
   popd
 
-  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
-  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
+  #  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
+  #  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
+  #  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-sierra-compile"
 }
 
 fetch_compilers() {
@@ -47,19 +47,21 @@ fetch_compilers() {
   OS=$(uname)
   ARCH=$(uname -m)
 
+  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
+  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
+
   if [ "$OS" == "Linux" -a "$ARCH" == "x86_64" ]; then
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "x86_64" ]; then
     build_cairo_compilers "$VERSION" "$OUT_DIR"
+    COMPILER_PATH="$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile"
+    SIERRA_PATH="$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-sierra-compile"
   else
     echo "Unsupported OS or architecture: $ARCH-$OS"
     exit 1
   fi
-
-  COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
-  SIERRA_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-sierra-compile
 
   echo "Done!"
 }
@@ -80,7 +82,6 @@ done < <(find "$V0_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
-
 pushd "$(dirname "$0")" || exit 1
 fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
 mkdir -p "$V1_ARTIFACT_PATH"
@@ -94,7 +95,6 @@ while IFS= read -r -d '' file; do
 done < <(find "$V1_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
-
 
 pushd "$(dirname "$0")" || exit 1
 fetch_compilers "2.0.2" "$COMPILER_BIN_V2"
