@@ -34,11 +34,16 @@ build_cairo_compilers() {
     echo "Found existing binaries, skipping compilation."
   fi
 
-  rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+  rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/" || true
+  rm -r "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || true
+
   mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 
   echo "Moving binaries..."
   rsync -a "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+  echo "Moving corelib..."
+  rsync -a "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 }
 
 fetch_compilers() {
