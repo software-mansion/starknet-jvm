@@ -19,17 +19,18 @@ build_cairo_compilers() {
 
   local VERSION_SHORT=${VERSION:0:1}
 
-  if ! which cargo >/dev/null; then
-    echo "Installing rust..."
-    curl -sSf https://sh.rustup.rs | sh -s -- -y
+  if ! find ".$REPO_ROOT/cairo$VERSION_SHORT/target/debug" -name starknet-compile -type f > /dev/null || ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/debug" -name starknet-sierra-compile -type f > /dev/null; then
+    if ! which cargo >/dev/null; then
+      echo "Installing rust..."
+      curl -sSf https://sh.rustup.rs | sh -s -- -y
+    fi
+    echo "Building starknet compiler"
+    pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
+    cargo build
+    cargo run --bin starknet-compile -- --version
+    cargo run --bin starknet-sierra-compile -- --version
+    popd
   fi
-
-  echo "Building starknet compiler"
-  pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
-  cargo build
-  cargo run --bin starknet-compile -- --version
-  cargo run --bin starknet-sierra-compile -- --version
-  popd
 
   #  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin"
   #  mv "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/starknet-compile" "$(pwd)/$OUT_DIR/cairo/bin/starknet-compile"
