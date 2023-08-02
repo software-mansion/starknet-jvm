@@ -137,7 +137,6 @@ public class Main {
 
         StandardAccount account = new StandardAccount(address, privateKey, provider, Felt.ZERO);
         
-        // Multiply the estimated fee by 10 to ensure the transaction will not fail due to insufficient funds
         Felt maxFee = Felt.fromHex("0x11fcc58c7f7000");  // should be 10*fee from estimate deploy account fee
 
         // Make sure to prefund the address with at least maxFee
