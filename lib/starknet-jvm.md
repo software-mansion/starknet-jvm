@@ -238,6 +238,129 @@ fun main(args: Array<String>) {
 }
 ```
 
+### Deploy Account example
+
+```java
+import org.junit.jupiter.api.Test;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.ContractAddressCalculator;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.transactions.*;
+import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.math.BigInteger;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with StarkNet
+        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+
+        // Create an account interface
+        Felt privateKey = Felt.fromHex("0x12345");
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
+        Felt salt = new Felt(789);
+        List<Felt> calldata = List.of(publicKey);
+        Felt address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash,
+                calldata,
+                salt
+        );
+
+        StandardAccount account = new StandardAccount(address, privateKey, provider, Felt.ZERO);
+
+        // Estimate the fee for deploying the account
+        DeployAccountTransactionPayload payloadForFeeEstimation = account.signDeployAccount(
+                classHash,
+                calldata,
+                salt,
+                Felt.ZERO,
+                Felt.ZERO,
+                true
+        );
+
+        List<EstimateFeeResponse> feePayload = provider.getEstimateFee(
+                List.of(payloadForFeeEstimation)
+        ).send();
+        Felt estimateDeployAccountFee = feePayload.get(0).getOverallFee();
+        // Multiply the estimated fee by 10 to ensure the transaction will not fail due to insufficient funds
+        Felt maxFee = new Felt(estimateDeployAccountFee.getValue().multiply(BigInteger.TEN));
+
+        // Make sure to prefund the address with at least maxFee
+        
+        // Create and sign deploy account transaction
+        DeployAccountTransactionPayload payload = account.signDeployAccount(
+                classHash,
+                calldata,
+                salt,
+                maxFee
+        );
+
+        DeployAccountResponse response = provider.deployAccount(payload).send();
+    }
+}
+```
+
+or in Kotlin
+
+```kotlin
+fun main(args: Array<String>) {
+    // Create a provider for interacting with StarkNet
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+
+    // Create an account interface
+    val privateKey = Felt.fromHex("0x12345")
+    val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+    // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)
+    val classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773")
+    val salt = Felt(789)
+    val calldata = listOf(publicKey)
+    val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+    )
+
+    val account = StandardAccount(
+            address,
+            privateKey,
+            provider,
+    )
+
+    // Estimate the fee for deploying the account
+    val payloadForFeeEstimation = account.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.ZERO,
+            nonce = Felt.ZERO,
+            forFeeEstimate = true,
+    )
+    val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+    val fee = feePayload.first().overallFee
+    // Multiply the estimated fee by 10 to ensure the transaction will not fail due to insufficient funds
+    val maxFee = Felt(fee.value.multiply(BigInteger.TEN))
+    
+    //  Make sure to prefund the address with at least maxFee
+
+    val payload = account.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = maxFee,
+    )
+    
+    // Create and sign deploy account transaction
+    val response = provider.deployAccount(payload).send()
+}
+```
+
 # Package com.swmansion.starknet.crypto
 
 Cryptography and signature related classes.
