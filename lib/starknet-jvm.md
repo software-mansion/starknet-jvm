@@ -5,7 +5,7 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, StarkNet-jvm has been created with compatibility with Java in mind.
 
-⚠️Gateway provider is currently marked as deprecated and will soon be removed.
+⚠️Gateway provider is currently marked as deprecated and will soon be removed. Please use JSON-RPC provider instead.
 
 ## Making synchronous requests
 
@@ -18,12 +18,12 @@ import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        Provider provider = GatewayProvider.makeTestnetProvider();
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -47,11 +47,11 @@ public class Main {
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.provider.gateway.GatewayProvider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider.makeTestnetProvider()
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -82,14 +82,14 @@ import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with StarkNet
-        Provider provider = GatewayProvider.makeTestnetProvider();
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -113,12 +113,11 @@ public class Main {
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.provider.gateway.GatewayProvider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with StarkNet
-    val provider = GatewayProvider.makeTestnetProvider()
-
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
     val privateKey = Felt.fromHex("0x4232362662")
@@ -138,7 +137,7 @@ fun main() {
 
 Account interface used to simplify preparing, signing StarkNet transactions and automatic fee estimation.
 
-Example usages of `StandardAccount`
+### Example usages of `StandardAccount`
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -147,13 +146,13 @@ import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Provider provider = GatewayProvider.makeTestnetProvider();
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
         Account account = new StandardAccount(address, privateKey, provider);
@@ -483,9 +482,9 @@ to communicate with the network.
 
 ```java
 // JsonRpcProvider can only be created using constructor
-new JsonRpcProvider("rpcNodeUrl", StarknetChainId.TESTNET);
+new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 // or with a custom HttpService
-new JsonRpcProvider("rpcNodeUrl", StarknetChainId.TESTNET, myHttpService);
+new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET, myHttpService);
 ```
 
 # Package com.swmansion.starknet.service.http
