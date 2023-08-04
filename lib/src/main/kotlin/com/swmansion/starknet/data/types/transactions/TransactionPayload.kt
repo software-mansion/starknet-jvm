@@ -35,7 +35,7 @@ data class InvokeTransactionPayload constructor(
     override val type: TransactionType = TransactionType.INVOKE,
 ) : TransactionPayload() {
 
-    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt ) : this(
+    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
         senderAddress,
         calldata,
         signature,
