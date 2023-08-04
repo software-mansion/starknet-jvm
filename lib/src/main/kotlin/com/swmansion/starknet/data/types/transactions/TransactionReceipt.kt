@@ -30,6 +30,9 @@ enum class TransactionStatus {
 
     @JsonNames("UNKNOWN", "NOT_RECEIVED")
     UNKNOWN,
+
+    @JsonNames("REVERTED")
+    REVERTED,
 }
 
 @OptIn(ExperimentalSerializationApi::class)
