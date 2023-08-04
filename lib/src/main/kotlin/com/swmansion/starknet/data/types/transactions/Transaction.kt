@@ -42,18 +42,6 @@ sealed class Transaction {
     abstract val type: TransactionType
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class TransactionHashPair(
-    @Serializable(with = TransactionPolymorphicSerializer::class)
-    @SerialName("transaction")
-    @JsonNames("txn")
-    val transaction: Transaction,
-
-    @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
-    val hash: Felt,
-)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

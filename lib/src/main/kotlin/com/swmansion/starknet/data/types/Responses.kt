@@ -1,7 +1,8 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.types.transactions.TransactionHashPair
+import com.swmansion.starknet.data.types.transactions.Transaction
+import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -123,7 +124,7 @@ data class SyncingResponse(
 
 @Serializable
 sealed class GetBlockWithTransactionsResponse {
-    abstract val transactions: List<TransactionHashPair>
+    abstract val transactions: List<Transaction>
     abstract val timestamp: Int
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
@@ -158,7 +159,8 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("transactions")
     override val transactions: List<
-        TransactionHashPair,
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
         >,
 
 ) : GetBlockWithTransactionsResponse()
@@ -169,7 +171,8 @@ data class PendingBlockWithTransactionsResponse(
 
     @SerialName("transactions")
     override val transactions: List<
-        TransactionHashPair,
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
         >,
 
     // Block info
