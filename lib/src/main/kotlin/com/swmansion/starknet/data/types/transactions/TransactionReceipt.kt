@@ -69,6 +69,7 @@ sealed class TransactionReceipt {
 
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
+    abstract val revertReason: String?
 
     val isAccepted: Boolean
         get() = (executionStatus == TransactionExecutionStatus.SUCCEEDED)
@@ -160,7 +161,7 @@ data class RpcTransactionReceipt(
     val messagesSent: List<RpcMessageL2ToL1>,
 
     @JsonNames("revert_reason")
-    val revertReason: String?,
+    override val revertReason: String? = null,
 
     @JsonNames("events")
     val events: List<Event>,
@@ -194,7 +195,7 @@ data class DeployRpcTransactionReceipt(
     val messagesSent: List<RpcMessageL2ToL1>,
 
     @JsonNames("revert_reason")
-    val revertReason: String?,
+    override val revertReason: String? = null,
 
     @JsonNames("events")
     val events: List<Event>,
@@ -222,7 +223,7 @@ data class PendingRpcTransactionReceipt(
 
 //    override val status: TransactionStatus = TransactionStatus.PENDING,
     @JsonNames("revert_reason")
-    val revertReason: String?,
+    override val revertReason: String? = null,
 
     @JsonNames("finality_status")
     override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
@@ -250,7 +251,7 @@ data class PendingRpcDeployTransactionReceipt(
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
 
     @JsonNames("revert_reason")
-    val revertReason: String?,
+    override val revertReason: String? = null,
 
     @JsonNames("finality_status")
     override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
