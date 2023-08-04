@@ -18,8 +18,10 @@ object EstimateTransactionFeePayloadSerializer : KSerializer<EstimateTransaction
         require(encoder is JsonEncoder)
 
         val jsonObject = buildJsonObject {
-            putJsonArray("request") { value.request.forEach {
-                add(Json.encodeToJsonElement(JsonRpcTransactionPayloadSerializer, it)) }
+            putJsonArray("request") {
+                value.request.forEach {
+                    add(Json.encodeToJsonElement(JsonRpcTransactionPayloadSerializer, it))
+                }
             }
             put("block_id", value.blockId.toString())
         }

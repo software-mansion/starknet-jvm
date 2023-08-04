@@ -32,7 +32,7 @@ data class InvokeTransactionPayload constructor(
     val nonce: Felt,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE
+    override val type: TransactionType = TransactionType.INVOKE,
 ) : TransactionPayload() {
 
     constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt, type: TransactionType = TransactionType.INVOKE) : this(
@@ -70,7 +70,7 @@ data class DeclareTransactionV1Payload(
     val version: Felt = Felt.ONE,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransactionPayload()
 
 @Serializable
@@ -97,7 +97,7 @@ data class DeclareTransactionV2Payload(
     val version: Felt = Felt(2),
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransactionPayload()
 
 @Serializable
@@ -124,5 +124,5 @@ data class DeployAccountTransactionPayload(
     val signature: Signature,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : TransactionPayload()

@@ -79,7 +79,7 @@ object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransactionPayload
 
         val jsonObject = buildJsonObject {
             put("sender_address", value.senderAddress.hexString())
-            putJsonArray("calldata")  { value.calldata.forEach{ add(it) } }
+            putJsonArray("calldata") { value.calldata.forEach { add(it) } }
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("max_fee", value.maxFee.hexString())
             put("version", value.version)
@@ -107,7 +107,7 @@ object DeployAccountTransactionPayloadSerializer : KSerializer<DeployAccountTran
         val jsonObject = buildJsonObject {
             put("class_hash", value.classHash.hexString())
             put("contract_address_salt", value.salt.hexString())
-            putJsonArray("constructor_calldata")  { value.constructorCalldata.forEach{ add(it) } }
+            putJsonArray("constructor_calldata") { value.constructorCalldata.forEach { add(it) } }
             put("version", value.version)
             put("nonce", value.nonce)
             put("max_fee", value.maxFee.hexString())

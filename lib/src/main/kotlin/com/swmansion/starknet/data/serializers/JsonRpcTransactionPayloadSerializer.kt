@@ -31,11 +31,11 @@ object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
     }
 
     private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransactionPayload =
-            when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-                Felt.ONE.hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
-                Felt(2).hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
-                else -> throw IllegalArgumentException("Invalid declare transaction version")
-            }
+        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+            Felt.ONE.hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
+            Felt(2).hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
+            else -> throw IllegalArgumentException("Invalid declare transaction version")
+        }
 
     override fun serialize(encoder: Encoder, value: TransactionPayload) {
         require(encoder is JsonEncoder)
