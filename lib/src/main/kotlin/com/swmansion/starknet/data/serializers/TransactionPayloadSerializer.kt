@@ -2,6 +2,8 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.DeclareTransactionV1Payload
 import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
+import com.swmansion.starknet.data.types.transactions.InvokeTransactionPayload
 import com.swmansion.starknet.extensions.add
 import com.swmansion.starknet.extensions.put
 import kotlinx.serialization.KSerializer
@@ -62,6 +64,61 @@ object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2P
     }
 
     override fun deserialize(decoder: Decoder): DeclareTransactionV2Payload {
+        throw SerializationException("Class used for serialization only.")
+    }
+}
+
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransactionPayload> {
+
+    override val descriptor: SerialDescriptor
+        get() = DeclareTransactionV1Payload.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: InvokeTransactionPayload) {
+        require(encoder is JsonEncoder)
+
+        val jsonObject = buildJsonObject {
+            put("sender_address", value.senderAddress.hexString())
+            putJsonArray("calldata")  { value.calldata.forEach{ add(it) } }
+            putJsonArray("signature") { value.signature.forEach { add(it) } }
+            put("max_fee", value.maxFee.hexString())
+            put("version", value.version)
+            put("nonce", value.nonce)
+            put("type", value.type.toString())
+        }
+
+        encoder.encodeJsonElement(jsonObject)
+    }
+
+    override fun deserialize(decoder: Decoder): InvokeTransactionPayload {
+        throw SerializationException("Class used for serialization only.")
+    }
+}
+
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+object DeployAccountTransactionPayloadSerializer : KSerializer<DeployAccountTransactionPayload> {
+
+    override val descriptor: SerialDescriptor
+        get() = DeclareTransactionV1Payload.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: DeployAccountTransactionPayload) {
+        require(encoder is JsonEncoder)
+
+        val jsonObject = buildJsonObject {
+            put("class_hash", value.classHash.hexString())
+            put("contract_address_salt", value.salt.hexString())
+            putJsonArray("constructor_calldata")  { value.constructorCalldata.forEach{ add(it) } }
+            put("version", value.version)
+            put("nonce", value.nonce)
+            put("max_fee", value.maxFee.hexString())
+            putJsonArray("signature") { value.signature.forEach { add(it) } }
+            put("type", value.type.toString())
+        }
+
+        encoder.encodeJsonElement(jsonObject)
+    }
+
+    override fun deserialize(decoder: Decoder): DeployAccountTransactionPayload {
         throw SerializationException("Class used for serialization only.")
     }
 }
