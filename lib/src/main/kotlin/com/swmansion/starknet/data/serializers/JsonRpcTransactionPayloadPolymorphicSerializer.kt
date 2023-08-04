@@ -19,6 +19,6 @@ internal object JsonRpcTransactionPayloadPolymorphicSerializer :
         when (element.jsonObject["version"]?.jsonPrimitive?.content) {
             Felt.ONE.hexString() -> DeclareTransactionV1Payload.serializer()
             Felt(2).hexString() -> DeclareTransactionV2Payload.serializer()
-            else -> throw IllegalArgumentException("Invalid invoke transaction version")
+            else -> throw IllegalArgumentException("Invalid declare transaction version")
         }
 }
