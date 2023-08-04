@@ -5,8 +5,7 @@ import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable(with = JsonRpcTransactionPayloadPolymorphicSerializer::class)
-sealed class TransactionPayload
+@Serializable
 
 @Serializable
 data class InvokeTransactionPayload constructor(
