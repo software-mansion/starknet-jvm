@@ -17,7 +17,6 @@ object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
     override val descriptor: SerialDescriptor
         get() = TransactionPayload.serializer().descriptor
 
-    // TODO: Consider removing deserialize methods altogether
     override fun deserialize(decoder: Decoder): TransactionPayload {
         require(decoder is JsonDecoder)
         val element = decoder.decodeJsonElement()
@@ -31,11 +30,11 @@ object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
     }
 
     private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransactionPayload =
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ONE.hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
-            Felt(2).hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
-            else -> throw IllegalArgumentException("Invalid declare transaction version")
-        }
+            when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+                Felt.ONE.hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
+                Felt(2).hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
+                else -> throw IllegalArgumentException("Invalid declare transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
+            }
 
     override fun serialize(encoder: Encoder, value: TransactionPayload) {
         require(encoder is JsonEncoder)
@@ -45,7 +44,7 @@ object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
             is DeclareTransactionV1Payload -> Json.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, value).jsonObject
             is DeclareTransactionV2Payload -> Json.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, value).jsonObject
             is DeployAccountTransactionPayload -> Json.encodeToJsonElement(DeployAccountTransactionPayloadSerializer, value).jsonObject
-            else -> throw IllegalArgumentException("Invalid transaction payload type")
+            else -> throw IllegalArgumentException("Invalid transaction payload type [${value.type}]")
         }
 
         encoder.encodeJsonElement(jsonObject)
