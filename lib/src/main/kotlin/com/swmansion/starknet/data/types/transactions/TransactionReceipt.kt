@@ -75,7 +75,10 @@ sealed class TransactionReceipt {
     abstract val revertReason: String?
 
     val isAccepted: Boolean
-        get() = (executionStatus == TransactionExecutionStatus.SUCCEEDED)
+        get() = (
+            executionStatus == TransactionExecutionStatus.SUCCEEDED &&
+                (finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
+            )
 }
 
 @Serializable
