@@ -11,16 +11,16 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
 import java.math.BigInteger
 import java.nio.file.Path
@@ -54,6 +54,58 @@ class ProviderTest {
 
         @JvmStatic
         private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
+
+        @JvmStatic
+        private fun mockUpdatedReceiptRpcProvider(sourceProvider: Provider? = null): JsonRpcProvider {
+            val mockHttpService = spy(OkHttpService())
+
+            doAnswer { invocation ->
+                val originalHttpResponse = invocation.callRealMethod() as HttpResponse
+                val originalJson = Json.parseToJsonElement(originalHttpResponse.body) as JsonObject
+                val status = originalJson["result"]!!.jsonObject["status"]?.jsonPrimitive?.content
+                    ?: TransactionFinalityStatus.ACCEPTED_ON_L1.toString()
+
+                val acceptedStatuses = listOf(
+                    TransactionStatus.ACCEPTED_ON_L1.toString(),
+                    TransactionStatus.ACCEPTED_ON_L2.toString(),
+                )
+                val executionStatus = when (status) {
+                    in acceptedStatuses -> TransactionExecutionStatus.SUCCEEDED.toString()
+                    else -> TransactionExecutionStatus.REVERTED.toString()
+                }
+
+                val modifiedJson = JsonObject(
+                    originalJson["result"]!!.jsonObject.toMutableMap().apply {
+                        remove("status")
+                        put("finality_status", JsonPrimitive(status))
+                        put("execution_status", JsonPrimitive(executionStatus))
+                    },
+                )
+                val mergedJson = JsonObject(
+                    originalJson.toMutableMap().apply {
+                        this["result"] = modifiedJson
+                    },
+                )
+                return@doAnswer HttpResponse(
+                    isSuccessful = originalHttpResponse.isSuccessful,
+                    code = originalHttpResponse.code,
+                    body = mergedJson.toString(),
+                )
+            }.`when`(mockHttpService).send(any())
+
+            return when (sourceProvider) {
+                is JsonRpcProvider -> JsonRpcProvider(
+                    sourceProvider.url,
+                    sourceProvider.chainId,
+                    mockHttpService,
+                )
+                else -> JsonRpcProvider(
+                    devnetClient.rpcUrl,
+                    StarknetChainId.TESTNET,
+                    mockHttpService,
+                )
+            }
+        }
 
         @JvmStatic
         private fun isAccepted(receipt: TransactionReceipt): Boolean {
