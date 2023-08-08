@@ -469,7 +469,6 @@ class ProviderTest {
                             "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
                             "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
                             "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
-                            "status": "ACCEPTED_ON_L1",
                             "finality_status": "ACCEPTED_ON_L1",
                             "execution_status": "SUCCEEDED",
                             "block_number": 264715,
