@@ -206,8 +206,8 @@ data class DeclareTransactionV1(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
-    @SerialName("contract_class")
-    val contractDefinition: Cairo0ContractDefinition? = null,
+//    @SerialName("contract_class")
+    private val contractDefinition: Cairo0ContractDefinition? = null,
 
 //        @SerialName("contract_class")
 //        val contractClass: DeprecatedContractClass? = null,
@@ -264,8 +264,8 @@ data class DeclareTransactionV2(
 //  @SerialName("contract_class")
 //  val contractClass: ContractClass,
 
-    @SerialName("contract_class")
-    val contractDefinition: Cairo1ContractDefinition? = null,
+//    @SerialName("contract_class")
+    private val contractDefinition: Cairo1ContractDefinition? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
