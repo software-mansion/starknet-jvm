@@ -420,6 +420,9 @@ class StandardAccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute single call with specific fee`(accountAndProvider: AccountAndProvider) {
+        // Note to future developers experiencing failures in this test:
+        // If the max fee is too low the transaction may fail with 500 error code (RPC).
+
         val (account, provider) = accountAndProvider
         val receiptProvider = when (provider) {
             is GatewayProvider -> provider
@@ -433,7 +436,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
 
-        val maxFee = Felt(10000000L)
+        val maxFee = Felt(1000000000000000L)
         val result = account.execute(call, maxFee).send()
         assertNotNull(result)
 
