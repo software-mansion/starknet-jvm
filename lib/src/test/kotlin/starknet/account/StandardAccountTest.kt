@@ -170,7 +170,7 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `estimate fee for declare transaction`(accountAndProvider: AccountAndProvider) {
+    fun `estimate fee for declare v1 transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
@@ -179,7 +179,7 @@ class StandardAccountTest {
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x37475b8cd1e7360416bae6bc332ba4bc50936cd2d0f9f2207507acbac172e8d")
+        val classHash = Felt.fromHex("0x320aba87b66c023b2db943b9d32bc0f8e3d72625b475e1dc77e4d2f21721d43")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -254,7 +254,7 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
+    fun `sign and send declare v1 transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         val receiptProvider = when (provider) {
             is GatewayProvider -> provider
@@ -273,7 +273,7 @@ class StandardAccountTest {
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
-            ExecutionParams(nonce, Felt(1000000000000000)),
+            ExecutionParams(nonce, Felt(1000000000000000L)),
         )
 
         val request = provider.declareContract(declareTransactionPayload)
