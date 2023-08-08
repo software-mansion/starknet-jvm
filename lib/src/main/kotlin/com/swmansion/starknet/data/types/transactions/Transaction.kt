@@ -2,7 +2,6 @@ package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
-import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -41,7 +40,6 @@ sealed class Transaction {
     abstract val nonce: Felt
     abstract val type: TransactionType
 }
-
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -243,7 +241,7 @@ data class DeclareTransactionV2(
     @SerialName("sender_address")
     val senderAddress: Felt,
 
-        // not in RPC spec
+    // not in RPC spec
     @SerialName("transaction_hash")
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
@@ -451,13 +449,13 @@ object TransactionFactory {
         signature: Signature = emptyList(),
     ): DeclareTransactionV1 {
         val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
-                classHash = classHash,
-                chainId = chainId,
-                senderAddress = senderAddress,
-                maxFee = maxFee,
-                version = version,
-                nonce = nonce,
-            )
+            classHash = classHash,
+            chainId = chainId,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            version = version,
+            nonce = nonce,
+        )
         return DeclareTransactionV1(
             classHash = classHash,
             senderAddress = senderAddress,

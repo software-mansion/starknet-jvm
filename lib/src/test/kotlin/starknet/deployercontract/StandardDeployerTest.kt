@@ -103,8 +103,8 @@ object StandardDeployerTest {
             is JsonRpcProvider -> {
                 val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
                 Pair(
-                        StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
-                        mockProvider,
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
                 )
             }
             else -> throw IllegalStateException("Unknown provider type")
@@ -127,8 +127,8 @@ object StandardDeployerTest {
             is JsonRpcProvider -> {
                 val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
                 Pair(
-                        StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
-                        mockProvider,
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
                 )
             }
             else -> throw IllegalStateException("Unknown provider type")
@@ -151,8 +151,8 @@ object StandardDeployerTest {
             is JsonRpcProvider -> {
                 val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
                 Pair(
-                        StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
-                        mockProvider,
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
                 )
             }
             else -> throw IllegalStateException("Unknown provider type")

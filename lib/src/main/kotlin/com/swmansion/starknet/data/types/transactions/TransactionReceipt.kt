@@ -127,6 +127,9 @@ data class GatewayTransactionReceipt(
     @JsonNames("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
+    @JsonNames("revert_error", "revert_reason")
+    override val revertReason: String? = null,
+
     @JsonNames("transaction_failure_reason")
     val failureReason: GatewayFailureReason? = null,
 
