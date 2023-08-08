@@ -11,7 +11,6 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
-import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
@@ -22,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
+import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -54,58 +54,6 @@ class ProviderTest {
 
         @JvmStatic
         private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
-
-        @JvmStatic
-        private fun mockUpdatedReceiptRpcProvider(sourceProvider: Provider? = null): JsonRpcProvider {
-            val mockHttpService = spy(OkHttpService())
-
-            doAnswer { invocation ->
-                val originalHttpResponse = invocation.callRealMethod() as HttpResponse
-                val originalJson = Json.parseToJsonElement(originalHttpResponse.body) as JsonObject
-                val status = originalJson["result"]!!.jsonObject["status"]?.jsonPrimitive?.content
-                    ?: TransactionFinalityStatus.ACCEPTED_ON_L1.toString()
-
-                val acceptedStatuses = listOf(
-                    TransactionStatus.ACCEPTED_ON_L1.toString(),
-                    TransactionStatus.ACCEPTED_ON_L2.toString(),
-                )
-                val executionStatus = when (status) {
-                    in acceptedStatuses -> TransactionExecutionStatus.SUCCEEDED.toString()
-                    else -> TransactionExecutionStatus.REVERTED.toString()
-                }
-
-                val modifiedJson = JsonObject(
-                    originalJson["result"]!!.jsonObject.toMutableMap().apply {
-                        remove("status")
-                        put("finality_status", JsonPrimitive(status))
-                        put("execution_status", JsonPrimitive(executionStatus))
-                    },
-                )
-                val mergedJson = JsonObject(
-                    originalJson.toMutableMap().apply {
-                        this["result"] = modifiedJson
-                    },
-                )
-                return@doAnswer HttpResponse(
-                    isSuccessful = originalHttpResponse.isSuccessful,
-                    code = originalHttpResponse.code,
-                    body = mergedJson.toString(),
-                )
-            }.`when`(mockHttpService).send(any())
-
-            return when (sourceProvider) {
-                is JsonRpcProvider -> JsonRpcProvider(
-                    sourceProvider.url,
-                    sourceProvider.chainId,
-                    mockHttpService,
-                )
-                else -> JsonRpcProvider(
-                    devnetClient.rpcUrl,
-                    StarknetChainId.TESTNET,
-                    mockHttpService,
-                )
-            }
-        }
 
         @JvmStatic
         private fun isAccepted(receipt: TransactionReceipt): Boolean {
@@ -488,6 +436,8 @@ class ProviderTest {
                         },
                         "l2_to_l1_messages": [],
                         "status": "ACCEPTED_ON_L1",
+                        "finality_status": "ACCEPTED_ON_L1",
+                        "execution_status": "SUCCEEDED",
                         "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
                         "transaction_index": 8
                     }
@@ -519,6 +469,8 @@ class ProviderTest {
                             "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
                             "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
                             "status": "ACCEPTED_ON_L1",
+                            "finality_status": "ACCEPTED_ON_L1",
+                            "execution_status": "SUCCEEDED",
                             "block_number": 264715,
                             "type": "DEPLOY",
                             "events":
@@ -540,7 +492,13 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get declare transaction receipt`(provider: Provider) {
+    fun `get declare transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val request = provider.getTransactionReceipt(declareTransactionHash)
         val response = request.send()
 
@@ -555,7 +513,13 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get invoke transaction receipt`(provider: Provider) {
+    fun `get invoke transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
@@ -579,6 +543,8 @@ class ProviderTest {
                 """
                 {
                     "status": "ACCEPTED_ON_L2",
+                    "finality_status": "ACCEPTED_ON_L2",
+                    "execution_status": "SUCCEEDED",
                     "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
                     "block_number": 392723,
                     "transaction_index": 13,
@@ -655,7 +621,8 @@ class ProviderTest {
                         "result": {
                             "transaction_hash": "0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7",
                             "actual_fee": "0x0",
-                            "status": "ACCEPTED_ON_L2",
+                            "finality_status": "ACCEPTED_ON_L2",
+                            "execution_status": "SUCCEEDED",
                             "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
                             "block_number": 392723,
                             "type": "L1_HANDLER",
@@ -800,7 +767,13 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get deploy account transaction receipt`(provider: Provider) {
+    fun `get deploy account transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
 
         if (provider is GatewayProvider) {
@@ -1110,7 +1083,9 @@ class ProviderTest {
                 200,
                 """
                 {
-                    "status": "RECEIVED", 
+                    "status": "RECEIVED",
+                    "finality_status": "RECEIVED",
+                    "execution_status": "SUCCEEDED",
                     "transaction_hash": "0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5", 
                     "l2_to_l1_messages": [], 
                     "events": []

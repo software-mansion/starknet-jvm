@@ -28,6 +28,7 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.ContractDeployer
 import starknet.utils.DevnetClient
+import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -255,6 +256,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign and send declare transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
@@ -271,7 +278,8 @@ class StandardAccountTest {
 
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
 
         assertNotNull(result)
         assertNotNull(receipt)
@@ -282,6 +290,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
         val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
 
@@ -296,7 +310,8 @@ class StandardAccountTest {
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
         assertNotNull(result)
         assertNotNull(receipt)
         assertTrue(receipt.isAccepted)
@@ -306,6 +321,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign single call test`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
@@ -320,8 +341,8 @@ class StandardAccountTest {
         val payload = account.sign(call, params)
         val request = provider.invokeFunction(payload)
         val response = request.send()
-        val receipt = provider.getTransactionReceipt(response.transactionHash).send()
 
+        val receipt = receiptProvider.getTransactionReceipt(response.transactionHash).send()
         assertTrue(receipt.isAccepted)
     }
 
@@ -376,6 +397,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `execute single call`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
@@ -385,7 +412,7 @@ class StandardAccountTest {
         val result = account.execute(call).send()
         assertNotNull(result)
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
     }
@@ -394,6 +421,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `execute single call with specific fee`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
@@ -404,7 +437,7 @@ class StandardAccountTest {
         val result = account.execute(call, maxFee).send()
         assertNotNull(result)
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.actualFee!! < maxFee)
     }
@@ -413,6 +446,11 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `sign multiple calls test`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
 
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -427,7 +465,7 @@ class StandardAccountTest {
 
         val payload = account.sign(listOf(call, call, call), params)
         val response = provider.invokeFunction(payload).send()
-        val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+        val receipt = receiptProvider.getTransactionReceipt(response.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
     }
@@ -436,6 +474,12 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `execute multiple calls`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val call1 = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
@@ -451,7 +495,7 @@ class StandardAccountTest {
         val result = account.execute(listOf(call1, call2)).send()
         assertNotNull(result)
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
     }
@@ -459,7 +503,13 @@ class StandardAccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `two executes with single call`(accountAndProvider: AccountAndProvider) {
-        val (account, provider) = accountAndProvider
+        val (account, sourceProvider) = accountAndProvider
+        val receiptProvider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val call = Call(
             contractAddress = balanceContractAddress,
             calldata = listOf(Felt(10)),
@@ -469,7 +519,7 @@ class StandardAccountTest {
         val result = account.execute(call).send()
         assertNotNull(result)
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
         assertTrue(receipt.isAccepted)
 
         val call2 = Call(
@@ -481,7 +531,7 @@ class StandardAccountTest {
         val result2 = account.execute(call2).send()
         assertNotNull(result)
 
-        val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
+        val receipt2 = receiptProvider.getTransactionReceipt(result2.transactionHash).send()
         assertTrue(receipt2.isAccepted)
     }
 
@@ -571,6 +621,12 @@ class StandardAccountTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `deploy account`(provider: Provider) {
+        val receiptProvider = when (provider) {
+            is GatewayProvider -> provider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -619,7 +675,8 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
         )
         val result = account.execute(call).send()
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
         assertTrue(receipt.isAccepted)
     }
 
