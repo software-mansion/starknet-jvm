@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
+import com.swmansion.starknet.data.types.transactions.Transaction
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
