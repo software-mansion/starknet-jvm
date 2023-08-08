@@ -75,8 +75,8 @@ val compileContracts = task<Exec>("compileContracts") {
     val sourceDirectoryV0 = "${project.projectDir}/src/test/resources/src_v0"
     val sourceDirectoryV1 = "${project.projectDir}/src/test/resources/src_v1"
 
-    val compileDirectoryV0 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v0")
-    val compileDirectoryV1 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v1")
+    val compileDirectoryV0 = "${project.projectDir}/src/test/resources/compiled_v0"
+    val compileDirectoryV1 = "${project.projectDir}/src/test/resources/compiled_v1"
 
     inputs.file(compileScriptPath)
     inputs.dir(sourceDirectoryV0)
