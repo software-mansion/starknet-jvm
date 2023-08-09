@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -323,9 +322,8 @@ class GettersTest {
         assertNotNull(feeEstimateRequest)
         val feeEstimate = feeEstimateRequest.send().first()
         assertNotNull(feeEstimate)
-        assertNotEquals(Felt(0),feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0),feeEstimate.gasPrice)
-        assertNotEquals(Felt(0),feeEstimate.overallFee)
-
+        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.gasPrice)
+        assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 }
