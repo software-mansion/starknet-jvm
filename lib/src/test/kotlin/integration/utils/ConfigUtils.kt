@@ -35,7 +35,7 @@ class ConfigUtils {
 
         fun isTestSetSkipped(name: String): Boolean {
             val screamingSnakeName = name.replace(Regex("([a-z])([A-Z])"), "$1_$2")?.uppercase()
-            val envVar = "STARKNET_JVM_SKIP_$screamingSnakeName"
+            val envVar = "STARKNET_JVM_SKIP_INTEGRATION_$screamingSnakeName"
 
             return System.getenv(envVar)?.lowercase()?.toBoolean() ?: false
         }
