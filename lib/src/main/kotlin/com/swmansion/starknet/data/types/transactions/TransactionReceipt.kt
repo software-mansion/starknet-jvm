@@ -77,6 +77,7 @@ sealed class TransactionReceipt {
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
     abstract val revertReason: String?
+    abstract val events: List<Event>
 
     val isAccepted: Boolean
         get() = (
@@ -105,7 +106,7 @@ data class GatewayFailureReason(
 @Serializable
 data class GatewayTransactionReceipt(
     @JsonNames("events")
-    val events: List<Event>,
+    override val events: List<Event>,
 
     @JsonNames("l2_to_l1_messages")
     val messagesL2ToL1: List<GatewayMessageL2ToL1>,
@@ -153,9 +154,6 @@ data class RpcTransactionReceipt(
     @JsonNames("actual_fee")
     override val actualFee: Felt,
 
-//    @JsonNames("status")
-//    override val status: TransactionStatus,
-
     @JsonNames("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
@@ -177,7 +175,7 @@ data class RpcTransactionReceipt(
     override val revertReason: String? = null,
 
     @JsonNames("events")
-    val events: List<Event>,
+    override val events: List<Event>,
 
 ) : ProcessedTransactionReceipt()
 
@@ -211,7 +209,7 @@ data class DeployRpcTransactionReceipt(
     override val revertReason: String? = null,
 
     @JsonNames("events")
-    val events: List<Event>,
+    override val events: List<Event>,
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
@@ -230,7 +228,7 @@ data class PendingRpcTransactionReceipt(
     val messagesSent: List<RpcMessageL2ToL1>,
 
     @JsonNames("events")
-    val events: List<Event>,
+    override val events: List<Event>,
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING,
 
@@ -259,7 +257,7 @@ data class PendingRpcDeployTransactionReceipt(
     val messagesSent: List<RpcMessageL2ToL1>,
 
     @JsonNames("events")
-    val events: List<Event>,
+    override val events: List<Event>,
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
 
