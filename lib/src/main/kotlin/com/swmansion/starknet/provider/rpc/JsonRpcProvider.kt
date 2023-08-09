@@ -375,7 +375,7 @@ class JsonRpcProvider(
     }
 
     private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<List<EstimateFeeResponse>> {
-        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(EstimateTransactionFeePayloadSerializer, payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
