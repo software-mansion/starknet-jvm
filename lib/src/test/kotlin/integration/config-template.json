@@ -1,0 +1,7 @@
+{
+  "rpc_url": "http://example-node-url.com/rpc",
+  "gateway_url": "http://example.com/gateway",
+  "feeder_gateway_url": "http://example.com/feeder_gateway",
+  "private_key": "0x123456789",
+  "integration_account_address": "0x123456789123456789123456789123456789123456789123456789123456789"
+}
