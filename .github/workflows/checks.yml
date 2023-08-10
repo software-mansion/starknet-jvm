@@ -15,7 +15,12 @@ jobs:
         ]
 
     runs-on: ${{ matrix.os }}
-    environment: integration-tests
+    env:
+      STARKNET_JVM_INTEGRATION_TEST_SOURCE: "env"
+      STARKNET_JVM_SKIP_INTEGRATION_GETTERS_TEST: "false"
+      STARKNET_JVM_RPC_URL: ${{ secrets.STARKNET_JVM_RPC_URL }}
+      STARKNET_JVM_INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.STARKNET_JVM_INTEGRATION_ACCOUNT_ADDRESS }}
+      STARKNET_JVM_INTEGRATION_PRIVATE_KEY: ${{ secrets.STARKNET_JVM_INTEGRATION_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v3
         with:

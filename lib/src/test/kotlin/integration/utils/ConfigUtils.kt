@@ -50,8 +50,8 @@ class ConfigUtils {
                         ?: throw RuntimeException("INTEGRATION_ACCOUNT_ADDRESS not found in environment variables"),
                 ),
                 privateKey = Felt.fromHex(
-                    System.getenv("STARKNET_JVM_PRIVATE_KEY")
-                        ?: throw RuntimeException("PRIVATE_KEY not found in environment variables"),
+                    System.getenv("STARKNET_JVM_INTEGRATION_PRIVATE_KEY")
+                        ?: throw RuntimeException("INTEGRATION_PRIVATE_KEY not found in environment variables"),
                 ),
             )
         }
