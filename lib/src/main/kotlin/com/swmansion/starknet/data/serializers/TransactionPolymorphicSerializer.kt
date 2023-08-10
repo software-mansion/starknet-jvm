@@ -22,13 +22,13 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         when (element.jsonObject["version"]?.jsonPrimitive?.content) {
             Felt.ONE.hexString() -> InvokeTransactionV1.serializer()
             Felt.ZERO.hexString() -> InvokeTransactionV0.serializer()
-            else -> throw IllegalArgumentException("Invalid invoke transaction version")
+            else -> throw IllegalArgumentException("Invalid invoke transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
         }
 
     private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> =
         when (element.jsonObject["version"]?.jsonPrimitive?.content) {
             Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
             Felt(2).hexString() -> DeclareTransactionV2.serializer()
-            else -> throw IllegalArgumentException("Invalid invoke transaction version")
+            else -> throw IllegalArgumentException("Invalid invoke transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
         }
 }

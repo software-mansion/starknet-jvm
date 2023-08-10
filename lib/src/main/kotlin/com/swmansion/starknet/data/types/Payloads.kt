@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.JsonRpcTransactionPayloadSerializer
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -45,7 +46,10 @@ data class GetTransactionReceiptPayload(
 @Serializable
 data class EstimateTransactionFeePayload(
     @SerialName("request")
-    val request: List<TransactionPayload>,
+    val request: List<
+        @Serializable(with = JsonRpcTransactionPayloadSerializer::class)
+        TransactionPayload,
+        >,
 
     @SerialName("block_id")
     override val blockId: BlockId,
@@ -102,7 +106,10 @@ data class GetTransactionByBlockIdAndIndexPayload(
 @Serializable
 data class SimulateTransactionsPayload(
     @SerialName("transactions")
-    val transactions: List<TransactionPayload>,
+    val transactions: List<
+        @Serializable(with = JsonRpcTransactionPayloadSerializer::class)
+        TransactionPayload,
+        >,
 
     @SerialName("block_id")
     override val blockId: BlockId,

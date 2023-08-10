@@ -1,12 +1,14 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.serializers.JsonRpcTransactionPayloadPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable(with = JsonRpcTransactionPayloadPolymorphicSerializer::class)
-sealed class TransactionPayload
+@Serializable
+sealed class TransactionPayload() {
+    @SerialName("type")
+    abstract val type: TransactionType
+}
 
 @Serializable
 data class InvokeTransactionPayload constructor(
@@ -28,9 +30,10 @@ data class InvokeTransactionPayload constructor(
 
     @SerialName("nonce")
     val nonce: Felt,
-) : TransactionPayload() {
+
     @SerialName("type")
-    val type: TransactionType = TransactionType.INVOKE
+    override val type: TransactionType = TransactionType.INVOKE,
+) : TransactionPayload() {
 
     constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
         senderAddress,
@@ -39,6 +42,7 @@ data class InvokeTransactionPayload constructor(
         maxFee,
         INVOKE_VERSION,
         nonce,
+        TransactionType.INVOKE,
     )
 }
 
@@ -64,10 +68,10 @@ data class DeclareTransactionV1Payload(
 
     @SerialName("version")
     val version: Felt = Felt.ONE,
-) : DeclareTransactionPayload() {
+
     @SerialName("type")
-    val type: TransactionType = TransactionType.DECLARE
-}
+    override val type: TransactionType = TransactionType.DECLARE,
+) : DeclareTransactionPayload()
 
 @Serializable
 data class DeclareTransactionV2Payload(
@@ -91,10 +95,10 @@ data class DeclareTransactionV2Payload(
 
     @SerialName("version")
     val version: Felt = Felt(2),
-) : DeclareTransactionPayload() {
+
     @SerialName("type")
-    val type: TransactionType = TransactionType.DECLARE
-}
+    override val type: TransactionType = TransactionType.DECLARE,
+) : DeclareTransactionPayload()
 
 @Serializable
 data class DeployAccountTransactionPayload(
@@ -118,7 +122,7 @@ data class DeployAccountTransactionPayload(
 
     @SerialName("signature")
     val signature: Signature,
-) : TransactionPayload() {
+
     @SerialName("type")
-    val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
-}
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+) : TransactionPayload()
