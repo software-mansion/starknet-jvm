@@ -289,6 +289,9 @@ class GettersTest {
     @MethodSource("getAccounts")
     fun `estimate declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
+        // TODO: find a better account that has a non-changing nonce
+        assumeFalse(provider is GatewayProvider)
+
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
