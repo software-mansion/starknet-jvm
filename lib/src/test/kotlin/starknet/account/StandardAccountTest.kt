@@ -202,55 +202,58 @@ class StandardAccountTest {
         assertNotNull(feeEstimate)
     }
 
-    // @Test
-    // fun `mock estimate message fee`() {
-    //     // Note for future developers experiencing failures in this test:
-    //     // This test is designed with RPC 0.3.1 in mind (which was never released).
-    //     // The schema will be changed as of RPC 0.4.0 and provider.getEstimateMessageFee will have a different payload.
+    @Test
+    fun `estimate message fee`() {
+        // TODO: update with a real test (pending devnet update)
 
-    //     val gasConsumed = Felt(45100)
-    //     val gasPrice = Felt(2)
-    //     val overallFee = Felt(45100 * 2)
-    //     val mockedResponse =
-    //         """
-    //     {
-    //         "id": 0,
-    //         "jsonrpc": "2.0",
-    //         "result":
-    //         {
-    //             "gas_consumed": "${gasConsumed.hexString()}",
-    //             "gas_price": "${gasPrice.hexString()}",
-    //             "overall_fee": "${overallFee.hexString()}"
-    //         }
-    //     }
-    //         """.trimIndent()
-    //     val blockNumber = 123456789
-    //     val httpService = mock<HttpService> {
-    //         on { send(any()) } doReturn HttpResponse(
-    //             isSuccessful = true,
-    //             code = 200,
-    //             body = mockedResponse,
-    //         )
-    //     }
-    //     val messageCall = Call(
-    //         contractAddress = balanceContractAddress,
-    //         calldata = listOf(Felt(10)),
-    //         entrypoint = "increase_balance",
-    //     )
+        val gasConsumed = Felt(45100)
+        val gasPrice = Felt(2)
+        val overallFee = Felt(45100 * 2)
+        val mockedResponse =
+            """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result":
+            {
+                "gas_consumed": "${gasConsumed.hexString()}",
+                "gas_price": "${gasPrice.hexString()}",
+                "overall_fee": "${overallFee.hexString()}"
+            }
+        }
+            """.trimIndent()
+        val blockNumber = 123456789
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                isSuccessful = true,
+                code = 200,
+                body = mockedResponse,
+            )
+        }
 
-    //     val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
-    //     val request = provider.getEstimateMessageFee(
-    //         message = messageCall,
-    //         senderAddress = balanceContractAddress,
-    //         blockNumber = blockNumber,
-    //     )
-    //     val response = request.send()
+        val message = RpcMessageL1ToL2(
+            fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
+            toAddress = Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82"),
+            selector = Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5"),
+            payload = listOf(
+                Felt.fromHex("0x54d01e5fc6eb4e919ceaab6ab6af192e89d1beb4f29d916768c61a4d48e6c95"),
+                Felt.fromHex("0x38d7ea4c68000"),
+                Felt.fromHex("0x0"),
+            ),
+        )
 
-    //     assertNotNull(response)
-    //     assertEquals(gasPrice, response.gasPrice)
-    //     assertEquals(gasConsumed, response.gasConsumed)
-    //     assertEquals(overallFee, response.overallFee)
-    // }
+        val provider = JsonRpcProvider("example-url.com/rpc/v4", StarknetChainId.TESTNET, httpService)
+        val request = provider.getEstimateMessageFee(
+            message = message,
+            blockNumber = blockNumber,
+        )
+        val response = request.send()
+
+        assertNotNull(response)
+        assertEquals(gasPrice, response.gasPrice)
+        assertEquals(gasConsumed, response.gasConsumed)
+        assertEquals(overallFee, response.overallFee)
+    }
 
     @ParameterizedTest
     @MethodSource("getAccounts")
@@ -309,7 +312,7 @@ class StandardAccountTest {
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             contractCasmDefinition,
-            ExecutionParams(nonce, Felt(1000000000000000)),
+            ExecutionParams(nonce, Felt(1000000000000000L)),
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()

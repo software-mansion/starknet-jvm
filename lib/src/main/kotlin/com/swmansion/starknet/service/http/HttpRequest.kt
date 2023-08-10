@@ -16,9 +16,7 @@ class HttpRequest<T>(
 ) : Request<T> {
 
     override fun send(): T {
-        println("IN: ${payload.body}")
         val response = service.send(payload)
-        println("OUT: ${response.body}")
         return deserializer.apply(response)
     }
 
