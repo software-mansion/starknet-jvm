@@ -71,7 +71,7 @@ class ConfigUtils {
 
                 return when (configSource) {
                     "env" -> makeConfigFromEnv()
-                    "file" -> makeConfigFromFile("src/test/kotlin/integration/config.json")
+                    "file" -> makeConfigFromFile("integration-tests-config.json")
                     else -> throw IllegalStateException("Invalid configuration source provided")
                 }
             }

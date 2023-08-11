@@ -48,7 +48,7 @@ venv
 # Exclude account temp files
 lib/src/test/resources/*account
 lib/src/test/resources/compiled*
-lib/src/test/kotlin/integration/config.json
+lib/integration-tests-config.json
 
 # Exclude native builds outputs
 crypto/pedersen/crypto-cpp
