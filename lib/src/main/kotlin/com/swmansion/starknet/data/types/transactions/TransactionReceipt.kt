@@ -38,8 +38,6 @@ enum class TransactionStatus {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionExecutionStatus {
-    // Remove normal case jsonNames when pathfinder is updated
-
     @JsonNames("SUCCEEDED", "Succeeded")
     SUCCEEDED,
 
@@ -53,8 +51,6 @@ enum class TransactionExecutionStatus {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionFinalityStatus {
-    // Remove normal case jsonNames when pathfinder is updated
-
     @JsonNames("ACCEPTED_ON_L1", "AcceptedOnL1")
     ACCEPTED_ON_L1,
 
@@ -73,7 +69,6 @@ sealed class TransactionReceipt {
     abstract val hash: Felt
     abstract val actualFee: Felt?
     abstract val type: TransactionReceiptType
-
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
     abstract val revertReason: String?

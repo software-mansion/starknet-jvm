@@ -175,7 +175,6 @@ class GettersTest {
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNotNull(receipt.revertReason)
-        //        println(receipt.revertReason)
 
         if (provider is GatewayProvider) {
             receipt = receipt as GatewayTransactionReceipt
@@ -305,7 +304,7 @@ class GettersTest {
             classHash,
             ExecutionParams(
                 nonce = nonce,
-                maxFee = Felt(1000000000000000),
+                maxFee = Felt(1000000000000000L),
             ),
         )
 

@@ -206,12 +206,8 @@ data class DeclareTransactionV1(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
-//    @SerialName("contract_class")
-    private val contractDefinition: Cairo0ContractDefinition? = null,
-
-//        @SerialName("contract_class")
-//        val contractClass: DeprecatedContractClass? = null,
-
+    @SerialName("contract_class")
+    val contractDefinition: Cairo0ContractDefinition? = null,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV1Payload {
@@ -233,8 +229,6 @@ data class DeclareTransactionV1(
 @Serializable
 @SerialName("DECLARE")
 data class DeclareTransactionV2(
-    // TODO: Make this Felt.ZERO instead?
-    //       There shouldn't be any situation where we create this dataclasses with this value set to null
     @SerialName("class_hash")
     val classHash: Felt? = null,
 
@@ -261,11 +255,8 @@ data class DeclareTransactionV2(
     @SerialName("compiled_class_hash")
     val compiledClassHash: Felt,
 
-//  @SerialName("contract_class")
-//  val contractClass: ContractClass,
-
-//    @SerialName("contract_class")
-    private val contractDefinition: Cairo1ContractDefinition? = null,
+    @SerialName("contract_class")
+    val contractDefinition: Cairo1ContractDefinition? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,

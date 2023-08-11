@@ -1,6 +1,7 @@
 package integration.utils
 
 import com.swmansion.starknet.data.types.Felt
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import java.nio.file.Files
@@ -8,6 +9,7 @@ import java.nio.file.Paths
 import kotlin.io.path.readText
 
 class ConfigUtils {
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     data class Config(
         @JsonNames("rpc_url")
