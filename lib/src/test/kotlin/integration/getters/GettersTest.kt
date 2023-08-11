@@ -286,7 +286,7 @@ class GettersTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `estimate declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
+    fun `estimate fee for declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
@@ -327,5 +327,64 @@ class GettersTest {
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
+        val (account, provider) = accountAndProvider
+        // TODO: find a better account that has a non-changing nonce
+        assumeFalse(provider is GatewayProvider)
+
+        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
+        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val casmContractDefinition = CasmContractDefinition(casmCode)
+
+        val nonce = account.getNonce().send()
+
+        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
+        // changes, this causes changes in the class hash.
+        // If this test starts randomly falling, try recalculating class hash.
+        val declareTransactionPayload = account.signDeclare(
+                contractDefinition,
+                casmContractDefinition,
+                ExecutionParams(
+                        nonce = nonce,
+                        maxFee = Felt(1000000000000000L),
+                ),
+        )
+
+        val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
+                senderAddress = declareTransactionPayload.senderAddress,
+                contractDefinition = declareTransactionPayload.contractDefinition,
+                casmContractDefinition = casmContractDefinition,
+                chainId = provider.chainId,
+                nonce = nonce,
+                maxFee = declareTransactionPayload.maxFee,
+                signature = declareTransactionPayload.signature,
+                version = declareTransactionPayload.version,
+        )
+
+        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
+
+        assertNotNull(feeEstimateRequest)
+        val feeEstimate = feeEstimateRequest.send().first()
+        assertNotNull(feeEstimate)
+        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.gasPrice)
+        assertNotEquals(Felt(0), feeEstimate.overallFee)
+    }
+
+
+    @Test
+    fun `get block with transactions with block tag`() {
+        val provider = rpcProvider
+        val request = provider.getBlockWithTxs(BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionsResponse)
     }
 }
