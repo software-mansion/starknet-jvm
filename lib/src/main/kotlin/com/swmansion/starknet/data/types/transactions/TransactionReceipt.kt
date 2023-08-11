@@ -57,10 +57,10 @@ enum class TransactionFinalityStatus {
     @JsonNames("ACCEPTED_ON_L2", "AcceptedOnL2")
     ACCEPTED_ON_L2,
 
-    @JsonNames("RECEIVED", "Received")
+    @JsonNames("RECEIVED", "Received", "PENDING",)
     RECEIVED,
 
-    @JsonNames("NOT_RECEIVED", "NotReceived")
+    @JsonNames("NOT_RECEIVED", "NotReceived", "UNKNOWN",)
     NOT_RECEIVED,
 }
 
