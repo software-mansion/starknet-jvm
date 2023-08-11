@@ -348,23 +348,23 @@ class GettersTest {
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
         val declareTransactionPayload = account.signDeclare(
-                contractDefinition,
-                casmContractDefinition,
-                ExecutionParams(
-                        nonce = nonce,
-                        maxFee = Felt(1000000000000000L),
-                ),
+            contractDefinition,
+            casmContractDefinition,
+            ExecutionParams(
+                nonce = nonce,
+                maxFee = Felt(1000000000000000L),
+            ),
         )
 
         val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
-                senderAddress = declareTransactionPayload.senderAddress,
-                contractDefinition = declareTransactionPayload.contractDefinition,
-                casmContractDefinition = casmContractDefinition,
-                chainId = provider.chainId,
-                nonce = nonce,
-                maxFee = declareTransactionPayload.maxFee,
-                signature = declareTransactionPayload.signature,
-                version = declareTransactionPayload.version,
+            senderAddress = declareTransactionPayload.senderAddress,
+            contractDefinition = declareTransactionPayload.contractDefinition,
+            casmContractDefinition = casmContractDefinition,
+            chainId = provider.chainId,
+            nonce = nonce,
+            maxFee = declareTransactionPayload.maxFee,
+            signature = declareTransactionPayload.signature,
+            version = declareTransactionPayload.version,
         )
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
@@ -376,7 +376,6 @@ class GettersTest {
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
-
 
     @Test
     fun `get block with transactions with block tag`() {
