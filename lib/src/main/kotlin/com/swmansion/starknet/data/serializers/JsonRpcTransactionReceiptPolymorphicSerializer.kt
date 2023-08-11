@@ -9,7 +9,7 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionReceipt> {
         val jsonElement = element.jsonObject
-        val isPendingTransactionReceipt = "block_hash" !in jsonElement || "block_number" !in jsonElement
+        val isPendingTransactionReceipt = listOf("block_hash", "block_number").any { it !in jsonElement }
 
         return when (isPendingTransactionReceipt) {
             true -> selectPendingDeserializer(jsonElement)

@@ -167,6 +167,11 @@ data class BlockWithTransactionsResponse(
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
+    // Not in RPC schema
+    // TODO: remove this when Pathfinder is updated
+    @SerialName("status")
+    val status: BlockStatus = BlockStatus.PENDING,
+
     // Block body
 
     @SerialName("transactions")

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -378,12 +379,29 @@ class GettersTest {
     }
 
     @Test
-    fun `get block with transactions with block tag`() {
+    fun `get block with transactions with latest block tag`() {
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionsResponse)
+    }
+
+    @Disabled
+    @Test
+    fun `get block with transactions with pending block tag`() {
+        // Note for future developers:
+        // This test may fail because there's no pending block at the moment.
+        // If this happens, try running the test again or disable it.
+
+        // TODO: consider moving this test to a separate test class for inconsistent test cases that only runs locally
+
+        val provider = rpcProvider
+        val request = provider.getBlockWithTxs(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingBlockWithTransactionsResponse)
     }
 }
