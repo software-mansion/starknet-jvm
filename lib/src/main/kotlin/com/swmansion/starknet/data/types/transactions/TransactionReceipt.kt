@@ -85,6 +85,9 @@ sealed class TransactionReceipt {
 sealed class ProcessedTransactionReceipt : TransactionReceipt() {
     abstract val blockHash: Felt?
     abstract val blockNumber: Int?
+
+    val isPending: Boolean
+        get() = blockHash == null || blockNumber == null
 }
 
 @OptIn(ExperimentalSerializationApi::class)
