@@ -100,6 +100,8 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
@@ -145,6 +147,8 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
