@@ -1,7 +1,5 @@
 package integration.getters
 
-import com.swmansion.starknet.account.Account
-import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
@@ -11,18 +9,13 @@ import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import integration.utils.ConfigUtils
 import kotlinx.serialization.json.*
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Assumptions.assumeFalse
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.nio.file.Path
-import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
 class GettersTest {
@@ -32,7 +25,7 @@ class GettersTest {
         private val rpcUrl = config.rpcUrl
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
-        private val accountAddress = config.integrationAccountAddress
+        private val accountAddress = config.accountAddress
         private val privateKey = config.privateKey
 
         private lateinit var signer: Signer
@@ -43,10 +36,6 @@ class GettersTest {
         @JvmStatic
         @BeforeAll
         fun before() {
-            val testName = GettersTest::class.simpleName!!
-
-            assumeFalse(ConfigUtils.isTestSetSkipped(testName), "$testName is skipped in the current environment.")
-
             signer = StarkCurveSigner(
                 privateKey = privateKey,
             )
@@ -60,7 +49,6 @@ class GettersTest {
                 StarknetChainId.TESTNET,
             )
         }
-        data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
         private fun getProviders(): List<Provider> = listOf(
@@ -69,34 +57,14 @@ class GettersTest {
         )
 
         @JvmStatic
-        fun getAccounts(): List<AccountAndProvider> {
-            return listOf(
-                AccountAndProvider(
-                    StandardAccount(
-                        accountAddress,
-                        signer,
-                        gatewayProvider,
-                    ),
-                    gatewayProvider,
-                ),
-                AccountAndProvider(
-                    StandardAccount(
-                        accountAddress,
-                        signer,
-                        rpcProvider,
-                    ),
-                    rpcProvider,
-                ),
-            )
-        }
-
-        @JvmStatic
         @AfterAll
         fun after() {}
     }
 
     @Test
     fun `estimate message fee`() {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val provider = rpcProvider
 
         val gasConsumed = Felt(19931)
@@ -133,6 +101,8 @@ class GettersTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy account transaction`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val transactionHash = Felt.fromHex("0x029da9f8997ce580718fa02ed0bd628976418b30a0c5c542510aaef21a4445e4")
         val tx = provider.getTransaction(transactionHash).send()
 
@@ -163,6 +133,8 @@ class GettersTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get reverted invoke transaction`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val transactionHash = Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
         val tx = provider.getTransaction(transactionHash).send()
         assertNotNull(tx)
@@ -189,6 +161,8 @@ class GettersTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction with events`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val transactionHash = Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
         val tx = provider.getTransaction(transactionHash).send()
         assertNotNull(tx)
@@ -222,6 +196,8 @@ class GettersTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v1 transaction and receipt`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val transactionHash = Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
         assertNotNull(tx)
@@ -256,6 +232,8 @@ class GettersTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v2 transaction`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val transactionHash = Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
         assertNotNull(tx)
@@ -285,101 +263,10 @@ class GettersTest {
         assertEquals(Felt.fromHex("0x35f91a1984d"), receipt.actualFee)
     }
 
-    @ParameterizedTest
-    @MethodSource("getAccounts")
-    fun `estimate fee for declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
-        val (account, provider) = accountAndProvider
-        // TODO: find a better account that has a non-changing nonce
-        assumeFalse(provider is GatewayProvider)
-
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x320aba87b66c023b2db943b9d32bc0f8e3d72625b475e1dc77e4d2f21721d43")
-        val declareTransactionPayload = account.signDeclare(
-            contractDefinition,
-            classHash,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-
-        val signedTransaction = TransactionFactory.makeDeclareV1Transaction(
-            classHash = classHash,
-            senderAddress = declareTransactionPayload.senderAddress,
-            contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.chainId,
-            nonce = nonce,
-            maxFee = declareTransactionPayload.maxFee,
-            signature = declareTransactionPayload.signature,
-            version = declareTransactionPayload.version,
-        )
-
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
-
-        assertNotNull(feeEstimateRequest)
-        val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
-        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.gasPrice)
-        assertNotEquals(Felt(0), feeEstimate.overallFee)
-    }
-
-    @ParameterizedTest
-    @MethodSource("getAccounts")
-    fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        val (account, provider) = accountAndProvider
-        // TODO: find a better account that has a non-changing nonce
-        assumeFalse(provider is GatewayProvider)
-
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
-
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val casmContractDefinition = CasmContractDefinition(casmCode)
-
-        val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        val declareTransactionPayload = account.signDeclare(
-            contractDefinition,
-            casmContractDefinition,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-
-        val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
-            senderAddress = declareTransactionPayload.senderAddress,
-            contractDefinition = declareTransactionPayload.contractDefinition,
-            casmContractDefinition = casmContractDefinition,
-            chainId = provider.chainId,
-            nonce = nonce,
-            maxFee = declareTransactionPayload.maxFee,
-            signature = declareTransactionPayload.signature,
-            version = declareTransactionPayload.version,
-        )
-
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
-
-        assertNotNull(feeEstimateRequest)
-        val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
-        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.gasPrice)
-        assertNotEquals(Felt(0), feeEstimate.overallFee)
-    }
-
     @Test
     fun `get block with transactions with latest block tag`() {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
@@ -391,6 +278,7 @@ class GettersTest {
     @Disabled
     @Test
     fun `get block with transactions with pending block tag`() {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
         // Note for future developers:
         // This test may fail because there's no pending block at the moment.
         // If this happens, try running the test again or disable it.

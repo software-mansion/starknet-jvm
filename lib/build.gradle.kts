@@ -101,6 +101,18 @@ tasks.test {
     val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
 
     systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
+    systemProperty(
+            "enableIntegrationTests",
+            project.findProperty("enableIntegrationTests")
+                    ?: System.getenv("ENABLE_INTEGRATION_TESTS")
+                    ?: "true",
+    )
+    systemProperty(
+            "enableGasTests",
+            project.findProperty("enableGasTests")
+                    ?: System.getenv("ENABLE_GAS_TESTS")
+                    ?: "false",
+    )
 
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 
