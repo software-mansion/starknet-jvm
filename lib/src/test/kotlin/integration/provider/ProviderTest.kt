@@ -1,4 +1,4 @@
-package integration.getters
+package integration.provider
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 @Execution(ExecutionMode.SAME_THREAD)
-class GettersTest {
+class ProviderTest {
     companion object {
         @JvmStatic
         private val config = ConfigUtils.config
