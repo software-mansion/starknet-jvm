@@ -32,7 +32,7 @@ data class MessageL1ToL2(
     @SerialName("to_address")
     val toAddress: Felt,
 
-    @JsonNames("entry_point_selector", "selector")
+    @JsonNames("selector", "entry_point_selector")
     @SerialName("entry_point_selector")
     val selector: Felt,
 
