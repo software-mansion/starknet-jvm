@@ -99,7 +99,7 @@ class AccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `estimate fee for declare v1 transaction fee`(accountAndProvider: AccountAndProvider) {
+    fun `estimate fee for declare v1 transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
@@ -110,10 +110,13 @@ class AccountTest {
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
+        // Note to future developers experiencing failures in this test.
+        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x320aba87b66c023b2db943b9d32bc0f8e3d72625b475e1dc77e4d2f21721d43")
+        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+        // Chances are, the contract was compiled with a different compiler version.
+
+        val classHash = Felt.fromHex("0x661efb55f8bcf34ad1596936b631e6b581bfa246b99ff3f9f2d9b8fa4ff5962")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -160,10 +163,6 @@ class AccountTest {
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             casmContractDefinition,
@@ -209,10 +208,13 @@ class AccountTest {
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
+        // Note to future developers experiencing failures in this test.
+        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x320aba87b66c023b2db943b9d32bc0f8e3d72625b475e1dc77e4d2f21721d43")
+        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+        // Chances are, the contract was compiled with a different compiler version.
+
+        val classHash = Felt.fromHex("0x661efb55f8bcf34ad1596936b631e6b581bfa246b99ff3f9f2d9b8fa4ff5962")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
