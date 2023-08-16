@@ -40,12 +40,6 @@ class AccountTest {
         private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
 
-        @BeforeEach
-        fun beforeEach() {
-            // TODO: consider moving this to each test case
-            //  Then both gas and non-gas tests can be run as a part of the same test suite (same as in devnet tests)
-        }
-
         @JvmStatic
         @BeforeAll
         fun before() {
