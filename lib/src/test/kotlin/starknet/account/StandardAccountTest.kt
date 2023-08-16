@@ -427,7 +427,7 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `execute single call with specific fee`(accountAndProvider: AccountAndProvider) {
         // Note to future developers experiencing failures in this test:
-        // If the max fee is too low the transaction may fail with 500 error code (RPC).
+        // This transaction may fail if the fee is too low.
 
         val (account, provider) = accountAndProvider
         val receiptProvider = when (provider) {

@@ -315,7 +315,6 @@ data class L1HandlerTransaction(
 @Serializable
 @SerialName("DEPLOY_ACCOUNT")
 data class DeployAccountTransaction(
-    // TODO: check whether this should actually be contract_class in case of gateway
     @SerialName("class_hash")
     @JsonNames("class_hash")
     val classHash: Felt,
