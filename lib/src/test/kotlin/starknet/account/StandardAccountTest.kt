@@ -640,7 +640,11 @@ class StandardAccountTest {
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
         val classHash = accountClassHash
-        val salt = Felt.ONE
+        val salt = when (provider) {
+            is GatewayProvider -> Felt.ONE
+            is JsonRpcProvider -> Felt(2)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
         val calldata = listOf(publicKey)
         val address = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
@@ -696,7 +700,11 @@ class StandardAccountTest {
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
         val classHash = accountClassHash
-        val salt = Felt.ONE
+        val salt = when (provider) {
+            is GatewayProvider -> Felt.ONE
+            is JsonRpcProvider -> Felt(2)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
         val calldata = listOf(publicKey)
         val address = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
