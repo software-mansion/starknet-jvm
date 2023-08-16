@@ -231,7 +231,7 @@ class StandardAccountTest {
             )
         }
 
-        val message = RpcMessageL1ToL2(
+        val message = MessageL1ToL2(
             fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
             toAddress = Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82"),
             selector = Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5"),

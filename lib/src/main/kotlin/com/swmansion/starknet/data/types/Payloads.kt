@@ -58,7 +58,7 @@ data class EstimateTransactionFeePayload(
 @Serializable
 data class EstimateMessageFeePayload(
     @SerialName("message")
-    val message: RpcMessageL1ToL2,
+    val message: MessageL1ToL2,
 
     @SerialName("block_id")
     override val blockId: BlockId,

@@ -2,9 +2,8 @@ package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.types.Event
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.GatewayMessageL1ToL2
-import com.swmansion.starknet.data.types.GatewayMessageL2ToL1
-import com.swmansion.starknet.data.types.RpcMessageL2ToL1
+import com.swmansion.starknet.data.types.MessageL1ToL2
+import com.swmansion.starknet.data.types.MessageL2ToL1
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -79,6 +78,7 @@ sealed class TransactionReceipt {
     abstract val finalityStatus: TransactionFinalityStatus
     abstract val revertReason: String?
     abstract val events: List<Event>
+    abstract val messagesSent: List<MessageL2ToL1>
 
     val isAccepted: Boolean
         get() = (
@@ -112,11 +112,11 @@ data class GatewayTransactionReceipt(
     @JsonNames("events")
     override val events: List<Event>,
 
-    @JsonNames("l2_to_l1_messages")
-    val messagesL2ToL1: List<GatewayMessageL2ToL1>,
+    @JsonNames("messages_sent", "l2_to_l1_messages")
+    override val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("l1_to_l2_consumed_message")
-    val messageL1ToL2: GatewayMessageL1ToL2? = null,
+    val messageL1ToL2: MessageL1ToL2? = null,
 
     @JsonNames("transaction_hash", "txn_hash")
     override val hash: Felt,
@@ -173,7 +173,7 @@ data class RpcTransactionReceipt(
     override val type: TransactionReceiptType,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<RpcMessageL2ToL1>,
+    override val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("revert_reason")
     override val revertReason: String? = null,
@@ -207,7 +207,7 @@ data class DeployRpcTransactionReceipt(
     override val type: TransactionReceiptType,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<RpcMessageL2ToL1>,
+    override val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("revert_reason")
     override val revertReason: String? = null,
@@ -229,7 +229,7 @@ data class PendingRpcTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<RpcMessageL2ToL1>,
+    override val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     override val events: List<Event>,
@@ -258,7 +258,7 @@ data class PendingRpcDeployTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("messages_sent")
-    val messagesSent: List<RpcMessageL2ToL1>,
+    override val messagesSent: List<MessageL2ToL1>,
 
     @JsonNames("events")
     override val events: List<Event>,

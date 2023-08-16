@@ -435,7 +435,7 @@ class ProviderTest {
                             "n_memory_holes": 0,
                             "n_steps": 41
                         },
-                        "l2_to_l1_messages": [],
+                        "messages_sent": [],
                         "status": "ACCEPTED_ON_L1",
                         "finality_status": "ACCEPTED_ON_L1",
                         "execution_status": "SUCCEEDED",
@@ -525,10 +525,10 @@ class ProviderTest {
 
         assertNotNull(response)
 
-        if (provider is GatewayProvider) {
-            assertTrue(response is GatewayTransactionReceipt)
-        } else if (provider is JsonRpcProvider) {
-            assertTrue(response is RpcTransactionReceipt)
+        when (provider) {
+            is GatewayProvider -> assertTrue(response is GatewayTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(response is RpcTransactionReceipt)
+            else -> throw IllegalStateException("Unknown provider type")
         }
     }
 
@@ -560,7 +560,7 @@ class ProviderTest {
                         ],
                         "nonce": "0x402af"
                     },
-                    "l2_to_l1_messages": [],
+                    "messages_sent": [],
                     "events": [
                         {
                             "from_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
@@ -606,6 +606,9 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is GatewayTransactionReceipt)
+        val gatewayResponse = response as GatewayTransactionReceipt
+        assertNotNull(gatewayResponse.messageL1ToL2)
+        assertNotNull(gatewayResponse.messageL1ToL2!!.nonce)
     }
 
     @Test
@@ -1087,7 +1090,7 @@ class ProviderTest {
                     "finality_status": "RECEIVED",
                     "execution_status": "SUCCEEDED",
                     "transaction_hash": "0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5", 
-                    "l2_to_l1_messages": [], 
+                    "messages_sent": [], 
                     "events": []
                 }
                 """.trimIndent(),
@@ -1098,7 +1101,7 @@ class ProviderTest {
 
         assertEquals(hash, receipt.hash)
         assertEquals(TransactionStatus.PENDING, receipt.status)
-        assertEquals(emptyList<GatewayMessageL2ToL1>(), receipt.messagesL2ToL1)
+        assertEquals(emptyList<MessageL2ToL1>(), receipt.messagesSent)
         assertEquals(emptyList<Event>(), receipt.events)
         assertNull(receipt.messageL1ToL2)
         assertNull(receipt.actualFee)

@@ -71,7 +71,7 @@ class GettersTest {
         val gasPrice = Felt(1022979559)
         val overallFee = Felt(20389005590429)
 
-        val message = RpcMessageL1ToL2(
+        val message = MessageL1ToL2(
             fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
             toAddress = Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82"),
             selector = Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5"),
@@ -149,12 +149,14 @@ class GettersTest {
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNotNull(receipt.revertReason)
 
-        if (provider is GatewayProvider) {
-            receipt = receipt as GatewayTransactionReceipt
-
-            assertEquals(TransactionStatus.REVERTED, receipt.status)
-        } else if (provider is JsonRpcProvider) {
-            receipt = receipt as RpcTransactionReceipt
+        when (provider) {
+            is GatewayProvider -> {
+                receipt = receipt as GatewayTransactionReceipt
+                assertEquals(TransactionStatus.REVERTED, receipt.status)
+            }
+            is JsonRpcProvider -> {
+                receipt = receipt as RpcTransactionReceipt
+            }
         }
     }
 
@@ -252,15 +254,70 @@ class GettersTest {
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
 
-        if (provider is GatewayProvider) {
-            receipt = receipt as GatewayTransactionReceipt
-
-            assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
-        } else if (provider is JsonRpcProvider) {
-            receipt = receipt as RpcTransactionReceipt
+        when (provider) {
+            is GatewayProvider -> {
+                receipt = receipt as GatewayTransactionReceipt
+                assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
+            }
+            is JsonRpcProvider -> {
+                receipt = receipt as RpcTransactionReceipt
+            }
+            else -> throw IllegalStateException("Unknown provider type")
         }
 
         assertEquals(Felt.fromHex("0x35f91a1984d"), receipt.actualFee)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get transaction receipt with l1 to l2 message`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+
+        val transactionHash = Felt.fromHex("0x27d9e669bb43d9f95bed591b296aeab0067b24c84818fb650a65eb120a9aebd")
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        var receipt = receiptRequest.send()
+
+        assertTrue(receipt.isAccepted)
+
+        when (provider) {
+            is GatewayProvider -> {
+                receipt = receipt as GatewayTransactionReceipt
+                assertNotNull(receipt.messageL1ToL2)
+                assertNotNull(receipt.messageL1ToL2!!.nonce)
+            }
+            is JsonRpcProvider -> {
+                receipt = receipt as RpcTransactionReceipt
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `get transaction receipt with l2 to l1 messages`(provider: Provider) {
+        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        val transactionHash = Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        var receipt = receiptRequest.send()
+
+        assertTrue(receipt.isAccepted)
+
+        assertEquals(2, receipt.messagesSent.size)
+        assertNotNull(receipt.messagesSent[0].fromAddress)
+        assertNotNull(receipt.messagesSent[0].toAddress)
+        assertNotNull(receipt.messagesSent[0].payload)
+
+        when (provider) {
+            is GatewayProvider -> {
+                receipt = receipt as GatewayTransactionReceipt
+                assertNull(receipt.messageL1ToL2)
+            }
+            is JsonRpcProvider -> {
+                receipt = receipt as RpcTransactionReceipt
+            }
+            else -> throw IllegalStateException("Unknown provider type")
+        }
     }
 
     @Test
@@ -281,9 +338,9 @@ class GettersTest {
         assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
         // Note for future developers:
         // This test may fail because there's no pending block at the moment.
-        // If this happens, try running the test again or disable it.
+        // If this happens, try running the test again after a while or disable it.
 
-        // TODO: consider moving this test to a separate test class for inconsistent test cases that only runs locally
+        // TODO: consider moving this test to a separate test suite for inconsistent test cases that only runs locally
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
