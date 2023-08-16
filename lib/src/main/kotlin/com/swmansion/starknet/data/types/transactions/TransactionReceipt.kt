@@ -38,6 +38,9 @@ enum class TransactionStatus {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionExecutionStatus {
+    // TODO: issue #294
+    // Remove PascalCase jsonNames when pathfinder is updated
+
     @JsonNames("SUCCEEDED", "Succeeded")
     SUCCEEDED,
 
@@ -51,6 +54,9 @@ enum class TransactionExecutionStatus {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionFinalityStatus {
+    // TODO: issue #294
+    // Remove PascalCase jsonNames when pathfinder is updated
+
     @JsonNames("ACCEPTED_ON_L1", "AcceptedOnL1")
     ACCEPTED_ON_L1,
 
