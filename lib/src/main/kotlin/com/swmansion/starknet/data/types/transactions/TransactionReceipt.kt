@@ -169,7 +169,7 @@ data class RpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason")
+    @JsonNames("revert_reason", "revert_error")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -203,7 +203,7 @@ data class DeployRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason")
+    @JsonNames("revert_reason", "revert_error")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -230,8 +230,7 @@ data class PendingRpcTransactionReceipt(
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING,
 
-//    override val status: TransactionStatus = TransactionStatus.PENDING,
-    @JsonNames("revert_reason")
+    @JsonNames("revert_reason", "revert_error")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
@@ -259,7 +258,7 @@ data class PendingRpcDeployTransactionReceipt(
 
     override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
 
-    @JsonNames("revert_reason")
+    @JsonNames("revert_reason", "revert_error")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
