@@ -105,7 +105,7 @@ tasks.test {
             "enableIntegrationTests",
             project.findProperty("enableIntegrationTests")
                     ?: System.getenv("ENABLE_INTEGRATION_TESTS")
-                    ?: "true",
+                    ?: "false",
     )
     systemProperty(
             "enableGasTests",

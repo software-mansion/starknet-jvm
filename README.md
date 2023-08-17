@@ -226,15 +226,40 @@ Run
 
 ## Running tests
 
-Running tests requires to have both cairo-lang and starknet-devnet installed.
-These are distributed as python packages. Run
+### Prerequisites
+Running tests requires to have both `cairo-lang` and `starknet-devnet` installed.
+These are distributed as python packages. To install required dependencies, run:
 
 ```shell
 pip install -r requirements.txt
 ```
+### Regular Tests
+Use the following command to run tests:
+```shell
+./gradlew :lib:test
+```
 
-to install required dependencies.
+### Integration Tests
+Running tests for integration network requires a valid configuration. It can be set using environmental variables in your system or IDE, or by sourcing an `.env` file. 
+Refer to the example config found in [integration_tests.env.example](integration_tests.env.example).
+Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
 
+Integration tests are disabled by default. To enable them, you can set the env variable: 
+```env
+ENABLE_INTEGRATION_TESTS=true
+```
+
+### Gas-requiring integration tests
+Some tests require gas and are disabled by default. If you want to run them as well, you can set:
+```env 
+ENABLE_GAS_TESTS=true
+```
+
+Alternatively, you can use flags to specify whether to run integration and gas tests:
+```shell
+./gradlew :lib:test -PenableIntegrationTests=true
+./gradlew :lib:test -PenableIntegrationTests=true -PenableGasTests=true
+```
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

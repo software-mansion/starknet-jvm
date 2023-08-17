@@ -17,7 +17,7 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
 
     override fun signTransaction(transaction: Transaction): Signature {
         if (transaction.hash == null) {
-            throw IllegalArgumentException("Transaction hash must be set before signing")
+            throw IllegalArgumentException("Invalid transaction: hash is missing.")
         }
 
         return StarknetCurve.sign(privateKey, transaction.hash!!).toList()
