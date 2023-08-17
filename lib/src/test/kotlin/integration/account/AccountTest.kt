@@ -280,9 +280,9 @@ class AccountTest {
         val (account, provider) = accountAndProvider
 
         val call = Call(
-                contractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"),
-                entrypoint = "put",
-                calldata = listOf(Felt.fromHex("0x102"), Felt.fromHex("0x125"))
+            contractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"),
+            entrypoint = "put",
+            calldata = listOf(Felt.fromHex("0x102"), Felt.fromHex("0x125")),
         )
 
         val invokeRequest = account.execute(call)
@@ -294,7 +294,6 @@ class AccountTest {
 
         assertTrue(receipt.isAccepted)
     }
-
 
     @ParameterizedTest
     @MethodSource("getProviders")
