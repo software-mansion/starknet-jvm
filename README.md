@@ -259,6 +259,7 @@ Alternatively, you can use flags to specify whether to run integration and gas t
 ./gradlew :lib:test -PenableIntegrationTests=true
 ./gradlew :lib:test -PenableIntegrationTests=true -PenableGasTests=true
 ```
+Please note that to run the gas-requiring tests both flags must be set to true.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

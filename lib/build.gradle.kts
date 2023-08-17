@@ -102,16 +102,16 @@ tasks.test {
 
     systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
     systemProperty(
-            "enableIntegrationTests",
+        "enableIntegrationTests",
             project.findProperty("enableIntegrationTests")
-                    ?: System.getenv("ENABLE_INTEGRATION_TESTS")
-                    ?: "false",
+                ?: System.getenv("ENABLE_INTEGRATION_TESTS")
+                ?: "false",
     )
     systemProperty(
-            "enableGasTests",
+        "enableGasTests",
             project.findProperty("enableGasTests")
-                    ?: System.getenv("ENABLE_GAS_TESTS")
-                    ?: "false",
+                ?: System.getenv("ENABLE_GAS_TESTS")
+                ?: "false",
     )
 
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
