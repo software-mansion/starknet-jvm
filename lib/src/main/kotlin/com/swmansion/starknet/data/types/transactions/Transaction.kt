@@ -162,7 +162,6 @@ data class InvokeTransactionV0(
     override val signature: Signature,
 
     // not in RPC spec
-    // TODO: consider make it nullable so it's not included in serialized json
     @SerialName("nonce")
     override val nonce: Felt = Felt.ZERO,
 
