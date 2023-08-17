@@ -180,34 +180,34 @@ sealed class DeclareTransaction() : Transaction()
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareTransactionV0(
-        @SerialName("class_hash")
-        val classHash: Felt? = null,
+    @SerialName("class_hash")
+    val classHash: Felt? = null,
 
-        @SerialName("sender_address")
-        val senderAddress: Felt,
+    @SerialName("sender_address")
+    val senderAddress: Felt,
 
-        // not in RPC spec
-        @SerialName("transaction_hash")
-        @JsonNames("txn_hash")
-        override val hash: Felt? = null,
+    // not in RPC spec
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt? = null,
 
-        @SerialName("max_fee")
-        override val maxFee: Felt,
+    @SerialName("max_fee")
+    override val maxFee: Felt,
 
-        @SerialName("version")
-        override val version: Felt = Felt.ZERO,
+    @SerialName("version")
+    override val version: Felt = Felt.ZERO,
 
-        @SerialName("signature")
-        override val signature: Signature,
+    @SerialName("signature")
+    override val signature: Signature,
 
-        @SerialName("nonce")
-        override val nonce: Felt = Felt.ZERO,
+    @SerialName("nonce")
+    override val nonce: Felt = Felt.ZERO,
 
-        @SerialName("type")
-        override val type: TransactionType = TransactionType.DECLARE,
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
 
-        @SerialName("contract_class")
-        val contractDefinition: Cairo0ContractDefinition? = null,
+    @SerialName("contract_class")
+    val contractDefinition: Cairo0ContractDefinition? = null,
 ) : DeclareTransaction()
 
 @OptIn(ExperimentalSerializationApi::class)

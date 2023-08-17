@@ -207,7 +207,7 @@ class ProviderTest {
         assertNotNull(tx.classHash)
         assertEquals(transactionHash, tx.hash)
         assertEquals(Felt.fromHex("0x071e6ef53e53e6f5ca792fc4a5799a33e6f4118e4fd1d948dca3a371506f0cc7"), tx.classHash)
-        assertEquals(Felt.ZERO,tx.version)
+        assertEquals(Felt.ZERO, tx.version)
         assertEquals(Felt.ONE, tx.senderAddress)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
