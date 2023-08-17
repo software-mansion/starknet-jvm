@@ -2,6 +2,8 @@ package integration.account
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.math.BigInteger
 import java.nio.file.Path
 import kotlin.io.path.readText
 
@@ -33,6 +36,7 @@ class AccountTest {
         private val feederGatewayUrl = config.feederGatewayUrl
         private val accountAddress = config.accountAddress
         private val privateKey = config.privateKey
+        private val accountContractClassHash = Felt.fromHex("0x05a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8")
 
         private lateinit var signer: Signer
 
@@ -96,6 +100,9 @@ class AccountTest {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
+        // Note to future developers
+        // This test sometimes fails due to getNonce receiving higher nonce than addInvokeTransaction expects
+        // Apparently, getNonce knows about pending blocks while other methods don't
         // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
 
@@ -144,6 +151,10 @@ class AccountTest {
     @MethodSource("getAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        // Note to future developers
+        // This test sometimes fails due to getNonce receiving higher nonce than addInvokeTransaction expects
+        // Apparently, getNonce knows about pending blocks while other methods don't
 
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
@@ -257,5 +268,70 @@ class AccountTest {
         assertNotNull(result)
         assertNotNull(receipt)
         assertTrue(receipt.isAccepted)
+    }
+
+    @Disabled
+    // Note to future developers
+    // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign and send invoke transaction`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        val (account, provider) = accountAndProvider
+
+        val call = Call(
+                contractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"),
+                entrypoint = "put",
+                calldata = listOf(Felt.fromHex("0x102"), Felt.fromHex("0x125"))
+        )
+
+        val invokeRequest = account.execute(call)
+        val invokeResponse = invokeRequest.send()
+
+        Thread.sleep(30000)
+
+        val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
+
+        assertTrue(receipt.isAccepted)
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `estimate deploy account fee`(provider: Provider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val privateKey = Felt(System.currentTimeMillis())
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountContractClassHash
+
+        val salt = Felt(System.currentTimeMillis())
+
+        val calldata = listOf(publicKey)
+        val address = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+        )
+
+        val account = StandardAccount(
+            address,
+            privateKey,
+            provider,
+        )
+
+        val payloadForFeeEstimation = account.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.ZERO,
+            nonce = Felt.ZERO,
+            forFeeEstimate = true,
+        )
+        assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
+
+        val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+        assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
     }
 }
