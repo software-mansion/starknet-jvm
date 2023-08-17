@@ -9,7 +9,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import integration.utils.ConfigUtils
+import integration.utils.IntegrationConfig
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
@@ -27,7 +27,7 @@ import kotlin.io.path.readText
 class AccountTest {
     companion object {
         @JvmStatic
-        private val config = ConfigUtils.config
+        private val config = IntegrationConfig.config
         private val rpcUrl = config.rpcUrl
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
@@ -93,7 +93,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for declare v1 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
@@ -143,7 +143,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
         // TODO: find a better account that has a non-changing nonce
@@ -189,7 +189,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v1 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = true), "Tests that require gas are skipped in the current environment. Enable with '-PenableGasTests=true'")
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
         // assumeFalse(provider is JsonRpcProvider)
@@ -232,7 +232,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = true), "Tests that require gas are skipped in the current environment. Enable with '-PenableGasTests=true'")
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
 

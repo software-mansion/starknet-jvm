@@ -7,7 +7,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import integration.utils.ConfigUtils
+import integration.utils.IntegrationConfig
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
@@ -21,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class ProviderTest {
     companion object {
         @JvmStatic
-        private val config = ConfigUtils.config
+        private val config = IntegrationConfig.config
         private val rpcUrl = config.rpcUrl
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
@@ -63,7 +63,7 @@ class ProviderTest {
 
     @Test
     fun `estimate message fee`() {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
 
@@ -101,7 +101,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy account transaction`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x029da9f8997ce580718fa02ed0bd628976418b30a0c5c542510aaef21a4445e4")
         val tx = provider.getTransaction(transactionHash).send()
@@ -133,7 +133,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get reverted invoke transaction`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
         val tx = provider.getTransaction(transactionHash).send()
@@ -163,7 +163,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction with events`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
         val tx = provider.getTransaction(transactionHash).send()
@@ -198,7 +198,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v1 transaction and receipt`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
@@ -234,7 +234,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v2 transaction`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
@@ -271,7 +271,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get transaction receipt with l1 to l2 message`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x27d9e669bb43d9f95bed591b296aeab0067b24c84818fb650a65eb120a9aebd")
 
@@ -295,7 +295,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get transaction receipt with l2 to l1 messages`(provider: Provider) {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
         val transactionHash = Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
@@ -322,7 +322,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with latest block tag`() {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
@@ -335,7 +335,7 @@ class ProviderTest {
     @Disabled
     @Test
     fun `get block with transactions with pending block tag`() {
-        assumeTrue(ConfigUtils.isTestEnabled(requiresGas = false))
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
         // Note for future developers:
         // This test may fail because there's no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
