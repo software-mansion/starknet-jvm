@@ -220,8 +220,7 @@ var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ### Hooks
 Run
 ```
-./gradlew addKtlintFormatGitPreCommitHook
-./gradlew addKtlintCheckGitPreCommitHook
+./gradlew installKotlinterPrePushHook
 ```
 
 ## Running tests
