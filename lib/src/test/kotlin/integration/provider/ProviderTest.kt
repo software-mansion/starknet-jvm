@@ -197,6 +197,41 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
+    fun `get declare v0 transaction and receipt`(provider: Provider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val transactionHash = Felt.fromHex("0x6d346ba207eb124355960c19c737698ad37a3c920a588b741e0130ff5bd4d6d")
+        val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV0
+        assertNotNull(tx)
+        assertNotNull(tx.hash)
+        assertNotNull(tx.classHash)
+        assertEquals(transactionHash, tx.hash)
+        assertEquals(Felt.fromHex("0x071e6ef53e53e6f5ca792fc4a5799a33e6f4118e4fd1d948dca3a371506f0cc7"), tx.classHash)
+        assertEquals(Felt.ZERO,tx.version)
+        assertEquals(Felt.ONE, tx.senderAddress)
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        var receipt = receiptRequest.send()
+
+        assertTrue(receipt.isAccepted)
+        assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
+        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        assertNull(receipt.revertReason)
+
+        when (provider) {
+            is GatewayProvider -> {
+                receipt = receipt as GatewayTransactionReceipt
+                assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
+            }
+            is JsonRpcProvider -> {
+                receipt = receipt as RpcTransactionReceipt
+            }
+        }
+        assertEquals(Felt.ZERO, receipt.actualFee)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
     fun `get declare v1 transaction and receipt`(provider: Provider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 

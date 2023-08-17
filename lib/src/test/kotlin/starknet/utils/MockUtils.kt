@@ -26,7 +26,7 @@ object MockUtils {
                 else -> TransactionExecutionStatus.REVERTED.toString()
             }
 
-            val modifiedJson = JsonObject(
+            val modifiedResultJson = JsonObject(
                 originalJson["result"]!!.jsonObject.toMutableMap().apply {
                     remove("status")
                     put("finality_status", JsonPrimitive(status))
@@ -35,7 +35,7 @@ object MockUtils {
             )
             val mergedJson = JsonObject(
                 originalJson.toMutableMap().apply {
-                    this["result"] = modifiedJson
+                    this["result"] = modifiedResultJson
                 },
             )
             return@doAnswer HttpResponse(
