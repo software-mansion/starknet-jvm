@@ -40,10 +40,10 @@ class IntegrationConfig {
                 gatewayUrl = env.getOrDefault("INTEGRATION_GATEWAY_URL", Config.DEFAULT_GATEWAY_URL),
                 feederGatewayUrl = env.getOrDefault("STARKNET_JVM_INTEGRATION_FEEDER_GATEWAY_URL", Config.DEFAULT_FEEDER_GATEWAY_URL),
                 accountAddress = Felt.fromHex(
-                        env.getOrElse("INTEGRATION_ACCOUNT_ADDRESS") { throw RuntimeException("INTEGRATION_ACCOUNT_ADDRESS not found in environment variables") },
+                    env.getOrElse("INTEGRATION_ACCOUNT_ADDRESS") { throw RuntimeException("INTEGRATION_ACCOUNT_ADDRESS not found in environment variables") },
                 ),
                 privateKey = Felt.fromHex(
-                        env.getOrElse("INTEGRATION_PRIVATE_KEY") { throw RuntimeException("INTEGRATION_PRIVATE_KEY not found in environment variables") },
+                    env.getOrElse("INTEGRATION_PRIVATE_KEY") { throw RuntimeException("INTEGRATION_PRIVATE_KEY not found in environment variables") },
                 ),
             )
         }
