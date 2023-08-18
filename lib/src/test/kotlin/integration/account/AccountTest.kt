@@ -37,6 +37,7 @@ class AccountTest {
         private val accountAddress = config.accountAddress
         private val privateKey = config.privateKey
         private val accountContractClassHash = Felt.fromHex("0x05a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8")
+        private val predeployedMapContractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
 
         private lateinit var signer: Signer
 
@@ -101,7 +102,7 @@ class AccountTest {
 
         val (account, provider) = accountAndProvider
         // Note to future developers
-        // This test sometimes fails due to getNonce receiving higher nonce than addInvokeTransaction expects
+        // This test sometimes fails due to getNonce receiving higher nonce than expected by addDeclareTransaction
         // Apparently, getNonce knows about pending blocks while other methods don't
         // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
@@ -153,7 +154,7 @@ class AccountTest {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         // Note to future developers
-        // This test sometimes fails due to getNonce receiving higher nonce than addInvokeTransaction expects
+        // This test sometimes fails due to getNonce receiving higher nonce than expected by addDeclareTransaction
         // Apparently, getNonce knows about pending blocks while other methods don't
 
         val (account, provider) = accountAndProvider
@@ -277,22 +278,41 @@ class AccountTest {
     @MethodSource("getAccounts")
     fun `sign and send invoke transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+
         val (account, provider) = accountAndProvider
 
         val call = Call(
-            contractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53"),
+            contractAddress = predeployedMapContractAddress,
             entrypoint = "put",
-            calldata = listOf(Felt.fromHex("0x102"), Felt.fromHex("0x125")),
+            calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
         )
 
         val invokeRequest = account.execute(call)
         val invokeResponse = invokeRequest.send()
 
-        Thread.sleep(30000)
+        Thread.sleep(60000)
 
         val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
-
         assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getProviders")
+    fun `call contract`(provider: Provider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        // Note to future developers:
+        // This test might fail if someone deliberately changes the key's corresponding value in contract.
+        val call = Call(
+            contractAddress = predeployedMapContractAddress,
+            entrypoint = "get",
+            calldata = listOf(Felt.fromHex("0x1D2C3B7A8")),
+        )
+
+        val getRequest = provider.callContract(call, BlockTag.LATEST)
+        val getResponse = getRequest.send()
+        val value = getResponse.first()
+        assertNotEquals(Felt.fromHex("0x0"), value)
     }
 
     @ParameterizedTest
