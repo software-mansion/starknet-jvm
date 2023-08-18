@@ -211,6 +211,11 @@ publishing {
                         name.set("Wojciech Szymczyk")
                         email.set("wojciech.szymczyk@swmansion.com")
                     }
+                    developer {
+                        id.set("maksimzdobnikau")
+                        name.set("Maksim Zdobnikau")
+                        email.set("maksim.zdobnikau@swmansion.com")
+                    }
                 }
                 scm {
                     connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
