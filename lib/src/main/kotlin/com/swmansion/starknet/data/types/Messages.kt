@@ -16,8 +16,8 @@ data class MessageL2ToL1(
     @SerialName("to_address")
     val toAddress: Felt,
 
-    @SerialName("payload")
     @JsonNames("payload")
+    @SerialName("payload")
     val payload: List<Felt>,
 )
 

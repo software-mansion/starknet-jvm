@@ -104,7 +104,6 @@ class AccountTest {
         // Note to future developers
         // This test sometimes fails due to getNonce receiving higher nonce than expected by addDeclareTransaction
         // Apparently, getNonce knows about pending blocks while other methods don't
-        // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
 
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()

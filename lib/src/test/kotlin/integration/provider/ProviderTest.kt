@@ -374,8 +374,7 @@ class ProviderTest {
         // Note for future developers:
         // This test may fail because there's no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
-
-        // TODO: consider moving this test to a separate test suite for inconsistent test cases that only runs locally
+        // Also, the node can be configured such way that accessing pending block is not supported
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
