@@ -15,20 +15,30 @@ class IntegrationConfig {
             const val DEFAULT_FEEDER_GATEWAY_URL = "https://external.integration.starknet.io/feeder_gateway"
         }
     }
+
+    enum class IntegrationTestMode {
+        DISABLED,
+        NON_GAS,
+        ALL;
+
+        companion object {
+            @JvmStatic
+            fun fromString(value: String): IntegrationTestMode {
+                return values().firstOrNull { it.name.equals(value, ignoreCase = true) } ?: DISABLED
+            }
+        }
+    }
+
     companion object {
         @JvmStatic
         fun isTestEnabled(requiresGas: Boolean): Boolean {
-            val enableIntegrationTests = System.getProperty("enableIntegrationTests")?.toBoolean() ?: false
-            val enableGasTests = System.getProperty("enableGasTests")?.toBoolean() ?: false
+            val integrationTestMode = IntegrationTestMode.fromString(System.getProperty("integrationTestMode") ?: "disabled")
 
-            if (!enableIntegrationTests) {
-                return false
+            return when (integrationTestMode) {
+                IntegrationTestMode.DISABLED -> false
+                IntegrationTestMode.NON_GAS -> !requiresGas
+                IntegrationTestMode.ALL -> true
             }
-            if (requiresGas) {
-                return enableGasTests
-            }
-
-            return true
         }
 
         @JvmStatic

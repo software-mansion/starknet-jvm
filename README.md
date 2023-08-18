@@ -245,21 +245,20 @@ Please note that while there are publicly accessible gateway URLs, you will addi
 
 Integration tests are disabled by default. To enable them, you can set the env variable: 
 ```env
-ENABLE_INTEGRATION_TESTS=true
+INTEGRATION_TEST_MODE=non_gas
 ```
-
-### Gas-requiring integration tests
-Some tests require gas and are disabled by default. If you want to run them as well, you can set:
+Some of integration tests require gas and are disabled by default. If you want to run them as well, you can set:
 ```env 
-ENABLE_GAS_TESTS=true
+INTEGRATION_TEST_MODE=all
 ```
+Please be aware that in that case your integration account address must have a pre-existing balance as these tests will consume some funds.
 
-Alternatively, you can use flags to specify whether to run integration and gas tests:
+Alternatively, you can use flag to specify whether to run integration and gas tests:
 ```shell
-./gradlew :lib:test -PenableIntegrationTests=true
-./gradlew :lib:test -PenableIntegrationTests=true -PenableGasTests=true
+./gradlew :lib:test -PintegrationTestMode=non_gas
+./gradlew :lib:test -PintegrationTestMode=all
 ```
-Please note that to run the gas-requiring tests both flags must be set to true.
+Flag takes precendece over the env variable if both are set.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

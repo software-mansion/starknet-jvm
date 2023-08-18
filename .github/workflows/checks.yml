@@ -16,8 +16,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      ENABLE_INTEGRATION_TESTS: "false"
-      ENABLE_GAS_TESTS: "false"
+      INTEGRATION_TEST_MODE: "disabled"
       INTEGRATION_RPC_URL: ${{ secrets.STARKNET_JVM_RPC_URL }}
       INTEGRATION_ACCOUNT_ADDRESS: ${{ secrets.STARKNET_JVM_INTEGRATION_ACCOUNT_ADDRESS }}
       INTEGRATION_PRIVATE_KEY: ${{ secrets.STARKNET_JVM_INTEGRATION_PRIVATE_KEY }}
