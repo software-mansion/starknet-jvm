@@ -30,10 +30,11 @@ class IntegrationConfig {
     }
 
     companion object {
+        private val integrationTestMode: IntegrationTestMode =
+            IntegrationTestMode.fromString(System.getProperty("integrationTestMode") ?: "disabled")
+
         @JvmStatic
         fun isTestEnabled(requiresGas: Boolean): Boolean {
-            val integrationTestMode = IntegrationTestMode.fromString(System.getProperty("integrationTestMode") ?: "disabled")
-
             return when (integrationTestMode) {
                 IntegrationTestMode.DISABLED -> false
                 IntegrationTestMode.NON_GAS -> !requiresGas
@@ -43,8 +44,17 @@ class IntegrationConfig {
 
         @JvmStatic
         private fun makeConfigFromEnv(): Config {
-            val env = System.getenv()
+            if (integrationTestMode == IntegrationTestMode.DISABLED) {
+                return Config(
+                    rpcUrl = "",
+                    gatewayUrl = "",
+                    feederGatewayUrl = "",
+                    accountAddress = Felt.ZERO,
+                    privateKey = Felt.ZERO,
+                )
+            }
 
+            val env = System.getenv()
             return Config(
                 rpcUrl = env.getOrElse("INTEGRATION_RPC_URL") { throw RuntimeException("INTEGRATION_RPC_URL not found in environment variables") },
                 gatewayUrl = env.getOrDefault("INTEGRATION_GATEWAY_URL", Config.DEFAULT_GATEWAY_URL),
