@@ -135,6 +135,8 @@ data class BlockWithTransactionsResponse(
     @SerialName("status")
     val status: BlockStatus,
 
+    // Block header
+
     @SerialName("parent_hash")
     override val parentHash: Felt,
 
@@ -147,23 +149,29 @@ data class BlockWithTransactionsResponse(
     @SerialName("new_root")
     val newRoot: Felt,
 
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+
+    // Block body
+
     @SerialName("transactions")
     override val transactions: List<
         @Serializable(with = TransactionPolymorphicSerializer::class)
         Transaction,
         >,
 
-    @SerialName("timestamp")
-    override val timestamp: Int,
-
-    @SerialName("sequencer_address")
-    override val sequencerAddress: Felt,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
+    // Not in RPC schema
+    @SerialName("status")
+    val status: BlockStatus = BlockStatus.PENDING,
+
+    // Block body
 
     @SerialName("transactions")
     override val transactions: List<
@@ -171,11 +179,16 @@ data class PendingBlockWithTransactionsResponse(
         Transaction,
         >,
 
+    // Block info
+
     @SerialName("timestamp")
     override val timestamp: Int,
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable

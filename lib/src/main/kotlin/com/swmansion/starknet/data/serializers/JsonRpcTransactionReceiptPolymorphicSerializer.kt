@@ -9,15 +9,22 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionReceipt> {
         val jsonElement = element.jsonObject
-        val isPending = "status" !in jsonElement
-        return if (isPending) selectPendingDeserializer(jsonElement) else selectDeserializer(jsonElement)
+        val isPendingTransactionReceipt = listOf("block_hash", "block_number").any { it !in jsonElement }
+
+        return when (isPendingTransactionReceipt) {
+            true -> selectPendingDeserializer(jsonElement)
+            false -> selectDeserializer(jsonElement)
+        }
     }
 
-    private fun selectPendingDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> =
-        when {
-            "contract_address" in element -> PendingRpcDeployTransactionReceipt.serializer()
-            else -> PendingRpcTransactionReceipt.serializer()
+    private fun selectPendingDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> {
+        val isDeployTransactionReceipt = "contract_address" in element
+
+        return when (isDeployTransactionReceipt) {
+            true -> PendingRpcDeployTransactionReceipt.serializer()
+            false -> PendingRpcTransactionReceipt.serializer()
         }
+    }
 
     private fun selectDeserializer(element: JsonObject): DeserializationStrategy<out TransactionReceipt> =
         when (element["type"]?.jsonPrimitive?.content) {

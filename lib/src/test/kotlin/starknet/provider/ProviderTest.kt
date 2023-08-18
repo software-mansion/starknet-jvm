@@ -12,16 +12,16 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
+import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -60,7 +60,8 @@ class ProviderTest {
             if (receipt !is ProcessedTransactionReceipt) {
                 return false
             }
-            return receipt.status == TransactionStatus.ACCEPTED_ON_L2 || receipt.status == TransactionStatus.ACCEPTED_ON_L1
+            return receipt.executionStatus == TransactionExecutionStatus.SUCCEEDED &&
+                (receipt.finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || receipt.finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
         }
 
         @JvmStatic
@@ -434,8 +435,10 @@ class ProviderTest {
                             "n_memory_holes": 0,
                             "n_steps": 41
                         },
-                        "l2_to_l1_messages": [],
+                        "messages_sent": [],
                         "status": "ACCEPTED_ON_L1",
+                        "finality_status": "ACCEPTED_ON_L1",
+                        "execution_status": "SUCCEEDED",
                         "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
                         "transaction_index": 8
                     }
@@ -466,7 +469,8 @@ class ProviderTest {
                             "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
                             "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
                             "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
-                            "status": "ACCEPTED_ON_L1",
+                            "finality_status": "ACCEPTED_ON_L1",
+                            "execution_status": "SUCCEEDED",
                             "block_number": 264715,
                             "type": "DEPLOY",
                             "events":
@@ -488,7 +492,13 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get declare transaction receipt`(provider: Provider) {
+    fun `get declare transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val request = provider.getTransactionReceipt(declareTransactionHash)
         val response = request.send()
 
@@ -503,17 +513,57 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get invoke transaction receipt`(provider: Provider) {
+    fun `get invoke transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
         assertNotNull(response)
 
-        if (provider is GatewayProvider) {
-            assertTrue(response is GatewayTransactionReceipt)
-        } else if (provider is JsonRpcProvider) {
-            assertTrue(response is RpcTransactionReceipt)
+        when (provider) {
+            is GatewayProvider -> assertTrue(response is GatewayTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(response is RpcTransactionReceipt)
+            else -> throw IllegalStateException("Unknown provider type")
         }
+    }
+
+    @Test
+    fun `get pending invoke transaction receipt rpc`() {
+        val mockedResponse =
+            """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "type": "INVOKE",
+                "transaction_hash": "0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a",
+                "actual_fee": "0x244adfc7e22",
+                "messages_sent": [],
+                "events": [],
+                "execution_status": "SUCCEEDED",
+                "finality_status": "ACCEPTED_ON_L2"
+            }
+        }
+            """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                isSuccessful = true,
+                code = 200,
+                body = mockedResponse,
+            )
+        }
+
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
+
+        assertTrue(receipt is PendingRpcTransactionReceipt)
+        assertFalse(receipt is RpcTransactionReceipt)
     }
 
     @Test
@@ -527,6 +577,8 @@ class ProviderTest {
                 """
                 {
                     "status": "ACCEPTED_ON_L2",
+                    "finality_status": "ACCEPTED_ON_L2",
+                    "execution_status": "SUCCEEDED",
                     "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
                     "block_number": 392723,
                     "transaction_index": 13,
@@ -542,7 +594,7 @@ class ProviderTest {
                         ],
                         "nonce": "0x402af"
                     },
-                    "l2_to_l1_messages": [],
+                    "messages_sent": [],
                     "events": [
                         {
                             "from_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
@@ -588,6 +640,9 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is GatewayTransactionReceipt)
+        val gatewayResponse = response as GatewayTransactionReceipt
+        assertNotNull(gatewayResponse.messageL1ToL2)
+        assertNotNull(gatewayResponse.messageL1ToL2!!.nonce)
     }
 
     @Test
@@ -603,7 +658,8 @@ class ProviderTest {
                         "result": {
                             "transaction_hash": "0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7",
                             "actual_fee": "0x0",
-                            "status": "ACCEPTED_ON_L2",
+                            "finality_status": "ACCEPTED_ON_L2",
+                            "execution_status": "SUCCEEDED",
                             "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
                             "block_number": 392723,
                             "type": "L1_HANDLER",
@@ -748,7 +804,13 @@ class ProviderTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `get deploy account transaction receipt`(provider: Provider) {
+    fun `get deploy account transaction receipt`(sourceProvider: Provider) {
+        val provider = when (sourceProvider) {
+            is GatewayProvider -> sourceProvider
+            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(sourceProvider)
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
 
         if (provider is GatewayProvider) {
@@ -1058,9 +1120,11 @@ class ProviderTest {
                 200,
                 """
                 {
-                    "status": "RECEIVED", 
+                    "status": "RECEIVED",
+                    "finality_status": "RECEIVED",
+                    "execution_status": "SUCCEEDED",
                     "transaction_hash": "0x334da4f63cc6309ba2429a70f103872ab0ae82cf8d9a73b845184a4713cada5", 
-                    "l2_to_l1_messages": [], 
+                    "messages_sent": [], 
                     "events": []
                 }
                 """.trimIndent(),
@@ -1071,7 +1135,7 @@ class ProviderTest {
 
         assertEquals(hash, receipt.hash)
         assertEquals(TransactionStatus.PENDING, receipt.status)
-        assertEquals(emptyList<GatewayMessageL2ToL1>(), receipt.messagesL2ToL1)
+        assertEquals(emptyList<MessageL2ToL1>(), receipt.messagesSent)
         assertEquals(emptyList<Event>(), receipt.events)
         assertNull(receipt.messageL1ToL2)
         assertNull(receipt.actualFee)

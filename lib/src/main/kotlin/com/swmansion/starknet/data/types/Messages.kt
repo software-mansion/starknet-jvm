@@ -1,51 +1,46 @@
 package com.swmansion.starknet.data.types
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GatewayMessageL2ToL1(
+data class MessageL2ToL1(
+    @JsonNames("from_address")
+    @SerialName("from_address")
+    val fromAddress: Felt,
+
     @JsonNames("to_address")
+    @SerialName("to_address")
     val toAddress: Felt,
 
     @JsonNames("payload")
+    @SerialName("payload")
     val payload: List<Felt>,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GatewayMessageL1ToL2(
+data class MessageL1ToL2(
     @JsonNames("from_address")
-    val fromAddress: Felt,
-
-    @JsonNames("payload")
-    val payload: List<Felt>,
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class RpcMessageL2ToL1(
-    @JsonNames("from_address")
+    @SerialName("from_address")
     val fromAddress: Felt,
 
     @JsonNames("to_address")
+    @SerialName("to_address")
     val toAddress: Felt,
 
-    @JsonNames("payload")
-    val payload: List<Felt>,
-)
+    @JsonNames("selector", "entry_point_selector")
+    @SerialName("entry_point_selector")
+    val selector: Felt,
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class RpcMessageL1ToL2(
-    @JsonNames("from_address")
-    val fromAddress: Felt,
-
-    @JsonNames("to_address")
-    val toAddress: Felt,
+    @JsonNames("nonce")
+    @SerialName("nonce")
+    val nonce: Felt? = null,
 
     @JsonNames("payload")
+    @SerialName("payload")
     val payload: List<Felt>,
 )
