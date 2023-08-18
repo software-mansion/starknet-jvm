@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.6.2"
+version = "0.7.0"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -210,6 +210,11 @@ publishing {
                         id.set("wojciechszymczyk")
                         name.set("Wojciech Szymczyk")
                         email.set("wojciech.szymczyk@swmansion.com")
+                    }
+                    developer {
+                        id.set("maksimzdobnikau")
+                        name.set("Maksim Zdobnikau")
+                        email.set("maksim.zdobnikau@swmansion.com")
                     }
                 }
                 scm {
