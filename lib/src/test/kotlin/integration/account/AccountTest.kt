@@ -157,7 +157,6 @@ class AccountTest {
         // Apparently, getNonce knows about pending blocks while other methods don't
 
         val (account, provider) = accountAndProvider
-        // TODO: find a better account that has a non-changing nonce
         assumeFalse(provider is GatewayProvider)
 
         val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
