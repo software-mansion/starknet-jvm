@@ -290,7 +290,7 @@ class AccountTest {
         val invokeRequest = account.execute(call)
         val invokeResponse = invokeRequest.send()
 
-        Thread.sleep(60000)
+        Thread.sleep(30000)
 
         val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
         assertTrue(receipt.isAccepted)
