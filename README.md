@@ -546,7 +546,6 @@ fun main(args: Array<String>) {
         sierraContractDefinition = contractDefinition,
         casmContractDefinition = casmContractDefinition,
         params = params,
-
     )
 
     val request = provider.declareContract(declareTransactionPayload)
