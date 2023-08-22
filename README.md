@@ -131,9 +131,9 @@ public class Main {
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
-                classHash,
-                calldata,
-                salt
+            classHash,
+            calldata,
+            salt
         );
 
         Account account = new StandardAccount(address, privateKey, provider, Felt.ZERO);
@@ -144,10 +144,10 @@ public class Main {
         
         // Create and sign deploy account transaction
         DeployAccountTransactionPayload payload = account.signDeployAccount(
-                classHash,
-                calldata,
-                salt,
-                maxFee
+            classHash,
+            calldata,
+            salt,
+            maxFee
         );
 
         DeployAccountResponse response = provider.deployAccount(payload).send();
@@ -171,22 +171,22 @@ fun main(args: Array<String>) {
     val salt = Felt(789)
     val calldata = listOf(publicKey)
     val address = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = classHash,
-            calldata = calldata,
-            salt = salt,
+        classHash = classHash,
+        calldata = calldata,
+        salt = salt,
     )
 
     val account = StandardAccount(
-            address,
-            privateKey,
-            provider,
+        address,
+        privateKey,
+        provider,
     )
 
     val payload = account.signDeployAccount(
-            classHash = classHash,
-            salt = salt,
-            calldata = calldata,
-            maxFee = Felt.fromHex("0x11fcc58c7f7000"),  // should be 10*fee from estimate deploy account fee
+        classHash = classHash,
+        salt = salt,
+        calldata = calldata,
+        maxFee = Felt.fromHex("0x11fcc58c7f7000"),  // should be 10*fee from estimate deploy account fee
     )
     
     // Create and sign deploy account transaction
@@ -265,9 +265,9 @@ fun main(args: Array<String>) {
     // Create a call
     val calldata = listOf(recipientAccountAddress, amount.low, amount.high) // amount is Uint256 and is represented by two Felt values
     val call = Call(
-            contractAddress = contractAddress,
-            entrypoint = "transfer",
-            calldata = calldata,
+        contractAddress = contractAddress,
+        entrypoint = "transfer",
+        calldata = calldata,
     )
     
     // Estimate fee for the invoke transaction
@@ -341,9 +341,9 @@ fun main(args: Array<String>) {
     // Create a call
     val calldata = listOf(account.address)
     val call = Call(
-            contractAddress = contractAddress,
-            entrypoint = "balanceOf",
-            calldata = calldata,
+        contractAddress = contractAddress,
+        entrypoint = "balanceOf",
+        calldata = calldata,
     )
     val request = provider.callContract(call)
     
@@ -352,8 +352,8 @@ fun main(args: Array<String>) {
 
     //Output value's type is Uint256 and is represented by two Felt values
     val balance = Uint256(
-            low = response[0],
-            high = response[1],
+        low = response[0],
+        high = response[1],
     )
 }
 ```
@@ -433,10 +433,10 @@ fun main(args: Array<String>) {
 
     // Estimate fee for declaring a contract
     val declareTransactionPayloadForFeeEstimate = account.signDeclare(
-            contractDefinition = contractDefinition,
-            classHash = classHash,
-            params = ExecutionParams(nonce, Felt(1000000000000000L)),
-            forFeeEstimate = true,
+        contractDefinition = contractDefinition,
+        classHash = classHash,
+        params = ExecutionParams(nonce, Felt(1000000000000000L)),
+        forFeeEstimate = true,
     )
     val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
     val feeEstimate = feeEstimateRequest.send().first().overallFee
@@ -445,9 +445,9 @@ fun main(args: Array<String>) {
     // Declare a contract
     val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
     val declareTransactionPayload = account.signDeclare(
-            contractDefinition = contractDefinition,
-            classHash = classHash,
-            params = params,
+        contractDefinition = contractDefinition,
+        classHash = classHash,
+        params = params,
     )
 
     val request = provider.declareContract(declareTransactionPayload)
@@ -535,9 +535,9 @@ fun main(args: Array<String>) {
 
     // Estimate fee for declaring a contract
     val declareTransactionPayloadForFeeEstimate = account.signDeclare(
-            sierraContractDefinition = contractDefinition,
-            casmContractDefinition = casmContractDefinition,
-            params = ExecutionParams(nonce, Felt(1000000000000000L)),
+        sierraContractDefinition = contractDefinition,
+        casmContractDefinition = casmContractDefinition,
+        params = ExecutionParams(nonce, Felt(1000000000000000L)),
     )
     val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
     val feeEstimate = feeEstimateRequest.send().first().overallFee
@@ -546,9 +546,9 @@ fun main(args: Array<String>) {
     // Declare a contract
     val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
     val declareTransactionPayload = account.signDeclare(
-            sierraContractDefinition = contractDefinition,
-            casmContractDefinition = casmContractDefinition,
-            params = params,
+        sierraContractDefinition = contractDefinition,
+        casmContractDefinition = casmContractDefinition,
+        params = params,
     )
 
     val request = provider.declareContract(declareTransactionPayload)
