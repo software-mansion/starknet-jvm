@@ -101,7 +101,7 @@ public class Main {
 }
 ```
 
-### Deploy Account example
+### Deploying account
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -194,7 +194,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-### Invoke contract / Transfer ETH example 
+### Invoking contract: Transfering ETH 
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -282,7 +282,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-### Call contract / Fetch ETH balance example
+### Calling contract: Fetching ETH balance
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -358,7 +358,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-### Declare contract (Cairo 0) example
+### Declaring Cairo 0 contract
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -392,7 +392,7 @@ public class Main {
         String contractCode = String.join("", Files.readAllLines(contractPath));
         Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contractCode);
         // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-        Felt classHash = Felt.fromHex("0x661efb55f8bcf34ad1596936b631e6b581bfa246b99ff3f9f2d9b8fa4ff5962");
+        Felt classHash = Felt.fromHex("0x1a3b2c");
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
@@ -428,7 +428,7 @@ fun main(args: Array<String>) {
     val contractCode = Path.of("contract.json").readText()
     val contractDefinition = Cairo0ContractDefinition(contractCode)
     // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-    val classHash = Felt.fromHex("0x661efb55f8bcf34ad1596936b631e6b581bfa246b99ff3f9f2d9b8fa4ff5962")
+    val classHash = Felt.fromHex("0x1a3b2c")
     val nonce = account.getNonce().send()
 
     // Estimate fee for declaring a contract
@@ -456,7 +456,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-### Declare contract (Cairo 1/2) example
+### Declare Cairo 1/2 contract
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -492,7 +492,6 @@ public class Main {
         String casmCode = String.join("", Files.readAllLines(casmPath));
         Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
         CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
-        // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
@@ -529,8 +528,6 @@ fun main(args: Array<String>) {
     val casmCode = Path.of("contract.casm").readText()
     val contractDefinition = Cairo1ContractDefinition(contractCode)
     val casmContractDefinition = CasmContractDefinition(casmCode)
-    // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-    val classHash = Felt.fromHex("0x661efb55f8bcf34ad1596936b631e6b581bfa246b99ff3f9f2d9b8fa4ff5962")
     val nonce = account.getNonce().send()
 
     // Estimate fee for declaring a contract
@@ -549,6 +546,7 @@ fun main(args: Array<String>) {
         sierraContractDefinition = contractDefinition,
         casmContractDefinition = casmContractDefinition,
         params = params,
+
     )
 
     val request = provider.declareContract(declareTransactionPayload)
