@@ -440,8 +440,6 @@ class AccountTest {
 
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
-//        println(privateKey)
-//        println(publicKey)
 
         val classHash = accountContractClassHash
         val salt = Felt(System.currentTimeMillis())
@@ -457,7 +455,6 @@ class AccountTest {
             privateKey,
             provider,
         )
-//        println(deployedAccountAddress)
 
         val deployMaxFee = Uint256(5523000060522)
         val call = Call(
