@@ -402,12 +402,12 @@ public class Main {
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
-        ExecutionParams params = new ExecutionParams(nonce, new Felt(feeEstimate.getValue().multiply(BigInteger.TEN)));
+        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee
+        ExecutionParams params = new ExecutionParams(nonce, maxFee);
         DeclareTransactionV1Payload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, params, false);
 
         Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
         DeclareResponse response = request.send();
-        Felt hash = response.getTransactionHash(); // Hash of the transaction that declares a contract
     }
 }
 ```
@@ -443,7 +443,7 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee
     val params = ExecutionParams(
             nonce = nonce,
             maxFee = maxFee,
@@ -504,12 +504,12 @@ public class Main {
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
-        ExecutionParams params = new ExecutionParams(nonce, new Felt(feeEstimate.getValue().multiply(BigInteger.TEN)));
+        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee
+        ExecutionParams params = new ExecutionParams(nonce, maxFee);
         DeclareTransactionV2Payload declareTransactionPayload = account.signDeclare(contractDefinition, casmContractDefinition, params, false);
 
         Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
         DeclareResponse response = request.send();
-        Felt hash = response.getTransactionHash(); // Hash of the transaction that declares a contract
     }
 }
 ```
@@ -544,7 +544,7 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee
     val params = ExecutionParams(
             nonce = nonce,
             maxFee = maxFee,
