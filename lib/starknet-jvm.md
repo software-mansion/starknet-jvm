@@ -438,7 +438,7 @@ public class Main {
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
-        DeclareTransactionV1Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash,new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
+        DeclareTransactionV1Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
         Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
         Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
@@ -486,7 +486,11 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val params = ExecutionParams(
+            nonce = nonce,
+            maxFee = maxFee,
+    )
     val declareTransactionPayload = account.signDeclare(
         contractDefinition = contractDefinition,
         classHash = classHash,
@@ -495,7 +499,6 @@ fun main(args: Array<String>) {
 
     val request = provider.declareContract(declareTransactionPayload)
     val response = request.send()
-    val hash = response.transactionHash // Hash of the transaction that declares a contract
 }
 ```
 
@@ -587,7 +590,11 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val params = ExecutionParams(
+            nonce = nonce,
+            maxFee = maxFee,
+    )
     val declareTransactionPayload = account.signDeclare(
         sierraContractDefinition = contractDefinition,
         casmContractDefinition = casmContractDefinition,

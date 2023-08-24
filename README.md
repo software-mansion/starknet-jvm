@@ -443,7 +443,11 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val params = ExecutionParams(
+            nonce = nonce,
+            maxFee = maxFee,
+    )
     val declareTransactionPayload = account.signDeclare(
         contractDefinition = contractDefinition,
         classHash = classHash,
@@ -452,11 +456,10 @@ fun main(args: Array<String>) {
 
     val request = provider.declareContract(declareTransactionPayload)
     val response = request.send()
-    val hash = response.transactionHash // Hash of the transaction that declares a contract
 }
 ```
 
-### Declare Cairo 1/2 contract
+### Declaring Cairo 1/2 contract
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -541,7 +544,11 @@ fun main(args: Array<String>) {
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
     // Declare a contract
-    val params = ExecutionParams(nonce, Felt(feeEstimate.value.multiply(BigInteger.TEN)))
+    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TEN))
+    val params = ExecutionParams(
+            nonce = nonce,
+            maxFee = maxFee,
+    )
     val declareTransactionPayload = account.signDeclare(
         sierraContractDefinition = contractDefinition,
         casmContractDefinition = casmContractDefinition,
@@ -611,7 +618,7 @@ Some of integration tests require gas and are disabled by default. If you want t
 ```env 
 INTEGRATION_TEST_MODE=all
 ```
-Please be aware that in that case your integration account address must have a pre-existing balance as these tests will consume some funds.
+⚠️ WARNING ⚠️ Please be aware that in that case your integration account address must have a pre-existing balance as these tests will consume some funds.
 
 Alternatively, you can use flag to specify whether to run integration and gas tests:
 ```shell
@@ -619,6 +626,11 @@ Alternatively, you can use flag to specify whether to run integration and gas te
 ./gradlew :lib:test -PintegrationTestMode=all
 ```
 Flag takes precendece over the env variable if both are set.
+
+⚠️ WARNING ⚠️ Some integration tests may fail due to getNonce receiving higher nonce than expected by other methods.
+It is adviced to additionaly provide an account (along with its `private key`) with a constant `nonce` to ensure non-gas tests pass.
+Such account shouldn't be used for any other purpose than running non-gas integration tests.
+If not set, the main integration account will be used for this purpose.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 
