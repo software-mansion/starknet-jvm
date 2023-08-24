@@ -9,6 +9,8 @@ class IntegrationConfig {
         val feederGatewayUrl: String = DEFAULT_FEEDER_GATEWAY_URL,
         val accountAddress: Felt,
         val privateKey: Felt,
+        val constNonceAccountAddress: Felt? = null,
+        val constNoncePrivateKey: Felt? = null,
     ) {
         companion object {
             const val DEFAULT_GATEWAY_URL = "https://external.integration.starknet.io/gateway"
@@ -65,6 +67,8 @@ class IntegrationConfig {
                 privateKey = Felt.fromHex(
                     env.getOrElse("INTEGRATION_PRIVATE_KEY") { throw RuntimeException("INTEGRATION_PRIVATE_KEY not found in environment variables") },
                 ),
+                constNonceAccountAddress = env["INTEGRATION_CONST_NONCE_ACCOUNT_ADDRESS"]?.let { Felt.fromHex(it) },
+                constNoncePrivateKey = env["INTEGRATION_CONST_NONCE_PRIVATE_KEY"]?.let { Felt.fromHex(it) },
             )
         }
 

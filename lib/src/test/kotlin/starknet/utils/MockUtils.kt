@@ -26,13 +26,22 @@ object MockUtils {
                 else -> TransactionExecutionStatus.REVERTED.toString()
             }
 
-            val modifiedResultJson = JsonObject(
+            var modifiedResultJson = JsonObject(
                 originalJson["result"]!!.jsonObject.toMutableMap().apply {
                     remove("status")
                     put("finality_status", JsonPrimitive(status))
                     put("execution_status", JsonPrimitive(executionStatus))
                 },
             )
+
+            if (status !in acceptedStatuses) {
+                modifiedResultJson = JsonObject(
+                    originalJson["result"]!!.jsonObject.toMutableMap().apply {
+                        put("revert_error", JsonPrimitive("Placeholder revert reason."))
+                    },
+                )
+            }
+
             val mergedJson = JsonObject(
                 originalJson.toMutableMap().apply {
                     this["result"] = modifiedResultJson

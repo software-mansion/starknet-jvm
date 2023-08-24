@@ -9,7 +9,6 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
-import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import integration.utils.IntegrationConfig
 import kotlinx.serialization.json.*
@@ -35,31 +34,28 @@ class AccountTest {
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
         private val accountAddress = config.accountAddress
-        private val privateKey = config.privateKey
+        private val signer = StarkCurveSigner(config.privateKey)
+        private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
+        private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
+
         private val accountContractClassHash = Felt.fromHex("0x05a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8")
         private val predeployedMapContractAddress = Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
+        private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
 
-        private lateinit var signer: Signer
-
-        private lateinit var gatewayProvider: GatewayProvider
-        private lateinit var rpcProvider: JsonRpcProvider
+        private val gatewayProvider = GatewayProvider(
+            feederGatewayUrl,
+            gatewayUrl,
+            StarknetChainId.TESTNET,
+        )
+        private val rpcProvider = JsonRpcProvider(
+            rpcUrl,
+            StarknetChainId.TESTNET,
+        )
 
         @JvmStatic
         @BeforeAll
-        fun before() {
-            signer = StarkCurveSigner(
-                privateKey = privateKey,
-            )
-            gatewayProvider = GatewayProvider(
-                feederGatewayUrl,
-                gatewayUrl,
-                StarknetChainId.TESTNET,
-            )
-            rpcProvider = JsonRpcProvider(
-                rpcUrl,
-                StarknetChainId.TESTNET,
-            )
-        }
+        fun before() {}
+
         data class AccountAndProvider(val account: Account, val provider: Provider)
 
         @JvmStatic
@@ -91,21 +87,60 @@ class AccountTest {
         }
 
         @JvmStatic
+        fun getConstNonceAccounts(): List<AccountAndProvider> {
+            return listOf(
+                AccountAndProvider(
+                    StandardAccount(
+                        constNonceAccountAddress,
+                        constNonceSigner,
+                        rpcProvider,
+                    ),
+                    rpcProvider,
+                ),
+                AccountAndProvider(
+                    // Note to future developers:
+                    // Some tests may fail due to getNonce receiving higher nonce than expected by other methods
+                    // Apparently, getNonce knows about pending blocks while other methods don't
+                    // Until it remains this way, an account with a constant nonce is used for these tests
+                    // Only use this account for tests that don't change the state of the network (non-gas tests)
+                    StandardAccount(
+                        constNonceAccountAddress,
+                        constNonceSigner,
+                        gatewayProvider,
+                    ),
+                    gatewayProvider,
+                ),
+            )
+        }
+
+        @JvmStatic
         @AfterAll
         fun after() {}
     }
 
     @ParameterizedTest
-    @MethodSource("getAccounts")
+    @MethodSource("getConstNonceAccounts")
+    fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val (account, provider) = accountAndProvider
+
+        val call = Call(
+            contractAddress = predeployedMapContractAddress,
+            entrypoint = "put",
+            calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
+        )
+        val estimateFeeRequest = account.estimateFee(listOf(call))
+        val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
+        assertTrue(estimateFeeResponse.value > Felt.ONE.value)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v1 transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-        // Note to future developers
-        // This test sometimes fails due to getNonce receiving higher nonce than expected by addDeclareTransaction
-        // Apparently, getNonce knows about pending blocks while other methods don't
-        assumeFalse(provider is GatewayProvider)
-
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
@@ -148,15 +183,13 @@ class AccountTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getAccounts")
+    @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
-        // Note to future developers
-        // This test sometimes fails due to getNonce receiving higher nonce than expected by addDeclareTransaction
-        // Apparently, getNonce knows about pending blocks while other methods don't
-
         val (account, provider) = accountAndProvider
+        // TODO (#295)
+        // Can be reenabled after compiler version bump (awaiting PR #285 merge)
         assumeFalse(provider is GatewayProvider)
 
         val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
@@ -237,7 +270,8 @@ class AccountTest {
     }
 
     @Disabled
-    // TODO: Fails with "Compiled versions older than 1.1.0 or newer than 1.3.0 are not supported. Got version 1.0.0."
+    // TODO (#295)
+    // Fails with "Compiled versions older than 1.1.0 or newer than 1.3.0 are not supported. Got version 1.0.0."
     // Can be reenabled after compiler version bump (awaiting PR #285 merge)
     @ParameterizedTest
     @MethodSource("getAccounts")
@@ -315,7 +349,7 @@ class AccountTest {
 
     @ParameterizedTest
     @MethodSource("getProviders")
-    fun `estimate deploy account fee`(provider: Provider) {
+    fun `estimate fee for deploy account`(provider: Provider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val privateKey = Felt(System.currentTimeMillis())
@@ -350,5 +384,122 @@ class AccountTest {
 
         val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
         assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getConstNonceAccounts")
+    fun `get ETH balance`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val (account, provider) = accountAndProvider
+        val call = Call(
+            contractAddress = ethContractAddress,
+            entrypoint = "balanceOf",
+            calldata = listOf(account.address),
+        )
+
+        val request = provider.callContract(call)
+        val response = request.send()
+        val balance = Uint256(
+            low = response[0],
+            high = response[1],
+        )
+
+        assertTrue(balance.value > Felt.ZERO.value)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `transfer ETH`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+
+        val (account, provider) = accountAndProvider
+        val recipientAccountAddress = constNonceAccountAddress
+
+        val amount = Uint256(Felt.ONE)
+        val call = Call(
+            contractAddress = ethContractAddress,
+            entrypoint = "transfer",
+            calldata = listOf(recipientAccountAddress, amount.low, amount.high),
+        )
+
+        val request = account.execute(call)
+        val response = request.send()
+        Thread.sleep(15000)
+
+        val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
+        assertTrue(transferReceipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `deploy account`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+
+        val (account, provider) = accountAndProvider
+
+        val privateKey = Felt(System.currentTimeMillis())
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountContractClassHash
+        val salt = Felt(System.currentTimeMillis())
+        val calldata = listOf(publicKey)
+        val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+        )
+
+        val deployedAccount = StandardAccount(
+            deployedAccountAddress,
+            privateKey,
+            provider,
+        )
+
+        val deployMaxFee = Uint256(5523000060522)
+        val call = Call(
+            contractAddress = ethContractAddress,
+            entrypoint = "transfer",
+            calldata = listOf(
+                deployedAccountAddress,
+                deployMaxFee.low,
+                deployMaxFee.high,
+            ),
+        )
+
+        val transferRequest = account.execute(call)
+        val transferResponse = transferRequest.send()
+        Thread.sleep(15000)
+
+        val transferReceipt = provider.getTransactionReceipt(transferResponse.transactionHash).send()
+        assertTrue(transferReceipt.isAccepted)
+
+        val payload = deployedAccount.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            // 10*fee from estimate deploy account fee
+            maxFee = Felt(deployMaxFee.value),
+        )
+
+        val response = provider.deployAccount(payload).send()
+
+        // Make sure the address matches the calculated one
+        assertEquals(deployedAccountAddress, response.address)
+
+        // Make sure tx matches what we sent
+        Thread.sleep(15000)
+
+        val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransaction
+        assertEquals(payload.classHash, tx.classHash)
+        assertEquals(payload.salt, tx.contractAddressSalt)
+        assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+        assertEquals(payload.version, tx.version)
+        assertEquals(payload.nonce, tx.nonce)
+        assertEquals(payload.maxFee, tx.maxFee)
+        assertEquals(payload.signature, tx.signature)
+
+        val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+        assertTrue(receipt.isAccepted)
     }
 }
