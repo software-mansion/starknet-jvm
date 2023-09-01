@@ -748,5 +748,5 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
     GET_NONCE("starknet_getNonce"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
-    SIMULATE_TRANSACTIONS("starknet_simulateTransaction"),
+    SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
 }

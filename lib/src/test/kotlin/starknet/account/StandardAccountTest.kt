@@ -17,6 +17,7 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -732,6 +733,8 @@ class StandardAccountTest {
         }
     }
 
+    @Disabled
+    // TODO: Re-enable if devnet.py is updated to support this
     @Test
     fun `simulate transactions`() {
         val account = StandardAccount(accountAddress, signer, rpcProvider)
