@@ -135,10 +135,15 @@ data class BlockWithTransactionsResponse(
     @SerialName("status")
     val status: BlockStatus,
 
-    // Block header
+    // Block body
 
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
+    @SerialName("transactions")
+    override val transactions: List<
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
+        >,
+
+    // Block header
 
     @SerialName("block_hash")
     val blockHash: Felt,
@@ -155,14 +160,8 @@ data class BlockWithTransactionsResponse(
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
 
-    // Block body
-
-    @SerialName("transactions")
-    override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
-        Transaction,
-        >,
-
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
