@@ -5,16 +5,16 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
 /**
- * Provider for interacting with StarkNet.
+ * Provider for interacting with Starknet.
  *
- * Implementers of this interface provide methods for interacting with StarkNet, for example through starknet gateway
+ * Implementers of this interface provide methods for interacting with Starknet, for example through starknet gateway
  * api or JSON-RPC.
  */
 interface Provider {
     val chainId: StarknetChainId
 
     /**
-     * Calls a contract deployed on StarkNet.
+     * Calls a contract deployed on Starknet.
      *
      * @param call a call to be made
      * @param blockTag
@@ -24,7 +24,7 @@ interface Provider {
     fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>>
 
     /**
-     * Calls a contract deployed on StarkNet.
+     * Calls a contract deployed on Starknet.
      *
      * @param call a call to be made
      * @param blockHash a hash of the block in respect to what the call will be made
@@ -34,7 +34,7 @@ interface Provider {
     fun callContract(call: Call, blockHash: Felt): Request<List<Felt>>
 
     /**
-     * Calls a contract deployed on StarkNet.
+     * Calls a contract deployed on Starknet.
      *
      * @param call a call to be made
      * @param blockNumber a number of the block in respect to what the call will be made
@@ -44,9 +44,9 @@ interface Provider {
     fun callContract(call: Call, blockNumber: Int): Request<List<Felt>>
 
     /**
-     * Calls a contract deployed on StarkNet.
+     * Calls a contract deployed on Starknet.
      *
-     * Calls a contract deployed on StarkNet in the latest block.
+     * Calls a contract deployed on Starknet in the latest block.
      *
      * @param call a call to be made
      *
@@ -206,7 +206,7 @@ interface Provider {
     /**
      * Declare version 1 contract
      *
-     * Declare a version 1 contract on StarkNet.
+     * Declare a version 1 contract on Starknet.
      *
      * @param payload declare transaction version 1 payload
      *
@@ -217,7 +217,7 @@ interface Provider {
     /**
      * Declare version 2 contract
      *
-     * Declare a version 2 contract on StarkNet.
+     * Declare a version 2 contract on Starknet.
      *
      * @param payload declare transaction version 2 payload
      *
@@ -339,7 +339,7 @@ interface Provider {
     /**
      * Deploy an account contract.
      *
-     * Deploy a new account contract on StarkNet.
+     * Deploy a new account contract on Starknet.
      *
      * @param payload deploy account transaction payload
      *
