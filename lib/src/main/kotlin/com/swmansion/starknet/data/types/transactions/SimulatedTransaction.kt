@@ -25,7 +25,7 @@ enum class CallType(val value: String) {
 @Serializable
 enum class SimulationFlag(val value: String) {
     SKIP_VALIDATE("SKIP_VALIDATE"),
-    SKIP_EXECUTE("SKIP_EXECUTE"),
+    SKIP_FEE_CHARGE("SKIP_FEE_CHARGE"),
 }
 
 @Serializable
