@@ -86,6 +86,12 @@ data class GetBlockWithTransactionsPayload(
 ) : PayloadWithBlockId()
 
 @Serializable
+data class GetBlockWithTransactionHashesPayload(
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
 data class GetStateUpdatePayload(
     @SerialName("block_id")
     override val blockId: BlockId,
