@@ -733,8 +733,6 @@ class StandardAccountTest {
         }
     }
 
-    // TODO: Re-enable if devnet.py is updated to support this or devnet-rs is released and supports trace api
-    @Disabled
     @Test
     fun `simulate transactions`() {
         val account = StandardAccount(accountAddress, signer, rpcProvider)
