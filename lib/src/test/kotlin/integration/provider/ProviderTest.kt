@@ -371,10 +371,10 @@ class ProviderTest {
     @Test
     fun `get block with transactions with pending block tag`() {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
-        // Note for future developers:
-        // This test may fail because there's no pending block at the moment.
+        // Note to future developers experiencing failures in this test:
+        // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
-        // Also, the node can be configured such way that accessing pending block is not supported
+        // 2. The node can be configured such way that accessing pending block is not supported.
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
@@ -382,5 +382,90 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is PendingBlockWithTransactionsResponse)
+    }
+
+    @Test
+    fun `get block with transactions with block hash`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+        val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+        val request = provider.getBlockWithTxs(blockHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionsResponse)
+        assertEquals(4, response.transactions.size)
+    }
+
+    @Test
+    fun `get block with transactions with block number`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+        val blockNumber = 310252
+        val request = provider.getBlockWithTxs(blockNumber)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionsResponse)
+        assertEquals(4, response.transactions.size)
+    }
+
+    @Test
+    fun `get block with transaction hashes with latest block tag`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+        val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
+    }
+
+    @Disabled
+    @Test
+    fun `get block with transaction hashes with pending block tag`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        // Note to future developers experiencing failures in this test:
+        // 1. This test may fail because there's temporarily no pending block at the moment.
+        // If this happens, try running the test again after a while or disable it.
+        // 2. The node can be configured such way that accessing pending block is not supported.
+
+        val provider = rpcProvider
+        val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingBlockWithTransactionHashesResponse)
+    }
+
+    @Test
+    fun `get block with transaction hashes with block hash`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+        val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+        val request = provider.getBlockWithTxHashes(blockHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertEquals(4, response.transactionHashes.size)
+    }
+
+    @Test
+    fun `get block with transaction hashes with block number`() {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+        val blockNumber = 310252
+        val request = provider.getBlockWithTxHashes(blockNumber)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertEquals(4, response.transactionHashes.size)
     }
 }
