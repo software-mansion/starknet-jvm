@@ -13,7 +13,7 @@ internal object JsonRpcTransactionTracePolymorphicSerializer :
             setOf("validate_invocation", "execute_invocation", "fee_transfer_invocation") -> InvokeTransactionTrace.serializer()
             setOf("validate_invocation", "fee_transfer_invocation") -> DeclareTransactionTrace.serializer()
             setOf("validate_invocation", "constructor_invocation", "fee_transfer_invocation") -> DeployAccountTransactionTrace.serializer()
-            setOf("functionInvocation") -> L1HandlerTransactionTrace.serializer()
+            setOf("function_invocation") -> L1HandlerTransactionTrace.serializer()
             else -> throw IllegalArgumentException("Invalid transaction trace type")
         }
     }
