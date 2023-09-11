@@ -566,7 +566,7 @@ class JsonRpcProvider(
     /**
      * Get a block with transaction hashes.
      *
-     * Get block information with full transactions given the block id.
+     * Get block information with transaction hashes given the block id.
      *
      * @param blockTag a tag of the requested block
      *
@@ -581,7 +581,7 @@ class JsonRpcProvider(
     /**
      * Get a block with transaction hashes.
      *
-     * Get block information with full transactions given the block id.
+     * Get block information with transaction hashes given the block id.
      *
      * @param blockHash a hash of the requested block
      *
@@ -596,7 +596,7 @@ class JsonRpcProvider(
     /**
      * Get a block with transaction hashes.
      *
-     * Get block information with full transactions given the block id.
+     * Get block information with transaction hashes given the block id.
      *
      * @param blockNumber a number of the requested block
      *
