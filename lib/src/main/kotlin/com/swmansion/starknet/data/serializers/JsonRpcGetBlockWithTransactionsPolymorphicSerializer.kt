@@ -9,9 +9,12 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
 internal object JsonRpcGetBlockWithTransactionsPolymorphicSerializer : JsonContentPolymorphicSerializer<GetBlockWithTransactionsResponse>(GetBlockWithTransactionsResponse::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out GetBlockWithTransactionsResponse> =
-        when (element.jsonObject["status"]) {
-            null -> PendingBlockWithTransactionsResponse.serializer()
-            else -> BlockWithTransactionsResponse.serializer()
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out GetBlockWithTransactionsResponse> {
+        val isPendingBlock = listOf("block_hash", "block_number", "new_root").any { it !in element.jsonObject }
+
+        return when (isPendingBlock) {
+            true -> PendingBlockWithTransactionsResponse.serializer()
+            false -> BlockWithTransactionsResponse.serializer()
         }
+    }
 }

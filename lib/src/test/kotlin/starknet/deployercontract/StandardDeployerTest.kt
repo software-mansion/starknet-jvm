@@ -17,6 +17,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
+import starknet.utils.MockUtils
 import java.nio.file.Path
 import java.nio.file.Paths
 import starknet.utils.ContractDeployer as TestContractDeployer
@@ -97,10 +98,21 @@ object StandardDeployerTest {
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
+        val (receiptStandartDeployer, receiptProvider) = when (provider) {
+            is GatewayProvider -> Pair(standardDeployer, provider)
+            is JsonRpcProvider -> {
+                val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
+                Pair(
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
+                )
+            }
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, true, Felt(1234), emptyList()).send()
-
-        val address = standardDeployer.findContractAddress(deployment).send()
+        val address = receiptStandartDeployer.findContractAddress(deployment).send()
 
         assertNotNull(address)
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
@@ -110,9 +122,21 @@ object StandardDeployerTest {
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy with default parameters`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
+        val (receiptStandartDeployer, receiptProvider) = when (provider) {
+            is GatewayProvider -> Pair(standardDeployer, provider)
+            is JsonRpcProvider -> {
+                val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
+                Pair(
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
+                )
+            }
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, emptyList()).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
+        val address = receiptStandartDeployer.findContractAddress(deployment).send()
 
         assertNotNull(address)
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
@@ -122,11 +146,23 @@ object StandardDeployerTest {
     @MethodSource("getStandardDeployerAndProvider")
     fun `test udc deploy with constructor`(standardDeployerAndProvider: StandardDeployerAndProvider) {
         val (standardDeployer, provider) = standardDeployerAndProvider
+        val (receiptStandartDeployer, receiptProvider) = when (provider) {
+            is GatewayProvider -> Pair(standardDeployer, provider)
+            is JsonRpcProvider -> {
+                val mockProvider = MockUtils.mockUpdatedReceiptRpcProvider(provider)
+                Pair(
+                    StandardDeployer(rpcDeployerAddress, mockProvider, StandardAccount(accountAddress, signer, rpcProvider)),
+                    mockProvider,
+                )
+            }
+            else -> throw IllegalStateException("Unknown provider type")
+        }
+
         val constructorValue = Felt(111)
         val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/contractWithConstructor.json"))
         val deployment =
             standardDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
+        val address = receiptStandartDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_val1"), BlockTag.LATEST).send()
 

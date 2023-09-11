@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.6.2"
+version = "0.7.0"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -75,8 +75,8 @@ val compileContracts = task<Exec>("compileContracts") {
     val sourceDirectoryV0 = "${project.projectDir}/src/test/resources/src_v0"
     val sourceDirectoryV1 = "${project.projectDir}/src/test/resources/src_v1"
 
-    val compileDirectoryV0 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v0")
-    val compileDirectoryV1 = layout.buildDirectory.dir("lib/src/test/resources/compiled_v1")
+    val compileDirectoryV0 = "${project.projectDir}/src/test/resources/compiled_v0"
+    val compileDirectoryV1 = "${project.projectDir}/src/test/resources/compiled_v1"
 
     inputs.file(compileScriptPath)
     inputs.dir(sourceDirectoryV0)
@@ -101,6 +101,12 @@ tasks.test {
     val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
 
     systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
+    systemProperty(
+        "integrationTestMode",
+            project.findProperty("integrationTestMode")
+                ?: System.getenv("INTEGRATION_TEST_MODE")
+                ?: "disabled",
+    )
 
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 
@@ -204,6 +210,11 @@ publishing {
                         id.set("wojciechszymczyk")
                         name.set("Wojciech Szymczyk")
                         email.set("wojciech.szymczyk@swmansion.com")
+                    }
+                    developer {
+                        id.set("maksimzdobnikau")
+                        name.set("Maksim Zdobnikau")
+                        email.set("maksim.zdobnikau@swmansion.com")
                     }
                 }
                 scm {

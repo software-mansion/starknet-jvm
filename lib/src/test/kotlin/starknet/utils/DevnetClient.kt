@@ -2,9 +2,7 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
-import com.swmansion.starknet.data.types.transactions.GatewayFailureReason
-import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.ExperimentalSerializationApi

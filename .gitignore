@@ -49,6 +49,7 @@ venv
 lib/src/test/resources/*account
 lib/src/test/resources/compiled*
 lib/src/test/resources/cairo_compilers*
+integration_tests.env
 
 # Exclude native builds outputs
 crypto/pedersen/crypto-cpp
