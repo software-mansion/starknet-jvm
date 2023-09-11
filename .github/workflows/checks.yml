@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [
           "macos-latest",
-          "ubuntu-20.04"
+#          "ubuntu-20.04"
         ]
 
     runs-on: ${{ matrix.os }}
@@ -19,6 +19,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Clone Cairo Repositories on MacOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          git clone https://github.com/starkware-libs/cairo.git cairo1
+          git clone https://github.com/starkware-libs/cairo.git cairo2
+          cd cairo1 && git checkout 1.1.1 && cd ..
+          cd cairo2 && git checkout 2.0.2 && cd ..
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
