@@ -20,12 +20,13 @@ jobs:
         with:
           submodules: recursive
       - name: Clone Cairo Repositories on MacOS
+#       Move this to shell script?
         if: matrix.os == 'macos-latest'
         run: |
           git clone https://github.com/starkware-libs/cairo.git cairo1
           git clone https://github.com/starkware-libs/cairo.git cairo2
-          cd cairo1 && git checkout 1.1.1 && cd ..
-          cd cairo2 && git checkout 2.0.2 && cd ..
+          cd cairo1 && git checkout v1.1.1 && cd ..
+          cd cairo2 && git checkout v2.0.2 && cd ..
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
