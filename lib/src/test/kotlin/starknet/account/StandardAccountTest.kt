@@ -341,9 +341,9 @@ class StandardAccountTest {
         val nonce = account.getNonce().send()
 
         val declareTransactionPayload = account.signDeclare(
-                contractDefinition,
-                contractCasmDefinition,
-                ExecutionParams(nonce, Felt(1000000000000000)),
+            contractDefinition,
+            contractCasmDefinition,
+            ExecutionParams(nonce, Felt(1000000000000000)),
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
