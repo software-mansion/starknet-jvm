@@ -1,7 +1,6 @@
 package com.swmansion.starknet.provider.gateway
 
 import com.swmansion.starknet.data.NetUrls.MAINNET_URL
-import com.swmansion.starknet.data.NetUrls.TESTNET2_URL
 import com.swmansion.starknet.data.NetUrls.TESTNET_URL
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
@@ -444,24 +443,6 @@ class GatewayProvider(
         }
 
         @JvmStatic
-        fun makeTestnetProvider(testnetId: StarknetChainId): GatewayProvider =
-            when (testnetId) {
-                StarknetChainId.TESTNET -> GatewayProvider(
-                    "$TESTNET_URL/feeder_gateway",
-                    "$TESTNET_URL/gateway",
-                    testnetId,
-                )
-
-                StarknetChainId.TESTNET2 -> GatewayProvider(
-                    "$TESTNET2_URL/feeder_gateway",
-                    "$TESTNET2_URL/gateway",
-                    testnetId,
-                )
-
-                else -> throw IllegalArgumentException("Invalid testnet id")
-            }
-
-        @JvmStatic
         fun makeTestnetProvider(httpService: HttpService): GatewayProvider {
             return GatewayProvider(
                 "$TESTNET_URL/feeder_gateway",
@@ -470,26 +451,6 @@ class GatewayProvider(
                 httpService,
             )
         }
-
-        @JvmStatic
-        fun makeTestnetProvider(testnetId: StarknetChainId, httpService: HttpService): GatewayProvider =
-            when (testnetId) {
-                StarknetChainId.TESTNET -> GatewayProvider(
-                    "$TESTNET_URL/feeder_gateway",
-                    "$TESTNET_URL/gateway",
-                    testnetId,
-                    httpService,
-                )
-
-                StarknetChainId.TESTNET2 -> GatewayProvider(
-                    "$TESTNET2_URL/feeder_gateway",
-                    "$TESTNET2_URL/gateway",
-                    testnetId,
-                    httpService,
-                )
-
-                else -> throw IllegalArgumentException("Invalid testnet id")
-            }
 
         @JvmStatic
         fun makeMainnetProvider(): GatewayProvider {

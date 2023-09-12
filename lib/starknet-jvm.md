@@ -816,10 +816,8 @@ Provider utilising StarkNet gateway and feeder gateway for communication with th
 ```java
 // Create a provider using GatewayProvider static methods
 GatewayProvider.makeTestnetProvider();
-// Chain id can be specified
-GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2);
-// As well as the custom HttpService
-GatewayProvider.makeTestnetProvider(myHttpService, StarknetChainId.TESTNET2);
+// Custom HttpService can be specified
+GatewayProvider.makeTestnetProvider(myHttpService);
 
 // Provider can be also created using a constructor
 new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
