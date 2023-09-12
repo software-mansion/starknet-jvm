@@ -16,7 +16,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -188,8 +187,6 @@ class AccountTest {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-        // TODO (#295)
-        // Can be reenabled after compiler version bump (awaiting PR #285 merge)
         assumeFalse(provider is GatewayProvider)
 
         val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
@@ -249,6 +246,7 @@ class AccountTest {
         // If this test starts randomly falling, try recalculating class hash.
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
+        // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
         val declareTransactionPayload = account.signDeclare(
@@ -260,7 +258,7 @@ class AccountTest {
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
 
-        Thread.sleep(10000)
+        Thread.sleep(30000)
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -269,14 +267,13 @@ class AccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    @Disabled
-    // TODO (#295)
-    // Fails with "Compiled versions older than 1.1.0 or newer than 1.3.0 are not supported. Got version 1.0.0."
-    // Can be reenabled after compiler version bump (awaiting PR #285 merge)
+//    @Disabled
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val (account, provider) = accountAndProvider
 
@@ -295,7 +292,7 @@ class AccountTest {
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
 
-        Thread.sleep(10000)
+        Thread.sleep(30000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertNotNull(result)
@@ -303,13 +300,12 @@ class AccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    @Disabled
-    // Note to future developers
-    // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send invoke transaction`(accountAndProvider: AccountAndProvider) {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
 
         val (account, provider) = accountAndProvider
 
