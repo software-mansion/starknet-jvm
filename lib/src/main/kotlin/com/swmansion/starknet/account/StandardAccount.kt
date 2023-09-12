@@ -14,9 +14,9 @@ import java.math.BigInteger
 import java.util.concurrent.CompletableFuture
 
 /**
- * Standard account used in StarkNet.
+ * Standard account used in Starknet.
  *
- * @param provider a provider used to interact with StarkNet
+ * @param provider a provider used to interact with Starknet
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  */
@@ -30,7 +30,7 @@ class StandardAccount(
     private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
 
     /**
-     * @param provider a provider used to interact with StarkNet
+     * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */

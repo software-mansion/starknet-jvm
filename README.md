@@ -1,6 +1,6 @@
 <h2 align="center">☕ starknet jvm ☕</h2>
 
-[StarkNet](https://starkware.co/starknet/#:~:text=Live%20on%20Mainnet-,What%20is%20StarkNet%3F,-StarkNet%20is%20a) SDK for JVM languages:
+[Starknet](https://starkware.co/starknet/#:~:text=Live%20on%20Mainnet-,What%20is%20Starknet%3F,-Starknet%20is%20a) SDK for JVM languages:
 - Java
 - Kotlin
 - Scala
@@ -48,7 +48,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
@@ -82,7 +82,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
@@ -119,7 +119,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
@@ -159,7 +159,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Create an account interface
@@ -209,7 +209,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -244,7 +244,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -297,7 +297,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -326,7 +326,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -378,7 +378,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -415,7 +415,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -479,7 +479,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -517,7 +517,7 @@ or in Kotlin
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account

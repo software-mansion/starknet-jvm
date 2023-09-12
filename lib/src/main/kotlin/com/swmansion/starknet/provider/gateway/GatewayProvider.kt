@@ -21,7 +21,7 @@ import kotlinx.serialization.json.*
 import java.util.function.Function
 
 /**
- * A provider for interacting with StarkNet gateway. You should reuse it in your application to share the
+ * A provider for interacting with Starknet gateway. You should reuse it in your application to share the
  * httpService or provide it with your own httpService.
  *
  * @param feederGatewayUrl url of the feeder gateway
