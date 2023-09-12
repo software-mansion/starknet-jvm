@@ -138,9 +138,9 @@ class ProviderTest {
         assertEquals("https://alpha4.starknet.io/gateway", testnetProvider.gatewayUrl)
         assertEquals(StarknetChainId.TESTNET, testnetProvider.chainId)
 
-        val t1Block = testnetProvider.getBlockNumber()
-        val t1Response = t1Block.send()
-        assertEquals(blockNumber, t1Response)
+        val block = testnetProvider.getBlockNumber()
+        val response = block.send()
+        assertEquals(blockNumber, response)
     }
 
     @Test
