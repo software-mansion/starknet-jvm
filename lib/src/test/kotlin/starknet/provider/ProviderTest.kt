@@ -1171,7 +1171,7 @@ class ProviderTest {
 
     @Test
     fun `get pending block with transactions`() {
-        // FIXME: We should also test for 'pending' tag, but atm they are not supported in devnet
+        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
@@ -1245,6 +1245,65 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionsResponse)
+    }
+
+    @Test
+    fun `get pending block with transaction hashes`() {
+        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
+        val mockedResponse = """
+            {
+                "id":0,
+                "jsonrpc":"2.0",
+                "result":{
+                    "parent_hash": "0x123",
+                    "timestamp": 7312,
+                    "sequencer_address": "0x1234",
+                    "transactions": [
+                        "0x01",
+                        "0x02"
+                    ]
+                }
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingBlockWithTransactionHashesResponse)
+    }
+
+    @Test
+    fun `get block with transaction hashes with block tag`() {
+        val provider = rpcProvider()
+        val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
+    }
+
+    @Test
+    fun `get block with transaction hashes with block hash`() {
+        val provider = rpcProvider()
+        val request = provider.getBlockWithTxHashes(latestBlock.hash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
+    }
+
+    @Test
+    fun `get block with transaction hashes with block number`() {
+        val provider = rpcProvider()
+        val request = provider.getBlockWithTxHashes(latestBlock.number)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithTransactionHashesResponse)
     }
 
     @Test

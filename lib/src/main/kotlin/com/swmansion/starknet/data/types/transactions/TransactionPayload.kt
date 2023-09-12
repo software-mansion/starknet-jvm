@@ -11,8 +11,7 @@ sealed class TransactionPayload() {
 }
 
 @Serializable
-data class InvokeTransactionPayload constructor(
-
+data class InvokeTransactionPayload(
     @SerialName("sender_address")
     val senderAddress: Felt,
 

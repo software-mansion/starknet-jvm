@@ -563,6 +563,57 @@ class JsonRpcProvider(
         return getBlockWithTxs(payload)
     }
 
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockTag: BlockTag): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Tag(blockTag))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockHash: Felt): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Hash(blockHash))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockNumber: Int): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Number(blockNumber))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): Request<GetBlockWithTransactionHashesResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, JsonRpcGetBlockWithTransactionHashesPolymorphicSerializer)
+    }
+
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
@@ -743,10 +794,11 @@ private enum class JsonRpcMethod(val methodName: String) {
     ESTIMATE_FEE("starknet_estimateFee"),
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
+    GET_BLOCK_WITH_TX_HASHES("starknet_getBlockWithTxHashes"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
     GET_NONCE("starknet_getNonce"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
-    SIMULATE_TRANSACTIONS("starknet_simulateTransaction"),
+    SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
 }
