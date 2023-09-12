@@ -127,7 +127,7 @@ echo "Compiling v2 contracts.."
 
 while IFS= read -r -d '' file; do
   name="$(basename -- "$file" .cairo)"
-  $COMPILER_PATH "$file" "$V2_ARTIFACT_PATH/$name.json" || exit 1
+  $COMPILER_PATH --single-file "$file" "$V2_ARTIFACT_PATH/$name.json" || exit 1
   $SIERRA_PATH --add-pythonic-hints "$V2_ARTIFACT_PATH/$name.json" "$V2_ARTIFACT_PATH/$name.casm" || exit 1
 done < <(find "$V2_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
