@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -181,6 +182,8 @@ class AccountTest {
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
+    @Disabled
+    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
@@ -267,7 +270,8 @@ class AccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-//    @Disabled
+    @Disabled
+    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
