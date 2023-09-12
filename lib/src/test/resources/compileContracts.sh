@@ -16,6 +16,7 @@ V2_COMPILER_VERSION="2.0.2"
 V1_COMPILER_BIN_PATH="compilers/v1"
 V2_COMPILER_BIN_PATH="compilers/v2"
 
+# TODO: (#310) Remove when migrating to macOS arm64 runner
 build_cairo_compilers() {
   local VERSION=$1
   local OUT_DIR=$2

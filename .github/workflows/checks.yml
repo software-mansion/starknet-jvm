@@ -20,7 +20,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Clone Cairo repos on MacOS x64
+        # TODO: (#310) Remove when migrating to macOS arm64 runner
+      - name: Clone Cairo repos (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
           git clone https://github.com/starkware-libs/cairo.git cairo1
@@ -58,13 +59,17 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Cache Cairo compiler v1 binaries
+      # TODO: (#310) Remove when migrating to macOS arm64 runner
+      - name: Cache Cairo compiler v1 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
         uses: actions/cache@v3
         with:
           path: cairo1/target/release
           key: ${{ runner.os }}-cairo1-target-release-${{ hashFiles('cairo1/Cargo.lock') }}
 
-      - name: Cache Cairo compiler v2 binaries
+      # TODO: (#310) Remove when migrating to macOS arm64 runner
+      - name: Cache Cairo compiler v2 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
         uses: actions/cache@v3
         with:
           path: cairo2/target/release
