@@ -16,12 +16,21 @@ V2_COMPILER_VERSION="2.2.0"
 V1_COMPILER_BIN_PATH="compilers/v1"
 V2_COMPILER_BIN_PATH="compilers/v2"
 
-# TODO: (#310) Remove when migrating to macOS arm64 runner
 build_cairo_compilers() {
   local VERSION=$1
   local OUT_DIR=$2
 
   local VERSION_SHORT=${VERSION:0:1}
+
+  if ! find "$REPO_ROOT/cairo$VERSION_SHORT"; then
+    echo "Cloning cairo repo..."
+    git clone -q https://github.com/starkware-libs/cairo.git "$REPO_ROOT/cairo$VERSION_SHORT"
+    pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
+    git checkout -q "v$VERSION"
+    popd
+  else
+    echo "Found existing cairo repo, skipping cloning."
+  fi
 
   if ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-compile -type f > /dev/null || ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-sierra-compile -type f > /dev/null; then
     if ! which cargo >/dev/null; then
