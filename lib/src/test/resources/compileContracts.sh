@@ -22,7 +22,7 @@ build_cairo_compilers() {
 
   local VERSION_SHORT=${VERSION:0:1}
 
-  if ! find "$REPO_ROOT/cairo$VERSION_SHORT"; then
+  if [ ! -d "$REPO_ROOT/cairo$VERSION_SHORT" ]; then
     echo "Cloning cairo repo..."
     git clone -q https://github.com/starkware-libs/cairo.git "$REPO_ROOT/cairo$VERSION_SHORT"
     pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
