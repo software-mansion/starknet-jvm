@@ -54,9 +54,9 @@ build_cairo_compilers() {
   mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 
   echo "Copying binaries..."
-  rsync -a -W "$REPO_ROOT/cairo$VERSION_SHORT/target/release/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+  rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/target/release/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
   echo "Copying corelib..."
-  rsync -a "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
+  rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 }
 
 fetch_compilers() {
