@@ -10,8 +10,11 @@ V0_ARTIFACT_PATH="compiled_v0"
 V1_ARTIFACT_PATH="compiled_v1"
 V2_ARTIFACT_PATH="compiled_v2"
 
-COMPILER_BIN_V1="compilers/v1"
-COMPILER_BIN_V2="compilers/v2"
+V1_COMPILER_VERSION="1.1.1"
+V2_COMPILER_VERSION="2.0.2"
+
+V1_COMPILER_BIN_PATH="compilers/v1"
+V2_COMPILER_BIN_PATH="compilers/v2"
 
 build_cairo_compilers() {
   local VERSION=$1
@@ -19,14 +22,14 @@ build_cairo_compilers() {
 
   local VERSION_SHORT=${VERSION:0:1}
 
-  if ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/debug" -name starknet-compile -type f > /dev/null || ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/debug" -name starknet-sierra-compile -type f > /dev/null; then
+  if ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-compile -type f > /dev/null || ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-sierra-compile -type f > /dev/null; then
     if ! which cargo >/dev/null; then
       echo "Installing rust..."
       curl -sSf https://sh.rustup.rs | sh -s -- -y
     fi
     echo "Building starknet compiler"
     pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
-    cargo build
+    cargo build --release
     cargo run --bin starknet-compile -- --version
     cargo run --bin starknet-sierra-compile -- --version
     popd
@@ -40,9 +43,9 @@ build_cairo_compilers() {
   mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
   mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 
-  echo "Moving binaries..."
-  rsync -a "$REPO_ROOT/cairo$VERSION_SHORT/target/debug/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
-  echo "Moving corelib..."
+  echo "Copying binaries..."
+  rsync -a -W "$REPO_ROOT/cairo$VERSION_SHORT/target/release/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+  echo "Copying corelib..."
   rsync -a "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 }
 
@@ -93,7 +96,7 @@ popd
 echo "Done!"
 
 pushd "$(dirname "$0")" || exit 1
-fetch_compilers "1.1.1" "$COMPILER_BIN_V1"
+fetch_compilers "$V1_COMPILER_VERSION" "$V1_COMPILER_BIN_PATH"
 mkdir -p "$V1_ARTIFACT_PATH"
 
 echo "Compiling v1 contracts.."
@@ -107,7 +110,7 @@ popd
 echo "Done!"
 
 pushd "$(dirname "$0")" || exit 1
-fetch_compilers "2.0.2" "$COMPILER_BIN_V2"
+fetch_compilers "$V2_COMPILER_VERSION" "$V2_COMPILER_BIN_PATH"
 mkdir -p "$V2_ARTIFACT_PATH"
 
 echo "Compiling v2 contracts.."
