@@ -42,6 +42,7 @@ jobs:
           key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
 
       - name: Build Cairo compiler binaries (macOS only)
+        if: matrix.os == 'macos-latest'
         run: |
           if [[ ! -d "cairo1/target/release" || ! -d "cairo2/target/release" ]]; then
             curl -sSf https://sh.rustup.rs | sh -s -- -y
