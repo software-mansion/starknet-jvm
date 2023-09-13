@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO_ROOT=$(dirname "$0")/../../../..
+REPO_ROOT=$(git rev-parse --show-toplevel)
 
 V0_CONTRACT_PATH="src_v0"
 V1_CONTRACT_PATH="src_v1"

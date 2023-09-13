@@ -24,10 +24,8 @@ jobs:
       - name: Clone Cairo repos (macOS only)
         if: matrix.os == 'macos-latest'
         run: |
-          git clone https://github.com/starkware-libs/cairo.git cairo1
-          git clone https://github.com/starkware-libs/cairo.git cairo2
-          cd cairo1 && git checkout v1.1.1 && cd ..
-          cd cairo2 && git checkout v2.2.0 && cd ..
+          git clone -b v1.1.1 https://github.com/starkware-libs/cairo.git cairo1
+          git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
 
       - name: Setup Java
         uses: actions/setup-java@v3
