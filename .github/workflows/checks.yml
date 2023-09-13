@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [
           "macos-latest",
-          "ubuntu-20.04"
+#          "ubuntu-20.04"
         ]
 
     runs-on: ${{ matrix.os }}
