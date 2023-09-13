@@ -77,15 +77,13 @@ jobs:
         run: |
           if [[ ! -d "cairo1/target/release" || ! -d "cairo2/target/release" ]]; then
             curl -sSf https://sh.rustup.rs | sh -s -- -y
-#            source $HOME/.cargo/env
-
+            source $HOME/.cargo/env
             if [[ ! -d "cairo1/target/release" ]]; then
                cd cairo1 && cargo build --release
                cargo run --bin starknet-compile -- --version
                cargo run --bin starknet-sierra-compile -- --version
                cd ..
             fi
-
             if [[ ! -d "cairo2/target/release" ]]; then 
                 cd cairo2 && cargo build --release
                 cargo run --bin starknet-compile -- --version
