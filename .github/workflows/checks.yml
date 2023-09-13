@@ -97,9 +97,6 @@ jobs:
         run: ./gradlew :lib:lintKotlin
 
       - name: Run tests and generate coverage report
-        env:
-          V1_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo1/target/release
-          V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov

@@ -19,49 +19,6 @@ V2_COMPILER_VERSION="2.2.0"
 V1_COMPILER_BIN_PATH="compilers/v1"
 V2_COMPILER_BIN_PATH="compilers/v2"
 
-build_cairo_compilers() {
-  local VERSION=$1
-  local OUT_DIR=$2
-
-  local VERSION_SHORT=${VERSION:0:1}
-
-  if [ ! -d "$REPO_ROOT/cairo$VERSION_SHORT" ]; then
-    echo "Cloning cairo repo..."
-    git clone -q https://github.com/starkware-libs/cairo.git "$REPO_ROOT/cairo$VERSION_SHORT"
-    pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
-    git checkout -q "v$VERSION"
-    popd
-  else
-    echo "Found existing cairo repo, skipping cloning."
-  fi
-
-  if ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-compile -type f > /dev/null || ! find "$REPO_ROOT/cairo$VERSION_SHORT/target/release" -name starknet-sierra-compile -type f > /dev/null; then
-    if ! which cargo >/dev/null; then
-      echo "Installing rust..."
-      curl -sSf https://sh.rustup.rs | sh -s -- -y
-    fi
-    echo "Building starknet compiler"
-    pushd "$REPO_ROOT/cairo$VERSION_SHORT" || exit 1
-    cargo build --release
-    cargo run --bin starknet-compile -- --version
-    cargo run --bin starknet-sierra-compile -- --version
-    popd
-  else
-    echo "Found existing binaries, skipping compilation."
-  fi
-
-  rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/" || true
-  rm -r "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || true
-
-  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
-  mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
-
-  echo "Copying binaries..."
-  rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/target/release/" "$(dirname "$0")/$OUT_DIR/cairo/bin/"
-  echo "Copying corelib..."
-  rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
-}
-
 fetch_compilers() {
   local VERSION=$1
   local OUT_DIR=$2

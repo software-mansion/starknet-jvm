@@ -48,7 +48,7 @@ venv
 # Exclude test resources temp files
 lib/src/test/resources/*account
 lib/src/test/resources/compiled*
-lib/src/test/resources/cairo_compilers*
+lib/src/test/resources/compilers*
 integration_tests.env
 
 # Exclude native builds outputs
