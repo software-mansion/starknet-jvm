@@ -22,20 +22,20 @@ jobs:
 
       # TODO: (#310) Remove when migrating to macOS arm64 runner
       - name: Clone Cairo repos (macOS only)
-        if: matrix.os == 'macos-latest'
+#        if: matrix.os == 'macos-latest'
         run: |
           git clone -b v1.1.1 https://github.com/starkware-libs/cairo.git cairo1
           git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
 
       - name: Cache Cairo compiler v1 binaries (macOS only)
-        if: matrix.os == 'macos-latest'
+#        if: matrix.os == 'macos-latest'
         uses: actions/cache@v3
         with:
           path: cairo1/target/release
           key: ${{ runner.os }}-cairo1-target-release-${{ hashFiles('cairo1/Cargo.lock') }}
 
       - name: Cache Cairo compiler v2 binaries (macOS only)
-        if: matrix.os == 'macos-latest'
+#        if: matrix.os == 'macos-latest'
         uses: actions/cache@v3
         with:
           path: cairo2/target/release
