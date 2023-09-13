@@ -1,5 +1,8 @@
 #!/bin/bash
 
+V1_COMPILER_BUILD_PATH_VAR="V1_COMPILER_BUILD_PATH"
+V2_COMPILER_BUILD_PATH_VAR="V2_COMPILER_BUILD_PATH"
+
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 V0_CONTRACT_PATH="src_v0"
@@ -64,6 +67,9 @@ fetch_compilers() {
   local OUT_DIR=$2
 
   local VERSION_SHORT=${VERSION:0:1}
+  [ "$VERSION_SHORT" == "1" ] && local COMPILER_BUILD_PATH_VAR="$V1_COMPILER_BUILD_PATH_VAR"
+  [ "$VERSION_SHORT" == "2" ] && local COMPILER_BUILD_PATH_VAR="$V2_COMPILER_BUILD_PATH_VAR"
+  local COMPILER_BUILD_PATH="${!COMPILER_BUILD_PATH_VAR}"
 
   echo "Fetching compiler v$VERSION binaries..."
 
@@ -73,14 +79,30 @@ fetch_compilers() {
   ARCH=$(uname -m)
 
   if [ "$OS" == "Linux" -a "$ARCH" == "x86_64" ]; then
+    echo "Source: https://github.com/starkware-libs/cairo/releases/"
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$OUT_DIR" || exit 1
   elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
+    echo "Source: https://github.com/starkware-libs/cairo/releases/"
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
-  elif [ "$OS" == "Darwin" -a "$ARCH" == "x86_64" ]; then
-    build_cairo_compilers "$VERSION" "$OUT_DIR"
   else
-    echo "Unsupported OS or architecture: $ARCH-$OS"
-    exit 1
+      if [ -n "${COMPILER_BUILD_PATH}" ] && [ -d "${COMPILER_BUILD_PATH}" ]; then
+        echo "Source: $COMPILER_BUILD_PATH..."
+
+        rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/" || true
+        rm -r "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || true
+
+        mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+        mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
+
+        echo "Copying binaries..."
+        rsync -aW "${COMPILER_BUILD_PATH}/" "$(dirname "$0")/$OUT_DIR/cairo/bin/" || exit 1
+        echo "Copying corelib..."
+        rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || exit 1
+      else
+        echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
+        echo "To proceed, please specify a valid path to a built v$VERSION compiler for ($ARCH-$OS) in the $COMPILER_BUILD_PATH_VAR environment variable."
+        exit 1
+      fi
   fi
 
   COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
