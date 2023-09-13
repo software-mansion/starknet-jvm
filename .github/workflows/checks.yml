@@ -20,6 +20,45 @@ jobs:
         with:
           submodules: recursive
 
+      # TODO: (#310) Remove when migrating to macOS arm64 runner
+      - name: Clone Cairo repos (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          git clone -b v1.1.1 https://github.com/starkware-libs/cairo.git cairo1
+          git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
+
+      - name: Cache Cairo compiler v1 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
+        uses: actions/cache@v3
+        with:
+          path: cairo1/target/release
+          key: ${{ runner.os }}-cairo1-target-release-${{ hashFiles('cairo1/Cargo.lock') }}
+
+      - name: Cache Cairo compiler v2 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
+        uses: actions/cache@v3
+        with:
+          path: cairo2/target/release
+          key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
+
+      - name: Build Cairo compiler binaries (macOS only)
+        run: |
+          if [[ ! -d "cairo1/target/release" || ! -d "cairo2/target/release" ]]; then
+            curl -sSf https://sh.rustup.rs | sh -s -- -y
+            if [[ ! -d "cairo1/target/release" ]]; then
+               cd cairo1 && cargo build --release
+               cargo run --bin starknet-compile -- --version
+               cargo run --bin starknet-sierra-compile -- --version
+               cd ..
+            fi
+            if [[ ! -d "cairo2/target/release" ]]; then 
+                cd cairo2 && cargo build --release
+                cargo run --bin starknet-compile -- --version
+                cargo run --bin starknet-sierra-compile -- --version
+                cd ..
+            fi
+          fi    
+
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -49,47 +88,6 @@ jobs:
 
       - name: Lint
         run: ./gradlew :lib:lintKotlin
-
-      # TODO: (#310) Remove when migrating to macOS arm64 runner
-      - name: Clone Cairo repos (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          git clone -b v1.1.1 https://github.com/starkware-libs/cairo.git cairo1
-          git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
-
-      # TODO: (#310) Remove when migrating to macOS arm64 runner
-      - name: Cache Cairo compiler v1 binaries (macOS only)
-        if: matrix.os == 'macos-latest'
-        uses: actions/cache@v3
-        with:
-          path: cairo1/target/release
-          key: ${{ runner.os }}-cairo1-target-release-${{ hashFiles('cairo1/Cargo.lock') }}
-
-      # TODO: (#310) Remove when migrating to macOS arm64 runner
-      - name: Cache Cairo compiler v2 binaries (macOS only)
-        if: matrix.os == 'macos-latest'
-        uses: actions/cache@v3
-        with:
-          path: cairo2/target/release
-          key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
-
-      - name: Build Cairo compiler Binaries (macOS only)
-        run: |
-          if [[ ! -d "cairo1/target/release" || ! -d "cairo2/target/release" ]]; then
-            curl -sSf https://sh.rustup.rs | sh -s -- -y
-            if [[ ! -d "cairo1/target/release" ]]; then
-               cd cairo1 && cargo build --release
-               cargo run --bin starknet-compile -- --version
-               cargo run --bin starknet-sierra-compile -- --version
-               cd ..
-            fi
-            if [[ ! -d "cairo2/target/release" ]]; then 
-                cd cairo2 && cargo build --release
-                cargo run --bin starknet-compile -- --version
-                cargo run --bin starknet-sierra-compile -- --version
-                cd ..
-            fi
-          fi
 
       - name: Run tests and generate coverage report
         env:
