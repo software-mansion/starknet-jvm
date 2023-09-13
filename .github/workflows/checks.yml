@@ -73,11 +73,10 @@ jobs:
           path: cairo2/target/release
           key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
 
-      - name: Build Cairo compiler Binaries
+      - name: Build Cairo compiler Binaries (macOS only)
         run: |
           if [[ ! -d "cairo1/target/release" || ! -d "cairo2/target/release" ]]; then
             curl -sSf https://sh.rustup.rs | sh -s -- -y
-            source $HOME/.cargo/env
             if [[ ! -d "cairo1/target/release" ]]; then
                cd cairo1 && cargo build --release
                cargo run --bin starknet-compile -- --version
