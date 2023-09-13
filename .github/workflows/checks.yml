@@ -15,6 +15,7 @@ jobs:
         ]
 
     runs-on: ${{ matrix.os }}
+    # TODO: (#310) Remove when migrating to macOS arm64 runner
     env:
       V1_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo1/target/release
       V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
