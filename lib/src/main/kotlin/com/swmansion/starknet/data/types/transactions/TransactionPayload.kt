@@ -75,7 +75,7 @@ data class DeclareTransactionV1Payload(
 @Serializable
 data class DeclareTransactionV2Payload(
     @SerialName("contract_class")
-    val contractDefinition: CairoContractDefinition,
+    val contractDefinition: Cairo1ContractDefinition,
 
     @SerialName("max_fee")
     val maxFee: Felt,

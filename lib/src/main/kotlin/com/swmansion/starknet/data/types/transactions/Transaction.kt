@@ -288,7 +288,7 @@ data class DeclareTransactionV2(
     val compiledClassHash: Felt,
 
     @SerialName("contract_class")
-    val contractDefinition: CairoContractDefinition? = null,
+    val contractDefinition: Cairo1ContractDefinition? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -493,7 +493,7 @@ object TransactionFactory {
     @JvmStatic
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
-        contractDefinition: CairoContractDefinition,
+        contractDefinition: Cairo1ContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
         version: Felt,

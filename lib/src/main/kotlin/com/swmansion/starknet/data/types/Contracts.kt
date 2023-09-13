@@ -4,8 +4,7 @@ import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-typealias Cairo1ContractDefinition = CairoContractDefinition
-typealias Cairo2ContractDefinition = CairoContractDefinition
+typealias Cairo2ContractDefinition = Cairo1ContractDefinition
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializable
@@ -127,7 +126,7 @@ data class Cairo0ContractDefinition(private val contract: String) {
 }
 
 @Serializable
-data class CairoContractDefinition(private val contract: String) {
+data class Cairo1ContractDefinition(private val contract: String) {
     private val sierraProgram: JsonElement
     private val entryPointsByType: JsonElement
     private val contractClassVersion: JsonElement

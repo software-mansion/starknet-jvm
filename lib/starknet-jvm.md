@@ -539,7 +539,7 @@ public class Main {
         Path casmPath = Paths.get("contract.casm");
         String contractCode = String.join("", Files.readAllLines(contractPath));
         String casmCode = String.join("", Files.readAllLines(casmPath));
-        CairoContractDefinition contractDefinition = new CairoContractDefinition(contractCode);
+        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
         CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
         Felt nonce = account.getNonce().send();
 
@@ -577,7 +577,7 @@ fun main(args: Array<String>) {
     // Import a compiled contract
     val contractCode = Path.of("contract.json").readText()
     val casmCode = Path.of("contract.casm").readText()
-    val contractDefinition = CairoContractDefinition(contractCode)
+    val contractDefinition = Cairo1ContractDefinition(contractCode)
     val casmContractDefinition = CasmContractDefinition(casmCode)
     val nonce = account.getNonce().send()
 

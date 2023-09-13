@@ -113,7 +113,7 @@ class StandardAccount(
     }
 
     override fun signDeclare(
-        sierraContractDefinition: CairoContractDefinition,
+        sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
         forFeeEstimate: Boolean,
