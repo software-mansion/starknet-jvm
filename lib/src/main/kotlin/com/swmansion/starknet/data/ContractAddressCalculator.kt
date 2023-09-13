@@ -13,12 +13,12 @@ import java.util.*
  */
 object ContractAddressCalculator {
     /**
-     * Prefix used for calculating addresses in StarkNet. It is a hex encoding of string "STARKNET_CONTRACT_ADDRESS".
+     * Prefix used for calculating addresses in Starknet. It is a hex encoding of string "STARKNET_CONTRACT_ADDRESS".
      */
     private val CONTRACT_ADDRESS_PREFIX = Felt.fromHex("0x535441524b4e45545f434f4e54524143545f41444452455353")
 
     /**
-     * Calculate address of a contract on StarkNet.
+     * Calculate address of a contract on Starknet.
      *
      * @param classHash hash of the contract code
      * @param calldata constructor calldata used for deployment
@@ -40,7 +40,7 @@ object ContractAddressCalculator {
     )
 
     /**
-     * Calculate address of a contract on StarkNet. Doesn't require deployerAddress.
+     * Calculate address of a contract on Starknet. Doesn't require deployerAddress.
      *
      * @param classHash hash of the contract code
      * @param calldata constructor calldata used for deployment

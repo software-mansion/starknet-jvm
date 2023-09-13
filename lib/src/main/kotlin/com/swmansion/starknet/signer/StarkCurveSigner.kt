@@ -6,7 +6,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 
 /**
- * Signer implementing a stark curve signature (default signature used on StarkNet).
+ * Signer implementing a stark curve signature (default signature used on Starknet).
  *
  * @param privateKey a private key to be used by this signer
  */

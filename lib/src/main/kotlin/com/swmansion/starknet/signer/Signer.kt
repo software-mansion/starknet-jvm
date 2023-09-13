@@ -7,7 +7,7 @@ import com.swmansion.starknet.data.types.transactions.*
 /**
  * Transaction signer.
  *
- * Implementers of this interface provide methods for signing transactions to be sent to the StarkNet.
+ * Implementers of this interface provide methods for signing transactions to be sent to the Starknet.
  */
 interface Signer {
     /**
