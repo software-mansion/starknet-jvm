@@ -51,16 +51,18 @@ jobs:
           if [[ ! -d "$V1_COMPILER_BUILD_PATH" || ! -d "$V2_COMPILER_BUILD_PATH" ]]; then
             curl -sSf https://sh.rustup.rs | sh -s -- -y
             if [[ ! -d "$V1_COMPILER_BUILD_PATH" ]]; then
-               cd ${{ github.workspace }}/cairo1 
-               cargo build --release
-               cargo run --bin starknet-compile -- --version
-               cargo run --bin starknet-sierra-compile -- --version
+              pushd ${{ github.workspace }}/cairo1 
+              cargo build --release
+              cargo run --bin starknet-compile -- --version
+              cargo run --bin starknet-sierra-compile -- --version
+              popd
             fi
             if [[ ! -d "$V2_COMPILER_BUILD_PATH" ]]; then 
-                cd ${{ github.workspace }}/cairo2
-                cargo build --release
-                cargo run --bin starknet-compile -- --version
-                cargo run --bin starknet-sierra-compile -- --version
+              pushd ${{ github.workspace }}/cairo2
+              cargo build --release
+              cargo run --bin starknet-compile -- --version
+              cargo run --bin starknet-sierra-compile -- --version
+              popd
             fi
           else
             echo "Found existing binaries, skipping compilation."

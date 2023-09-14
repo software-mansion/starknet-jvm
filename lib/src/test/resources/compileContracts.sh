@@ -35,10 +35,10 @@ fetch_compilers() {
   OS=$(uname)
   ARCH=$(uname -m)
 
-  if [ "$OS" == "Linux" && "$ARCH" == "x86_64" ]; then
+  if [ "$OS" == "Linux" ] && [ "$ARCH" == "x86_64" ]; then
     echo "Source: https://github.com/starkware-libs/cairo/releases/"
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C "$OUT_DIR" || exit 1
-  elif [ "$OS" == "Darwin" -a "$ARCH" == "arm64" ]; then
+  elif [ "$OS" == "Darwin" ] && [ "$ARCH" == "arm64" ]; then
     echo "Source: https://github.com/starkware-libs/cairo/releases/"
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
   else
