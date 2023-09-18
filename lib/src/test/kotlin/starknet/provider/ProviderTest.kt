@@ -106,25 +106,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `make specific testnet gateway client`() {
-        val testnet1Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET)
-        val testnet2Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2)
-
-        assertEquals("https://alpha4.starknet.io/feeder_gateway", testnet1Provider.feederGatewayUrl)
-        assertEquals("https://alpha4.starknet.io/gateway", testnet1Provider.gatewayUrl)
-        assertEquals(StarknetChainId.TESTNET, testnet1Provider.chainId)
-
-        assertEquals("https://alpha4-2.starknet.io/feeder_gateway", testnet2Provider.feederGatewayUrl)
-        assertEquals("https://alpha4-2.starknet.io/gateway", testnet2Provider.gatewayUrl)
-        assertEquals(StarknetChainId.TESTNET2, testnet2Provider.chainId)
-
-        assertThrows(IllegalArgumentException::class.java) {
-            GatewayProvider.makeTestnetProvider(StarknetChainId.MAINNET)
-        }
-    }
-
-    @Test
-    fun `make specific testnet gateway client with custom httpservice`() {
+    fun `make testnet gateway client with custom httpservice`() {
         // starknet --gateway_url http://127.0.0.1:5050/ --feeder_gateway_url http://127.0.0.1:5050/ get_block
         // Modified block number to something outrageously big to verify private httpService
         val blockNumber = 123456789
@@ -150,28 +132,15 @@ class ProviderTest {
             )
         }
 
-        val testnet1Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET, httpService)
-        val testnet2Provider = GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2, httpService)
+        val testnetProvider = GatewayProvider.makeTestnetProvider(httpService)
 
-        assertEquals("https://alpha4.starknet.io/feeder_gateway", testnet1Provider.feederGatewayUrl)
-        assertEquals("https://alpha4.starknet.io/gateway", testnet1Provider.gatewayUrl)
-        assertEquals(StarknetChainId.TESTNET, testnet1Provider.chainId)
+        assertEquals("https://alpha4.starknet.io/feeder_gateway", testnetProvider.feederGatewayUrl)
+        assertEquals("https://alpha4.starknet.io/gateway", testnetProvider.gatewayUrl)
+        assertEquals(StarknetChainId.TESTNET, testnetProvider.chainId)
 
-        val t1Block = testnet1Provider.getBlockNumber()
-        val t1Response = t1Block.send()
-        assertEquals(blockNumber, t1Response)
-
-        assertEquals("https://alpha4-2.starknet.io/feeder_gateway", testnet2Provider.feederGatewayUrl)
-        assertEquals("https://alpha4-2.starknet.io/gateway", testnet2Provider.gatewayUrl)
-        assertEquals(StarknetChainId.TESTNET2, testnet2Provider.chainId)
-
-        val t2Block = testnet2Provider.getBlockNumber()
-        val t2Response = t2Block.send()
-        assertEquals(blockNumber, t2Response)
-
-        assertThrows(IllegalArgumentException::class.java) {
-            GatewayProvider.makeTestnetProvider(StarknetChainId.MAINNET)
-        }
+        val block = testnetProvider.getBlockNumber()
+        val response = block.send()
+        assertEquals(blockNumber, response)
     }
 
     @Test
@@ -1034,17 +1003,6 @@ class ProviderTest {
         val response = blockTransactionCount.send()
 
         assertNotNull(response)
-    }
-
-    @Test
-    fun `get block transaction count with block tag for testnet2`() {
-        val provider = GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET2)
-        val blockTransactionCount = provider.getBlockTransactionCount(BlockTag.LATEST)
-        val response = blockTransactionCount.send()
-
-        assertNotNull(response)
-        assertEquals(1, response)
-        assertTrue(provider.chainId == StarknetChainId.TESTNET2)
     }
 
     @ParameterizedTest

@@ -20,7 +20,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet using JSON-RPC. You should reuse it in your application to share the
+ * A provider for interacting with Starknet using JSON-RPC. You should reuse it in your application to share the
  * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
