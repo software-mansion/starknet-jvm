@@ -1,39 +1,49 @@
 #!/bin/bash
 
-V1_COMPILER_BUILD_PATH_VAR="V1_COMPILER_BUILD_PATH"
-V2_COMPILER_BUILD_PATH_VAR="V2_COMPILER_BUILD_PATH"
+readonly OS=$(uname)
+readonly ARCH=$(uname -m)
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+readonly REPO_ROOT=$(git rev-parse --show-toplevel)
 
-V0_CONTRACT_PATH="src_v0"
-V1_CONTRACT_PATH="src_v1"
-V2_CONTRACT_PATH="src_v2"
+readonly V0_CONTRACT_PATH="src_v0"
+readonly V1_CONTRACT_PATH="src_v1"
+readonly V2_CONTRACT_PATH="src_v2"
 
-V0_ARTIFACT_PATH="compiled_v0"
-V1_ARTIFACT_PATH="compiled_v1"
-V2_ARTIFACT_PATH="compiled_v2"
+readonly V0_ARTIFACT_PATH="compiled_v0"
+readonly V1_ARTIFACT_PATH="compiled_v1"
+readonly V2_ARTIFACT_PATH="compiled_v2"
 
-V1_COMPILER_VERSION="1.1.1"
-V2_COMPILER_VERSION="2.2.0"
+readonly V1_COMPILER_BIN_PATH="compilers/v1"
+readonly V2_COMPILER_BIN_PATH="compilers/v2"
 
-V1_COMPILER_BIN_PATH="compilers/v1"
-V2_COMPILER_BIN_PATH="compilers/v2"
+readonly V1_COMPILER_VERSION="1.1.1"
+readonly V2_COMPILER_VERSION="2.2.0"
+
+if [ ! -d "$V1_COMPILER_BUILD_PATH" ] || [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
+  echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
+  echo "To proceed, please set valid paths to the built compilers for ($ARCH-$OS)."
+  echo "V1_COMPILER_BUILD_PATH - path to the built v$V1_COMPILER_VERSION compiler."
+  echo "V2_COMPILER_BUILD_PATH - path to the built v$V2_COMPILER_VERSION compiler."
+  exit 1
+fi
 
 fetch_compilers() {
   local VERSION=$1
   local OUT_DIR=$2
 
   local VERSION_SHORT=${VERSION:0:1}
-  [ "$VERSION_SHORT" == "1" ] && local COMPILER_BUILD_PATH_VAR="$V1_COMPILER_BUILD_PATH_VAR"
-  [ "$VERSION_SHORT" == "2" ] && local COMPILER_BUILD_PATH_VAR="$V2_COMPILER_BUILD_PATH_VAR"
-  local COMPILER_BUILD_PATH="${!COMPILER_BUILD_PATH_VAR}"
+  if [ "$VERSION_SHORT" == "1" ]; then
+    local COMPILER_BUILD_PATH="$V1_COMPILER_BUILD_PATH"
+  elif [ "$VERSION_SHORT" == "2" ]; then
+    local COMPILER_BUILD_PATH="$V2_COMPILER_BUILD_PATH"
+  else
+    echo "Invalid compiler version: $VERSION"
+    exit 1
+  fi
 
   echo "Fetching compiler v$VERSION binaries..."
 
   mkdir -p "$OUT_DIR"
-
-  OS=$(uname)
-  ARCH=$(uname -m)
 
   if [ "$OS" == "Linux" ] && [ "$ARCH" == "x86_64" ]; then
     echo "Source: https://github.com/starkware-libs/cairo/releases/"
@@ -42,24 +52,23 @@ fetch_compilers() {
     echo "Source: https://github.com/starkware-libs/cairo/releases/"
     curl -LsSf "https://github.com/starkware-libs/cairo/releases/download/v${VERSION}/release-aarch64-apple-darwin.tar" | tar -x -C "$OUT_DIR" || exit 1
   else
-      if [ -n "${COMPILER_BUILD_PATH}" ] && [ -d "${COMPILER_BUILD_PATH}" ]; then
-        echo "Source: $COMPILER_BUILD_PATH..."
+    if [ -n "$COMPILER_BUILD_PATH" ] && [ -d "$COMPILER_BUILD_PATH" ]; then
+      echo "Source: $COMPILER_BUILD_PATH..."
 
-        rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/" || true
-        rm -r "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || true
+      rm -r "$(dirname "$0")/$OUT_DIR/cairo/bin/" || true
+      rm -r "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || true
 
-        mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
-        mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
+      mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/bin/"
+      mkdir -p "$(dirname "$0")/$OUT_DIR/cairo/corelib/"
 
-        echo "Copying binaries..."
-        rsync -aW "${COMPILER_BUILD_PATH}/" "$(dirname "$0")/$OUT_DIR/cairo/bin/" || exit 1
-        echo "Copying corelib..."
-        rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || exit 1
-      else
-        echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
-        echo "To proceed, please specify a valid path to a built v$VERSION compiler for ($ARCH-$OS) in the $COMPILER_BUILD_PATH_VAR environment variable."
-        exit 1
-      fi
+      echo "Copying binaries..."
+      rsync -aW "${COMPILER_BUILD_PATH}/" "$(dirname "$0")/$OUT_DIR/cairo/bin/" || exit 1
+      echo "Copying corelib..."
+      rsync -aW "$REPO_ROOT/cairo$VERSION_SHORT/corelib/" "$(dirname "$0")/$OUT_DIR/cairo/corelib/" || exit 1
+    else
+      echo "Compiler binaries not found for $OS-$ARCH."
+      exit 1
+    fi
   fi
 
   COMPILER_PATH=$(pwd)/"$OUT_DIR"/cairo/bin/starknet-compile
