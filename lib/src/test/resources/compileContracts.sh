@@ -25,9 +25,9 @@ elif [ "$OS" == "Darwin" ] && [ "$ARCH" == "arm64" ]; then
   true
 elif [ ! -d "$V1_COMPILER_BUILD_PATH" ] || [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
   echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
-  echo "To proceed, please set valid paths to the built compilers for ($ARCH-$OS)."
-  echo "V1_COMPILER_BUILD_PATH - path to the built v$V1_COMPILER_VERSION compiler."
-  echo "V2_COMPILER_BUILD_PATH - path to the built v$V2_COMPILER_VERSION compiler."
+  echo "To proceed, please set valid paths to the compiler binaries built for ($ARCH-$OS)."
+  echo "V1_COMPILER_BUILD_PATH - path to a built v$V1_COMPILER_VERSION compiler."
+  echo "V2_COMPILER_BUILD_PATH - path to a built v$V2_COMPILER_VERSION compiler."
   exit 1
 fi
 
