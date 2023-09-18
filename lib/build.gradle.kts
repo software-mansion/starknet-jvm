@@ -182,7 +182,7 @@ publishing {
             }
             pom {
                 name.set("starknet")
-                description.set("StarkNet SDK for JVM languages")
+                description.set("Starknet SDK for JVM languages")
                 url.set("https://github.com/software-mansion/starknet-jvm")
                 licenses {
                     license {

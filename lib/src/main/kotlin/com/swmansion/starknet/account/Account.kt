@@ -16,7 +16,7 @@ interface Account {
     /**
      * Sign a transaction.
      *
-     * Sign a transaction to be executed on StarkNet.
+     * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
@@ -30,7 +30,7 @@ interface Account {
     /**
      * Sign a transaction.
      *
-     * Sign a transaction to be executed on StarkNet.
+     * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
@@ -43,7 +43,7 @@ interface Account {
     /**
      * Sign multiple calls as a single transaction.
      *
-     * Sign a list of calls to be executed on StarkNet.
+     * Sign a list of calls to be executed on Starknet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
@@ -55,7 +55,7 @@ interface Account {
     /**
      * Sign multiple calls as a single transaction.
      *
-     * Sign a list of calls to be executed on StarkNet.
+     * Sign a list of calls to be executed on Starknet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
@@ -110,7 +110,7 @@ interface Account {
     /**
      * Sign a version 1 declare transaction.
      *
-     * Prepare and sign a version 1 declare transaction to be executed on StarkNet.
+     * Prepare and sign a version 1 declare transaction to be executed on Starknet.
      *
      * @param contractDefinition a definition of the contract to be declared
      * @param classHash a class hash of the contract to be declared
@@ -128,7 +128,7 @@ interface Account {
     /**
      * Sign a version 2 declare transaction.
      *
-     * Prepare and sign a version 2 declare transaction to be executed on StarkNet.
+     * Prepare and sign a version 2 declare transaction to be executed on Starknet.
      *
      * @param sierraContractDefinition a cairo 1 sierra compiled definition of the contract to be declared
      * @param casmContractDefinition a casm representation of cairo 1 compiled contract to be declared
@@ -152,7 +152,7 @@ interface Account {
     fun signTypedData(typedData: TypedData): Signature
 
     /**
-     * Verify a signature of TypedData on StarkNet
+     * Verify a signature of TypedData on Starknet
      *
      * @param typedData a TypedData instance which signature will be verified
      * @param signature a signature of typedData

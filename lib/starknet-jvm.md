@@ -1,9 +1,9 @@
 # Module starknet-jvm
 
-StarkNet-jvm is a library allowing for easy interaction with StarkNet gateway and nodes, including
+Starknet-jvm is a library allowing for easy interaction with Starknet gateway and nodes, including
 querying starknet state, executing transactions and deploying contracts.
 
-Although written in Kotlin, StarkNet-jvm has been created with compatibility with Java in mind.
+Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
 
 ⚠️Gateway provider is currently marked as deprecated and will soon be removed. Please use JSON-RPC provider instead.
 
@@ -22,7 +22,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
@@ -50,7 +50,7 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Create an account interface
@@ -88,7 +88,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
@@ -116,7 +116,7 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -153,7 +153,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Create an account interface
@@ -193,7 +193,7 @@ public class Main {
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Create an account interface
@@ -245,7 +245,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -281,7 +281,7 @@ public class Main {
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -336,7 +336,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -366,7 +366,7 @@ public class Main {
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -420,7 +420,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -459,7 +459,7 @@ public class Main {
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -525,7 +525,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 
         // Set up an account
@@ -565,7 +565,7 @@ public class Main {
 
 ```kotlin
 fun main(args: Array<String>) {
-    // Create a provider for interacting with StarkNet
+    // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
 
     // Set up an account
@@ -610,7 +610,7 @@ fun main(args: Array<String>) {
 
 # Package com.swmansion.starknet.account
 
-Account interface used to simplify preparing, signing StarkNet transactions and automatic fee estimation.
+Account interface used to simplify preparing, signing Starknet transactions and automatic fee estimation.
 
 ### Example usages of `StandardAccount`
 
@@ -720,15 +720,15 @@ Signer and Account implementations.
 
 # Package com.swmansion.starknet.data
 
-Data classes representing StarkNet objects and utilities for handling them.
+Data classes representing Starknet objects and utilities for handling them.
 
 # Package com.swmansion.starknet.data.types
 
-Data classes representing StarkNet objects.
+Data classes representing Starknet objects.
 
 # Package com.swmansion.starknet.data.types.transactions
 
-Data classes representing StarkNet transactions.
+Data classes representing Starknet transactions.
 
 # Package com.swmansion.starknet.deployercontract
 
@@ -792,7 +792,7 @@ Request<Felt> request = provider.getStorageAt(address, key, BlockTag.LATEST);
 
 # Package com.swmansion.starknet.provider.exceptions
 
-Exceptions thrown by the StarkNet providers.
+Exceptions thrown by the Starknet providers.
 
 `Request.send()` throws `RequestFailedException` unchecked exception.
 It can optionally be handled.
@@ -811,15 +811,13 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 
 # Package com.swmansion.starknet.provider.gateway
 
-Provider utilising StarkNet gateway and feeder gateway for communication with the network.
+Provider utilising Starknet gateway and feeder gateway for communication with the network.
 
 ```java
 // Create a provider using GatewayProvider static methods
 GatewayProvider.makeTestnetProvider();
-// Chain id can be specified
-GatewayProvider.makeTestnetProvider(StarknetChainId.TESTNET2);
-// As well as the custom HttpService
-GatewayProvider.makeTestnetProvider(myHttpService, StarknetChainId.TESTNET2);
+// Custom HttpService can be specified
+GatewayProvider.makeTestnetProvider(myHttpService);
 
 // Provider can be also created using a constructor
 new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
@@ -841,7 +839,7 @@ new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET,
 
 # Package com.swmansion.starknet.service.http
 
-Http service used to communicate with StarkNet.
+Http service used to communicate with Starknet.
 
 You can create a `OkHttpService` yourself and pass it whenever creating a provider. This way your whole
 application can use a single `OkHttpClient`. Read more [here](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
