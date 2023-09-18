@@ -19,7 +19,11 @@ readonly V2_COMPILER_BIN_PATH="compilers/v2"
 readonly V1_COMPILER_VERSION="1.1.1"
 readonly V2_COMPILER_VERSION="2.2.0"
 
-if [ ! -d "$V1_COMPILER_BUILD_PATH" ] || [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
+if [ "$OS" == "Linux" ] && [ "$ARCH" == "x86_64" ]; then
+  true
+elif [ "$OS" == "Darwin" ] && [ "$ARCH" == "arm64" ]; then
+  true
+elif [ ! -d "$V1_COMPILER_BUILD_PATH" ] || [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
   echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
   echo "To proceed, please set valid paths to the built compilers for ($ARCH-$OS)."
   echo "V1_COMPILER_BUILD_PATH - path to the built v$V1_COMPILER_VERSION compiler."
