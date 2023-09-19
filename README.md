@@ -599,6 +599,15 @@ These are distributed as python packages. To install required dependencies, run:
 ```shell
 pip install -r requirements.txt
 ```
+### Platform-specific prerequisites
+- **macOS aarch64**: no additional steps are required
+- **linux x86_64**: no additional steps are required
+- For other platforms, providing paths to directories than include built compiler binaries (`bin/`) and corelib (`corelib/`) is required.
+    - To do so, set the following environmental variables:
+    - `V1_COMPILER_BUILD_PATH` - path to v1.1.1 build
+    - `V2_COMPILER_BUILD_PATH` - path to v2.2.2 build
+    - To build cairo compilers for your platform, refer to [cairo repo](https://github.com/starkware-libs/cairo).
+
 ### Regular Tests
 Use the following command to run tests:
 ```shell

@@ -130,8 +130,8 @@ interface Account {
      *
      * Prepare and sign a version 2 declare transaction to be executed on Starknet.
      *
-     * @param sierraContractDefinition a cairo 1 sierra compiled definition of the contract to be declared
-     * @param casmContractDefinition a casm representation of cairo 1 compiled contract to be declared
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload

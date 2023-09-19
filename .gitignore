@@ -45,9 +45,10 @@ venv
 # Exclude gradle wrapper jar
 !gradle/wrapper/gradle-wrapper.jar
 
-# Exclude account temp files
+# Exclude test resources temp files
 lib/src/test/resources/*account
 lib/src/test/resources/compiled*
+lib/src/test/resources/compilers*
 integration_tests.env
 
 # Exclude native builds outputs
