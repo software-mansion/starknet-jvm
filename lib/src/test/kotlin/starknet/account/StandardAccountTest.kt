@@ -26,7 +26,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
-import starknet.utils.ContractDeployer
+import starknet.utils.LegacyContractDeployer
 import starknet.utils.LegacyDevnetClient
 import starknet.utils.MockUtils
 import java.math.BigInteger
@@ -76,10 +76,10 @@ class StandardAccountTest {
         }
 
         private fun deployAccount() {
-            val contractDeployer = ContractDeployer.deployInstance(legacyDevnetClient)
+            val legacyContractDeployer = LegacyContractDeployer.deployInstance(legacyDevnetClient)
             val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
             accountClassHash = classHash
-            accountAddress = contractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
+            accountAddress = legacyContractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
             legacyDevnetClient.prefundAccount(accountAddress)
         }
 

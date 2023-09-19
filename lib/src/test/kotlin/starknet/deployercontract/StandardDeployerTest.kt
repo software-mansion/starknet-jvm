@@ -20,7 +20,7 @@ import starknet.utils.LegacyDevnetClient
 import starknet.utils.MockUtils
 import java.nio.file.Path
 import java.nio.file.Paths
-import starknet.utils.ContractDeployer as TestContractDeployer
+import starknet.utils.LegacyContractDeployer as TestContractDeployer
 
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {

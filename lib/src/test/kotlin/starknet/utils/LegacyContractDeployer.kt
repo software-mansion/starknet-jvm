@@ -5,9 +5,9 @@ import com.swmansion.starknet.data.types.Felt
 import java.nio.file.Path
 import kotlin.random.Random
 
-class ContractDeploymentFailedException() : Exception()
+class LegacyContractDeploymentFailedException() : Exception()
 
-class ContractDeployer(
+class LegacyContractDeployer(
     private val address: Felt,
     private val legacyDevnetClient: LegacyDevnetClient,
 ) {
@@ -29,14 +29,14 @@ class ContractDeployer(
         val deployEvent = receipt.events.stream()
             .filter { it.keys.contains(selectorFromName("ContractDeployed")) }
             .findFirst()
-            .orElseThrow { ContractDeploymentFailedException() }
+            .orElseThrow { LegacyContractDeploymentFailedException() }
         return deployEvent.data.first()
     }
 
     companion object {
-        fun deployInstance(legacyDevnetClient: LegacyDevnetClient): ContractDeployer {
+        fun deployInstance(legacyDevnetClient: LegacyDevnetClient): LegacyContractDeployer {
             val (deployerAddress, _) = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
-            return ContractDeployer(deployerAddress, legacyDevnetClient)
+            return LegacyContractDeployer(deployerAddress, legacyDevnetClient)
         }
     }
 }
