@@ -16,7 +16,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import starknet.utils.DevnetClient
+import starknet.utils.LegacyDevnetClient
 import starknet.utils.MockUtils
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -25,7 +25,7 @@ import starknet.utils.ContractDeployer as TestContractDeployer
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
     @JvmStatic
-    private val devnetClient = DevnetClient(port = 5052, accountDirectory = Paths.get("src/test/resources/standard_deployer_test_account"))
+    private val legacyDevnetClient = LegacyDevnetClient(port = 5052, accountDirectory = Paths.get("src/test/resources/standard_deployer_test_account"))
     private val signer = StarkCurveSigner(Felt(1234))
 
     private lateinit var testContractDeployer: TestContractDeployer
@@ -39,35 +39,35 @@ object StandardDeployerTest {
     @BeforeAll
     fun before() {
         try {
-            devnetClient.start()
+            legacyDevnetClient.start()
 
-            testContractDeployer = TestContractDeployer.deployInstance(devnetClient)
+            testContractDeployer = TestContractDeployer.deployInstance(legacyDevnetClient)
             gatewayProvider = GatewayProvider(
-                devnetClient.feederGatewayUrl,
-                devnetClient.gatewayUrl,
+                legacyDevnetClient.feederGatewayUrl,
+                legacyDevnetClient.gatewayUrl,
                 StarknetChainId.TESTNET,
             )
 
             rpcProvider = JsonRpcProvider(
-                devnetClient.rpcUrl,
+                legacyDevnetClient.rpcUrl,
                 StarknetChainId.TESTNET,
             )
 
-            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
+            val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
             rpcDeployerAddress = testContractDeployer.deployContract(classHash)
             gatewayDeployerAddress = testContractDeployer.deployContract(classHash)
 
             deployAccount()
         } catch (ex: Exception) {
-            devnetClient.close()
+            legacyDevnetClient.close()
             throw ex
         }
     }
 
     private fun deployAccount() {
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
+        val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
         accountAddress = testContractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
-        devnetClient.prefundAccount(accountAddress)
+        legacyDevnetClient.prefundAccount(accountAddress)
     }
 
     data class StandardDeployerAndProvider(val standardDeployer: StandardDeployer, val provider: Provider)
@@ -110,7 +110,7 @@ object StandardDeployerTest {
             else -> throw IllegalStateException("Unknown provider type")
         }
 
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
+        val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, true, Felt(1234), emptyList()).send()
         val address = receiptStandartDeployer.findContractAddress(deployment).send()
 
@@ -134,7 +134,7 @@ object StandardDeployerTest {
             else -> throw IllegalStateException("Unknown provider type")
         }
 
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
+        val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json"))
         val deployment = standardDeployer.deployContract(classHash, emptyList()).send()
         val address = receiptStandartDeployer.findContractAddress(deployment).send()
 
@@ -159,7 +159,7 @@ object StandardDeployerTest {
         }
 
         val constructorValue = Felt(111)
-        val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/contractWithConstructor.json"))
+        val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/contractWithConstructor.json"))
         val deployment =
             standardDeployer.deployContract(classHash, true, Felt(1234), listOf(constructorValue, Felt(789))).send()
         val address = receiptStandartDeployer.findContractAddress(deployment).send()

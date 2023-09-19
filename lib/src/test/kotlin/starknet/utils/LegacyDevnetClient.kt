@@ -18,12 +18,12 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-class DevnetSetupFailedException(message: String) : Exception(message)
+class LegacyDevnetSetupFailedException(message: String) : Exception(message)
 
-class DevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
+class LegacyDevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
     Exception(failureReason?.errorMessage ?: "Devnet operation failed")
 
-class DevnetClient(
+class LegacyDevnetClient(
     private val host: String = "0.0.0.0",
     private val port: Int = 5050,
     private val httpService: HttpService = OkHttpService(),
@@ -53,7 +53,7 @@ class DevnetClient(
 
     fun start() {
         if (isDevnetRunning) {
-            throw DevnetSetupFailedException("Devnet is already running")
+            throw LegacyDevnetSetupFailedException("Devnet is already running")
         }
 
         // This kills any zombie devnet processes left over from previous
@@ -82,7 +82,7 @@ class DevnetClient(
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
-            throw DevnetSetupFailedException("Could not start devnet process")
+            throw LegacyDevnetSetupFailedException("Could not start devnet process")
         }
 
         isDevnetRunning = true
@@ -117,7 +117,7 @@ class DevnetClient(
         )
         val response = httpService.send(payload)
         if (!response.isSuccessful) {
-            throw DevnetSetupFailedException("Prefunding account failed")
+            throw LegacyDevnetSetupFailedException("Prefunding account failed")
         }
     }
 
@@ -305,7 +305,7 @@ class DevnetClient(
     private fun assertTxPassed(txHash: Felt) {
         val receipt = transactionReceipt(txHash)
         if (receipt.failureReason != null || receipt.status != TransactionStatus.ACCEPTED_ON_L2) {
-            throw DevnetOperationFailed(receipt.failureReason, receipt.status)
+            throw LegacyDevnetOperationFailed(receipt.failureReason, receipt.status)
         }
     }
 
@@ -332,7 +332,7 @@ class DevnetClient(
 
     private fun requireNoErrors(methodName: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
-            throw DevnetSetupFailedException("Step $methodName failed. error = $errorStream")
+            throw LegacyDevnetSetupFailedException("Step $methodName failed. error = $errorStream")
         }
     }
 

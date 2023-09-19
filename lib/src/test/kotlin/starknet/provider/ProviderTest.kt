@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
-import starknet.utils.DevnetClient
+import starknet.utils.LegacyDevnetClient
 import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
@@ -29,7 +29,7 @@ import java.nio.file.Paths
 class ProviderTest {
     companion object {
         @JvmStatic
-        private val devnetClient = DevnetClient(accountDirectory = Paths.get("src/test/resources/provider_test_account"))
+        private val legacyDevnetClient = LegacyDevnetClient(accountDirectory = Paths.get("src/test/resources/provider_test_account"))
         private lateinit var contractAddress: Felt
         private lateinit var classHash: Felt
         private lateinit var invokeTransactionHash: Felt
@@ -44,16 +44,16 @@ class ProviderTest {
         @JvmStatic
         private val latestBlock: BlockHashAndNumber
             get() {
-                val latestBlock = devnetClient.latestBlock()
+                val latestBlock = legacyDevnetClient.latestBlock()
                 return BlockHashAndNumber(latestBlock.blockHash, latestBlock.blockNumber)
             }
 
         @JvmStatic
         private fun gatewayProvider(): GatewayProvider =
-            GatewayProvider(devnetClient.feederGatewayUrl, devnetClient.gatewayUrl, StarknetChainId.TESTNET)
+            GatewayProvider(legacyDevnetClient.feederGatewayUrl, legacyDevnetClient.gatewayUrl, StarknetChainId.TESTNET)
 
         @JvmStatic
-        private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
+        private fun rpcProvider(): JsonRpcProvider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET)
 
         @JvmStatic
         private fun isAccepted(receipt: TransactionReceipt): Boolean {
@@ -68,24 +68,24 @@ class ProviderTest {
         @BeforeAll
         fun before() {
             try {
-                devnetClient.start()
+                legacyDevnetClient.start()
 
-                val (contractAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
-                val (_, invokeHash) = devnetClient.invokeTransaction(
+                val (contractAddress, _) = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
+                val (_, invokeHash) = legacyDevnetClient.invokeTransaction(
                     "increase_balance",
                     contractAddress,
                     Path.of("src/test/resources/compiled_v0/providerTestAbi.json"),
                     listOf(Felt.ZERO),
                 )
-                val (classHash, declareHash) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
-                val (_, deployAccountHash) = devnetClient.deployAccount()
+                val (classHash, declareHash) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
+                val (_, deployAccountHash) = legacyDevnetClient.deployAccount()
                 this.contractAddress = contractAddress
                 this.classHash = classHash
                 this.invokeTransactionHash = invokeHash
                 this.declareTransactionHash = declareHash
                 this.deployAccountTransactionHash = deployAccountHash
             } catch (ex: Exception) {
-                devnetClient.close()
+                legacyDevnetClient.close()
                 throw ex
             }
         }
@@ -93,7 +93,7 @@ class ProviderTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.close()
+            legacyDevnetClient.close()
         }
     }
 
@@ -168,7 +168,7 @@ class ProviderTest {
             "get_balance",
             emptyList(),
         )
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+        val expected = legacyDevnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
         val request = provider.callContract(call, latestBlock.number)
         val response = request.send()
@@ -185,7 +185,7 @@ class ProviderTest {
             "get_balance",
             emptyList(),
         )
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+        val expected = legacyDevnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
         val request = provider.callContract(call, latestBlock.hash)
         val response = request.send()
@@ -202,7 +202,7 @@ class ProviderTest {
             "get_balance",
             emptyList(),
         )
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+        val expected = legacyDevnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
         val request = provider.callContract(call, BlockTag.LATEST)
         val response = request.send()
@@ -221,7 +221,7 @@ class ProviderTest {
         )
 
         val response = request.send()
-        val expected = devnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
+        val expected = legacyDevnetClient.getStorageAt(contractAddress, selectorFromName("balance"))
 
         assertEquals(expected, response)
     }
@@ -269,7 +269,7 @@ class ProviderTest {
             return
         }
 
-        val latestBlock = devnetClient.getLatestBlock()
+        val latestBlock = legacyDevnetClient.getLatestBlock()
 
         val request = provider.getClassAt(contractAddress, latestBlock.hash)
         val response = request.send()
@@ -287,7 +287,7 @@ class ProviderTest {
             return
         }
 
-        val latestBlock = devnetClient.getLatestBlock()
+        val latestBlock = legacyDevnetClient.getLatestBlock()
 
         val request = provider.getClassAt(contractAddress, latestBlock.number)
         val response = request.send()
@@ -355,7 +355,7 @@ class ProviderTest {
         if (provider is JsonRpcProvider) {
             return
         }
-        val latestBlock = devnetClient.getLatestBlock()
+        val latestBlock = legacyDevnetClient.getLatestBlock()
 
         val request = provider.getClassHashAt(contractAddress, latestBlock.hash)
         val response = request.send()
@@ -370,7 +370,7 @@ class ProviderTest {
         if (provider is JsonRpcProvider) {
             return
         }
-        val latestBlock = devnetClient.getLatestBlock()
+        val latestBlock = legacyDevnetClient.getLatestBlock()
 
         val request = provider.getClassHashAt(contractAddress, latestBlock.number)
         val response = request.send()
@@ -451,7 +451,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
         val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
@@ -528,7 +528,7 @@ class ProviderTest {
             )
         }
 
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
 
         assertTrue(receipt is PendingRpcTransactionReceipt)
@@ -663,7 +663,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
         val request = provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
         val response = request.send()
@@ -745,7 +745,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
         val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
@@ -870,7 +870,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
         val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
@@ -1054,7 +1054,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getSyncing()
         val response = request.send()
 
@@ -1167,7 +1167,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
         val response = request.send()
 
@@ -1226,7 +1226,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
         val response = request.send()
 
@@ -1296,7 +1296,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getStateUpdate(BlockTag.PENDING)
         val response = request.send()
 
@@ -1385,7 +1385,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val request = provider.getPendingTransactions()
         val response = request.send()
 

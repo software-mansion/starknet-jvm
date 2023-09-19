@@ -27,7 +27,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.ContractDeployer
-import starknet.utils.DevnetClient
+import starknet.utils.LegacyDevnetClient
 import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
@@ -38,8 +38,8 @@ import kotlin.io.path.readText
 class StandardAccountTest {
     companion object {
         @JvmStatic
-        private val devnetClient =
-            DevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
+        private val legacyDevnetClient =
+            LegacyDevnetClient(port = 5051, accountDirectory = Paths.get("src/test/resources/standard_account_test_account"))
         private val signer = StarkCurveSigner(Felt(1234))
 
         private lateinit var gatewayProvider: GatewayProvider
@@ -52,35 +52,35 @@ class StandardAccountTest {
         @BeforeAll
         fun before() {
             try {
-                devnetClient.start()
+                legacyDevnetClient.start()
 
                 gatewayProvider = GatewayProvider(
-                    devnetClient.feederGatewayUrl,
-                    devnetClient.gatewayUrl,
+                    legacyDevnetClient.feederGatewayUrl,
+                    legacyDevnetClient.gatewayUrl,
                     StarknetChainId.TESTNET,
                 )
 
                 rpcProvider = JsonRpcProvider(
-                    devnetClient.rpcUrl,
+                    legacyDevnetClient.rpcUrl,
                     StarknetChainId.TESTNET,
                 )
 
-                val (deployAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
+                val (deployAddress, _) = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
                 balanceContractAddress = deployAddress
 
                 deployAccount()
             } catch (ex: Exception) {
-                devnetClient.close()
+                legacyDevnetClient.close()
                 throw ex
             }
         }
 
         private fun deployAccount() {
-            val contractDeployer = ContractDeployer.deployInstance(devnetClient)
-            val (classHash, _) = devnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
+            val contractDeployer = ContractDeployer.deployInstance(legacyDevnetClient)
+            val (classHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
             accountClassHash = classHash
             accountAddress = contractDeployer.deployContract(classHash, calldata = listOf(signer.publicKey))
-            devnetClient.prefundAccount(accountAddress)
+            legacyDevnetClient.prefundAccount(accountAddress)
         }
 
         data class AccountAndProvider(val account: Account, val provider: Provider)
@@ -113,7 +113,7 @@ class StandardAccountTest {
         @JvmStatic
         @AfterAll
         fun after() {
-            devnetClient.close()
+            legacyDevnetClient.close()
         }
     }
 
@@ -651,7 +651,7 @@ class StandardAccountTest {
             calldata = calldata,
             salt = salt,
         )
-        devnetClient.prefundAccount(address)
+        legacyDevnetClient.prefundAccount(address)
 
         val account = StandardAccount(
             address,
@@ -758,7 +758,7 @@ class StandardAccountTest {
             privateKey,
             rpcProvider,
         )
-        devnetClient.prefundAccount(address)
+        legacyDevnetClient.prefundAccount(address)
         val deployAccountTx = newAccount.signDeployAccount(
             classHash = accountClassHash,
             salt = salt,

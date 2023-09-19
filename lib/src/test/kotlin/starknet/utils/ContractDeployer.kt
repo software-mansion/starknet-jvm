@@ -9,7 +9,7 @@ class ContractDeploymentFailedException() : Exception()
 
 class ContractDeployer(
     private val address: Felt,
-    private val devnetClient: DevnetClient,
+    private val legacyDevnetClient: LegacyDevnetClient,
 ) {
     fun deployContract(
         classHash: Felt,
@@ -19,13 +19,13 @@ class ContractDeployer(
     ): Felt {
         val invokeCalldata =
             listOf(classHash, salt, if (unique) Felt.ONE else Felt.ZERO, Felt(calldata.size)) + calldata
-        val (_, transactionHash) = devnetClient.invokeTransaction(
+        val (_, transactionHash) = legacyDevnetClient.invokeTransaction(
             "deployContract",
             address,
             Path.of("src/test/resources/compiled_v0/deployerAbi.json"),
             invokeCalldata,
         )
-        val receipt = devnetClient.transactionReceipt(transactionHash)
+        val receipt = legacyDevnetClient.transactionReceipt(transactionHash)
         val deployEvent = receipt.events.stream()
             .filter { it.keys.contains(selectorFromName("ContractDeployed")) }
             .findFirst()
@@ -34,9 +34,9 @@ class ContractDeployer(
     }
 
     companion object {
-        fun deployInstance(devnetClient: DevnetClient): ContractDeployer {
-            val (deployerAddress, _) = devnetClient.deployContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
-            return ContractDeployer(deployerAddress, devnetClient)
+        fun deployInstance(legacyDevnetClient: LegacyDevnetClient): ContractDeployer {
+            val (deployerAddress, _) = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
+            return ContractDeployer(deployerAddress, legacyDevnetClient)
         }
     }
 }
