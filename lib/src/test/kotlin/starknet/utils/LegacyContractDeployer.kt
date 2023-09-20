@@ -18,7 +18,12 @@ class LegacyContractDeployer(
         calldata: List<Felt> = emptyList(),
     ): Felt {
         val invokeCalldata =
-            listOf(classHash, salt, if (unique) Felt.ONE else Felt.ZERO, Felt(calldata.size)) + calldata
+            listOf(
+                classHash,
+                salt,
+                if (unique) Felt.ONE else Felt.ZERO,
+                Felt(calldata.size),
+            ) + calldata
         val (_, transactionHash) = legacyDevnetClient.invokeTransaction(
             "deployContract",
             address,
