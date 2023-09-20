@@ -4,6 +4,8 @@ import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+typealias Cairo2ContractDefinition = Cairo1ContractDefinition
+
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializable
 enum class AbiEntryType {

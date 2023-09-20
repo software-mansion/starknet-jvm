@@ -15,19 +15,27 @@ jobs:
         ]
 
     runs-on: ${{ matrix.os }}
+    # TODO: (#310) Remove when migrating to macOS arm64 runner
+    env:
+      V1_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo1/target/release
+      V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: actions/setup-java@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 11
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
         with:
           cmake-version: '3.16.x'
-      - name: Set up Python 3.9.12
+
+      - name: Setup Python
         uses: actions/setup-python@v4.5.0
         with:
           python-version: 3.9.12
@@ -46,12 +54,50 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Cache cairo (rust) compiled deps
+      # TODO: (#310) Remove when migrating to macOS arm64 runner
+      - name: Clone Cairo repos (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          git clone -b v1.1.1 https://github.com/starkware-libs/cairo.git cairo1
+          git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
+
+      - name: Cache Cairo compiler v1 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
         uses: actions/cache@v3
         with:
-          path: cairo/target/debug
-          key: ${{ runner.os }}-cairo-target-debug-${{ hashFiles('cairo/Cargo.lock') }}
-      
+          path: cairo1/target/release
+          key: ${{ runner.os }}-cairo1-target-release-${{ hashFiles('cairo1/Cargo.lock') }}
+
+      - name: Cache Cairo compiler v2 binaries (macOS only)
+        if: matrix.os == 'macos-latest'
+        uses: actions/cache@v3
+        with:
+          path: cairo2/target/release
+          key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
+
+      - name: Build Cairo compiler binaries (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          if [[ ! -d "$V1_COMPILER_BUILD_PATH" || ! -d "$V2_COMPILER_BUILD_PATH" ]]; then
+            curl -sSf https://sh.rustup.rs | sh -s -- -y
+            if [[ ! -d "$V1_COMPILER_BUILD_PATH" ]]; then
+              pushd ${{ github.workspace }}/cairo1 
+              cargo build --release
+              cargo run --bin starknet-compile -- --version
+              cargo run --bin starknet-sierra-compile -- --version
+              popd
+            fi
+            if [[ ! -d "$V2_COMPILER_BUILD_PATH" ]]; then 
+              pushd ${{ github.workspace }}/cairo2
+              cargo build --release
+              cargo run --bin starknet-compile -- --version
+              cargo run --bin starknet-sierra-compile -- --version
+              popd
+            fi
+          else
+            echo "Found existing binaries, skipping compilation."
+          fi
+
       - name: Run tests and generate coverage report
         run: ./gradlew :lib:koverXmlReport --info
 
