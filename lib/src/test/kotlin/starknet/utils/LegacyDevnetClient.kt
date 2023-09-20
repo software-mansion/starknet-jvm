@@ -70,7 +70,7 @@ class LegacyDevnetClient(
                 seed.toString(),
                 "--sierra-compiler-path",
                 "src/test/resources/compilers/v2/cairo/bin/starknet-sierra-compile",
-        ).start()
+            ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
