@@ -115,11 +115,6 @@ class LegacyDevnetClient(
         }
     }
 
-    data class DeployAccountResult(
-        val details: AccountDetails,
-        val txHash: Felt,
-    )
-
     fun deployAccount(name: String? = null): DeployAccountResult {
         // We have to generate unique name for the account as a global namespace is used
         val accountName = name ?: UUID.randomUUID().toString()
