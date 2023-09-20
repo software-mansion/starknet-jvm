@@ -5,7 +5,6 @@ import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -17,11 +16,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.readText
-
-class LegacyDevnetSetupFailedException(message: String) : Exception(message)
-
-class LegacyDevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
-    Exception(failureReason?.errorMessage ?: "Devnet operation failed")
 
 class LegacyDevnetClient(
     private val host: String = "0.0.0.0",
@@ -53,7 +47,7 @@ class LegacyDevnetClient(
 
     fun start() {
         if (isDevnetRunning) {
-            throw LegacyDevnetSetupFailedException("Devnet is already running")
+            throw DevnetSetupFailedException("Devnet is already running")
         }
 
         // This kills any zombie devnet processes left over from previous
@@ -82,7 +76,7 @@ class LegacyDevnetClient(
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
-            throw LegacyDevnetSetupFailedException("Could not start devnet process")
+            throw DevnetSetupFailedException("Could not start devnet process")
         }
 
         isDevnetRunning = true
@@ -117,7 +111,7 @@ class LegacyDevnetClient(
         )
         val response = httpService.send(payload)
         if (!response.isSuccessful) {
-            throw LegacyDevnetSetupFailedException("Prefunding account failed")
+            throw DevnetSetupFailedException("Prefunding account failed")
         }
     }
 
@@ -332,7 +326,7 @@ class LegacyDevnetClient(
 
     private fun requireNoErrors(methodName: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
-            throw LegacyDevnetSetupFailedException("Step $methodName failed. error = $errorStream")
+            throw DevnetSetupFailedException("Step $methodName failed. error = $errorStream")
         }
     }
 
@@ -351,29 +345,5 @@ class LegacyDevnetClient(
         val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
         val contents = accountFile.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @Serializable
-    data class AccountDetails(
-        @JsonNames("private_key")
-        val privateKey: Felt,
-
-        @JsonNames("public_key")
-        val publicKey: Felt,
-
-        @JsonNames("address")
-        val address: Felt,
-
-        @JsonNames("salt")
-        val salt: Felt,
-    )
-
-    class AccountDetailsSerializer(val name: String) :
-        JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
-        override fun transformDeserialize(element: JsonElement): JsonElement {
-            val accounts = element.jsonObject["alpha-goerli"]!!
-            return accounts.jsonObject[name]!!
-        }
     }
 }
