@@ -4,21 +4,11 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.transactions.GatewayFailureReason
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNames
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
-
-@Serializable
-data class PrefundPayload(
-    @SerialName("address")
-    val address: Felt,
-
-    @SerialName("amount")
-    val amount: Felt,
-)
 
 data class DeployAccountResult(
     val details: AccountDetails,

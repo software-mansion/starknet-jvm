@@ -113,11 +113,15 @@ class DevnetClient(
     }
 
     fun prefundAccount(accountAddress: Felt) {
-        val prefundPayload = PrefundPayload(accountAddress, Felt(BigInteger("500000000000000000000000000000")))
-
         val payload = HttpService.Payload(
             url = mintUrl,
-            body = json.encodeToString(prefundPayload),
+            body =
+            """
+            {
+              "address": "${accountAddress.hexString()}",
+              "amount": 500000000000000000000000000000
+            }
+            """.trimIndent(),
             method = "POST",
             params = emptyList(),
         )
