@@ -3,13 +3,14 @@ package starknet.utils
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import java.math.BigInteger
+import java.io.File
+import java.lang.IllegalArgumentException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
@@ -17,7 +18,7 @@ class DevnetClient(
     val host: String = "0.0.0.0",
     val port: Int = 5000,
     val seed: Int = 1053545547,
-    private val httpService: OkHttpService,
+    private val httpService: HttpService = OkHttpService(),
     private val accountDirectory: Path = Paths.get("src/test/resources/account"),
     private val contractsDirectory: Path = Paths.get("src/test/resources/contracts"),
 ) : AutoCloseable {
@@ -76,18 +77,16 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-            devnetPath.toString(),
+            devnetPath.absolutePathString(),
             "--host",
             host,
             "--port",
             port.toString(),
             "--seed",
             seed.toString(),
-            "--accounts-dir",
-            accountDirectory.toString(),
         )
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(10, TimeUnit.SECONDS)
+        devnetProcess.waitFor(3, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Devnet process failed to start")
@@ -100,7 +99,7 @@ class DevnetClient(
 //        accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
 //        scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
 
-//        defaultAccountDetails = deployAccount("__default__").details
+        defaultAccountDetails = createDeployAccount("__default__").details
     }
 
     override fun close() {
@@ -164,9 +163,7 @@ class DevnetClient(
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
     ): DeployAccountResult {
-//        val accountName = name ?: UUID.randomUUID().toString()
-//        val accountCreateResponse = createAccount(name)
-        val params = mutableListOf(
+ val params = mutableListOf(
             "deploy",
             "--name",
             name,
@@ -194,6 +191,7 @@ class DevnetClient(
     ): DeployAccountResult {
         val accountName = name ?: UUID.randomUUID().toString()
         val createResponse = createAccount(accountName, classHash, salt)
+        val prefundResponse = prefundAccount(createResponse.details.address)
         val deployResponse = deployAccount(accountName, classHash, maxFee)
 
         return DeployAccountResult(
@@ -273,20 +271,22 @@ class DevnetClient(
         )
     }
 
-    private fun runSnCast(command: String, args: List<String>, profileName: String = "default"): SnCastResponse {
+    private fun runSnCast(command: String, args: List<String>, accountName: String = "__default__"): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
             "--json",
             "--path-to-scarb-toml",
-            scarbTomlPath.toString(),
+            scarbTomlPath.absolutePathString(),
             "--accounts-file",
-            accountFilePath.toString(),
-            "--profile",
-            profileName,
+            accountFilePath.absolutePathString(),
+            "--url",
+            rpcUrl,
+            "--account",
+            accountName,
             command,
             *(args.toTypedArray()),
         )
-//        processBuilder.directory(File(contractsDirectory.toString()))
+        processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
         val process = processBuilder.start()
         process.waitFor()

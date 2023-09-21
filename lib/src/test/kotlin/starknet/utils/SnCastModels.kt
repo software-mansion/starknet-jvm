@@ -40,7 +40,7 @@ internal object SnCastResponsePolymorphicSerializer : JsonContentPolymorphicSeri
 //        val isFailed = "error" in jsonObject
         val error = jsonObject["error"]?.jsonPrimitive?.content
         error?.let {
-            throw SnCastCommandFailed(commandObject.jsonPrimitive!!.content, error)
+            throw SnCastCommandFailed(commandObject.jsonPrimitive.content, error)
         }
 //        if (isFailed) {
 //            throw SnCastCommandFailed(commandObject.jsonPrimitive!!.content, error)
@@ -78,7 +78,7 @@ data class AccountCreateSnCastResponse(
     @JsonNames("error")
     override val error: String? = null,
 
-    @JsonNames("account_address")
+    @JsonNames("address")
     val accountAddress: Felt,
 
     @JsonNames("max_fee")
