@@ -599,6 +599,13 @@ These are distributed as python packages. To install required dependencies, run:
 ```shell
 pip install -r requirements.txt
 ```
+You will also need [starknet-devnet-rs](https://github.com/0xSpaceShard/starknet-devnet-rs) cli for any tests that use `JsonPpcProvider`.
+Since it has yet to release, you will need to build it manually and set environment environment variable `DEVNET_PATH` that points to a binary.
+```shell
+DEVNET_PATH=/Users/user1/repos/starknet-devnet-rs/target/release/starknet-devnet
+```
+It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
+
 ### Platform-specific prerequisites
 - **macOS aarch64**: no additional steps are required
 - **linux x86_64**: no additional steps are required
@@ -615,8 +622,8 @@ Use the following command to run tests:
 ```
 
 ### Integration Tests
-Running tests for integration network requires a valid configuration. It can be set using environmental variables in your system or IDE, or by sourcing an `.env` file. 
-Refer to the example config found in [integration_tests.env.example](integration_tests.env.example).
+Running tests for integration network requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
 
 Integration tests are disabled by default. To enable them, you can set the env variable: 

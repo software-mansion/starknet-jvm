@@ -49,7 +49,7 @@ venv
 lib/src/test/resources/*account
 lib/src/test/resources/compiled*
 lib/src/test/resources/compilers*
-integration_tests.env
+test_variables.env
 
 # Exclude native builds outputs
 crypto/pedersen/crypto-cpp
