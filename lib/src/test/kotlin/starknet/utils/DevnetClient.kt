@@ -163,7 +163,7 @@ class DevnetClient(
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
     ): DeployAccountResult {
- val params = mutableListOf(
+        val params = mutableListOf(
             "deploy",
             "--name",
             name,
