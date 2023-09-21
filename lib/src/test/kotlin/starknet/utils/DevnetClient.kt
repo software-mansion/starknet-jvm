@@ -290,7 +290,14 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
-        val result = String(process.inputStream.readAllBytes())
+        var result = String(process.inputStream.readAllBytes())
+
+        // TODO: remove this - pending sncast update
+        // As of sncast 0.6.0, "account create" outputs non-json data in the beggining of the response
+        val index = result.indexOf('{')
+        // Remove all characters before the first `{`
+        result = if (index >= 0) result.substring(index) else throw IllegalArgumentException("Invalid response JSON")
+
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
