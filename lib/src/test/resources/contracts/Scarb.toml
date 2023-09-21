@@ -1,0 +1,16 @@
+[package]
+name = "TestContracts"
+version = "0.1.0"
+
+[dependencies]
+starknet = ">=2.1.0"
+
+[[target.starknet-contract]]
+casm = true
+sierra = true
+
+[tool.sncast]
+name = "default"
+url = "http://127.0.0.1:5061/rpc"
+account = "__default__"
+network = "testnet"
