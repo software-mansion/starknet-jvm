@@ -286,37 +286,13 @@ class StandardAccountTest {
 
     @Test
     fun `estimate message fee`() {
-        // TODO: update with a real test (pending devnet update)
-
-        val gasConsumed = Felt(45100)
-        val gasPrice = Felt(2)
-        val overallFee = Felt(45100 * 2)
-        val mockedResponse =
-            """
-        {
-            "id": 0,
-            "jsonrpc": "2.0",
-            "result":
-            {
-                "gas_consumed": "${gasConsumed.hexString()}",
-                "gas_price": "${gasPrice.hexString()}",
-                "overall_fee": "${overallFee.hexString()}"
-            }
-        }
-            """.trimIndent()
-        val blockNumber = 123456789
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(
-                isSuccessful = true,
-                code = 200,
-                body = mockedResponse,
-            )
-        }
+        val provider = rpcProvider
+        val balanceContractAddress = devnetAddressBook.balanceContractAddress
 
         val message = MessageL1ToL2(
             fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
-            toAddress = Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82"),
-            selector = Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5"),
+            toAddress = balanceContractAddress,
+            selector = selectorFromName("increase_balance"),
             payload = listOf(
                 Felt.fromHex("0x54d01e5fc6eb4e919ceaab6ab6af192e89d1beb4f29d916768c61a4d48e6c95"),
                 Felt.fromHex("0x38d7ea4c68000"),
@@ -324,17 +300,16 @@ class StandardAccountTest {
             ),
         )
 
-        val provider = JsonRpcProvider("example-url.com/rpc/v4", StarknetChainId.TESTNET, httpService)
         val request = provider.getEstimateMessageFee(
             message = message,
-            blockNumber = blockNumber,
+            blockTag = BlockTag.LATEST,
         )
         val response = request.send()
 
-        assertNotNull(response)
-        assertEquals(gasPrice, response.gasPrice)
-        assertEquals(gasConsumed, response.gasConsumed)
-        assertEquals(overallFee, response.overallFee)
+        assertNotEquals(Felt.ZERO, response.gasPrice)
+        assertNotEquals(Felt.ZERO, response.gasConsumed)
+        assertNotEquals(Felt.ZERO, response.overallFee)
+        assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
     }
 
     // TODO: use getAccounts instead once declare v1 is fixed in devnet-rs
