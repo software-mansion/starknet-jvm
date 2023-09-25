@@ -6,6 +6,7 @@ import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Event
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.transactions.DeployRpcTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.RpcTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt
@@ -44,6 +45,9 @@ class StandardDeployer(
         contractDeployment: ContractDeployment,
     ): Event? {
         val events = when (transactionReceipt) {
+            is DeployRpcTransactionReceipt -> transactionReceipt.events
+            // Only DEPLOY transactions should be valid,
+            // but RpcTransactionReceipt is kept for backwards compatibility.
             is RpcTransactionReceipt -> transactionReceipt.events
             is GatewayTransactionReceipt -> transactionReceipt.events
             else -> throw AddressRetrievalFailedException("Invalid transaction type", contractDeployment)
