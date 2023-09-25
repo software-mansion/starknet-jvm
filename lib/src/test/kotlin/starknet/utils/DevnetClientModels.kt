@@ -29,6 +29,10 @@ data class DeployContractResult(
     val transactionHash: Felt,
 )
 
+data class InvokeContractResult(
+    val transactionHash: Felt,
+)
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class AccountDetails(

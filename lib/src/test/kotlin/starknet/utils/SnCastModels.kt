@@ -21,6 +21,9 @@ enum class SnCastCommand {
 
     @JsonNames("deploy")
     DEPLOY,
+
+    @JsonNames("invoke")
+    INVOKE,
 }
 
 // @OptIn(ExperimentalSerializationApi::class)
@@ -37,20 +40,17 @@ internal object SnCastResponsePolymorphicSerializer : JsonContentPolymorphicSeri
         val commandObject = jsonObject.getOrElse("command") { throw IllegalArgumentException("Missing command type in sncast response") }
         val command = Json.decodeFromJsonElement(SnCastCommand.serializer(), commandObject)
 
-//        val isFailed = "error" in jsonObject
         val error = jsonObject["error"]?.jsonPrimitive?.content
         error?.let {
             throw SnCastCommandFailed(commandObject.jsonPrimitive.content, error)
         }
-//        if (isFailed) {
-//            throw SnCastCommandFailed(commandObject.jsonPrimitive!!.content, error)
-//        }
 
         return when (command) {
             SnCastCommand.ACCOUNT_CREATE -> AccountCreateSnCastResponse.serializer()
             SnCastCommand.ACCOUNT_DEPLOY -> AccountDeploySnCastResponse.serializer()
             SnCastCommand.DECLARE -> DeclareSnCastResponse.serializer()
             SnCastCommand.DEPLOY -> DeploySnCastResponse.serializer()
+            SnCastCommand.INVOKE -> InvokeSnCastResponse.serializer()
             else -> throw IllegalArgumentException("Invalid command type")
         }
     }
@@ -112,6 +112,19 @@ data class DeploySnCastResponse(
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
+
+    @JsonNames("transaction_hash")
+    val transactionHash: Felt,
+) : SnCastResponse()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class InvokeSnCastResponse(
+    @JsonNames("command")
+    override val command: SnCastCommand = SnCastCommand.INVOKE,
+
+    @JsonNames("error")
+    override val error: String? = null,
 
     @JsonNames("transaction_hash")
     val transactionHash: Felt,

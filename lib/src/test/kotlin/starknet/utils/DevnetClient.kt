@@ -36,9 +36,6 @@ class DevnetClient(
     private val accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
     private val scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
 
-//    private lateinit var accountFilePath: Path
-//    private lateinit var scarbTomlPath: Path
-
     lateinit var defaultAccountDetails: AccountDetails
 
     companion object {
@@ -89,15 +86,13 @@ class DevnetClient(
         devnetProcess.waitFor(3, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
-            throw DevnetSetupFailedException("Devnet process failed to start")
+            throw DevnetSetupFailedException("Could not start devnet process")
         }
         isDevnetRunning = true
 
         if (accountDirectory.exists()) {
             accountDirectory.toFile().walkTopDown().forEach { it.delete() }
         }
-//        accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
-//        scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
 
         defaultAccountDetails = createDeployAccount("__default__").details
     }
@@ -107,6 +102,8 @@ class DevnetClient(
             return
         }
         devnetProcess.destroyForcibly()
+
+        // Wait for the process to be destroyed
         devnetProcess.waitFor()
         isDevnetRunning = false
     }
@@ -130,7 +127,7 @@ class DevnetClient(
         }
     }
 
-    private fun createAccount(
+    fun createAccount(
         name: String,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
@@ -158,12 +155,12 @@ class DevnetClient(
         )
     }
 
-    private fun deployAccount(
+    fun deployAccount(
         name: String,
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
     ): DeployAccountResult {
-        val params = mutableListOf(
+        val params = listOf(
             "deploy",
             "--name",
             name,
@@ -200,8 +197,11 @@ class DevnetClient(
         )
     }
 
-    private fun declareContract(contractName: String, maxFee: Felt): DeclareContractResult {
-        val params = mutableListOf(
+    fun declareContract(
+        contractName: String,
+        maxFee: Felt = Felt(1000000000000000),
+    ): DeclareContractResult {
+        val params = listOf(
             "--contract-name",
             contractName,
             "--max-fee",
@@ -218,7 +218,7 @@ class DevnetClient(
         )
     }
 
-    private fun deployContract(
+    fun deployContract(
         classHash: Felt,
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
@@ -268,6 +268,34 @@ class DevnetClient(
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
             contractAddress = deployResponse.contractAddress,
+        )
+    }
+
+    fun invokeContract(
+        contractAddress: Felt,
+        function: String,
+        calldata: List<Felt>,
+        maxFee: Felt = Felt(1000000000000000),
+    ): InvokeContractResult {
+        val params = mutableListOf(
+            "--contract-address",
+            contractAddress.hexString(),
+            "--function",
+            function,
+            "--max-fee",
+            maxFee.hexString(),
+        )
+        if (calldata.isNotEmpty()) {
+            params.add("--calldata")
+            calldata.forEach { params.add(it.hexString()) }
+        }
+        val response = runSnCast(
+            command = "invoke",
+            args = params,
+        ) as InvokeSnCastResponse
+
+        return InvokeContractResult(
+            transactionHash = response.transactionHash,
         )
     }
 
