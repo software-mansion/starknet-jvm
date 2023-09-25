@@ -92,7 +92,7 @@ class StandardAccountTest {
                 legacySigner = StarkCurveSigner(privateKey = Felt(1234))
                 val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json")).address
                 val legacyContractDeployer = LegacyContractDeployer.deployInstance(legacyDevnetClient)
-                val (legacyAccountClassHash, _) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json"))
+                val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json")).address
                 val legacyAccountAddress = legacyContractDeployer.deployContract(legacyAccountClassHash, calldata = listOf(legacySigner.publicKey))
                 legacyDevnetClient.prefundAccount(legacyAccountAddress)
                 legacyDevnetAddressBook = AddressBook(
