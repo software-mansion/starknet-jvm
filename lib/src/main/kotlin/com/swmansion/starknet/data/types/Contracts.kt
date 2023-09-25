@@ -92,6 +92,30 @@ data class SierraEntryPoint(
 )
 
 @Serializable
+data class DeprecatedEntryPointsByType(
+    @SerialName("CONSTRUCTOR")
+    val constructor: List<DeprecatedCairoEntryPoint>,
+
+    @SerialName("EXTERNAL")
+    val external: List<DeprecatedCairoEntryPoint>,
+
+    @SerialName("L1_HANDLER")
+    val l1Handler: List<DeprecatedCairoEntryPoint>,
+)
+
+@Serializable
+data class EntryPointsByType(
+    @SerialName("CONSTRUCTOR")
+    val constructor: List<SierraEntryPoint>,
+
+    @SerialName("EXTERNAL")
+    val external: List<SierraEntryPoint>,
+
+    @SerialName("L1_HANDLER")
+    val l1Handler: List<SierraEntryPoint>,
+)
+
+@Serializable
 data class Cairo0ContractDefinition(private val contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
@@ -239,22 +263,10 @@ data class DeprecatedContractClass(
     val program: String,
 
     @SerialName("entry_points_by_type")
-    val entryPointsByType: EntryPointsByType,
+    val entryPointsByType: DeprecatedEntryPointsByType,
 
     val abi: List<AbiElement>? = null,
-) : ContractClassBase() {
-    @Serializable
-    data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR")
-        val constructor: List<DeprecatedCairoEntryPoint>,
-
-        @SerialName("EXTERNAL")
-        val external: List<DeprecatedCairoEntryPoint>,
-
-        @SerialName("L1_HANDLER")
-        val l1Handler: List<DeprecatedCairoEntryPoint>,
-    )
-}
+) : ContractClassBase()
 
 @Serializable
 data class ContractClass(
@@ -268,19 +280,7 @@ data class ContractClass(
     val contractClassVersion: String,
 
     val abi: String? = null,
-) : ContractClassBase() {
-    @Serializable
-    data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR")
-        val constructor: List<SierraEntryPoint>,
-
-        @SerialName("EXTERNAL")
-        val external: List<SierraEntryPoint>,
-
-        @SerialName("L1_HANDLER")
-        val l1Handler: List<SierraEntryPoint>,
-    )
-}
+) : ContractClassBase()
 
 @Serializable
 data class CasmContractClass(
