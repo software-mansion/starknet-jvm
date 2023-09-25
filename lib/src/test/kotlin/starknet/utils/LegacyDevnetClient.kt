@@ -43,7 +43,10 @@ class LegacyDevnetClient(
         @SerialName("block_number") val number: Int,
     )
 
-    data class TransactionResult(val address: Felt, val hash: Felt)
+    data class TransactionResult(
+        val address: Felt,
+        val transactionHash: Felt,
+    )
 
     fun start() {
         if (isDevnetRunning) {
@@ -143,9 +146,9 @@ class LegacyDevnetClient(
         )
         val tx = getTransactionResult(result.lines(), offset = 3)
 
-        assertTxPassed(tx.hash)
+        assertTxPassed(tx.transactionHash)
 
-        return DeployAccountResult(details, tx.hash)
+        return DeployAccountResult(details, tx.transactionHash)
     }
 
     fun deployContract(contractPath: Path): TransactionResult {
@@ -166,7 +169,7 @@ class LegacyDevnetClient(
         val lines = result.lines()
         val tx = getTransactionResult(lines)
 
-        assertTxPassed(tx.hash)
+        assertTxPassed(tx.transactionHash)
 
         return tx
     }
@@ -187,7 +190,7 @@ class LegacyDevnetClient(
         val lines = result.lines()
         val tx = getTransactionResult(lines, offset = 2)
 
-        assertTxPassed(tx.hash)
+        assertTxPassed(tx.transactionHash)
 
         return tx
     }
@@ -207,7 +210,7 @@ class LegacyDevnetClient(
         val lines = result.lines()
         val tx = getTransactionResult(lines, offset = 2)
 
-        assertTxPassed(tx.hash)
+        assertTxPassed(tx.transactionHash)
 
         return tx
     }
@@ -238,7 +241,7 @@ class LegacyDevnetClient(
         val lines = result.lines()
         val tx = getTransactionResult(lines, offset = 2)
 
-        assertTxPassed(tx.hash)
+        assertTxPassed(tx.transactionHash)
 
         return tx
     }
@@ -282,10 +285,21 @@ class LegacyDevnetClient(
 
     fun latestBlock(): GetBlockHashAndNumberResponse {
         val result = runStarknetCli(
-            "Get receipt",
+            "Get latest block",
             "get_block",
             "--number",
             "latest",
+        )
+
+        return json.decodeFromString(result)
+    }
+
+    fun getBlock(number: Int): GetBlockHashAndNumberResponse {
+        val result = runStarknetCli(
+            "Get block at number",
+            "get_block",
+            "--number",
+            number.toString(),
         )
 
         return json.decodeFromString(result)
