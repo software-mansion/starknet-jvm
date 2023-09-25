@@ -1,12 +1,13 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.DeprecatedCairoEntryPointSerializer
 import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 typealias Cairo2ContractDefinition = Cairo1ContractDefinition
 
-@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class AbiEntryType {
     @JsonNames("function")
@@ -25,7 +26,7 @@ enum class AbiEntryType {
     EVENT,
 }
 
-@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class StateMutabilityType {
     @JsonNames("view")
@@ -78,9 +79,9 @@ data class StructAbiEntry(
     val type: AbiEntryType = AbiEntryType.STRUCT
 }
 
-@Serializable
+@Serializable(with = DeprecatedCairoEntryPointSerializer::class)
 data class DeprecatedCairoEntryPoint(
-    val offset: String,
+    val offset: Felt,
     val selector: Felt,
 )
 
@@ -134,9 +135,14 @@ data class Cairo0ContractDefinition(private val contract: String) {
     private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
         val program = compiledContract["program"] ?: throw InvalidContractException("program")
-        val entryPointsByType =
+
+        val sourceEntryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val deserializedEntryPointsByType = Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
+        val entryPointsByType = Json.encodeToJsonElement(deserializedEntryPointsByType)
+
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+
         return Triple(program, entryPointsByType, abi)
     }
 
