@@ -30,7 +30,6 @@ import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.LegacyContractDeployer
 import starknet.utils.LegacyDevnetClient
-import starknet.utils.MockUtils
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -165,32 +164,6 @@ class StandardAccountTest {
         }
 
         @JvmStatic
-        fun getAccountsLegacy(): List<AccountParameters> {
-            return listOf(
-                AccountParameters(
-                    StandardAccount(
-                        legacyDevnetAddressBook.accountAddress,
-                        legacySigner,
-                        legacyGatewayProvider,
-                        cairoVersion = Felt.ZERO,
-                    ),
-                    legacyGatewayProvider,
-                    legacyDevnetAddressBook,
-                ),
-                AccountParameters(
-                    StandardAccount(
-                        legacyDevnetAddressBook.accountAddress,
-                        legacySigner,
-                        legacyRpcProvider,
-                        cairoVersion = Felt.ZERO,
-                    ),
-                    legacyRpcProvider,
-                    legacyDevnetAddressBook,
-                ),
-            )
-        }
-
-        @JvmStatic
         @AfterAll
         fun after() {
             devnetClient.close()
@@ -258,7 +231,7 @@ class StandardAccountTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getAccountsLegacy")
+    @MethodSource("getAccounts")
     fun `estimate fee for declare v1 transaction`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
@@ -326,15 +299,9 @@ class StandardAccountTest {
 
     // TODO: use getAccounts instead once declare v1 is fixed in devnet-rs
     @ParameterizedTest
-    @MethodSource("getAccountsLegacy")
+    @MethodSource("getAccounts")
     fun `sign and send declare v1 transaction`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
-
-        val receiptProvider = when (provider) {
-            is GatewayProvider -> provider
-            is JsonRpcProvider -> MockUtils.mockUpdatedReceiptRpcProvider(provider)
-            else -> throw IllegalStateException("Unknown provider type")
-        }
 
         val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
@@ -356,7 +323,7 @@ class StandardAccountTest {
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
 
-        val receipt = receiptProvider.getTransactionReceipt(result.transactionHash).send()
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
     }
