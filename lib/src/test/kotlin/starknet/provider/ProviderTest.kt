@@ -1104,11 +1104,16 @@ class ProviderTest {
         assertNotEquals(0, blockNumber)
         assertNotEquals(Felt.ZERO, blockHash)
 
-        if (provider !is JsonRpcProvider) {
-            return
+        val expectedHash = when (provider) {
+            is JsonRpcProvider -> {
+                val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as BlockWithTransactionHashesResponse
+                getBlockResponse.blockHash
+            }
+            is GatewayProvider -> {
+                legacyDevnetClient.getBlock(blockNumber).blockHash
+            }
+            else -> throw IllegalStateException("Unknown provider type")
         }
-        val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as BlockWithTransactionHashesResponse
-        val expectedHash = getBlockResponse.blockHash
         assertEquals(expectedHash, blockHash)
     }
 
