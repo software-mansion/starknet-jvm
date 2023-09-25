@@ -9,21 +9,23 @@ use starknet::class_hash::Felt252TryIntoClassHash;
 use array::ArrayTrait;
 use array::SpanTrait;
 
-#[starknet::interface] trait IContractWithEvent<T> {
+#[starknet::interface]
+trait IContractWithEvent<T> {
     fn emit_event(ref self: T, incremental: bool);
 }
 
-#[starknet::contract] mod Events {
+#[starknet::contract]
+mod Events {
     use traits::Into;
     use starknet::info::get_contract_address;
     #[storage]
     struct Storage {
-        value: u128, 
+        value: u128,
     }
 
     #[derive(Copy, Drop, PartialEq, starknet::Event)]
     struct IncrementalEvent {
-        value: u128, 
+        value: u128,
     }
 
     #[derive(Copy, Drop, PartialEq, starknet::Event)]
