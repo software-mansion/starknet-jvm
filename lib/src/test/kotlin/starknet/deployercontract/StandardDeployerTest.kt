@@ -25,7 +25,10 @@ import starknet.utils.LegacyContractDeployer as TestContractDeployer
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
     @JvmStatic
-    private val legacyDevnetClient = LegacyDevnetClient(port = 5052, accountDirectory = Paths.get("src/test/resources/standard_deployer_test_account"))
+    private val legacyDevnetClient = LegacyDevnetClient(
+        port = 5053,
+        accountDirectory = Paths.get("src/test/resources/accounts_legacy/standard_deployer_test"),
+    )
     private val signer = StarkCurveSigner(Felt(1234))
 
     private lateinit var testContractDeployer: TestContractDeployer
