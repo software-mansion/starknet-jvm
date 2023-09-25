@@ -10,21 +10,21 @@
 
     #[storage]
     struct Storage {
-        value: u128, 
+        balance: u128,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, value_: u128) {
-        self.value.write(value_);
+        self.balance.write(value_);
     }
 
     #[external(v0)]
     impl Balance of super::IBalance<ContractState> {
         fn get_balance(self: @ContractState) -> u128 {
-            self.value.read()
+            self.balance.read()
         }
         fn increase_balance(ref self: ContractState, a: u128) {
-            self.value.write(self.value.read() + a);
+            self.balance.write(self.balance.read() + a);
         }
     }
 }
