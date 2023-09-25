@@ -76,7 +76,7 @@ class LegacyDevnetClient(
             ).start()
 
         // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess.waitFor(10, TimeUnit.SECONDS)
+        devnetProcess.waitFor(3, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")
