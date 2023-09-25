@@ -351,13 +351,13 @@ data class GetClassPayload(
     val classHash: Felt,
 
     @SerialName("block_id")
-    var blockId: String,
+    var blockId: BlockId,
 )
 
 @Serializable
 data class GetClassAtPayload(
     @SerialName("block_id")
-    val blockId: String,
+    val blockId: BlockId,
 
     @SerialName("contract_address")
     val contractAddress: Felt,
