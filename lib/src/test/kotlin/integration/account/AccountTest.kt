@@ -16,11 +16,11 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import starknet.utils.ScarbClient
 import java.math.BigInteger
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -182,8 +182,6 @@ class AccountTest {
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
-    @Disabled
-    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
@@ -192,8 +190,13 @@ class AccountTest {
         val (account, provider) = accountAndProvider
         assumeFalse(provider is GatewayProvider)
 
-        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.casm").readText()
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val casmContractDefinition = CasmContractDefinition(casmCode)
@@ -270,8 +273,6 @@ class AccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    @Disabled
-    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
@@ -281,8 +282,13 @@ class AccountTest {
 
         val (account, provider) = accountAndProvider
 
-        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.casm").readText()
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
