@@ -9,6 +9,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import starknet.utils.data.*
+import starknet.utils.data.serializers.AccountDetailsSerializer
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*

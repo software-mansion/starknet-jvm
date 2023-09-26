@@ -4,6 +4,9 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.json.*
+import starknet.utils.data.*
+import starknet.utils.data.serializers.AccountDetailsSerializer
+import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
 import java.io.File
 import java.lang.IllegalArgumentException
 import java.nio.file.Path
