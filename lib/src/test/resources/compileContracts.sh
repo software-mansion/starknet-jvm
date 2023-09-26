@@ -84,7 +84,6 @@ fetch_compilers "$V2_COMPILER_VERSION" "$V2_COMPILER_BIN_PATH"
 popd
 
 echo "Installing scarb..."
-echo 
 asdf plugin add scarb || true
 echo "Done!"
 
