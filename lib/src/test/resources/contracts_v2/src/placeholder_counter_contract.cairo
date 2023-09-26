@@ -4,14 +4,14 @@ trait IOtherContract<TContractState> {
 }
 
 #[starknet::interface]
-trait ICounterContract<TContractState> {
+trait ISaltedCounterContract<TContractState> {
     fn __placeholder___increase_counter(ref self: TContractState, amount: u128);
     fn __placeholder___decrease_counter(ref self: TContractState, amount: u128);
     fn __placeholder___get_counter(self: @TContractState) -> u128;
 }
 
 #[starknet::contract]
-mod CounterContract {
+mod SaltedCounterContract {
     use starknet::ContractAddress;
     use super::{
         IOtherContractDispatcher, IOtherContractDispatcherTrait, IOtherContractLibraryDispatcher
@@ -51,7 +51,7 @@ mod CounterContract {
     }
 
     #[external(v0)]
-    impl CounterContract of super::ICounterContract<ContractState> {
+    impl SaltedCounterContract of super::ISaltedCounterContract<ContractState> {
         fn __placeholder___get_counter(self: @ContractState) -> u128 {
             self.counter.read()
         }

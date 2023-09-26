@@ -174,9 +174,7 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
 
-        assertNotNull(feeEstimateRequest)
         val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
@@ -224,9 +222,7 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
 
-        assertNotNull(feeEstimateRequest)
         val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
@@ -268,8 +264,6 @@ class AccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertNotNull(result)
-        assertNotNull(receipt)
         assertTrue(receipt.isAccepted)
     }
 
@@ -305,8 +299,41 @@ class AccountTest {
         Thread.sleep(30000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertNotNull(result)
-        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign and send declare v2 transaction (cairo compiler v2)`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
+
+        val (account, provider) = accountAndProvider
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            contractCasmDefinition,
+            ExecutionParams(nonce, Felt(1000000000000000L)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+
+        Thread.sleep(30000)
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
         assertTrue(receipt.isAccepted)
     }
 
