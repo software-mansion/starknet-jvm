@@ -26,7 +26,6 @@ enum class SnCastCommand {
     INVOKE,
 }
 
-// @OptIn(ExperimentalSerializationApi::class)
 @Serializable(with = SnCastResponsePolymorphicSerializer::class)
 sealed class SnCastResponse {
     abstract val command: SnCastCommand
