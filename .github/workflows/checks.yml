@@ -24,9 +24,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup asdf
-        uses: asdf-vm/actions/setup@v2
-
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -74,10 +71,8 @@ jobs:
             echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
 
-#      - name: Setup scarb 0.7.0
-#        uses: software-mansion/setup-scarb@v1.3.1
-#        with:
-#          scarb-version: "0.7.0"
+      - name: Setup asdf
+        uses: asdf-vm/actions/setup@v2
 
       - name: Install sncast 0.6.0
         run: |
