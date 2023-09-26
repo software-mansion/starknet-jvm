@@ -73,19 +73,17 @@ object StandardDeployerTest {
 
             // Prepare legacy devnet address book
             legacyTestContractDeployer = TestContractDeployer.deployInstance(legacyDevnetClient)
-            val legacyDeployerClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/deployer.json")).address
-            val legacyRpcDeployerAddress = legacyTestContractDeployer.deployContract(legacyDeployerClassHash)
+            val legacyDeployerClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/deployer.json")).address
             val legacyGatewayDeployerAddress = legacyTestContractDeployer.deployContract(legacyDeployerClassHash)
 
-//            deployAccount()
             legacySigner = StarkCurveSigner(Felt(1234))
-            val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json")).address
-            val legacyAcountAddress = legacyTestContractDeployer.deployContract(legacyAccountClassHash, calldata = listOf(legacySigner.publicKey))
-            legacyDevnetClient.prefundAccount(legacyAcountAddress)
+            val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/account.json")).address
+            val legacyAccountAddress = legacyTestContractDeployer.deployContract(legacyAccountClassHash, calldata = listOf(legacySigner.publicKey))
+            legacyDevnetClient.prefundAccount(legacyAccountAddress)
 
             legacyDevnetAddressBook = AddressBook(
                 deployerAddress = legacyGatewayDeployerAddress,
-                accountAddress = legacyAcountAddress,
+                accountAddress = legacyAccountAddress,
             )
         } catch (ex: Exception) {
             devnetClient.close()
@@ -132,7 +130,7 @@ object StandardDeployerTest {
         val provider = standardDeployerParameters.provider
 
         val classHash = when (provider) {
-            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json")).address
+            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/balance.json")).address
             is JsonRpcProvider -> devnetClient.declareContract("Balance").classHash
             else -> throw IllegalStateException("Unknown provider type")
         }
@@ -155,7 +153,7 @@ object StandardDeployerTest {
         val provider = standardDeployerParameters.provider
 
         val classHash = when (provider) {
-            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/balance.json")).address
+            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/balance.json")).address
             is JsonRpcProvider -> devnetClient.declareContract("Balance").classHash
             else -> throw IllegalStateException("Unknown provider type")
         }
@@ -175,7 +173,7 @@ object StandardDeployerTest {
         val provider = standardDeployerParameters.provider
 
         val classHash = when (provider) {
-            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/contractWithConstructor.json")).address
+            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/contractWithConstructor.json")).address
             is JsonRpcProvider -> devnetClient.declareContract("ContractWithConstructor").classHash
             else -> throw IllegalStateException("Unknown provider type")
         }

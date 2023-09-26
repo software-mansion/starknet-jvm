@@ -89,9 +89,9 @@ class StandardAccountTest {
 
                 // Prepare legacy devnet address book
                 legacySigner = StarkCurveSigner(privateKey = Felt(1234))
-                val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json")).address
+                val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/contracts_v0/target/release/providerTest.json")).address
                 val legacyContractDeployer = LegacyContractDeployer.deployInstance(legacyDevnetClient)
-                val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/account.json")).address
+                val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/account.json")).address
                 val legacyAccountAddress = legacyContractDeployer.deployContract(legacyAccountClassHash, calldata = listOf(legacySigner.publicKey))
                 legacyDevnetClient.prefundAccount(legacyAccountAddress)
                 legacyDevnetAddressBook = AddressBook(
@@ -234,7 +234,7 @@ class StandardAccountTest {
     @MethodSource("getAccounts")
     fun `estimate fee for declare v1 transaction`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -297,13 +297,13 @@ class StandardAccountTest {
         assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
     }
 
-    // TODO: use getAccounts instead once declare v1 is fixed in devnet-rs
+    // TODO: build contracts using scarb build instead
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v1 transaction`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
 
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -333,8 +333,8 @@ class StandardAccountTest {
     fun `sign and send declare v2 transaction`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
 
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -358,8 +358,8 @@ class StandardAccountTest {
     fun `sign and send declare v2 transaction (cairo compiler v2)`(accountParameters: AccountParameters) {
         val (account, provider, _) = accountParameters
 
-        val contractCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v2/${provider::class.simpleName}_contract.casm").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
 
         val contractDefinition = Cairo2ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)

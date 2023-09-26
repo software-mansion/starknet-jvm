@@ -24,12 +24,12 @@ class LegacyContractDeployer(
                 if (unique) Felt.ONE else Felt.ZERO,
                 Felt(calldata.size),
             ) + calldata
-        val (_, transactionHash) = legacyDevnetClient.invokeTransaction(
+        val transactionHash = legacyDevnetClient.invokeTransaction(
             "deployContract",
             address,
-            Path.of("src/test/resources/compiled_v0/deployerAbi.json"),
+            Path.of("src/test/resources/contracts_v0/target/release/deployerAbi.json"),
             invokeCalldata,
-        )
+        ).transactionHash
         val receipt = legacyDevnetClient.transactionReceipt(transactionHash)
         val deployEvent = receipt.events.stream()
             .filter { it.keys.contains(selectorFromName("ContractDeployed")) }
@@ -40,7 +40,7 @@ class LegacyContractDeployer(
 
     companion object {
         fun deployInstance(legacyDevnetClient: LegacyDevnetClient): LegacyContractDeployer {
-            val (deployerAddress, _) = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/deployer.json"))
+            val deployerAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/contracts_v0/target/release/deployer.json")).address
             return LegacyContractDeployer(deployerAddress, legacyDevnetClient)
         }
     }

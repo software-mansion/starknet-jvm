@@ -141,7 +141,7 @@ class AccountTest {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -192,8 +192,8 @@ class AccountTest {
         val (account, provider) = accountAndProvider
         assumeFalse(provider is GatewayProvider)
 
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.casm").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val casmContractDefinition = CasmContractDefinition(casmCode)
@@ -240,7 +240,7 @@ class AccountTest {
         // Sometimes the test fails with "A transaction with the same hash already exists in the mempool"
         // This error can be caused by RPC node not having access to pending transactions and therefore nonce not getting updated.
 
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -281,8 +281,8 @@ class AccountTest {
 
         val (account, provider) = accountAndProvider
 
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/hello_starknet.casm").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)

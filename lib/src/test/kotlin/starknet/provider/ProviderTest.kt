@@ -83,14 +83,14 @@ class ProviderTest {
                 )
 
                 // Prepare legacy devnet address book
-                val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/compiled_v0/providerTest.json")).address
+                val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/contracts_v0/target/release/providerTest.json")).address
                 val legacyInvokeTransactionHash = legacyDevnetClient.invokeTransaction(
                     "increase_balance",
                     legacyBalanceContractAddress,
-                    Path.of("src/test/resources/compiled_v0/providerTestAbi.json"),
+                    Path.of("src/test/resources/contracts_v0/target/release/providerTestAbi.json"),
                     listOf(Felt(10)),
                 ).transactionHash
-                val (legacyBalanceClassHash, legacyDeclareTransactionHash) = legacyDevnetClient.declareContract(Path.of("src/test/resources/compiled_v0/providerTest.json"))
+                val (legacyBalanceClassHash, legacyDeclareTransactionHash) = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/providerTest.json"))
                 val legacyDeployAccountTransactionHash = legacyDevnetClient.deployAccount().transactionHash
                 legacyDevnetAddressBook = AddressBook(
                     balanceContractAddress = legacyBalanceContractAddress,
