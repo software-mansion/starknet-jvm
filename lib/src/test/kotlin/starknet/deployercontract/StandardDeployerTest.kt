@@ -39,10 +39,6 @@ object StandardDeployerTest {
         devnetClient.rpcUrl,
         StarknetChainId.TESTNET,
     )
-    private val legacyRpcProvider = JsonRpcProvider(
-        legacyDevnetClient.rpcUrl,
-        StarknetChainId.TESTNET,
-    )
     private val legacyGatewayProvider = GatewayProvider(
         legacyDevnetClient.feederGatewayUrl,
         legacyDevnetClient.gatewayUrl,
@@ -177,15 +173,15 @@ object StandardDeployerTest {
             is JsonRpcProvider -> devnetClient.declareContract("ContractWithConstructor").classHash
             else -> throw IllegalStateException("Unknown provider type")
         }
-
         val constructorVal1 = Felt(451)
+
         val deployment = standardDeployer.deployContract(
             classHash = classHash,
             unique = true,
             salt = Felt(1234),
             constructorCalldata = listOf(
                 constructorVal1,
-                Felt(789), // This value is ignored by the contract
+                Felt(789), // Dummy value, ignored by the contract constructor.
             ),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()

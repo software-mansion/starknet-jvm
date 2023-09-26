@@ -41,10 +41,6 @@ class ProviderTest {
             devnetClient.rpcUrl,
             StarknetChainId.TESTNET,
         )
-        private val legacyRpcProvider = JsonRpcProvider(
-            legacyDevnetClient.rpcUrl,
-            StarknetChainId.TESTNET,
-        )
         private val legacyGatewayProvider = GatewayProvider(
             legacyDevnetClient.feederGatewayUrl,
             legacyDevnetClient.gatewayUrl,
