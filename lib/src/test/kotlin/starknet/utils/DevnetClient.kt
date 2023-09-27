@@ -192,13 +192,14 @@ class DevnetClient(
         maxFee: Felt = Felt(1000000000000000),
     ): DeployAccountResult {
         val accountName = name ?: UUID.randomUUID().toString()
-        val createResponse = createAccount(accountName, classHash, salt)
-        val prefundResponse = prefundAccount(createResponse.details.address)
-        val deployResponse = deployAccount(accountName, classHash, maxFee)
+        val createResult = createAccount(accountName, classHash, salt)
+        val details = createResult.details
+        val prefundResult = prefundAccount(details.address)
+        val deployResult = deployAccount(accountName, classHash, maxFee)
 
         return DeployAccountResult(
-            details = createResponse.details,
-            transactionHash = deployResponse.transactionHash,
+            details = details,
+            transactionHash = deployResult.transactionHash,
         )
     }
 
