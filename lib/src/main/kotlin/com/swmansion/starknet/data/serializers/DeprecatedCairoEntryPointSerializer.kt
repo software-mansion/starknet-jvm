@@ -21,8 +21,8 @@ object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoi
 
         val jsonObject = input.decodeJsonElement().jsonObject
 
-        // This accepts both Int and Felt for offset,
-        // as compiled contract code uses Int, but the RPC spec requires Felt.
+        // This accepts both integer and hex string for offset,
+        // as compiled contract code uses integer for this field, but the RPC spec requires NUM_AS_HEX.
         val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toFelt
             ?: jsonObject.getValue("offset").jsonPrimitive.content.toFelt
         val selector = jsonObject.getValue("selector").jsonPrimitive.content.toFelt

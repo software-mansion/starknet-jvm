@@ -593,7 +593,7 @@ Run
 ## Running tests
 
 ### Prerequisites
-- `cairo-lang` and `starknet-devnet`.
+- `cairo-lang` and `starknet-devnet`
   - These are distributed as python packages. To install, run:
     ```shell
     pip install -r requirements.txt
@@ -608,8 +608,8 @@ Run
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
 ### Platform-specific prerequisites
-- **macOS aarch64**: no additional steps are required
-- **linux x86_64**: no additional steps are required
+- **macOS aarch64**: no additional steps are required.
+- **linux x86_64**: no additional steps are required.
 - For other platforms, you will need to set `V2_COMPILER_BUILD_PATH` environment variable.
     - `V2_COMPILER_BUILD_PATH` - path to a directory that contains built cairo v2.2.0 compiler binaries (`bin/`) and corelib (`corelib/`)
     - To build cairo compilers for your platform, refer to [cairo repo](https://github.com/starkware-libs/cairo).

@@ -63,10 +63,10 @@ class ScarbClient {
 
         @JvmStatic
         fun createSaltedContract(
-            placeholderText: String = "__placeholder__",
-            saltText: String = "t${System.currentTimeMillis()}",
             placeholderContractPath: Path,
             saltedContractPath: Path,
+            placeholderText: String = "__placeholder__",
+            saltText: String = "t${System.currentTimeMillis()}",
         ) {
             val contractCode = placeholderContractPath.readText()
             val newContractCode = contractCode.replace(placeholderText, saltText)
