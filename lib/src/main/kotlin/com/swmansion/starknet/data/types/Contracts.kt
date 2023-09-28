@@ -1,12 +1,13 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.DeprecatedCairoEntryPointSerializer
 import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 typealias Cairo2ContractDefinition = Cairo1ContractDefinition
 
-@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class AbiEntryType {
     @JsonNames("function")
@@ -25,7 +26,7 @@ enum class AbiEntryType {
     EVENT,
 }
 
-@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class StateMutabilityType {
     @JsonNames("view")
@@ -78,9 +79,9 @@ data class StructAbiEntry(
     val type: AbiEntryType = AbiEntryType.STRUCT
 }
 
-@Serializable
+@Serializable(with = DeprecatedCairoEntryPointSerializer::class)
 data class DeprecatedCairoEntryPoint(
-    val offset: String,
+    val offset: Felt,
     val selector: Felt,
 )
 
@@ -89,6 +90,30 @@ data class SierraEntryPoint(
     @SerialName("function_idx")
     val functionIdx: Int,
     val selector: Felt,
+)
+
+@Serializable
+data class DeprecatedEntryPointsByType(
+    @SerialName("CONSTRUCTOR")
+    val constructor: List<DeprecatedCairoEntryPoint>,
+
+    @SerialName("EXTERNAL")
+    val external: List<DeprecatedCairoEntryPoint>,
+
+    @SerialName("L1_HANDLER")
+    val l1Handler: List<DeprecatedCairoEntryPoint>,
+)
+
+@Serializable
+data class EntryPointsByType(
+    @SerialName("CONSTRUCTOR")
+    val constructor: List<SierraEntryPoint>,
+
+    @SerialName("EXTERNAL")
+    val external: List<SierraEntryPoint>,
+
+    @SerialName("L1_HANDLER")
+    val l1Handler: List<SierraEntryPoint>,
 )
 
 @Serializable
@@ -110,9 +135,14 @@ data class Cairo0ContractDefinition(private val contract: String) {
     private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
         val program = compiledContract["program"] ?: throw InvalidContractException("program")
-        val entryPointsByType =
+
+        val sourceEntryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
+        val deserializedEntryPointsByType = Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
+        val entryPointsByType = Json.encodeToJsonElement(deserializedEntryPointsByType)
+
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
+
         return Triple(program, entryPointsByType, abi)
     }
 
@@ -239,22 +269,10 @@ data class DeprecatedContractClass(
     val program: String,
 
     @SerialName("entry_points_by_type")
-    val entryPointsByType: EntryPointsByType,
+    val entryPointsByType: DeprecatedEntryPointsByType,
 
     val abi: List<AbiElement>? = null,
-) : ContractClassBase() {
-    @Serializable
-    data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR")
-        val constructor: List<DeprecatedCairoEntryPoint>,
-
-        @SerialName("EXTERNAL")
-        val external: List<DeprecatedCairoEntryPoint>,
-
-        @SerialName("L1_HANDLER")
-        val l1Handler: List<DeprecatedCairoEntryPoint>,
-    )
-}
+) : ContractClassBase()
 
 @Serializable
 data class ContractClass(
@@ -268,19 +286,7 @@ data class ContractClass(
     val contractClassVersion: String,
 
     val abi: String? = null,
-) : ContractClassBase() {
-    @Serializable
-    data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR")
-        val constructor: List<SierraEntryPoint>,
-
-        @SerialName("EXTERNAL")
-        val external: List<SierraEntryPoint>,
-
-        @SerialName("L1_HANDLER")
-        val l1Handler: List<SierraEntryPoint>,
-    )
-}
+) : ContractClassBase()
 
 @Serializable
 data class CasmContractClass(
@@ -351,13 +357,13 @@ data class GetClassPayload(
     val classHash: Felt,
 
     @SerialName("block_id")
-    var blockId: String,
+    var blockId: BlockId,
 )
 
 @Serializable
 data class GetClassAtPayload(
     @SerialName("block_id")
-    val blockId: String,
+    val blockId: BlockId,
 
     @SerialName("contract_address")
     val contractAddress: Felt,

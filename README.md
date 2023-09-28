@@ -593,19 +593,25 @@ Run
 ## Running tests
 
 ### Prerequisites
-Running tests requires to have both `cairo-lang` and `starknet-devnet` installed.
-These are distributed as python packages. To install required dependencies, run:
+- `cairo-lang` and `starknet-devnet`
+  - These are distributed as python packages. To install, run:
+    ```shell
+    pip install -r requirements.txt
+    ```
+- [`starknet-devnet-rs`](https://github.com/0xSpaceShard/starknet-devnet-rs) 
+  - Since it has yet to be released, you will need to build it manually and set `DEVNET_PATH` environment variable that points to a binary:
+    ```shell
+    DEVNET_PATH=/path/to/starknet-devnet-rs/target/release/starknet-devnet
+    ```
+  - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
+- [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
+- [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
-```shell
-pip install -r requirements.txt
-```
 ### Platform-specific prerequisites
-- **macOS aarch64**: no additional steps are required
-- **linux x86_64**: no additional steps are required
-- For other platforms, providing paths to directories than include built compiler binaries (`bin/`) and corelib (`corelib/`) is required.
-    - To do so, set the following environmental variables:
-    - `V1_COMPILER_BUILD_PATH` - path to v1.1.1 build
-    - `V2_COMPILER_BUILD_PATH` - path to v2.2.2 build
+- **macOS aarch64**: no additional steps are required.
+- **linux x86_64**: no additional steps are required.
+- For other platforms, you will need to set `V2_COMPILER_BUILD_PATH` environment variable.
+    - `V2_COMPILER_BUILD_PATH` - path to a directory that contains built cairo v2.2.0 compiler binaries (`bin/`) and corelib (`corelib/`)
     - To build cairo compilers for your platform, refer to [cairo repo](https://github.com/starkware-libs/cairo).
 
 ### Regular Tests
@@ -615,8 +621,8 @@ Use the following command to run tests:
 ```
 
 ### Integration Tests
-Running tests for integration network requires a valid configuration. It can be set using environmental variables in your system or IDE, or by sourcing an `.env` file. 
-Refer to the example config found in [integration_tests.env.example](integration_tests.env.example).
+Running tests for integration network requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
 
 Integration tests are disabled by default. To enable them, you can set the env variable: 

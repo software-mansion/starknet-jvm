@@ -2,6 +2,7 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.ContractClassBase
 import com.swmansion.starknet.data.types.DeprecatedContractClass
+import com.swmansion.starknet.data.types.DeprecatedEntryPointsByType
 import com.swmansion.starknet.data.types.GatewayContractClass
 import com.swmansion.starknet.extensions.base64Gzipped
 import kotlinx.serialization.*
@@ -56,7 +57,7 @@ internal object Cairo0ContractClassGatewaySerializer : KSerializer<DeprecatedCon
         val program: JsonElement,
 
         @SerialName("entry_points_by_type")
-        val entryPointsByType: DeprecatedContractClass.EntryPointsByType,
+        val entryPointsByType: DeprecatedEntryPointsByType,
     )
 
     override fun deserialize(decoder: Decoder): DeprecatedContractClass {

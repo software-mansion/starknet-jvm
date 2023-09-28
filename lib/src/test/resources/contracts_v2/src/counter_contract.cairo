@@ -11,7 +11,7 @@ trait ICounterContract<TContractState> {
 }
 
 #[starknet::contract]
-mod counter_contract {
+mod CounterContract {
     use starknet::ContractAddress;
     use super::{
         IOtherContractDispatcher, IOtherContractDispatcherTrait, IOtherContractLibraryDispatcher

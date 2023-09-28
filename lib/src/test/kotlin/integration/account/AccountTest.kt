@@ -16,11 +16,11 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import starknet.utils.ScarbClient
 import java.math.BigInteger
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -141,7 +141,7 @@ class AccountTest {
         assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -174,16 +174,12 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
 
-        assertNotNull(feeEstimateRequest)
         val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
-    @Disabled
-    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
@@ -192,8 +188,13 @@ class AccountTest {
         val (account, provider) = accountAndProvider
         assumeFalse(provider is GatewayProvider)
 
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val casmContractDefinition = CasmContractDefinition(casmCode)
@@ -221,9 +222,7 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
 
-        assertNotNull(feeEstimateRequest)
         val feeEstimate = feeEstimateRequest.send().first()
-        assertNotNull(feeEstimate)
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
@@ -240,7 +239,7 @@ class AccountTest {
         // Sometimes the test fails with "A transaction with the same hash already exists in the mempool"
         // This error can be caused by RPC node not having access to pending transactions and therefore nonce not getting updated.
 
-        val contractCode = Path.of("src/test/resources/compiled_v0/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -265,13 +264,9 @@ class AccountTest {
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertNotNull(result)
-        assertNotNull(receipt)
         assertTrue(receipt.isAccepted)
     }
 
-    @Disabled
-    // TODO: (#311) re-enable once randomized contract source generation is supported
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
@@ -281,8 +276,13 @@ class AccountTest {
 
         val (account, provider) = accountAndProvider
 
-        val contractCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.json").readText()
-        val casmCode = Path.of("src/test/resources/compiled_v1/${provider::class.simpleName}_hello_starknet.casm").readText()
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -299,8 +299,41 @@ class AccountTest {
         Thread.sleep(30000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertNotNull(result)
-        assertNotNull(receipt)
+        assertTrue(receipt.isAccepted)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `sign and send declare v2 transaction (cairo compiler v2)`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
+
+        val (account, provider) = accountAndProvider
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            contractCasmDefinition,
+            ExecutionParams(nonce, Felt(1000000000000000L)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+
+        Thread.sleep(30000)
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
         assertTrue(receipt.isAccepted)
     }
 

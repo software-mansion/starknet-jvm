@@ -24,7 +24,7 @@ enum class TransactionType(val txPrefix: Felt) {
     DEPLOY_ACCOUNT(Felt.fromHex("0x6465706c6f795f6163636f756e74")), // encodeShortString('deploy_account'),
 
     @SerialName("INVOKE")
-    @JsonNames("INVOKE_FUNCTION")
+    @JsonNames("INVOKE", "INVOKE_FUNCTION")
     INVOKE(Felt.fromHex("0x696e766f6b65")), // encodeShortString('invoke'),
 
     @SerialName("L1_HANDLER")

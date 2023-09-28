@@ -5,29 +5,25 @@ readonly ARCH=$(uname -m)
 
 readonly REPO_ROOT=$(git rev-parse --show-toplevel)
 
-readonly V0_CONTRACT_PATH="src_v0"
-readonly V1_CONTRACT_PATH="src_v1"
-readonly V2_CONTRACT_PATH="src_v2"
+readonly V0_CONTRACT_PATH="contracts_v0"
+readonly V1_CONTRACT_PATH="contracts_v1"
+readonly V2_CONTRACT_PATH="contracts_v2"
 
-readonly V0_ARTIFACT_PATH="compiled_v0"
-readonly V1_ARTIFACT_PATH="compiled_v1"
-readonly V2_ARTIFACT_PATH="compiled_v2"
+readonly V0_ARTIFACT_PATH="contracts_v0/target/release"
 
-readonly V1_COMPILER_BIN_PATH="compilers/v1"
 readonly V2_COMPILER_BIN_PATH="compilers/v2"
-
-readonly V1_COMPILER_VERSION="1.1.1"
 readonly V2_COMPILER_VERSION="2.2.0"
+
+readonly V1_SCARB_VERSION="0.4.0"
+readonly V2_SCARB_VERSION="0.7.0"
 
 if [ "$OS" == "Linux" ] && [ "$ARCH" == "x86_64" ]; then
   true
 elif [ "$OS" == "Darwin" ] && [ "$ARCH" == "arm64" ]; then
   true
-elif [ ! -d "$V1_COMPILER_BUILD_PATH" ] || [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
+elif [ ! -d "$V2_COMPILER_BUILD_PATH" ]; then
   echo "Your OS or architecture ($ARCH-$OS) is not supported directly."
-  echo "To proceed, please set valid paths to the compiler binaries built for ($ARCH-$OS)."
-  echo "V1_COMPILER_BUILD_PATH - path to a built v$V1_COMPILER_VERSION compiler."
-  echo "V2_COMPILER_BUILD_PATH - path to a built v$V2_COMPILER_VERSION compiler."
+  echo "To proceed, please set V2_COMPILER_BUILD_PATH environment variable to a directory with Cairo v$V2_COMPILER_VERSION compiler binaries built for ($ARCH-$OS)."
   exit 1
 fi
 
@@ -81,9 +77,18 @@ fetch_compilers() {
   echo "Done!"
 }
 
+#TODO: remove once legacy devnet client is removed
+echo "Fetching Cairo compilers to support legacy devnet..."
+pushd "$(dirname "$0")" || exit 1
+fetch_compilers "$V2_COMPILER_VERSION" "$V2_COMPILER_BIN_PATH"
+popd
+
+echo "Installing scarb..."
+asdf plugin add scarb || true
+echo "Done!"
+
 pushd "$(dirname "$0")" || exit 1
 mkdir -p "$V0_ARTIFACT_PATH"
-
 echo "Compiling v0 contracts.."
 
 while IFS= read -r -d '' file; do
@@ -97,30 +102,23 @@ done < <(find "$V0_CONTRACT_PATH" -name "*.cairo" -type f -print0)
 popd
 echo "Done!"
 
-pushd "$(dirname "$0")" || exit 1
-fetch_compilers "$V1_COMPILER_VERSION" "$V1_COMPILER_BIN_PATH"
-mkdir -p "$V1_ARTIFACT_PATH"
 
 echo "Compiling v1 contracts.."
-
-while IFS= read -r -d '' file; do
-  name="$(basename -- "$file" .cairo)"
-  $COMPILER_PATH --allowed-libfuncs-list-name experimental_v0.1.0 "$file" "$V1_ARTIFACT_PATH/$name.json" || exit 1
-  $SIERRA_PATH --allowed-libfuncs-list-name experimental_v0.1.0 --add-pythonic-hints "$V1_ARTIFACT_PATH/$name.json" "$V1_ARTIFACT_PATH/$name.casm" || exit 1
-done < <(find "$V1_CONTRACT_PATH" -name "*.cairo" -type f -print0)
+pushd "$(dirname "$0")" || exit 1
+pushd "$V1_CONTRACT_PATH" || exit 1
+asdf install scarb $V1_SCARB_VERSION || true
+asdf local scarb $V1_SCARB_VERSION || exit 1
+scarb --profile release build
+popd
 popd
 echo "Done!"
 
-pushd "$(dirname "$0")" || exit 1
-fetch_compilers "$V2_COMPILER_VERSION" "$V2_COMPILER_BIN_PATH"
-mkdir -p "$V2_ARTIFACT_PATH"
-
 echo "Compiling v2 contracts.."
-
-while IFS= read -r -d '' file; do
-  name="$(basename -- "$file" .cairo)"
-  $COMPILER_PATH --single-file "$file" "$V2_ARTIFACT_PATH/$name.json" || exit 1
-  $SIERRA_PATH --add-pythonic-hints "$V2_ARTIFACT_PATH/$name.json" "$V2_ARTIFACT_PATH/$name.casm" || exit 1
-done < <(find "$V2_CONTRACT_PATH" -name "*.cairo" -type f -print0)
+pushd "$(dirname "$0")" || exit 1
+pushd "$V2_CONTRACT_PATH" || exit 1
+asdf install scarb $V2_SCARB_VERSION || true
+asdf local scarb $V2_SCARB_VERSION || exit 1
+scarb --profile release build
+popd
 popd
 echo "Done!"

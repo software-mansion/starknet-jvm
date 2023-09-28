@@ -1,17 +1,17 @@
 #[starknet::interface]
 trait IOtherContract<TContractState> {
-    fn gw_decrease_allowed(self: @TContractState) -> bool;
+    fn decrease_allowed(self: @TContractState) -> bool;
 }
 
 #[starknet::interface]
-trait ICounterContract<TContractState> {
-    fn gw_increase_counter(ref self: TContractState, amount: u128);
-    fn gw_decrease_counter(ref self: TContractState, amount: u128);
-    fn gw_get_counter(self: @TContractState) -> u128;
+trait ISaltedCounterContract<TContractState> {
+    fn __placeholder___increase_counter(ref self: TContractState, amount: u128);
+    fn __placeholder___decrease_counter(ref self: TContractState, amount: u128);
+    fn __placeholder___get_counter(self: @TContractState) -> u128;
 }
 
 #[starknet::contract]
-mod counter_contract {
+mod SaltedCounterContract {
     use starknet::ContractAddress;
     use super::{
         IOtherContractDispatcher, IOtherContractDispatcherTrait, IOtherContractLibraryDispatcher
@@ -51,19 +51,19 @@ mod counter_contract {
     }
 
     #[external(v0)]
-    impl CounterContract of super::ICounterContract<ContractState> {
-        fn gw_get_counter(self: @ContractState) -> u128 {
+    impl SaltedCounterContract of super::ISaltedCounterContract<ContractState> {
+        fn __placeholder___get_counter(self: @ContractState) -> u128 {
             self.counter.read()
         }
 
-        fn gw_increase_counter(ref self: ContractState, amount: u128) {
+        fn __placeholder___increase_counter(ref self: ContractState, amount: u128) {
             let current = self.counter.read();
             self.counter.write(current + amount);
             self.emit(CounterIncreased { amount });
         }
 
-        fn gw_decrease_counter(ref self: ContractState, amount: u128) {
-            let allowed = self.other_contract.read().gw_decrease_allowed();
+        fn __placeholder___decrease_counter(ref self: ContractState, amount: u128) {
+            let allowed = self.other_contract.read().decrease_allowed();
             if allowed {
                 let current = self.counter.read();
                 self.counter.write(current - amount);
