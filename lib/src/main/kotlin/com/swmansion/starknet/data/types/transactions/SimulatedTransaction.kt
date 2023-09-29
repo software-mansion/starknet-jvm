@@ -71,7 +71,7 @@ data class RevertedFunctionInvocation(
 )
 
 @Serializable
-sealed class TransactionTrace
+sealed class TransactionTrace()
 
 @Serializable
 sealed class InvokeTransactionTrace : TransactionTrace() {
