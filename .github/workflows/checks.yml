@@ -28,6 +28,14 @@ jobs:
           distribution: temurin
           java-version: 11
 
+      - name: Setup NDK
+        if : matrix.os == 'macos-latest-xlarge'
+        uses: nttld/setup-ndk@72e37d9f270c8e0bbeb67f4f51d3435b614d6a52
+        with:
+          ndk-version: r32
+          local-cache: true
+          add-to-path: true
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
         with:
