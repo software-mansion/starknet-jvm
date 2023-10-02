@@ -34,10 +34,10 @@ jobs:
           cmake-version: '3.16.x'
 
       - name: Setup Python
-        uses: actions/setup-python@v4.5.0
+        uses: gabrielfalcao/pyenv-action@be40e3b6857d82977fd05e697ba3b7824a101c70
         with:
-          python-version: 3.11.5
-          cache: 'pip'
+          default: 3.9.12
+          command: pip install --upgrade pip
 
       - name: Install legacy devnet
         run: |
