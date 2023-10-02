@@ -7,7 +7,7 @@ import kotlinx.serialization.json.*
 internal object JsonRpcTransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
     private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<out InvokeTransactionTrace> {
-        val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Invalid INVOKE_TXN_TRACE in response: execute_invocation is missing.")
+        val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
         val isReverted = "revert_reason" in executeInvocation
 
         return when (isReverted) {
