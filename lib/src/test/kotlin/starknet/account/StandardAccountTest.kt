@@ -181,9 +181,17 @@ class StandardAccountTest {
 
     @ParameterizedTest
     @MethodSource("getAccounts")
-    fun `get nonce test`(accountParameters: AccountParameters) {
+    fun `get nonce`(accountParameters: AccountParameters) {
         val account = accountParameters.account
         val nonce = account.getNonce().send()
+        assert(nonce >= Felt.ZERO)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `get nonce at latest block tag`(accountParameters: AccountParameters) {
+        val account = accountParameters.account
+        val nonce = account.getNonce(BlockTag.LATEST).send()
         assert(nonce >= Felt.ZERO)
     }
 
@@ -221,6 +229,28 @@ class StandardAccountTest {
         )
 
         val request = account.estimateFee(call)
+        val response = request.send()
+        val feeEstimate = response.first()
+
+        assertNotEquals(Felt.ZERO, feeEstimate.gasPrice)
+        assertNotEquals(Felt.ZERO, feeEstimate.gasConsumed)
+        assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+        assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `estimate fee for invoke transaction at latest block tag`(accountParameters: AccountParameters) {
+        val account = accountParameters.account
+        val balanceContractAddress = accountParameters.addressBook.balanceContractAddress
+
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "increase_balance",
+            calldata = listOf(Felt(10)),
+        )
+
+        val request = account.estimateFee(call, BlockTag.LATEST)
         val response = request.send()
         val feeEstimate = response.first()
 
