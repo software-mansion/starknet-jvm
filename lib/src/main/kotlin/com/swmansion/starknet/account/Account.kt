@@ -215,6 +215,19 @@ interface Account {
     }
 
     /**
+     * Estimate fee for a call.
+     *
+     * Estimate fee for a signed call on starknet for specified block tag.
+     *
+     * @param call a call used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag)
+    }
+
+    /**
      * Estimate fee for a list of calls.
      *
      * Estimate fee for a signed list of calls on starknet.
