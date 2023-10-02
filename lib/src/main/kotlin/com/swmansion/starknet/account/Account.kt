@@ -227,9 +227,21 @@ interface Account {
     /**
      * Get account nonce.
      *
-     * Get account nonce for latest state.
+     * Get account nonce for pending block.
      *
      * @return nonce as field value.
      */
     fun getNonce(): Request<Felt>
+
+    /**
+     * Get account nonce.
+     *
+     * Get account nonce for specified block tag.
+     *
+     * @param blockTag block tag used for returning this value.
+     * @return nonce as field value.
+     */
+    fun getNonce(blockTag: BlockTag): Request<Felt>
+
+    // TODO: (#326) add getNonce for block hash and block number once feeder_gateway is removed and only JsonRpcProvider is supported by StandardAccount
 }
