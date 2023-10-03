@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jmailen.kotlinter")
 }
 
 android {
@@ -32,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+kotlinter {
+    disabledRules = arrayOf("no-wildcard-imports")
 }
 
 dependencies {
