@@ -74,7 +74,7 @@ data class RevertedFunctionInvocation(
 sealed class TransactionTrace()
 
 @Serializable
-sealed class InvokeTransactionTrace : TransactionTrace() {
+sealed class InvokeTransactionTraceBase : TransactionTrace() {
     @SerialName("validate_invocation")
     abstract val validateInvocation: FunctionInvocation?
 
@@ -83,7 +83,7 @@ sealed class InvokeTransactionTrace : TransactionTrace() {
 }
 
 @Serializable
-data class CommonInvokeTransactionTrace(
+data class InvokeTransactionTrace(
     @SerialName("validate_invocation")
     override val validateInvocation: FunctionInvocation? = null,
 
@@ -92,7 +92,7 @@ data class CommonInvokeTransactionTrace(
 
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
-) : InvokeTransactionTrace()
+) : InvokeTransactionTraceBase()
 
 @Serializable
 data class RevertedInvokeTransactionTrace(
@@ -104,7 +104,7 @@ data class RevertedInvokeTransactionTrace(
 
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
-) : InvokeTransactionTrace()
+) : InvokeTransactionTraceBase()
 
 @Serializable
 data class DeclareTransactionTrace(

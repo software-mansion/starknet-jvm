@@ -823,8 +823,8 @@ class StandardAccountTest {
             simulationFlags = simulationFlags,
         ).send()
         assertEquals(2, simulationResult.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
         assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[0].transactionTrace is CommonInvokeTransactionTrace)
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
 
         val invokeTxWithoutSignature = InvokeTransactionPayload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
@@ -838,8 +838,8 @@ class StandardAccountTest {
         ).send()
 
         assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
         assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[0].transactionTrace is CommonInvokeTransactionTrace)
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
     }
 
@@ -962,7 +962,7 @@ class StandardAccountTest {
         ).send()
 
         val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is InvokeTransactionTrace)
+        assertTrue(trace is InvokeTransactionTraceBase)
         assertTrue(trace is RevertedInvokeTransactionTrace)
         val revertedTrace = trace as RevertedInvokeTransactionTrace
         assertNotNull(revertedTrace.executeInvocation)
