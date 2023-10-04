@@ -535,4 +535,149 @@ class AccountTest {
         val receipt = provider.getTransactionReceipt(response.transactionHash).send()
         assertTrue(receipt.isAccepted)
     }
+
+    @ParameterizedTest
+    @MethodSource("getConstNonceAccounts")
+    fun `simulate invoke and deploy account transactions`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        val (account, sourceProvider) = accountAndProvider
+        assumeTrue(sourceProvider is JsonRpcProvider)
+        val provider = sourceProvider as JsonRpcProvider
+
+        val nonce = account.getNonce().send()
+        val call = Call(
+            contractAddress = predeployedMapContractAddress,
+            entrypoint = "put",
+            calldata = listOf(
+                Felt(101),
+                Felt(2137),
+            ),
+        )
+        val params = ExecutionParams(nonce, Felt(1000000000))
+        val invokeTx = account.sign(call, params)
+
+        val privateKey = Felt(System.currentTimeMillis())
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountContractClassHash
+        val salt = Felt(System.currentTimeMillis())
+        val calldata = listOf(publicKey)
+        val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
+
+        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider)
+        val deployAccountTx = deployedAccount.signDeployAccount(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+        )
+
+        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
+        val simulationResult = provider.simulateTransactions(
+            transactions = listOf(invokeTx, deployAccountTx),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+        assertEquals(2, simulationResult.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+
+        val invokeTxWithoutSignature = InvokeTransactionPayload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
+        val deployAccountTxWithoutSignature = DeployAccountTransactionPayload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+
+        val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
+        val simulationResult2 = provider.simulateTransactions(
+            transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags2,
+        ).send()
+
+        assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getConstNonceAccounts")
+    fun `simulate declare v1 transaction`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        val (account, sourceProvider) = accountAndProvider
+        assumeTrue(sourceProvider is JsonRpcProvider)
+        val provider = sourceProvider as JsonRpcProvider
+
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractDefinition = Cairo0ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+
+        // Note to future developers experiencing failures in this test.
+        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
+        // If this test starts randomly falling, try recalculating class hash.
+        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+        // Chances are, the contract was compiled with a different compiler version.
+
+        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            classHash,
+            ExecutionParams(
+                nonce = nonce,
+                maxFee = Felt(1000000000000000L),
+            ),
+        )
+
+        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
+        val simulationResult = provider.simulateTransactions(
+            transactions = listOf(declareTransactionPayload),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+        assertEquals(1, simulationResult.size)
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is DeclareTransactionTrace)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getConstNonceAccounts")
+    fun `simulate declare v2 transaction`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        val (account, sourceProvider) = accountAndProvider
+        assumeTrue(sourceProvider is JsonRpcProvider)
+        val provider = sourceProvider as JsonRpcProvider
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val casmContractDefinition = CasmContractDefinition(casmCode)
+
+        val nonce = account.getNonce().send()
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            casmContractDefinition,
+            ExecutionParams(
+                nonce = nonce,
+                maxFee = Felt(1000000000000000L),
+            ),
+        )
+
+        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
+        val simulationResult = provider.simulateTransactions(
+            transactions = listOf(declareTransactionPayload),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+        assertEquals(1, simulationResult.size)
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is DeclareTransactionTrace)
+    }
 }

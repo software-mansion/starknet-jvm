@@ -65,45 +65,72 @@ data class FunctionInvocation(
 )
 
 @Serializable
+data class RevertedFunctionInvocation(
+    @SerialName("revert_reason")
+    val revertReason: String,
+)
+
+@Serializable
 sealed class TransactionTrace()
+
+@Serializable
+sealed class InvokeTransactionTraceBase : TransactionTrace() {
+    @SerialName("validate_invocation")
+    abstract val validateInvocation: FunctionInvocation?
+
+    @SerialName("fee_transfer_invocation")
+    abstract val feeTransferInvocation: FunctionInvocation?
+}
 
 @Serializable
 data class InvokeTransactionTrace(
     @SerialName("validate_invocation")
-    val validateInvocation: FunctionInvocation?,
+    override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
-    val executeInvocation: FunctionInvocation?,
+    val executeInvocation: FunctionInvocation? = null,
 
     @SerialName("fee_transfer_invocation")
-    val feeTransferInvocation: FunctionInvocation?,
-) : TransactionTrace()
+    override val feeTransferInvocation: FunctionInvocation? = null,
+) : InvokeTransactionTraceBase()
+
+@Serializable
+data class RevertedInvokeTransactionTrace(
+    @SerialName("validate_invocation")
+    override val validateInvocation: FunctionInvocation? = null,
+
+    @SerialName("execute_invocation")
+    val executeInvocation: RevertedFunctionInvocation? = null,
+
+    @SerialName("fee_transfer_invocation")
+    override val feeTransferInvocation: FunctionInvocation? = null,
+) : InvokeTransactionTraceBase()
 
 @Serializable
 data class DeclareTransactionTrace(
     @SerialName("validate_invocation")
-    val validateInvocation: FunctionInvocation?,
+    val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("fee_transfer_invocation")
-    val feeTransferInvocation: FunctionInvocation?,
+    val feeTransferInvocation: FunctionInvocation? = null,
 ) : TransactionTrace()
 
 @Serializable
 data class DeployAccountTransactionTrace(
     @SerialName("validate_invocation")
-    val validateInvocation: FunctionInvocation?,
+    val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("constructor_invocation")
-    val constructorInvocation: FunctionInvocation?,
+    val constructorInvocation: FunctionInvocation? = null,
 
     @SerialName("fee_transfer_invocation")
-    val feeTransferInvocation: FunctionInvocation?,
+    val feeTransferInvocation: FunctionInvocation? = null,
 ) : TransactionTrace()
 
 @Serializable
 data class L1HandlerTransactionTrace(
     @SerialName("function_invocation")
-    val functionInvocation: FunctionInvocation?,
+    val functionInvocation: FunctionInvocation? = null,
 ) : TransactionTrace()
 
 @Serializable
