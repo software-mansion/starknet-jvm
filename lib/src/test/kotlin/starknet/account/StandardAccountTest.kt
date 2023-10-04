@@ -30,6 +30,7 @@ import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.LegacyContractDeployer
 import starknet.utils.LegacyDevnetClient
+import starknet.utils.ScarbClient
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -804,7 +805,7 @@ class StandardAccountTest {
     }
 
     @Test
-    fun `simulate transactions`() {
+    fun `simulate invoke and deploy account transactions`() {
         val addressBook = legacyDevnetAddressBook
         val accountAddress = addressBook.accountAddress
         val balanceContractAddress = addressBook.balanceContractAddress
@@ -818,10 +819,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
             calldata = listOf(Felt(1000)),
         )
-        val params = ExecutionParams(
-            nonce = nonce,
-            maxFee = Felt(1000000000000000),
-        )
+        val params = ExecutionParams(nonce, Felt(1000000000))
 
         val invokeTx = account.sign(call, params)
 
@@ -855,6 +853,7 @@ class StandardAccountTest {
             simulationFlags = simulationFlags,
         ).send()
         assertEquals(2, simulationResult.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
         assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
 
@@ -869,7 +868,134 @@ class StandardAccountTest {
         ).send()
 
         assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
         assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+    }
+
+    @Test
+    fun `simulate declare v1 transaction`() {
+        val provider = legacyRpcProvider
+        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
+
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractDefinition = Cairo0ContractDefinition(contractCode)
+        val nonce = account.getNonce().send()
+
+        // Note to future developers experiencing failures in this test.
+        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
+        // If this test starts randomly falling, try recalculating class hash.
+        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+        // Chances are, the contract was compiled with a different compiler version.
+
+        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            classHash,
+            ExecutionParams(
+                nonce = nonce,
+                maxFee = Felt(1000000000000000L),
+            ),
+        )
+        val simulationFlags = setOf<SimulationFlag>()
+        val simulationResult = provider.simulateTransactions(
+            transactions = listOf(declareTransactionPayload),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+        assertEquals(1, simulationResult.size)
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is DeclareTransactionTrace)
+    }
+
+    @Test
+    fun `simulate declare v2 transaction`() {
+        val provider = legacyRpcProvider
+        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
+        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val casmContractDefinition = CasmContractDefinition(casmCode)
+
+        val nonce = account.getNonce().send()
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            casmContractDefinition,
+            ExecutionParams(
+                nonce = nonce,
+                maxFee = Felt(1000000000000000L),
+            ),
+        )
+
+        val simulationFlags = setOf<SimulationFlag>()
+        val simulationResult = provider.simulateTransactions(
+            transactions = listOf(declareTransactionPayload),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+        assertEquals(1, simulationResult.size)
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is DeclareTransactionTrace)
+    }
+
+    // TODO: replace this with a proper devnet test
+    // Legacy devnet never returns invoke transaction trace that has revert_reason field in execution_invocation.
+    @Test
+    fun `simulate reverted invoke transaction`() {
+        val mockedResponse = """
+        {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": [
+                {
+                    "fee_estimation": {
+                        "gas_consumed": "0x9d8",
+                        "gas_price": "0x3b9aca2f",
+                        "overall_fee": "0x24abbb63ea8"
+                    },
+                    "transaction_trace": {
+                        "execute_invocation": {
+                           "revert_reason": "Placeholder revert reason."
+                        }
+                    }
+                }
+            ]
+        }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val mockProvider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+
+        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET)
+        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
+        val balanceContractAddress = legacyDevnetAddressBook.balanceContractAddress
+
+        val nonce = account.getNonce().send()
+        val maxFee = Felt(1)
+        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+        val params = ExecutionParams(nonce, maxFee)
+        val invokeTx = account.sign(call, params)
+
+        val simulationFlags = setOf<SimulationFlag>()
+        val simulationResult = mockProvider.simulateTransactions(
+            transactions = listOf(invokeTx),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags,
+        ).send()
+
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is InvokeTransactionTraceBase)
+        assertTrue(trace is RevertedInvokeTransactionTrace)
+        val revertedTrace = trace as RevertedInvokeTransactionTrace
+        assertNotNull(revertedTrace.executeInvocation)
+        assertNotNull(revertedTrace.executeInvocation?.revertReason)
     }
 }
