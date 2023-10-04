@@ -215,6 +215,19 @@ interface Account {
     }
 
     /**
+     * Estimate fee for a call.
+     *
+     * Estimate fee for a signed call on starknet for specified block tag.
+     *
+     * @param call a call used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag)
+    }
+
+    /**
      * Estimate fee for a list of calls.
      *
      * Estimate fee for a signed list of calls on starknet.
@@ -225,11 +238,34 @@ interface Account {
     fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>>
 
     /**
+     * Estimate fee for a list of calls.
+     *
+     * Estimate fee for a signed list of calls on starknet.
+     *
+     * @param calls a list of calls used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @return estimated fee as field value.
+     */
+    fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+
+    /**
      * Get account nonce.
      *
-     * Get account nonce for latest state.
+     * Get account nonce for pending block.
      *
      * @return nonce as field value.
      */
     fun getNonce(): Request<Felt>
+
+    /**
+     * Get account nonce.
+     *
+     * Get account nonce for specified block tag.
+     *
+     * @param blockTag block tag used for returning this value.
+     * @return nonce as field value.
+     */
+    fun getNonce(blockTag: BlockTag): Request<Felt>
+
+    // TODO: (#326) add getNonce for block hash and block number once feeder_gateway is removed and only JsonRpcProvider is supported by StandardAccount
 }
