@@ -54,10 +54,10 @@
                         android:textStyle="bold"/>
             </LinearLayout>
             <Button
+                    android:id="@+id/REFRESH_BALANCE_BUTTON"
                     android:text="Refresh"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:layout_gravity="end"
-                    android:id="@+id/REFRESH_BALANCE_BUTTON"/>
+                    android:layout_height="wrap_content" android:layout_gravity="end"/>
             <TextView
                     android:id="@+id/textView2"
                     android:text="Transfer funds"
@@ -126,9 +126,9 @@
                     android:layout_height="wrap_content">
                 <TextView
                         android:id="@+id/TRANSACTION_HASH_TEXT"
+                        android:text="Hash"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:text="Hash"
                         android:textSize="16sp"
                         android:textColor="@color/black"/>
                 <TextView
@@ -166,9 +166,9 @@
                     android:layout_height="wrap_content">
                 <TextView
                         android:id="@+id/RECEIPT_ACTUAL_FEE_TEXT"
+                        android:text="Actual fee"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:text="Actual fee"
                         android:textColor="@color/black"
                         android:textSize="16sp"/>
                 <TextView
