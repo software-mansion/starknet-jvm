@@ -1,19 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   tools:context=".MainActivity"
+                                                   android:padding="10dp">
 
-    <TextView
-        android:id="@+id/HASH_VIEW"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+        >
+            <TextView
+                    android:id="@+id/TextView"
+                    android:text="Get balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/AccountAddressInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+            >
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/ACCOUNT_ADDRESS_INPUT"
+                        android:hint="Account address"
+                        android:text="0x12345"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:id="@+id/BALANCE_TEXT"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Balance"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                <TextView
+                        android:id="@+id/BALANCE_VALUE"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/not_available"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"/>
+            </LinearLayout>
+            <Button
+                    android:text="Refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_gravity="end"
+                    android:id="@+id/REFRESH_BALANCE_BUTTON"/>
+            <TextView
+                    android:id="@+id/textView2"
+                    android:text="Transfer funds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/PrivateKeyInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/PRIVATE_KEY_INPUT"
+                        android:hint="Private key"
+                        android:text="0x123"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:password="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                    android:id="@+id/textView3"
+                    android:text="Transaction details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/RecipientAddressInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+            >
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/RECIPIENT_ADDRESS_INPUT"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Recipient address"
+                        android:text="0x789"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/AmountInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+            >
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/AMOUNT_INPUT"
+                        android:hint="Amount"
+                        android:text="999"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <Button
+                    android:id="@+id/TRANSFER_BUTTON"
+                    android:text="TRANSFER"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"/>
+            <TextView
+                    android:id="@+id/textView4"
+                    android:text="Get receipt for the last transaction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:id="@+id/TRANSACTION_HASH_TEXT"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Hash"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"/>
+                <TextView
+                        android:id="@+id/TRANSACTION_HASH_VALUE"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/not_available"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:id="@+id/RECEIPT_EXECUTION_STATUS_TEXT"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Status"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                <TextView
+                        android:id="@+id/RECEIPT_EXECUTION_STATUS_VALUE"
+                        android:text="@string/not_available"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:id="@+id/RECEIPT_ACTUAL_FEE_TEXT"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Actual fee"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"/>
+                <TextView
+                        android:id="@+id/RECEIPT_ACTUAL_FEE_VALUE"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/not_available"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <TextView
+                        android:id="@+id/RECEIPT_REVERT_REASON_TEXT"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Revert reason"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"/>
+                <TextView
+                        android:id="@+id/RECEIPT_REVERT_REASON_VALUE"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/not_available"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:nestedScrollingEnabled="true"
+                        android:maxLines="5"/>
+            </LinearLayout>
+            <Button
+                    android:id="@+id/REFRESH_RECEIPT_BUTTON"
+                    android:text="REFRESH"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"/>
+            <TextView
+                    android:id="@+id/textView5"
+                    android:text="Crypto calculations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <TextView
+                    android:id="@+id/HASH_VIEW"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Crypto calculations placeholder"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

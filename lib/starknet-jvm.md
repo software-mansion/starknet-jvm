@@ -228,7 +228,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Invoking contract: Transfering ETH 
+## Invoking contract: Transfering ETH
 
 ### In Java
 
@@ -398,7 +398,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Declaring Cairo 0 contract 
+## Declaring Cairo 0 contract
 
 ### In Java
 
@@ -503,7 +503,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Declaring Cairo 1/2 contract 
+## Declaring Cairo 1/2 contract
 
 ### In Java
 

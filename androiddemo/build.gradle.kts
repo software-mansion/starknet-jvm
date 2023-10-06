@@ -15,6 +15,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Default values for demo purposes
+        buildConfigField("String", "RPC_URL", "\"${System.getenv("RPC_URL") ?: "http://example-node-url.com/rpc"}\"")
+        buildConfigField("String", "ACCOUNT_ADDRESS", "\"${System.getenv("ACCOUNT_ADDRESS") ?: "0x12345"}\"")
+        buildConfigField("String", "PRIVATE_KEY", "\"${System.getenv("PRIVATE_KEY") ?: "0x123"}\"")
+        buildConfigField("String", "RECIPIENT_ACCOUNT_ADDRESS", "\"${System.getenv("RECIPIENT_ACCOUNT_ADDRESS") ?: "0x789"}\"")
     }
 
     buildTypes {
@@ -45,7 +51,7 @@ dependencies {
     implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     // Make sure you are using the AAR and not a JAR and include transitive dependencies
-    implementation("com.swmansion.starknet:starknet:0.7.1@aar"){
+        implementation("com.swmansion.starknet:starknet:0.7.2@aar"){
         isTransitive = true
     }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
