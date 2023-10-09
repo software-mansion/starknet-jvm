@@ -17,6 +17,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Default values for demo purposes
+        // You can manually change these values or set them via environment variables
         buildConfigField("String", "RPC_URL", "\"${System.getenv("RPC_URL") ?: "http://example-node-url.com/rpc"}\"")
         buildConfigField("String", "ACCOUNT_ADDRESS", "\"${System.getenv("ACCOUNT_ADDRESS") ?: "0x12345"}\"")
         buildConfigField("String", "PRIVATE_KEY", "\"${System.getenv("PRIVATE_KEY") ?: "0x123"}\"")
@@ -43,6 +44,21 @@ android {
 
 kotlinter {
     disabledRules = arrayOf("no-wildcard-imports")
+}
+
+val buildCrypto = task<Exec>("BuildCrypto") {
+    commandLine("${project.projectDir}/build_crypto.sh")
+}
+
+tasks.withType<Test>().configureEach {
+    dependsOn(buildCrypto)
+
+    doFirst {
+        val libsSharedPath = file("$buildDir/libs/shared").absolutePath
+        val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
+        val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+        systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
+    }
 }
 
 dependencies {

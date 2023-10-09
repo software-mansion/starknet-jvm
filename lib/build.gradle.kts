@@ -84,8 +84,8 @@ tasks.test {
     val libsSharedPath = file("$buildDir/libs/shared").absolutePath
     val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
     val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
-
     systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
+
     systemProperty(
         "integrationTestMode",
             project.findProperty("integrationTestMode")
