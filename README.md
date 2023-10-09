@@ -122,20 +122,6 @@ public class Main {
 
 ## Demo applications
 ### [Android demo](androiddemo)
-You will need to provide RPC node URL.
-To do that, you can either set `RPC_URL` environment variable or modify [build.gradle.kts](androiddemo/build.gradle.kts):
-```gradle
-android {
-    ...
-    defaultConfig {
-        ...
-        buildConfigField("String", "RPC_URL", "http://example-node-url.com/rpc")
-        }
-    }
-}
-```
-
-
 ### [Java demo](javademo)
 
 
