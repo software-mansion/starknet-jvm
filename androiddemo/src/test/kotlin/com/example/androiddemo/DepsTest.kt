@@ -51,5 +51,4 @@ internal class DepsTest {
         val publicKey = StarknetCurve.getPublicKey(privateKey)
         Assert.assertNotEquals(Felt.ZERO, publicKey)
     }
-
 }
