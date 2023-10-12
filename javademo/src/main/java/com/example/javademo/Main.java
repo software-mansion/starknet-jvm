@@ -95,27 +95,6 @@ public class Main {
         boolean isCorrect = StarknetCurve.verify(publicKey, hash, r, s);
     }
 
-    private static DeclareResponse declareCairo0Contract(Account account, Provider provider, Path contractPath, Felt classHash) throws IOException {
-        // Read contract source code
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contractCode);
-
-        Felt nonce = account.getNonce().send();
-
-        // Estimate fee for declaring a contract
-        DeclareTransactionPayload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
-        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO));
-        // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-        ExecutionParams executionParams = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionV1Payload payload = account.signDeclare(contractDefinition, classHash, executionParams, false);
-        Request<DeclareResponse> request = provider.declareContract(payload);
-
-        return request.send();
-    }
-
     private static DeclareResponse declareCairo1Contract(Account account, Provider provider, Path contractPath, Path casmPath) throws IOException {
         // Read contract source code
         String contractCode = String.join("", Files.readAllLines(contractPath));
