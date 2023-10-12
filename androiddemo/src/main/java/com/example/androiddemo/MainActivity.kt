@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         // The result of the future is a List<Felt> which represents the output values of the balanceOf function
         val response = future.await()
 
-        // Output value's type is Uint256 and is represented by two Felt values
+        // Output value's type is UInt256 and is represented by two Felt values
         return Uint256(
             low = response[0],
             high = response[1],
