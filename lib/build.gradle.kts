@@ -87,9 +87,9 @@ tasks.test {
     systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
 
     systemProperty(
-        "integrationTestMode",
-            project.findProperty("integrationTestMode")
-                ?: System.getenv("INTEGRATION_TEST_MODE")
+        "networkTestMode",
+            project.findProperty("networkTestMode")
+                ?: System.getenv("NETWORK_TEST_MODE")
                 ?: "disabled",
     )
 

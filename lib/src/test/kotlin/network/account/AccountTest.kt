@@ -1,4 +1,4 @@
-package integration.account
+package network.account
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
@@ -10,8 +10,8 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
-import integration.utils.IntegrationConfig
 import kotlinx.serialization.json.*
+import network.utils.NetworkConfig
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
@@ -29,7 +29,7 @@ import kotlin.io.path.readText
 class AccountTest {
     companion object {
         @JvmStatic
-        private val config = IntegrationConfig.config
+        private val config = NetworkConfig.config
         private val rpcUrl = config.rpcUrl
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
@@ -121,10 +121,9 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-
         val call = Call(
             contractAddress = predeployedMapContractAddress,
             entrypoint = "put",
@@ -138,7 +137,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v1 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
         val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
@@ -183,7 +182,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
         assumeFalse(provider is GatewayProvider)
@@ -231,7 +230,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v1 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
         // assumeFalse(provider is JsonRpcProvider)
@@ -270,7 +269,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
@@ -305,7 +304,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction (cairo compiler v2)`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
@@ -340,7 +339,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send invoke transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
 
@@ -364,7 +363,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `call contract`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // Note to future developers:
         // This test might fail if someone deliberately changes the key's corresponding value in contract.
@@ -383,7 +382,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `estimate fee for deploy account`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
@@ -422,7 +421,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `get ETH balance`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
         val call = Call(
@@ -444,7 +443,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `transfer ETH`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
         val recipientAccountAddress = constNonceAccountAddress
@@ -467,7 +466,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `deploy account`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
 
@@ -539,7 +538,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `simulate invoke and deploy account transactions`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         val (account, sourceProvider) = accountAndProvider
         assumeTrue(sourceProvider is JsonRpcProvider)
         val provider = sourceProvider as JsonRpcProvider
@@ -603,7 +602,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `simulate declare v1 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         val (account, sourceProvider) = accountAndProvider
         assumeTrue(sourceProvider is JsonRpcProvider)
         val provider = sourceProvider as JsonRpcProvider
@@ -643,7 +642,7 @@ class AccountTest {
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `simulate declare v2 transaction`(accountAndProvider: AccountAndProvider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         val (account, sourceProvider) = accountAndProvider
         assumeTrue(sourceProvider is JsonRpcProvider)
         val provider = sourceProvider as JsonRpcProvider
