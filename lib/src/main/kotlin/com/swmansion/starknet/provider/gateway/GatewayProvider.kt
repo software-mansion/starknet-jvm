@@ -232,18 +232,6 @@ class GatewayProvider(
         return HttpRequest(httpPayload, buildDeserializer(GatewayContractClassPolymorphicSerializer), httpService)
     }
 
-    override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
-
-    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
-        val params = listOf(
-            "contractAddress" to contractAddress.hexString(),
-            BlockId.Tag(blockTag).toGatewayParam(),
-        )
-        val url = feederGatewayRequestUrl("get_nonce")
-
-        return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
-    }
-
     override fun getBlockHashAndNumber(): Request<GetBlockHashAndNumberResponse> {
         val url = feederGatewayRequestUrl("get_block")
         val httpPayload = Payload(url, "GET")
