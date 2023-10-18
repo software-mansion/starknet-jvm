@@ -66,22 +66,59 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.CALL, params, ListSerializer(Felt.serializer()))
     }
 
-    override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
+    /**
+     * Calls a contract deployed on Starknet.
+     *
+     * @param call a call to be made
+     * @param blockTag
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
+    /**
+     * Calls a contract deployed on Starknet.
+     *
+     * @param call a call to be made
+     * @param blockHash a hash of the block in respect to what the call will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
+    /**
+     * Calls a contract deployed on Starknet.
+     *
+     * @param call a call to be made
+     * @param blockNumber a number of the block in respect to what the call will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
+    }
+
+    /**
+     * Calls a contract deployed on Starknet.
+     *
+     * Calls a contract deployed on Starknet in the latest block.
+     *
+     * @param call a call to be made
+     *
+     * @throws RequestFailedException
+     */
+    fun callContract(call: Call): Request<List<Felt>> {
+        return callContract(call, BlockTag.LATEST)
     }
 
     override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
@@ -99,22 +136,68 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, Felt.serializer())
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockTag The tag of the requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
-
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
+    }
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address and in the latest block.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt> {
+        return getStorageAt(contractAddress, key, BlockTag.LATEST)
     }
 
     override fun getTransaction(transactionHash: Felt): Request<Transaction> {
@@ -124,7 +207,16 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionPolymorphicSerializer)
     }
 
-    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
+    /**
+     * Get transaction receipt
+     *
+     * Get a receipt of the transactions.
+     *
+     * @param transactionHash a hash of sent transaction
+     *
+     * @throws RequestFailedException
+     */
+    fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val payload = GetTransactionReceiptPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 
@@ -269,22 +361,66 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
     }
 
-    override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockHash The hash of the requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetClassAtPayload(BlockId.Hash(blockHash), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockNumber The number of the requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
         val payload = GetClassAtPayload(BlockId.Number(blockNumber), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     * @param blockTag The tag of the requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetClassAtPayload(BlockId.Tag(blockTag), contractAddress)
 
         return getClassHashAt(payload)
+    }
+
+    /**
+     * Get the contract class hash.
+     *
+     * Get the contract class hash in the given block for the contract deployed at the given address and in the
+     * latest block.
+     *
+     * @param contractAddress The address of the contract whose class definition will be returned.
+     *
+     * @throws RequestFailedException
+     */
+    fun getClassHashAt(contractAddress: Felt): Request<Felt> {
+        return getClassHashAt(contractAddress, BlockTag.LATEST)
     }
 
     override fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse> {
@@ -378,23 +514,67 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+     fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+     fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+     fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list for pending block.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(payload: List<TransactionPayload>): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, BlockTag.LATEST)
+    }
+
     private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): Request<EstimateFeeResponse> {
         val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
@@ -455,7 +635,29 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_NONCE, jsonPayload, Felt.serializer())
     }
 
-    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address for pending block.
+     *
+     * @param contractAddress address of account contract
+     *
+     * @throws RequestFailedException
+     */
+    fun getNonce(contractAddress: Felt): Request<Felt>
+        = getNonce(contractAddress, blockTag = BlockTag.PENDING)
+
+    /**
+     * Get a nonce.
+     *
+     * Get a nonce of an account contract of a given address for specified block tag.
+     *
+     * @param contractAddress address of account contract
+     * @param blockTag block tag used for returning this value
+     *
+     * @throws RequestFailedException
+     */
+    fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetNoncePayload(contractAddress, BlockId.Tag(blockTag))
 
         return getNonce(payload)
