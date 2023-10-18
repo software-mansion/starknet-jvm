@@ -8,6 +8,7 @@ import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import java.math.BigInteger
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture
 class StandardAccount(
     override val address: Felt,
     private val signer: Signer,
-    private val provider: Provider,
+    private val provider: JsonRpcProvider,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
     private val version = Felt.ONE
@@ -34,7 +35,7 @@ class StandardAccount(
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */
-    constructor(address: Felt, privateKey: Felt, provider: Provider, cairoVersion: Felt = Felt.ZERO) : this(
+    constructor(address: Felt, privateKey: Felt, provider: JsonRpcProvider, cairoVersion: Felt = Felt.ZERO) : this(
         address,
         StarkCurveSigner(privateKey),
         provider,
