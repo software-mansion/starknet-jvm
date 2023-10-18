@@ -51,26 +51,6 @@ class GatewayProvider(
         return "$feederGatewayUrl/$method"
     }
 
-    private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
-        val url = feederGatewayRequestUrl("call_contract")
-
-        val params = listOf(payload.blockId.toGatewayParam())
-
-        val decimalCalldata = Json.encodeToJsonElement(payload.request.calldata.toDecimal())
-        val body = buildJsonObject {
-            put("contract_address", payload.request.contractAddress.hexString())
-            put("entry_point_selector", payload.request.entrypoint.hexString())
-            put("calldata", decimalCalldata)
-            put("signature", JsonArray(emptyList()))
-        }
-
-        return HttpRequest(
-            Payload(url, "POST", params, body),
-            buildDeserializer(GatewayCallContractTransformingSerializer),
-            httpService,
-        )
-    }
-
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     private data class GatewayError(
@@ -119,24 +99,6 @@ class GatewayProvider(
         )
 
         return body
-    }
-
-    override fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>> {
-        val payload = CallContractPayload(call, BlockId.Tag(blockTag))
-
-        return callContract(payload)
-    }
-
-    override fun callContract(call: Call, blockHash: Felt): Request<List<Felt>> {
-        val payload = CallContractPayload(call, BlockId.Hash(blockHash))
-
-        return callContract(payload)
-    }
-
-    override fun callContract(call: Call, blockNumber: Int): Request<List<Felt>> {
-        val payload = CallContractPayload(call, BlockId.Number(blockNumber))
-
-        return callContract(payload)
     }
 
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
