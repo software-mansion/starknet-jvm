@@ -101,35 +101,6 @@ class GatewayProvider(
         return body
     }
 
-    private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
-        val params = listOf(
-            Pair("contractAddress", payload.contractAddress.hexString()),
-            Pair("key", payload.key.decString()),
-            payload.blockId.toGatewayParam(),
-        )
-        val url = feederGatewayRequestUrl("get_storage_at")
-
-        return HttpRequest(Payload(url, "GET", params), buildDeserializer(Felt.serializer()), httpService)
-    }
-
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
-
-        return getStorageAt(payload)
-    }
-
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
-
-        return getStorageAt(payload)
-    }
-
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
-
-        return getStorageAt(payload)
-    }
-
     override fun getTransaction(transactionHash: Felt): Request<Transaction> {
         val url = feederGatewayRequestUrl("get_transaction")
         val params = listOf(Pair("transactionHash", transactionHash.hexString()))
@@ -139,20 +110,6 @@ class GatewayProvider(
             { response ->
                 val body = handleMissingTransaction(response)
                 json.decodeFromString(GatewayTransactionTransformingSerializer, body)
-            },
-            httpService,
-        )
-    }
-
-    override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
-        val url = feederGatewayRequestUrl("get_transaction_receipt")
-        val params = listOf(Pair("transactionHash", transactionHash.hexString()))
-
-        return HttpRequest(
-            Payload(url, "GET", params),
-            { response ->
-                val body = handleMissingTransaction(response)
-                json.decodeFromString(GatewayTransactionReceipt.serializer(), body)
             },
             httpService,
         )
