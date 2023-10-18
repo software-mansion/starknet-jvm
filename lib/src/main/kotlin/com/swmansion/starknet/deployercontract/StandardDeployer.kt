@@ -11,12 +11,12 @@ import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.RpcTransactionReceipt
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt
 import com.swmansion.starknet.extensions.map
-import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 class StandardDeployer(
     private val deployerAddress: Felt,
-    private val provider: Provider,
+    private val provider: JsonRpcProvider,
     private val account: Account,
 ) : Deployer {
     override fun deployContract(
