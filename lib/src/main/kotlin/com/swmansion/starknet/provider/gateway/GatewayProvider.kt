@@ -299,42 +299,6 @@ class GatewayProvider(
         return getClassHashAt(param, contractAddress)
     }
 
-    private fun getEstimateFee(
-        payload: List<TransactionPayload>,
-        blockId: BlockId,
-    ): Request<List<EstimateFeeResponse>> {
-        val url = feederGatewayRequestUrl("estimate_fee_bulk")
-        val body = mutableListOf<JsonObject>()
-
-        for (tx in payload) {
-            when (tx) {
-                is InvokeTransactionPayload -> body.add(serializeInvokeTransactionPayload(tx))
-                is DeployAccountTransactionPayload -> body.add(serializeDeployAccountTransactionPayload(tx))
-                is DeclareTransactionV1Payload -> body.add(Json.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, tx).jsonObject)
-                is DeclareTransactionV2Payload -> body.add(Json.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, tx).jsonObject)
-            }
-        }
-
-        val httpPayload = Payload(url, "POST", listOf(blockId.toGatewayParam()), JsonArray(body))
-        return HttpRequest(
-            httpPayload,
-            buildDeserializer(ListSerializer(EstimateFeeResponseGatewaySerializer)),
-            httpService,
-        )
-    }
-
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
-        return getEstimateFee(payload, BlockId.Hash(blockHash))
-    }
-
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
-        return getEstimateFee(payload, BlockId.Number(blockNumber))
-    }
-
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return getEstimateFee(payload, BlockId.Tag(blockTag))
-    }
-
     override fun getNonce(contractAddress: Felt): Request<Felt> = getNonce(contractAddress, BlockTag.PENDING)
 
     override fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
