@@ -152,6 +152,7 @@ class JsonRpcProvider(
 
         return getStorageAt(payload)
     }
+
     /**
      * Get a value of storage var.
      *
@@ -524,7 +525,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-     fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
+    fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
@@ -540,7 +541,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-     fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
+    fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
@@ -556,7 +557,7 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-     fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+    fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
@@ -644,8 +645,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getNonce(contractAddress: Felt): Request<Felt>
-        = getNonce(contractAddress, blockTag = BlockTag.PENDING)
+    fun getNonce(contractAddress: Felt): Request<Felt> =
+        getNonce(contractAddress, blockTag = BlockTag.PENDING)
 
     /**
      * Get a nonce.

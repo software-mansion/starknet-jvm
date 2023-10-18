@@ -68,7 +68,6 @@ interface Provider {
      */
     fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse>
 
-
     /**
      * Get the block number.
      *
