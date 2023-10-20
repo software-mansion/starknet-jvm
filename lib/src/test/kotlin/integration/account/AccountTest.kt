@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -75,20 +76,17 @@ class AccountTest {
                     ),
                     rpcProvider,
                 ),
-                AccountAndProvider(
-                    StandardAccount(
-                        accountAddress,
-                        signer,
-                        gatewayProvider,
-                    ),
-                    gatewayProvider,
-                ),
             )
         }
 
         @JvmStatic
         fun getConstNonceAccounts(): List<AccountAndProvider> {
             return listOf(
+                // Note to future developers:
+                // Some tests may fail due to getNonce receiving higher nonce than expected by other methods
+                // Apparently, getNonce knows about pending blocks while other methods don't
+                // Until it remains this way, an account with a constant nonce is used for these tests
+                // Only use this account for tests that don't change the state of the network (non-gas tests)
                 AccountAndProvider(
                     StandardAccount(
                         constNonceAccountAddress,
@@ -98,11 +96,6 @@ class AccountTest {
                     rpcProvider,
                 ),
                 AccountAndProvider(
-                    // Note to future developers:
-                    // Some tests may fail due to getNonce receiving higher nonce than expected by other methods
-                    // Apparently, getNonce knows about pending blocks while other methods don't
-                    // Until it remains this way, an account with a constant nonce is used for these tests
-                    // Only use this account for tests that don't change the state of the network (non-gas tests)
                     StandardAccount(
                         constNonceAccountAddress,
                         constNonceSigner,
@@ -116,6 +109,18 @@ class AccountTest {
         @JvmStatic
         @AfterAll
         fun after() {}
+    }
+
+    @Test
+    fun `get spec version`() {
+        val provider = rpcProvider
+        val request = provider.getSpecVersion()
+        val specVersion = request.send()
+
+        assertNotEquals(0, specVersion.length)
+
+        val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
+        assertTrue(validPattern.containsMatchIn(specVersion))
     }
 
     @ParameterizedTest
