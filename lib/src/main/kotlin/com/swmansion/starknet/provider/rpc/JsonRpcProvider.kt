@@ -60,6 +60,20 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
+    /**
+     * Get the version of the spec.
+     *
+     * Get the version of the Starknet JSON-RPC specification being used by the node.
+     *
+     * @throws RequestFailedException
+     *
+     */
+    fun getSpecVersion(): Request<String> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, String.serializer())
+    }
+
     private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val params = Json.encodeToJsonElement(payload)
 
@@ -775,6 +789,7 @@ class JsonRpcProvider(
 }
 
 private enum class JsonRpcMethod(val methodName: String) {
+    GET_SPEC_VERSION("starknet_specVersion"),
     CALL("starknet_call"),
     INVOKE_TRANSACTION("starknet_addInvokeTransaction"),
     GET_STORAGE_AT("starknet_getStorageAt"),
