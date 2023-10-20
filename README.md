@@ -10,13 +10,25 @@
 ## Table of contents
 
 <!-- TOC -->
+  * [Table of contents](#table-of-contents)
   * [Installation](#installation)
   * [Documentation](#documentation)
   * [Example usages](#example-usages)
     * [Making synchronous requests](#making-synchronous-requests)
     * [Making asynchronous requests](#making-asynchronous-requests)
+    * [Deploying account](#deploying-account)
+    * [Invoking contract: Transfering ETH](#invoking-contract-transfering-eth-)
+    * [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
+    * [Declaring Cairo 0 contract](#declaring-cairo-0-contract)
+    * [Declaring Cairo 1/2 contract](#declaring-cairo-12-contract)
+  * [Reusing http clients](#reusing-http-clients)
   * [Development](#development)
     * [Hooks](#hooks)
+  * [Running tests](#running-tests)
+    * [Prerequisites](#prerequisites)
+    * [Platform-specific prerequisites](#platform-specific-prerequisites)
+    * [Regular Tests](#regular-tests)
+    * [Network Tests](#network-tests)
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
@@ -620,32 +632,32 @@ Use the following command to run tests:
 ./gradlew :lib:test
 ```
 
-### Integration Tests
-Running tests for integration network requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+### Network Tests
+Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
-
-Integration tests are disabled by default. To enable them, you can set the env variable: 
+To select the network, please set the `NETWORK_TEST_NETWORK` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
+You will also need to provide **gateway URLs**, **RPC node URL** and an **account address** (along with its **private key**).
+Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
-INTEGRATION_TEST_MODE=non_gas
+NETWORK_TEST_MODE=non_gas
 ```
-Some of integration tests require gas and are disabled by default. If you want to run them as well, you can set:
+Some network tests require gas and are disabled by default. If you want to run them as well, you can set:
 ```env 
-INTEGRATION_TEST_MODE=all
+NETWORK_TEST_MODE=all
 ```
-⚠️ WARNING ⚠️ Please be aware that in that case your integration account address must have a pre-existing balance as these tests will consume some funds.
+⚠️ WARNING ⚠️ Please be aware that in that case your account address must have a pre-existing balance as these tests will consume some funds.
 
-Alternatively, you can use flag to specify whether to run integration and gas tests:
+Alternatively, you can use flag to specify whether to run network and gas tests:
 ```shell
-./gradlew :lib:test -PintegrationTestMode=non_gas
-./gradlew :lib:test -PintegrationTestMode=all
+./gradlew :lib:test -PnetworkTestMode=non_gas
+./gradlew :lib:test -PnetworkTestMode=all
 ```
 Flag takes precendece over the env variable if both are set.
 
-⚠️ WARNING ⚠️ Some integration tests may fail due to getNonce receiving higher nonce than expected by other methods.
-It is adviced to additionaly provide an account (along with its `private key`) with a constant `nonce` to ensure non-gas tests pass.
-Such account shouldn't be used for any other purpose than running non-gas integration tests.
-If not set, the main integration account will be used for this purpose.
+⚠️ WARNING ⚠️ Some network tests may fail due to `getNonce` receiving higher nonce than expected by other methods.
+It is adviced to additionaly provide an account (along with its **private key**) with a constant **nonce** to ensure non-gas tests pass.
+Such account shouldn't be used for any other purpose than running non-gas network tests.
+If not set, the main account provided in the config will be used for this purpose.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

@@ -1,4 +1,4 @@
-package integration.provider
+package network.provider
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
@@ -7,8 +7,9 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import integration.utils.IntegrationConfig
 import kotlinx.serialization.json.*
+import network.utils.NetworkConfig
+import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
@@ -21,7 +22,8 @@ import org.junit.jupiter.params.provider.MethodSource
 class ProviderTest {
     companion object {
         @JvmStatic
-        private val config = IntegrationConfig.config
+        private val config = NetworkConfig.config
+        private val network = config.network
         private val rpcUrl = config.rpcUrl
         private val gatewayUrl = config.gatewayUrl
         private val feederGatewayUrl = config.feederGatewayUrl
@@ -63,7 +65,7 @@ class ProviderTest {
 
     @Test
     fun `estimate message fee`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
 
@@ -101,7 +103,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy account transaction`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x029da9f8997ce580718fa02ed0bd628976418b30a0c5c542510aaef21a4445e4")
         val tx = provider.getTransaction(transactionHash).send()
@@ -133,7 +135,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get reverted invoke transaction`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
         val tx = provider.getTransaction(transactionHash).send()
@@ -163,9 +165,12 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction with events`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
+        val transactionHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
+            Network.TESTNET -> Felt.fromHex("0x47ca5f1e16ba2cf997ebc33e60dfa3e5323fb3eebf63b0b9319fb4f6174ade8")
+        }
         val tx = provider.getTransaction(transactionHash).send()
         assertNotNull(tx)
 
@@ -173,16 +178,7 @@ class ProviderTest {
         var receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        assertEquals(4, receipt.events.size)
-        val firstEvent = receipt.events[0]
-        assertEquals(
-            listOf(Felt.fromHex("0x07c930a86c2ed72bea4767b688367e06fd2b2a58915bdd3cfa16fb61b485e8c5")),
-            firstEvent.data,
-        )
-        assertEquals(
-            Felt.fromHex("0x05ee5dbac8c39fe9ef8d7761cc84086949d7dc42dd6233cb6310208272ee87ea"),
-            firstEvent.address,
-        )
+        assertEquals(2, receipt.events.size)
 
         when (provider) {
             is GatewayProvider -> {
@@ -198,7 +194,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v0 transaction and receipt`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x6d346ba207eb124355960c19c737698ad37a3c920a588b741e0130ff5bd4d6d")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV0
@@ -233,7 +229,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v1 transaction and receipt`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
@@ -269,7 +265,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare v2 transaction`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
@@ -306,7 +302,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get transaction receipt with l1 to l2 message`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x27d9e669bb43d9f95bed591b296aeab0067b24c84818fb650a65eb120a9aebd")
 
@@ -330,7 +326,7 @@ class ProviderTest {
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get transaction receipt with l2 to l1 messages`(provider: Provider) {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         val transactionHash = Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
@@ -357,7 +353,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with latest block tag`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
@@ -370,7 +366,7 @@ class ProviderTest {
     @Disabled
     @Test
     fun `get block with transactions with pending block tag`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
         // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
@@ -386,7 +382,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block hash`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
@@ -400,7 +396,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block number`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val blockNumber = 310252
@@ -414,7 +410,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with latest block tag`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
@@ -427,7 +423,7 @@ class ProviderTest {
     @Disabled
     @Test
     fun `get block with transaction hashes with pending block tag`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
         // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
@@ -443,7 +439,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block hash`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
@@ -457,7 +453,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block number`() {
-        assumeTrue(IntegrationConfig.isTestEnabled(requiresGas = false))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
         val blockNumber = 310252
