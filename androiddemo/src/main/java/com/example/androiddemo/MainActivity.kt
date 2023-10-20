@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
     // Create a provider for interacting with Starknet
     private val provider = JsonRpcProvider(
-        url = BuildConfig.RPC_URL,
+        url = BuildConfig.DEMO_RPC_URL,
         chainId = StarknetChainId.TESTNET,
     )
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -54,9 +54,9 @@ class MainActivity : AppCompatActivity() {
         val refreshReceiptButton = findViewById<Button>(R.id.REFRESH_RECEIPT_BUTTON)
 
         // Pre-set account details
-        accountAddressInput.setText(BuildConfig.ACCOUNT_ADDRESS)
-        privateKeyInput.setText(BuildConfig.PRIVATE_KEY)
-        recipientAddressInput.setText(BuildConfig.RECIPIENT_ACCOUNT_ADDRESS)
+        accountAddressInput.setText(BuildConfig.DEMO_ACCOUNT_ADDRESS)
+        privateKeyInput.setText(BuildConfig.DEMO_PRIVATE_KEY)
+        recipientAddressInput.setText(BuildConfig.DEMO_RECIPIENT_ACCOUNT_ADDRESS)
 
         // Calculate hashes using crypto libs and display them in the UI
         val pedersen = StarknetCurve.pedersen(Felt(1), Felt(2))

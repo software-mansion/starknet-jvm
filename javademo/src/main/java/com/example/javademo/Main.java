@@ -27,9 +27,9 @@ import java.util.List;
 public class Main {
     private static class DemoConfig {
         // Please set the environment variables or replace with actual values manually
-        public static String rpcNodeUrl = System.getenv().getOrDefault("STARKNET_RPC_URL", "https://example-node-url.com/rpc");
-        public static String accountAddress = System.getenv().getOrDefault("STARKNET_ACCOUNT_ADDRESS", "0x123456");
-        public static String accountPrivateKey = System.getenv().getOrDefault("STARKNET_PRIVATE_KEY", "0x789");
+        public static String rpcNodeUrl = System.getenv().getOrDefault("DEMO_RPC_URL", "https://example-node-url.com/rpc");
+        public static String accountAddress = System.getenv().getOrDefault("DEMO_ACCOUNT_ADDRESS", "0x123456");
+        public static String accountPrivateKey = System.getenv().getOrDefault("DEMO_PRIVATE_KEY", "0x789");
     }
 
     public static void main(String[] args) throws Exception {
