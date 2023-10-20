@@ -1,8 +1,8 @@
-package network.utils
+package integration.utils
 
 import com.swmansion.starknet.data.types.Felt
 
-class NetworkConfig {
+class IntegrationConfig {
     data class Config(
         val rpcUrl: String,
         val gatewayUrl: String = DEFAULT_GATEWAY_URL,
@@ -18,35 +18,35 @@ class NetworkConfig {
         }
     }
 
-    enum class NetworkTestMode {
+    enum class IntegrationTestMode {
         DISABLED,
         NON_GAS,
         ALL;
 
         companion object {
             @JvmStatic
-            fun fromString(value: String): NetworkTestMode {
+            fun fromString(value: String): IntegrationTestMode {
                 return values().firstOrNull { it.name.equals(value, ignoreCase = true) } ?: DISABLED
             }
         }
     }
 
     companion object {
-        private val testMode: NetworkTestMode =
-            NetworkTestMode.fromString(System.getProperty("networkTestMode") ?: "disabled")
+        private val integrationTestMode: IntegrationTestMode =
+            IntegrationTestMode.fromString(System.getProperty("integrationTestMode") ?: "disabled")
 
         @JvmStatic
         fun isTestEnabled(requiresGas: Boolean): Boolean {
-            return when (testMode) {
-                NetworkTestMode.DISABLED -> false
-                NetworkTestMode.NON_GAS -> !requiresGas
-                NetworkTestMode.ALL -> true
+            return when (integrationTestMode) {
+                IntegrationTestMode.DISABLED -> false
+                IntegrationTestMode.NON_GAS -> !requiresGas
+                IntegrationTestMode.ALL -> true
             }
         }
 
         @JvmStatic
         private fun makeConfigFromEnv(): Config {
-            if (testMode == NetworkTestMode.DISABLED) {
+            if (integrationTestMode == IntegrationTestMode.DISABLED) {
                 return Config(
                     rpcUrl = "",
                     gatewayUrl = "",
@@ -58,17 +58,17 @@ class NetworkConfig {
 
             val env = System.getenv()
             return Config(
-                rpcUrl = env.getOrElse("STARKNET_RPC_URL") { throw RuntimeException("STARKNET_RPC_URL not found in environment variables") },
-                gatewayUrl = env.getOrDefault("STARKNET_GATEWAY_URL", Config.DEFAULT_GATEWAY_URL),
-                feederGatewayUrl = env.getOrDefault("STARKNET_JVM_STARKNET_FEEDER_GATEWAY_URL", Config.DEFAULT_FEEDER_GATEWAY_URL),
+                rpcUrl = env.getOrElse("INTEGRATION_RPC_URL") { throw RuntimeException("INTEGRATION_RPC_URL not found in environment variables") },
+                gatewayUrl = env.getOrDefault("INTEGRATION_GATEWAY_URL", Config.DEFAULT_GATEWAY_URL),
+                feederGatewayUrl = env.getOrDefault("STARKNET_JVM_INTEGRATION_FEEDER_GATEWAY_URL", Config.DEFAULT_FEEDER_GATEWAY_URL),
                 accountAddress = Felt.fromHex(
-                    env.getOrElse("STARKNET_ACCOUNT_ADDRESS") { throw RuntimeException("STARKNET_ACCOUNT_ADDRESS not found in environment variables") },
+                    env.getOrElse("INTEGRATION_ACCOUNT_ADDRESS") { throw RuntimeException("INTEGRATION_ACCOUNT_ADDRESS not found in environment variables") },
                 ),
                 privateKey = Felt.fromHex(
-                    env.getOrElse("STARKNET_PRIVATE_KEY") { throw RuntimeException("STARKNET_PRIVATE_KEY not found in environment variables") },
+                    env.getOrElse("INTEGRATION_PRIVATE_KEY") { throw RuntimeException("INTEGRATION_PRIVATE_KEY not found in environment variables") },
                 ),
-                constNonceAccountAddress = env["STARKNET_CONST_NONCE_ACCOUNT_ADDRESS"]?.let { Felt.fromHex(it) },
-                constNoncePrivateKey = env["STARKNET_CONST_NONCE_PRIVATE_KEY"]?.let { Felt.fromHex(it) },
+                constNonceAccountAddress = env["INTEGRATION_CONST_NONCE_ACCOUNT_ADDRESS"]?.let { Felt.fromHex(it) },
+                constNoncePrivateKey = env["INTEGRATION_CONST_NONCE_PRIVATE_KEY"]?.let { Felt.fromHex(it) },
             )
         }
 

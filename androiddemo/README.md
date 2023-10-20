@@ -1,14 +1,8 @@
 # Android demo
 
 ## Prerequisites
-Running the demo requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file.
-Refer to the example config found in [test_variables.env.example](../test_variables.env.example).
-Out of the variables listed there, the following are required:
-- `STARKNET_RPC_URL` - RPC node URL
-- `STARKNET_ACCOUNT_ADDRESS` - account address
-- `STARKNET_ACCOUNT_PRIVATE_KEY` - account private key
-
-Alternatevily, you can modify [build.gradle.kts](build.gradle.kts) to set those variables:
+1. You will need to provide RPC node URL.
+To do that, you can either set `RPC_URL` environment variable or modify [build.gradle.kts](build.gradle.kts):
     ```gradle
     android {
         ...
@@ -19,4 +13,4 @@ Alternatevily, you can modify [build.gradle.kts](build.gradle.kts) to set those 
         }
     }
     ```
-To use all demo functionalities, your Starknet account should have some funds on it.
+2.  To use all demo functionalities, ou will need a Starknet account (its address and private key) with some funds on it.

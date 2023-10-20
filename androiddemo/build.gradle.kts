@@ -18,10 +18,10 @@ android {
 
         // Default values for demo purposes
         // You can manually change these values or set them via environment variables
-        buildConfigField("String", "STARKNET_RPC_URL", "\"${System.getenv("STARKNET_RPC_URL") ?: "http://example-node-url.com/rpc"}\"")
-        buildConfigField("String", "STARKNET_ACCOUNT_ADDRESS", "\"${System.getenv("STARKNET_ACCOUNT_ADDRESS") ?: "0x12345"}\"")
-        buildConfigField("String", "STARKNET_PRIVATE_KEY", "\"${System.getenv("STARKNET_PRIVATE_KEY") ?: "0x123"}\"")
-        buildConfigField("String", "STARKNET_RECIPIENT_ACCOUNT_ADDRESS", "\"${System.getenv("STARKNET_RECIPIENT_ACCOUNT_ADDRESS") ?: "0x789"}\"")
+        buildConfigField("String", "RPC_URL", "\"${System.getenv("RPC_URL") ?: "http://example-node-url.com/rpc"}\"")
+        buildConfigField("String", "ACCOUNT_ADDRESS", "\"${System.getenv("ACCOUNT_ADDRESS") ?: "0x12345"}\"")
+        buildConfigField("String", "PRIVATE_KEY", "\"${System.getenv("PRIVATE_KEY") ?: "0x123"}\"")
+        buildConfigField("String", "RECIPIENT_ACCOUNT_ADDRESS", "\"${System.getenv("RECIPIENT_ACCOUNT_ADDRESS") ?: "0x789"}\"")
     }
 
     buildTypes {
