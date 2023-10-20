@@ -61,6 +61,9 @@ data class TypedData private constructor(
     init {
         require("felt" !in types) { "Types must not contain felt." }
         require("felt*" !in types) { "Types must not contain felt*." }
+        require("string" !in types) { "Types must not contain string." }
+        require("selector" !in types) { "Types must not contain selector." }
+        require("merkletree" !in types) { "Types must not contain merkletree." }
     }
 
     constructor(
@@ -159,6 +162,16 @@ data class TypedData private constructor(
 
         if (typeName == "felt") {
             return "felt" to valueFromPrimitive(value.jsonPrimitive)
+        }
+
+        if (typeName == "string"){
+            throw NotImplementedError("string type is not supported yet.")
+        }
+        if (typeName == "selector"){
+            throw NotImplementedError("selector type is not supported yet.")
+        }
+        if (typeName == "merkletree"){
+            throw NotImplementedError("merkletree type is not supported yet.")
         }
 
         throw IllegalArgumentException("Type [$typeName] is not defined in types.")
