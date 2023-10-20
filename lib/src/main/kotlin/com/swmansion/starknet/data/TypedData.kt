@@ -221,7 +221,7 @@ data class TypedData private constructor(
         /**
          * Create TypedData from JSON string.
          *
-         * @param typedData json of typed data
+         * @param typedData json string of typed data
          */
         @JvmStatic
         fun fromJsonString(typedData: String): TypedData =
