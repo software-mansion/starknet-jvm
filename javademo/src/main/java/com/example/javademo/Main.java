@@ -141,7 +141,6 @@ public class Main {
         String casmCode = String.join("", Files.readAllLines(casmPath));
         Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
         CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
-        // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
