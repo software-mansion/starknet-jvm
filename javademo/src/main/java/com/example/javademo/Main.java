@@ -66,8 +66,8 @@ public class Main {
         // Make sure that the transaction succeeded
         Request<? extends TransactionReceipt> receiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
         TransactionReceipt receipt = receiptRequest.send();
-        Boolean isAccepted = receipt.isAccepted();
-        System.out.println(isAccepted);
+        boolean isAccepted = receipt.isAccepted();
+        System.out.println("Was invoke transaction accepted? " + isAccepted + ".");
 
         // Call contract (Get ETH balance)
         Call call = new Call(erc20ContractAddress, "balanceOf", List.of(account.getAddress()));
@@ -76,7 +76,7 @@ public class Main {
         List<Felt> callResponse = callRequest.send();
         // Output value's type is UInt256 and is represented by two Felt values
         Uint256 balance = new Uint256(callResponse.get(0), callResponse.get(1));
-        System.out.println(balance);
+        System.out.println("Balance: " + balance + " wei.");
 
         // Declare Cairo 0 contract
         // Aside from contract code, you will additionaly need to provide classHash of said contract
@@ -99,6 +99,12 @@ public class Main {
         DeployContractResult deployContractResult = deployContract(account, provider, cairo0ContractClassHash, Collections.emptyList());
         Felt deployedContractAddress = deployContractResult.contractAddress;
         Thread.sleep(15000); // Wait for deploy tx to complete
+        Request<? extends TransactionReceipt> deployReceiptRequest = provider.getTransactionReceipt(deployContractResult.transactionHash);
+        TransactionReceipt deployReceipt = deployReceiptRequest.send();
+        boolean isDeployAccepted = deployReceipt.isAccepted();
+        System.out.println("Was deploy transaction accepted? " + isDeployAccepted + ".");
+        System.out.println("Deployed contract address: " + deployedContractAddress + ".");
+
 
         // Manually sign a hash
         Felt hash = Felt.fromHex("0x121212121212");
@@ -111,7 +117,7 @@ public class Main {
 
         // Verify a signature
         boolean isCorrect = StarknetCurve.verify(publicKey, hash, r, s);
-        System.out.println(isCorrect);
+        System.out.println("Is signature correct? " + isCorrect + ".");
     }
 
     private static DeclareResponse declareCairo0Contract(Account account, Provider provider, Path contractPath, Felt classHash) throws IOException {
