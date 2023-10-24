@@ -16,7 +16,7 @@
   * [Example usages](#example-usages)
     * [Making synchronous requests](#making-synchronous-requests)
     * [Making asynchronous requests](#making-asynchronous-requests)
-    * [Standard flow exampels](#standard-flow-exampels)
+    * [Standard flow examples](#standard-flow-examples)
   * [Demo applications](#demo-applications)
     * [Android demo](#android-demo)
     * [Java demo](#java-demo)
@@ -112,7 +112,7 @@ public class Main {
 }
 ```
 
-### Standard flow exampels
+### Standard flow examples
 
 - [Deploying account](lib/starknet-jvm.md#deploying-account)
 - [Invoking contract: Transfering ETH](lib/starknet-jvm.md#invoking-contract-transfering-eth)
