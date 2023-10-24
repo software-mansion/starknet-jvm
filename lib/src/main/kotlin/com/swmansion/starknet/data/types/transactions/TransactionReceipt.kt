@@ -4,13 +4,10 @@ import com.swmansion.starknet.data.types.Event
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MessageL1ToL2
 import com.swmansion.starknet.data.types.MessageL2ToL1
+import com.swmansion.starknet.data.types.NumAsHex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
-
-enum class TransactionReceiptType {
-    DECLARE, DEPLOY, INVOKE, PENDING, PENDING_DEPLOY, GATEWAY, DEPLOY_ACCOUNT, L1_HANDLER
-}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -43,6 +40,7 @@ enum class TransactionExecutionStatus {
     @JsonNames("REVERTED")
     REVERTED,
 
+    // Not in RPC spec
     @JsonNames("REJECTED")
     REJECTED,
 }
@@ -56,9 +54,11 @@ enum class TransactionFinalityStatus {
     @JsonNames("ACCEPTED_ON_L2")
     ACCEPTED_ON_L2,
 
+    // Not in RPC spec
     @JsonNames("RECEIVED", "PENDING")
     RECEIVED,
 
+    // Not in RPC spec
     @JsonNames("NOT_RECEIVED", "UNKNOWN")
     NOT_RECEIVED,
 }
@@ -66,8 +66,8 @@ enum class TransactionFinalityStatus {
 @Serializable
 sealed class TransactionReceipt {
     abstract val hash: Felt
-    abstract val actualFee: Felt?
-    abstract val type: TransactionReceiptType
+    abstract val type: TransactionType?
+    abstract val actualFee: Felt
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
     abstract val revertReason: String?
@@ -79,15 +79,18 @@ sealed class TransactionReceipt {
             executionStatus == TransactionExecutionStatus.SUCCEEDED &&
                 (finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
             )
+    abstract val isPending: Boolean
 }
 
 @Serializable
 sealed class ProcessedTransactionReceipt : TransactionReceipt() {
-    abstract val blockHash: Felt?
-    abstract val blockNumber: Int?
+    abstract val blockHash: Felt
+    abstract val blockNumber: Int
+    override val isPending: Boolean = false
+}
 
-    val isPending: Boolean
-        get() = blockHash == null || blockNumber == null
+sealed class PendingTransactionReceipt : TransactionReceipt() {
+    override val isPending: Boolean = true
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -116,13 +119,13 @@ data class GatewayTransactionReceipt(
     override val hash: Felt,
 
     @JsonNames("actual_fee")
-    override val actualFee: Felt? = null,
+    override val actualFee: Felt,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt? = null,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int? = null,
+    override val blockNumber: Int,
 
     @JsonNames("status")
     val status: TransactionStatus = TransactionStatus.UNKNOWN,
@@ -139,14 +142,26 @@ data class GatewayTransactionReceipt(
     @JsonNames("transaction_failure_reason")
     val failureReason: GatewayFailureReason? = null,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.GATEWAY,
+    @JsonNames("type")
+    override val type: TransactionType? = null,
 ) : ProcessedTransactionReceipt()
+
+@Serializable
+sealed class RpcTransactionReceipt : ProcessedTransactionReceipt() {
+    abstract val executionResources: ExecutionResources
+    abstract override val type: TransactionType
+}
+
+@Serializable
+sealed class PendingRpcTransactionReceipt : PendingTransactionReceipt() {
+    abstract val executionResources: ExecutionResources
+    abstract override val type: TransactionType
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-// OptIn needed because @JsonNames is part of the experimental serialization api
-data class RpcTransactionReceipt(
-    @JsonNames("transaction_hash", "txn_hash")
+data class InvokeRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
     override val hash: Felt,
 
     @JsonNames("actual_fee")
@@ -159,12 +174,13 @@ data class RpcTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt?,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int?,
+    override val blockNumber: Int,
 
-    override val type: TransactionReceiptType,
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.INVOKE,
 
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -175,12 +191,183 @@ data class RpcTransactionReceipt(
     @JsonNames("events")
     override val events: List<Event>,
 
-) : ProcessedTransactionReceipt()
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+) : RpcTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+sealed class PendingInvokeRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.INVOKE,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+) : PendingTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class DeclareRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus,
+
+    @JsonNames("block_hash")
+    override val blockHash: Felt,
+
+    @JsonNames("block_number")
+    override val blockNumber: Int,
+
+    override val type: TransactionType = TransactionType.DECLARE,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+) : RpcTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+sealed class PendingDeclareRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.DECLARE,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("contract_address")
+    val contractAddress: Felt,
+) : PendingTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class DeployAccountRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus,
+
+    @JsonNames("block_hash")
+    override val blockHash: Felt,
+
+    @JsonNames("block_number")
+    override val blockNumber: Int,
+
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+
+    @JsonNames("contract_address")
+    val contractAddress: Felt,
+) : RpcTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class PendingDeployAccountRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+
+    @JsonNames("contract_address")
+    val contractAddress: Felt,
+) : PendingRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeployRpcTransactionReceipt(
-    @JsonNames("transaction_hash", "txn_hash")
+    @JsonNames("transaction_hash")
     override val hash: Felt,
 
     @JsonNames("actual_fee")
@@ -193,12 +380,13 @@ data class DeployRpcTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt?,
+    override val blockHash: Felt,
 
     @JsonNames("block_number")
-    override val blockNumber: Int?,
+    override val blockNumber: Int,
 
-    override val type: TransactionReceiptType,
+    @JsonNames("type")
+    override val type: TransactionType,
 
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -208,15 +396,58 @@ data class DeployRpcTransactionReceipt(
 
     @JsonNames("events")
     override val events: List<Event>,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
-) : ProcessedTransactionReceipt()
+) : RpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class PendingRpcTransactionReceipt(
-    @JsonNames("transaction_hash", "txn_hash")
+data class L1HandlerRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
+    override val hash: Felt,
+
+    @JsonNames("actual_fee")
+    override val actualFee: Felt,
+
+    @JsonNames("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("finality_status")
+    override val finalityStatus: TransactionFinalityStatus,
+
+    @JsonNames("block_hash")
+    override val blockHash: Felt,
+
+    @JsonNames("block_number")
+    override val blockNumber: Int,
+
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.L1_HANDLER,
+
+    @JsonNames("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @JsonNames("revert_reason", "revert_error")
+    override val revertReason: String? = null,
+
+    @JsonNames("events")
+    override val events: List<Event>,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+
+    @JsonNames("message_hash")
+    val messageHash: NumAsHex,
+) : RpcTransactionReceipt()
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class PendingL1HandlerRpcTransactionReceipt(
+    @JsonNames("transaction_hash")
     override val hash: Felt,
 
     @JsonNames("actual_fee")
@@ -228,7 +459,8 @@ data class PendingRpcTransactionReceipt(
     @JsonNames("events")
     override val events: List<Event>,
 
-    override val type: TransactionReceiptType = TransactionReceiptType.PENDING,
+    @JsonNames("type")
+    override val type: TransactionType = TransactionType.L1_HANDLER,
 
     @JsonNames("revert_reason", "revert_error")
     override val revertReason: String? = null,
@@ -239,34 +471,9 @@ data class PendingRpcTransactionReceipt(
     @JsonNames("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-) : TransactionReceipt()
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class PendingRpcDeployTransactionReceipt(
-    @JsonNames("transaction_hash", "txn_hash")
-    override val hash: Felt,
-
-    @JsonNames("actual_fee")
-    override val actualFee: Felt,
-
-    @JsonNames("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @JsonNames("events")
-    override val events: List<Event>,
-
-    override val type: TransactionReceiptType = TransactionReceiptType.PENDING_DEPLOY,
-
-    @JsonNames("revert_reason", "revert_error")
-    override val revertReason: String? = null,
-
-    @JsonNames("finality_status")
-    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
-
-    @JsonNames("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @JsonNames("contract_address")
-    val contractAddress: Felt? = null,
-) : TransactionReceipt()
+    @JsonNames("message_hash")
+    val messageHash: Felt,
+) : PendingRpcTransactionReceipt()
