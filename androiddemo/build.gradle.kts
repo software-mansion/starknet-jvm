@@ -46,21 +46,6 @@ kotlinter {
     disabledRules = arrayOf("no-wildcard-imports")
 }
 
-val buildCrypto = task<Exec>("BuildCrypto") {
-    commandLine("${project.projectDir}/build_crypto.sh")
-}
-
-tasks.withType<Test>().configureEach {
-    dependsOn(buildCrypto)
-
-    doFirst {
-        val libsSharedPath = file("$buildDir/libs/shared").absolutePath
-        val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
-        val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
-        systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
-    }
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.2")
