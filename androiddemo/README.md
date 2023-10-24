@@ -22,4 +22,5 @@ Alternatevily, you can modify [build.gradle.kts](build.gradle.kts) to set those 
         }
     }
     ```
-To use all demo functionalities, your Starknet account should have some funds on it.
+To use all demo functionalities, your Starknet account should have some funds on it. 
+If you're using **testnet**, you can obtain some funds from the [faucet](https://faucet.goerli.starknet.io/).

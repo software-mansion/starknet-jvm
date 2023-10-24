@@ -9,3 +9,4 @@
 The path to compiled contract and class hash should be set manually in [Main.java](src/main/java/com/example/javademo/Main.java)
 
 To use all demo functionalities, your Starknet account should have some funds on it.
+If you're using **testnet**, you can obtain some funds from the [faucet](https://faucet.goerli.starknet.io/).
