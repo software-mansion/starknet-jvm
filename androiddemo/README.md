@@ -2,6 +2,7 @@
 <p align="center">
     <img src="demo.png" alt="demo" width="417">
 </p>
+
 ## Prerequisites
 Running the demo requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file.
 Refer to the example config found in [test_variables.env.example](../test_variables.env.example).
