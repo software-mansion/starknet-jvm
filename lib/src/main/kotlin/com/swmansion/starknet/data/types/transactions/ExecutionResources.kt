@@ -1,35 +1,35 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.NumAsHex
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ExecutionResources(
     @SerialName("steps")
-    val steps: Felt,
+    val steps: NumAsHex,
 
     @SerialName("memory_holes")
-    val memoryHoles: Felt? = null,
+    val memoryHoles: NumAsHex? = null,
 
     @SerialName("range_check_builtin_applications")
-    val rangeCheckApplications: Felt,
+    val rangeCheckApplications: NumAsHex,
 
     @SerialName("pedersen_builtin_applications")
-    val pedersenApplications: Felt,
+    val pedersenApplications: NumAsHex,
 
     @SerialName("poseidon_builtin_applications")
-    val poseidonApplications: Felt,
+    val poseidonApplications: NumAsHex,
 
     @SerialName("ec_op_builtin_applications")
-    val ecOpApplications: Felt,
+    val ecOpApplications: NumAsHex,
 
     @SerialName("ecdsa_builtin_applications")
-    val ecdsaApplications: Felt,
+    val ecdsaApplications: NumAsHex,
 
     @SerialName("bitwise_builtin_applications")
-    val bitwiseApplications: Felt,
+    val bitwiseApplications: NumAsHex,
 
     @SerialName("keccak_builtin_applications")
-    val keccakApplications: Felt,
+    val keccakApplications: NumAsHex,
 )

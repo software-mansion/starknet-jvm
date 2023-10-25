@@ -1,11 +1,16 @@
 package com.swmansion.starknet.extensions
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.NumAsHex
 import java.math.BigInteger
 
 @get:JvmSynthetic
 val BigInteger.toFelt: Felt
     get() = Felt(this)
+
+@get:JvmSynthetic
+val BigInteger.toNumAsHex: NumAsHex
+    get() = NumAsHex(this)
 
 @JvmSynthetic
 internal fun BigInteger.toBytes(): ByteArray {

@@ -42,13 +42,13 @@ data class DeployAccountResponse(
 @Serializable
 data class EstimateFeeResponse(
     @JsonNames("gas_consumed", "gas_usage")
-    val gasConsumed: Felt,
+    val gasConsumed: NumAsHex,
 
     @JsonNames("gas_price")
-    val gasPrice: Felt,
+    val gasPrice: NumAsHex,
 
     @JsonNames("overall_fee")
-    val overallFee: Felt,
+    val overallFee: NumAsHex,
 )
 
 @OptIn(ExperimentalSerializationApi::class)

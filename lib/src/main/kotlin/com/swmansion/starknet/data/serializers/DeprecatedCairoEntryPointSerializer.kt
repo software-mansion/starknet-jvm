@@ -1,7 +1,7 @@
 package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.DeprecatedCairoEntryPoint
-import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.extensions.toNumAsHex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -23,9 +23,9 @@ object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoi
 
         // This accepts both integer and hex string for offset,
         // as compiled contract code uses integer for this field, but the RPC spec requires NUM_AS_HEX.
-        val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toFelt
-            ?: jsonObject.getValue("offset").jsonPrimitive.content.toFelt
-        val selector = jsonObject.getValue("selector").jsonPrimitive.content.toFelt
+        val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toNumAsHex
+            ?: jsonObject.getValue("offset").jsonPrimitive.content.toNumAsHex
+        val selector = jsonObject.getValue("selector").jsonPrimitive.content.toNumAsHex
 
         return DeprecatedCairoEntryPoint(
             offset = offset,

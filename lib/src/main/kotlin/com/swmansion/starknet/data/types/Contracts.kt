@@ -81,8 +81,8 @@ data class StructAbiEntry(
 
 @Serializable(with = DeprecatedCairoEntryPointSerializer::class)
 data class DeprecatedCairoEntryPoint(
-    val offset: Felt,
-    val selector: Felt,
+    val offset: NumAsHex,
+    val selector: NumAsHex,
 )
 
 @Serializable
