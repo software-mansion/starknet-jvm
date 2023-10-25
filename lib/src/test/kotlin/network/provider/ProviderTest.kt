@@ -64,6 +64,18 @@ class ProviderTest {
     }
 
     @Test
+    fun `get spec version`() {
+        val provider = rpcProvider
+        val request = provider.getSpecVersion()
+        val specVersion = request.send()
+
+        assertNotEquals(0, specVersion.length)
+
+        val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
+        assertTrue(validPattern.containsMatchIn(specVersion))
+    }
+
+    @Test
     fun `estimate message fee`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 

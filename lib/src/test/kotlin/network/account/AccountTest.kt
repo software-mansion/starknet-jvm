@@ -119,19 +119,7 @@ class AccountTest {
         @AfterAll
         fun after() {}
     }
-
-    @Test
-    fun `get spec version`() {
-        val provider = rpcProvider
-        val request = provider.getSpecVersion()
-        val specVersion = request.send()
-
-        assertNotEquals(0, specVersion.length)
-
-        val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
-        assertTrue(validPattern.containsMatchIn(specVersion))
-    }
-
+    
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
