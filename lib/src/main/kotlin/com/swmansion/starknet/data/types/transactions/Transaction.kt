@@ -8,6 +8,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
+typealias DeployAccountTransactionV1 = DeployAccountTransaction
+
 @JvmSynthetic
 internal val INVOKE_VERSION = Felt.ONE
 
@@ -174,16 +176,20 @@ data class InvokeTransactionV0(
 
 @Serializable
 @SerialName("DECLARE")
-sealed class DeclareTransaction() : Transaction()
+sealed class DeclareTransaction() : Transaction() {
+    abstract val classHash: Felt
+    abstract val senderAddress: Felt
+    override val type: TransactionType = TransactionType.DECLARE
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareTransactionV0(
     @SerialName("class_hash")
-    val classHash: Felt? = null,
+    override val classHash: Felt,
 
     @SerialName("sender_address")
-    val senderAddress: Felt,
+    override val senderAddress: Felt,
 
     // not in RPC spec
     @SerialName("transaction_hash")
@@ -202,9 +208,6 @@ data class DeclareTransactionV0(
     @SerialName("nonce")
     override val nonce: Felt = Felt.ZERO,
 
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
-
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
 ) : DeclareTransaction()
@@ -213,10 +216,10 @@ data class DeclareTransactionV0(
 @Serializable
 data class DeclareTransactionV1(
     @SerialName("class_hash")
-    val classHash: Felt? = null,
+    override val classHash: Felt,
 
     @SerialName("sender_address")
-    val senderAddress: Felt,
+    override val senderAddress: Felt,
 
     // not in RPC spec
     @SerialName("transaction_hash")
@@ -234,9 +237,6 @@ data class DeclareTransactionV1(
 
     @SerialName("nonce")
     override val nonce: Felt,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
@@ -262,10 +262,10 @@ data class DeclareTransactionV1(
 @SerialName("DECLARE")
 data class DeclareTransactionV2(
     @SerialName("class_hash")
-    val classHash: Felt? = null,
+    override val classHash: Felt,
 
     @SerialName("sender_address")
-    val senderAddress: Felt,
+    override val senderAddress: Felt,
 
     // not in RPC spec
     @SerialName("transaction_hash")
@@ -289,9 +289,6 @@ data class DeclareTransactionV2(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransaction() {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
