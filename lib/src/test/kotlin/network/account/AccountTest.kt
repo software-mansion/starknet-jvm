@@ -16,7 +16,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -119,7 +118,7 @@ class AccountTest {
         @AfterAll
         fun after() {}
     }
-    
+
     @ParameterizedTest
     @MethodSource("getConstNonceAccounts")
     fun `estimate fee for invoke transaction`(accountAndProvider: AccountAndProvider) {
