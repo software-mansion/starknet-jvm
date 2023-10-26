@@ -15,7 +15,7 @@ import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = DeprecatedCairoEntryPoint::class)
-object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
+internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
     override fun deserialize(decoder: Decoder): DeprecatedCairoEntryPoint {
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
 

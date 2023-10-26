@@ -12,7 +12,7 @@ import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = TransactionPayload::class)
-object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
+internal object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
 
     override val descriptor: SerialDescriptor
         get() = TransactionPayload.serializer().descriptor
