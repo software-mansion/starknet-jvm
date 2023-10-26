@@ -444,15 +444,15 @@ object TransactionFactory {
             nonce = nonce,
         )
         return DeployAccountTransactionV1(
-                classHash = classHash,
-                contractAddress = contractAddress,
-                contractAddressSalt = salt,
-                constructorCalldata = calldata,
-                version = version,
-                nonce = nonce,
-                maxFee = maxFee,
-                hash = hash,
-                signature = signature,
+            classHash = classHash,
+            contractAddress = contractAddress,
+            contractAddressSalt = salt,
+            constructorCalldata = calldata,
+            version = version,
+            nonce = nonce,
+            maxFee = maxFee,
+            hash = hash,
+            signature = signature,
         )
     }
 
