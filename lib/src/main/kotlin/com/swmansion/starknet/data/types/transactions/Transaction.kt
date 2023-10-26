@@ -8,7 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
-typealias DeployAccountTransactionV1 = DeployAccountTransaction
+typealias DeployAccountTransaction = DeployAccountTransactionV1
 
 @JvmSynthetic
 internal val INVOKE_VERSION = Felt.ONE
@@ -343,7 +343,7 @@ data class L1HandlerTransaction(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY_ACCOUNT")
-data class DeployAccountTransaction(
+data class DeployAccountTransactionV1(
     @SerialName("class_hash")
     @JsonNames("class_hash")
     val classHash: Felt,
@@ -433,7 +433,7 @@ object TransactionFactory {
         maxFee: Felt = Felt.ZERO,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
-    ): DeployAccountTransaction {
+    ): DeployAccountTransactionV1 {
         val hash = TransactionHashCalculator.calculateDeployAccountTxHash(
             classHash = classHash,
             calldata = calldata,
@@ -443,16 +443,16 @@ object TransactionFactory {
             maxFee = maxFee,
             nonce = nonce,
         )
-        return DeployAccountTransaction(
-            classHash = classHash,
-            contractAddress = contractAddress,
-            contractAddressSalt = salt,
-            constructorCalldata = calldata,
-            version = version,
-            nonce = nonce,
-            maxFee = maxFee,
-            hash = hash,
-            signature = signature,
+        return DeployAccountTransactionV1(
+                classHash = classHash,
+                contractAddress = contractAddress,
+                contractAddressSalt = salt,
+                constructorCalldata = calldata,
+                version = version,
+                nonce = nonce,
+                maxFee = maxFee,
+                hash = hash,
+                signature = signature,
         )
     }
 

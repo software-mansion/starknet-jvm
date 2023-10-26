@@ -3,21 +3,24 @@ package com.swmansion.starknet.data.serializers
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSerializer<Transaction>(Transaction::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Transaction> =
-        // pick deserializer based on transaction type field
-        when (element.jsonObject["type"]?.jsonPrimitive?.content) {
-            "INVOKE_FUNCTION" -> selectInvokeDeserializer(element)
-            "INVOKE" -> selectInvokeDeserializer(element)
-            "DECLARE" -> selectDeclareDeserializer(element)
-            "DEPLOY" -> DeployTransaction.serializer()
-            "DEPLOY_ACCOUNT" -> DeployAccountTransaction.serializer()
-            "L1_HANDLER" -> L1HandlerTransaction.serializer()
-            else -> throw IllegalArgumentException("Invalid transaction type '${element.jsonObject["type"]?.jsonPrimitive?.content}'")
-        }
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Transaction> {
+        val jsonElement = element.jsonObject
+        val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
+        val type = Json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
+
+        return when (type) {
+            TransactionType.INVOKE -> selectInvokeDeserializer(element)
+            TransactionType.DECLARE -> selectDeclareDeserializer(element)
+            TransactionType.DEPLOY_ACCOUNT -> DeployTransaction.serializer()
+            TransactionType.DEPLOY -> selectDeployAccountDeserializer(element)
+            TransactionType.L1_HANDLER -> L1HandlerTransaction.serializer()
+        }
+    }
     private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> =
         when (element.jsonObject["version"]?.jsonPrimitive?.content) {
             Felt.ONE.hexString() -> InvokeTransactionV1.serializer()
@@ -31,5 +34,10 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
             Felt(2).hexString() -> DeclareTransactionV2.serializer()
             else -> throw IllegalArgumentException("Invalid declare transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
+        }
+    private fun selectDeployAccountDeserializer(element: JsonElement): DeserializationStrategy<out DeployAccountTransaction> =
+        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
+            Felt.ONE.hexString() -> DeployAccountTransactionV1.serializer()
+            else -> throw IllegalArgumentException("Invalid deploy account transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
         }
 }
