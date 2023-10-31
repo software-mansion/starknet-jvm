@@ -1,6 +1,8 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toCalldata
+import com.swmansion.starknet.extensions.toFelt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -67,22 +69,30 @@ internal class FeltTest {
     }
 
     @Test
-    fun `felt collection is convertible to calldata`() {
-        val feltCollection: Collection<Felt> = listOf(Felt(100), Felt(200))
-        val calldata = feltCollection.toCalldata()
-
-        assertEquals(Felt(2), calldata[0])
-        assertEquals(Felt(100), calldata[1])
-        assertEquals(Felt(200), calldata[2])
-    }
-
-    @Test
     fun `felt array is convertible to calldata`() {
-        val feltArray: Array<Felt> = arrayOf(Felt(100), Felt(200))
-        val calldata = feltArray.toCalldata()
+        val convertibleToCalldata = ArrayList<ConvertibleToCalldata>()
 
-        assertEquals(Felt(2), calldata[0])
-        assertEquals(Felt(100), calldata[1])
-        assertEquals(Felt(200), calldata[2])
+        val feltArray1 = FeltArray(Felt(100), Felt(200))
+        val feltArray2 = FeltArray(listOf(Felt(300), Felt(400)))
+        feltArray2.add(Felt(500))
+        val emptyFeltArray = FeltArray()
+
+        convertibleToCalldata.add(Felt(15))
+        convertibleToCalldata.add(feltArray1.size.toFelt)
+        convertibleToCalldata.add(feltArray1)
+        convertibleToCalldata.add(feltArray2.size.toFelt)
+        convertibleToCalldata.add(feltArray2)
+        convertibleToCalldata.add(emptyFeltArray.size.toFelt)
+        convertibleToCalldata.add(emptyFeltArray)
+
+        val calldata = convertibleToCalldata.toCalldata()
+
+        val expectedCalldata = listOf(
+            Felt(15),
+            Felt(2), Felt(100), Felt(200),
+            Felt(3), Felt(300), Felt(400), Felt(500),
+            Felt(0),
+        )
+        assertEquals(expectedCalldata, calldata)
     }
 }
