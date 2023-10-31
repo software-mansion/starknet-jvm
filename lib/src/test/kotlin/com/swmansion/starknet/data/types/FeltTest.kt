@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.extensions.toCalldata
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -63,5 +64,25 @@ internal class FeltTest {
         val decoded = Felt.fromHex("0xa68656c6c6f").toShortString()
 
         assertEquals("\nhello", decoded)
+    }
+
+    @Test
+    fun `felt collection is convertible to calldata`() {
+        val feltCollection: Collection<Felt> = listOf(Felt(100), Felt(200))
+        val calldata = feltCollection.toCalldata()
+
+        assertEquals(Felt(2), calldata[0])
+        assertEquals(Felt(100), calldata[1])
+        assertEquals(Felt(200), calldata[2])
+    }
+
+    @Test
+    fun `felt array is convertible to calldata`() {
+        val feltArray: Array<Felt> = arrayOf(Felt(100), Felt(200))
+        val calldata = feltArray.toCalldata()
+
+        assertEquals(Felt(2), calldata[0])
+        assertEquals(Felt(100), calldata[1])
+        assertEquals(Felt(200), calldata[2])
     }
 }
