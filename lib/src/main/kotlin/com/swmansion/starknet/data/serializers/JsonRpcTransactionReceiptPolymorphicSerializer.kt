@@ -16,23 +16,23 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
 
         return when (type) {
             TransactionType.DEPLOY -> when (isPending) {
-                false -> DeployRpcTransactionReceipt.serializer()
+                false -> ProcessedDeployRpcTransactionReceipt.serializer()
                 true -> throw SerializationException("Pending deploy transaction receipt is not supported")
             }
             TransactionType.DEPLOY_ACCOUNT -> when (isPending) {
-                false -> DeployAccountRpcTransactionReceipt.serializer()
+                false -> ProcessedDeployAccountRpcTransactionReceipt.serializer()
                 true -> PendingDeployAccountRpcTransactionReceipt.serializer()
             }
             TransactionType.INVOKE -> return when (isPending) {
-                false -> InvokeRpcTransactionReceipt.serializer()
+                false -> ProcessedInvokeRpcTransactionReceipt.serializer()
                 true -> PendingInvokeRpcTransactionReceipt.serializer()
             }
             TransactionType.DECLARE -> return when (isPending) {
-                false -> DeclareRpcTransactionReceipt.serializer()
+                false -> ProcessedDeclareRpcTransactionReceipt.serializer()
                 true -> PendingDeclareRpcTransactionReceipt.serializer()
             }
             TransactionType.L1_HANDLER -> return when (isPending) {
-                false -> L1HandlerRpcTransactionReceipt.serializer()
+                false -> ProcessedL1HandlerRpcTransactionReceipt.serializer()
                 true -> PendingL1HandlerRpcTransactionReceipt.serializer()
             }
         }
