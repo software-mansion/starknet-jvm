@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.DeprecatedCairoEntryPoint
-import com.swmansion.starknet.extensions.toNumAsHex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -12,6 +11,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import toNumAsHex
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = DeprecatedCairoEntryPoint::class)
