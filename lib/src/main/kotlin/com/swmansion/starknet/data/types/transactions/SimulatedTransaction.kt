@@ -3,9 +3,10 @@ package com.swmansion.starknet.data.types.transactions
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionTracePolymorphicSerializer
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.EstimateFeeResponse
-import com.swmansion.starknet.data.types.EventContent
+import com.swmansion.starknet.data.types.OrderedEvent
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL2ToL1
+import com.swmansion.starknet.data.types.OrderedMessageL2ToL1
+import com.swmansion.starknet.data.types.StateDiff
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -40,28 +41,28 @@ data class FunctionInvocation(
     val calldata: Calldata,
 
     @SerialName("caller_address")
-    val callerAddress: Felt?,
+    val callerAddress: Felt,
 
     @SerialName("class_hash")
-    val classHash: Felt?,
+    val classHash: Felt,
 
     @SerialName("entry_point_type")
-    val entryPointType: EntryPointType?,
+    val entryPointType: EntryPointType,
 
     @SerialName("call_type")
-    val callType: CallType?,
+    val callType: CallType,
 
     @SerialName("result")
-    val result: List<Felt>?,
+    val result: List<Felt>,
 
     @SerialName("calls")
-    val calls: List<FunctionInvocation>?,
+    val calls: List<FunctionInvocation>,
 
     @SerialName("events")
-    val events: List<EventContent>?,
+    val events: List<OrderedEvent>,
 
     @SerialName("messages")
-    val messages: List<MessageL2ToL1>?,
+    val messages: List<OrderedMessageL2ToL1>,
 )
 
 @Serializable
