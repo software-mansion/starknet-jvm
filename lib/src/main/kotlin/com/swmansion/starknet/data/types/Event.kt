@@ -28,6 +28,18 @@ data class EventContent(
     val data: List<Felt>,
 )
 
+@Serializable
+data class OrderedEvent(
+    @SerialName("order")
+    val order: Int,
+
+    @SerialName("keys")
+    val keys: List<Felt>,
+
+    @SerialName("data")
+    val data: List<Felt>,
+)
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EmittedEvent(
