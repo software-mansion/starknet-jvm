@@ -89,6 +89,7 @@ sealed class ProcessedTransactionReceipt : TransactionReceipt() {
     override val isPending: Boolean = false
 }
 
+@Serializable
 sealed class PendingTransactionReceipt : TransactionReceipt() {
     override val isPending: Boolean = true
 }
@@ -147,7 +148,7 @@ data class GatewayTransactionReceipt(
 ) : ProcessedTransactionReceipt()
 
 @Serializable
-sealed class RpcTransactionReceipt : ProcessedTransactionReceipt() {
+sealed class ProcessedRpcTransactionReceipt : ProcessedTransactionReceipt() {
     abstract val executionResources: ExecutionResources
     abstract override val type: TransactionType
 }
@@ -160,7 +161,7 @@ sealed class PendingRpcTransactionReceipt : PendingTransactionReceipt() {
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class InvokeRpcTransactionReceipt(
+data class ProcessedInvokeRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -193,11 +194,11 @@ data class InvokeRpcTransactionReceipt(
 
     @JsonNames("execution_resources")
     override val executionResources: ExecutionResources,
-) : RpcTransactionReceipt()
+) : ProcessedRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-sealed class PendingInvokeRpcTransactionReceipt(
+data class PendingInvokeRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -221,11 +222,14 @@ sealed class PendingInvokeRpcTransactionReceipt(
 
     @JsonNames("execution_status")
     override val executionStatus: TransactionExecutionStatus,
-) : PendingTransactionReceipt()
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
+) : PendingRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeclareRpcTransactionReceipt(
+data class ProcessedDeclareRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -257,11 +261,11 @@ data class DeclareRpcTransactionReceipt(
 
     @JsonNames("execution_resources")
     override val executionResources: ExecutionResources,
-) : RpcTransactionReceipt()
+) : ProcessedRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-sealed class PendingDeclareRpcTransactionReceipt(
+data class PendingDeclareRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -285,14 +289,17 @@ sealed class PendingDeclareRpcTransactionReceipt(
 
     @JsonNames("execution_status")
     override val executionStatus: TransactionExecutionStatus,
+
+    @JsonNames("execution_resources")
+    override val executionResources: ExecutionResources,
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
-) : PendingTransactionReceipt()
+) : PendingRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeployAccountRpcTransactionReceipt(
+data class ProcessedDeployAccountRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -328,7 +335,7 @@ data class DeployAccountRpcTransactionReceipt(
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
-) : RpcTransactionReceipt()
+) : ProcessedRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -366,7 +373,7 @@ data class PendingDeployAccountRpcTransactionReceipt(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class DeployRpcTransactionReceipt(
+data class ProcessedDeployRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -402,11 +409,11 @@ data class DeployRpcTransactionReceipt(
 
     @JsonNames("contract_address")
     val contractAddress: Felt,
-) : RpcTransactionReceipt()
+) : ProcessedRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class L1HandlerRpcTransactionReceipt(
+data class ProcessedL1HandlerRpcTransactionReceipt(
     @JsonNames("transaction_hash")
     override val hash: Felt,
 
@@ -442,7 +449,7 @@ data class L1HandlerRpcTransactionReceipt(
 
     @JsonNames("message_hash")
     val messageHash: NumAsHex,
-) : RpcTransactionReceipt()
+) : ProcessedRpcTransactionReceipt()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
