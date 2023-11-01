@@ -2,6 +2,7 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 internal object JsonRpcTransactionTracePolymorphicSerializer :
@@ -19,11 +20,14 @@ internal object JsonRpcTransactionTracePolymorphicSerializer :
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionTrace> {
         val jsonObject = element.jsonObject
 
-        return when {
-            "execute_invocation" in jsonObject -> selectInvokeTransactionTraceDeserializer(jsonObject)
-            "constructor_invocation" in jsonObject -> DeployAccountTransactionTrace.serializer()
-            "function_invocation" in jsonObject -> L1HandlerTransactionTrace.serializer()
-            listOf("validate_invocation", "fee_transfer_invocation").any { it in jsonObject } -> DeclareTransactionTrace.serializer()
+        val typeElement = jsonObject.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
+        val type = Json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
+
+        return when (type) {
+            TransactionType.INVOKE -> selectInvokeTransactionTraceDeserializer(jsonObject)
+            TransactionType.DEPLOY_ACCOUNT -> DeployAccountTransactionTrace.serializer()
+            TransactionType.L1_HANDLER -> L1HandlerTransactionTrace.serializer()
+            TransactionType.DECLARE -> DeclareTransactionTrace.serializer()
             else -> throw IllegalStateException("Unknown transaction trace type.")
         }
     }
