@@ -98,7 +98,7 @@ class AccountTest {
                         rpcProvider,
                     ),
                     rpcProvider,
-                )
+                ),
             )
         }
 
