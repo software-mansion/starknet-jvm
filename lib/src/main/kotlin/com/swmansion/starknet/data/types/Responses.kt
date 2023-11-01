@@ -34,8 +34,9 @@ data class DeployAccountResponse(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 
+    // TODO: (#344) deviation from the spec, make this non-nullable once Juno is updated
     @JsonNames("address", "contract_address")
-    val address: Felt,
+    val address: Felt? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
