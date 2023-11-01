@@ -29,6 +29,15 @@ private data class JsonRpcError(
 
     @SerialName("message")
     val message: String,
+
+    @SerialName("data")
+    val data: JsonRpcErrorData? = null,
+)
+
+@Serializable
+private data class JsonRpcErrorData(
+    @SerialName("revert_error")
+    val revertError: String,
 )
 
 @JvmSynthetic
@@ -50,6 +59,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
             throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
                 message = jsonRpcResponse.error.message,
+                revertError = jsonRpcResponse.error.data?.revertError,
                 payload = response.body,
             )
         }
