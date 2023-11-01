@@ -129,6 +129,8 @@ sealed class GetBlockWithTransactionsResponse {
     abstract val timestamp: Int
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
+    abstract val l1GasPrice: ResourcePrice
+    abstract val starknetVersion: String
 }
 
 @Serializable
@@ -163,6 +165,12 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
@@ -189,6 +197,12 @@ data class PendingBlockWithTransactionsResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse()
 
 sealed class GetBlockWithTransactionHashesResponse {
@@ -196,6 +210,8 @@ sealed class GetBlockWithTransactionHashesResponse {
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
     abstract val transactionHashes: List<Felt>
+    abstract val l1GasPrice: ResourcePrice
+    abstract val starknetVersion: String
 }
 
 @Serializable
@@ -227,6 +243,12 @@ data class BlockWithTransactionHashesResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
@@ -250,6 +272,12 @@ data class PendingBlockWithTransactionHashesResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
@@ -356,3 +384,12 @@ data class PendingStateUpdateResponse(
     @SerialName("state_diff")
     override val stateDiff: StateDiff,
 ) : StateUpdate()
+
+@Serializable
+data class ResourcePrice(
+    @SerialName("price_in_wei")
+    val priceInWei: NumAsHex,
+
+    @SerialName("price_in_strk")
+    val priceInStark: NumAsHex? = null,
+)
