@@ -16,8 +16,8 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         return when (type) {
             TransactionType.INVOKE -> selectInvokeDeserializer(element)
             TransactionType.DECLARE -> selectDeclareDeserializer(element)
-            TransactionType.DEPLOY_ACCOUNT -> DeployTransaction.serializer()
-            TransactionType.DEPLOY -> selectDeployAccountDeserializer(element)
+            TransactionType.DEPLOY_ACCOUNT -> DeployAccountTransactionV1.serializer()
+            TransactionType.DEPLOY -> DeployTransaction.serializer()
             TransactionType.L1_HANDLER -> L1HandlerTransaction.serializer()
         }
     }
@@ -34,10 +34,5 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
             Felt(2).hexString() -> DeclareTransactionV2.serializer()
             else -> throw IllegalArgumentException("Invalid declare transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
-        }
-    private fun selectDeployAccountDeserializer(element: JsonElement): DeserializationStrategy<out DeployAccountTransaction> =
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ONE.hexString() -> DeployAccountTransactionV1.serializer()
-            else -> throw IllegalArgumentException("Invalid deploy account transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
         }
 }
