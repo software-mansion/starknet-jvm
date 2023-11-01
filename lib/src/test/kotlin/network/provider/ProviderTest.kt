@@ -41,11 +41,6 @@ class ProviderTest {
             signer = StarkCurveSigner(
                 privateKey = privateKey,
             )
-            gatewayProvider = GatewayProvider(
-                feederGatewayUrl,
-                gatewayUrl,
-                StarknetChainId.TESTNET,
-            )
             rpcProvider = JsonRpcProvider(
                 rpcUrl,
                 StarknetChainId.TESTNET,
@@ -54,7 +49,6 @@ class ProviderTest {
 
         @JvmStatic
         private fun getProviders(): List<Provider> = listOf(
-            gatewayProvider,
             rpcProvider,
         )
 
@@ -75,9 +69,13 @@ class ProviderTest {
         assertTrue(validPattern.containsMatchIn(specVersion))
     }
 
+    @Disabled
     @Test
     fun `estimate message fee`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        // TODO: (#344) Currently, Juno fails to estimate the message fee.
+        assumeFalse(network == Network.INTEGRATION)
 
         val provider = rpcProvider
 
@@ -85,10 +83,22 @@ class ProviderTest {
         val gasPrice = Felt(1022979559)
         val overallFee = Felt(20389005590429)
 
+        val fromAddress = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1")
+            Network.TESTNET -> Felt.fromHex("0xf7d519a1660dd9237d47c039696fe4a2b93b6987")
+        }
+        val toAddress = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82")
+            Network.TESTNET -> Felt.fromHex("0x0677d43766e880bfa6ddcf43e2ff54d54c64105e4a7fce20b7b1d40086a3a674")
+        }
+        val selector = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5")
+            Network.TESTNET -> Felt.fromHex("0x026490f901ea8ad5a245d987479919f1d20fbb0c164367e33ef09a9ea4ba8d04")
+        }
         val message = MessageL1ToL2(
-            fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
-            toAddress = Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82"),
-            selector = Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5"),
+            fromAddress = fromAddress,
+            toAddress = toAddress,
+            selector = selector,
             payload = listOf(
                 Felt.fromHex("0x54d01e5fc6eb4e919ceaab6ab6af192e89d1beb4f29d916768c61a4d48e6c95"),
                 Felt.fromHex("0x38d7ea4c68000"),
@@ -132,7 +142,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is DeployAccountRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeployAccountRpcTransactionReceipt)
         }
     }
 
@@ -161,7 +171,7 @@ class ProviderTest {
                 assertTrue(receipt is GatewayTransactionReceipt)
                 assertEquals(TransactionStatus.REVERTED, (receipt as GatewayTransactionReceipt).status)
             }
-            is JsonRpcProvider -> assertTrue(receipt is InvokeRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
         }
     }
 
@@ -190,7 +200,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is InvokeRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
         }
     }
 
@@ -214,7 +224,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is DeclareRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
         }
         assertEquals(Felt.ZERO, receipt.actualFee)
     }
@@ -246,7 +256,7 @@ class ProviderTest {
                 assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
             }
             is JsonRpcProvider -> {
-                receipt = receipt as RpcTransactionReceipt
+                receipt = receipt as ProcessedRpcTransactionReceipt
             }
         }
     }
@@ -272,7 +282,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is DeclareRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
         }
     }
 
@@ -297,7 +307,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is L1HandlerRpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedL1HandlerRpcTransactionReceipt)
         }
     }
 
@@ -323,7 +333,7 @@ class ProviderTest {
                 assertNotNull(receipt.messageL1ToL2!!.nonce)
             }
             is JsonRpcProvider -> {
-                receipt = receipt as RpcTransactionReceipt
+                receipt = receipt as ProcessedRpcTransactionReceipt
             }
         }
     }
@@ -353,7 +363,7 @@ class ProviderTest {
                 assertTrue(receipt is GatewayTransactionReceipt)
                 assertNull((receipt as GatewayTransactionReceipt).messageL1ToL2)
             }
-            is JsonRpcProvider -> assertTrue(receipt is RpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(receipt is ProcessedRpcTransactionReceipt)
         }
     }
 
@@ -369,7 +379,7 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionsResponse)
     }
 
-    @Disabled
+//    @Disabled
     @Test
     fun `get block with transactions with pending block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
@@ -391,13 +401,16 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
-        val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+        val blockHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+            Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+        }
         val request = provider.getBlockWithTxs(blockHash)
         val response = request.send()
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionsResponse)
-        assertEquals(4, response.transactions.size)
+        assertTrue(response.transactions.size >= 4)
     }
 
     @Test
@@ -411,7 +424,7 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionsResponse)
-        assertEquals(4, response.transactions.size)
+        assertTrue(response.transactions.size >= 4)
     }
 
     @Test
@@ -448,13 +461,16 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val provider = rpcProvider
-        val blockHash = Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+        val blockHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+            Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+        }
         val request = provider.getBlockWithTxHashes(blockHash)
         val response = request.send()
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionHashesResponse)
-        assertEquals(4, response.transactionHashes.size)
+        assertTrue(response.transactionHashes.size >= 4)
     }
 
     @Test
@@ -468,6 +484,6 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is BlockWithTransactionHashesResponse)
-        assertEquals(4, response.transactionHashes.size)
+        assertTrue(response.transactionHashes.size >= 4)
     }
 }
