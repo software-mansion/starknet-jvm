@@ -26,10 +26,11 @@ import java.util.List;
 
 public class Main {
     private static class DemoConfig {
-        // Please set the environment variables or replace with actual values manually
-        public static String rpcNodeUrl = System.getenv().getOrDefault("DEMO_RPC_URL", "https://example-node-url.com/rpc");
-        public static String accountAddress = System.getenv().getOrDefault("DEMO_ACCOUNT_ADDRESS", "0x123456");
-        public static String accountPrivateKey = System.getenv().getOrDefault("DEMO_PRIVATE_KEY", "0x789");
+        // Make sure to run starknet-devnet-rs according to the instructions in README.md
+        // Alternatively, you can modify these values to use demo on a network other than devnet
+        public static String rpcNodeUrl = "http://127.0.0.1:5050/rpc";
+        public static String accountAddress = "0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b";
+        public static String accountPrivateKey = "0xa2ed22bb0cb0b49c69f6d6a8d24bc5ea";
     }
 
     public static void main(String[] args) throws Exception {
