@@ -121,7 +121,7 @@ public class Main {
 - [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
 
 ## Demo applications
-These demo apps can be used with any Starknet RPC node.
+These demo apps can be used with any Starknet RPC node, including devnet.
 They are intended for demonstration/testing purposes only. 
 ### [Android demo](androiddemo)
 ### [Java demo](javademo)

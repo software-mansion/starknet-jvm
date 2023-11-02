@@ -17,11 +17,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Default values for demo purposes
-        // You can manually change these values or set them via environment variables
-        buildConfigField("String", "DEMO_RPC_URL", "\"${System.getenv("DEMO_RPC_URL") ?: "http://example-node-url.com/rpc"}\"")
-        buildConfigField("String", "DEMO_ACCOUNT_ADDRESS", "\"${System.getenv("DEMO_ACCOUNT_ADDRESS") ?: "0x12345"}\"")
-        buildConfigField("String", "DEMO_PRIVATE_KEY", "\"${System.getenv("DEMO_PRIVATE_KEY") ?: "0x123"}\"")
-        buildConfigField("String", "DEMO_RECIPIENT_ACCOUNT_ADDRESS", "\"${System.getenv("DEMO_RECIPIENT_ACCOUNT_ADDRESS") ?: "0x789"}\"")
+        // You can manually change these values to interact with other networks
+        buildConfigField("String", "DEMO_RPC_URL", "\"http://10.0.2.2:5050/rpc\"")
+        buildConfigField("String", "DEMO_ACCOUNT_ADDRESS", "\"0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b\"")
+        buildConfigField("String", "DEMO_PRIVATE_KEY", "\"0xa2ed22bb0cb0b49c69f6d6a8d24bc5ea\"")
+        buildConfigField("String", "DEMO_RECIPIENT_ACCOUNT_ADDRESS", "\"0xc1c7db92d22ef773de96f8bde8e56c85\"")
     }
 
     buildTypes {
