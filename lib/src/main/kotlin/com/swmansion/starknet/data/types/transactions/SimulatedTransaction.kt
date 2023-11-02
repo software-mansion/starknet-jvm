@@ -80,7 +80,7 @@ sealed class TransactionTrace() {
 @Serializable
 sealed class InvokeTransactionTraceBase : TransactionTrace() {
     @SerialName("validate_invocation")
-    abstract val validateInvocation: FunctionInvocation?
+    abstract val validateInvocation: FunctionInvocation
 
     @SerialName("fee_transfer_invocation")
     abstract val feeTransferInvocation: FunctionInvocation?
