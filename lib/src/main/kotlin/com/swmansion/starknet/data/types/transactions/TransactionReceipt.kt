@@ -67,7 +67,7 @@ enum class TransactionFinalityStatus {
 sealed class TransactionReceipt {
     abstract val hash: Felt
     abstract val type: TransactionType?
-    abstract val actualFee: Felt
+    abstract val actualFee: Felt?
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
     abstract val revertReason: String?
@@ -120,7 +120,7 @@ data class GatewayTransactionReceipt(
     override val hash: Felt,
 
     @JsonNames("actual_fee")
-    override val actualFee: Felt,
+    override val actualFee: Felt? = null,
 
     @JsonNames("block_hash")
     val blockHash: Felt? = null,
