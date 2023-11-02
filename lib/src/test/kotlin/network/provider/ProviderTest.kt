@@ -59,6 +59,8 @@ class ProviderTest {
 
     @Test
     fun `get spec version`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
         val provider = rpcProvider
 
         val request = provider.getSpecVersion()
@@ -67,6 +69,31 @@ class ProviderTest {
         assertNotEquals(0, specVersion.length)
         val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
         assertTrue(validPattern.containsMatchIn(specVersion))
+    }
+
+    @Test
+    fun `get transaction status`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val provider = rpcProvider
+
+        val transactionHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
+            Network.TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
+        }
+        val transactionHash2 = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
+            Network.TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
+        }
+        val transactionStatus = provider.getTransactionStatus(transactionHash).send()
+        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        assertNotNull(transactionStatus.executionStatus)
+        assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
+
+        val transactionStatus2 = provider.getTransactionStatus(transactionHash2).send()
+        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
+        assertNotNull(transactionStatus2.executionStatus)
+        assertEquals(TransactionExecutionStatus.REVERTED, transactionStatus2.executionStatus)
     }
 
     @Disabled
@@ -379,7 +406,7 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionsResponse)
     }
 
-//    @Disabled
+    @Disabled
     @Test
     fun `get block with transactions with pending block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))

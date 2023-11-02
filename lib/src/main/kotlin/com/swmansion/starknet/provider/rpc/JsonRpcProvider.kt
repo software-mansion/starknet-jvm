@@ -149,6 +149,23 @@ class JsonRpcProvider(
         )
     }
 
+    /**
+     * Get transaction status
+     *
+     * Get a status of the transaction.
+     *
+     * @param transactionHash a hash of sent transaction
+     *
+     * @throws RequestFailedException
+     */
+
+    fun getTransactionStatus(transactionHash: Felt): Request<GetTransactionStatusResponse> {
+        val payload = GetTransactionStatusPayload(transactionHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
+    }
+
     override fun invokeFunction(
         payload: InvokeTransactionPayload,
     ): Request<InvokeFunctionResponse> {
@@ -781,6 +798,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_CLASS_HASH_AT("starknet_getClassHashAt"),
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    GET_TRANSACTION_STATUS("starknet_getTransactionStatus"),
     DECLARE("starknet_addDeclareTransaction"),
     GET_EVENTS("starknet_getEvents"),
     GET_BLOCK_NUMBER("starknet_blockNumber"),

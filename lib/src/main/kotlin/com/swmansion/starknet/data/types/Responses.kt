@@ -3,6 +3,8 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -60,6 +62,15 @@ data class GetBlockHashAndNumberResponse(
 
     @JsonNames("block_number")
     val blockNumber: Int,
+)
+
+@Serializable
+data class GetTransactionStatusResponse(
+    @SerialName("finality_status")
+    val finalityStatus: TransactionStatus,
+
+    @SerialName("execution_status")
+    val executionStatus: TransactionExecutionStatus? = null,
 )
 
 @Serializable
