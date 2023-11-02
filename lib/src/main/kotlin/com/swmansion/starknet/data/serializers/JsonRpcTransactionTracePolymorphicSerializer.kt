@@ -4,6 +4,7 @@ import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
+import java.lang.IllegalArgumentException
 
 internal object JsonRpcTransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
@@ -28,7 +29,7 @@ internal object JsonRpcTransactionTracePolymorphicSerializer :
             TransactionType.DEPLOY_ACCOUNT -> DeployAccountTransactionTrace.serializer()
             TransactionType.L1_HANDLER -> L1HandlerTransactionTrace.serializer()
             TransactionType.DECLARE -> DeclareTransactionTrace.serializer()
-            else -> throw IllegalStateException("Unknown transaction trace type.")
+            else -> throw IllegalArgumentException("Unknown transaction trace type '${typeElement.jsonPrimitive.content}'")
         }
     }
 }

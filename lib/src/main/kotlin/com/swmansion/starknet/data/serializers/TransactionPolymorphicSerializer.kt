@@ -21,18 +21,28 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             TransactionType.L1_HANDLER -> L1HandlerTransaction.serializer()
         }
     }
-    private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> =
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ONE.hexString() -> InvokeTransactionV1.serializer()
-            Felt.ZERO.hexString() -> InvokeTransactionV0.serializer()
-            else -> throw IllegalArgumentException("Invalid invoke transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
-        }
+    private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> {
+        val jsonElement = element.jsonObject
+        val versionElement = jsonElement.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 
-    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> =
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ZERO.hexString() -> DeclareTransactionV0.serializer()
-            Felt.ONE.hexString() -> DeclareTransactionV1.serializer()
-            Felt(2).hexString() -> DeclareTransactionV2.serializer()
-            else -> throw IllegalArgumentException("Invalid declare transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
+        val version = Json.decodeFromJsonElement(Felt.serializer(), versionElement)
+        return when (version) {
+            Felt.ONE -> InvokeTransactionV1.serializer()
+            Felt.ZERO -> InvokeTransactionV0.serializer()
+            else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
         }
+    }
+
+    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> {
+        val jsonElement = element.jsonObject
+        val versionElement = jsonElement.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+
+        val version = Json.decodeFromJsonElement(Felt.serializer(), versionElement)
+        return when (version) {
+            Felt.ZERO -> DeclareTransactionV0.serializer()
+            Felt.ONE -> DeclareTransactionV1.serializer()
+            Felt(2) -> DeclareTransactionV2.serializer()
+            else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
+        }
+    }
 }
