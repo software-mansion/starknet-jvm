@@ -123,10 +123,10 @@ data class GatewayTransactionReceipt(
     override val actualFee: Felt,
 
     @JsonNames("block_hash")
-    override val blockHash: Felt,
+    val blockHash: Felt? = null,
 
     @JsonNames("block_number")
-    override val blockNumber: Int,
+    val blockNumber: Int? = null,
 
     @JsonNames("status")
     val status: TransactionStatus = TransactionStatus.UNKNOWN,
@@ -145,7 +145,9 @@ data class GatewayTransactionReceipt(
 
     @JsonNames("type")
     override val type: TransactionType? = null,
-) : ProcessedTransactionReceipt()
+
+    override val isPending: Boolean = blockHash == null || blockNumber == null,
+) : TransactionReceipt()
 
 @Serializable
 sealed class ProcessedRpcTransactionReceipt : ProcessedTransactionReceipt() {
