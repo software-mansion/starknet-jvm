@@ -82,9 +82,10 @@ tasks.test {
     useJUnitPlatform()
 
     val libsSharedPath = file("$buildDir/libs/shared").absolutePath
-    val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
-    val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
-    systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
+    val pedersenJniPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
+    val poseidonJniPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+    val posedionPath = file("${rootDir}/crypto/poseidon/build/poseidon").absolutePath
+    systemProperty("java.library.path", "$libsSharedPath:$pedersenJniPath:$poseidonJniPath:$posedionPath")
 
     systemProperty(
         "integrationTestMode",
