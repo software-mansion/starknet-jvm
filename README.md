@@ -172,7 +172,7 @@ Run
     ```
   - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 - [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
-- [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
+- [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin.
 
 ### Platform-specific prerequisites
 - **macOS aarch64**: no additional steps are required.
