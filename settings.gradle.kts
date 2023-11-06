@@ -12,6 +12,7 @@ include("lib")
 include("android")
 include("androiddemo")
 include("javademo")
+include("java")
 
 pluginManagement {
     repositories {
