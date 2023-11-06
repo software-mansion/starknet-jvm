@@ -1,8 +1,10 @@
 package com.swmansion.starknet.crypto
 
+import java.io.File
 import java.net.URL
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 
 internal object NativeLoader {
@@ -20,6 +22,17 @@ internal object NativeLoader {
         System.getProperty("os.arch")
     }
 
+    private val jarPath: Path? by lazy {
+        val envProperty = "com.swmansion.starknet.library.jarPath"
+        return@lazy System.getProperty(envProperty)?.let {
+            val file = File(it)
+            if (!file.exists() || file.isDirectory) {
+                throw InvalidJarPath(it, envProperty)
+            }
+            file.toPath()
+        }
+    }
+
     fun load(name: String) = load(name, operatingSystem, architecture)
 
     private fun load(name: String, operatingSystem: SystemType, architecture: String) {
@@ -29,12 +42,8 @@ internal object NativeLoader {
             System.loadLibrary(name)
         } catch (e: UnsatisfiedLinkError) {
             // Find the package bundled in this jar
-            val path = getLibPath(operatingSystem, architecture, "lib" + name)
-            val resource =
-                NativeLoader::class.java.getResource(path) ?: throw UnsupportedPlatform(
-                    operatingSystem.name,
-                    architecture,
-                )
+            val path = getLibRelativePath(operatingSystem, architecture, "lib$name")
+            val resource = resolveLibResource(path)
             loadFromJar(name, resource)
         }
     }
@@ -56,8 +65,16 @@ internal object NativeLoader {
 
     class UnsupportedPlatform(system: String, architecture: String) :
         RuntimeException("Unsupported platfrom $system:$architecture")
+    class InvalidJarPath(path: String, systemProperty: String) :
+        RuntimeException("File $path does not exist or is not a file. Remove $systemProperty or set it to a valid path.")
 
-    private fun getLibPath(system: SystemType, architecture: String, name: String): String {
+    private fun resolveLibResource(path: String): URL = when (jarPath) {
+        null -> NativeLoader::class.java.getResource(path)
+            ?: throw UnsupportedPlatform(operatingSystem.name, architecture)
+        else -> URL("jar:file:$jarPath!$path")
+    }
+
+    private fun getLibRelativePath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
             SystemType.Linux -> "/linux/$architecture/$name.so"
