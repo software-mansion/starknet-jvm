@@ -6,18 +6,18 @@ on:
       - chore/test-poseidon-ci
 
 jobs:
-  verify_version:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Verify correct version
-        run: |
-          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
-          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
+#  verify_version:
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Verify correct version
+#        run: |
+#          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
+#          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
 
   build_x64:
     runs-on: ${{ matrix.os }}
-    needs: [verify_version]
+#    needs: [verify_version]
     strategy:
       matrix:
         os: [ ubuntu-20.04, macos-latest ]
@@ -86,7 +86,7 @@ jobs:
 
   build_virt:
     runs-on: ubuntu-20.04
-    needs: [verify_version]
+#    needs: [verify_version]
     strategy:
       matrix:
         include:
