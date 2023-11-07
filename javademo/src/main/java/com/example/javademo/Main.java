@@ -62,7 +62,8 @@ public class Main {
 
         Request<InvokeFunctionResponse> executeRequest = account.execute(invokeCall);
         InvokeFunctionResponse executeResponse = executeRequest.send();
-        Thread.sleep(10000); // Wait for invoke tx to complete
+        // If running on network, wait for invoke tx to complete
+        // Thread.sleep(10000);
 
         // Make sure that the transaction succeeded
         Request<? extends TransactionReceipt> receiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
@@ -87,24 +88,38 @@ public class Main {
         Path cairo0ContractPath = Paths.get("javademo/src/main/resources/contracts_v0/target/release/balance.json");
         DeclareResponse cairo0DeclareResponse = declareCairo0Contract(account, provider, cairo0ContractPath, cairo0ContractClassHash);
 
-        // TODO: (#336) re-enable once loading posedion from jar is fixed
+        // If running on network, wait for declare tx to complete
+        // Thread.sleep(15000);
+        
+        Request<? extends TransactionReceipt> cairo0DeclareReceipt = provider.getTransactionReceipt(cairo0DeclareResponse.getTransactionHash());
+        System.out.println("Was declare v1 transaction accepted? " + cairo0DeclareReceipt.send().isAccepted() + ".");
+        
         // Declare Cairo 1 contract
         // You need to provide both sierra and casm codes of compiled contracts
-        // Path sierraPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.sierra.json");
-        // Path casmPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.casm.json");
-        // DeclareResponse cairo1DeclareResponse = declareCairo1Contract(account, provider, sierraPath, casmPath);
-        // Felt cairo1ContractClassHash = cairo1DeclareResponse.getClassHash();
-        // Thread.sleep(15000); // Wait for declare tx to complete
+        Path sierraPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.sierra.json");
+        Path casmPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.casm.json");
+        DeclareResponse cairo1DeclareResponse = declareCairo1Contract(account, provider, sierraPath, casmPath);
+        Felt cairo1ContractClassHash = cairo1DeclareResponse.getClassHash();
 
+        // If running on network, wait for declare tx to complete
+        // Thread.sleep(15000);
+        
+        Request<? extends TransactionReceipt> cairo1DeclareReceipt = provider.getTransactionReceipt(cairo1DeclareResponse.getTransactionHash());
+        System.out.println("Was declare v2 transaction accepted? " + cairo1DeclareReceipt.send().isAccepted() + ".");
+        
         // Deploy a contract with Universal Deployer Contract (for both cairo 1 and cairo 0 contracts)
-        DeployContractResult deployContractResult = deployContract(account, provider, cairo0ContractClassHash, Collections.emptyList());
-        Felt deployedContractAddress = deployContractResult.contractAddress;
-        Thread.sleep(15000); // Wait for deploy tx to complete
-        Request<? extends TransactionReceipt> deployReceiptRequest = provider.getTransactionReceipt(deployContractResult.transactionHash);
-        TransactionReceipt deployReceipt = deployReceiptRequest.send();
-        boolean isDeployAccepted = deployReceipt.isAccepted();
-        System.out.println("Was deploy transaction accepted? " + isDeployAccepted + ".");
-        System.out.println("Deployed contract address: " + deployedContractAddress + ".");
+        List<Felt> contractClassHashes = List.of(cairo0ContractClassHash, cairo1ContractClassHash);
+        for (Felt contractClassHash : contractClassHashes) {
+            DeployContractResult deployContractResult = deployContract(account, provider, contractClassHash, Collections.emptyList());
+            Felt deployedContractAddress = deployContractResult.contractAddress;
+            // If running on network, wait for deploy tx to complete
+            // Thread.sleep(15000); 
+            Request<? extends TransactionReceipt> deployReceiptRequest = provider.getTransactionReceipt(deployContractResult.transactionHash);
+            TransactionReceipt deployReceipt = deployReceiptRequest.send();
+            boolean isDeployAccepted = deployReceipt.isAccepted();
+            System.out.println("Was deploy transaction accepted? " + isDeployAccepted + ".");
+            System.out.println("Deployed contract address: " + deployedContractAddress + ".");
+        }
 
 
         // Manually sign a hash
