@@ -86,7 +86,7 @@ public class Main {
 
         Felt cairo0ContractClassHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9");
         // Path cairo0ContractPath = Paths.get("javademo/src/main/resources/contracts_v0/target/release/balance.json");
-        Path cairo0ContractPath = Paths.get("src/main/resources/contracts_v0/target/release/balance.json");
+        Path cairo0ContractPath = Paths.get("javademo/src/main/resources/contracts_v0/target/release/balance.json");
         DeclareResponse cairo0DeclareResponse = declareCairo0Contract(account, provider, cairo0ContractPath, cairo0ContractClassHash);
 
         // If running on network, wait for declare tx to complete
@@ -97,8 +97,8 @@ public class Main {
         
         // Declare Cairo 1 contract
         // You need to provide both sierra and casm codes of compiled contracts
-        Path sierraPath = Paths.get("src/main/resources/contracts/target/release/demo_Balance.sierra.json");
-        Path casmPath = Paths.get("src/main/resources/contracts/target/release/demo_Balance.casm.json");
+        Path sierraPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.sierra.json");
+        Path casmPath = Paths.get("javademo/src/main/resources/contracts/target/release/demo_Balance.casm.json");
         DeclareResponse cairo1DeclareResponse = declareCairo1Contract(account, provider, sierraPath, casmPath);
         Felt cairo1ContractClassHash = cairo1DeclareResponse.getClassHash();
 
