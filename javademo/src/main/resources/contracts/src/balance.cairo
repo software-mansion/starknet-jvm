@@ -16,8 +16,8 @@ mod Balance {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
-        self.balance.write(0);
+    fn constructor(ref self: ContractState, value_: u128) {
+        self.balance.write(value_);
     }
 
     #[external(v0)]
