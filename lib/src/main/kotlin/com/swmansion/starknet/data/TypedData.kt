@@ -243,3 +243,12 @@ data class TypedData private constructor(
             Json.decodeFromString(serializer(), typedData)
     }
 }
+
+@Serializable
+internal enum class BuiltInType(val type: String) {
+    FELT("felt"),
+    FELT_ARRAY("felt*"),
+    STRING("string"),
+    SELECTOR("selector"),
+    MERKLETREE("merkletree"),
+}
