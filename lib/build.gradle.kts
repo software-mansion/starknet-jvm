@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.7.2"
+version = "0.7.3"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -82,10 +82,11 @@ tasks.test {
     useJUnitPlatform()
 
     val libsSharedPath = file("$buildDir/libs/shared").absolutePath
-    val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
-    val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+    val pedersenJniPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
+    val poseidonJniPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+    val posedionPath = file("${rootDir}/crypto/poseidon/build/poseidon").absolutePath
+    systemProperty("java.library.path", "$libsSharedPath:$pedersenJniPath:$poseidonJniPath:$posedionPath")
 
-    systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
     systemProperty(
         "integrationTestMode",
             project.findProperty("integrationTestMode")
