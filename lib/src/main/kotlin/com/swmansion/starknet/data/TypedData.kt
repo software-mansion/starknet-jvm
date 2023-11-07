@@ -78,8 +78,23 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    sealed class TypeBase {
+        abstract val name: String
+        abstract val type: String
+    }
+
     @Serializable
-    data class Type(val name: String, val type: String)
+    data class Type(
+        override val name: String,
+        override val type: String,
+    ) : TypeBase()
+
+    @Serializable
+    data class MerkleTreeType(
+        override val name: String,
+        override val type: String = BuiltInType.MERKLETREE.type,
+        val contains: String,
+    ) : TypeBase()
 
     private fun getDependencies(typeName: String): List<String> {
         val deps = mutableListOf(typeName)
@@ -164,13 +179,13 @@ data class TypedData private constructor(
             return "felt" to valueFromPrimitive(value.jsonPrimitive)
         }
 
-        if (typeName == "string"){
+        if (typeName == "string") {
             throw NotImplementedError("string type is not supported yet.")
         }
-        if (typeName == "selector"){
+        if (typeName == "selector") {
             throw NotImplementedError("selector type is not supported yet.")
         }
-        if (typeName == "merkletree"){
+        if (typeName == "merkletree") {
             throw NotImplementedError("merkletree type is not supported yet.")
         }
 
