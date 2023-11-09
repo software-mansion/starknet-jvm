@@ -21,6 +21,7 @@ enum class EntryPointType(val value: String) {
 enum class CallType(val value: String) {
     CALL("CALL"),
     LIBRARY_CALL("LIBRARY_CALL"),
+    DELEGATE("DELEGATE"),
 }
 
 @Serializable
@@ -72,15 +73,15 @@ data class RevertedFunctionInvocation(
 )
 
 @Serializable
-sealed class TransactionTrace() {
+sealed class TransactionTrace {
     abstract val type: TransactionType
-    abstract val stateDiff: StateDiff
+    abstract val stateDiff: StateDiff?
 }
 
 @Serializable
 sealed class InvokeTransactionTraceBase : TransactionTrace() {
     @SerialName("validate_invocation")
-    abstract val validateInvocation: FunctionInvocation
+    abstract val validateInvocation: FunctionInvocation?
 
     @SerialName("fee_transfer_invocation")
     abstract val feeTransferInvocation: FunctionInvocation?
@@ -92,7 +93,7 @@ sealed class InvokeTransactionTraceBase : TransactionTrace() {
 @Serializable
 data class InvokeTransactionTrace(
     @SerialName("validate_invocation")
-    override val validateInvocation: FunctionInvocation,
+    override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
     val executeInvocation: FunctionInvocation,
@@ -101,36 +102,34 @@ data class InvokeTransactionTrace(
     override val feeTransferInvocation: FunctionInvocation? = null,
 
     @SerialName("state_diff")
-    override val stateDiff: StateDiff,
+    override val stateDiff: StateDiff? = null,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
 data class RevertedInvokeTransactionTrace(
     @SerialName("validate_invocation")
-    override val validateInvocation: FunctionInvocation,
+    override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
     val executeInvocation: RevertedFunctionInvocation,
 
-    // TODO: (#344) make this field non-nullable
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
 
     @SerialName("state_diff")
-    override val stateDiff: StateDiff,
+    override val stateDiff: StateDiff? = null,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
 data class DeclareTransactionTrace(
     @SerialName("validate_invocation")
-    val validateInvocation: FunctionInvocation,
+    val validateInvocation: FunctionInvocation? = null,
 
-    // TODO: (#344) make this field non-nullable
     @SerialName("fee_transfer_invocation")
     val feeTransferInvocation: FunctionInvocation? = null,
 
     @SerialName("state_diff")
-    override val stateDiff: StateDiff,
+    override val stateDiff: StateDiff? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -139,17 +138,16 @@ data class DeclareTransactionTrace(
 @Serializable
 data class DeployAccountTransactionTrace(
     @SerialName("validate_invocation")
-    val validateInvocation: FunctionInvocation,
+    val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("constructor_invocation")
     val constructorInvocation: FunctionInvocation,
 
-    // TODO: (#344) make this field non-nullable
     @SerialName("fee_transfer_invocation")
     val feeTransferInvocation: FunctionInvocation? = null,
 
     @SerialName("state_diff")
-    override val stateDiff: StateDiff,
+    override val stateDiff: StateDiff? = null,
 
     @SerialName("type")
     override val type: TransactionType,
@@ -161,7 +159,7 @@ data class L1HandlerTransactionTrace(
     val functionInvocation: FunctionInvocation,
 
     @SerialName("state_diff")
-    override val stateDiff: StateDiff,
+    override val stateDiff: StateDiff? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
