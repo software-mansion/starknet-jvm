@@ -69,6 +69,7 @@ object Poseidon {
     private val r = 2
 
     init {
+        NativeLoader.load("poseidon")
         NativeLoader.load("poseidon_jni")
     }
 
