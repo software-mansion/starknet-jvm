@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Android demo</string>
+    <string name="not_available">N/A</string>
 </resources>

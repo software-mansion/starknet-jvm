@@ -88,7 +88,7 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      # TODO: (#310) Remove when migrating to macOS arm64 runner
+      # TODO: (#345) Remove once legacy devnet is removed or CI migrated to macOS arm64 runner
       - name: Clone Cairo repo (macOS only)
         if: matrix.os == 'macos-latest'
         run: git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2

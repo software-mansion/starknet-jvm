@@ -453,7 +453,7 @@ class AccountTest {
         val call = Call(
             contractAddress = ethContractAddress,
             entrypoint = "transfer",
-            calldata = listOf(recipientAccountAddress, amount.low, amount.high),
+            calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
         )
 
         val request = account.execute(call)
