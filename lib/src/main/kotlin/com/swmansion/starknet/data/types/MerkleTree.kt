@@ -10,6 +10,14 @@ data class MerkleTree(
     val rootHash: Felt = buildResult.first
     val branches: List<List<Felt>> = buildResult.second
 
+    companion object {
+        @JvmStatic
+        internal fun hash(a: Felt, b: Felt): Felt {
+            val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
+            return StarknetCurve.pedersen(aSorted, bSorted)
+        }
+    }
+
     private fun build(leaves: List<Felt>): Pair<Felt, List<List<Felt>>> {
         if (leaves.isEmpty()) {
             throw IllegalArgumentException("Cannot build Merkle tree from an empty list of leaves.")
@@ -31,12 +39,5 @@ data class MerkleTree(
         val newLeaves = leaves.indices.step(2).map { hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO }) }
 
         return build(newLeaves, newBranches)
-    }
-    companion object {
-        @JvmStatic
-        internal fun hash(a: Felt, b: Felt): Felt {
-            val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
-            return StarknetCurve.pedersen(aSorted, bSorted)
-        }
     }
 }
