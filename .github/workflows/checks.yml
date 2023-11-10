@@ -76,10 +76,9 @@ jobs:
 
       - name: Install sncast 0.6.0
         run: |
-          curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
-          source /Users/runner/.bashrc || true
-          snfoundryup -v 0.6.0
-          echo "$(dirname $(which sncast))" >> $GITHUB_PATH    
+          asdf plugin add starknet-foundry
+          asdf install starknet-foundry 0.6.0
+          asdf global starknet-foundry 0.6.0
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
