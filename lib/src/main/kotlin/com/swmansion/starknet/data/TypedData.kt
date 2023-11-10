@@ -134,26 +134,40 @@ data class TypedData private constructor(
         return "$dependency($encodedFields)"
     }
 
-    private fun valueFromPrimitive(primitive: JsonPrimitive): Felt {
-        if (primitive.isString) {
-            if (primitive.content == "") {
-                return Felt.ZERO
-            }
-            val decimal = primitive.content.toBigIntegerOrNull()
+    private fun feltFromPrimitive(primitive: JsonPrimitive): Felt {
+        when (primitive.isString) {
+            true -> {
+                if (primitive.content == "") {
+                    return Felt.ZERO
+                }
 
-            if (decimal != null) {
-                return Felt(decimal)
-            }
+                val decimal = primitive.content.toBigIntegerOrNull()
+                decimal?.let {
+                    return Felt(it)
+                }
 
-            return try {
-                Felt.fromHex(primitive.content)
-            } catch (e: IllegalArgumentException) {
-                Felt.fromShortString(primitive.content)
+                return try {
+                    Felt.fromHex(primitive.content)
+                } catch (e: Exception) {
+                    Felt.fromShortString(primitive.content)
+                }
+            }
+            false -> {
+                return Felt(primitive.long)
             }
         }
-
-        return Felt(primitive.long)
     }
+
+    private fun prepareSelector(name: String): Felt {
+        return try {
+            Felt.fromHex(name)
+        } catch (e: Exception) {
+            selectorFromName(name)
+        }
+    }
+
+    private fun getMerkleTreeType(context: Context): String {
+        val (parent, key) = context.parent to context.key
 
     private fun encodeValue(typeName: String, value: JsonElement): Pair<String, Felt> {
         if (types.containsKey(typeName)) {
