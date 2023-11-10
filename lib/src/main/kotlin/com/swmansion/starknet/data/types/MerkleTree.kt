@@ -5,33 +5,29 @@ import com.swmansion.starknet.crypto.StarknetCurve
 data class MerkleTree(
     val leafHashes: List<Felt>,
 ) {
-    private val mutableBranches: MutableList<MutableList<Felt>> = mutableListOf()
-    val root: Felt = build(leafHashes, mutableBranches)
-    val branches: List<List<Felt>> = mutableBranches.toList()
+    private val buildResult = build(leafHashes)
+
+    val root: Felt = buildResult.first
+    val branches: List<List<Felt>> = buildResult.second
 
     private fun build(
         leaves: List<Felt>,
-        branches: MutableList<MutableList<Felt>>,
-    ): Felt {
+        branches: List<List<Felt>> = emptyList(),
+    ): Pair<Felt, List<List<Felt>>> {
         if (leaves.size == 1) {
-            return leaves[0]
+            return leaves[0] to branches
         }
-        if (leaves.size != leafHashes.size) {
-            branches.add(leaves.toMutableList())
+        val newBranches = when (leaves.size != leafHashes.size) {
+            true -> branches + listOf(leaves)
+            false -> branches
         }
-        val newLeaves = mutableListOf<Felt>()
-        for (i in leaves.indices step 2) {
-            if (i + 1 == leaves.size) {
-                newLeaves.add(hash(leaves[i], Felt.ZERO))
-            } else {
-                newLeaves.add(hash(leaves[i], leaves[i + 1]))
-            }
-        }
-        return build(newLeaves, branches)
+        val newLeaves = leaves.indices.step(2).map { hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO }) }
+
+        return build(newLeaves, newBranches)
     }
 
     private fun hash(a: Felt, b: Felt): Felt {
-        val (aSorted, bSorted) = listOf(a, b).sorted()
+        val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
         return StarknetCurve.pedersen(aSorted, bSorted)
     }
 }
