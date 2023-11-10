@@ -221,13 +221,8 @@ data class TypedData private constructor(
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
             "merkletree" -> {
                 val merkleTreeType = getMerkleTreeType(context)
-
                 val array = value as JsonArray
-                val structHashes = array.map { struct ->
-                    val structContext = Context(parent = merkleTreeType, key = null)
-                    val encodedValue = encodeValue(merkleTreeType, struct, structContext)
-                    encodedValue.second
-                }
+                val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
                 val root = MerkleTree(structHashes).root
                 "merkletree" to root
             }
