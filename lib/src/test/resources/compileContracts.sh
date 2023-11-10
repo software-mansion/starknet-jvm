@@ -77,8 +77,7 @@ fetch_compilers() {
   echo "Done!"
 }
 
-#TODO: remove once legacy devnet client is removed
-echo "Fetching Cairo compilers to support legacy devnet..."
+# TODO: (#345) Remove once legacy devnet is removed or CI migrated to macOS arm64 runnerecho "Fetching Cairo compilers to support legacy devnet..."
 pushd "$(dirname "$0")" || exit 1
 fetch_compilers "$V2_COMPILER_VERSION" "$V2_COMPILER_BIN_PATH"
 popd
