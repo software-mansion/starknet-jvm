@@ -32,9 +32,11 @@ data class MerkleTree(
 
         return build(newLeaves, newBranches)
     }
-
-    private fun hash(a: Felt, b: Felt): Felt {
-        val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
-        return StarknetCurve.pedersen(aSorted, bSorted)
+    companion object {
+        @JvmStatic
+        internal fun hash(a: Felt, b: Felt): Felt {
+            val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
+            return StarknetCurve.pedersen(aSorted, bSorted)
+        }
     }
 }
