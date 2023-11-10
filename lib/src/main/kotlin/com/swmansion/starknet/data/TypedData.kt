@@ -3,6 +3,7 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
@@ -97,6 +98,11 @@ data class TypedData private constructor(
         val contains: String,
     ) : TypeBase()
 
+    data class Context(
+        val parent: String?,
+        val key: String?,
+    )
+
     private fun getDependencies(typeName: String): List<String> {
         val deps = mutableListOf(typeName)
         val toVisit = mutableListOf(typeName)
@@ -169,7 +175,27 @@ data class TypedData private constructor(
     private fun getMerkleTreeType(context: Context): String {
         val (parent, key) = context.parent to context.key
 
-    private fun encodeValue(typeName: String, value: JsonElement): Pair<String, Felt> {
+        return if (parent != null && key != null) {
+            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent '$parent' is not defined in types.") }
+            val merkleType = parentType.find { it.name == key }
+                ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
+            if (merkleType !is MerkleTreeType) {
+                throw IllegalArgumentException("Key '$key' in parent '$parent' is not a merkletree.")
+            }
+            if (merkleType.contains.endsWith("*")) {
+                throw IllegalArgumentException("Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'.")
+            }
+            merkleType.contains
+        } else {
+            "raw"
+        }
+    }
+
+    internal fun encodeValue(
+        typeName: String,
+        value: JsonElement,
+        context: Context = Context(null, null),
+    ): Pair<String, Felt> {
         if (types.containsKey(typeName)) {
             return typeName to getStructHash(typeName, value as JsonObject)
         }
@@ -182,36 +208,42 @@ data class TypedData private constructor(
             return typeName to hash
         }
 
-        if (typeName == "felt*") {
-            val array = value as JsonArray
-            val feltArray = array.map { valueFromPrimitive(it.jsonPrimitive) }
-            val hash = StarknetCurve.pedersenOnElements(feltArray)
+        return when (typeName) {
+            "felt*" -> {
+                val array = value as JsonArray
+                val feltArray = array.map { feltFromPrimitive(it.jsonPrimitive) }
+                val hash = StarknetCurve.pedersenOnElements(feltArray)
+                typeName to hash
+            }
+            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
+            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
+            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
+            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
+            "merkletree" -> {
+                val merkleTreeType = getMerkleTreeType(context)
 
-            return typeName to hash
+                val array = value as JsonArray
+                val structHashes = array.map { struct ->
+                    val structContext = Context(parent = merkleTreeType, key = null)
+                    val encodedValue = encodeValue(merkleTreeType, struct, structContext)
+                    encodedValue.second
+                }
+                val root = MerkleTree(structHashes).root
+                "merkletree" to root
+            }
+            else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
         }
-
-        if (typeName == "felt") {
-            return "felt" to valueFromPrimitive(value.jsonPrimitive)
-        }
-
-        if (typeName == "string") {
-            throw NotImplementedError("string type is not supported yet.")
-        }
-        if (typeName == "selector") {
-            throw NotImplementedError("selector type is not supported yet.")
-        }
-        if (typeName == "merkletree") {
-            throw NotImplementedError("merkletree type is not supported yet.")
-        }
-
-        throw IllegalArgumentException("Type [$typeName] is not defined in types.")
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
         val values = mutableListOf<Felt>()
 
         for (param in types.getValue(typeName)) {
-            val encodedValue = encodeValue(param.type, data.getValue(param.name))
+            val encodedValue = encodeValue(
+                typeName = param.type,
+                value = data.getValue(param.name),
+                Context(typeName, param.name),
+            )
             values.add(encodedValue.second)
         }
 
@@ -257,13 +289,4 @@ data class TypedData private constructor(
         fun fromJsonString(typedData: String): TypedData =
             Json.decodeFromString(serializer(), typedData)
     }
-}
-
-@Serializable
-internal enum class BuiltInType(val type: String) {
-    FELT("felt"),
-    FELT_ARRAY("felt*"),
-    STRING("string"),
-    SELECTOR("selector"),
-    MERKLETREE("merkletree"),
 }
