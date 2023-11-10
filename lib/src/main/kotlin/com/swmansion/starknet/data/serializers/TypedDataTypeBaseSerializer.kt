@@ -7,9 +7,8 @@ import kotlinx.serialization.json.*
 
 internal object TypedDataTypeBaseSerializer : JsonContentPolymorphicSerializer<TypeBase>(TypeBase::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TypeBase> {
-        val jsonElement = element.jsonObject
-
-        val type = jsonElement["type"]?.jsonPrimitive?.content
+        val type = element.jsonObject["type"]?.jsonPrimitive?.content
+        
         return when (type) {
             "merkletree" -> TypedData.MerkleTreeType.serializer()
             is String -> TypedData.Type.serializer()
