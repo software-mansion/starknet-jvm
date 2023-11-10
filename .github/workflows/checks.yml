@@ -76,9 +76,9 @@ jobs:
 
       - name: Install sncast 0.6.0
         run: |
-          curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
-          source /Users/runner/.bashrc || true
+          curl -L https://github.com/foundry-rs/starknet-foundry/blob/804b9c53a3c87ca90cbf72d0044152768c859952/scripts/install.sh | sh
           snfoundryup -v 0.6.0
+          source /Users/runner/.bashrc || true
           echo "$(dirname $(which sncast))" >> $GITHUB_PATH    
 
       - name: Setup Gradle
