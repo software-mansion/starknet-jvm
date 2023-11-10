@@ -248,7 +248,7 @@ data class TypedData private constructor(
                 val merkleTreeType = getMerkleTreeType(context)
                 val array = value as JsonArray
                 val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
-                val root = MerkleTree(structHashes).root
+                val root = MerkleTree(structHashes).rootHash
                 "merkletree" to root
             }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")

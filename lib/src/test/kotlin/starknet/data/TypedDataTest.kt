@@ -2,6 +2,7 @@ package starknet.data
 
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.TypedData.Context
+import com.swmansion.starknet.data.TypedData.MerkleTreeType
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
@@ -127,7 +128,7 @@ class TypedDataTest {
     }
 
     @Test
-    fun `transform type selector`() {
+    fun `selector type`() {
         val selector = "transfer"
         val selectorHash = selectorFromName(selector)
 
@@ -148,7 +149,7 @@ class TypedDataTest {
     }
 
     @Test
-    fun `merkle tree`() {
+    fun `merkletree type`() {
         val tree = MerkleTree(
             listOf(
                 Felt(1),
@@ -157,32 +158,23 @@ class TypedDataTest {
             ),
         )
         val leaves = tree.leafHashes
-        val leavesJsonElement = Json.encodeToJsonElement(leaves)
 
-        val merkleTreeHash = TD.encodeValue(
+        val merkleTreeHash = TD_SESSION.encodeValue(
             typeName = "merkletree",
-            value = leavesJsonElement,
+            value = Json.encodeToJsonElement(leaves),
         ).second
 
-        assertEquals(tree.root, merkleTreeHash)
+        assertEquals(tree.rootHash, merkleTreeHash)
         assertEquals(Felt.fromHex("0x15ac9e457789ef0c56e5d559809e7336a909c14ee2511503fa7af69be1ba639"), merkleTreeHash)
     }
 
     @Test
-    fun `merkle tree with custom types`() {
+    fun `merkletree with custom types`() {
+        print(2)
         val leaves = listOf(
-            mapOf(
-                "contractAddress" to "0x1",
-                "selector" to "transfer",
-            ),
-            mapOf(
-                "contractAddress" to "0x2",
-                "selector" to "transfer",
-            ),
-            mapOf(
-                "contractAddress" to "0x3",
-                "selector" to "transfer",
-            ),
+            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
         )
 
         val hashedLeaves = leaves.map { leaf ->
@@ -199,19 +191,74 @@ class TypedDataTest {
             context = Context(parent = "Session", key = "root"),
         ).second
 
-        assertEquals(tree.root, merkleTreeHash)
+        assertEquals(tree.rootHash, merkleTreeHash)
         assertEquals(
             Felt.fromHex("0x12354b159e3799dc0ebe86d62dde4ce7b300538d471e5a7fef23dcbac076011"),
             merkleTreeHash,
         )
     }
 
+    @Test
+    fun `merkletree from empty leaves`() {
+        assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
+            TD_SESSION.encodeValue(
+                typeName = "merkletree",
+                value = Json.encodeToJsonElement(emptyList<Felt>()),
+                context = Context(parent = "Session", key = "root"),
+            )
+        }
+    }
+
+    @Test fun `merkletree with invalid contains`() {
+        print(1)
+        val leaves = listOf(
+            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+        )
+
+        val invalidMerkleTreeType = MerkleTreeType(
+            name = "root",
+            type = "merkletree",
+            contains = "felt*",
+        )
+        val invalidTypedData = TD_SESSION.copy(
+            types = TD_SESSION.types.toMutableMap().apply {
+                val types = this["Session"]!!.toMutableList()
+                types.apply {
+                    this[this.indexOfFirst { it.type == "merkletree" }] = invalidMerkleTreeType
+                }
+                this["Session"] = types
+            },
+        )
+        assertThrows<IllegalArgumentException>("Merkletree 'contains' field cannot be an array, got '${invalidMerkleTreeType.contains}.'") {
+            invalidTypedData.encodeValue("merkletree", Json.encodeToJsonElement(leaves), Context(parent = "Session", key = "root"))
+        }
+    }
+
+    @Test
+    fun `merkletree with invalid context`() {
+        val leaves = listOf(
+            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+        )
+
+        val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
+        val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
+
+        assertThrows<IllegalArgumentException>("Parent type '${invalidParentContext.parent}' is not defined in types.") {
+            TD_SESSION.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
+        }
+        assertThrows<IllegalArgumentException>("Key '${invalidKeyContext.key}' is not defined in type '${invalidKeyContext.parent}'.") {
+            TD_SESSION.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(strings = ["felt", "string", "selector", "merkletree", "felt*", "string*", "selector*", "merkletree*"])
     fun `invalid types`(type: String) {
-        assertThrows<IllegalArgumentException>(
-            "Types must not contain $type.",
-        ) {
+        assertThrows<IllegalArgumentException>("Types must not contain $type.") {
             TypedData(
                 types = mapOf(type to emptyList()),
                 primaryType = type,

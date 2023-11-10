@@ -7,12 +7,19 @@ data class MerkleTree(
 ) {
     private val buildResult = build(leafHashes)
 
-    val root: Felt = buildResult.first
+    val rootHash: Felt = buildResult.first
     val branches: List<List<Felt>> = buildResult.second
+
+    private fun build(leaves: List<Felt>): Pair<Felt, List<List<Felt>>> {
+        if (leaves.isEmpty()) {
+            throw IllegalArgumentException("Cannot build Merkle tree from an empty list of leaves.")
+        }
+        return build(leaves, emptyList())
+    }
 
     private fun build(
         leaves: List<Felt>,
-        branches: List<List<Felt>> = emptyList(),
+        branches: List<List<Felt>>,
     ): Pair<Felt, List<List<Felt>>> {
         if (leaves.size == 1) {
             return leaves[0] to branches
