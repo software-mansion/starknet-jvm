@@ -1,6 +1,7 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -53,21 +54,20 @@ import kotlinx.serialization.json.*
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
-    val types: Map<String, List<Type>>,
+    val types: Map<String, List<TypeBase>>,
     val primaryType: String,
     val domain: JsonObject,
     val message: JsonObject,
 ) {
     init {
-        require("felt" !in types) { "Types must not contain felt." }
-        require("felt*" !in types) { "Types must not contain felt*." }
-        require("string" !in types) { "Types must not contain string." }
-        require("selector" !in types) { "Types must not contain selector." }
-        require("merkletree" !in types) { "Types must not contain merkletree." }
+        val reservedTypeNames = listOf("felt", "felt*", "string", "string*", "selector", "selector*", "merkletree", "merkletree*", "raw", "raw*")
+        reservedTypeNames.forEach {
+            require(!types.containsKey(it)) { "Types must not contain $it." }
+        }
     }
 
     constructor(
-        types: Map<String, List<Type>>,
+        types: Map<String, List<TypeBase>>,
         primaryType: String,
         domain: String,
         message: String,
@@ -78,6 +78,7 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @Serializable(with = TypedDataTypeBaseSerializer::class)
     sealed class TypeBase {
         abstract val name: String
         abstract val type: String
@@ -92,7 +93,7 @@ data class TypedData private constructor(
     @Serializable
     data class MerkleTreeType(
         override val name: String,
-        override val type: String = BuiltInType.MERKLETREE.type,
+        override val type: String = "merkletree",
         val contains: String,
     ) : TypeBase()
 
