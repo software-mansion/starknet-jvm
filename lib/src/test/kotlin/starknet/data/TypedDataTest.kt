@@ -24,7 +24,7 @@ fun loadTypedData(name: String): TypedData {
     return TypedData.fromJsonString(content)
 }
 
-class TypedDataTest {
+internal class TypedDataTest {
 
     companion object {
 
