@@ -4,6 +4,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -36,98 +37,81 @@ internal class MerkleTreeTest {
         }
     }
 
-    @Test
-    fun `root from 1 element`() {
-        val leaves = listOf(Felt.ONE)
-        val tree = MerkleTree(leaves)
+    @Nested
+    inner class BuildFromElementsTests {
+        @Test
+        fun `build merkle tree from 1 element`() {
+            val leaves = listOf(Felt.ONE)
+            val tree = MerkleTree(leaves)
 
-        val manualMerkle = leaves[0]
+            val manualMerkleRootHash = leaves[0]
 
-        assertEquals(0, tree.branches.size)
-        assertEquals(manualMerkle, tree.rootHash)
-    }
+            assertEquals(0, tree.branches.size)
+            assertEquals(manualMerkleRootHash, tree.rootHash)
+        }
 
-    @Test
-    fun `root from 2 elements`() {
-        val leaves = listOf(Felt.ONE, Felt.fromHex("0x2"))
-        val tree = MerkleTree(leaves)
+        @Test
+        fun `build merkle tree from 2 elements`() {
+            val leaves = listOf(Felt.ONE, Felt.fromHex("0x2"))
+            val tree = MerkleTree(leaves)
 
-        val manualMerkle = MerkleTree.hash(leaves[0], leaves[1])
+            val manualMerkleRootHash = MerkleTree.hash(leaves[0], leaves[1])
 
-        assertEquals(0, tree.branches.size)
-        assertEquals(manualMerkle, tree.rootHash)
-    }
+            assertEquals(0, tree.branches.size)
+            assertEquals(manualMerkleRootHash, tree.rootHash)
+        }
 
-    @Test
-    fun `root from 4 elements`() {
-        val leaves = listOf(
-            Felt.fromHex("0x1"),
-            Felt.fromHex("0x2"),
-            Felt.fromHex("0x3"),
-            Felt.fromHex("0x4"),
-        )
-        val tree = MerkleTree(leaves)
+        @Test
+        fun `build merkle tree from 4 elements`() {
+            val leaves = (1..4).map { Felt.fromHex("0x$it") }
+            val tree = MerkleTree(leaves)
 
-        val manualMerkle = MerkleTree.hash(
-            MerkleTree.hash(leaves[0], leaves[1]),
-            MerkleTree.hash(leaves[2], leaves[3]),
-        )
-        assertEquals(1, tree.branches.size)
-        assertEquals(manualMerkle, tree.rootHash)
-    }
-
-    @Test
-    fun `root from 6 elements`() {
-        val leaves = listOf(
-            Felt.fromHex("0x1"),
-            Felt.fromHex("0x2"),
-            Felt.fromHex("0x3"),
-            Felt.fromHex("0x4"),
-            Felt.fromHex("0x5"),
-            Felt.fromHex("0x6"),
-        )
-        val tree = MerkleTree(leaves)
-
-        val manualMerkle = MerkleTree.hash(
-            MerkleTree.hash(
+            val manualMerkleRootHash = MerkleTree.hash(
                 MerkleTree.hash(leaves[0], leaves[1]),
                 MerkleTree.hash(leaves[2], leaves[3]),
-            ),
-            MerkleTree.hash(
-                MerkleTree.hash(leaves[4], leaves[5]),
-                Felt.fromHex("0x0"),
-            ),
-        )
+            )
+            assertEquals(1, tree.branches.size)
+            assertEquals(manualMerkleRootHash, tree.rootHash)
+        }
 
-        assertEquals(2, tree.branches.size)
-        assertEquals(manualMerkle, tree.rootHash)
-    }
+        @Test
+        fun `build merkle tree from 6 elements`() {
+            val leaves = (1..6).map { Felt.fromHex("0x$it") }
+            val tree = MerkleTree(leaves)
 
-    @Test
-    fun `root from 7 elements`() {
-        val leaves = listOf(
-            Felt.fromHex("0x1"),
-            Felt.fromHex("0x2"),
-            Felt.fromHex("0x3"),
-            Felt.fromHex("0x4"),
-            Felt.fromHex("0x5"),
-            Felt.fromHex("0x6"),
-            Felt.fromHex("0x7"),
-        )
-        val tree = MerkleTree(leaves)
+            val manualMerkleRootHash = MerkleTree.hash(
+                MerkleTree.hash(
+                    MerkleTree.hash(leaves[0], leaves[1]),
+                    MerkleTree.hash(leaves[2], leaves[3]),
+                ),
+                MerkleTree.hash(
+                    MerkleTree.hash(leaves[4], leaves[5]),
+                    Felt.fromHex("0x0"),
+                ),
+            )
 
-        val manualMerkle = MerkleTree.hash(
-            MerkleTree.hash(
-                MerkleTree.hash(leaves[0], leaves[1]),
-                MerkleTree.hash(leaves[2], leaves[3]),
-            ),
-            MerkleTree.hash(
-                MerkleTree.hash(leaves[4], leaves[5]),
-                MerkleTree.hash(leaves[6], Felt.ZERO),
-            ),
-        )
+            assertEquals(2, tree.branches.size)
+            assertEquals(manualMerkleRootHash, tree.rootHash)
+        }
 
-        assertEquals(2, tree.branches.size)
-        assertEquals(manualMerkle, tree.rootHash)
+        @Test
+        fun `build merkle tree from 7 elements`() {
+            val leaves = (1..7).map { Felt.fromHex("0x$it") }
+            val tree = MerkleTree(leaves)
+
+            val manualMerkleRootHash = MerkleTree.hash(
+                MerkleTree.hash(
+                    MerkleTree.hash(leaves[0], leaves[1]),
+                    MerkleTree.hash(leaves[2], leaves[3]),
+                ),
+                MerkleTree.hash(
+                    MerkleTree.hash(leaves[4], leaves[5]),
+                    MerkleTree.hash(leaves[6], Felt.ZERO),
+                ),
+            )
+
+            assertEquals(2, tree.branches.size)
+            assertEquals(manualMerkleRootHash, tree.rootHash)
+        }
     }
 }
