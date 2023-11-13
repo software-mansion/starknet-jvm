@@ -170,7 +170,6 @@ internal class TypedDataTest {
 
     @Test
     fun `merkletree with custom types`() {
-        print(2)
         val leaves = listOf(
             mapOf("contractAddress" to "0x1", "selector" to "transfer"),
             mapOf("contractAddress" to "0x2", "selector" to "transfer"),
@@ -210,7 +209,6 @@ internal class TypedDataTest {
     }
 
     @Test fun `merkletree with invalid contains`() {
-        print(1)
         val leaves = listOf(
             mapOf("contractAddress" to "0x1", "selector" to "transfer"),
             mapOf("contractAddress" to "0x2", "selector" to "transfer"),
