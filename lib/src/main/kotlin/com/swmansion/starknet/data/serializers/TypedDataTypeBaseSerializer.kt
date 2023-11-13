@@ -12,7 +12,8 @@ internal object TypedDataTypeBaseSerializer : JsonContentPolymorphicSerializer<T
         return when (type) {
             "merkletree" -> TypedData.MerkleTreeType.serializer()
             is String -> TypedData.Type.serializer()
-            else -> throw IllegalArgumentException("Input element does not contain mandatory field 'type'")
+            null -> throw IllegalArgumentException("Input element does not contain mandatory field 'type'")
+            else -> throw IllegalArgumentException("Unknown type '$type'")
         }
     }
 }
