@@ -19,9 +19,7 @@ data class MerkleTree(
     }
 
     private fun build(leaves: List<Felt>): Pair<Felt, List<List<Felt>>> {
-        if (leaves.isEmpty()) {
-            throw IllegalArgumentException("Cannot build Merkle tree from an empty list of leaves.")
-        }
+        require(leaves.isNotEmpty()) { "Cannot build Merkle tree from an empty list of leaves." }
         return build(leaves, emptyList())
     }
 

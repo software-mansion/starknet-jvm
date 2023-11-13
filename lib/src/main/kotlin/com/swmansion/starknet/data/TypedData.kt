@@ -204,11 +204,10 @@ data class TypedData private constructor(
             val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent '$parent' is not defined in types.") }
             val merkleType = parentType.find { it.name == key }
                 ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
-            if (merkleType !is MerkleTreeType) {
-                throw IllegalArgumentException("Key '$key' in parent '$parent' is not a merkletree.")
-            }
-            if (merkleType.contains.endsWith("*")) {
-                throw IllegalArgumentException("Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'.")
+
+            require(merkleType is MerkleTreeType) { "Key '$key' in parent '$parent' is not a merkletree." }
+            require(!merkleType.contains.endsWith("*")) {
+                "Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'."
             }
             merkleType.contains
         } else {
