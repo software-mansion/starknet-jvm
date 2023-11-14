@@ -43,10 +43,6 @@ android {
     }
 }
 
-kotlinter {
-    disabledRules = arrayOf("no-wildcard-imports")
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.8.0") // highest version available for sdk 32
     implementation("androidx.appcompat:appcompat:1.5.1") // highest version available for sdk 32
