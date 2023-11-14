@@ -121,7 +121,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.1")
 
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
