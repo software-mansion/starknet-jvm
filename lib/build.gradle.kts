@@ -131,8 +131,8 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")   // Highest version that works with Gradle 7.6.2
 
     // Crypto provider
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15to18
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+    implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
