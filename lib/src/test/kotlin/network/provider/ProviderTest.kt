@@ -7,7 +7,6 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import kotlinx.serialization.json.*
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.*
@@ -25,14 +24,10 @@ class ProviderTest {
         private val config = NetworkConfig.config
         private val network = config.network
         private val rpcUrl = config.rpcUrl
-        private val gatewayUrl = config.gatewayUrl
-        private val feederGatewayUrl = config.feederGatewayUrl
-        private val accountAddress = config.accountAddress
         private val privateKey = config.privateKey
 
         private lateinit var signer: Signer
 
-        private lateinit var gatewayProvider: GatewayProvider
         private lateinit var rpcProvider: JsonRpcProvider
 
         @JvmStatic

@@ -11,7 +11,6 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
-import kotlinx.serialization.json.*
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.AfterAll
@@ -34,8 +33,6 @@ class AccountTest {
         private val config = NetworkConfig.config
         private val network = config.network
         private val rpcUrl = config.rpcUrl
-        private val gatewayUrl = config.gatewayUrl
-        private val feederGatewayUrl = config.feederGatewayUrl
         private val accountAddress = config.accountAddress
         private val signer = StarkCurveSigner(config.privateKey)
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
@@ -47,12 +44,6 @@ class AccountTest {
             Network.TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
         }
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
-
-        private val gatewayProvider = GatewayProvider(
-            feederGatewayUrl,
-            gatewayUrl,
-            StarknetChainId.TESTNET,
-        )
         private val rpcProvider = JsonRpcProvider(
             rpcUrl,
             StarknetChainId.TESTNET,
