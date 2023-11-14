@@ -21,7 +21,8 @@ class IntegrationConfig {
     enum class IntegrationTestMode {
         DISABLED,
         NON_GAS,
-        ALL;
+        ALL,
+        ;
 
         companion object {
             @JvmStatic
