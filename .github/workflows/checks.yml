@@ -119,6 +119,11 @@ jobs:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
           NETWORK_TEST_NETWORK: "TESTNET"
           NETWORK_TEST_MODE: "non_gas"
+          TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+          TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+          TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
+          TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
