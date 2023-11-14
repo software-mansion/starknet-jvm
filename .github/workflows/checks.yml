@@ -117,6 +117,8 @@ jobs:
       - name: Run tests and generate coverage report
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
+          NETWORK_TEST_NETWORK: "TESTNET"
+          NETWORK_TEST_MODE: "non_gas"
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
