@@ -16,7 +16,7 @@ interface Account {
     /**
      * Sign a transaction.
      *
-     * Sign a transaction to be executed on StarkNet.
+     * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
@@ -30,7 +30,7 @@ interface Account {
     /**
      * Sign a transaction.
      *
-     * Sign a transaction to be executed on StarkNet.
+     * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
@@ -43,7 +43,7 @@ interface Account {
     /**
      * Sign multiple calls as a single transaction.
      *
-     * Sign a list of calls to be executed on StarkNet.
+     * Sign a list of calls to be executed on Starknet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
@@ -55,7 +55,7 @@ interface Account {
     /**
      * Sign multiple calls as a single transaction.
      *
-     * Sign a list of calls to be executed on StarkNet.
+     * Sign a list of calls to be executed on Starknet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
@@ -110,7 +110,7 @@ interface Account {
     /**
      * Sign a version 1 declare transaction.
      *
-     * Prepare and sign a version 1 declare transaction to be executed on StarkNet.
+     * Prepare and sign a version 1 declare transaction to be executed on Starknet.
      *
      * @param contractDefinition a definition of the contract to be declared
      * @param classHash a class hash of the contract to be declared
@@ -128,10 +128,10 @@ interface Account {
     /**
      * Sign a version 2 declare transaction.
      *
-     * Prepare and sign a version 2 declare transaction to be executed on StarkNet.
+     * Prepare and sign a version 2 declare transaction to be executed on Starknet.
      *
-     * @param sierraContractDefinition a cairo 1 sierra compiled definition of the contract to be declared
-     * @param casmContractDefinition a casm representation of cairo 1 compiled contract to be declared
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
@@ -152,7 +152,7 @@ interface Account {
     fun signTypedData(typedData: TypedData): Signature
 
     /**
-     * Verify a signature of TypedData on StarkNet
+     * Verify a signature of TypedData on Starknet
      *
      * @param typedData a TypedData instance which signature will be verified
      * @param signature a signature of typedData
@@ -215,6 +215,19 @@ interface Account {
     }
 
     /**
+     * Estimate fee for a call.
+     *
+     * Estimate fee for a signed call on starknet for specified block tag.
+     *
+     * @param call a call used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag)
+    }
+
+    /**
      * Estimate fee for a list of calls.
      *
      * Estimate fee for a signed list of calls on starknet.
@@ -225,11 +238,34 @@ interface Account {
     fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>>
 
     /**
+     * Estimate fee for a list of calls.
+     *
+     * Estimate fee for a signed list of calls on starknet.
+     *
+     * @param calls a list of calls used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @return estimated fee as field value.
+     */
+    fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+
+    /**
      * Get account nonce.
      *
-     * Get account nonce for latest state.
+     * Get account nonce for pending block.
      *
      * @return nonce as field value.
      */
     fun getNonce(): Request<Felt>
+
+    /**
+     * Get account nonce.
+     *
+     * Get account nonce for specified block tag.
+     *
+     * @param blockTag block tag used for returning this value.
+     * @return nonce as field value.
+     */
+    fun getNonce(blockTag: BlockTag): Request<Felt>
+
+    // TODO: (#326) add getNonce for block hash and block number once feeder_gateway is removed and only JsonRpcProvider is supported by StandardAccount
 }

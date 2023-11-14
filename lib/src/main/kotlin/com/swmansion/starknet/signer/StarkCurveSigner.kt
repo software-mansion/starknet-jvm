@@ -6,7 +6,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 
 /**
- * Signer implementing a stark curve signature (default signature used on StarkNet).
+ * Signer implementing a stark curve signature (default signature used on Starknet).
  *
  * @param privateKey a private key to be used by this signer
  */
@@ -16,7 +16,11 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
     override fun signTransaction(transaction: Transaction): Signature {
-        return StarknetCurve.sign(privateKey, transaction.hash).toList()
+        if (transaction.hash == null) {
+            throw IllegalArgumentException("Invalid transaction: hash is missing.")
+        }
+
+        return StarknetCurve.sign(privateKey, transaction.hash!!).toList()
     }
 
     override fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature {

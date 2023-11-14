@@ -14,9 +14,9 @@ import java.math.BigInteger
 import java.util.concurrent.CompletableFuture
 
 /**
- * Standard account used in StarkNet.
+ * Standard account used in Starknet.
  *
- * @param provider a provider used to interact with StarkNet
+ * @param provider a provider used to interact with Starknet
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  */
@@ -30,7 +30,7 @@ class StandardAccount(
     private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
 
     /**
-     * @param provider a provider used to interact with StarkNet
+     * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      */
@@ -198,13 +198,22 @@ class StandardAccount(
         }
     }
 
-    override fun getNonce(): Request<Felt> = provider.getNonce(address, BlockTag.PENDING)
+    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
+
+    override fun getNonce(blockTag: BlockTag) = provider.getNonce(address, blockTag)
 
     override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return getNonce().compose { buildEstimateFeeRequest(calls, it) }
+        return estimateFee(calls, BlockTag.PENDING)
     }
 
-    private fun buildEstimateFeeRequest(calls: List<Call>, nonce: Felt): Request<List<EstimateFeeResponse>> {
+    override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return getNonce(blockTag).compose { nonce ->
+            val payload = buildEstimateFeePayload(calls, nonce)
+            return@compose provider.getEstimateFee(payload, blockTag)
+        }
+    }
+
+    private fun buildEstimateFeePayload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams, true)
 
@@ -217,6 +226,6 @@ class StandardAccount(
             signature = payload.signature,
             version = payload.version,
         )
-        return provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
+        return listOf(signedTransaction.toPayload())
     }
 }

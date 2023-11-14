@@ -6,15 +6,25 @@ import kotlinx.serialization.json.*
 
 internal object JsonRpcTransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
+    private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<out InvokeTransactionTraceBase> {
+        val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
+        val isReverted = "revert_reason" in executeInvocation
+
+        return when (isReverted) {
+            true -> RevertedInvokeTransactionTrace.serializer()
+            false -> InvokeTransactionTrace.serializer()
+        }
+    }
+
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionTrace> {
         val jsonObject = element.jsonObject
 
-        return when (jsonObject.keys) {
-            setOf("validate_invocation", "execute_invocation", "fee_transfer_invocation") -> InvokeTransactionTrace.serializer()
-            setOf("validate_invocation", "fee_transfer_invocation") -> DeclareTransactionTrace.serializer()
-            setOf("validate_invocation", "constructor_invocation", "fee_transfer_invocation") -> DeployAccountTransactionTrace.serializer()
-            setOf("functionInvocation") -> L1HandlerTransactionTrace.serializer()
-            else -> throw IllegalArgumentException("Invalid transaction trace type")
+        return when {
+            "execute_invocation" in jsonObject -> selectInvokeTransactionTraceDeserializer(jsonObject)
+            "constructor_invocation" in jsonObject -> DeployAccountTransactionTrace.serializer()
+            "function_invocation" in jsonObject -> L1HandlerTransactionTrace.serializer()
+            listOf("validate_invocation", "fee_transfer_invocation").any { it in jsonObject } -> DeclareTransactionTrace.serializer()
+            else -> throw IllegalStateException("Unknown transaction trace type.")
         }
     }
 }

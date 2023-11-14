@@ -20,7 +20,7 @@ data class HttpResponse(
 /**
  * Service for http communication.
  *
- * Implementers of this interface provide methods to facilitate http communication between Providers and StarkNet
+ * Implementers of this interface provide methods to facilitate http communication between Providers and Starknet
  */
 interface HttpService {
     data class Payload(

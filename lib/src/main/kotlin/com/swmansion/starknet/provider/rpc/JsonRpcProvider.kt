@@ -20,7 +20,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 /**
- * A provider for interacting with StarkNet using JSON-RPC. You should reuse it in your application to share the
+ * A provider for interacting with Starknet using JSON-RPC. You should reuse it in your application to share the
  * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
@@ -153,9 +153,7 @@ class JsonRpcProvider(
     }
 
     override fun getClass(classHash: Felt): Request<ContractClassBase> {
-        val payload = GetClassPayload(classHash, BlockTag.LATEST.tag)
-
-        return getClass(payload)
+        return getClass(classHash, BlockTag.LATEST)
     }
 
     /**
@@ -169,7 +167,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClassBase> {
-        val payload = GetClassPayload(classHash, blockHash.hexString())
+        val payload = GetClassPayload(classHash, BlockId.Hash(blockHash))
 
         return getClass(payload)
     }
@@ -185,7 +183,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClassBase> {
-        val payload = GetClassPayload(classHash, blockNumber.toString())
+        val payload = GetClassPayload(classHash, BlockId.Number(blockNumber))
 
         return getClass(payload)
     }
@@ -201,7 +199,7 @@ class JsonRpcProvider(
      * @throws RequestFailedException
      */
     fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClassBase> {
-        val payload = GetClassPayload(classHash, blockTag.tag)
+        val payload = GetClassPayload(classHash, BlockId.Tag(blockTag))
 
         return getClass(payload)
     }
@@ -221,7 +219,7 @@ class JsonRpcProvider(
      * @param blockHash The hash of the requested block.
      */
     fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClassBase> {
-        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+        val payload = GetClassAtPayload(BlockId.Hash(blockHash), contractAddress)
 
         return getClassAt(payload)
     }
@@ -235,7 +233,7 @@ class JsonRpcProvider(
      * @param blockNumber The number of the requested block.
      */
     fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClassBase> {
-        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+        val payload = GetClassAtPayload(BlockId.Number(blockNumber), contractAddress)
 
         return getClassAt(payload)
     }
@@ -249,7 +247,7 @@ class JsonRpcProvider(
      * @param blockTag The tag of the requested block.
      */
     fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClassBase> {
-        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+        val payload = GetClassAtPayload(BlockId.Tag(blockTag), contractAddress)
 
         return getClassAt(payload)
     }
@@ -272,19 +270,19 @@ class JsonRpcProvider(
     }
 
     override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt> {
-        val payload = GetClassAtPayload(blockHash.hexString(), contractAddress)
+        val payload = GetClassAtPayload(BlockId.Hash(blockHash), contractAddress)
 
         return getClassHashAt(payload)
     }
 
     override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt> {
-        val payload = GetClassAtPayload(blockNumber.toString(), contractAddress)
+        val payload = GetClassAtPayload(BlockId.Number(blockNumber), contractAddress)
 
         return getClassHashAt(payload)
     }
 
     override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt> {
-        val payload = GetClassAtPayload(blockTag.tag, contractAddress)
+        val payload = GetClassAtPayload(BlockId.Tag(blockTag), contractAddress)
 
         return getClassHashAt(payload)
     }
@@ -375,7 +373,7 @@ class JsonRpcProvider(
     }
 
     private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<List<EstimateFeeResponse>> {
-        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(EstimateTransactionFeePayloadSerializer, payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
@@ -413,8 +411,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockHash: Felt): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Hash(blockHash))
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
@@ -429,8 +427,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockNumber: Int): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Number(blockNumber))
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
     }
@@ -445,8 +443,8 @@ class JsonRpcProvider(
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: Call, senderAddress: Felt, blockTag: BlockTag): Request<EstimateFeeResponse> {
-        val estimatePayload = EstimateMessageFeePayload(message, senderAddress, BlockId.Tag(blockTag))
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): Request<EstimateFeeResponse> {
+        val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
     }
@@ -563,6 +561,57 @@ class JsonRpcProvider(
         return getBlockWithTxs(payload)
     }
 
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockTag: BlockTag): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Tag(blockTag))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockHash: Felt): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Hash(blockHash))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    /**
+     * Get a block with transaction hashes.
+     *
+     * Get block information with transaction hashes given the block id.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxHashes(blockNumber: Int): Request<GetBlockWithTransactionHashesResponse> {
+        val payload = GetBlockWithTransactionHashesPayload(BlockId.Number(blockNumber))
+
+        return getBlockWithTxHashes(payload)
+    }
+
+    private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): Request<GetBlockWithTransactionHashesResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, JsonRpcGetBlockWithTransactionHashesPolymorphicSerializer)
+    }
+
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
@@ -617,7 +666,7 @@ class JsonRpcProvider(
     private fun getTransactionByBlockIdAndIndex(payload: GetTransactionByBlockIdAndIndexPayload): Request<Transaction> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, Transaction.serializer())
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionPolymorphicSerializer)
     }
 
     /**
@@ -743,10 +792,11 @@ private enum class JsonRpcMethod(val methodName: String) {
     ESTIMATE_FEE("starknet_estimateFee"),
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
+    GET_BLOCK_WITH_TX_HASHES("starknet_getBlockWithTxHashes"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
     GET_NONCE("starknet_getNonce"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
-    SIMULATE_TRANSACTIONS("starknet_simulateTransaction"),
+    SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
 }

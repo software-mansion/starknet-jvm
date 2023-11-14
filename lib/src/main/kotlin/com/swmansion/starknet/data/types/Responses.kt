@@ -135,6 +135,16 @@ data class BlockWithTransactionsResponse(
     @SerialName("status")
     val status: BlockStatus,
 
+    // Block body
+
+    @SerialName("transactions")
+    override val transactions: List<
+        @Serializable(with = TransactionPolymorphicSerializer::class)
+        Transaction,
+        >,
+
+    // Block header
+
     @SerialName("parent_hash")
     override val parentHash: Felt,
 
@@ -147,12 +157,6 @@ data class BlockWithTransactionsResponse(
     @SerialName("new_root")
     val newRoot: Felt,
 
-    @SerialName("transactions")
-    override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
-        Transaction,
-        >,
-
     @SerialName("timestamp")
     override val timestamp: Int,
 
@@ -162,8 +166,11 @@ data class BlockWithTransactionsResponse(
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
+    // Not in RPC schema, but can be returned by nodes
+    @SerialName("status")
+    val status: BlockStatus = BlockStatus.PENDING,
+
+    // Block body
 
     @SerialName("transactions")
     override val transactions: List<
@@ -171,12 +178,78 @@ data class PendingBlockWithTransactionsResponse(
         Transaction,
         >,
 
+    // Pending block header
+
     @SerialName("timestamp")
     override val timestamp: Int,
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
 ) : GetBlockWithTransactionsResponse()
+
+sealed class GetBlockWithTransactionHashesResponse {
+    abstract val timestamp: Int
+    abstract val sequencerAddress: Felt
+    abstract val parentHash: Felt
+    abstract val transactionHashes: List<Felt>
+}
+
+@Serializable
+data class BlockWithTransactionHashesResponse(
+    @SerialName("status")
+    val status: BlockStatus,
+
+    // Block body
+
+    @SerialName("transactions")
+    override val transactionHashes: List<Felt>,
+
+    // Block header
+
+    @SerialName("block_hash")
+    val blockHash: Felt,
+
+    @SerialName("block_number")
+    val blockNumber: Int,
+
+    @SerialName("new_root")
+    val newRoot: Felt,
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+) : GetBlockWithTransactionHashesResponse()
+
+@Serializable
+data class PendingBlockWithTransactionHashesResponse(
+    // Not in RPC schema, but can be returned by nodes
+    @SerialName("status")
+    val status: BlockStatus = BlockStatus.PENDING,
+
+    // Block body
+
+    @SerialName("transactions")
+    override val transactionHashes: List<Felt>,
+
+    // Pending block header
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
 data class StorageEntries(

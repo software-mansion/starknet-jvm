@@ -1,17 +1,14 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.GetBlockHashAndNumberResponse
-import com.swmansion.starknet.data.types.transactions.GatewayFailureReason
-import com.swmansion.starknet.data.types.transactions.GatewayTransactionReceipt
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import starknet.utils.data.*
+import starknet.utils.data.serializers.AccountDetailsSerializer
+import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
+import java.io.File
+import java.lang.IllegalArgumentException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -20,84 +17,95 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-class DevnetSetupFailedException(message: String) : Exception(message)
-
-class DevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
-    Exception(failureReason?.errorMessage ?: "Devnet operation failed")
-
 class DevnetClient(
-    private val host: String = "0.0.0.0",
-    private val port: Int = 5050,
+    val host: String = "0.0.0.0",
+    val port: Int = 5000,
+    val seed: Int = 1053545547,
     private val httpService: HttpService = OkHttpService(),
     private val accountDirectory: Path = Paths.get("src/test/resources/account"),
+    private val contractsDirectory: Path = Paths.get("src/test/resources/contracts"),
 ) : AutoCloseable {
+
     private val baseUrl: String = "http://$host:$port"
-    private val seed: Int = 1053545547
+    val rpcUrl: String = "$baseUrl/rpc"
+    val mintUrl: String = "$baseUrl/mint"
+
     private val json = Json { ignoreUnknownKeys = true }
 
+    private lateinit var devnetPath: Path
     private lateinit var devnetProcess: Process
-
     private var isDevnetRunning = false
 
-    lateinit var accountDetails: AccountDetails
+    private val accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
+    private val scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
 
-    val gatewayUrl: String = "$baseUrl/gateway"
-    val feederGatewayUrl: String = "$baseUrl/feeder_gateway"
-    val rpcUrl: String = "$baseUrl/rpc"
+    lateinit var defaultAccountDetails: AccountDetails
 
-    @Serializable
-    data class Block(
-        @SerialName("block_hash") val hash: Felt,
-        @SerialName("block_number") val number: Int,
-    )
+    companion object {
+        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/323f907bc3e3e4dc66b403ec6f8b58744e8d6f9a/crates/starknet/src/constants.rs
+        val accountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
+        val erc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
+        val erc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+        val udcContractClassHash = Felt.fromHex("0x7b3e05f48f0c69e4a65ce5e076a66271a527aff2c34ce1083ec6e1526997a69")
+        val udcContractAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
 
-    data class TransactionResult(val address: Felt, val hash: Felt)
-
+        // For seed 1053545547
+        val predeployedAccount1 = AccountDetails(
+            privateKey = Felt.fromHex("0xa2ed22bb0cb0b49c69f6d6a8d24bc5ea"),
+            publicKey = Felt.fromHex("0x198e98e771ebb5da7f4f05658a80a3d6be2213dc5096d055cbbefa62901ab06"),
+            address = Felt.fromHex("0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b"),
+            salt = Felt(20),
+        )
+        val predeployedAccount2 = AccountDetails(
+            privateKey = Felt.fromHex("0xc1c7db92d22ef773de96f8bde8e56c85"),
+            publicKey = Felt.fromHex("0x26df62f8e61920575f9c9391ed5f08397cfcfd2ade02d47781a4a8836c091fd"),
+            address = Felt.fromHex("0x34864aab9f693157f88f2213ffdaa7303a46bbea92b702416a648c3d0e42f35"),
+            salt = Felt(20),
+        )
+    }
     fun start() {
         if (isDevnetRunning) {
             throw DevnetSetupFailedException("Devnet is already running")
         }
+        devnetPath = Paths.get(System.getenv("DEVNET_PATH")) ?: throw DevnetSetupFailedException(
+            "DEVNET_PATH environment variable is not set. Make sure you have devnet installed https://github.com/0xSpaceShard/starknet-devnet-rs and DEVNET_PATH points to a devnet binary.",
+        )
 
-        // This kills any zombie devnet processes left over from previous
-        // test runs, if any.
+        // This kills any zombie devnet processes left over from previous test runs, if any.
         ProcessBuilder(
             "pkill",
             "-f",
             "starknet-devnet.*$port.*$seed",
         ).start().waitFor()
 
-        devnetProcess =
-            ProcessBuilder(
-                "starknet-devnet",
-                "--disable-rpc-request-validation",
-                "--host",
-                host,
-                "--port",
-                port.toString(),
-                "--seed",
-                seed.toString(),
-                "--sierra-compiler-path",
-                "../cairo/target/debug/starknet-sierra-compile",
-            ).start()
-
-        // TODO: Replace with reading buffer until it prints "Listening on"
-        devnetProcess.waitFor(10, TimeUnit.SECONDS)
+        val devnetProcessBuilder = ProcessBuilder(
+            devnetPath.absolutePathString(),
+            "--host",
+            host,
+            "--port",
+            port.toString(),
+            "--seed",
+            seed.toString(),
+        )
+        devnetProcess = devnetProcessBuilder.start()
+        devnetProcess.waitFor(3, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")
         }
-
         isDevnetRunning = true
 
         if (accountDirectory.exists()) {
             accountDirectory.toFile().walkTopDown().forEach { it.delete() }
         }
-        accountDetails = deployAccount("__default__").details
+
+        defaultAccountDetails = createDeployAccount("__default__").details
     }
 
     override fun close() {
-        if (!isDevnetRunning) return
-
+        if (!isDevnetRunning) {
+            return
+        }
         devnetProcess.destroyForcibly()
 
         // Wait for the process to be destroyed
@@ -107,15 +115,16 @@ class DevnetClient(
 
     fun prefundAccount(accountAddress: Felt) {
         val payload = HttpService.Payload(
-            "$baseUrl/mint",
-            "POST",
-            emptyList(),
+            url = mintUrl,
+            body =
             """
             {
               "address": "${accountAddress.hexString()}",
               "amount": 500000000000000000000000000000
             }
             """.trimIndent(),
+            method = "POST",
+            params = emptyList(),
         )
         val response = httpService.send(payload)
         if (!response.isSuccessful) {
@@ -123,259 +132,221 @@ class DevnetClient(
         }
     }
 
-    data class DeployAccountResult(
-        val details: AccountDetails,
-        val txHash: Felt,
-    )
+    fun createAccount(
+        name: String,
+        classHash: Felt = accountContractClassHash,
+        salt: Felt? = null,
+    ): CreateAccountResult {
+        val params = mutableListOf(
+            "create",
+            "--name",
+            name,
+            "--class-hash",
+            classHash.hexString(),
+        )
+        salt?.let {
+            params.add("--salt")
+            params.add(salt.hexString())
+        }
 
-    fun deployAccount(name: String? = null): DeployAccountResult {
-        // We have to generate unique name for the account as a global namespace is used
+        val response = runSnCast(
+            command = "account",
+            args = params,
+        ) as AccountCreateSnCastResponse
+
+        return CreateAccountResult(
+            details = readAccountDetails(name),
+            maxFee = response.maxFee,
+        )
+    }
+
+    fun deployAccount(
+        name: String,
+        classHash: Felt = accountContractClassHash,
+        maxFee: Felt = Felt(1000000000000000),
+    ): DeployAccountResult {
+        val params = listOf(
+            "deploy",
+            "--name",
+            name,
+            "--max-fee",
+            maxFee.hexString(),
+            "--class-hash",
+            classHash.hexString(),
+        )
+        val response = runSnCast(
+            command = "account",
+            args = params,
+        ) as AccountDeploySnCastResponse
+
+        return DeployAccountResult(
+            details = readAccountDetails(name),
+            transactionHash = response.transactionHash,
+        )
+    }
+
+    fun createDeployAccount(
+        name: String? = null,
+        classHash: Felt = accountContractClassHash,
+        salt: Felt? = null,
+        maxFee: Felt = Felt(1000000000000000),
+    ): DeployAccountResult {
         val accountName = name ?: UUID.randomUUID().toString()
-        val params = arrayOf(
-            "--account_dir",
-            accountDirectory.toString(),
+        val createResult = createAccount(accountName, classHash, salt)
+        val details = createResult.details
+        val prefundResult = prefundAccount(details.address)
+        val deployResult = deployAccount(accountName, classHash, maxFee)
+
+        return DeployAccountResult(
+            details = details,
+            transactionHash = deployResult.transactionHash,
+        )
+    }
+
+    fun declareContract(
+        contractName: String,
+        maxFee: Felt = Felt(1000000000000000),
+    ): DeclareContractResult {
+        val params = listOf(
+            "--contract-name",
+            contractName,
+            "--max-fee",
+            maxFee.hexString(),
+        )
+        val response = runSnCast(
+            command = "declare",
+            args = params,
+        ) as DeclareSnCastResponse
+
+        return DeclareContractResult(
+            classHash = response.classHash,
+            transactionHash = response.transactionHash,
+        )
+    }
+
+    fun deployContract(
+        classHash: Felt,
+        constructorCalldata: List<Felt> = emptyList(),
+        salt: Felt? = null,
+        unique: Boolean = false,
+        maxFee: Felt = Felt(1000000000000000),
+    ): DeployContractResult {
+        val params = mutableListOf(
+            "--class-hash",
+            classHash.hexString(),
+            "--max-fee",
+            maxFee.hexString(),
+        )
+        if (constructorCalldata.isNotEmpty()) {
+            params.add("--constructor-calldata")
+            constructorCalldata.forEach { params.add(it.hexString()) }
+        }
+        if (unique) {
+            params.add("--unique")
+        }
+        salt?.let {
+            params.add("--salt")
+            params.add(salt.hexString())
+        }
+        val response = runSnCast(
+            command = "deploy",
+            args = params,
+        ) as DeploySnCastResponse
+
+        return DeployContractResult(
+            transactionHash = response.transactionHash,
+            contractAddress = response.contractAddress,
+        )
+    }
+
+    fun declareDeployContract(
+        contractName: String,
+        constructorCalldata: List<Felt> = emptyList(),
+        salt: Felt? = null,
+        unique: Boolean = false,
+        maxFeeDeclare: Felt = Felt(1000000000000000),
+        maxFeeDeploy: Felt = Felt(1000000000000000),
+    ): DeployContractResult {
+        val declareResponse = declareContract(contractName, maxFeeDeclare)
+        val classHash = declareResponse.classHash
+        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
+
+        return DeployContractResult(
+            transactionHash = deployResponse.transactionHash,
+            contractAddress = deployResponse.contractAddress,
+        )
+    }
+
+    fun invokeContract(
+        contractAddress: Felt,
+        function: String,
+        calldata: List<Felt>,
+        maxFee: Felt = Felt(1000000000000000),
+    ): InvokeContractResult {
+        val params = mutableListOf(
+            "--contract-address",
+            contractAddress.hexString(),
+            "--function",
+            function,
+            "--max-fee",
+            maxFee.hexString(),
+        )
+        if (calldata.isNotEmpty()) {
+            params.add("--calldata")
+            calldata.forEach { params.add(it.hexString()) }
+        }
+        val response = runSnCast(
+            command = "invoke",
+            args = params,
+        ) as InvokeSnCastResponse
+
+        return InvokeContractResult(
+            transactionHash = response.transactionHash,
+        )
+    }
+
+    private fun runSnCast(command: String, args: List<String>, accountName: String = "__default__"): SnCastResponse {
+        val processBuilder = ProcessBuilder(
+            "sncast",
+            "--json",
+            "--path-to-scarb-toml",
+            scarbTomlPath.absolutePathString(),
+            "--accounts-file",
+            accountFilePath.absolutePathString(),
+            "--url",
+            rpcUrl,
             "--account",
             accountName,
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        )
-
-        runStarknetCli(
-            "Create account config",
-            "new_account",
-            *params,
-        )
-
-        val details = readAccountDetails(accountName)
-        prefundAccount(details.address)
-
-        val result = runStarknetCli(
-            "Account deployment",
-            "deploy_account",
-            *params,
-        )
-        val tx = getTransactionResult(result.lines(), offset = 3)
-
-        assertTxPassed(tx.hash)
-
-        return DeployAccountResult(details, tx.hash)
-    }
-
-    fun deployContract(contractPath: Path): TransactionResult {
-        val (classHash, _) = declareContract(contractPath)
-        val result = runStarknetCli(
-            "Contract deployment",
-            "deploy",
-            "--class_hash",
-            classHash.hexString(),
-            "--account_dir",
-            accountDirectory.toString(),
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-            "--max_fee",
-            "3115000000000000",
-        )
-
-        val lines = result.lines()
-        val tx = getTransactionResult(lines)
-
-        assertTxPassed(tx.hash)
-
-        return tx
-    }
-
-    fun declareContract(contractPath: Path): TransactionResult {
-        val result = runStarknetCli(
-            "Contract declare",
-            "declare",
-            "--deprecated",
-            "--contract",
-            contractPath.absolutePathString(),
-            "--account_dir",
-            accountDirectory.toString(),
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        )
-
-        val lines = result.lines()
-        val tx = getTransactionResult(lines, offset = 2)
-
-        assertTxPassed(tx.hash)
-
-        return tx
-    }
-
-    fun declareV2Contract(contractPath: Path): TransactionResult {
-        val result = runStarknetCli(
-            "Contract declare",
-            "declare",
-            "--contract",
-            contractPath.absolutePathString(),
-            "--account_dir",
-            accountDirectory.toString(),
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        )
-
-        val lines = result.lines()
-        val tx = getTransactionResult(lines, offset = 2)
-
-        assertTxPassed(tx.hash)
-
-        return tx
-    }
-
-    fun invokeTransaction(
-        functionName: String,
-        contractAddress: Felt,
-        abiPath: Path,
-        inputs: List<Felt>,
-    ): TransactionResult {
-        val result = runStarknetCli(
-            "Invoke contract",
-            "invoke",
-            "--address",
-            contractAddress.hexString(),
-            "--abi",
-            abiPath.absolutePathString(),
-            "--function",
-            functionName,
-            "--inputs",
-            *inputs.map { it.decString() }.toTypedArray(),
-            "--account_dir",
-            accountDirectory.toString(),
-            "--wallet",
-            "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        )
-
-        val lines = result.lines()
-        val tx = getTransactionResult(lines, offset = 2)
-
-        assertTxPassed(tx.hash)
-
-        return tx
-    }
-
-    fun getLatestBlock(): Block {
-        val result = runStarknetCli(
-            "Get latest block",
-            "get_block",
-        )
-
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
-
-        return json.decodeFromString(Block.serializer(), result)
-    }
-
-    fun getStorageAt(contractAddress: Felt, storageKey: Felt): Felt {
-        val result = runStarknetCli(
-            "Get storage",
-            "get_storage_at",
-            "--contract_address",
-            contractAddress.hexString(),
-            "--key",
-            storageKey.decString(),
-        )
-
-        return Felt.fromHex(result.trim())
-    }
-
-    fun transactionReceipt(transactionHash: Felt): GatewayTransactionReceipt {
-        val result = runStarknetCli(
-            "Get receipt",
-            "get_transaction_receipt",
-            "--hash",
-            transactionHash.hexString(),
-        )
-
-        return json.decodeFromString(result)
-    }
-
-    fun latestBlock(): GetBlockHashAndNumberResponse {
-        val result = runStarknetCli(
-            "Get receipt",
-            "get_block",
-            "--number",
-            "latest",
-        )
-
-        return json.decodeFromString(result)
-    }
-
-    private fun assertTxPassed(txHash: Felt) {
-        val receipt = transactionReceipt(txHash)
-        if (receipt.failureReason != null || receipt.status != TransactionStatus.ACCEPTED_ON_L2) {
-            throw DevnetOperationFailed(receipt.failureReason, receipt.status)
-        }
-    }
-
-    private fun runStarknetCli(name: String, command: String, vararg args: String): String {
-        val process = ProcessBuilder(
-            "starknet",
             command,
-            *args,
-            "--gateway_url",
-            gatewayUrl,
-            "--feeder_gateway_url",
-            feederGatewayUrl,
-            "--network",
-            "alpha-goerli",
-        ).start()
+            *(args.toTypedArray()),
+        )
+        processBuilder.directory(File(contractsDirectory.absolutePathString()))
+
+        val process = processBuilder.start()
         process.waitFor()
 
         val error = String(process.errorStream.readAllBytes())
-        requireNoErrors(name, error)
+        requireNoErrors(command, error)
 
-        val result = String(process.inputStream.readAllBytes())
-        return result
+        var result = String(process.inputStream.readAllBytes())
+
+        // TODO: remove this - pending sncast update
+        // As of sncast 0.6.0, "account create" outputs non-json data in the beggining of the response
+        val index = result.indexOf('{')
+        // Remove all characters before the first `{`
+        result = if (index >= 0) result.substring(index) else throw IllegalArgumentException("Invalid response JSON")
+
+        return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
-    private fun requireNoErrors(methodName: String, errorStream: String) {
+    private fun requireNoErrors(command: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
-            throw DevnetSetupFailedException("Step $methodName failed. error = $errorStream")
+            throw DevnetSetupFailedException("Command $command failed. error = $errorStream")
         }
-    }
-
-    private fun getValueFromLine(line: String, index: Int = 1): String {
-        val split = line.split(": ")
-        return split[index]
-    }
-
-    private fun getTransactionResult(lines: List<String>, offset: Int = 1): TransactionResult {
-        val address = Felt.fromHex(getValueFromLine(lines[offset]))
-        val hash = Felt.fromHex(getValueFromLine(lines[offset + 1]))
-        return TransactionResult(address, hash)
     }
 
     private fun readAccountDetails(accountName: String): AccountDetails {
-        val accountFile = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
-        val contents = accountFile.readText()
+        val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @Serializable
-    data class AccountDetails(
-        @JsonNames("private_key")
-        val privateKey: Felt,
-
-        @JsonNames("public_key")
-        val publicKey: Felt,
-
-        @JsonNames("address")
-        val address: Felt,
-
-        @JsonNames("salt")
-        val salt: Felt,
-    )
-
-    class AccountDetailsSerializer(val name: String) :
-        JsonTransformingSerializer<AccountDetails>(AccountDetails.serializer()) {
-        override fun transformDeserialize(element: JsonElement): JsonElement {
-            val accounts = element.jsonObject["alpha-goerli"]!!
-            return accounts.jsonObject[name]!!
-        }
     }
 }

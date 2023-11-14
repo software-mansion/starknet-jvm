@@ -4,6 +4,3 @@
 [submodule "crypto/poseidon/poseidon"]
 	path = crypto/poseidon/poseidon
 	url = git@github.com:THenry14/poseidon.git
-[submodule "cairo"]
-	path = cairo
-	url = git@github.com:starkware-libs/cairo.git

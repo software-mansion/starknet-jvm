@@ -1,6 +1,6 @@
 <h2 align="center">☕ starknet jvm ☕</h2>
 
-[StarkNet](https://starkware.co/starknet/#:~:text=Live%20on%20Mainnet-,What%20is%20StarkNet%3F,-StarkNet%20is%20a) SDK for JVM languages:
+[Starknet](https://starkware.co/starknet/#:~:text=Live%20on%20Mainnet-,What%20is%20Starknet%3F,-Starknet%20is%20a) SDK for JVM languages:
 - Java
 - Kotlin
 - Scala
@@ -10,13 +10,24 @@
 ## Table of contents
 
 <!-- TOC -->
+  * [Table of contents](#table-of-contents)
   * [Installation](#installation)
   * [Documentation](#documentation)
   * [Example usages](#example-usages)
     * [Making synchronous requests](#making-synchronous-requests)
     * [Making asynchronous requests](#making-asynchronous-requests)
+    * [Standard flow examples](#standard-flow-examples)
+  * [Demo applications](#demo-applications)
+    * [Android demo](#android-demo)
+    * [Java demo](#java-demo)
+  * [Reusing http clients](#reusing-http-clients)
   * [Development](#development)
     * [Hooks](#hooks)
+  * [Running tests](#running-tests)
+    * [Prerequisites](#prerequisites)
+    * [Platform-specific prerequisites](#platform-specific-prerequisites)
+    * [Regular Tests](#regular-tests)
+    * [Integration Tests](#integration-tests)
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
@@ -48,7 +59,7 @@ import com.swmansion.starknet.provider.gateway.GatewayProvider;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
@@ -82,7 +93,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with StarkNet
+        // Create a provider for interacting with Starknet
         Provider provider = GatewayProvider.makeTestnetClient();
 
         // Create an account interface
@@ -100,6 +111,21 @@ public class Main {
     }
 }
 ```
+
+### Standard flow examples
+
+- [Deploying account](lib/starknet-jvm.md#deploying-account)
+- [Invoking contract: Transfering ETH](lib/starknet-jvm.md#invoking-contract-transfering-eth)
+- [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
+- [Declaring Cairo 0 contract](lib/starknet-jvm.md#declaring-cairo-0-contract)
+- [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
+
+## Demo applications
+These demo apps can be used with any Starknet RPC node, including devnet.
+They are intended for demonstration/testing purposes only. 
+### [Android demo](androiddemo)
+### [Java demo](javademo)
+
 
 ## Reusing http clients
 
@@ -127,21 +153,66 @@ var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ### Hooks
 Run
 ```
-./gradlew addKtlintFormatGitPreCommitHook
-./gradlew addKtlintCheckGitPreCommitHook
+./gradlew installKotlinterPrePushHook
 ```
+
 
 ## Running tests
 
-Running tests requires to have both cairo-lang and starknet-devnet installed.
-These are distributed as python packages. Run
+### Prerequisites
+- `cairo-lang` and `starknet-devnet`
+  - These are distributed as python packages. To install, run:
+    ```shell
+    pip install -r requirements.txt
+    ```
+- [`starknet-devnet-rs`](https://github.com/0xSpaceShard/starknet-devnet-rs) 
+  - Since it has yet to be released, you will need to build it manually and set `DEVNET_PATH` environment variable that points to a binary:
+    ```shell
+    DEVNET_PATH=/path/to/starknet-devnet-rs/target/release/starknet-devnet
+    ```
+  - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
+- [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
+- [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
+### Platform-specific prerequisites
+- **macOS aarch64**: no additional steps are required.
+- **linux x86_64**: no additional steps are required.
+- For other platforms, you will need to set `V2_COMPILER_BUILD_PATH` environment variable.
+    - `V2_COMPILER_BUILD_PATH` - path to a directory that contains built cairo v2.2.0 compiler binaries (`bin/`) and corelib (`corelib/`)
+    - To build cairo compilers for your platform, refer to [cairo repo](https://github.com/starkware-libs/cairo).
+
+### Regular Tests
+Use the following command to run tests:
 ```shell
-pip install -r requirements.txt
+./gradlew :lib:test
 ```
 
-to install required dependencies.
+### Integration Tests
+Running tests for integration network requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+Refer to the example config found in [test_variables.env.example](test_variables.env.example).
+Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
 
+Integration tests are disabled by default. To enable them, you can set the env variable: 
+```env
+INTEGRATION_TEST_MODE=non_gas
+```
+Some integration tests require gas and are disabled by default. If you want to run them as well, you can set:
+```env 
+INTEGRATION_TEST_MODE=all
+```
+⚠️ WARNING ⚠️ Please be aware that in that case your account address must have a pre-existing balance as these tests will consume some funds.
+
+Alternatively, you can use flag to specify whether to run integration and gas tests:
+```shell
+./gradlew :lib:test -PintegrationTestMode=non_gas
+./gradlew :lib:test -PintegrationTestMode=all
+```
+Flag takes precendece over the env variable if both are set.
+
+⚠️ WARNING ⚠️ Some integration tests may fail due to getNonce receiving higher nonce than expected by other methods.
+It is adviced to additionaly provide an account (along with its **private key**) with a constant **nonce** to ensure non-gas tests pass.
+Such account shouldn't be used for any other purpose than running non-gas integration tests.
+If not set, the main account provided in the config will be used for this purpose.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 
