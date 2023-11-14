@@ -12,10 +12,10 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -195,6 +195,33 @@ class ProviderTest {
         assertEquals("https://alpha-mainnet.starknet.io/feeder_gateway", withHttpProvider.feederGatewayUrl)
         assertEquals("https://alpha-mainnet.starknet.io/gateway", withHttpProvider.gatewayUrl)
         assertEquals(StarknetChainId.MAINNET, withHttpProvider.chainId)
+    }
+
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
+    @Test
+    fun `get spec version`() {
+        val provider = rpcProvider
+
+        val request = provider.getSpecVersion()
+        val specVersion = request.send()
+
+        assertNotEquals(0, specVersion.length)
+        val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
+        assertTrue(validPattern.containsMatchIn(specVersion))
+    }
+
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
+    @Test
+    fun `get transaction status`() {
+        val provider = rpcProvider
+
+        val transactionHash = devnetAddressBook.invokeTransactionHash
+        val transactionStatus = provider.getTransactionStatus(transactionHash).send()
+        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        assertNotNull(transactionStatus.executionStatus)
+        assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
     }
 
     @ParameterizedTest
@@ -543,7 +570,19 @@ class ProviderTest {
                             "events":
                             [],
                             "messages_sent":
-                            []
+                            [],
+                            "execution_resources": 
+                            {
+                                "steps": "0x999",
+                                "memory_holes": "0x1",
+                                "range_check_builtin_applications": "0x21",
+                                "pedersen_builtin_applications": "0x37",
+                                "poseidon_builtin_applications": "0x451",
+                                "ec_op_builtin_applications": "0x123",
+                                "ecdsa_builtin_applications": "0x789",
+                                "bitwise_builtin_applications": "0x0",
+                                "keccak_builtin_applications": "0xd"
+                            }
                         }
                     }
                 """.trimIndent(),
@@ -557,6 +596,8 @@ class ProviderTest {
         assertTrue(response is ProcessedDeployRpcTransactionReceipt)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare transaction receipt`(providerParameters: ProviderParameters) {
@@ -573,6 +614,8 @@ class ProviderTest {
         }
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get invoke transaction receipt`(providerParameters: ProviderParameters) {
@@ -589,6 +632,8 @@ class ProviderTest {
         }
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get pending invoke transaction receipt rpc`() {
         val mockedResponse =
@@ -702,6 +747,8 @@ class ProviderTest {
         assertNotNull(gatewayResponse.messageL1ToL2!!.nonce)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get l1 handler transaction receipt rpc`() {
         val httpService = mock<HttpService> {
@@ -865,6 +912,8 @@ class ProviderTest {
         assertTrue(response is DeployAccountTransaction)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get deploy account transaction receipt`(providerParameters: ProviderParameters) {
@@ -1086,6 +1135,8 @@ class ProviderTest {
         assertNotEquals(0, response)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get current block number and hash`(providerParameters: ProviderParameters) {
@@ -1271,6 +1322,12 @@ class ProviderTest {
                     "parent_hash": "0x123",
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
+                    "l1_gas_price": 
+                    {
+                        "price_in_wei": "0x2137",
+                        "price_in_strk": "0x1234"
+                    },
+                    "starknet_version": "0.12.3",
                     "transactions": [
                         {
                             "transaction_hash": "0x01",
@@ -1308,6 +1365,8 @@ class ProviderTest {
         assertTrue(response is PendingBlockWithTransactionsResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transactions with block tag`() {
         val provider = rpcProvider
@@ -1318,6 +1377,8 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionsResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transactions with block hash`() {
         val provider = rpcProvider
@@ -1330,6 +1391,8 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionsResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transactions with block number`() {
         val provider = rpcProvider
@@ -1342,6 +1405,8 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionsResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get pending block with transaction hashes`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
@@ -1371,6 +1436,8 @@ class ProviderTest {
         assertTrue(response is PendingBlockWithTransactionHashesResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transaction hashes with block tag`() {
         val provider = rpcProvider
@@ -1381,6 +1448,8 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionHashesResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transaction hashes with block hash`() {
         val provider = rpcProvider
@@ -1393,6 +1462,8 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionHashesResponse)
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `get block with transaction hashes with block number`() {
         val provider = rpcProvider

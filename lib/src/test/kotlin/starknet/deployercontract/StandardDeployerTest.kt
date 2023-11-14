@@ -13,6 +13,7 @@ import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -119,6 +120,8 @@ object StandardDeployerTest {
         )
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy`(standardDeployerParameters: StandardDeployerParameters) {
@@ -142,6 +145,8 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy with default parameters`(standardDeployerParameters: StandardDeployerParameters) {
@@ -162,6 +167,8 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy with constructor`(standardDeployerParameters: StandardDeployerParameters) {
