@@ -30,7 +30,7 @@ enum class AbiEntryType {
 @Serializable
 enum class StateMutabilityType {
     @JsonNames("view")
-    VIEW
+    VIEW,
 }
 
 @Serializable
