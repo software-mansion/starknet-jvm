@@ -190,7 +190,7 @@ Use the following command to run tests:
 ### Network Tests
 Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-To select the network, please set the `NETWORK_TEST_NETWORK` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
 You will also need to provide **gateway URLs**, **RPC node URL** and an **account address** (along with its **private key**).
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env

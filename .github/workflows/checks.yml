@@ -118,7 +118,7 @@ jobs:
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
           NETWORK_TEST_MODE: "non_gas"
-          NETWORK_TEST_NETWORK: "TESTNET"
+          NETWORK_TEST_NETWORK_NAME: "TESTNET"
           TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
           TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
           TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}

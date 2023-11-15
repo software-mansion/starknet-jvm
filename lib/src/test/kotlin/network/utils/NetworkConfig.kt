@@ -83,7 +83,7 @@ class NetworkConfig {
 
             val env = System.getenv()
             val network = Network.valueOf(
-                env.getOrElse("NETWORK_TEST_NETWORK") { throw RuntimeException("NETWORK_TEST_NETWORK not found in environment variables") },
+                env.getOrElse("NETWORK_TEST_NETWORK_NAME") { throw RuntimeException("NETWORK_TEST_NETWORK_NAME not found in environment variables") },
             )
             return Config(
                 network = network,
