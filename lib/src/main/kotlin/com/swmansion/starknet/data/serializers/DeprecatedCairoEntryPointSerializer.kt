@@ -14,7 +14,6 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import toNumAsHex
 
-
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = DeprecatedCairoEntryPoint::class)
 internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
