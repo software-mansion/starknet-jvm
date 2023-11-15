@@ -137,7 +137,7 @@ data class GatewayTransactionReceipt(
     @JsonNames("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @JsonNames("revert_error", "revert_reason")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("transaction_failure_reason")
@@ -188,7 +188,7 @@ data class ProcessedInvokeRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -216,7 +216,7 @@ data class PendingInvokeRpcTransactionReceipt(
     @JsonNames("type")
     override val type: TransactionType = TransactionType.INVOKE,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
@@ -255,7 +255,7 @@ data class ProcessedDeclareRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -283,7 +283,7 @@ data class PendingDeclareRpcTransactionReceipt(
     @JsonNames("type")
     override val type: TransactionType = TransactionType.DECLARE,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
@@ -326,7 +326,7 @@ data class ProcessedDeployAccountRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -357,7 +357,7 @@ data class PendingDeployAccountRpcTransactionReceipt(
     @JsonNames("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
@@ -400,7 +400,7 @@ data class ProcessedDeployRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -440,7 +440,7 @@ data class ProcessedL1HandlerRpcTransactionReceipt(
     @JsonNames("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("events")
@@ -471,7 +471,7 @@ data class PendingL1HandlerRpcTransactionReceipt(
     @JsonNames("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
 
-    @JsonNames("revert_reason", "revert_error")
+    @JsonNames("revert_reason")
     override val revertReason: String? = null,
 
     @JsonNames("finality_status")
