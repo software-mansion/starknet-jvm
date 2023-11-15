@@ -15,14 +15,6 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
         val isPending = listOf("block_hash", "block_number").any { it !in jsonElement }
 
         return when (type) {
-            TransactionType.DEPLOY -> when (isPending) {
-                false -> ProcessedDeployRpcTransactionReceipt.serializer()
-                true -> throw SerializationException("Pending deploy transaction receipt is not supported")
-            }
-            TransactionType.DEPLOY_ACCOUNT -> when (isPending) {
-                false -> ProcessedDeployAccountRpcTransactionReceipt.serializer()
-                true -> PendingDeployAccountRpcTransactionReceipt.serializer()
-            }
             TransactionType.INVOKE -> when (isPending) {
                 false -> ProcessedInvokeRpcTransactionReceipt.serializer()
                 true -> PendingInvokeRpcTransactionReceipt.serializer()
@@ -31,6 +23,11 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
                 false -> ProcessedDeclareRpcTransactionReceipt.serializer()
                 true -> PendingDeclareRpcTransactionReceipt.serializer()
             }
+            TransactionType.DEPLOY_ACCOUNT -> when (isPending) {
+                false -> ProcessedDeployAccountRpcTransactionReceipt.serializer()
+                true -> PendingDeployAccountRpcTransactionReceipt.serializer()
+            }
+            TransactionType.DEPLOY -> ProcessedDeployRpcTransactionReceipt.serializer()
             TransactionType.L1_HANDLER -> when (isPending) {
                 false -> ProcessedL1HandlerRpcTransactionReceipt.serializer()
                 true -> PendingL1HandlerRpcTransactionReceipt.serializer()
