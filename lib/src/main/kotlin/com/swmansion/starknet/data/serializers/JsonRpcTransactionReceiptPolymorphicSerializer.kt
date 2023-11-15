@@ -7,7 +7,7 @@ import kotlinx.serialization.json.*
 
 internal object JsonRpcTransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionReceipt> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionReceipt> {
         val jsonElement = element.jsonObject
         val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
@@ -23,15 +23,15 @@ internal object JsonRpcTransactionReceiptPolymorphicSerializer :
                 false -> ProcessedDeployAccountRpcTransactionReceipt.serializer()
                 true -> PendingDeployAccountRpcTransactionReceipt.serializer()
             }
-            TransactionType.INVOKE -> return when (isPending) {
+            TransactionType.INVOKE -> when (isPending) {
                 false -> ProcessedInvokeRpcTransactionReceipt.serializer()
                 true -> PendingInvokeRpcTransactionReceipt.serializer()
             }
-            TransactionType.DECLARE -> return when (isPending) {
+            TransactionType.DECLARE -> when (isPending) {
                 false -> ProcessedDeclareRpcTransactionReceipt.serializer()
                 true -> PendingDeclareRpcTransactionReceipt.serializer()
             }
-            TransactionType.L1_HANDLER -> return when (isPending) {
+            TransactionType.L1_HANDLER -> when (isPending) {
                 false -> ProcessedL1HandlerRpcTransactionReceipt.serializer()
                 true -> PendingL1HandlerRpcTransactionReceipt.serializer()
             }
