@@ -97,7 +97,7 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // TODO: (#344) Currently, Juno fails to estimate the message fee.
-        assumeFalse(network == Network.INTEGRATION)
+        assumeFalse(network == Network.TESTNET)
 
         val provider = rpcProvider
 
