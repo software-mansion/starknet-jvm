@@ -59,6 +59,8 @@ object StandardDeployerTest {
         try {
             devnetClient.start()
             legacyDevnetClient.start()
+            val balanceContractClassHash = devnetClient.declareContract("Balance").classHash
+            val legacyBalanceContractClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/balance.json")).address
 
             // Prepare devnet address book
             val accountDetails = devnetClient.createDeployAccount("standard_account_test").details
@@ -66,6 +68,7 @@ object StandardDeployerTest {
             devnetAddressBook = AddressBook(
                 deployerAddress = DevnetClient.udcContractAddress,
                 accountAddress = accountDetails.address,
+                balanceContractClassHash = balanceContractClassHash,
             )
 
             // Prepare legacy devnet address book
@@ -81,6 +84,7 @@ object StandardDeployerTest {
             legacyDevnetAddressBook = AddressBook(
                 deployerAddress = legacyGatewayDeployerAddress,
                 accountAddress = legacyAccountAddress,
+                balanceContractClassHash = legacyBalanceContractClassHash,
             )
         } catch (ex: Exception) {
             devnetClient.close()
@@ -92,10 +96,12 @@ object StandardDeployerTest {
     data class StandardDeployerParameters(
         val standardDeployer: StandardDeployer,
         val provider: Provider,
+        val addressBook: AddressBook,
     )
     data class AddressBook(
         val deployerAddress: Felt,
         val accountAddress: Felt,
+        val balanceContractClassHash: Felt,
     )
 
     @JvmStatic
@@ -108,6 +114,7 @@ object StandardDeployerTest {
                     StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, legacyGatewayProvider),
                 ),
                 legacyGatewayProvider,
+                legacyDevnetAddressBook,
             ),
             StandardDeployerParameters(
                 StandardDeployer(
@@ -116,6 +123,7 @@ object StandardDeployerTest {
                     StandardAccount(devnetAddressBook.accountAddress, signer, rpcProvider),
                 ),
                 rpcProvider,
+                devnetAddressBook,
             ),
         )
     }
@@ -127,12 +135,7 @@ object StandardDeployerTest {
     fun `test udc deploy`(standardDeployerParameters: StandardDeployerParameters) {
         val standardDeployer = standardDeployerParameters.standardDeployer
         val provider = standardDeployerParameters.provider
-
-        val classHash = when (provider) {
-            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/balance.json")).address
-            is JsonRpcProvider -> devnetClient.declareContract("Balance").classHash
-            else -> throw IllegalStateException("Unknown provider type")
-        }
+        val classHash = standardDeployerParameters.addressBook.balanceContractClassHash
 
         val deployment = standardDeployer.deployContract(
             classHash = classHash,
@@ -152,12 +155,8 @@ object StandardDeployerTest {
     fun `test udc deploy with default parameters`(standardDeployerParameters: StandardDeployerParameters) {
         val standardDeployer = standardDeployerParameters.standardDeployer
         val provider = standardDeployerParameters.provider
+        val classHash = standardDeployerParameters.addressBook.balanceContractClassHash
 
-        val classHash = when (provider) {
-            is GatewayProvider -> legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/balance.json")).address
-            is JsonRpcProvider -> devnetClient.declareContract("Balance").classHash
-            else -> throw IllegalStateException("Unknown provider type")
-        }
         val deployment = standardDeployer.deployContract(
             classHash = classHash,
             constructorCalldata = emptyList(),
@@ -167,8 +166,6 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy with constructor`(standardDeployerParameters: StandardDeployerParameters) {
