@@ -197,7 +197,7 @@ class ProviderTest {
         assertEquals(StarknetChainId.MAINNET, withHttpProvider.chainId)
     }
 
-@Test
+    @Test
     fun `get spec version`() {
         val provider = rpcProvider
 
