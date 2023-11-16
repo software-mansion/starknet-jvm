@@ -1,7 +1,9 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
@@ -11,35 +13,60 @@ import kotlinx.serialization.json.*
  * ```java
  * String typedDataString = """
  * {
- *     "types": {
- *         "StarkNetDomain": [
- *             {"name": "name", "type": "felt"},
- *             {"name": "version", "type": "felt"},
- *             {"name": "chainId", "type": "felt"},
- *         ],
- *         "Person": [
- *             {"name": "name", "type": "felt"},
- *             {"name": "wallet", "type": "felt"},
- *         ],
- *         "Mail": [
- *             {"name": "from", "type": "Person"},
- *             {"name": "to", "type": "Person"},
- *             {"name": "contents", "type": "felt"},
- *         ],
- *     },
- *     "primaryType": "Mail",
- *     "domain": {"name": "StarkNet Mail", "version": "1", "chainId": 1},
- *     "message": {
- *         "from": {
- *             "name": "Cow",
- *             "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826",
- *         },
- *         "to": {
- *             "name": "Bob",
- *             "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
- *         },
- *         "contents": "Hello, Bob!",
- *     },
+ *    "types": {
+ *        "StarkNetDomain": [
+ *            {"name": "name", "type": "string"},
+ *            {"name": "version", "type": "felt"},
+ *            {"name": "chainId", "type": "felt"}
+ *        ],
+ *        "Airdrop": [
+ *            {"name": "address", "type": "felt"},
+ *            {"name": "amount", "type": "felt"}
+ *        ],
+ *        "Validate": [
+ *            {"name": "id", "type": "felt"},
+ *            {"name": "from", "type": "felt"},
+ *            {"name": "amount", "type": "felt"},
+ *            {"name": "nameGamer", "type": "string"},
+ *            {"name": "endDate", "type": "felt"},
+ *            {"name": "itemsAuthorized", "type": "felt*"},
+ *            {"name": "chkFunction", "type": "selector"},
+ *            {"name": "rootList", "type": "merkletree", "contains": "Airdrop"}
+ *        ]
+ *    },
+ *    "primaryType": "Validate",
+ *    "domain": {
+ *        "name": "myDapp",
+ *        "version": "1",
+ *        "chainId": "SN_GOERLI"
+ *    },
+ *    "message": {
+ *        "id": "0x0000004f000f",
+ *        "from": "0x2c94f628d125cd0e86eaefea735ba24c262b9a441728f63e5776661829a4066",
+ *        "amount": "400",
+ *        "nameGamer": "Hector26",
+ *        "endDate": "0x27d32a3033df4277caa9e9396100b7ca8c66a4ef8ea5f6765b91a7c17f0109c",
+ *        "itemsAuthorized": ["0x01", "0x03", "0x0a", "0x0e"],
+ *        "chkFunction": "check_authorization",
+ *        "rootList": [
+ *            {
+ *                "address": "0x69b49c2cc8b16e80e86bfc5b0614a59aa8c9b601569c7b80dde04d3f3151b79",
+ *                "amount": "1554785"
+ *            },
+ *            {
+ *                "address": "0x7447084f620ba316a42c72ca5b8eefb3fe9a05ca5fe6430c65a69ecc4349b3b",
+ *                "amount": "2578248"
+ *            },
+ *            {
+ *                "address": "0x3cad9a072d3cf29729ab2fad2e08972b8cfde01d4979083fb6d15e8e66f8ab1",
+ *                "amount": "4732581"
+ *            },
+ *            {
+ *                "address": "0x7f14339f5d364946ae5e27eccbf60757a5c496bf45baf35ddf2ad30b583541a",
+ *                "amount": "913548"
+ *            }
+ *        ]
+ *    }
  * }
  * """;
  *
@@ -53,18 +80,20 @@ import kotlinx.serialization.json.*
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
-    val types: Map<String, List<Type>>,
+    val types: Map<String, List<TypeBase>>,
     val primaryType: String,
     val domain: JsonObject,
     val message: JsonObject,
 ) {
     init {
-        require("felt" !in types) { "Types must not contain felt." }
-        require("felt*" !in types) { "Types must not contain felt*." }
+        val reservedTypeNames = listOf("felt", "felt*", "string", "string*", "selector", "selector*", "merkletree", "merkletree*", "raw", "raw*")
+        reservedTypeNames.forEach {
+            require(!types.containsKey(it)) { "Types must not contain $it." }
+        }
     }
 
     constructor(
-        types: Map<String, List<Type>>,
+        types: Map<String, List<TypeBase>>,
         primaryType: String,
         domain: String,
         message: String,
@@ -75,8 +104,29 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @Serializable(with = TypedDataTypeBaseSerializer::class)
+    sealed class TypeBase {
+        abstract val name: String
+        abstract val type: String
+    }
+
     @Serializable
-    data class Type(val name: String, val type: String)
+    data class Type(
+        override val name: String,
+        override val type: String,
+    ) : TypeBase()
+
+    @Serializable
+    data class MerkleTreeType(
+        override val name: String,
+        override val type: String = "merkletree",
+        val contains: String,
+    ) : TypeBase()
+
+    data class Context(
+        val parent: String?,
+        val key: String?,
+    )
 
     private fun getDependencies(typeName: String): List<String> {
         val deps = mutableListOf(typeName)
@@ -115,28 +165,61 @@ data class TypedData private constructor(
         return "$dependency($encodedFields)"
     }
 
-    private fun valueFromPrimitive(primitive: JsonPrimitive): Felt {
-        if (primitive.isString) {
-            if (primitive.content == "") {
-                return Felt.ZERO
-            }
-            val decimal = primitive.content.toBigIntegerOrNull()
+    private fun feltFromPrimitive(primitive: JsonPrimitive): Felt {
+        when (primitive.isString) {
+            true -> {
+                if (primitive.content == "") {
+                    return Felt.ZERO
+                }
 
-            if (decimal != null) {
-                return Felt(decimal)
-            }
+                val decimal = primitive.content.toBigIntegerOrNull()
+                decimal?.let {
+                    return Felt(it)
+                }
 
-            return try {
-                Felt.fromHex(primitive.content)
-            } catch (e: IllegalArgumentException) {
-                Felt.fromShortString(primitive.content)
+                return try {
+                    Felt.fromHex(primitive.content)
+                } catch (e: Exception) {
+                    Felt.fromShortString(primitive.content)
+                }
+            }
+            false -> {
+                return Felt(primitive.long)
             }
         }
-
-        return Felt(primitive.long)
     }
 
-    private fun encodeValue(typeName: String, value: JsonElement): Pair<String, Felt> {
+    private fun prepareSelector(name: String): Felt {
+        return try {
+            Felt.fromHex(name)
+        } catch (e: Exception) {
+            selectorFromName(name)
+        }
+    }
+
+    private fun getMerkleTreeType(context: Context): String {
+        val (parent, key) = context.parent to context.key
+
+        return if (parent != null && key != null) {
+            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent '$parent' is not defined in types.") }
+            val merkleType = parentType.find { it.name == key }
+                ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
+
+            require(merkleType is MerkleTreeType) { "Key '$key' in parent '$parent' is not a merkletree." }
+            require(!merkleType.contains.endsWith("*")) {
+                "Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'."
+            }
+            merkleType.contains
+        } else {
+            "raw"
+        }
+    }
+
+    internal fun encodeValue(
+        typeName: String,
+        value: JsonElement,
+        context: Context = Context(null, null),
+    ): Pair<String, Felt> {
         if (types.containsKey(typeName)) {
             return typeName to getStructHash(typeName, value as JsonObject)
         }
@@ -149,26 +232,37 @@ data class TypedData private constructor(
             return typeName to hash
         }
 
-        if (typeName == "felt*") {
-            val array = value as JsonArray
-            val feltArray = array.map { valueFromPrimitive(it.jsonPrimitive) }
-            val hash = StarknetCurve.pedersenOnElements(feltArray)
-
-            return typeName to hash
+        return when (typeName) {
+            "felt*" -> {
+                val array = value as JsonArray
+                val feltArray = array.map { feltFromPrimitive(it.jsonPrimitive) }
+                val hash = StarknetCurve.pedersenOnElements(feltArray)
+                typeName to hash
+            }
+            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
+            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
+            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
+            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
+            "merkletree" -> {
+                val merkleTreeType = getMerkleTreeType(context)
+                val array = value as JsonArray
+                val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
+                val root = MerkleTree(structHashes).rootHash
+                "merkletree" to root
+            }
+            else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
         }
-
-        if (typeName == "felt") {
-            return "felt" to valueFromPrimitive(value.jsonPrimitive)
-        }
-
-        throw IllegalArgumentException("Type [$typeName] is not defined in types.")
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
         val values = mutableListOf<Felt>()
 
         for (param in types.getValue(typeName)) {
-            val encodedValue = encodeValue(param.type, data.getValue(param.name))
+            val encodedValue = encodeValue(
+                typeName = param.type,
+                value = data.getValue(param.name),
+                Context(typeName, param.name),
+            )
             values.add(encodedValue.second)
         }
 
@@ -208,7 +302,7 @@ data class TypedData private constructor(
         /**
          * Create TypedData from JSON string.
          *
-         * @param typedData json of typed data
+         * @param typedData json string of typed data
          */
         @JvmStatic
         fun fromJsonString(typedData: String): TypedData =
