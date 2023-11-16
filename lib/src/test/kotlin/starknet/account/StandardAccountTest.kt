@@ -197,6 +197,8 @@ class StandardAccountTest {
         assert(nonce >= Felt.ZERO)
     }
 
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `get nonce twice`(accountParameters: AccountParameters) {
@@ -218,6 +220,8 @@ class StandardAccountTest {
         )
     }
 
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for invoke transaction`(accountParameters: AccountParameters) {
@@ -240,6 +244,8 @@ class StandardAccountTest {
         assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
     }
 
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for invoke transaction at latest block tag`(accountParameters: AccountParameters) {
@@ -301,6 +307,8 @@ class StandardAccountTest {
         assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
     }
 
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @Test
     fun `estimate message fee`() {
         val provider = rpcProvider
@@ -329,8 +337,6 @@ class StandardAccountTest {
         assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v1 transaction`(accountParameters: AccountParameters) {
@@ -361,8 +367,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction`(accountParameters: AccountParameters) {
@@ -388,8 +392,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign and send declare v2 transaction (cairo compiler v2)`(accountParameters: AccountParameters) {
@@ -415,8 +417,8 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign single call test`(accountParameters: AccountParameters) {
@@ -490,8 +492,8 @@ class StandardAccountTest {
         }
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute single call`(accountParameters: AccountParameters) {
@@ -511,8 +513,8 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute single call with specific fee`(accountParameters: AccountParameters) {
@@ -539,8 +541,8 @@ class StandardAccountTest {
         // assertTrue(receipt.actualFee!! < maxFee)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign multiple calls test`(accountParameters: AccountParameters) {
@@ -566,8 +568,8 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute multiple calls`(accountParameters: AccountParameters) {
@@ -593,8 +595,8 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `two executes with single call`(accountParameters: AccountParameters) {
@@ -721,8 +723,8 @@ class StandardAccountTest {
         assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `deploy account`(providerParameters: ProviderParameters) {
@@ -824,7 +826,7 @@ class StandardAccountTest {
         }
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    // TODO (#351): Enable this test once RPC 0.5.x is fully supported on devnet
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate invoke and deploy account transactions`() {
@@ -895,7 +897,7 @@ class StandardAccountTest {
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    // TODO (#351): Enable this test once RPC 0.5.x is fully supported on devnet
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate declare v1 transaction`() {
@@ -932,7 +934,7 @@ class StandardAccountTest {
         assertTrue(trace is DeclareTransactionTrace)
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
+    // TODO (#351): Enable this test once RPC 0.5.x is fully supported on devnet
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate declare v2 transaction`() {

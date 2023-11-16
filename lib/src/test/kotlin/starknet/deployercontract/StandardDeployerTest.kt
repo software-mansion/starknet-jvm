@@ -120,8 +120,8 @@ object StandardDeployerTest {
         )
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy`(standardDeployerParameters: StandardDeployerParameters) {
@@ -145,8 +145,8 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
-    // TODO (#351): Enable this test once RPC 0.5.x is supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
+    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
+    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getStandardDeployerParameters")
     fun `test udc deploy with default parameters`(standardDeployerParameters: StandardDeployerParameters) {

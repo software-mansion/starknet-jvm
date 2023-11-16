@@ -18,7 +18,7 @@ jobs:
     # TODO: (#310) Remove when migrating to macOS arm64 runner
     env:
       V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
-      DEVNET_SHA: 8c4b73361cb1e15412c68f18ef18da08586a8461
+      DEVNET_SHA: 74a7bf77291ef0365d35cb725712c90d25c686c4
     steps:
       - uses: actions/checkout@v3
         with:
