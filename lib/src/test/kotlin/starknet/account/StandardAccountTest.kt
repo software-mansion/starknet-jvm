@@ -830,12 +830,13 @@ class StandardAccountTest {
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate invoke and deploy account transactions`() {
-        val addressBook = legacyDevnetAddressBook
+        val provider = rpcProvider
+        val addressBook = devnetAddressBook
         val accountAddress = addressBook.accountAddress
         val balanceContractAddress = addressBook.balanceContractAddress
         val accountClassHash = addressBook.accountContractClassHash
 
-        val account = StandardAccount(accountAddress, legacySigner, legacyRpcProvider)
+        val account = StandardAccount(accountAddress, signer, provider)
 
         val nonce = account.getNonce().send()
         val call = Call(
@@ -860,18 +861,18 @@ class StandardAccountTest {
         val newAccount = StandardAccount(
             address,
             privateKey,
-            legacyRpcProvider,
+            provider,
         )
-        legacyDevnetClient.prefundAccount(address)
+        devnetClient.prefundAccount(address)
         val deployAccountTx = newAccount.signDeployAccount(
             classHash = accountClassHash,
             salt = salt,
             calldata = calldata,
-            maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+            maxFee = Felt(4_482_000_000_000_00),
         )
 
         val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = legacyRpcProvider.simulateTransactions(
+        val simulationResult = provider.simulateTransactions(
             transactions = listOf(invokeTx, deployAccountTx),
             blockTag = BlockTag.LATEST,
             simulationFlags = simulationFlags,
@@ -885,7 +886,7 @@ class StandardAccountTest {
         val deployAccountTxWithoutSignature = DeployAccountTransactionPayload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
 
         val simulationFlags2 = setOf(SimulationFlag.SKIP_VALIDATE)
-        val simulationResult2 = legacyRpcProvider.simulateTransactions(
+        val simulationResult2 = provider.simulateTransactions(
             transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
             blockTag = BlockTag.LATEST,
             simulationFlags = simulationFlags2,
@@ -901,8 +902,8 @@ class StandardAccountTest {
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate declare v1 transaction`() {
-        val provider = legacyRpcProvider
-        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
+        val provider = rpcProvider
+        val account = StandardAccount(devnetAddressBook.accountAddress, signer, provider)
 
         val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
@@ -938,8 +939,8 @@ class StandardAccountTest {
     @Disabled("Pending RPC 0.5.x support on devnet")
     @Test
     fun `simulate declare v2 transaction`() {
-        val provider = legacyRpcProvider
-        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
+        val provider = rpcProvider
+        val account = StandardAccount(devnetAddressBook.accountAddress, signer, provider)
 
         ScarbClient.createSaltedContract(
             placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
