@@ -44,6 +44,12 @@ data class GetTransactionReceiptPayload(
 )
 
 @Serializable
+data class GetTransactionStatusPayload(
+    @SerialName("transaction_hash")
+    val transactionHash: Felt,
+)
+
+@Serializable
 data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<

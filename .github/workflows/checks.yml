@@ -18,7 +18,7 @@ jobs:
     # TODO: (#310) Remove when migrating to macOS arm64 runner
     env:
       V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
-      DEVNET_SHA: 8c4b73361cb1e15412c68f18ef18da08586a8461
+      DEVNET_SHA: 74a7bf77291ef0365d35cb725712c90d25c686c4
     steps:
       - uses: actions/checkout@v3
         with:
@@ -117,6 +117,13 @@ jobs:
       - name: Run tests and generate coverage report
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
+          NETWORK_TEST_MODE: "non_gas"
+          NETWORK_TEST_NETWORK_NAME: "TESTNET"
+          TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+          TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+          TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
+          TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov

@@ -44,3 +44,15 @@ data class MessageL1ToL2(
     @SerialName("payload")
     val payload: List<Felt>,
 )
+
+@Serializable
+data class OrderedMessageL2ToL1(
+    @SerialName("from_address")
+    val fromAddress: Felt,
+
+    @SerialName("to_address")
+    val toAddress: Felt,
+
+    @SerialName("payload")
+    val payload: List<Felt>,
+)
