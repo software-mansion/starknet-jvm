@@ -13,7 +13,7 @@ import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = EstimateFeeResponse::class)
-object EstimateFeeResponseGatewaySerializer : KSerializer<EstimateFeeResponse> {
+internal object EstimateFeeResponseGatewaySerializer : KSerializer<EstimateFeeResponse> {
     override fun deserialize(decoder: Decoder): EstimateFeeResponse {
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
 

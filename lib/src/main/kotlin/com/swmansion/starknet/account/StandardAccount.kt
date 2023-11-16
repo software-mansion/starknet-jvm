@@ -179,6 +179,9 @@ class StandardAccount(
         if (e.message?.let { regex.containsMatchIn(it) } == true) {
             return false
         }
+        if (e.revertError?.let { regex.containsMatchIn(it) } == true) {
+            return false
+        }
         throw e
     }
 

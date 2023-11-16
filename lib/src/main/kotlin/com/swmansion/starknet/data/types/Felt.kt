@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
-data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata {
+data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 
@@ -21,10 +21,6 @@ data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata
         }
     }
 
-    override fun compareTo(other: Felt): Int {
-        return value.compareTo(other.value)
-    }
-
     override fun toCalldata(): List<Felt> = listOf(this)
 
     override fun toString(): String {
@@ -34,14 +30,14 @@ data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata
     /**
      * Encode as hexadecimal string, including "0x" prefix.
      */
-    fun hexString(): String {
+    override fun hexString(): String {
         return value.toHex()
     }
 
     /**
      * Encode as decimal string.
      */
-    fun decString(): String {
+    override fun decString(): String {
         return value.toString(10)
     }
 
@@ -100,6 +96,15 @@ data class Felt(val value: BigInteger) : Comparable<Felt>, ConvertibleToCalldata
 
             return fromHex("0x$encoded")
         }
+
+        /**
+         * Create Felt from NumAsHex.
+         *
+         * @param value NumAsHex to be transformed to felt.
+         * @throws IllegalArgumentException if value is negative or greater than Felt.PRIME.
+         */
+        @JvmStatic
+        fun fromNumAsHex(value: NumAsHex): Felt = Felt(value.value)
 
         private fun isAscii(string: String): Boolean {
             for (char in string) {

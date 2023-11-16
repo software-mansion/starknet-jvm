@@ -12,10 +12,11 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import toNumAsHex
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = DeprecatedCairoEntryPoint::class)
-object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
+internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
     override fun deserialize(decoder: Decoder): DeprecatedCairoEntryPoint {
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
 
@@ -23,8 +24,8 @@ object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoi
 
         // This accepts both integer and hex string for offset,
         // as compiled contract code uses integer for this field, but the RPC spec requires NUM_AS_HEX.
-        val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toFelt
-            ?: jsonObject.getValue("offset").jsonPrimitive.content.toFelt
+        val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toNumAsHex
+            ?: jsonObject.getValue("offset").jsonPrimitive.content.toNumAsHex
         val selector = jsonObject.getValue("selector").jsonPrimitive.content.toFelt
 
         return DeprecatedCairoEntryPoint(

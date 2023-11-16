@@ -30,7 +30,7 @@ enum class AbiEntryType {
 @Serializable
 enum class StateMutabilityType {
     @JsonNames("view")
-    VIEW
+    VIEW,
 }
 
 @Serializable
@@ -81,7 +81,7 @@ data class StructAbiEntry(
 
 @Serializable(with = DeprecatedCairoEntryPointSerializer::class)
 data class DeprecatedCairoEntryPoint(
-    val offset: Felt,
+    val offset: NumAsHex,
     val selector: Felt,
 )
 

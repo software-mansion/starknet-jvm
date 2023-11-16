@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonTransformingSerializer
 import kotlinx.serialization.json.jsonObject
 
-object GatewayTransactionTransformingSerializer :
+internal object GatewayTransactionTransformingSerializer :
     JsonTransformingSerializer<Transaction>(TransactionPolymorphicSerializer) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
         return element.jsonObject["transaction"]

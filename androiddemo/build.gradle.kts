@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace = "com.example.androiddemo"
     compileSdk = 32
 
     defaultConfig {
@@ -42,14 +43,10 @@ android {
     }
 }
 
-kotlinter {
-    disabledRules = arrayOf("no-wildcard-imports")
-}
-
 dependencies {
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.2")
-    implementation("com.google.android.material:material:1.6.1")
+    implementation("androidx.core:core-ktx:1.8.0") // highest version available for sdk 32
+    implementation("androidx.appcompat:appcompat:1.5.1") // highest version available for sdk 32
+    implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     // Make sure you are using the AAR and not a JAR and include transitive dependencies
     implementation("com.swmansion.starknet:starknet:0.7.3@aar"){
@@ -58,6 +55,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

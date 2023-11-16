@@ -44,7 +44,10 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
 
     private fun processHttpResponse(response: Response): HttpResponse {
         if (response.body == null) {
-            throw RequestFailedException("HTTP request failed with code = ${response.code}", "")
+            throw RequestFailedException(
+                message = "HTTP request failed with code = ${response.code}",
+                payload = "",
+            )
         }
         return HttpResponse(response.isSuccessful, response.code, response.body!!.string())
     }
@@ -75,7 +78,12 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
         client.newCall(httpRequest).enqueue(
             object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    future.completeExceptionally(RequestFailedException(e.message ?: "Unknown HTTP error.", ""))
+                    future.completeExceptionally(
+                        RequestFailedException(
+                            message = e.message ?: "Unknown HTTP error.",
+                            payload = "",
+                        ),
+                    )
                 }
 
                 override fun onResponse(call: Call, response: Response) {
