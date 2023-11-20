@@ -4,6 +4,7 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -12,7 +13,7 @@ import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = TransactionPayload::class)
-object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
+internal object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
 
     override val descriptor: SerialDescriptor
         get() = TransactionPayload.serializer().descriptor
@@ -20,21 +21,29 @@ object JsonRpcTransactionPayloadSerializer : KSerializer<TransactionPayload> {
     override fun deserialize(decoder: Decoder): TransactionPayload {
         require(decoder is JsonDecoder)
         val element = decoder.decodeJsonElement()
+        val jsonElement = element.jsonObject
+        val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
-        return when (element.jsonObject["type"]?.jsonPrimitive?.content) {
-            "INVOKE" -> decoder.json.decodeFromJsonElement(InvokeTransactionPayload.serializer(), element)
-            "DECLARE" -> deserializeDeclare(decoder, element)
-            "DEPLOY_ACCOUNT" -> decoder.json.decodeFromJsonElement(DeployAccountTransactionPayload.serializer(), element)
-            else -> throw IllegalArgumentException("Invalid transaction type '${element.jsonObject["type"]?.jsonPrimitive?.content}'")
+        val type = decoder.json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
+
+        return when (type) {
+            TransactionType.INVOKE -> decoder.json.decodeFromJsonElement(InvokeTransactionPayload.serializer(), element)
+            TransactionType.DECLARE -> deserializeDeclare(decoder, element)
+            TransactionType.DEPLOY_ACCOUNT -> decoder.json.decodeFromJsonElement(DeployAccountTransactionPayload.serializer(), element)
+            else -> throw IllegalArgumentException("Invalid transaction type '${typeElement.jsonPrimitive.content}'")
         }
     }
 
-    private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransactionPayload =
-        when (element.jsonObject["version"]?.jsonPrimitive?.content) {
-            Felt.ONE.hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
-            Felt(2).hexString() -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
-            else -> throw IllegalArgumentException("Invalid declare transaction version '${element.jsonObject["version"]?.jsonPrimitive?.content}'")
+    private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransactionPayload {
+        val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+
+        val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
+        return when (version) {
+            Felt.ONE -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
+            Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
+            else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
+    }
 
     override fun serialize(encoder: Encoder, value: TransactionPayload) {
         require(encoder is JsonEncoder)

@@ -47,6 +47,5 @@ data class AccountDetails(
 )
 
 class DevnetSetupFailedException(message: String) : Exception(message)
-
 class LegacyDevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
     Exception(failureReason?.errorMessage ?: "Devnet operation failed")

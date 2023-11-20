@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-object EstimateTransactionFeePayloadSerializer : KSerializer<EstimateTransactionFeePayload> {
+internal object EstimateTransactionFeePayloadSerializer : KSerializer<EstimateTransactionFeePayload> {
 
     override val descriptor: SerialDescriptor
         get() = EstimateTransactionFeePayload.serializer().descriptor

@@ -3,9 +3,10 @@ package com.swmansion.starknet.data.types.transactions
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionTracePolymorphicSerializer
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.EstimateFeeResponse
-import com.swmansion.starknet.data.types.EventContent
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL2ToL1
+import com.swmansion.starknet.data.types.OrderedEvent
+import com.swmansion.starknet.data.types.OrderedMessageL2ToL1
+import com.swmansion.starknet.data.types.StateDiff
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,6 +21,7 @@ enum class EntryPointType(val value: String) {
 enum class CallType(val value: String) {
     CALL("CALL"),
     LIBRARY_CALL("LIBRARY_CALL"),
+    DELEGATE("DELEGATE"),
 }
 
 @Serializable
@@ -40,28 +42,28 @@ data class FunctionInvocation(
     val calldata: Calldata,
 
     @SerialName("caller_address")
-    val callerAddress: Felt?,
+    val callerAddress: Felt,
 
     @SerialName("class_hash")
-    val classHash: Felt?,
+    val classHash: Felt,
 
     @SerialName("entry_point_type")
-    val entryPointType: EntryPointType?,
+    val entryPointType: EntryPointType,
 
     @SerialName("call_type")
-    val callType: CallType?,
+    val callType: CallType,
 
     @SerialName("result")
-    val result: List<Felt>?,
+    val result: List<Felt>,
 
     @SerialName("calls")
-    val calls: List<FunctionInvocation>?,
+    val calls: List<FunctionInvocation>,
 
     @SerialName("events")
-    val events: List<EventContent>?,
+    val events: List<OrderedEvent>,
 
     @SerialName("messages")
-    val messages: List<MessageL2ToL1>?,
+    val messages: List<OrderedMessageL2ToL1>,
 )
 
 @Serializable
@@ -71,7 +73,10 @@ data class RevertedFunctionInvocation(
 )
 
 @Serializable
-sealed class TransactionTrace()
+sealed class TransactionTrace {
+    abstract val type: TransactionType
+    abstract val stateDiff: StateDiff?
+}
 
 @Serializable
 sealed class InvokeTransactionTraceBase : TransactionTrace() {
@@ -80,6 +85,9 @@ sealed class InvokeTransactionTraceBase : TransactionTrace() {
 
     @SerialName("fee_transfer_invocation")
     abstract val feeTransferInvocation: FunctionInvocation?
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.INVOKE
 }
 
 @Serializable
@@ -88,10 +96,13 @@ data class InvokeTransactionTrace(
     override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
-    val executeInvocation: FunctionInvocation? = null,
+    val executeInvocation: FunctionInvocation,
 
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
@@ -100,10 +111,13 @@ data class RevertedInvokeTransactionTrace(
     override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
-    val executeInvocation: RevertedFunctionInvocation? = null,
+    val executeInvocation: RevertedFunctionInvocation,
 
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
@@ -113,6 +127,12 @@ data class DeclareTransactionTrace(
 
     @SerialName("fee_transfer_invocation")
     val feeTransferInvocation: FunctionInvocation? = null,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
 ) : TransactionTrace()
 
 @Serializable
@@ -121,16 +141,28 @@ data class DeployAccountTransactionTrace(
     val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("constructor_invocation")
-    val constructorInvocation: FunctionInvocation? = null,
+    val constructorInvocation: FunctionInvocation,
 
     @SerialName("fee_transfer_invocation")
     val feeTransferInvocation: FunctionInvocation? = null,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
+
+    @SerialName("type")
+    override val type: TransactionType,
 ) : TransactionTrace()
 
 @Serializable
 data class L1HandlerTransactionTrace(
     @SerialName("function_invocation")
-    val functionInvocation: FunctionInvocation? = null,
+    val functionInvocation: FunctionInvocation,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : TransactionTrace()
 
 @Serializable

@@ -3,6 +3,8 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -34,8 +36,9 @@ data class DeployAccountResponse(
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 
+    // TODO: (#344) deviation from the spec, make this non-nullable once Juno is updated
     @JsonNames("address", "contract_address")
-    val address: Felt,
+    val address: Felt? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -59,6 +62,15 @@ data class GetBlockHashAndNumberResponse(
 
     @JsonNames("block_number")
     val blockNumber: Int,
+)
+
+@Serializable
+data class GetTransactionStatusResponse(
+    @SerialName("finality_status")
+    val finalityStatus: TransactionStatus,
+
+    @SerialName("execution_status")
+    val executionStatus: TransactionExecutionStatus? = null,
 )
 
 @Serializable
@@ -128,6 +140,8 @@ sealed class GetBlockWithTransactionsResponse {
     abstract val timestamp: Int
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
+    abstract val l1GasPrice: ResourcePrice
+    abstract val starknetVersion: String
 }
 
 @Serializable
@@ -162,6 +176,12 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse()
 
 @Serializable
@@ -188,6 +208,12 @@ data class PendingBlockWithTransactionsResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse()
 
 sealed class GetBlockWithTransactionHashesResponse {
@@ -195,6 +221,8 @@ sealed class GetBlockWithTransactionHashesResponse {
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
     abstract val transactionHashes: List<Felt>
+    abstract val l1GasPrice: ResourcePrice
+    abstract val starknetVersion: String
 }
 
 @Serializable
@@ -226,6 +254,12 @@ data class BlockWithTransactionHashesResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
@@ -249,6 +283,12 @@ data class PendingBlockWithTransactionHashesResponse(
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
 ) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
@@ -355,3 +395,12 @@ data class PendingStateUpdateResponse(
     @SerialName("state_diff")
     override val stateDiff: StateDiff,
 ) : StateUpdate()
+
+@Serializable
+data class ResourcePrice(
+    @SerialName("price_in_wei")
+    val priceInWei: NumAsHex,
+
+    @SerialName("price_in_strk")
+    val priceInStark: NumAsHex? = null,
+)
