@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.8.0"
+version = "0.8.1"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -121,7 +121,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20")
 
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
