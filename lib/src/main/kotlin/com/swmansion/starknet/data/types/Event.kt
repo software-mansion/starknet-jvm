@@ -53,10 +53,10 @@ data class EmittedEvent(
     val data: List<Felt>,
 
     @JsonNames("block_hash")
-    val blockHash: Felt,
+    val blockHash: Felt? = null,
 
     @JsonNames("block_number")
-    val blockNumber: Int,
+    val blockNumber: Int? = null,
 
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
