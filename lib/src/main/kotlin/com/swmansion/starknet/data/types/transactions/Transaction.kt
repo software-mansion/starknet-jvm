@@ -317,6 +317,79 @@ data class DeclareTransactionV2(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@SerialName("DECLARE")
+data class DeclareTransactionV3(
+    @SerialName("class_hash")
+    override val classHash: Felt,
+
+    @SerialName("sender_address")
+    override val senderAddress: Felt,
+
+    // not in RPC spec
+    @SerialName("transaction_hash")
+    @JsonNames("txn_hash")
+    override val hash: Felt? = null,
+
+    @SerialName("max_fee")
+    override val maxFee: Felt,
+
+    @SerialName("version")
+    override val version: Felt = Felt(3),
+
+    @SerialName("signature")
+    override val signature: Signature,
+
+    @SerialName("nonce")
+    override val nonce: Felt,
+
+    @SerialName("resource_bounds")
+    val resourceBounds: ResourceBoundsMapping,
+
+    @SerialName("tip")
+    val tip: Felt,
+
+    @SerialName("paymaster_data")
+    val paymasterData: List<Felt>,
+
+    @SerialName("account_deployment_data")
+    val accountDeploymentData: List<Felt>,
+
+    @SerialName("nonce_data_availability_mode")
+    val nonceDataAvailabilityMode: DAMode,
+
+    @SerialName("fee_data_availability_mode")
+    val feeDataAvailabilityMode: DAMode,
+
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
+
+    @SerialName("contract_class")
+    val contractDefinition: Cairo1ContractDefinition? = null,
+) : DeclareTransaction() {
+    @Throws(ConvertingToPayloadFailedException::class)
+    internal fun toPayload(): DeclareTransactionV3Payload {
+        contractDefinition ?: throw ConvertingToPayloadFailedException()
+        return DeclareTransactionV3Payload(
+            contractDefinition = contractDefinition,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            nonce = nonce,
+            resourceBounds = resourceBounds,
+            tip = tip,
+            paymasterData = paymasterData,
+            accountDeploymentData = accountDeploymentData,
+            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = feeDataAvailabilityMode,
+            signature = signature,
+            compiledClassHash = compiledClassHash,
+        )
+    }
+
+    internal class ConvertingToPayloadFailedException : RuntimeException()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
     @SerialName("contract_address")

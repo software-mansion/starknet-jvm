@@ -397,20 +397,21 @@ data class PendingStateUpdateResponse(
 ) : StateUpdate()
 
 @Serializable
-data class ResourceBounds(
-    @SerialName("max_amount")
-    val maxAmount: Felt,
-
-    @SerialName("max_price_per_unit")
-    val maxPricePerUnit: Felt,
-)
-
 data class ResourceBoundsMapping(
     @SerialName("l1_gas")
     val l1Gas: ResourceBounds,
 
     @SerialName("l2_gas")
     val l2Gas: ResourceBounds,
+)
+
+@Serializable
+data class ResourceBounds(
+    @SerialName("max_amount")
+    val maxAmount: Felt,
+
+    @SerialName("max_price_per_unit")
+    val maxPricePerUnit: Felt,
 )
 
 @Serializable

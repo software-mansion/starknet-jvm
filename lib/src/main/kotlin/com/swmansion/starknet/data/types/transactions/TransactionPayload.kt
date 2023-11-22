@@ -100,6 +100,51 @@ data class DeclareTransactionV2Payload(
 ) : DeclareTransactionPayload()
 
 @Serializable
+data class DeclareTransactionV3Payload(
+    @SerialName("contract_class")
+    val contractDefinition: Cairo1ContractDefinition,
+
+    @SerialName("max_fee")
+    val maxFee: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("signature")
+    val signature: Signature,
+
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
+
+    @SerialName("resource_bounds")
+    val resourceBounds: ResourceBoundsMapping,
+
+    @SerialName("tip")
+    val tip: Felt,
+
+    @SerialName("paymaster_data")
+    val paymasterData: List<Felt>,
+
+    @SerialName("account_deployment_data")
+    val accountDeploymentData: List<Felt>,
+
+    @SerialName("nonce_data_availability_mode")
+    val nonceDataAvailabilityMode: DAMode,
+
+    @SerialName("fee_data_availability_mode")
+    val feeDataAvailabilityMode: DAMode,
+
+    @SerialName("version")
+    val version: Felt = Felt(3),
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE,
+) : DeclareTransactionPayload()
+
+@Serializable
 data class DeployAccountTransactionPayload(
     @SerialName("class_hash")
     val classHash: Felt,
