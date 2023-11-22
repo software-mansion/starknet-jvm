@@ -34,6 +34,15 @@ enum class TransactionType(val txPrefix: Felt) {
 }
 
 @Serializable
+enum class DAMode {
+    @SerialName("L1")
+    L1,
+
+    @SerialName("L2")
+    L2,
+}
+
+@Serializable
 sealed class Transaction {
     abstract val hash: Felt?
     abstract val maxFee: Felt
