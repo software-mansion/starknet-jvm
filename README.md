@@ -10,13 +10,24 @@
 ## Table of contents
 
 <!-- TOC -->
+  * [Table of contents](#table-of-contents)
   * [Installation](#installation)
   * [Documentation](#documentation)
   * [Example usages](#example-usages)
     * [Making synchronous requests](#making-synchronous-requests)
     * [Making asynchronous requests](#making-asynchronous-requests)
+    * [Standard flow examples](#standard-flow-examples)
+  * [Demo applications](#demo-applications)
+    * [Android demo](#android-demo)
+    * [Java demo](#java-demo)
+  * [Reusing http clients](#reusing-http-clients)
   * [Development](#development)
     * [Hooks](#hooks)
+  * [Running tests](#running-tests)
+    * [Prerequisites](#prerequisites)
+    * [Platform-specific prerequisites](#platform-specific-prerequisites)
+    * [Regular Tests](#regular-tests)
+    * [Integration Tests](#integration-tests)
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
@@ -101,464 +112,19 @@ public class Main {
 }
 ```
 
-### Deploying account
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.crypto.StarknetCurve;
-import com.swmansion.starknet.data.ContractAddressCalculator;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.*;
-import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.math.BigInteger;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
-
-        // Create an account interface
-        Felt privateKey = Felt.fromHex("0x123");
-        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-
-        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
-        Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
-        Felt salt = new Felt(789);
-        List<Felt> calldata = List.of(publicKey);
-        Felt address = ContractAddressCalculator.calculateAddressFromHash(
-            classHash,
-            calldata,
-            salt
-        );
-
-        Account account = new StandardAccount(address, privateKey, provider, Felt.ZERO);
-        
-        Felt maxFee = Felt.fromHex("0x11fcc58c7f7000");  // should be 10*fee from estimate deploy account fee
-
-        // Make sure to prefund the address with at least maxFee
-        
-        // Create and sign deploy account transaction
-        DeployAccountTransactionPayload payload = account.signDeployAccount(
-            classHash,
-            calldata,
-            salt,
-            maxFee
-        );
-
-        DeployAccountResponse response = provider.deployAccount(payload).send();
-    }
-}
-```
-
-or in Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
-
-    // Create an account interface
-    val privateKey = Felt.fromHex("0x123")
-    val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-    // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)
-    val classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773")
-    val salt = Felt(789)
-    val calldata = listOf(publicKey)
-    val address = ContractAddressCalculator.calculateAddressFromHash(
-        classHash = classHash,
-        calldata = calldata,
-        salt = salt,
-    )
-
-    val account = StandardAccount(
-        address,
-        privateKey,
-        provider,
-    )
-
-    val payload = account.signDeployAccount(
-        classHash = classHash,
-        salt = salt,
-        calldata = calldata,
-        maxFee = Felt.fromHex("0x11fcc58c7f7000"),  // should be 10*fee from estimate deploy account fee
-    )
-    
-    // Create and sign deploy account transaction
-    val response = provider.deployAccount(payload).send()
-}
-```
-
-### Invoking contract: Transfering ETH 
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-import com.swmansion.starknet.provider.Request;
-
-import java.math.BigInteger;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x123");
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
-
-        Felt recipientAccountAddress = Felt.fromHex("0x987654321");
-        Uint256 amount = new Uint256(new Felt(451));
-
-        // Specify the contract address, in this example ETH ERC20 contract is used
-        Felt contractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
-
-        // Create a call
-        List<Felt> calldata = List.of(recipientAccountAddress, amount.getLow(), amount.getHigh()); // amount is Uint256 and is represented by two Felt values
-        Call call = new Call(contractAddress, "transfer", calldata);
-
-        // Estimate fee for the invoke transaction
-        Felt estimateFee = account.estimateFee(List.of(call)).send().get(0).getOverallFee();
-        // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
-        
-        // Create and sign invoke transaction
-        Request<InvokeFunctionResponse> request = account.execute(call);
-
-        // Send the transaction
-        InvokeFunctionResponse response = request.send();
-    }
-}
-```
-or in Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
-
-    // Set up an account
-    val privateKey = Felt.fromHex("0x123")
-    val accountAddress = Felt.fromHex("0x1236789")
-    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
-
-    val recipientAccountAddress = Felt.fromHex("0x987654321")
-    // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
-    // account.execute(Call) estimates the fee automatically
-    // If you want to estimate the fee manually, please refer to the "Estimate Fee" example
-    val amount = Uint256(Felt(451))
-
-    // Specify the contract address, in this example ETH ERC20 contract is used
-    val contractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
-
-    // Create a call
-    val calldata = listOf(recipientAccountAddress, amount.low, amount.high) // amount is Uint256 and is represented by two Felt values
-    val call = Call(
-        contractAddress = contractAddress,
-        entrypoint = "transfer",
-        calldata = calldata,
-    )
-    
-    // Estimate fee for the invoke transaction
-    val estimateFee = account.estimateFee(listOf(call)).send().first().overallFee
-    // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
-    
-    // Create and sign invoke transaction
-    val request = account.execute(call)
-     
-    // Send the transaction
-    val response = request.send()
-}
-```
-
-### Calling contract: Fetching ETH balance
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.math.BigInteger;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x123");
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
-
-        // Specify the contract address, in this example ETH ERC20 contract is used
-        Felt contractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
-
-        // Create a call
-        List<Felt> calldata = List.of(account.getAddress());
-        Call call = new Call(contractAddress, "balanceOf", calldata);
-        Request<List<Felt>> request = provider.callContract(call);
-        
-        // Send the call request
-        List<Felt> response = request.send();
-        
-        //Output value's type is Uint256 and is represented by two Felt values
-        Uint256 balance = new Uint256(response.get(0), response.get(1));
-    }
-}
-```
-or in Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
-
-    // Set up an account
-    val privateKey = Felt.fromHex("0x123")
-    val accountAddress = Felt.fromHex("0x1236789")
-    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
-
-    // Specify the contract address, in this example ETH ERC20 contract is used
-    val contractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
-
-    // Create a call
-    val calldata = listOf(account.address)
-    val call = Call(
-        contractAddress = contractAddress,
-        entrypoint = "balanceOf",
-        calldata = calldata,
-    )
-    val request = provider.callContract(call)
-    
-    // Send the call request
-    val response: List<Felt> = request.send()
-
-    //Output value's type is Uint256 and is represented by two Felt values
-    val balance = Uint256(
-        low = response[0],
-        high = response[1],
-    )
-}
-```
-
-### Declaring Cairo 0 contract
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV1Payload;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
-
-        // Import a compiled contract
-        Path contractPath = Paths.get("contract.json");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contractCode);
-        // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-        Felt classHash = Felt.fromHex("0x1a3b2c");
-        Felt nonce = account.getNonce().send();
-
-        // Estimate fee for declaring a contract
-        DeclareTransactionV1Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
-        // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-        // Declare a contract
-        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee
-        ExecutionParams params = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionV1Payload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, params, false);
-
-        Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
-        DeclareResponse response = request.send();
-    }
-}
-```
-or in Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
-
-    // Set up an account
-    val privateKey = Felt.fromHex("0x123")
-    val accountAddress = Felt.fromHex("0x1236789")
-    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
-
-    // Import a compiled contract
-    val contractCode = Path.of("contract.json").readText()
-    val contractDefinition = Cairo0ContractDefinition(contractCode)
-    // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-    val classHash = Felt.fromHex("0x1a3b2c")
-    val nonce = account.getNonce().send()
-
-    // Estimate fee for declaring a contract
-    val declareTransactionPayloadForFeeEstimate = account.signDeclare(
-        contractDefinition = contractDefinition,
-        classHash = classHash,
-        params = ExecutionParams(nonce, Felt(1000000000000000L)),
-        forFeeEstimate = true,
-    )
-    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
-    val feeEstimate = feeEstimateRequest.send().first().overallFee
-    // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-    // Declare a contract
-    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee
-    val params = ExecutionParams(
-            nonce = nonce,
-            maxFee = maxFee,
-    )
-    val declareTransactionPayload = account.signDeclare(
-        contractDefinition = contractDefinition,
-        classHash = classHash,
-        params = params,
-    )
-
-    val request = provider.declareContract(declareTransactionPayload)
-    val response = request.send()
-}
-```
-
-### Declaring Cairo 1/2 contract
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
-
-        // Import a compiled contract
-        Path contractPath = Paths.get("contract.json");
-        Path casmPath = Paths.get("contract.casm");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        String casmCode = String.join("", Files.readAllLines(casmPath));
-        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
-        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
-        Felt nonce = account.getNonce().send();
-
-        // Estimate fee for declaring a contract
-        DeclareTransactionV2Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, casmContractDefinition, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
-        // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-        // Declare a contract
-        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee
-        ExecutionParams params = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionV2Payload declareTransactionPayload = account.signDeclare(contractDefinition, casmContractDefinition, params, false);
-
-        Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
-        DeclareResponse response = request.send();
-    }
-}
-```
-or in Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
-
-    // Set up an account
-    val privateKey = Felt.fromHex("0x1234")
-    val accountAddress = Felt.fromHex("0x1236789")
-    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
-
-    // Import a compiled contract
-    val contractCode = Path.of("contract.json").readText()
-    val casmCode = Path.of("contract.casm").readText()
-    val contractDefinition = Cairo1ContractDefinition(contractCode)
-    val casmContractDefinition = CasmContractDefinition(casmCode)
-    val nonce = account.getNonce().send()
-
-    // Estimate fee for declaring a contract
-    val declareTransactionPayloadForFeeEstimate = account.signDeclare(
-        sierraContractDefinition = contractDefinition,
-        casmContractDefinition = casmContractDefinition,
-        params = ExecutionParams(nonce, Felt(1000000000000000L)),
-    )
-    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
-    val feeEstimate = feeEstimateRequest.send().first().overallFee
-    // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-    // Declare a contract
-    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee
-    val params = ExecutionParams(
-            nonce = nonce,
-            maxFee = maxFee,
-    )
-    val declareTransactionPayload = account.signDeclare(
-        sierraContractDefinition = contractDefinition,
-        casmContractDefinition = casmContractDefinition,
-        params = params,
-    )
-
-    val request = provider.declareContract(declareTransactionPayload)
-    val response = request.send()
-}
-```
+### Standard flow examples
+
+- [Deploying account](lib/starknet-jvm.md#deploying-account)
+- [Invoking contract: Transfering ETH](lib/starknet-jvm.md#invoking-contract-transfering-eth)
+- [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
+- [Declaring Cairo 0 contract](lib/starknet-jvm.md#declaring-cairo-0-contract)
+- [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
+
+## Demo applications
+These demo apps can be used with any Starknet RPC node, including devnet.
+They are intended for demonstration/testing purposes only. 
+### [Android demo](androiddemo)
+### [Java demo](javademo)
 
 
 ## Reusing http clients
@@ -590,6 +156,7 @@ Run
 ./gradlew installKotlinterPrePushHook
 ```
 
+
 ## Running tests
 
 ### Prerequisites
@@ -620,32 +187,32 @@ Use the following command to run tests:
 ./gradlew :lib:test
 ```
 
-### Integration Tests
-Running tests for integration network requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+### Network Tests
+Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-Please note that while there are publicly accessible gateway URLs, you will additionally need a `RPC node URL` and an `account address` (along with its `private key`), to run these tests.
-
-Integration tests are disabled by default. To enable them, you can set the env variable: 
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
+You will also need to provide **gateway URLs**, **RPC node URL** and an **account address** (along with its **private key**).
+Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
-INTEGRATION_TEST_MODE=non_gas
+NETWORK_TEST_MODE=non_gas
 ```
-Some of integration tests require gas and are disabled by default. If you want to run them as well, you can set:
+Some network tests require gas and are disabled by default. If you want to run them as well, you can set:
 ```env 
-INTEGRATION_TEST_MODE=all
+NETWORK_TEST_MODE=all
 ```
-⚠️ WARNING ⚠️ Please be aware that in that case your integration account address must have a pre-existing balance as these tests will consume some funds.
+⚠️ WARNING ⚠️ Please be aware that in that case your account address must have a pre-existing balance as these tests will consume some funds.
 
-Alternatively, you can use flag to specify whether to run integration and gas tests:
+Alternatively, you can use flag to specify whether to run network and gas tests:
 ```shell
-./gradlew :lib:test -PintegrationTestMode=non_gas
-./gradlew :lib:test -PintegrationTestMode=all
+./gradlew :lib:test -PnetworkTestMode=non_gas
+./gradlew :lib:test -PnetworkTestMode=all
 ```
 Flag takes precendece over the env variable if both are set.
 
-⚠️ WARNING ⚠️ Some integration tests may fail due to getNonce receiving higher nonce than expected by other methods.
-It is adviced to additionaly provide an account (along with its `private key`) with a constant `nonce` to ensure non-gas tests pass.
-Such account shouldn't be used for any other purpose than running non-gas integration tests.
-If not set, the main integration account will be used for this purpose.
+⚠️ WARNING ⚠️ Some network tests may fail due to `getNonce` receiving higher nonce than expected by other methods.
+It is adviced to additionaly provide an account (along with its **private key**) with a constant **nonce** to ensure non-gas tests pass.
+Such account shouldn't be used for any other purpose than running non-gas network tests.
+If not set, the main account provided in the config will be used for this purpose.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

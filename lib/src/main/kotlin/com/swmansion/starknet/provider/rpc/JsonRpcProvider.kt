@@ -60,6 +60,20 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
+    /**
+     * Get the version of the spec.
+     *
+     * Get the version of the Starknet JSON-RPC specification being used by the node.
+     *
+     * @throws RequestFailedException
+     *
+     */
+    fun getSpecVersion(): Request<String> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, String.serializer())
+    }
+
     private fun callContract(payload: CallContractPayload): Request<List<Felt>> {
         val params = Json.encodeToJsonElement(payload)
 
@@ -226,6 +240,23 @@ class JsonRpcProvider(
             params,
             JsonRpcTransactionReceiptPolymorphicSerializer,
         )
+    }
+
+    /**
+     * Get transaction status
+     *
+     * Get a status of the transaction.
+     *
+     * @param transactionHash a hash of sent transaction
+     *
+     * @throws RequestFailedException
+     */
+
+    fun getTransactionStatus(transactionHash: Felt): Request<GetTransactionStatusResponse> {
+        val payload = GetTransactionStatusPayload(transactionHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
     }
 
     override fun invokeFunction(
@@ -917,23 +948,6 @@ class JsonRpcProvider(
         return getTransactionByBlockIdAndIndex(payload)
     }
 
-    /**
-     * Get pending transactions.
-     *
-     * Returns the transactions in the transaction pool, recognized by this sequencer.
-     *
-     * @throws RequestFailedException
-     */
-    fun getPendingTransactions(): Request<List<Transaction>> {
-        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
-
-        return buildRequest(
-            JsonRpcMethod.GET_PENDING_TRANSACTIONS,
-            params,
-            ListSerializer(TransactionPolymorphicSerializer),
-        )
-    }
-
     private fun simulateTransactions(payload: SimulateTransactionsPayload): Request<List<SimulatedTransaction>> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
 
@@ -978,6 +992,7 @@ class JsonRpcProvider(
 }
 
 private enum class JsonRpcMethod(val methodName: String) {
+    GET_SPEC_VERSION("starknet_specVersion"),
     CALL("starknet_call"),
     INVOKE_TRANSACTION("starknet_addInvokeTransaction"),
     GET_STORAGE_AT("starknet_getStorageAt"),
@@ -986,6 +1001,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_CLASS_HASH_AT("starknet_getClassHashAt"),
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
+    GET_TRANSACTION_STATUS("starknet_getTransactionStatus"),
     DECLARE("starknet_addDeclareTransaction"),
     GET_EVENTS("starknet_getEvents"),
     GET_BLOCK_NUMBER("starknet_blockNumber"),
@@ -998,7 +1014,6 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_WITH_TX_HASHES("starknet_getBlockWithTxHashes"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
-    GET_PENDING_TRANSACTIONS("starknet_pendingTransactions"),
     GET_NONCE("starknet_getNonce"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
     SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),

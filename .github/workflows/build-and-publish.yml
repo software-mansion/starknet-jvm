@@ -60,6 +60,7 @@ jobs:
         run: |
           cp crypto/pedersen/build/bindings/libcrypto_jni.* .
           cp crypto/poseidon/build/bindings/libposeidon_jni.* .
+          cp crypto/poseidon/build/poseidon/libposeidon.* .
 
       - name: Upload the shared libs
         uses: actions/upload-artifact@v3
@@ -68,6 +69,7 @@ jobs:
           path: |
             libcrypto_jni.*
             libposeidon_jni.*
+            libposeidon.*
 
       - name: Build android's AAR
         run: ./gradlew android:build
@@ -117,6 +119,7 @@ jobs:
           container=$(docker create build)
           docker cp $container:/build/crypto/pedersen/build/bindings/libcrypto_jni.so libcrypto_jni.so
           docker cp $container:/build/crypto/poseidon/build/bindings/libposeidon_jni.so libposeidon_jni.so
+          docker cp $container:/build/crypto/poseidon/build/poseidon/libposeidon.so libposeidon.so
       - name: Upload the shared lib
         uses: actions/upload-artifact@v3
         with:
@@ -124,6 +127,7 @@ jobs:
           path: |
             libcrypto_jni.so
             libposeidon_jni.so
+            libposeidon.so
 
     outputs:
       archs: ${{ steps.vars.outputs.os_arch }}

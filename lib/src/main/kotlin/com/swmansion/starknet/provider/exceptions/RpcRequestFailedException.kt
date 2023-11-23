@@ -7,5 +7,5 @@ package com.swmansion.starknet.provider.exceptions
  * @param message error message returned by the rpc provider
  * @param payload payload returned by the service used to communicate with Starknet
  */
-class RpcRequestFailedException(val code: Int, message: String, payload: String) :
-    RequestFailedException(message = message, payload = payload)
+class RpcRequestFailedException(val code: Int, message: String, revertError: String? = null, payload: String) :
+    RequestFailedException(message = message, revertError = revertError, payload = payload)

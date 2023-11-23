@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.7.2"
+version = "0.8.1"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -17,6 +17,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
     id("io.codearte.nexus-staging") version "0.30.0"
+    id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
 
@@ -29,7 +30,7 @@ plugins {
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     dokkaSourceSets.create("dokkaHtmlJava") {
         dependencies {
-            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.10")
+            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
         }
     }
 }
@@ -82,14 +83,15 @@ tasks.test {
     useJUnitPlatform()
 
     val libsSharedPath = file("$buildDir/libs/shared").absolutePath
-    val pedersenPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
-    val poseidonPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+    val pedersenJniPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
+    val poseidonJniPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
+    val posedionPath = file("${rootDir}/crypto/poseidon/build/poseidon").absolutePath
+    systemProperty("java.library.path", "$libsSharedPath:$pedersenJniPath:$poseidonJniPath:$posedionPath")
 
-    systemProperty("java.library.path", "$libsSharedPath:$pedersenPath:$poseidonPath")
     systemProperty(
-        "integrationTestMode",
-            project.findProperty("integrationTestMode")
-                ?: System.getenv("INTEGRATION_TEST_MODE")
+        "networkTestMode",
+            project.findProperty("networkTestMode")
+                ?: System.getenv("NETWORK_TEST_MODE")
                 ?: "disabled",
     )
 
@@ -101,9 +103,6 @@ tasks.test {
     }
 }
 
-kotlinter {
-    disabledRules = arrayOf("no-wildcard-imports")
-}
 
 // Used by CI. Locally you should use jarWithNative task
 tasks.jar {
@@ -122,22 +121,22 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20")
 
     // Use the JUnit test library.
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")   // Highest version that works with Gradle 7.6.2
 
     // Crypto provider
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
+    implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 }
 
 java {

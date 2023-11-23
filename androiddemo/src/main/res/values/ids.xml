@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="TextView" type="id" />
+    <item name="AccountAddressInputLayout" type="id" />
+    <item name="ACCOUNT_ADDRESS_INPUT" type="id" />
+    <item name="BALANCE_TEXT" type="id" />
+    <item name="BALANCE_VALUE" type="id" />
+    <item name="REFRESH_BALANCE_BUTTON" type="id" />
+    <item name="textView2" type="id" />
+    <item name="PrivateKeyInputLayout" type="id" />
+    <item name="PRIVATE_KEY_INPUT" type="id" />
+    <item name="textView3" type="id" />
+    <item name="RecipientAddressInputLayout" type="id" />
+    <item name="RECIPIENT_ADDRESS_INPUT" type="id" />
+    <item name="AmountInputLayout" type="id" />
+    <item name="AMOUNT_INPUT" type="id" />
+    <item name="TRANSFER_BUTTON" type="id" />
+    <item name="textView4" type="id" />
+    <item name="TRANSACTION_HASH_TEXT" type="id" />
+    <item name="TRANSACTION_HASH_VALUE" type="id" />
+    <item name="RECEIPT_EXECUTION_STATUS_TEXT" type="id" />
+    <item name="RECEIPT_EXECUTION_STATUS_VALUE" type="id" />
+    <item name="RECEIPT_ACTUAL_FEE_TEXT" type="id" />
+    <item name="RECEIPT_ACTUAL_FEE_VALUE" type="id" />
+    <item name="RECEIPT_REVERT_REASON_TEXT" type="id" />
+    <item name="RECEIPT_REVERT_REASON_VALUE" type="id" />
+    <item name="REFRESH_RECEIPT_BUTTON" type="id" />
+    <item name="textView5" type="id" />
+</resources>

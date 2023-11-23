@@ -12,10 +12,10 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -195,6 +195,29 @@ class ProviderTest {
         assertEquals("https://alpha-mainnet.starknet.io/feeder_gateway", withHttpProvider.feederGatewayUrl)
         assertEquals("https://alpha-mainnet.starknet.io/gateway", withHttpProvider.gatewayUrl)
         assertEquals(StarknetChainId.MAINNET, withHttpProvider.chainId)
+    }
+
+    @Test
+    fun `get spec version`() {
+        val provider = rpcProvider
+
+        val request = provider.getSpecVersion()
+        val specVersion = request.send()
+
+        assertNotEquals(0, specVersion.length)
+        val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
+        assertTrue(validPattern.containsMatchIn(specVersion))
+    }
+
+    @Test
+    fun `get transaction status`() {
+        val provider = rpcProvider
+
+        val transactionHash = devnetAddressBook.invokeTransactionHash
+        val transactionStatus = provider.getTransactionStatus(transactionHash).send()
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, transactionStatus.finalityStatus)
+        assertNotNull(transactionStatus.executionStatus)
+        assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
     }
 
     @ParameterizedTest
@@ -543,7 +566,19 @@ class ProviderTest {
                             "events":
                             [],
                             "messages_sent":
-                            []
+                            [],
+                            "execution_resources": 
+                            {
+                                "steps": "0x999",
+                                "memory_holes": "0x1",
+                                "range_check_builtin_applications": "0x21",
+                                "pedersen_builtin_applications": "0x37",
+                                "poseidon_builtin_applications": "0x451",
+                                "ec_op_builtin_applications": "0x123",
+                                "ecdsa_builtin_applications": "0x789",
+                                "bitwise_builtin_applications": "0x0",
+                                "keccak_builtin_applications": "0xd"
+                            }
                         }
                     }
                 """.trimIndent(),
@@ -554,7 +589,7 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
 
-        assertTrue(response is DeployRpcTransactionReceipt)
+        assertTrue(response is ProcessedDeployRpcTransactionReceipt)
     }
 
     @ParameterizedTest
@@ -568,7 +603,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(response is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(response is RpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(response is ProcessedRpcTransactionReceipt)
             else -> throw IllegalStateException("Unknown provider type")
         }
     }
@@ -584,7 +619,7 @@ class ProviderTest {
 
         when (provider) {
             is GatewayProvider -> assertTrue(response is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(response is RpcTransactionReceipt)
+            is JsonRpcProvider -> assertTrue(response is ProcessedRpcTransactionReceipt)
             else -> throw IllegalStateException("Unknown provider type")
         }
     }
@@ -603,7 +638,19 @@ class ProviderTest {
                 "messages_sent": [],
                 "events": [],
                 "execution_status": "SUCCEEDED",
-                "finality_status": "ACCEPTED_ON_L2"
+                "finality_status": "ACCEPTED_ON_L2",
+                "execution_resources": 
+                {
+                    "steps": "0x999",
+                    "memory_holes": "0x1",
+                    "range_check_builtin_applications": "0x21",
+                    "pedersen_builtin_applications": "0x37",
+                    "poseidon_builtin_applications": "0x451",
+                    "ec_op_builtin_applications": "0x123",
+                    "ecdsa_builtin_applications": "0x789",
+                    "bitwise_builtin_applications": "0x0",
+                    "keccak_builtin_applications": "0xd"
+                }
             }
         }
             """.trimIndent()
@@ -620,7 +667,7 @@ class ProviderTest {
         val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
 
         assertTrue(receipt is PendingRpcTransactionReceipt)
-        assertFalse(receipt is RpcTransactionReceipt)
+        assertFalse(receipt is ProcessedRpcTransactionReceipt)
     }
 
     @Test
@@ -745,7 +792,20 @@ class ProviderTest {
                                         "0x0"
                                     ]
                                 }
-                            ]
+                            ],
+                            "execution_resources": 
+                            {
+                                "steps": "0x999",
+                                "memory_holes": "0x1",
+                                "range_check_builtin_applications": "0x21",
+                                "pedersen_builtin_applications": "0x37",
+                                "poseidon_builtin_applications": "0x451",
+                                "ec_op_builtin_applications": "0x123",
+                                "ecdsa_builtin_applications": "0x789",
+                                "bitwise_builtin_applications": "0x0",
+                                "keccak_builtin_applications": "0xd"
+                            },
+                            "message_hash": "0x8000000000000110000000000000000000000000000000000000011111111111"
                         }
                     }
                 """.trimIndent(),
@@ -757,7 +817,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is RpcTransactionReceipt)
+        assertTrue(response is ProcessedRpcTransactionReceipt)
     }
 
     @ParameterizedTest
@@ -876,10 +936,12 @@ class ProviderTest {
         if (provider is GatewayProvider) {
             assertTrue(receipt is GatewayTransactionReceipt)
         } else if (provider is JsonRpcProvider) {
-            assertTrue(receipt is DeployRpcTransactionReceipt)
+            assertTrue(receipt is ProcessedDeployAccountRpcTransactionReceipt)
         }
     }
 
+    // TODO (#351): Enable this test once RPC 0.5.x is fully supported on devnet
+    @Disabled("Pending RPC 0.5.x support on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get declare transaction`(providerParameters: ProviderParameters) {
@@ -1271,6 +1333,12 @@ class ProviderTest {
                     "parent_hash": "0x123",
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
+                    "l1_gas_price": 
+                    {
+                        "price_in_wei": "0x2137",
+                        "price_in_strk": "0x1234"
+                    },
+                    "starknet_version": "0.12.3",
                     "transactions": [
                         {
                             "transaction_hash": "0x01",
@@ -1353,6 +1421,12 @@ class ProviderTest {
                     "parent_hash": "0x123",
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
+                    "l1_gas_price": 
+                    {
+                        "price_in_wei": "0x2137",
+                        "price_in_strk": "0x1234"
+                    },
+                    "starknet_version": "0.12.3",
                     "transactions": [
                         "0x01",
                         "0x02"
@@ -1500,47 +1574,6 @@ class ProviderTest {
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getTransactionByBlockIdAndIndex(blockNumber, 0)
-        val response = request.send()
-
-        assertNotNull(response)
-    }
-
-    @Test
-    fun `get pending transactions`() {
-        val mockedResponse = """
-        {
-            "id": 0,
-            "jsonrpc": "2.0",
-            "result": [
-                {
-                    "transaction_hash": "0x01",
-                    "class_hash": "0x98",
-                    "version": "0x0",
-                    "type": "DEPLOY",
-                    "max_fee": "0x1",
-                    "signature": [],
-                    "nonce": "0x1",
-                    "contract_address_salt": "0x0",
-                    "constructor_calldata": []
-                },
-                {
-                    "transaction_hash": "0x02",
-                    "class_hash": "0x99",
-                    "version": "0x1",
-                    "max_fee": "0x1",
-                    "type": "DECLARE",
-                    "sender_address": "0x15",
-                    "signature": [],
-                    "nonce": "0x1"
-                }
-            ]
-        }
-        """.trimIndent()
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
-        val request = provider.getPendingTransactions()
         val response = request.send()
 
         assertNotNull(response)
