@@ -42,12 +42,12 @@ class StandardDeployer(
         contractDeployment: ContractDeployment,
     ): Event? {
         val events = when (transactionReceipt) {
-            is ProcessedDeployRpcTransactionReceipt -> transactionReceipt.events
+            is ProcessedDeployTransactionReceipt -> transactionReceipt.events
+            is PendingDeployAccountTransactionReceipt -> transactionReceipt.events
             // Only DEPLOY transactions should be valid,
-            // but RpcTransactionReceipt is kept for backwards compatibility.
-            is ProcessedRpcTransactionReceipt -> transactionReceipt.events
-            is PendingRpcTransactionReceipt -> transactionReceipt.events
-            is GatewayTransactionReceipt -> transactionReceipt.events
+            // but TransactionReceipt is kept for backwards compatibility.
+            is ProcessedTransactionReceipt -> transactionReceipt.events
+            is PendingTransactionReceipt -> transactionReceipt.events
             else -> throw AddressRetrievalFailedException("Invalid transaction type", contractDeployment)
         }
         val deploymentEvents = events.filter { it.keys.contains(selectorFromName("ContractDeployed")) }
