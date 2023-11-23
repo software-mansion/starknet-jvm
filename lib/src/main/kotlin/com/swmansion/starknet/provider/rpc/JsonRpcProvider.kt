@@ -1,8 +1,8 @@
 package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.serializers.*
-import com.swmansion.starknet.data.serializers.JsonRpcGetBlockWithTransactionsPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.JsonRpcSyncPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.GetBlockWithTransactionsPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
@@ -10,7 +10,6 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
-import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
@@ -240,7 +239,7 @@ class JsonRpcProvider(
     private fun getClass(payload: GetClassPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS, params, JsonRpcContractClassPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_CLASS, params, ContractClassPolymorphicSerializer)
     }
 
     override fun getClass(classHash: Felt): Request<ContractClassBase> {
@@ -268,7 +267,7 @@ class JsonRpcProvider(
     private fun getClassAt(payload: GetClassAtPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, JsonRpcContractClassPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_CLASS_AT, params, ContractClassPolymorphicSerializer)
     }
 
     override fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClassBase> {
@@ -481,14 +480,14 @@ class JsonRpcProvider(
         return buildRequest(
             JsonRpcMethod.GET_SYNCING,
             params,
-            JsonRpcSyncPolymorphicSerializer,
+            SyncPolymorphicSerializer,
         )
     }
 
     private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TXS, jsonPayload, JsonRpcGetBlockWithTransactionsPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TXS, jsonPayload, GetBlockWithTransactionsPolymorphicSerializer)
     }
 
     override fun getBlockWithTxs(blockTag: BlockTag): Request<GetBlockWithTransactionsResponse> {
@@ -530,13 +529,13 @@ class JsonRpcProvider(
     private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): Request<GetBlockWithTransactionHashesResponse> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, JsonRpcGetBlockWithTransactionHashesPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, GetBlockWithTransactionHashesPolymorphicSerializer)
     }
 
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_STATE_UPDATE, jsonPayload, JsonRpcStateUpdatePolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_STATE_UPDATE, jsonPayload, StateUpdatePolymorphicSerializer)
     }
 
     override fun getStateUpdate(blockTag: BlockTag): Request<StateUpdate> {
