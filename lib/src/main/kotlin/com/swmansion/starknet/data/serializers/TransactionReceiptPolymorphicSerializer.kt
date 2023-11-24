@@ -5,7 +5,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
-internal object JsonRpcTransactionReceiptPolymorphicSerializer :
+internal object TransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionReceipt> {
         val jsonElement = element.jsonObject

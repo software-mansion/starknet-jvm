@@ -14,7 +14,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-internal object DeclareTransactionV1PayloadSerializer : KSerializer<DeclareTransactionV1Payload> {
+object DeclareTransactionV1PayloadSerializer : KSerializer<DeclareTransactionV1Payload> {
 
     override val descriptor: SerialDescriptor
         get() = DeclareTransactionV1Payload.serializer().descriptor
@@ -41,7 +41,7 @@ internal object DeclareTransactionV1PayloadSerializer : KSerializer<DeclareTrans
 }
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2Payload> {
+object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2Payload> {
 
     override val descriptor: SerialDescriptor
         get() = DeclareTransactionV2Payload.serializer().descriptor
@@ -69,7 +69,7 @@ internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTrans
 }
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-internal object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransactionPayload> {
+object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransactionPayload> {
 
     override val descriptor: SerialDescriptor
         get() = DeclareTransactionV1Payload.serializer().descriptor
@@ -96,7 +96,7 @@ internal object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransacti
 }
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-internal object DeployAccountTransactionPayloadSerializer : KSerializer<DeployAccountTransactionPayload> {
+object DeployAccountTransactionPayloadSerializer : KSerializer<DeployAccountTransactionPayload> {
 
     override val descriptor: SerialDescriptor
         get() = DeclareTransactionV1Payload.serializer().descriptor

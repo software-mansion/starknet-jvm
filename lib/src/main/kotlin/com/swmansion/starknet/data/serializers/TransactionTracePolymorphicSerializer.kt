@@ -6,7 +6,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import java.lang.IllegalArgumentException
 
-internal object JsonRpcTransactionTracePolymorphicSerializer :
+internal object TransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
     private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<out InvokeTransactionTraceBase> {
         val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
