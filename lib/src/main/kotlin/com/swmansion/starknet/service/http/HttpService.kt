@@ -1,7 +1,5 @@
 package com.swmansion.starknet.service.http
 
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.CompletableFuture
 
 /**

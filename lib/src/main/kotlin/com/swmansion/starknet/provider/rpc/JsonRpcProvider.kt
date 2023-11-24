@@ -2,8 +2,8 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.serializers.GetBlockWithTransactionsPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.JsonRpcTransactionReceiptPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
