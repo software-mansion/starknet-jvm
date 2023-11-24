@@ -27,6 +27,25 @@ interface Deployer {
      * @param unique set whether deployed contract address should be based on account address or not
      * @param salt a salt to be used to calculate deployed contract address
      * @param constructorCalldata constructor calldata
+     * @param maxFee maximum fee that account will use for the deployment
+     *
+     * @throws RequestFailedException
+     */
+    fun deployContract(
+        classHash: Felt,
+        unique: Boolean,
+        salt: Felt,
+        constructorCalldata: Calldata,
+        maxFee: Felt,
+    ): Request<ContractDeployment>
+
+    /**
+     * Deploy a contract through Universal Deployer Contract (UDC)
+     *
+     * @param classHash a class hash of the declared contract
+     * @param unique set whether deployed contract address should be based on account address or not
+     * @param salt a salt to be used to calculate deployed contract address
+     * @param constructorCalldata constructor calldata
      *
      * @throws RequestFailedException
      */
@@ -36,6 +55,23 @@ interface Deployer {
         salt: Felt,
         constructorCalldata: Calldata,
     ): Request<ContractDeployment>
+
+    /**
+     * Deploy a contract through Universal Deployer Contract (UDC) with random generated salt and
+     * unique parameter set to true
+     *
+     * @param classHash a class hash of the declared contract
+     * @param constructorCalldata constructor calldata
+     * @param maxFee maximum fee that account will use for the deployment
+     * @throws RequestFailedException
+     * @throws SaltGenerationFailedException
+     */
+    fun deployContract(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
+        val random = SecureRandom()
+        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
+        val feltSalt = Felt(salt)
+        return deployContract(classHash, true, feltSalt, constructorCalldata, maxFee)
+    }
 
     /**
      * Deploy a contract through Universal Deployer Contract (UDC) with random generated salt and

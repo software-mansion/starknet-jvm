@@ -8,12 +8,12 @@ import com.swmansion.starknet.data.types.Event
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.map
+import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 class StandardDeployer(
     private val deployerAddress: Felt,
-    private val provider: JsonRpcProvider,
+    private val provider: Provider,
     private val account: Account,
 ) : Deployer {
     override fun deployContract(
@@ -21,12 +21,33 @@ class StandardDeployer(
         unique: Boolean,
         salt: Felt,
         constructorCalldata: Calldata,
+        maxFee: Felt,
     ): Request<ContractDeployment> {
-        val feltUnique = if (unique) Felt.ONE else Felt.ZERO
-        val invokeCalldata = listOf(classHash, salt, feltUnique, Felt(constructorCalldata.size)) + constructorCalldata
-        val call = Call(deployerAddress, "deployContract", invokeCalldata)
+        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
+
+        return account.execute(call, maxFee).map { ContractDeployment(it.transactionHash) }
+    }
+
+    override fun deployContract(
+        classHash: Felt,
+        unique: Boolean,
+        salt: Felt,
+        constructorCalldata: Calldata,
+    ): Request<ContractDeployment> {
+        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
         return account.execute(call).map { ContractDeployment(it.transactionHash) }
+    }
+
+    private fun buildDeployContractCall(
+        classHash: Felt,
+        unique: Boolean,
+        salt: Felt,
+        constructorCalldata: Calldata,
+    ): Call {
+        val feltUnique = if (unique) Felt.ONE else Felt.ZERO
+        val invokeCalldata = listOf(classHash, salt, feltUnique, Felt(constructorCalldata.size)) + constructorCalldata
+        return Call(deployerAddress, "deployContract", invokeCalldata)
     }
 
     override fun findContractAddress(contractDeployment: ContractDeployment): Request<Felt> {
