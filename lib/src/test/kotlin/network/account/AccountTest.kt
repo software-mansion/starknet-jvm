@@ -6,9 +6,9 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.deployercontract.StandardDeployer
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
-import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
 import network.utils.NetworkConfig
@@ -44,10 +44,9 @@ class AccountTest {
             Network.TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
         }
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
-        private val rpcProvider = JsonRpcProvider(
-            rpcUrl,
-            StarknetChainId.TESTNET,
-        )
+        private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf") // Same for testnet and integration.
+
+        private val rpcProvider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
 
         @JvmStatic
         @BeforeAll
@@ -166,7 +165,6 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val (account, provider) = accountAndProvider
-        assumeFalse(provider is GatewayProvider)
 
         ScarbClient.createSaltedContract(
             placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
@@ -214,7 +212,6 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val (account, provider) = accountAndProvider
-        // assumeFalse(provider is JsonRpcProvider)
         // Note to future developers experiencing failures in this test.
         // Sometimes the test fails with "A transaction with the same hash already exists in the mempool"
         // This error can be caused by RPC node not having access to pending transactions and therefore nonce not getting updated.
@@ -727,5 +724,53 @@ class AccountTest {
         assertEquals(1, simulationResult.size)
         val trace = simulationResult.first().transactionTrace
         assertTrue(trace is DeclareTransactionTrace)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `test udc deploy with parameters`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+
+        val classHash = Felt.fromHex("0x353434f1495ca9a9943cab1c093fb765179163210b8d513613660ff371a5490") // cairo 0 contract, hence the same class hash for tesnet and integration.
+
+        val (account, provider) = accountAndProvider
+        val deployer = StandardDeployer(udcAddress, provider, account)
+
+        val deployment = deployer.deployContract(
+            classHash = classHash,
+            constructorCalldata = emptyList(),
+            maxFee = Felt(4340000039060 * 2),
+            unique = true,
+            salt = Felt(System.currentTimeMillis()),
+        ).send()
+        Thread.sleep(120000)
+
+        val address = deployer.findContractAddress(deployment).send()
+        assertNotEquals(Felt.ZERO, address)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAccounts")
+    fun `test udc deploy with constructor`(accountAndProvider: AccountAndProvider) {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+
+        assumeTrue(network == Network.TESTNET)
+        val classHash = when (network) {
+            Network.TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
+            else -> throw IllegalStateException("Unsupported network: $network")
+        }
+
+        val (account, provider) = accountAndProvider
+        val deployer = StandardDeployer(udcAddress, provider, account)
+
+        val deployment = deployer.deployContract(
+            classHash = classHash,
+            constructorCalldata = emptyList(),
+            maxFee = Felt(4340000039060 * 2),
+        ).send()
+        Thread.sleep(120000)
+
+        val address = deployer.findContractAddress(deployment).send()
+        assertNotEquals(Felt.ZERO, address)
     }
 }
