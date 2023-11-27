@@ -3,7 +3,6 @@ package network.provider
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
-import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
@@ -159,13 +158,9 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeployAccountRpcTransactionReceipt)
-        }
     }
 
     @ParameterizedTest
@@ -183,18 +178,11 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNotNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> {
-                assertTrue(receipt is GatewayTransactionReceipt)
-                assertEquals(TransactionStatus.REVERTED, (receipt as GatewayTransactionReceipt).status)
-            }
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
-        }
     }
 
     @ParameterizedTest
@@ -220,10 +208,7 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
-        }
+        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
     }
 
     @ParameterizedTest
@@ -244,10 +229,7 @@ class ProviderTest {
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
 
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
-        }
+        receipt is ProcessedDeclareTransactionReceipt
         assertEquals(Felt.ZERO, receipt.actualFee)
     }
 
@@ -265,22 +247,13 @@ class ProviderTest {
         assertEquals(transactionHash, tx.hash)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        var receipt = receiptRequest.send()
+        val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> {
-                receipt = receipt as GatewayTransactionReceipt
-                assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
-            }
-            is JsonRpcProvider -> {
-                receipt = receipt as ProcessedRpcTransactionReceipt
-            }
-        }
     }
 
     @ParameterizedTest
@@ -299,13 +272,9 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
-        }
     }
 
     @ParameterizedTest
@@ -324,15 +293,12 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedL1HandlerTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedL1HandlerRpcTransactionReceipt)
-        }
     }
 
+    // TODO: check if this test is still reasonable after the gateway is removed
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `get transaction receipt with l1 to l2 message`(provider: Provider) {
@@ -344,20 +310,9 @@ class ProviderTest {
         }
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        var receipt = receiptRequest.send()
+        val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-
-        when (provider) {
-            is GatewayProvider -> {
-                receipt = receipt as GatewayTransactionReceipt
-                assertNotNull(receipt.messageL1ToL2)
-                assertNotNull(receipt.messageL1ToL2!!.nonce)
-            }
-            is JsonRpcProvider -> {
-                receipt = receipt as ProcessedRpcTransactionReceipt
-            }
-        }
     }
 
     @ParameterizedTest
@@ -373,20 +328,13 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedTransactionReceipt)
         assertTrue(receipt.isAccepted)
 
         assertEquals(2, receipt.messagesSent.size)
         assertNotNull(receipt.messagesSent[0].fromAddress)
         assertNotNull(receipt.messagesSent[0].toAddress)
         assertNotNull(receipt.messagesSent[0].payload)
-
-        when (provider) {
-            is GatewayProvider -> {
-                assertTrue(receipt is GatewayTransactionReceipt)
-                assertNull((receipt as GatewayTransactionReceipt).messageL1ToL2)
-            }
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedRpcTransactionReceipt)
-        }
     }
 
     @Test
