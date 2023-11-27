@@ -9,7 +9,6 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
-import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
@@ -29,8 +28,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
-import starknet.utils.LegacyContractDeployer
-import starknet.utils.LegacyDevnetClient
 import starknet.utils.ScarbClient
 import java.math.BigInteger
 import java.nio.file.Path
@@ -40,36 +37,19 @@ import kotlin.io.path.readText
 @Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
     companion object {
-        @JvmStatic
-        private val legacyDevnetClient = LegacyDevnetClient(
-            port = 5051,
-            accountDirectory = Paths.get("src/test/resources/accounts_legacy/standard_account_test"),
-        )
-
         private val devnetClient = DevnetClient(
-            port = 5061,
+            port = 5051,
             accountDirectory = Paths.get("src/test/resources/accounts/standard_account_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
 
-        private lateinit var legacySigner: Signer
         private lateinit var signer: Signer
 
         private val rpcProvider = JsonRpcProvider(
             devnetClient.rpcUrl,
             StarknetChainId.TESTNET,
         )
-        private val legacyRpcProvider = JsonRpcProvider(
-            legacyDevnetClient.rpcUrl,
-            StarknetChainId.TESTNET,
-        )
-        private val legacyGatewayProvider = GatewayProvider(
-            legacyDevnetClient.feederGatewayUrl,
-            legacyDevnetClient.gatewayUrl,
-            StarknetChainId.TESTNET,
-        )
 
-        private lateinit var legacyDevnetAddressBook: AddressBook
         private lateinit var devnetAddressBook: AddressBook
 
         @JvmStatic
@@ -77,33 +57,18 @@ class StandardAccountTest {
         fun before() {
             try {
                 devnetClient.start()
-                legacyDevnetClient.start()
 
                 // Prepare devnet address book
                 val accountDetails = devnetClient.createDeployAccount("standard_account_test").details
                 signer = StarkCurveSigner(accountDetails.privateKey)
-                val balanceContractAddress = devnetClient.declareDeployContract("Balance").contractAddress
+                val balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 devnetAddressBook = AddressBook(
                     accountContractClassHash = DevnetClient.accountContractClassHash,
                     accountAddress = accountDetails.address,
                     balanceContractAddress = balanceContractAddress,
                 )
-
-                // Prepare legacy devnet address book
-                legacySigner = StarkCurveSigner(privateKey = Felt(1234))
-                val legacyBalanceContractAddress = legacyDevnetClient.deployContract(Path.of("src/test/resources/contracts_v0/target/release/providerTest.json")).address
-                val legacyContractDeployer = LegacyContractDeployer.deployInstance(legacyDevnetClient)
-                val legacyAccountClassHash = legacyDevnetClient.declareContract(Path.of("src/test/resources/contracts_v0/target/release/account.json")).address
-                val legacyAccountAddress = legacyContractDeployer.deployContract(legacyAccountClassHash, calldata = listOf(legacySigner.publicKey))
-                legacyDevnetClient.prefundAccount(legacyAccountAddress)
-                legacyDevnetAddressBook = AddressBook(
-                    accountAddress = legacyAccountAddress,
-                    accountContractClassHash = legacyAccountClassHash,
-                    balanceContractAddress = legacyBalanceContractAddress,
-                )
             } catch (ex: Exception) {
                 devnetClient.close()
-                legacyDevnetClient.close()
                 throw ex
             }
         }
@@ -129,10 +94,6 @@ class StandardAccountTest {
         fun getProviders(): List<ProviderParameters> {
             return listOf(
                 ProviderParameters(
-                    legacyGatewayProvider,
-                    legacyDevnetAddressBook,
-                ),
-                ProviderParameters(
                     rpcProvider,
                     devnetAddressBook,
                 ),
@@ -142,16 +103,6 @@ class StandardAccountTest {
         @JvmStatic
         fun getAccounts(): List<AccountParameters> {
             return listOf(
-                AccountParameters(
-                    StandardAccount(
-                        legacyDevnetAddressBook.accountAddress,
-                        legacySigner,
-                        legacyGatewayProvider,
-                        cairoVersion = Felt.ZERO,
-                    ),
-                    legacyGatewayProvider,
-                    legacyDevnetAddressBook,
-                ),
                 AccountParameters(
                     StandardAccount(
                         devnetAddressBook.accountAddress,
@@ -169,7 +120,6 @@ class StandardAccountTest {
         @AfterAll
         fun after() {
             devnetClient.close()
-            legacyDevnetClient.close()
         }
     }
 
@@ -197,9 +147,6 @@ class StandardAccountTest {
         assert(nonce >= Felt.ZERO)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
-    @ParameterizedTest
     @MethodSource("getAccounts")
     fun `get nonce twice`(accountParameters: AccountParameters) {
         val account = accountParameters.account
@@ -220,9 +167,6 @@ class StandardAccountTest {
         )
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
-    @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for invoke transaction`(accountParameters: AccountParameters) {
         val account = accountParameters.account
@@ -244,9 +188,6 @@ class StandardAccountTest {
         assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
-    @ParameterizedTest
     @MethodSource("getAccounts")
     fun `estimate fee for invoke transaction at latest block tag`(accountParameters: AccountParameters) {
         val account = accountParameters.account
@@ -307,8 +248,8 @@ class StandardAccountTest {
         assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
+    // TODO (#351): Enable this test once mocking messages is supported on devnet
+    @Disabled("Pending mock messages on devnet")
     @Test
     fun `estimate message fee`() {
         val provider = rpcProvider
@@ -417,8 +358,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign single call test`(accountParameters: AccountParameters) {
@@ -479,7 +418,7 @@ class StandardAccountTest {
                 """.trimIndent(),
             )
         }
-        val provider = GatewayProvider.makeTestnetProvider(httpService)
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
         val account = StandardAccount(Felt.ONE, Felt.ONE, provider)
 
         val typedData = loadTypedData("typed_data_struct_array_example.json")
@@ -492,9 +431,6 @@ class StandardAccountTest {
         }
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
-    @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute single call`(accountParameters: AccountParameters) {
         val (account, provider, addressBook) = accountParameters
@@ -513,9 +449,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
-    @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute single call with specific fee`(accountParameters: AccountParameters) {
         // Note to future developers experiencing failures in this test:
@@ -541,8 +474,6 @@ class StandardAccountTest {
         // assertTrue(receipt.actualFee!! < maxFee)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `sign multiple calls test`(accountParameters: AccountParameters) {
@@ -568,8 +499,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `execute multiple calls`(accountParameters: AccountParameters) {
@@ -595,8 +524,6 @@ class StandardAccountTest {
         assertTrue(receipt.isAccepted)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getAccounts")
     fun `two executes with single call`(accountParameters: AccountParameters) {
@@ -723,8 +650,6 @@ class StandardAccountTest {
         assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
     }
 
-    // TODO (#351): Enable this test once invoke transactions are fixed on devnet
-    @Disabled("Pending invoke fix on devnet")
     @ParameterizedTest
     @MethodSource("getProviders")
     fun `deploy account`(providerParameters: ProviderParameters) {
@@ -742,7 +667,6 @@ class StandardAccountTest {
             calldata = calldata,
             salt = salt,
         )
-        legacyDevnetClient.prefundAccount(address)
         devnetClient.prefundAccount(address)
 
         val account = StandardAccount(
@@ -1002,11 +926,11 @@ class StandardAccountTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val mockProvider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
 
-        val provider = JsonRpcProvider(legacyDevnetClient.rpcUrl, StarknetChainId.TESTNET)
-        val account = StandardAccount(legacyDevnetAddressBook.accountAddress, legacySigner, provider)
-        val balanceContractAddress = legacyDevnetAddressBook.balanceContractAddress
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET)
+        val account = StandardAccount(devnetAddressBook.accountAddress, signer, provider)
+        val balanceContractAddress = devnetAddressBook.balanceContractAddress
 
         val nonce = account.getNonce().send()
         val maxFee = Felt(1)
@@ -1026,6 +950,6 @@ class StandardAccountTest {
         assertTrue(trace is RevertedInvokeTransactionTrace)
         val revertedTrace = trace as RevertedInvokeTransactionTrace
         assertNotNull(revertedTrace.executeInvocation)
-        assertNotNull(revertedTrace.executeInvocation?.revertReason)
+        assertNotNull(revertedTrace.executeInvocation.revertReason)
     }
 }
