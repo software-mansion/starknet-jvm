@@ -25,9 +25,8 @@
     * [Hooks](#hooks)
   * [Running tests](#running-tests)
     * [Prerequisites](#prerequisites)
-    * [Platform-specific prerequisites](#platform-specific-prerequisites)
     * [Regular Tests](#regular-tests)
-    * [Integration Tests](#integration-tests)
+    * [Network Tests](#network-tests)
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
