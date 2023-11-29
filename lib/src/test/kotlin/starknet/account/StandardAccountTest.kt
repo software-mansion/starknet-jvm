@@ -189,22 +189,34 @@ class StandardAccountTest {
         assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
     }
 
-    // TODO (#351): Enable this test once mocking messages is supported on devnet
-    @Disabled("Pending mock messages on devnet")
+    // TODO: Use message mocking instead of deploying l1l2 contract.
+    //  This is planned for when Cairo 0 support is dropped, provided that devnet supports message mocking by then.
     @Test
     fun `estimate message fee`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
+        // Note to future developers experiencing failures in this test.
+        // Compiled contract format sometimes changes, this causes changes in the class hash.
+        // If this test starts randomly falling, try recalculating class hash.
+
+        val l1l2ContractCode = Path.of("src/test/resources/contracts_v0/target/release/l1l2.json").readText()
+        val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
+        val classHash = Felt.fromHex("0x151ad05709f43e24b7fa25e604a4be68008213531a559c9db68b965ca17668d")
+        val nonce = account.getNonce().send()
+        val declareTransactionPayload = account.signDeclare(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
+        val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
+        val l2ContractAddress = devnetClient.deployContract(
+            classHash = l2ContractClassHash,
+            constructorCalldata = listOf(),
+        ).contractAddress
+
+        val l1Address = Felt.fromHex("0x8359E4B0152ed5A731162D3c7B0D8D56edB165A0")
+        val user = Felt.ONE
+        val amount = Felt(1000)
 
         val message = MessageL1ToL2(
-            fromAddress = Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1"),
-            toAddress = balanceContractAddress,
-            selector = selectorFromName("increase_balance"),
-            payload = listOf(
-                Felt.fromHex("0x54d01e5fc6eb4e919ceaab6ab6af192e89d1beb4f29d916768c61a4d48e6c95"),
-                Felt.fromHex("0x38d7ea4c68000"),
-                Felt.fromHex("0x0"),
-            ),
+            fromAddress = l1Address,
+            toAddress = l2ContractAddress,
+            selector = selectorFromName("deposit"),
+            payload = listOf(user, amount),
         )
 
         val request = provider.getEstimateMessageFee(
