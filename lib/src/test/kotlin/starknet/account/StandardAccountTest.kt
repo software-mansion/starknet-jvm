@@ -100,6 +100,22 @@ class StandardAccountTest {
     }
 
     @Test
+    fun `get nonce at block hash`() {
+        val blockHashAndNumber = provider.getBlockHashAndNumber().send()
+
+        val nonce = account.getNonce(blockHashAndNumber.blockHash).send()
+        assert(nonce >= Felt.ZERO)
+    }
+
+    @Test
+    fun `get nonce at block number`() {
+        val blockNumber = provider.getBlockNumber().send()
+
+        val nonce = account.getNonce(blockNumber).send()
+        assert(nonce >= Felt.ZERO)
+    }
+
+    @Test
     fun `get nonce twice`() {
         val startNonce = account.getNonce().send()
         val call = Call(

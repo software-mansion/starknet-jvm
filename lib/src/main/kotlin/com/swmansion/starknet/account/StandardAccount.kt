@@ -205,6 +205,10 @@ class StandardAccount(
 
     override fun getNonce(blockTag: BlockTag) = provider.getNonce(address, blockTag)
 
+    override fun getNonce(blockHash: Felt) = provider.getNonce(address, blockHash)
+
+    override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
+
     override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFee(calls, BlockTag.PENDING)
     }
