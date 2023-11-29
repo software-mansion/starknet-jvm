@@ -39,7 +39,7 @@ jobs:
           python-version: 3.9.12
           cache: 'pip'
 
-      - name: Install Cairo 0 compiler
+      - name: Install cairo-lang
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
