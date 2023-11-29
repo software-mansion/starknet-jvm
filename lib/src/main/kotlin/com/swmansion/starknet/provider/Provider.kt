@@ -7,8 +7,7 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
 /**
  * Provider for interacting with Starknet.
  *
- * Implementers of this interface provide methods for interacting with Starknet, for example through starknet gateway
- * api or JSON-RPC.
+ * Implementers of this interface provide methods for interacting with Starknet, for example through Starknet JSON-RPC.
  */
 interface Provider {
     val chainId: StarknetChainId
