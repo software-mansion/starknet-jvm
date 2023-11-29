@@ -254,22 +254,13 @@ class ProviderTest {
         assertTrue(receipt is ProcessedL1HandlerTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-    }
 
-    // TODO: check if this test is still reasonable after the gateway is removed
-    @Test
-    fun `get transaction receipt with l1 to l2 message`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x27d9e669bb43d9f95bed591b296aeab0067b24c84818fb650a65eb120a9aebd")
-            Network.TESTNET -> Felt.fromHex("0x116a9b469d266db31209d908e98f8b191c5923e808f347ed3fdde640d46f8d0")
+        val expectedMessageHash = when (network) {
+            Network.TESTNET -> NumAsHex.fromHex("0x6411d0d085d25a8da5f53b45f616d8c8473c12d5af0e9ed84515af0a58a28bf1")
+            Network.INTEGRATION -> NumAsHex.fromHex("0xf6359249ccef7caea9158c76133893d8bcbc09701df4caf111e7e2fc1283eb08")
         }
 
-        val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        val receipt = receiptRequest.send()
-
-        assertTrue(receipt.isAccepted)
+        assertEquals(expectedMessageHash, (receipt as ProcessedL1HandlerTransactionReceipt).messageHash)
     }
 
     @Test
