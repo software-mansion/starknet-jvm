@@ -12,10 +12,9 @@ import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
@@ -26,29 +25,33 @@ object StandardDeployerTest {
         accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
         contractsDirectory = Paths.get("src/test/resources/contracts"),
     )
-    private val rpcProvider = JsonRpcProvider(
+    private val provider = JsonRpcProvider(
         devnetClient.rpcUrl,
         StarknetChainId.TESTNET,
     )
 
     private lateinit var signer: Signer
 
-    private lateinit var devnetAddressBook: AddressBook
+    private val deployerAddress = DevnetClient.udcContractAddress
+    private lateinit var accountAddress: Felt
+    private lateinit var balanceContractClassHash: Felt
+    private lateinit var standardDeployer: StandardDeployer
 
     @JvmStatic
     @BeforeAll
     fun before() {
         try {
             devnetClient.start()
-            val balanceContractClassHash = devnetClient.declareContract("Balance").classHash
+            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
 
             // Prepare devnet address book
             val accountDetails = devnetClient.createDeployAccount("standard_account_test").details
             signer = StarkCurveSigner(accountDetails.privateKey)
-            devnetAddressBook = AddressBook(
-                deployerAddress = DevnetClient.udcContractAddress,
-                accountAddress = accountDetails.address,
-                balanceContractClassHash = balanceContractClassHash,
+            accountAddress = accountDetails.address
+            standardDeployer = StandardDeployer(
+                deployerAddress,
+                provider,
+                StandardAccount(accountAddress, signer, provider),
             )
         } catch (ex: Exception) {
             devnetClient.close()
@@ -67,31 +70,11 @@ object StandardDeployerTest {
         val balanceContractClassHash: Felt,
     )
 
-    @JvmStatic
-    fun getStandardDeployerParameters(): List<StandardDeployerParameters> {
-        return listOf(
-            StandardDeployerParameters(
-                StandardDeployer(
-                    devnetAddressBook.deployerAddress,
-                    rpcProvider,
-                    StandardAccount(devnetAddressBook.accountAddress, signer, rpcProvider),
-                ),
-                rpcProvider,
-                devnetAddressBook,
-            ),
-        )
-    }
-
-    @ParameterizedTest
-    @MethodSource("getStandardDeployerParameters")
-    fun `test udc deploy`(standardDeployerParameters: StandardDeployerParameters) {
-        val standardDeployer = standardDeployerParameters.standardDeployer
-        val provider = standardDeployerParameters.provider
-        val classHash = standardDeployerParameters.addressBook.balanceContractClassHash
-
+    @Test
+    fun `test udc deploy`() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContract(
-            classHash = classHash,
+            classHash = balanceContractClassHash,
             unique = true,
             salt = Felt(1234),
             constructorCalldata = listOf(initialBalance),
@@ -101,16 +84,26 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
-    @ParameterizedTest
-    @MethodSource("getStandardDeployerParameters")
-    fun `test udc deploy with default parameters`(standardDeployerParameters: StandardDeployerParameters) {
-        val standardDeployer = standardDeployerParameters.standardDeployer
-        val provider = standardDeployerParameters.provider
-        val classHash = standardDeployerParameters.addressBook.balanceContractClassHash
-
+    @Test
+    fun `test udc deploy with specific fee`() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContract(
-            classHash = classHash,
+            classHash = balanceContractClassHash,
+            unique = true,
+            salt = Felt(789),
+            constructorCalldata = listOf(initialBalance),
+            maxFee = Felt(1_000_000_000_000_000),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+    }
+
+    @Test
+    fun `test udc deploy with default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContract(
+            classHash = balanceContractClassHash,
             constructorCalldata = listOf(initialBalance),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
@@ -118,12 +111,21 @@ object StandardDeployerTest {
         assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
     }
 
-    @ParameterizedTest
-    @MethodSource("getStandardDeployerParameters")
-    fun `test udc deploy with constructor`(standardDeployerParameters: StandardDeployerParameters) {
-        val standardDeployer = standardDeployerParameters.standardDeployer
-        val provider = standardDeployerParameters.provider
+    @Test
+    fun `test udc deploy with specific fee and default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContract(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+            maxFee = Felt(1_000_000_000_000_000),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
 
+        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+    }
+
+    @Test
+    fun `test udc deploy with constructor`() {
         val classHash = devnetClient.declareContract("ContractWithConstructor").classHash
         val constructorVal1 = Felt(451)
 
