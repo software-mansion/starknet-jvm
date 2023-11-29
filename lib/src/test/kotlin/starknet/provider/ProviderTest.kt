@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
@@ -27,12 +25,14 @@ class ProviderTest {
             accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
-        private val rpcProvider = JsonRpcProvider(
-            devnetClient.rpcUrl,
-            StarknetChainId.TESTNET,
-        )
         val rpcUrl = devnetClient.rpcUrl
-        private lateinit var devnetAddressBook: AddressBook
+        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+
+        private lateinit var balanceContractAddress: Felt
+        private lateinit var balanceClassHash: Felt
+        private lateinit var invokeTransactionHash: Felt
+        private lateinit var declareTransactionHash: Felt
+        private lateinit var deployAccountTransactionHash: Felt
 
         @JvmStatic
         @BeforeAll
@@ -42,25 +42,18 @@ class ProviderTest {
 
                 // Prepare devnet address book
                 val declareResult = devnetClient.declareContract("Balance")
-                val balanceClassHash = declareResult.classHash
-                val declareTransactionHash = declareResult.transactionHash
-                val balanceContractAddress = devnetClient.deployContract(
+                balanceClassHash = declareResult.classHash
+                declareTransactionHash = declareResult.transactionHash
+                balanceContractAddress = devnetClient.deployContract(
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                val deployAccountTransactionHash = devnetClient.createDeployAccount("provider_test").transactionHash
-                val invokeTransactionHash = devnetClient.invokeContract(
+                deployAccountTransactionHash = devnetClient.createDeployAccount("provider_test").transactionHash
+                invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",
                     calldata = listOf(Felt(10)),
                 ).transactionHash
-                devnetAddressBook = AddressBook(
-                    balanceContractAddress = balanceContractAddress,
-                    balanceClassHash = balanceClassHash,
-                    invokeTransactionHash = invokeTransactionHash,
-                    declareTransactionHash = declareTransactionHash,
-                    deployAccountTransactionHash = deployAccountTransactionHash,
-                )
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -85,22 +78,10 @@ class ProviderTest {
             val provider: Provider,
             val addressBook: AddressBook,
         )
-
-        @JvmStatic
-        fun getProviders(): List<ProviderParameters> {
-            return listOf(
-                ProviderParameters(
-                    rpcProvider,
-                    devnetAddressBook,
-                ),
-            )
-        }
     }
 
     @Test
     fun `get spec version`() {
-        val provider = rpcProvider
-
         val request = provider.getSpecVersion()
         val specVersion = request.send()
 
@@ -111,21 +92,16 @@ class ProviderTest {
 
     @Test
     fun `get transaction status`() {
-        val provider = rpcProvider
-
-        val transactionHash = devnetAddressBook.invokeTransactionHash
+        val transactionHash = invokeTransactionHash
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
+
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, transactionStatus.finalityStatus)
         assertNotNull(transactionStatus.executionStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `call contract with block number`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `call contract with block number`() {
         val currentNumber = provider.getBlockNumber().send()
 
         val call = Call(
@@ -145,12 +121,8 @@ class ProviderTest {
         assertEquals(expectedBalance, balance)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `call contract with block hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `call contract with block hash`() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "get_balance",
@@ -170,12 +142,8 @@ class ProviderTest {
         assertEquals(expectedBalance, balance)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `call contract with block tag`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `call contract with block tag`() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "get_balance",
@@ -194,12 +162,8 @@ class ProviderTest {
         assertEquals(expectedBalance, balance)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get storage at`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get storage at`() {
         val request = provider.getStorageAt(
             contractAddress = balanceContractAddress,
             key = selectorFromName("balance"),
@@ -210,12 +174,8 @@ class ProviderTest {
         assertTrue(response >= Felt(10))
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class definition at class hash`(providerParameters: ProviderParameters) {
-        val balanceClassHash = providerParameters.addressBook.balanceClassHash
-
-        val provider = providerParameters.provider
+    @Test
+    fun `get class definition at class hash`() {
         val request = provider.getClass(balanceClassHash)
         val response = request.send()
 
@@ -226,11 +186,8 @@ class ProviderTest {
 
     @Test
     fun `get class definition at class hash (latest block)`() {
-        val balanceClassHash = devnetAddressBook.balanceClassHash
-
         // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
         // After it's fixed add tests with 1) block hash 2) block number
-        val provider = rpcProvider
         val request = provider.getClass(balanceClassHash, BlockTag.LATEST)
         val response = request.send()
 
@@ -240,9 +197,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at class hash (block number)`() {
-        val provider = rpcProvider
-        val balanceClassHash = devnetAddressBook.balanceClassHash
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getClass(balanceClassHash, blockNumber)
@@ -254,9 +208,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at class hash (block hash)`() {
-        val provider = rpcProvider
-        val balanceClassHash = devnetAddressBook.balanceClassHash
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getClass(balanceClassHash, blockHash)
@@ -268,9 +219,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val request = provider.getClassAt(balanceContractAddress)
         val response = request.send()
 
@@ -280,9 +228,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address (block hash)`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getClassAt(balanceContractAddress, blockHash)
@@ -294,9 +239,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address (block number)`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getClassAt(balanceContractAddress, blockNumber)
@@ -308,9 +250,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address (latest block tag)`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val request = provider.getClassAt(balanceContractAddress, BlockTag.LATEST)
         val response = request.send()
 
@@ -320,9 +259,6 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address (pending block tag)`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val request = provider.getClassAt(balanceContractAddress, BlockTag.PENDING)
         val response = request.send()
 
@@ -330,48 +266,32 @@ class ProviderTest {
         assertTrue(response is ContractClass)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get class hash`() {
         val request = provider.getClassHashAt(balanceContractAddress)
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class hash at pending block`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get class hash at pending block`() {
         val request = provider.getClassHashAt(balanceContractAddress, BlockTag.PENDING)
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class hash at latest block`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get class hash at latest block`() {
         val request = provider.getClassHashAt(balanceContractAddress, BlockTag.LATEST)
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class hash at block hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get class hash at block hash`() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getClassHashAt(balanceContractAddress, blockHash)
@@ -380,12 +300,8 @@ class ProviderTest {
         assertNotEquals(Felt.ZERO, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get class hash at block number`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get class hash at block number`() {
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getClassHashAt(balanceContractAddress, blockNumber)
@@ -443,24 +359,16 @@ class ProviderTest {
         assertTrue(response is ProcessedDeployTransactionReceipt)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get declare transaction receipt`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val declareTransactionHash = providerParameters.addressBook.declareTransactionHash
-
+    @Test
+    fun `get declare transaction receipt`() {
         val request = provider.getTransactionReceipt(declareTransactionHash)
         val response = request.send()
 
         assertTrue(response is ProcessedDeclareTransactionReceipt)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get invoke transaction receipt`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val invokeTransactionHash = providerParameters.addressBook.invokeTransactionHash
-
+    @Test
+    fun `get invoke transaction receipt`() {
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
@@ -584,10 +492,8 @@ class ProviderTest {
         assertTrue(response is ProcessedTransactionReceipt)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get transaction receipt throws on incorrect hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
+    @Test
+    fun `get transaction receipt throws on incorrect hash`() {
         val request = provider.getTransactionReceipt(Felt.ZERO)
         assertThrows(RequestFailedException::class.java) {
             request.send()
@@ -628,47 +534,31 @@ class ProviderTest {
         assertTrue(response is DeployTransaction)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get invoke transaction`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val invokeTransactionHash = providerParameters.addressBook.invokeTransactionHash
-
+    @Test
+    fun `get invoke transaction`() {
         val request = provider.getTransaction(invokeTransactionHash)
         val response = request.send()
 
         assertTrue(response is InvokeTransaction)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy account transaction`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val deployAccountTransactionHash = providerParameters.addressBook.deployAccountTransactionHash
-
+    @Test
+    fun `get deploy account transaction`() {
         val response = provider.getTransaction(deployAccountTransactionHash).send()
 
         assertTrue(response is DeployAccountTransaction)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy account transaction receipt`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val deployAccountTransactionHash = providerParameters.addressBook.deployAccountTransactionHash
-
+    @Test
+    fun `get deploy account transaction receipt`() {
         val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
         assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
     }
 
-//    // TODO (#351): Enable this test once RPC 0.5.x is fully supported on devnet
-    @Disabled("Pending RPC 0.5.x support on devnet")
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get declare transaction`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val declareTransactionHash = providerParameters.addressBook.declareTransactionHash
-
+    // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.
+    @Disabled("Pending declare fix on devnet")
+    @Test
+    fun `get declare transaction`() {
         val request = provider.getTransaction(declareTransactionHash)
         val response = request.send()
 
@@ -712,11 +602,8 @@ class ProviderTest {
         assertTrue(response is L1HandlerTransaction)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get transaction throws on incorrect hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get transaction throws on incorrect hash`() {
         val request = provider.getTransaction(Felt.ZERO)
         assertThrows(RequestFailedException::class.java) {
             request.send()
@@ -725,7 +612,7 @@ class ProviderTest {
 
     @Test
     fun `rpc provider throws RpcRequestFailedException`() {
-        val request = rpcProvider.getClassAt(Felt(0), BlockTag.LATEST)
+        val request = provider.getClassAt(Felt(0), BlockTag.LATEST)
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {
             request.send()
@@ -743,7 +630,6 @@ class ProviderTest {
 
     @Test
     fun `get event`() {
-        val provider = rpcProvider
         val eventsContractAddress = devnetClient.declareDeployContract("Events").contractAddress
 
         val key = listOf(Felt.fromHex("0x477e157efde59c5531277ede78acb3e03ef69508c6c35fde3495aa0671d227"))
@@ -773,22 +659,16 @@ class ProviderTest {
         assertEquals(invokeTransactionHash, event.transactionHash)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get current block number`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get current block number`() {
         val request = provider.getBlockNumber()
         val response = request.send()
 
         assertNotEquals(0, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get current block number and hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get current block number and hash`() {
         val request = provider.getBlockHashAndNumber()
         val response = request.send()
 
@@ -804,22 +684,16 @@ class ProviderTest {
         assertEquals(expectedHash, blockHash)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get block transaction count with block tag`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get block transaction count with block tag`() {
         val request = provider.getBlockTransactionCount(BlockTag.LATEST)
         val response = request.send()
 
         assertNotEquals(0, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get block transaction count with block hash`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get block transaction count with block hash`() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockTransactionCount(blockHash)
@@ -828,11 +702,8 @@ class ProviderTest {
         assertNotEquals(0, response)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get block transaction count with block number`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-
+    @Test
+    fun `get block transaction count with block number`() {
         val request = provider.getBlockTransactionCount(0)
         val response = request.send()
 
@@ -841,8 +712,6 @@ class ProviderTest {
 
     @Test
     fun `get sync information node not syncing`() {
-        val provider = rpcProvider
-
         val request = provider.getSyncing()
         val response = request.send()
 
@@ -881,12 +750,8 @@ class ProviderTest {
         assertEquals(10, response.highestBlockNumber)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get nonce with block tag`(providerParameters: ProviderParameters) {
-        val provider = providerParameters.provider
-        val balanceContractAddress = providerParameters.addressBook.balanceContractAddress
-
+    @Test
+    fun `get nonce with block tag`() {
         val request = provider.getNonce(balanceContractAddress, BlockTag.LATEST)
         val response = request.send()
 
@@ -895,9 +760,6 @@ class ProviderTest {
 
     @Test
     fun `get nonce with block number`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getNonce(balanceContractAddress, blockNumber)
@@ -908,9 +770,6 @@ class ProviderTest {
 
     @Test
     fun `get nonce with block hash`() {
-        val provider = rpcProvider
-        val balanceContractAddress = devnetAddressBook.balanceContractAddress
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getNonce(balanceContractAddress, blockHash)
@@ -975,8 +834,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block tag`() {
-        val provider = rpcProvider
-
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
@@ -985,8 +842,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block hash`() {
-        val provider = rpcProvider
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockWithTxs(blockHash)
@@ -997,8 +852,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block number`() {
-        val provider = rpcProvider
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getBlockWithTxs(blockNumber)
@@ -1044,8 +897,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block tag`() {
-        val provider = rpcProvider
-
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
         val response = request.send()
 
@@ -1054,8 +905,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block hash`() {
-        val provider = rpcProvider
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockWithTxHashes(blockHash)
@@ -1066,8 +915,6 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block number`() {
-        val provider = rpcProvider
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getBlockWithTxHashes(blockNumber)
@@ -1078,8 +925,6 @@ class ProviderTest {
 
     @Test
     fun `get state of block with latest tag`() {
-        val provider = rpcProvider
-
         val request = provider.getStateUpdate(BlockTag.LATEST)
         val response = request.send()
 
@@ -1118,8 +963,6 @@ class ProviderTest {
 
     @Test
     fun `get state of block with hash`() {
-        val provider = rpcProvider
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getStateUpdate(blockHash)
@@ -1131,8 +974,6 @@ class ProviderTest {
 
     @Test
     fun `get state of block with number`() {
-        val provider = rpcProvider
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getStateUpdate(blockNumber)
@@ -1144,8 +985,6 @@ class ProviderTest {
 
     @Test
     fun `get transactions by block tag and index`() {
-        val provider = rpcProvider
-
         val request = provider.getTransactionByBlockIdAndIndex(BlockTag.LATEST, 0)
         val response = request.send()
 
@@ -1154,8 +993,6 @@ class ProviderTest {
 
     @Test
     fun `get transactions by block hash and index`() {
-        val provider = rpcProvider
-
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getTransactionByBlockIdAndIndex(blockHash, 0)
@@ -1166,8 +1003,6 @@ class ProviderTest {
 
     @Test
     fun `get transactions by block number and index`() {
-        val provider = rpcProvider
-
         val blockNumber = provider.getBlockNumber().send()
 
         val request = provider.getTransactionByBlockIdAndIndex(blockNumber, 0)
