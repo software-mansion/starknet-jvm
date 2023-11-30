@@ -668,8 +668,6 @@ class StandardAccountTest {
         }
     }
 
-    // TODO (#363): Enable this test once ORDERED_EVENT conforms to the spec on devnet side.
-    @Disabled("Pending ordered event fix on devnet")
     @Test
     fun `simulate invoke and deploy account transactions`() {
         val account = StandardAccount(accountAddress, signer, provider)
@@ -735,8 +733,6 @@ class StandardAccountTest {
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
     }
 
-    // TODO (#363): Enable this test once ORDERED_EVENT conforms to the spec on devnet side.
-    @Disabled("Pending ordered event fix on devnet")
     @Test
     fun `simulate declare v1 transaction`() {
         val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
@@ -769,8 +765,6 @@ class StandardAccountTest {
         assertTrue(trace is DeclareTransactionTrace)
     }
 
-    // TODO (#363): Enable this test once ORDERED_EVENT conforms to the spec on devnet side.
-    @Disabled("Pending ordered event fix on devnet")
     @Test
     fun `simulate declare v2 transaction`() {
         ScarbClient.createSaltedContract(
