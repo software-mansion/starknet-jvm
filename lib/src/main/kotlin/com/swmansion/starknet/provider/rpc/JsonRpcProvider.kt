@@ -9,7 +9,6 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.service.http.HttpRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
@@ -59,14 +58,6 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
     }
 
-    /**
-     * Get the version of the spec.
-     *
-     * Get the version of the Starknet JSON-RPC specification being used by the node.
-     *
-     * @throws RequestFailedException
-     *
-     */
     override fun getSpecVersion(): Request<String> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
@@ -116,67 +107,24 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, Felt.serializer())
     }
 
-    /**
-     * Get a value of storage var.
-     *
-     * Get a value of a storage variable of contract at the provided address.
-     *
-     * @param contractAddress an address of the contract
-     * @param key an address of the storage variable inside contract
-     * @param blockTag The tag of the requested block.
-     *
-     * @throws RequestFailedException
-     */
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
-    /**
-     * Get a value of storage var.
-     *
-     * Get a value of a storage variable of contract at the provided address.
-     *
-     * @param contractAddress an address of the contract
-     * @param key an address of the storage variable inside contract
-     * @param blockHash a hash of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
 
         return getStorageAt(payload)
     }
 
-    /**
-     * Get a value of storage var.
-     *
-     * Get a value of a storage variable of contract at the provided address.
-     *
-     * @param contractAddress an address of the contract
-     * @param key an address of the storage variable inside contract
-     * @param blockNumber a number of the block in respect to what the query will be made
-     *
-     * @throws RequestFailedException
-     */
     override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
     }
 
-    /**
-     * Get a value of storage var.
-     *
-     * Get a value of a storage variable of contract at the provided address and in the latest block.
-     *
-     * @param contractAddress an address of the contract
-     * @param key an address of the storage variable inside contract
-     *
-     * @throws RequestFailedException
-     */
     override fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt> {
         return getStorageAt(contractAddress, key, BlockTag.LATEST)
     }
@@ -188,15 +136,6 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionPolymorphicSerializer)
     }
 
-    /**
-     * Get transaction receipt
-     *
-     * Get a receipt of the transactions.
-     *
-     * @param transactionHash a hash of sent transaction
-     *
-     * @throws RequestFailedException
-     */
     override fun getTransactionReceipt(transactionHash: Felt): Request<out TransactionReceipt> {
         val payload = GetTransactionReceiptPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
@@ -207,16 +146,6 @@ class JsonRpcProvider(
             TransactionReceiptPolymorphicSerializer,
         )
     }
-
-    /**
-     * Get transaction status
-     *
-     * Get a status of the transaction.
-     *
-     * @param transactionHash a hash of sent transaction
-     *
-     * @throws RequestFailedException
-     */
 
     override fun getTransactionStatus(transactionHash: Felt): Request<GetTransactionStatusResponse> {
         val payload = GetTransactionStatusPayload(transactionHash)
