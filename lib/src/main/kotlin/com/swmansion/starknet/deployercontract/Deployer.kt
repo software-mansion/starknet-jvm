@@ -69,8 +69,7 @@ interface Deployer {
     fun deployContract(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
         val random = SecureRandom()
         val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
-        val feltSalt = Felt(salt)
-        return deployContract(classHash, true, feltSalt, constructorCalldata, maxFee)
+        return deployContract(classHash, true, Felt(salt), constructorCalldata, maxFee)
     }
 
     /**
@@ -85,8 +84,7 @@ interface Deployer {
     fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
         val random = SecureRandom()
         val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
-        val feltSalt = Felt(salt)
-        return deployContract(classHash, true, feltSalt, constructorCalldata)
+        return deployContract(classHash, true, Felt(salt), constructorCalldata)
     }
 
     /**
