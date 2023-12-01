@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
-import java.security.SecureRandom
 
 data class ContractDeployment(
     val transactionHash: Felt,
@@ -66,11 +65,7 @@ interface Deployer {
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
      */
-    fun deployContract(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
-        val random = SecureRandom()
-        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
-        return deployContract(classHash, true, Felt(salt), constructorCalldata, maxFee)
-    }
+    fun deployContract(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment>
 
     /**
      * Deploy a contract through Universal Deployer Contract (UDC) with random generated salt and
@@ -81,11 +76,7 @@ interface Deployer {
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
      */
-    fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
-        val random = SecureRandom()
-        val salt = random.longs(1, 1, Long.MAX_VALUE).findFirst().orElseThrow { SaltGenerationFailedException() }
-        return deployContract(classHash, true, Felt(salt), constructorCalldata)
-    }
+    fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
 
     /**
      * Get a contract address from the deployment
