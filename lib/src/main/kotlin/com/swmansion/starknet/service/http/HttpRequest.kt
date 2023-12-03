@@ -4,8 +4,6 @@ import com.swmansion.starknet.provider.Request
 import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 
-// Gateway errors were returned as http errors with json body.
-// Now that gateway is removed, this can be refactored to only use the response body instead of the whole HttpResponse.
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
 class HttpRequest<T>(
