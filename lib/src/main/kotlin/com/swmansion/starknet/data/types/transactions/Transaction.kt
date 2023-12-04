@@ -43,24 +43,20 @@ sealed class Transaction {
     abstract val type: TransactionType
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY")
-// OptIn needed because @JsonNames is part of the experimental serialization api
 data class DeployTransaction(
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
     @SerialName("constructor_calldata")
-    @JsonNames("calldata")
     val constructorCalldata: Calldata,
 
     @SerialName("class_hash")
     val classHash: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     // not in RPC spec
@@ -88,19 +84,16 @@ sealed class InvokeTransaction() : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class InvokeTransactionV1(
     @SerialName("calldata")
     override val calldata: Calldata,
 
     @SerialName("sender_address")
-    @JsonNames("contract_address")
     val senderAddress: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -143,15 +136,13 @@ data class InvokeTransactionV1(
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class InvokeTransactionV0(
     @SerialName("calldata")
     override val calldata: Calldata,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -182,7 +173,6 @@ sealed class DeclareTransaction() : Transaction() {
     override val type: TransactionType = TransactionType.DECLARE
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareTransactionV0(
     @SerialName("class_hash")
@@ -191,9 +181,8 @@ data class DeclareTransactionV0(
     @SerialName("sender_address")
     override val senderAddress: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -212,7 +201,6 @@ data class DeclareTransactionV0(
     val contractDefinition: Cairo0ContractDefinition? = null,
 ) : DeclareTransaction()
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareTransactionV1(
     @SerialName("class_hash")
@@ -221,9 +209,8 @@ data class DeclareTransactionV1(
     @SerialName("sender_address")
     override val senderAddress: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -257,7 +244,6 @@ data class DeclareTransactionV1(
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DECLARE")
 data class DeclareTransactionV2(
@@ -267,9 +253,8 @@ data class DeclareTransactionV2(
     @SerialName("sender_address")
     override val senderAddress: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -306,7 +291,6 @@ data class DeclareTransactionV2(
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction(
@@ -319,9 +303,8 @@ data class L1HandlerTransaction(
     @SerialName("entry_point_selector")
     val entryPointSelector: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
@@ -340,15 +323,13 @@ data class L1HandlerTransaction(
     override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : Transaction()
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("DEPLOY_ACCOUNT")
 data class DeployAccountTransactionV1(
     @SerialName("class_hash")
-    @JsonNames("class_hash")
     val classHash: Felt,
 
-    // not in RPC spec
+    // not in RPC spec, can be removed in the future
     @SerialName("contract_address")
     val contractAddress: Felt = Felt.ZERO,
 
@@ -356,12 +337,10 @@ data class DeployAccountTransactionV1(
     val contractAddressSalt: Felt,
 
     @SerialName("constructor_calldata")
-    @JsonNames("calldata")
     val constructorCalldata: Calldata,
 
-    // not in RPC spec
+    // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
