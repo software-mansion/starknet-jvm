@@ -2,10 +2,8 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.DeprecatedCairoEntryPoint
 import com.swmansion.starknet.extensions.toFelt
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
