@@ -44,7 +44,6 @@ class DevnetClient(
 
     lateinit var defaultAccountDetails: AccountDetails
 
-    // lazy init Provider
     val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET) }
 
     companion object {
