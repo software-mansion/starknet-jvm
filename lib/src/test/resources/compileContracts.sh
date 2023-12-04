@@ -9,6 +9,7 @@ readonly V0_ARTIFACT_PATH="contracts_v0/target/release"
 readonly V1_SCARB_VERSION="0.4.0"
 readonly V2_SCARB_VERSION="0.7.0"
 
+# TODO: (#365) Use asdf action to install scarb instead
 echo "Installing scarb..."
 asdf plugin add scarb || true
 echo "Done!"
