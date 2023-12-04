@@ -169,14 +169,14 @@ class StandardAccountTest {
 
     @Test
     fun `estimate fee for declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -214,7 +214,7 @@ class StandardAccountTest {
 
         val l1l2ContractCode = Path.of("src/test/resources/contracts_v0/target/release/l1l2.json").readText()
         val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
-        val classHash = Felt.fromHex("0x151ad05709f43e24b7fa25e604a4be68008213531a559c9db68b965ca17668d")
+        val classHash = Felt.fromHex("0x77c2e9e978afe2e159f5c13d958df7816e954b89e396d0424a2cd50ddef3cc8")
         val nonce = account.getNonce().send()
         val declareTransactionPayload = account.signDeclare(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
@@ -248,7 +248,7 @@ class StandardAccountTest {
 
     @Test
     fun `sign and send declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -258,7 +258,7 @@ class StandardAccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -734,7 +734,7 @@ class StandardAccountTest {
 
     @Test
     fun `simulate declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -744,7 +744,7 @@ class StandardAccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,

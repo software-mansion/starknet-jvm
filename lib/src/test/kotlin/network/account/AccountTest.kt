@@ -80,7 +80,7 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val account = constNonceAccount
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -90,7 +90,7 @@ class AccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -174,7 +174,7 @@ class AccountTest {
         // Sometimes the test fails with "A transaction with the same hash already exists in the mempool"
         // This error can be caused by RPC node not having access to pending transactions and therefore nonce not getting updated.
 
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
@@ -185,7 +185,7 @@ class AccountTest {
         // Chances are, the contract was compiled with a different compiler version.
         // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -593,7 +593,7 @@ class AccountTest {
 
         val account = constNonceAccount
 
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/providerTest.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
         val contractDefinition = Cairo0ContractDefinition(contractCode)
         val nonce = account.getNonce(BlockTag.LATEST).send()
 
@@ -602,7 +602,7 @@ class AccountTest {
         // If this test starts randomly falling, try recalculating class hash.
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
-        val classHash = Felt.fromHex("0x3b32bb615844ea7a9a56a8966af1a5ba1457b1f5c9162927ca1968975b0d2a9")
+        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
 
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,

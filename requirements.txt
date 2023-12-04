@@ -1,1 +1,1 @@
-cairo-lang==v0.12.2
+cairo-lang==v0.12.3
