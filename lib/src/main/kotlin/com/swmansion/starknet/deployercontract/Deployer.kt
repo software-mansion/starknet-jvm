@@ -62,6 +62,7 @@ interface Deployer {
      * @param classHash a class hash of the declared contract
      * @param constructorCalldata constructor calldata
      * @param maxFee maximum fee that account will use for the deployment
+     *
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
      */
