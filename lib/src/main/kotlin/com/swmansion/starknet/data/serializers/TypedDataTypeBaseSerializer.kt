@@ -6,7 +6,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
 internal object TypedDataTypeBaseSerializer : JsonContentPolymorphicSerializer<TypeBase>(TypeBase::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TypeBase> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TypeBase> {
         val type = element.jsonObject["type"]?.jsonPrimitive?.content
 
         return when (type) {
