@@ -1,11 +1,9 @@
 # Module starknet-jvm
 
-Starknet-jvm is a library allowing for easy interaction with Starknet gateway and nodes, including
+Starknet-jvm is a library allowing for easy interaction with the Starknet JSON-RPC nodes, including
 querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
-
-⚠️Gateway provider is currently marked as deprecated and will soon be removed. Please use JSON-RPC provider instead.
 
 ## Making synchronous requests
 
@@ -808,22 +806,6 @@ try {
 ```
 
 In the case of `Request.sendAsync()`, an exception would have to be handled in the returned `CompletableFuture`.
-
-# Package com.swmansion.starknet.provider.gateway
-
-Provider utilising Starknet gateway and feeder gateway for communication with the network.
-
-```java
-// Create a provider using GatewayProvider static methods
-GatewayProvider.makeTestnetProvider();
-// Custom HttpService can be specified
-GatewayProvider.makeTestnetProvider(myHttpService);
-
-// Provider can be also created using a constructor
-new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
-// or with a custom HttpService
-new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET, myHttpService); 
-```
 
 # Package com.swmansion.starknet.provider.rpc
 

@@ -1,6 +1,9 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.json.*
@@ -40,6 +43,8 @@ class DevnetClient(
     private val scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
 
     lateinit var defaultAccountDetails: AccountDetails
+
+    val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET) }
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/323f907bc3e3e4dc66b403ec6f8b58744e8d6f9a/crates/starknet/src/constants.rs
@@ -179,6 +184,8 @@ class DevnetClient(
             args = params,
         ) as AccountDeploySnCastResponse
 
+        requireTransactionSuccessful(response.transactionHash)
+
         return DeployAccountResult(
             details = readAccountDetails(name),
             transactionHash = response.transactionHash,
@@ -194,8 +201,10 @@ class DevnetClient(
         val accountName = name ?: UUID.randomUUID().toString()
         val createResult = createAccount(accountName, classHash, salt)
         val details = createResult.details
-        val prefundResult = prefundAccount(details.address)
+        prefundAccount(details.address)
         val deployResult = deployAccount(accountName, classHash, maxFee)
+
+        requireTransactionSuccessful(deployResult.transactionHash)
 
         return DeployAccountResult(
             details = details,
@@ -217,6 +226,8 @@ class DevnetClient(
             command = "declare",
             args = params,
         ) as DeclareSnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash)
 
         return DeclareContractResult(
             classHash = response.classHash,
@@ -268,8 +279,11 @@ class DevnetClient(
         maxFeeDeploy: Felt = Felt(1000000000000000),
     ): DeployContractResult {
         val declareResponse = declareContract(contractName, maxFeeDeclare)
+        requireTransactionSuccessful(declareResponse.transactionHash)
+
         val classHash = declareResponse.classHash
         val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
+        requireTransactionSuccessful(deployResponse.transactionHash)
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -299,6 +313,8 @@ class DevnetClient(
             command = "invoke",
             args = params,
         ) as InvokeSnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash)
 
         return InvokeContractResult(
             transactionHash = response.transactionHash,
@@ -348,5 +364,14 @@ class DevnetClient(
     private fun readAccountDetails(accountName: String): AccountDetails {
         val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
+    }
+
+    // This provides more info, but can be replaced with getTransactionStatus if there are changes to transaction receipts
+    private fun requireTransactionSuccessful(transactionHash: Felt) {
+        val request = provider.getTransactionReceipt(transactionHash)
+        val receipt = request.send()
+        if (!receipt.isAccepted) {
+            throw DevnetTransactionFailedException("${receipt.type} transaction failed. Reason: ${receipt.revertReason}")
+        }
     }
 }

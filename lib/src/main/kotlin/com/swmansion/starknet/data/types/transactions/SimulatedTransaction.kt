@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.serializers.JsonRpcTransactionTracePolymorphicSerializer
+import com.swmansion.starknet.data.serializers.TransactionTracePolymorphicSerializer
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.EstimateFeeResponse
 import com.swmansion.starknet.data.types.Felt
@@ -168,7 +168,7 @@ data class L1HandlerTransactionTrace(
 @Serializable
 data class SimulatedTransaction(
     @SerialName("transaction_trace")
-    @Serializable(with = JsonRpcTransactionTracePolymorphicSerializer::class)
+    @Serializable(with = TransactionTracePolymorphicSerializer::class)
     val transactionTrace: TransactionTrace,
 
     @SerialName("fee_estimation")
