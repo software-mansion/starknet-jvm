@@ -2,10 +2,8 @@ package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.DeprecatedCairoEntryPoint
 import com.swmansion.starknet.extensions.toFelt
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -14,8 +12,6 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import toNumAsHex
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializer(forClass = DeprecatedCairoEntryPoint::class)
 internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCairoEntryPoint> {
     override fun deserialize(decoder: Decoder): DeprecatedCairoEntryPoint {
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
