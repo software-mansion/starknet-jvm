@@ -21,25 +21,13 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         }
     }
 
-    override fun toCalldata(): List<Felt> = listOf(this)
+    override fun toCalldata() = listOf(this)
 
-    override fun toString(): String {
-        return "Felt(${value.toHex()})"
-    }
+    override fun toString() = "Felt(${value.toHex()})"
 
-    /**
-     * Encode as hexadecimal string, including "0x" prefix.
-     */
-    override fun hexString(): String {
-        return value.toHex()
-    }
+    override fun hexString() = value.toHex()
 
-    /**
-     * Encode as decimal string.
-     */
-    override fun decString(): String {
-        return value.toString(10)
-    }
+    override fun decString(): String = value.toString(10)
 
     /**
      * Encode as ASCII string, with up to 31 characters.
@@ -62,6 +50,9 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
 
         @field:JvmField
+        val MAX = PRIME.minus(BigInteger.ONE)
+
+        @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
 
         @field:JvmField
@@ -73,7 +64,9 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
          * @param value hex string.
          */
         @JvmStatic
-        fun fromHex(value: String): Felt = Felt(parseHex(value))
+        fun fromHex(value: String): Felt {
+            return Felt(parseHex(value))
+        }
 
         /**
          * Create Felt from ASCII string. It must be shorter than 32 characters and only contain ASCII encoding.
@@ -96,15 +89,6 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
             return fromHex("0x$encoded")
         }
-
-        /**
-         * Create Felt from NumAsHex.
-         *
-         * @param value NumAsHex to be transformed to felt.
-         * @throws IllegalArgumentException if value is negative or greater than Felt.PRIME.
-         */
-        @JvmStatic
-        fun fromNumAsHex(value: NumAsHex): Felt = Felt(value.value)
 
         private fun isAscii(string: String): Boolean {
             for (char in string) {
