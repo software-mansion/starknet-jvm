@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
 internal object StateUpdatePolymorphicSerializer : JsonContentPolymorphicSerializer<StateUpdate>(StateUpdate::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out StateUpdate> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<StateUpdate> {
         val jsonElement = element.jsonObject
         val isPending = "block_hash" !in jsonElement
         return if (isPending) PendingStateUpdateResponse.serializer() else StateUpdateResponse.serializer()

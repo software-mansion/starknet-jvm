@@ -8,7 +8,7 @@ import java.lang.IllegalArgumentException
 
 internal object TransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
-    private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<out InvokeTransactionTraceBase> {
+    private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<InvokeTransactionTraceBase> {
         val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
         val isReverted = "revert_reason" in executeInvocation
 
@@ -18,7 +18,7 @@ internal object TransactionTracePolymorphicSerializer :
         }
     }
 
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out TransactionTrace> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionTrace> {
         val jsonObject = element.jsonObject
 
         val typeElement = jsonObject.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }

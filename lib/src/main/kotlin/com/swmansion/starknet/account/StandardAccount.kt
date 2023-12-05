@@ -179,7 +179,7 @@ class StandardAccount(
         if (e.message?.let { regex.containsMatchIn(it) } == true) {
             return false
         }
-        if (e.revertError?.let { regex.containsMatchIn(it) } == true) {
+        if (e.data?.let { regex.containsMatchIn(it) } == true) {
             return false
         }
         throw e

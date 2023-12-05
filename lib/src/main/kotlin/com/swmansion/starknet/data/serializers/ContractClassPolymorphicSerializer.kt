@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
 internal object ContractClassPolymorphicSerializer : JsonContentPolymorphicSerializer<ContractClassBase>(ContractClassBase::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out ContractClassBase> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<ContractClassBase> {
         return when {
             "sierra_program" in element.jsonObject -> ContractClass.serializer()
             else -> DeprecatedContractClass.serializer()
