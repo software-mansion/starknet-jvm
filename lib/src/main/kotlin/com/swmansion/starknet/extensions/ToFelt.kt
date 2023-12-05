@@ -1,6 +1,8 @@
 package com.swmansion.starknet.extensions
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.NumAsHex
+import com.swmansion.starknet.data.types.NumAsHexBase
 import java.math.BigInteger
 
 @get:JvmSynthetic
@@ -18,3 +20,9 @@ val Int.toFelt: Felt
 @get:JvmSynthetic
 val Long.toFelt: Felt
     get() = Felt(this)
+
+@get:JvmSynthetic
+val NumAsHexBase.toFelt: Felt
+    get() = Felt(this.value)
+
+
