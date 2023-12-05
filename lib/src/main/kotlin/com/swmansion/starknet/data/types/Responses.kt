@@ -408,10 +408,10 @@ data class ResourceBoundsMapping(
 @Serializable
 data class ResourceBounds(
     @SerialName("max_amount")
-    val maxAmount: Felt,
+    val maxAmount: Uint64,
 
     @SerialName("max_price_per_unit")
-    val maxPricePerUnit: Felt,
+    val maxPricePerUnit: Uint128,
 )
 
 @Serializable
