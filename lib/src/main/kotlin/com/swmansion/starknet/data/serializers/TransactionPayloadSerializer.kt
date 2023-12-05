@@ -116,7 +116,6 @@ object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2P
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 object InvokeTransactionPayloadSerializer : KSerializer<InvokeTransactionPayload> {
 
     override val descriptor: SerialDescriptor

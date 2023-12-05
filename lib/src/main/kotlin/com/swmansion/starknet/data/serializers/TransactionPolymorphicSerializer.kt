@@ -7,7 +7,7 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSerializer<Transaction>(Transaction::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Transaction> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Transaction> {
         val jsonElement = element.jsonObject
         val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
@@ -21,7 +21,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             TransactionType.L1_HANDLER -> L1HandlerTransaction.serializer()
         }
     }
-    private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<out InvokeTransaction> {
+    private fun selectInvokeDeserializer(element: JsonElement): DeserializationStrategy<InvokeTransaction> {
         val jsonElement = element.jsonObject
         val versionElement = jsonElement.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 
@@ -33,7 +33,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         }
     }
 
-    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<out DeclareTransaction> {
+    private fun selectDeclareDeserializer(element: JsonElement): DeserializationStrategy<DeclareTransaction> {
         val jsonElement = element.jsonObject
         val versionElement = jsonElement.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 

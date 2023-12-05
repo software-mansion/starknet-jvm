@@ -7,7 +7,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
 internal object SyncPolymorphicSerializer : JsonContentPolymorphicSerializer<Syncing>(Syncing::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Syncing> = when (element) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Syncing> = when (element) {
         JsonPrimitive(false) -> NotSyncingTransformingSerializer
         else -> SyncingResponse.serializer()
     }
