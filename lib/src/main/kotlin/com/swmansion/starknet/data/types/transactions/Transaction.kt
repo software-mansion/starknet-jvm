@@ -330,7 +330,7 @@ data class DeclareTransactionV3(
     val resourceBounds: ResourceBoundsMapping,
 
     @SerialName("tip")
-    val tip: Felt,
+    val tip: Uint64,
 
     @SerialName("paymaster_data")
     val paymasterData: List<Felt>,
