@@ -417,8 +417,8 @@ data class ResourceBounds(
 @Serializable
 data class ResourcePrice(
     @SerialName("price_in_wei")
-    val priceInWei: NumAsHex,
+    val priceInWei: Felt,
 
-    @SerialName("price_in_strk")
-    val priceInStark: NumAsHex? = null,
+    @SerialName("price_in_fri")
+    val priceInFri: Felt,
 )
