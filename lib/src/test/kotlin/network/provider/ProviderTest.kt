@@ -2,11 +2,7 @@ package network.provider
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.provider.Provider
-import com.swmansion.starknet.provider.gateway.GatewayProvider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
-import com.swmansion.starknet.signer.Signer
-import com.swmansion.starknet.signer.StarkCurveSigner
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.*
@@ -14,8 +10,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 
 @Execution(ExecutionMode.SAME_THREAD)
 class ProviderTest {
@@ -24,39 +18,13 @@ class ProviderTest {
         private val config = NetworkConfig.config
         private val network = config.network
         private val rpcUrl = config.rpcUrl
-        private val privateKey = config.privateKey
 
-        private lateinit var signer: Signer
-
-        private lateinit var rpcProvider: JsonRpcProvider
-
-        @JvmStatic
-        @BeforeAll
-        fun before() {
-            signer = StarkCurveSigner(
-                privateKey = privateKey,
-            )
-            rpcProvider = JsonRpcProvider(
-                rpcUrl,
-                StarknetChainId.TESTNET,
-            )
-        }
-
-        @JvmStatic
-        private fun getProviders(): List<Provider> = listOf(
-            rpcProvider,
-        )
-
-        @JvmStatic
-        @AfterAll
-        fun after() {}
+        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
     }
 
     @Test
     fun `get spec version`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val provider = rpcProvider
 
         val request = provider.getSpecVersion()
         val specVersion = request.send()
@@ -69,8 +37,6 @@ class ProviderTest {
     @Test
     fun `get transaction status`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val provider = rpcProvider
 
         val transactionHash = when (network) {
             Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
@@ -98,8 +64,6 @@ class ProviderTest {
 
         // TODO: (#344) Currently, Juno fails to estimate the message fee.
         assumeFalse(network == Network.TESTNET)
-
-        val provider = rpcProvider
 
         val gasConsumed = Felt(19931)
         val gasPrice = Felt(1022979559)
@@ -144,9 +108,8 @@ class ProviderTest {
         assertEquals(overallFee, response.overallFee)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get deploy account transaction`(provider: Provider) {
+    @Test
+    fun `get deploy account transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -159,18 +122,13 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeployAccountRpcTransactionReceipt)
-        }
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get reverted invoke transaction`(provider: Provider) {
+    @Test
+    fun `get reverted invoke transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -183,23 +141,15 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNotNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> {
-                assertTrue(receipt is GatewayTransactionReceipt)
-                assertEquals(TransactionStatus.REVERTED, (receipt as GatewayTransactionReceipt).status)
-            }
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
-        }
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get invoke transaction with events`(provider: Provider) {
+    @Test
+    fun `get invoke transaction with events`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -220,15 +170,11 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedInvokeRpcTransactionReceipt)
-        }
+        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get declare v0 transaction`(provider: Provider) {
+    @Test
+    fun `get declare v0 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = Felt.fromHex("0x6d346ba207eb124355960c19c737698ad37a3c920a588b741e0130ff5bd4d6d")
@@ -244,16 +190,12 @@ class ProviderTest {
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
 
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
-        }
+        receipt is ProcessedDeclareTransactionReceipt
         assertEquals(Felt.ZERO, receipt.actualFee)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get declare v1 transaction`(provider: Provider) {
+    @Test
+    fun `get declare v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -265,27 +207,17 @@ class ProviderTest {
         assertEquals(transactionHash, tx.hash)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        var receipt = receiptRequest.send()
+        val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> {
-                receipt = receipt as GatewayTransactionReceipt
-                assertEquals(TransactionStatus.ACCEPTED_ON_L1, receipt.status)
-            }
-            is JsonRpcProvider -> {
-                receipt = receipt as ProcessedRpcTransactionReceipt
-            }
-        }
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get declare v2 transaction`(provider: Provider) {
+    @Test
+    fun `get declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -299,18 +231,13 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
-
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedDeclareRpcTransactionReceipt)
-        }
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get l1 handler transaction`(provider: Provider) {
+    @Test
+    fun `get l1 handler transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -324,45 +251,20 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedL1HandlerTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        when (provider) {
-            is GatewayProvider -> assertTrue(receipt is GatewayTransactionReceipt)
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedL1HandlerRpcTransactionReceipt)
+        val expectedMessageHash = when (network) {
+            Network.TESTNET -> NumAsHex.fromHex("0x6411d0d085d25a8da5f53b45f616d8c8473c12d5af0e9ed84515af0a58a28bf1")
+            Network.INTEGRATION -> NumAsHex.fromHex("0xf6359249ccef7caea9158c76133893d8bcbc09701df4caf111e7e2fc1283eb08")
         }
+
+        assertEquals(expectedMessageHash, (receipt as ProcessedL1HandlerTransactionReceipt).messageHash)
     }
 
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get transaction receipt with l1 to l2 message`(provider: Provider) {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x27d9e669bb43d9f95bed591b296aeab0067b24c84818fb650a65eb120a9aebd")
-            Network.TESTNET -> Felt.fromHex("0x116a9b469d266db31209d908e98f8b191c5923e808f347ed3fdde640d46f8d0")
-        }
-
-        val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        var receipt = receiptRequest.send()
-
-        assertTrue(receipt.isAccepted)
-
-        when (provider) {
-            is GatewayProvider -> {
-                receipt = receipt as GatewayTransactionReceipt
-                assertNotNull(receipt.messageL1ToL2)
-                assertNotNull(receipt.messageL1ToL2!!.nonce)
-            }
-            is JsonRpcProvider -> {
-                receipt = receipt as ProcessedRpcTransactionReceipt
-            }
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("getProviders")
-    fun `get transaction receipt with l2 to l1 messages`(provider: Provider) {
+    @Test
+    fun `get transaction receipt with l2 to l1 messages`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -373,27 +275,19 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
+        assertTrue(receipt is ProcessedTransactionReceipt)
         assertTrue(receipt.isAccepted)
 
         assertEquals(2, receipt.messagesSent.size)
         assertNotNull(receipt.messagesSent[0].fromAddress)
         assertNotNull(receipt.messagesSent[0].toAddress)
         assertNotNull(receipt.messagesSent[0].payload)
-
-        when (provider) {
-            is GatewayProvider -> {
-                assertTrue(receipt is GatewayTransactionReceipt)
-                assertNull((receipt as GatewayTransactionReceipt).messageL1ToL2)
-            }
-            is JsonRpcProvider -> assertTrue(receipt is ProcessedRpcTransactionReceipt)
-        }
     }
 
     @Test
     fun `get block with transactions with latest block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
@@ -410,7 +304,6 @@ class ProviderTest {
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
-        val provider = rpcProvider
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
         val response = request.send()
 
@@ -422,7 +315,6 @@ class ProviderTest {
     fun `get block with transactions with block hash`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val blockHash = when (network) {
             Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
             Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
@@ -439,7 +331,6 @@ class ProviderTest {
     fun `get block with transactions with block number`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val blockNumber = 310252
         val request = provider.getBlockWithTxs(blockNumber)
         val response = request.send()
@@ -453,7 +344,6 @@ class ProviderTest {
     fun `get block with transaction hashes with latest block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
         val response = request.send()
 
@@ -470,7 +360,6 @@ class ProviderTest {
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
-        val provider = rpcProvider
         val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
         val response = request.send()
 
@@ -482,7 +371,6 @@ class ProviderTest {
     fun `get block with transaction hashes with block hash`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val blockHash = when (network) {
             Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
             Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
@@ -499,7 +387,6 @@ class ProviderTest {
     fun `get block with transaction hashes with block number`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val provider = rpcProvider
         val blockNumber = 310252
         val request = provider.getBlockWithTxHashes(blockNumber)
         val response = request.send()

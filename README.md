@@ -25,9 +25,8 @@
     * [Hooks](#hooks)
   * [Running tests](#running-tests)
     * [Prerequisites](#prerequisites)
-    * [Platform-specific prerequisites](#platform-specific-prerequisites)
     * [Regular Tests](#regular-tests)
-    * [Integration Tests](#integration-tests)
+    * [Network Tests](#network-tests)
     * [Ensuring idiomatic Java code](#ensuring-idiomatic-java-code)
   * [Building documentation](#building-documentation)
 <!-- TOC -->
@@ -55,13 +54,13 @@ import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = GatewayProvider.makeTestnetClient();
-
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
         Felt privateKey = Felt.fromHex("0x425125");
@@ -87,15 +86,15 @@ import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.gateway.GatewayProvider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = GatewayProvider.makeTestnetClient();
-
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
         Felt privateKey = Felt.fromHex("0x425125");
@@ -134,16 +133,16 @@ This way you reuse connections and thread pools.
 
 ✅ **Do:** 
 ```java
-var provider = GatewayProvider.makeTestnetClient();
+var provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
 var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
 ```
 
 ❌ **Don't:**
 ```java
-var provider1 = GatewayProvider.makeTestnetClient();
+var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = GatewayProvider.makeTestnetClient();
+var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
 var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
@@ -160,8 +159,8 @@ Run
 ## Running tests
 
 ### Prerequisites
-- `cairo-lang` and `starknet-devnet`
-  - These are distributed as python packages. To install, run:
+- `cairo-lang`
+  - It is distributed as a python package. To install, run:
     ```shell
     pip install -r requirements.txt
     ```
@@ -174,13 +173,6 @@ Run
 - [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
-### Platform-specific prerequisites
-- **macOS aarch64**: no additional steps are required.
-- **linux x86_64**: no additional steps are required.
-- For other platforms, you will need to set `V2_COMPILER_BUILD_PATH` environment variable.
-    - `V2_COMPILER_BUILD_PATH` - path to a directory that contains built cairo v2.2.0 compiler binaries (`bin/`) and corelib (`corelib/`)
-    - To build cairo compilers for your platform, refer to [cairo repo](https://github.com/starkware-libs/cairo).
-
 ### Regular Tests
 Use the following command to run tests:
 ```shell
@@ -191,7 +183,7 @@ Use the following command to run tests:
 Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
-You will also need to provide **gateway URLs**, **RPC node URL** and an **account address** (along with its **private key**).
+You will also need to provide an **RPC node URL** and an **account address** (along with its **private key**).
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
 NETWORK_TEST_MODE=non_gas

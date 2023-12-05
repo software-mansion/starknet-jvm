@@ -199,23 +199,6 @@ data class Cairo1ContractDefinition(private val contract: String) {
             ) else put("abi", "")
         }
     }
-
-    fun toGatewayJson(): JsonObject {
-        return buildJsonObject {
-            put("sierra_program", sierraProgram.toString().base64Gzipped())
-            put("entry_points_by_type", entryPointsByType)
-            put("contract_class_version", contractClassVersion)
-            if (abi != null) put(
-                "abi",
-                Json { prettyPrint = true }.encodeToString(abi)
-                    .lineSequence().map { it.trim() }.joinToString("\n")
-                    .replace("\n", "")
-                    .replace(",\"", ", \"")
-                    .replace(",{", ", {")
-                    .replace(",[", ", ["),
-            ) else put("abi", "")
-        }
-    }
 }
 
 @Serializable
@@ -324,32 +307,6 @@ data class CasmEntryPoint(
     val offset: Int,
     val builtins: List<String>? = null,
 )
-
-@Serializable
-data class GatewayContractClass(
-    @SerialName("sierra_program")
-    val sierraProgram: String,
-
-    @SerialName("entry_points_by_type")
-    val entryPointsByType: EntryPointsByType,
-
-    @SerialName("contract_class_version")
-    val contractClassVersion: String,
-
-    val abi: String? = null,
-) : ContractClassBase() {
-    @Serializable
-    data class EntryPointsByType(
-        @SerialName("CONSTRUCTOR")
-        val constructor: List<SierraEntryPoint>,
-
-        @SerialName("EXTERNAL")
-        val external: List<SierraEntryPoint>,
-
-        @SerialName("L1_HANDLER")
-        val l1Handler: List<SierraEntryPoint>,
-    )
-}
 
 @Serializable
 data class GetClassPayload(
