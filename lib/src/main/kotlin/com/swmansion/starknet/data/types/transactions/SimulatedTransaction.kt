@@ -69,6 +69,9 @@ data class FunctionInvocation(
 
     @SerialName("messages")
     val messages: List<OrderedMessageL2ToL1>,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 )
 
 @Serializable
