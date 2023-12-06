@@ -111,7 +111,7 @@ class AccountTest {
             version = declareTransactionPayload.version,
         )
 
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
+        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
 
         val feeEstimate = feeEstimateRequest.send().first()
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
@@ -157,7 +157,7 @@ class AccountTest {
             version = declareTransactionPayload.version,
         )
 
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
+        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
 
         val feeEstimate = feeEstimateRequest.send().first()
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)

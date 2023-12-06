@@ -47,12 +47,18 @@ class ProviderTest {
             Network.TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
         }
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        }
         assertNotNull(transactionStatus.executionStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
 
         val transactionStatus2 = provider.getTransactionStatus(transactionHash2).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
+        }
         assertNotNull(transactionStatus2.executionStatus)
         assertEquals(TransactionExecutionStatus.REVERTED, transactionStatus2.executionStatus)
     }
@@ -144,7 +150,10 @@ class ProviderTest {
         assertTrue(receipt is ProcessedInvokeTransactionReceipt)
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNotNull(receipt.revertReason)
     }
 
@@ -153,7 +162,7 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
+            Network.INTEGRATION -> Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
             Network.TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
         }
         val tx = provider.getTransaction(transactionHash).send()
@@ -187,11 +196,15 @@ class ProviderTest {
         val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNull(receipt.revertReason)
 
         receipt is ProcessedDeclareTransactionReceipt
-        assertEquals(Felt.ZERO, receipt.actualFee)
+        assertEquals(Felt.ZERO, receipt.actualFee.amount)
+        assertEquals(PriceUnit.WEI, receipt.actualFee.unit)
     }
 
     @Test
@@ -199,7 +212,7 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x6d346ba207eb124355960c19c737698ad37a3c920a588b741e0130ff5bd4d6d")
+            Network.INTEGRATION -> Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
             Network.TESTNET -> Felt.fromHex("0x6801a86a4a6873f62aaa478151ba03171691edde897c434ec8cf9db3bb77573")
         }
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
@@ -212,7 +225,10 @@ class ProviderTest {
         assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNull(receipt.revertReason)
     }
 
