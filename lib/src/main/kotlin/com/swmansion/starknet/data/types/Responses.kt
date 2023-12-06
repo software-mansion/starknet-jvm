@@ -52,8 +52,9 @@ data class EstimateFeeResponse(
     @SerialName("overall_fee")
     val overallFee: Felt,
 
+    // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
-    val feeUnit: PriceUnit,
+    val feeUnit: PriceUnit? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
