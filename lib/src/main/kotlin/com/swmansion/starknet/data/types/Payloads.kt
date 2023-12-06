@@ -57,6 +57,9 @@ data class EstimateTransactionFeePayload(
         TransactionPayload,
         >,
 
+    @SerialName("simulation_flags")
+    val simulationFlags: Set<SimulationFlagForEstimateFee>,
+
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
