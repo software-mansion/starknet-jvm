@@ -201,6 +201,14 @@ class StandardAccount(
         }
     }
 
+    override fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
+        return execute(listOf(call), maxFee)
+    }
+
+    override fun execute(call: Call): Request<InvokeFunctionResponse> {
+        return execute(listOf(call))
+    }
+
     override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
 
     override fun getNonce(blockTag: BlockTag) = provider.getNonce(address, blockTag)
@@ -209,14 +217,49 @@ class StandardAccount(
 
     override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
 
+    override fun estimateFee(call: Call): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call))
+    }
+
+    override fun estimateFee(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), simulationFlags)
+    }
+
+    override fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag)
+    }
+
+    override fun estimateFee(
+        call: Call,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag, simulationFlags)
+    }
+
     override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, BlockTag.PENDING)
+        return estimateFee(calls, BlockTag.PENDING, emptySet())
+    }
+
+    override fun estimateFee(
+        calls: List<Call>,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFee(calls, BlockTag.PENDING, simulationFlags)
     }
 
     override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(calls, blockTag, emptySet())
+    }
+
+    override fun estimateFee(
+        calls: List<Call>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
         return getNonce(blockTag).compose { nonce ->
             val payload = buildEstimateFeePayload(calls, nonce)
-            return@compose provider.getEstimateFee(payload, blockTag)
+            return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
     }
 

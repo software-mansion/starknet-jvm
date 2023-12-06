@@ -180,9 +180,7 @@ interface Account {
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
-        return execute(listOf(call), maxFee)
-    }
+    fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls with automatically estimated fee.
@@ -198,9 +196,7 @@ interface Account {
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call): Request<InvokeFunctionResponse> {
-        return execute(listOf(call))
-    }
+    fun execute(call: Call): Request<InvokeFunctionResponse>
 
     /**
      * Estimate fee for a call.
@@ -210,9 +206,18 @@ interface Account {
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call))
-    }
+    fun estimateFee(call: Call): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a call.
+     *
+     * Estimate fee for a signed call on starknet.
+     *
+     * @param call a call used to estimate a fee.
+     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFee(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call.
@@ -223,9 +228,19 @@ interface Account {
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call), blockTag)
-    }
+    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a call.
+     *
+     * Estimate fee for a signed call on starknet for specified block tag.
+     *
+     * @param call a call used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFee(call: Call, blockTag: BlockTag, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls.
@@ -243,10 +258,37 @@ interface Account {
      * Estimate fee for a signed list of calls on starknet.
      *
      * @param calls a list of calls used to estimate a fee.
+     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @return estimated fee as field value.
+     */
+    fun estimateFee(calls: List<Call>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a list of calls.
+     *
+     * Estimate fee for a signed list of calls on starknet.
+     *
+     * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return estimated fee as field value.
      */
     fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a list of calls.
+     *
+     * Estimate fee for a signed list of calls on starknet.
+     *
+     * @param calls a list of calls used to estimate a fee.
+     * @param blockTag a tag of the block in respect to what the query will be made.
+     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @return estimated fee as field value.
+     */
+    fun estimateFee(
+        calls: List<Call>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>>
 
     /**
      * Get account nonce.
