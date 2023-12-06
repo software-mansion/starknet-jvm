@@ -194,14 +194,37 @@ class StandardAccountTest {
             version = declareTransactionPayload.version,
         )
 
-        val request = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST)
+        val request = provider.getEstimateFee(
+            listOf(signedTransaction.toPayload()),
+            BlockTag.LATEST,
+            emptySet(),
+        )
         val response = request.send()
         val feeEstimate = response.first()
 
-        assertNotEquals(Felt.ZERO, feeEstimate.gasPrice)
-        assertNotEquals(Felt.ZERO, feeEstimate.gasConsumed)
-        assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-        assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+        val txWithoutSignature = signedTransaction.copy(signature = emptyList())
+        val request2 = provider.getEstimateFee(
+            listOf(txWithoutSignature.toPayload()),
+            BlockTag.LATEST,
+            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE),
+        )
+        val response2 = request2.send()
+        val feeEstimate2 = response2.first()
+
+        listOf(feeEstimate, feeEstimate2).forEach {
+            assertNotEquals(Felt.ZERO, it.gasPrice)
+            assertNotEquals(Felt.ZERO, it.gasConsumed)
+            assertNotEquals(Felt.ZERO, it.overallFee)
+            assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+        }
+
+        assertThrows(RequestFailedException::class.java) {
+            provider.getEstimateFee(
+                listOf(signedTransaction.toPayload()),
+                BlockTag.LATEST,
+                emptySet(),
+            ).send()
+        }
     }
 
     // TODO: Use message mocking instead of deploying l1l2 contract.
