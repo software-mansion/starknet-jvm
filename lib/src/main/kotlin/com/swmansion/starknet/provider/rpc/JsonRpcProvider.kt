@@ -330,26 +330,41 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Hash(blockHash))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockHash: Felt,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Number(blockNumber))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockNumber: Int,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Tag(blockTag))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
 
+    override fun getEstimateFee(payload: List<TransactionPayload>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, BlockTag.PENDING, simulationFlags)
+    }
     override fun getEstimateFee(payload: List<TransactionPayload>): Request<List<EstimateFeeResponse>> {
-        return getEstimateFee(payload, BlockTag.LATEST)
+        return getEstimateFee(payload, BlockTag.PENDING, emptySet())
     }
 
     private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): Request<EstimateFeeResponse> {
