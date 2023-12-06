@@ -1,9 +1,10 @@
 package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.serializers.ExecutionResourcesSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
+@Serializable(with = ExecutionResourcesSerializer::class)
 data class ExecutionResources(
     @SerialName("steps")
     val steps: Int,
