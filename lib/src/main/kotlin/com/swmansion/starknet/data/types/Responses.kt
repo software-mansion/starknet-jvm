@@ -41,17 +41,19 @@ data class DeployAccountResponse(
     val address: Felt? = null,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EstimateFeeResponse(
-    @JsonNames("gas_consumed", "gas_usage")
+    @SerialName("gas_consumed")
     val gasConsumed: Felt,
 
-    @JsonNames("gas_price")
+    @SerialName("gas_price")
     val gasPrice: Felt,
 
-    @JsonNames("overall_fee")
+    @SerialName("overall_fee")
     val overallFee: Felt,
+
+    @SerialName("unit")
+    val feeUnit: PriceUnit,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
