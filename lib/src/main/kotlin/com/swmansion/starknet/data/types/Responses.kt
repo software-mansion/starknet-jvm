@@ -422,3 +422,21 @@ data class ResourcePrice(
     @SerialName("price_in_fri")
     val priceInFri: Felt,
 )
+
+@Serializable
+data class FeePayment(
+    @SerialName("amount")
+    val amount: Felt,
+
+    @SerialName("unit")
+    val unit: PriceUnit,
+)
+
+@Serializable
+enum class PriceUnit {
+    @SerialName("WEI")
+    WEI,
+
+    @SerialName("FRI")
+    FRI,
+}
