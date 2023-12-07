@@ -874,9 +874,9 @@ class ProviderTest {
                     "l1_gas_price": 
                     {
                         "price_in_wei": "0x2137",
-                        "price_in_strk": "0x1234"
+                        "price_in_fri": "0x1234"
                     },
-                    "starknet_version": "0.12.3",
+                    "starknet_version": "0.13.0",
                     "transactions": [
                         "0x01",
                         "0x02"

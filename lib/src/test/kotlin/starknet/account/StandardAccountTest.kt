@@ -220,7 +220,7 @@ class StandardAccountTest {
 
         assertThrows(RequestFailedException::class.java) {
             provider.getEstimateFee(
-                listOf(signedTransaction.toPayload()),
+                listOf(txWithoutSignature.toPayload()),
                 BlockTag.LATEST,
                 emptySet(),
             ).send()
