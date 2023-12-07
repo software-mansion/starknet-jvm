@@ -2,6 +2,8 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
@@ -45,6 +47,9 @@ class DevnetClient(
     lateinit var defaultAccountDetails: AccountDetails
 
     val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET) }
+
+    private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
+    private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/323f907bc3e3e4dc66b403ec6f8b58744e8d6f9a/crates/starknet/src/constants.rs
@@ -184,7 +189,7 @@ class DevnetClient(
             args = params,
         ) as AccountDeploySnCastResponse
 
-        requireTransactionSuccessful(response.transactionHash)
+        requireTransactionSuccessful(response.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
             details = readAccountDetails(name),
@@ -204,7 +209,7 @@ class DevnetClient(
         prefundAccount(details.address)
         val deployResult = deployAccount(accountName, classHash, maxFee)
 
-        requireTransactionSuccessful(deployResult.transactionHash)
+        requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
             details = details,
@@ -227,7 +232,7 @@ class DevnetClient(
             args = params,
         ) as DeclareSnCastResponse
 
-        requireTransactionSuccessful(response.transactionHash)
+        requireTransactionSuccessful(response.transactionHash, "Declare")
 
         return DeclareContractResult(
             classHash = response.classHash,
@@ -279,11 +284,11 @@ class DevnetClient(
         maxFeeDeploy: Felt = Felt(1000000000000000),
     ): DeployContractResult {
         val declareResponse = declareContract(contractName, maxFeeDeclare)
-        requireTransactionSuccessful(declareResponse.transactionHash)
+        requireTransactionSuccessful(declareResponse.transactionHash, "Declare")
 
         val classHash = declareResponse.classHash
         val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
-        requireTransactionSuccessful(deployResponse.transactionHash)
+        requireTransactionSuccessful(deployResponse.transactionHash, "Deploy Contract")
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -314,7 +319,7 @@ class DevnetClient(
             args = params,
         ) as InvokeSnCastResponse
 
-        requireTransactionSuccessful(response.transactionHash)
+        requireTransactionSuccessful(response.transactionHash, "Invoke")
 
         return InvokeContractResult(
             transactionHash = response.transactionHash,
@@ -366,12 +371,31 @@ class DevnetClient(
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
 
-    // This provides more info, but can be replaced with getTransactionStatus if there are changes to transaction receipts
-    private fun requireTransactionSuccessful(transactionHash: Felt) {
+
+    private fun requireTransactionSuccessful(transactionHash: Felt, type: String) {
+        // Receipt provides a more detailed error message than status, but is less reliable than getTransactionStatus
+        // Use status by default, use receipt for debugging purposes if needed
+        when(transactionVerificiationMode){
+            TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash)
+            TransactionVerificiationMode.STATUS -> requireTransactionStatusSuccessful(transactionHash, type)
+            TransactionVerificiationMode.DISABLED -> {}
+        }
+    }
+
+    private fun requireTransactionReceiptSuccessful(transactionHash: Felt) {
         val request = provider.getTransactionReceipt(transactionHash)
         val receipt = request.send()
         if (!receipt.isAccepted) {
             throw DevnetTransactionFailedException("${receipt.type} transaction failed. Reason: ${receipt.revertReason}")
+        }
+    }
+
+    private fun requireTransactionStatusSuccessful(transactionHash: Felt, type: String) {
+        val request = provider.getTransactionStatus(transactionHash)
+        val status = request.send()
+        if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED
+            && (status.finalityStatus == TransactionStatus.ACCEPTED_ON_L1 || status.finalityStatus == TransactionStatus.ACCEPTED_ON_L2)) {
+            throw DevnetTransactionFailedException("\"$type\" transaction failed.")
         }
     }
 }
