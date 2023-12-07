@@ -276,6 +276,8 @@ class DevnetClient(
             args = params,
         ) as DeploySnCastResponse
 
+        requireTransactionSuccessful(response.transactionHash, "Deploy Contract")
+
         return DeployContractResult(
             transactionHash = response.transactionHash,
             contractAddress = response.contractAddress,
@@ -291,11 +293,9 @@ class DevnetClient(
         maxFeeDeploy: Felt = Felt(1000000000000000),
     ): DeployContractResult {
         val declareResponse = declareContract(contractName, maxFeeDeclare)
-        requireTransactionSuccessful(declareResponse.transactionHash, "Declare")
 
         val classHash = declareResponse.classHash
         val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
-        requireTransactionSuccessful(deployResponse.transactionHash, "Deploy Contract")
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -383,17 +383,17 @@ class DevnetClient(
         // Receipt provides a more detailed error message than status, but is less reliable than getTransactionStatus
         // Use status by default, use receipt for debugging purposes if needed
         when(transactionVerificiationMode){
-            TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash)
+            TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash, type)
             TransactionVerificiationMode.STATUS -> requireTransactionStatusSuccessful(transactionHash, type)
             TransactionVerificiationMode.DISABLED -> {}
         }
     }
 
-    private fun requireTransactionReceiptSuccessful(transactionHash: Felt) {
+    private fun requireTransactionReceiptSuccessful(transactionHash: Felt, type: String) {
         val request = provider.getTransactionReceipt(transactionHash)
         val receipt = request.send()
         if (!receipt.isAccepted) {
-            throw DevnetTransactionFailedException("${receipt.type} transaction failed. Reason: ${receipt.revertReason}")
+            throw DevnetTransactionFailedException("$type transaction failed. Reason: ${receipt.revertReason}")
         }
     }
 
@@ -402,7 +402,7 @@ class DevnetClient(
         val status = request.send()
         if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED
             && (status.finalityStatus == TransactionStatus.ACCEPTED_ON_L1 || status.finalityStatus == TransactionStatus.ACCEPTED_ON_L2)) {
-            throw DevnetTransactionFailedException("\"$type\" transaction failed.")
+            throw DevnetTransactionFailedException("$type transaction failed.")
         }
     }
 }
