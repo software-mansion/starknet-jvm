@@ -19,7 +19,6 @@ import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class DevnetClient(
@@ -105,11 +104,14 @@ class DevnetClient(
         }
         isDevnetRunning = true
 
-        if (accountDirectory.exists()) {
-            accountDirectory.toFile().walkTopDown().forEach { it.delete() }
-        }
+        // TODO: Use the previous approach once sncast is updated to RPC 0.6.0
+        // if (accountDirectory.exists()) {
+        //    accountDirectory.toFile().walkTopDown().forEach { it.delete() }
+        // }
 
-        defaultAccountDetails = createDeployAccount("__default__").details
+        // defaultAccountDetails = createDeployAccount("__default__").details
+
+        defaultAccountDetails = deployAccount("__default__", prefund = true).details
     }
 
     override fun close() {
@@ -174,7 +176,12 @@ class DevnetClient(
         name: String,
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
+        prefund: Boolean = false,
     ): DeployAccountResult {
+        if (prefund) {
+            prefundAccount(readAccountDetails(name).address)
+        }
+
         val params = listOf(
             "deploy",
             "--name",

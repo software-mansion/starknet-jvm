@@ -48,7 +48,7 @@ class ProviderTest {
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                deployAccountTransactionHash = devnetClient.createDeployAccount("provider_test").transactionHash
+                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",

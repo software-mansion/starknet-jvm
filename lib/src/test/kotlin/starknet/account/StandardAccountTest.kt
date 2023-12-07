@@ -56,7 +56,7 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 // Prepare devnet address book
-                val accountDetails = devnetClient.createDeployAccount("standard_account_test").details
+                val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
