@@ -247,3 +247,48 @@ data class DeployAccountTransactionV1Payload(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : DeployAccountTransactionPayload()
+
+@Serializable
+data class DeployAccountTransactionV3Payload(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
+    @SerialName("contract_address_salt")
+    val salt: Felt,
+
+    @SerialName("constructor_calldata")
+    val constructorCalldata: Calldata,
+
+    @SerialName("version")
+    val version: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("max_fee")
+    val maxFee: Felt,
+
+    @SerialName("signature")
+    val signature: Signature,
+
+    @SerialName("resource_bounds")
+    val resourceBounds: ResourceBoundsMapping,
+
+    @SerialName("tip")
+    val tip: Uint64,
+
+    @SerialName("paymaster_data")
+    val paymasterData: List<Felt>,
+
+    @SerialName("account_deployment_data")
+    val accountDeploymentData: List<Felt>,
+
+    @SerialName("nonce_data_availability_mode")
+    val nonceDataAvailabilityMode: DAMode,
+
+    @SerialName("fee_data_availability_mode")
+    val feeDataAvailabilityMode: DAMode,
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+) : DeployAccountTransactionPayload()
