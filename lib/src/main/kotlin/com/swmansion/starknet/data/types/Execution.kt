@@ -8,6 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias Calldata = List<Felt>
+typealias PaymasterData = List<Felt>
 typealias Signature = List<Felt>
 typealias CallArguments = List<ConvertibleToCalldata>
 
