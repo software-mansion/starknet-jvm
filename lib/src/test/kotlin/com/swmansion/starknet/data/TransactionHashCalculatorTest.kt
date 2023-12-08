@@ -13,7 +13,7 @@ internal class TransactionHashCalculatorTest {
 
     @Test
     fun calculateInvokeTxHash() {
-        val hash = TransactionHashCalculator.calculateInvokeTxHash(
+        val hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
             contractAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
             calldata = calldata,
             chainId = chainId,
@@ -28,7 +28,7 @@ internal class TransactionHashCalculatorTest {
 
     @Test
     fun calculateDeployAccountTxHash() {
-        val hash = TransactionHashCalculator.calculateDeployAccountTxHash(
+        val hash = TransactionHashCalculator.calculateDeployAccountV1TxHash(
             classHash = Felt.fromHex("0x21a7f43387573b68666669a0ed764252ce5367708e696e31967764a90b429c2"),
             calldata = calldata,
             salt = Felt(1234),
