@@ -11,7 +11,10 @@ sealed class TransactionPayload() {
 }
 
 @Serializable
-data class InvokeTransactionPayload(
+sealed class InvokeTransactionPayload() : TransactionPayload()
+
+@Serializable
+data class InvokeTransactionV1Payload(
     @SerialName("sender_address")
     val senderAddress: Felt,
 
@@ -24,24 +27,95 @@ data class InvokeTransactionPayload(
     @SerialName("max_fee")
     val maxFee: Felt,
 
+    @SerialName("nonce")
+    val nonce: Felt,
+
     @SerialName("version")
     val version: Felt,
+
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.INVOKE,
+) : InvokeTransactionPayload() {
+
+    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
+        senderAddress = senderAddress,
+        calldata = calldata,
+        signature = signature,
+        maxFee = maxFee,
+        version = Felt.ONE,
+        nonce = nonce,
+        type = TransactionType.INVOKE,
+    )
+}
+
+@Serializable
+data class InvokeTransactionV3Payload(
+    @SerialName("sender_address")
+    val senderAddress: Felt,
+
+    @SerialName("calldata")
+    val calldata: Calldata,
+
+    @SerialName("signature")
+    val signature: Signature,
+
+    @SerialName("max_fee")
+    val maxFee: Felt,
 
     @SerialName("nonce")
     val nonce: Felt,
 
+    @SerialName("resource_bounds")
+    val resourceBounds: ResourceBoundsMapping,
+
+    @SerialName("tip")
+    val tip: Uint64,
+
+    @SerialName("paymaster_data")
+    val paymasterData: List<Felt>,
+
+    @SerialName("account_deployment_data")
+    val accountDeploymentData: List<Felt>,
+
+    @SerialName("nonce_data_availability_mode")
+    val nonceDataAvailabilityMode: DAMode,
+
+    @SerialName("fee_data_availability_mode")
+    val feeDataAvailabilityMode: DAMode,
+
+    @SerialName("version")
+    val version: Felt,
+
     @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
-) : TransactionPayload() {
+) : InvokeTransactionPayload() {
 
-    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
-        senderAddress,
-        calldata,
-        signature,
-        maxFee,
-        INVOKE_VERSION,
-        nonce,
-        TransactionType.INVOKE,
+    constructor(
+        senderAddress: Felt,
+        calldata: Calldata,
+        signature: Signature,
+        maxFee: Felt,
+        nonce: Felt,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+        paymasterData: List<Felt>,
+        accountDeploymentData: List<Felt>,
+        nonceDataAvailabilityMode: DAMode,
+        feeDataAvailabilityMode: DAMode,
+    ) : this(
+        senderAddress = senderAddress,
+        calldata = calldata,
+        signature = signature,
+        maxFee = maxFee,
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+        tip = tip,
+        paymasterData = paymasterData,
+        accountDeploymentData = accountDeploymentData,
+        nonceDataAvailabilityMode = nonceDataAvailabilityMode,
+        feeDataAvailabilityMode = feeDataAvailabilityMode,
+        version = Felt(3),
+        type = TransactionType.INVOKE,
     )
 }
 
@@ -145,7 +219,10 @@ data class DeclareTransactionV3Payload(
 ) : DeclareTransactionPayload()
 
 @Serializable
-data class DeployAccountTransactionPayload(
+sealed class DeployAccountTransactionPayload() : TransactionPayload()
+
+@Serializable
+data class DeployAccountTransactionV1Payload(
     @SerialName("class_hash")
     val classHash: Felt,
 
@@ -169,4 +246,4 @@ data class DeployAccountTransactionPayload(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-) : TransactionPayload()
+) : DeployAccountTransactionPayload()
