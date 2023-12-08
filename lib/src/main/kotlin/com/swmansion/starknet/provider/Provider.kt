@@ -32,7 +32,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun invokeFunction(payload: InvokeTransactionPayload): Request<InvokeFunctionResponse>
+    fun invokeFunction(payload: InvokeTransactionV1Payload): Request<InvokeFunctionResponse>
 
     /**
      * Get the contract class definition.
@@ -124,7 +124,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse>
+    fun deployAccount(payload: DeployAccountTransactionV1Payload): Request<DeployAccountResponse>
 
     /**
      * Calls a contract deployed on Starknet.

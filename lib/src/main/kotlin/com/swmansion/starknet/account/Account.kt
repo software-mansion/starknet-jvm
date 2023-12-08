@@ -23,7 +23,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
+    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         return sign(listOf(call), params, forFeeEstimate)
     }
 
@@ -36,7 +36,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke function payload
      */
-    fun sign(call: Call, params: ExecutionParams): InvokeTransactionPayload {
+    fun sign(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
         return sign(listOf(call), params, false)
     }
 
@@ -50,7 +50,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke function payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload
+    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
 
     /**
      * Sign multiple calls as a single transaction.
@@ -61,7 +61,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke function payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionPayload {
+    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
         return sign(calls, params, false)
     }
 
@@ -85,7 +85,7 @@ interface Account {
         maxFee: Felt,
         nonce: Felt,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionPayload
+    ): DeployAccountTransactionV1Payload
 
     /**
      * Sign deploy account transaction.
@@ -103,7 +103,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
-    ): DeployAccountTransactionPayload {
+    ): DeployAccountTransactionV1Payload {
         return signDeployAccount(classHash, calldata, salt, maxFee, Felt.ZERO, false)
     }
 

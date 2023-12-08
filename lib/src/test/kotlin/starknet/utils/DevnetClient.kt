@@ -378,11 +378,10 @@ class DevnetClient(
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
 
-
     private fun requireTransactionSuccessful(transactionHash: Felt, type: String) {
         // Receipt provides a more detailed error message than status, but is less reliable than getTransactionStatus
         // Use status by default, use receipt for debugging purposes if needed
-        when(transactionVerificiationMode){
+        when (transactionVerificiationMode) {
             TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash, type)
             TransactionVerificiationMode.STATUS -> requireTransactionStatusSuccessful(transactionHash, type)
             TransactionVerificiationMode.DISABLED -> {}
@@ -400,8 +399,9 @@ class DevnetClient(
     private fun requireTransactionStatusSuccessful(transactionHash: Felt, type: String) {
         val request = provider.getTransactionStatus(transactionHash)
         val status = request.send()
-        if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED
-            && (status.finalityStatus == TransactionStatus.ACCEPTED_ON_L1 || status.finalityStatus == TransactionStatus.ACCEPTED_ON_L2)) {
+        if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED &&
+            (status.finalityStatus == TransactionStatus.ACCEPTED_ON_L1 || status.finalityStatus == TransactionStatus.ACCEPTED_ON_L2)
+        ) {
             throw DevnetTransactionFailedException("$type transaction failed.")
         }
     }

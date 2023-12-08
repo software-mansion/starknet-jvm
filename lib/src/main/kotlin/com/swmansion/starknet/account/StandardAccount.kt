@@ -3,7 +3,7 @@ package com.swmansion.starknet.account
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
@@ -41,13 +41,13 @@ class StandardAccount(
         cairoVersion,
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
+    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
-        val tx = TransactionFactory.makeInvokeTransaction(
+        val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
             calldata = calldata,
             chainId = provider.chainId,
@@ -68,12 +68,12 @@ class StandardAccount(
         maxFee: Felt,
         nonce: Felt,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionPayload {
+    ): DeployAccountTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion)
             false -> version
         }
-        val tx = TransactionFactory.makeDeployAccountTransaction(
+        val tx = TransactionFactory.makeDeployAccountV1Transaction(
             classHash = classHash,
             contractAddress = address,
             salt = salt,
@@ -267,7 +267,7 @@ class StandardAccount(
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams, true)
 
-        val signedTransaction = TransactionFactory.makeInvokeTransaction(
+        val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
             chainId = provider.chainId,

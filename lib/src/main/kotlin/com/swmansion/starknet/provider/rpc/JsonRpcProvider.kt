@@ -92,7 +92,7 @@ class JsonRpcProvider(
         return callContract(call, BlockTag.LATEST)
     }
 
-    override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+    override fun deployAccount(payload: DeployAccountTransactionV1Payload): Request<DeployAccountResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
@@ -155,7 +155,7 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeTransactionPayload,
+        payload: InvokeTransactionV1Payload,
     ): Request<InvokeFunctionResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
