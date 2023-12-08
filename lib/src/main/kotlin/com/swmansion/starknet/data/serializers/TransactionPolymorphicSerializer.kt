@@ -27,6 +27,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
 
         val version = Json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
+            Felt(3) -> InvokeTransactionV3.serializer()
             Felt.ONE -> InvokeTransactionV1.serializer()
             Felt.ZERO -> InvokeTransactionV0.serializer()
             else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
@@ -39,9 +40,10 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
 
         val version = Json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
-            Felt.ZERO -> DeclareTransactionV0.serializer()
-            Felt.ONE -> DeclareTransactionV1.serializer()
+            Felt(3) -> DeclareTransactionV3.serializer()
             Felt(2) -> DeclareTransactionV2.serializer()
+            Felt.ONE -> DeclareTransactionV1.serializer()
+            Felt.ZERO -> DeclareTransactionV0.serializer()
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
