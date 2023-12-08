@@ -172,7 +172,6 @@ internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTrans
     }
 }
 
-
 internal object InvokeTransactionPayloadV1Serializer : KSerializer<InvokeTransactionV1Payload> {
     override val descriptor: SerialDescriptor
         get() = InvokeTransactionV1Payload.serializer().descriptor
