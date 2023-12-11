@@ -452,7 +452,7 @@ class AccountTest {
         // Make sure tx matches what we sent
         Thread.sleep(15000)
 
-        val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransaction
+        val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
         assertEquals(payload.classHash, tx.classHash)
         assertEquals(payload.salt, tx.contractAddressSalt)
         assertEquals(payload.constructorCalldata, tx.constructorCalldata)
