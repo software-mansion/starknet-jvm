@@ -425,7 +425,7 @@ class ProviderTest {
 
         assertTrue(receipt is PendingTransactionReceipt)
         assertTrue(receipt is PendingInvokeTransactionReceipt)
-        assertEquals(PriceUnit.FRI,receipt.actualFee.unit)
+        assertEquals(PriceUnit.FRI, receipt.actualFee.unit)
     }
 
     @Test

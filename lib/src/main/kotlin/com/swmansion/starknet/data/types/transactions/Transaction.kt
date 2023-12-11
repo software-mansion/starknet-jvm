@@ -403,7 +403,6 @@ data class DeclareTransactionV3(
 
     // not in RPC spec
     @SerialName("transaction_hash")
-    @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
     @SerialName("version")
@@ -846,7 +845,6 @@ object TransactionFactory {
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
         chainId: StarknetChainId,
-        maxFee: Felt,
         version: Felt,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,

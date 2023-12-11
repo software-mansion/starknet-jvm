@@ -1,6 +1,5 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.serializers.TransactionPayloadSerializer
 import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -53,7 +52,6 @@ data class GetTransactionStatusPayload(
 data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<
-        @Serializable(with = TransactionPayloadSerializer::class)
         TransactionPayload,
         >,
 
@@ -119,7 +117,6 @@ data class GetTransactionByBlockIdAndIndexPayload(
 data class SimulateTransactionsPayload(
     @SerialName("transactions")
     val transactions: List<
-        @Serializable(with = TransactionPayloadSerializer::class)
         TransactionPayload,
         >,
 

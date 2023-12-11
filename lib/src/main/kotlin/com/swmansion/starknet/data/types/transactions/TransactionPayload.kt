@@ -1,12 +1,12 @@
 package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.serializers.TransactionPayloadSerializer
 import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed class TransactionPayload() {
-    @SerialName("type")
+@Serializable(with = TransactionPayloadSerializer::class)
+sealed class TransactionPayload {
     abstract val type: TransactionType
 }
 
