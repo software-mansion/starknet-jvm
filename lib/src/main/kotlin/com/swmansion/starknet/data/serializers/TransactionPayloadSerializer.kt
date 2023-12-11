@@ -152,7 +152,6 @@ internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTrans
             put("contract_class", value.contractDefinition.toJson())
             put("sender_address", value.senderAddress.hexString())
             put("version", value.version)
-            put("max_fee", value.maxFee.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("nonce", value.nonce)
             put("type", value.type.toString())
@@ -208,7 +207,6 @@ internal object InvokeTransactionPayloadV3Serializer : KSerializer<InvokeTransac
             put("sender_address", value.senderAddress.hexString())
             putJsonArray("calldata") { value.calldata.forEach { add(it) } }
             putJsonArray("signature") { value.signature.forEach { add(it) } }
-            put("max_fee", value.maxFee.hexString())
             put("version", value.version)
             put("nonce", value.nonce)
             put("resource_bounds", Json.encodeToJsonElement(value.resourceBounds))
@@ -267,7 +265,6 @@ internal object DeployAccountTransactionV3PayloadSerializer : KSerializer<Deploy
             putJsonArray("constructor_calldata") { value.constructorCalldata.forEach { add(it) } }
             put("version", value.version)
             put("nonce", value.nonce)
-            put("max_fee", value.maxFee.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("resource_bounds", Json.encodeToJsonElement(value.resourceBounds))
             put("tip", value.tip.hexString())

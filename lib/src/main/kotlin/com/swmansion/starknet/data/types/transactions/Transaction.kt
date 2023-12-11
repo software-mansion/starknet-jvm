@@ -40,12 +40,17 @@ enum class DAMode(val value: Int) {
 @Serializable
 sealed class Transaction {
     abstract val hash: Felt?
-    abstract val maxFee: Felt
     abstract val version: Felt
     abstract val signature: Signature
     abstract val nonce: Felt
     abstract val type: TransactionType
 }
+
+// @Serializable
+// data class TransactionV1 {
+//    @SerialName("max_fee")
+//    val maxFee: Felt
+// }
 
 @Serializable
 sealed interface TransactionV3 {
@@ -83,7 +88,7 @@ data class DeployTransaction(
 
     // not in RPC spec
     @SerialName("max_fee")
-    override val maxFee: Felt = Felt.ZERO,
+    val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
     override val version: Felt,
@@ -119,7 +124,7 @@ data class InvokeTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ONE,
@@ -170,9 +175,6 @@ data class InvokeTransactionV3(
     @SerialName("transaction_hash")
     override val hash: Felt? = null,
 
-    @SerialName("max_fee")
-    override val maxFee: Felt,
-
     @SerialName("version")
     override val version: Felt = Felt(3),
 
@@ -204,7 +206,6 @@ data class InvokeTransactionV3(
         return InvokeTransactionV3Payload(
             calldata = calldata,
             signature = signature,
-            maxFee = maxFee,
             nonce = nonce,
             senderAddress = senderAddress,
             version = version,
@@ -219,12 +220,11 @@ data class InvokeTransactionV3(
 
     companion object {
         @JvmStatic
-        internal fun fromPayload(payload: InvokeTransactionV3Payload): InvokeTransaction {
+        internal fun fromPayload(payload: InvokeTransactionV3Payload): InvokeTransactionV3 {
             return InvokeTransactionV3(
                 senderAddress = payload.senderAddress,
                 calldata = payload.calldata,
                 hash = Felt.ZERO,
-                maxFee = payload.maxFee,
                 version = payload.version,
                 signature = payload.signature,
                 nonce = payload.nonce,
@@ -249,7 +249,7 @@ data class InvokeTransactionV0(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ZERO,
@@ -289,7 +289,7 @@ data class DeclareTransactionV0(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ZERO,
@@ -317,7 +317,7 @@ data class DeclareTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ONE,
@@ -360,7 +360,7 @@ data class DeclareTransactionV2(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt(2),
@@ -406,9 +406,6 @@ data class DeclareTransactionV3(
     @JsonNames("txn_hash")
     override val hash: Felt? = null,
 
-    @SerialName("max_fee")
-    override val maxFee: Felt,
-
     @SerialName("version")
     override val version: Felt = Felt(3),
 
@@ -448,7 +445,6 @@ data class DeclareTransactionV3(
         return DeclareTransactionV3Payload(
             contractDefinition = contractDefinition,
             senderAddress = senderAddress,
-            maxFee = maxFee,
             nonce = nonce,
             resourceBounds = resourceBounds,
             tip = tip,
@@ -481,7 +477,7 @@ data class L1HandlerTransaction(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt = Felt.ZERO,
+    val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
     override val version: Felt,
@@ -535,7 +531,7 @@ data class DeployAccountTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    override val maxFee: Felt,
+    val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt,
@@ -578,9 +574,6 @@ data class DeployAccountTransactionV3(
     @SerialName("transaction_hash")
     override val hash: Felt? = null,
 
-    @SerialName("max_fee")
-    override val maxFee: Felt,
-
     @SerialName("version")
     override val version: Felt,
 
@@ -605,15 +598,20 @@ data class DeployAccountTransactionV3(
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
 ) : DeployAccountTransaction(), TransactionV3 {
-    internal fun toPayload(): DeployAccountTransactionV1Payload {
-        return DeployAccountTransactionV1Payload(
+    internal fun toPayload(): DeployAccountTransactionV3Payload {
+        return DeployAccountTransactionV3Payload(
             classHash = classHash,
             salt = contractAddressSalt,
             constructorCalldata = constructorCalldata,
             version = version,
             nonce = nonce,
-            maxFee = maxFee,
             signature = signature,
+            resourceBounds = resourceBounds,
+            tip = tip,
+            paymasterData = paymasterData,
+            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = feeDataAvailabilityMode,
+
         )
     }
 }
@@ -682,7 +680,6 @@ object TransactionFactory {
             hash = hash,
             senderAddress = senderAddress,
             calldata = calldata,
-            maxFee = maxFee,
             version = version,
             signature = signature,
             nonce = nonce,
@@ -740,7 +737,6 @@ object TransactionFactory {
         version: Felt,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
-        maxFee: Felt = Felt.ZERO,
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64,
         paymasterData: List<Felt>,
@@ -769,7 +765,6 @@ object TransactionFactory {
             constructorCalldata = calldata,
             version = version,
             nonce = nonce,
-            maxFee = maxFee,
             hash = hash,
             signature = signature,
             resourceBounds = resourceBounds,
@@ -884,7 +879,6 @@ object TransactionFactory {
             classHash = classHash,
             senderAddress = senderAddress,
             contractDefinition = contractDefinition,
-            maxFee = maxFee,
             version = version,
             signature = signature,
             nonce = nonce,

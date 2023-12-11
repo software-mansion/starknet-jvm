@@ -27,11 +27,11 @@ data class InvokeTransactionV1Payload(
     @SerialName("max_fee")
     val maxFee: Felt,
 
-    @SerialName("nonce")
-    val nonce: Felt,
-
     @SerialName("version")
     val version: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
@@ -58,9 +58,6 @@ data class InvokeTransactionV3Payload(
 
     @SerialName("signature")
     val signature: Signature,
-
-    @SerialName("max_fee")
-    val maxFee: Felt,
 
     @SerialName("nonce")
     val nonce: Felt,
@@ -94,7 +91,6 @@ data class InvokeTransactionV3Payload(
         senderAddress: Felt,
         calldata: Calldata,
         signature: Signature,
-        maxFee: Felt,
         nonce: Felt,
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64,
@@ -106,7 +102,6 @@ data class InvokeTransactionV3Payload(
         senderAddress = senderAddress,
         calldata = calldata,
         signature = signature,
-        maxFee = maxFee,
         nonce = nonce,
         resourceBounds = resourceBounds,
         tip = tip,
@@ -177,9 +172,6 @@ data class DeclareTransactionV2Payload(
 data class DeclareTransactionV3Payload(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition,
-
-    @SerialName("max_fee")
-    val maxFee: Felt,
 
     @SerialName("nonce")
     val nonce: Felt,
@@ -265,9 +257,6 @@ data class DeployAccountTransactionV3Payload(
     @SerialName("nonce")
     val nonce: Felt,
 
-    @SerialName("max_fee")
-    val maxFee: Felt,
-
     @SerialName("signature")
     val signature: Signature,
 
@@ -279,9 +268,6 @@ data class DeployAccountTransactionV3Payload(
 
     @SerialName("paymaster_data")
     val paymasterData: List<Felt>,
-
-    @SerialName("account_deployment_data")
-    val accountDeploymentData: List<Felt>,
 
     @SerialName("nonce_data_availability_mode")
     val nonceDataAvailabilityMode: DAMode,
