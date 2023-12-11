@@ -54,7 +54,7 @@ internal object ExecutionResourcesSerializer : KSerializer<ExecutionResources> {
     }
 
     private fun getAsInt(jsonObject: JsonObject, key: String): Int? {
-        return jsonObject[key]?.jsonPrimitive?.content?.let { fromHexOrInt(it) }
+        return jsonObject.getOrDefault(key, null)?.jsonPrimitive?.contentOrNull?.let { fromHexOrInt(it) }
     }
 
     private fun fromHexOrInt(value: String): Int {
