@@ -1,6 +1,7 @@
 package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.transactions.ExecutionResources
+import com.swmansion.starknet.extensions.toNumAsHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -9,7 +10,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
-import toNumAsHex
 
 // TODO: (#344) Remove this workaround serializer once ExecutionResources conform to the RPC spec on Pathfinder side.
 internal object ExecutionResourcesSerializer : KSerializer<ExecutionResources> {
