@@ -4,7 +4,6 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
-import com.swmansion.starknet.data.types.transactions.DAMode
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -93,59 +92,6 @@ data class Call(
         }
     }
 }
-
-data class ExecutionParams(
-    val nonce: Felt,
-    val maxFee: Felt,
-)
-
-sealed class ExecutionParamsV3 {
-    abstract val nonce: Felt
-    abstract val resourceBounds: ResourceBoundsMapping
-    abstract val tip: Uint64
-    abstract val paymasterData: PaymasterData
-    abstract val nonceDataAvailabilityMode: DAMode
-    abstract val feeDataAvailabilityMode: DAMode
-}
-
-data class InvokeExecutionParamsV3(
-    override val nonce: Felt,
-    override val resourceBounds: ResourceBoundsMapping,
-    override val tip: Uint64,
-    override val paymasterData: PaymasterData,
-    val accountDeploymentData: AccountDeploymentData,
-    override val nonceDataAvailabilityMode: DAMode,
-    override val feeDataAvailabilityMode: DAMode,
-) : ExecutionParamsV3() {
-    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
-        nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(l1ResourceBounds, ResourceBounds(Uint64.ZERO, Uint128.ZERO)),
-        tip = Uint64.ZERO,
-        paymasterData = emptyList(),
-        accountDeploymentData = emptyList(),
-        nonceDataAvailabilityMode = DAMode.L1,
-        feeDataAvailabilityMode = DAMode.L1,
-    )
-}
-
-data class DeclareExecutionParamsV3(
-    override val nonce: Felt,
-    override val resourceBounds: ResourceBoundsMapping,
-    override val tip: Uint64,
-    override val paymasterData: PaymasterData,
-    val accountDeploymentData: AccountDeploymentData,
-    override val nonceDataAvailabilityMode: DAMode,
-    override val feeDataAvailabilityMode: DAMode,
-) : ExecutionParamsV3()
-
-data class DeployAccountExecutionParamsV3(
-    override val nonce: Felt,
-    override val resourceBounds: ResourceBoundsMapping,
-    override val tip: Uint64,
-    override val paymasterData: PaymasterData,
-    override val nonceDataAvailabilityMode: DAMode,
-    override val feeDataAvailabilityMode: DAMode,
-) : ExecutionParamsV3()
 
 object AccountCalldataTransformer {
     @JvmSynthetic

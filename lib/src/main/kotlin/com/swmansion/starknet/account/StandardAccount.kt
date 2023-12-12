@@ -61,7 +61,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signV3(calls: List<Call>, params: InvokeExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    override fun signV3(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> Felt(estimateVersion + BigInteger.valueOf(2))
@@ -221,7 +221,7 @@ class StandardAccount(
 
     override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
-            val signParams = InvokeExecutionParamsV3(
+            val signParams = ExecutionParamsV3(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
             )
