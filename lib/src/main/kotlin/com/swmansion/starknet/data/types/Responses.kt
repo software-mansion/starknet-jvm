@@ -5,10 +5,15 @@ import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.extensions.toUint128
+import com.swmansion.starknet.extensions.toUint64
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
+import java.math.BigInteger
+import kotlin.math.roundToInt
 
 @Serializable
 data class CallContractResponse(
@@ -55,7 +60,30 @@ data class EstimateFeeResponse(
     // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
-)
+) {
+    fun toMaxFee(overhead: Double = 0.5): Felt {
+        return addOverhead(overallFee.value, overhead).toFelt
+    }
+
+    fun toResourceBounds(
+        amountOverhead: Double = 0.1,
+        unitPriceOverhead: Double = 0.5,
+    ): ResourceBoundsMapping {
+        val maxAmount = addOverhead(gasConsumed.value, amountOverhead).toUint64
+        val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
+
+        // As of Starknet 0.13.0, the L2 gas is not supported
+        // Because of this, the L2 gas values are hardcoded to 0
+        return ResourceBoundsMapping(
+            l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
+            l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
+        )
+    }
+    private fun addOverhead(value: BigInteger, overhead: Double): BigInteger {
+        val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
+        return value.multiply(multiplier).divide(BigInteger.valueOf(100))
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -417,12 +445,14 @@ data class ResourceBounds(
     val maxPricePerUnit: Uint128,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ResourcePrice(
     @SerialName("price_in_wei")
     val priceInWei: Felt,
 
     @SerialName("price_in_fri")
+    @JsonNames("price_in_strk") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
     val priceInFri: Felt,
 )
 
@@ -435,11 +465,13 @@ data class FeePayment(
     val unit: PriceUnit,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class PriceUnit {
     @SerialName("WEI")
     WEI,
 
     @SerialName("FRI")
+    @JsonNames("STRK") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
     FRI,
 }
