@@ -14,30 +14,57 @@ interface Account {
     val address: Felt
 
     /**
-     * Sign a transaction.
+     * Sign a version 1 invoke transaction.
      *
      * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @return signed invoke function payload
+     * @return signed invoke transaction version 1 payload
      */
     fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         return sign(listOf(call), params, forFeeEstimate)
     }
 
     /**
-     * Sign a transaction.
+     * Sign a version 3 invoke transaction.
      *
      * Sign a transaction to be executed on Starknet.
      *
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
-     * @return signed invoke function payload
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @return signed invoke transaction version 3 payload
+     */
+    fun signV3(call: Call, params: InvokeExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+        return signV3(listOf(call), params, forFeeEstimate)
+    }
+
+    /**
+     * Sign a version 1 invoke transaction.
+     *
+     * Sign a transaction to be executed on Starknet.
+     *
+     * @param call a call to be signed
+     * @param params additional execution parameters for the transaction
+     * @return signed invoke transaction version 1 payload
      */
     fun sign(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
         return sign(listOf(call), params, false)
+    }
+
+    /**
+     * Sign a version 3 invoke transaction.
+     *
+     * Sign a transaction to be executed on Starknet.
+     *
+     * @param call a call to be signed
+     * @param params additional execution parameters for the transaction
+     * @return signed invoke transaction version 3 payload
+     */
+    fun signV3(call: Call, params: InvokeExecutionParamsV3): InvokeTransactionV3Payload {
+        return signV3(listOf(call), params, false)
     }
 
     /**
@@ -48,7 +75,7 @@ interface Account {
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @return signed invoke function payload
+     * @return signed invoke transaction version 1 payload
      */
     fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
 
@@ -60,21 +87,34 @@ interface Account {
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @return signed invoke function payload
+     * @return signed invoke transaction version 3 payload
      */
     fun signV3(calls: List<Call>, params: InvokeExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
 
     /**
-     * Sign multiple calls as a single transaction.
+     * Sign multiple calls as a single version 1 invoke transaction.
      *
      * Sign a list of calls to be executed on Starknet.
      *
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
-     * @return signed invoke function payload
+     * @return signed invoke transaction version 1 payload
      */
     fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
         return sign(calls, params, false)
+    }
+
+    /**
+     * Sign multiple calls as a single version 3 invoke transaction.
+     *
+     * Sign a list of calls to be executed on Starknet.
+     *
+     * @param calls a list of calls to be signed
+     * @param params additional execution parameters for the transaction
+     * @return signed invoke transaction version 3 payload
+     */
+    fun signV3(calls: List<Call>, params: InvokeExecutionParamsV3): InvokeTransactionV3Payload {
+        return signV3(calls, params, false)
     }
 
     /**
