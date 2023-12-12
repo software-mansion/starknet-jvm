@@ -6,7 +6,6 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
 import com.swmansion.starknet.data.types.transactions.TransactionType
 import com.swmansion.starknet.extensions.toFelt
-import java.math.BigInteger
 
 /**
  * Toolkit for calculating hashes of transactions.
@@ -38,11 +37,10 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
-        maxFee: Felt,
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
         paymasterData: PaymasterData,
-        accountDeploymentData: List<Felt>,
+        accountDeploymentData: AccountDeploymentData,
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
@@ -188,7 +186,7 @@ object TransactionHashCalculator {
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
         paymasterData: PaymasterData,
-        accountDeploymentData: List<Felt>,
+        accountDeploymentData: AccountDeploymentData,
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
@@ -264,32 +262,25 @@ object TransactionHashCalculator {
     }
 
     private fun resourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
-        val l1GasPrefix = Felt.fromShortString("L1_GAS").toFelt.value.toString(2).padEnd(60, '0')
-        val l1MaxAmount = resourceBounds.l1Gas.maxAmount.toFelt.value.toString(2).padEnd(64, '0')
-        val l1MaxPricePerUnit = resourceBounds.l1Gas.maxPricePerUnit.toFelt.value.toString(2).padEnd(128, '0')
+        // TODO: instead, store hardcoded hexes encoded from short string
+        val l1GasBound = Felt.fromShortString("L1_GAS").value.shiftLeft(64 + 128)
+            .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
+            .add(resourceBounds.l1Gas.maxPricePerUnit.value)
+            .toFelt
+        val l2GasBound = Felt.fromShortString("L2_GAS").value.shiftLeft(64 + 128)
+            .add(resourceBounds.l2Gas.maxAmount.value.shiftLeft(128))
+            .add(resourceBounds.l2Gas.maxPricePerUnit.value)
+            .toFelt
 
-        val l2GasPrefix = Felt.fromShortString("L2_GAS").toFelt.value.toString(2).padEnd(60, '0')
-        val l2MaxAmount = resourceBounds.l2Gas.maxAmount.toFelt.value.toString(2).padEnd(64, '0')
-        val l2MaxPricePerUnit = resourceBounds.l2Gas.maxPricePerUnit.toFelt.value.toString(2).padEnd(128, '0')
-
-        val l1GasBoundsBinary = l1GasPrefix + l1MaxAmount + l1MaxPricePerUnit
-        val l2GasBoundsBinary = l2GasPrefix + l2MaxAmount + l2MaxPricePerUnit
-
-        return Pair(
-            BigInteger(l1GasBoundsBinary, 2).toFelt,
-            BigInteger(l2GasBoundsBinary, 2).toFelt,
-        )
+        return l1GasBound to l2GasBound
     }
 
     private fun dataAvailabilityModes(
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
-        val feeModeBinary = feeDataAvailabilityMode.value.toString(2).padEnd(32, '0')
-        val nonceModeBinary = nonceDataAvailabilityMode.value.toString(2).padEnd(32, '0')
-
-        val dataAvailabilityModesBinary = "0".repeat(188) + feeModeBinary + nonceModeBinary
-
-        return BigInteger(dataAvailabilityModesBinary, 2).toFelt
+        return nonceDataAvailabilityMode.value.toBigInteger().shiftLeft(32)
+            .add(feeDataAvailabilityMode.value.toBigInteger())
+            .toFelt
     }
 }
