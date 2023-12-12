@@ -271,7 +271,7 @@ class AccountTest {
     }
 
     @Test
-    fun `sign and send invoke transaction`() {
+    fun `sign and send invoke v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
@@ -288,6 +288,29 @@ class AccountTest {
         val invokeResponse = invokeRequest.send()
 
         Thread.sleep(30000)
+
+        val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
+        assertTrue(receipt.isAccepted)
+    }
+
+    @Test
+    fun `sign and send invoke v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
+
+        val account = standardAccount
+
+        val call = Call(
+            contractAddress = predeployedMapContractAddress,
+            entrypoint = "put",
+            calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
+        )
+
+        val invokeRequest = account.executeV3(call)
+        val invokeResponse = invokeRequest.send()
+
+        Thread.sleep(10000)
 
         val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
         assertTrue(receipt.isAccepted)
