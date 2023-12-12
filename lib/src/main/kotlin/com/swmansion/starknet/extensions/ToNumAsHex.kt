@@ -1,3 +1,5 @@
+package com.swmansion.starknet.extensions
+
 import com.swmansion.starknet.data.types.NumAsHex
 import com.swmansion.starknet.data.types.NumAsHexBase
 import java.math.BigInteger
