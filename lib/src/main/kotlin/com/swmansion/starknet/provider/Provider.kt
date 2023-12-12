@@ -24,15 +24,26 @@ interface Provider {
     fun getTransaction(transactionHash: Felt): Request<Transaction>
 
     /**
-     * Invoke a function.
+     * Invoke a function using version 1 transaction.
      *
-     * Invoke a function in deployed contract.
+     * Invoke a function in deployed contract using version 1 transaction.
      *
      * @param payload invoke function payload
      *
      * @throws RequestFailedException
      */
     fun invokeFunction(payload: InvokeTransactionV1Payload): Request<InvokeFunctionResponse>
+
+    /**
+     * Invoke a function using version 3 transaction.
+     *
+     * Invoke a function in deployed contract using version 3 transaction.
+     *
+     * @param payload invoke function payload
+     *
+     * @throws RequestFailedException
+     */
+    fun invokeFunction(payload: InvokeTransactionV3Payload): Request<InvokeFunctionResponse>
 
     /**
      * Get the contract class definition.
@@ -46,9 +57,9 @@ interface Provider {
     fun getClass(classHash: Felt): Request<ContractClassBase>
 
     /**
-     * Declare version 1 contract
+     * Declare contract using version 1 transaction.
      *
-     * Declare a version 1 contract on Starknet.
+     * Declare a contract on Starknet using version 1 transaction.
      *
      * @param payload declare transaction version 1 payload
      *
@@ -57,9 +68,9 @@ interface Provider {
     fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse>
 
     /**
-     * Declare version 2 contract
+     * Declare contract using version 2 transaction.
      *
-     * Declare a version 2 contract on Starknet.
+     * Declare a contract on Starknet using version 2 transaction.
      *
      * @param payload declare transaction version 2 payload
      *

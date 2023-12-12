@@ -165,6 +165,17 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
 
+    override fun invokeFunction(
+        payload: InvokeTransactionV3Payload,
+    ): Request<InvokeFunctionResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("invoke_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
+    }
+
     private fun getClass(payload: GetClassPayload): Request<ContractClassBase> {
         val params = Json.encodeToJsonElement(payload)
 
