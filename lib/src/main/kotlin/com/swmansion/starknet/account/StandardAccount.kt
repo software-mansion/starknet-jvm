@@ -61,6 +61,31 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
+    override fun signV3(calls: List<Call>, params: InvokeExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
+        val signVersion = when (forFeeEstimate) {
+            true -> Felt(estimateVersion + BigInteger.valueOf(2))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeInvokeV3Transaction(
+            senderAddress = address,
+            calldata = calldata,
+            chainId = provider.chainId,
+            nonce = params.nonce,
+            version = signVersion,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            accountDeploymentData = params.accountDeploymentData,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
+        )
+
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
     override fun signDeployAccount(
         classHash: Felt,
         calldata: Calldata,
@@ -194,10 +219,29 @@ class StandardAccount(
         }
     }
 
+    override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+        return getNonce().compose { nonce ->
+            val signParams = InvokeExecutionParamsV3(
+                nonce = nonce,
+                l1ResourceBounds = l1ResourceBounds,
+            )
+            val payload = signV3(calls, signParams, false)
+
+            return@compose provider.invokeFunction(payload)
+        }
+    }
+
     override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFee(calls).compose { estimateFee ->
-            val maxFee = estimatedFeeToMaxFee(estimateFee.first().overallFee)
+            val maxFee = estimateFee.first().toMaxFee()
             execute(calls, maxFee)
+        }
+    }
+
+    override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
+        return estimateFee(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.first().toResourceBounds()
+            executeV3(calls, resourceBounds.l1Gas)
         }
     }
 
@@ -205,8 +249,16 @@ class StandardAccount(
         return execute(listOf(call), maxFee)
     }
 
+    override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), l1ResourceBounds)
+    }
+
     override fun execute(call: Call): Request<InvokeFunctionResponse> {
         return execute(listOf(call))
+    }
+
+    override fun executeV3(call: Call): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call))
     }
 
     override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)

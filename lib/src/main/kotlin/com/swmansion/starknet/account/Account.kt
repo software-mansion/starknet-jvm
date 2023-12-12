@@ -41,7 +41,7 @@ interface Account {
     }
 
     /**
-     * Sign multiple calls as a single transaction.
+     * Sign multiple calls as a single version 1 invoke transaction.
      *
      * Sign a list of calls to be executed on Starknet.
      *
@@ -51,6 +51,18 @@ interface Account {
      * @return signed invoke function payload
      */
     fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
+
+    /**
+     * Sign multiple calls as a single version 3 invoke transaction.
+     *
+     * Sign a list of calls to be executed on Starknet.
+     *
+     * @param calls a list of calls to be signed
+     * @param params additional execution parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @return signed invoke function payload
+     */
+    fun signV3(calls: List<Call>, params: InvokeExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
 
     /**
      * Sign multiple calls as a single transaction.
@@ -161,9 +173,9 @@ interface Account {
     fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean>
 
     /**
-     * Execute a list of calls
+     * Execute a list of calls using version 1 invoke transaction.
      *
-     * Execute list of calls on starknet.
+     * Execute list of calls on Starknet.
      *
      * @param calls a list of calls to be executed.
      * @param maxFee a max fee to pay for the transaction.
@@ -172,7 +184,18 @@ interface Account {
     fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
-     * Execute single call.
+     * Execute a list of calls using version 3 invoke transaction.
+     *
+     * Execute list of calls on Starknet.
+     *
+     * @param calls a list of calls to be executed.
+     * @param l1ResourceBounds L1 resource bounds for the transaction.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 1 invoke transaction.
      *
      * Execute single call on starknet.
      *
@@ -183,6 +206,17 @@ interface Account {
     fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
+     * Execute single call using version 3 invoke transaction.
+     *
+     * Execute single call on starknet.
+     *
+     * @param call a call to be executed.
+     * @param l1ResourceBounds L1 resource bounds for the transaction.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+
+    /**
      * Execute a list of calls with automatically estimated fee.
      *
      * @param calls a list of calls to be executed.
@@ -191,12 +225,28 @@ interface Account {
     fun execute(calls: List<Call>): Request<InvokeFunctionResponse>
 
     /**
-     * Execute single call with automatically estimated fee
+     * Execute a list of calls with automatically estimated fee.
+     *
+     * @param calls a list of calls to be executed.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call with automatically estimated fee using version 1 invoke transaction.
      *
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
      */
     fun execute(call: Call): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call with automatically estimated fee using version 3 invoke transaction.
+     *
+     * @param call a call to be executed.
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call): Request<InvokeFunctionResponse>
 
     /**
      * Estimate fee for a call.
