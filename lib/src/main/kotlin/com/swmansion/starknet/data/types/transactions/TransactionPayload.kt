@@ -11,7 +11,10 @@ sealed class TransactionPayload {
 }
 
 @Serializable
-sealed class InvokeTransactionPayload() : TransactionPayload()
+sealed class InvokeTransactionPayload : TransactionPayload() {
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.INVOKE
+}
 
 @Serializable
 data class InvokeTransactionV1Payload(
@@ -32,9 +35,6 @@ data class InvokeTransactionV1Payload(
 
     @SerialName("nonce")
     val nonce: Felt,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
 ) : InvokeTransactionPayload() {
 
     constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
@@ -44,7 +44,6 @@ data class InvokeTransactionV1Payload(
         maxFee = maxFee,
         version = Felt.ONE,
         nonce = nonce,
-        type = TransactionType.INVOKE,
     )
 }
 
@@ -82,9 +81,6 @@ data class InvokeTransactionV3Payload(
 
     @SerialName("version")
     val version: Felt,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
 ) : InvokeTransactionPayload() {
 
     constructor(
@@ -110,7 +106,6 @@ data class InvokeTransactionV3Payload(
         nonceDataAvailabilityMode = nonceDataAvailabilityMode,
         feeDataAvailabilityMode = feeDataAvailabilityMode,
         version = Felt(3),
-        type = TransactionType.INVOKE,
     )
 }
 
