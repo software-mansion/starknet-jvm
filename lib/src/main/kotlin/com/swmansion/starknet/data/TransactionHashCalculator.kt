@@ -11,6 +11,9 @@ import com.swmansion.starknet.extensions.toFelt
  * Toolkit for calculating hashes of transactions.
  */
 object TransactionHashCalculator {
+    private val l1GasPrefix by lazy { Felt.fromShortString("L1_GAS") }
+    private val l2GasPrefix by lazy { Felt.fromShortString("L2_GAS") }
+
     @JvmStatic
     fun calculateInvokeTxV1Hash(
         contractAddress: Felt,
@@ -92,7 +95,6 @@ object TransactionHashCalculator {
     @JvmStatic
     fun calculateDeployAccountV3TxHash(
         classHash: Felt,
-        senderAddress: Felt,
         constructorCalldata: Calldata,
         salt: Felt,
         paymasterData: PaymasterData,
@@ -261,12 +263,11 @@ object TransactionHashCalculator {
     }
 
     private fun resourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
-        // TODO: instead, store hardcoded hexes encoded from short string
-        val l1GasBound = Felt.fromShortString("L1_GAS").value.shiftLeft(64 + 128)
+        val l1GasBound = l1GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l1Gas.maxPricePerUnit.value)
             .toFelt
-        val l2GasBound = Felt.fromShortString("L2_GAS").value.shiftLeft(64 + 128)
+        val l2GasBound = l2GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l2Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l2Gas.maxPricePerUnit.value)
             .toFelt

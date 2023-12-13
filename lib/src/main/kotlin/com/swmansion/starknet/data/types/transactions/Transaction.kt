@@ -741,7 +741,6 @@ object TransactionFactory {
     ): DeployAccountTransactionV3 {
         val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
             classHash = classHash,
-            senderAddress = senderAddress,
             salt = salt,
             constructorCalldata = calldata,
             chainId = chainId,
