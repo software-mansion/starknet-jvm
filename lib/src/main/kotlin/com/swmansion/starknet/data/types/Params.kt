@@ -31,7 +31,10 @@ data class ExecutionParamsV3(
 ) : ParamsV3() {
     constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(l1ResourceBounds, ResourceBounds(Uint64.ZERO, Uint128.ZERO)),
+        resourceBounds = ResourceBoundsMapping(
+            l1Gas = l1ResourceBounds,
+            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+        ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
@@ -48,13 +51,49 @@ data class DeclareParamsV3(
     val accountDeploymentData: AccountDeploymentData,
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
-) : ParamsV3()
+) : ParamsV3() {
+    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
+        nonce = nonce,
+        resourceBounds = ResourceBoundsMapping(
+            l1Gas = l1ResourceBounds,
+            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+        ),
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+}
 
-data class DeployAccontParamsV3(
+data class DeployAccountParamsV3(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,
     override val paymasterData: PaymasterData,
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
-) : ParamsV3()
+) : ParamsV3() {
+    constructor(
+        nonce: Felt = Felt.ZERO,
+        resourceBounds: ResourceBoundsMapping,
+    ) : this(
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+
+    constructor(
+        nonce: Felt = Felt.ZERO,
+        l1ResourceBounds: ResourceBounds,
+    ) : this(
+        nonce = nonce,
+        resourceBounds = ResourceBoundsMapping(
+            l1Gas = l1ResourceBounds,
+            l2Gas = ResourceBounds.ZERO,
+        ),
+    )
+}
