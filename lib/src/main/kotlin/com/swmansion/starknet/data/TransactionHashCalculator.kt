@@ -99,7 +99,6 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
-        contractAddressSalt: Felt,
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
         feeDataAvailabilityMode: DAMode,
@@ -114,7 +113,7 @@ object TransactionHashCalculator {
             *CommonTransanctionV3Fields(
                 txType = TransactionType.DEPLOY_ACCOUNT,
                 version = version,
-                address = senderAddress, // the information is not clear whether this should be senderAddress or contractAddress
+                address = contractAddress,
                 tip = tip,
                 resourceBounds = resourceBounds,
                 paymasterData = paymasterData,
@@ -125,7 +124,7 @@ object TransactionHashCalculator {
             ).toTypedArray(),
             Poseidon.poseidonHash(constructorCalldata),
             classHash,
-            contractAddressSalt,
+            salt,
         )
     }
 

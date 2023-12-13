@@ -727,7 +727,6 @@ object TransactionFactory {
     fun makeDeployAccountV3Transaction(
         classHash: Felt,
         senderAddress: Felt,
-        contractAddressSalt: Felt,
         salt: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
@@ -743,9 +742,8 @@ object TransactionFactory {
         val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
             classHash = classHash,
             senderAddress = senderAddress,
-            contractAddressSalt = contractAddressSalt,
-            constructorCalldata = calldata,
             salt = salt,
+            constructorCalldata = calldata,
             chainId = chainId,
             version = version,
             nonce = nonce,
