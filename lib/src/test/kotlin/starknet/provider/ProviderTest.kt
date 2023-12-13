@@ -3,7 +3,6 @@ package starknet.provider
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -65,19 +64,6 @@ class ProviderTest {
         fun after() {
             devnetClient.close()
         }
-
-        data class AddressBook(
-            val balanceContractAddress: Felt,
-            val balanceClassHash: Felt,
-            val invokeTransactionHash: Felt,
-            val declareTransactionHash: Felt,
-            val deployAccountTransactionHash: Felt,
-        )
-
-        data class ProviderParameters(
-            val provider: Provider,
-            val addressBook: AddressBook,
-        )
     }
 
     @Test

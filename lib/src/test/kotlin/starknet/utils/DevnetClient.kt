@@ -178,6 +178,7 @@ class DevnetClient(
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
         prefund: Boolean = false,
+        accountName: String = "__default__",
     ): DeployAccountResult {
         if (prefund) {
             prefundAccountEth(readAccountDetails(name).address)
@@ -195,6 +196,7 @@ class DevnetClient(
         val response = runSnCast(
             command = "account",
             args = params,
+            accountName = accountName,
         ) as AccountDeploySnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Deploy Account")
@@ -210,12 +212,12 @@ class DevnetClient(
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployAccountResult {
-        val accountName = name ?: UUID.randomUUID().toString()
-        val createResult = createAccount(accountName, classHash, salt)
+        val newAccountName = name ?: UUID.randomUUID().toString()
+        val createResult = createAccount(newAccountName, classHash, salt)
         val details = createResult.details
-        prefundAccountEth(details.address)
-        val deployResult = deployAccount(accountName, classHash, maxFee)
+        val deployResult = deployAccount(newAccountName, classHash, maxFee, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
@@ -228,6 +230,7 @@ class DevnetClient(
     fun declareContract(
         contractName: String,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeclareContractResult {
         val params = listOf(
             "--contract-name",
@@ -238,6 +241,7 @@ class DevnetClient(
         val response = runSnCast(
             command = "declare",
             args = params,
+            accountName = accountName,
         ) as DeclareSnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Declare")
@@ -254,6 +258,7 @@ class DevnetClient(
         salt: Felt? = null,
         unique: Boolean = false,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployContractResult {
         val params = mutableListOf(
             "--class-hash",
@@ -275,6 +280,7 @@ class DevnetClient(
         val response = runSnCast(
             command = "deploy",
             args = params,
+            accountName = accountName,
         ) as DeploySnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Deploy Contract")
@@ -292,11 +298,12 @@ class DevnetClient(
         unique: Boolean = false,
         maxFeeDeclare: Felt = Felt(1000000000000000),
         maxFeeDeploy: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployContractResult {
-        val declareResponse = declareContract(contractName, maxFeeDeclare)
+        val declareResponse = declareContract(contractName, maxFeeDeclare, accountName)
 
         val classHash = declareResponse.classHash
-        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
+        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy, accountName)
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -309,6 +316,7 @@ class DevnetClient(
         function: String,
         calldata: List<Felt>,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): InvokeContractResult {
         val params = mutableListOf(
             "--contract-address",
@@ -325,6 +333,7 @@ class DevnetClient(
         val response = runSnCast(
             command = "invoke",
             args = params,
+            accountName = accountName,
         ) as InvokeSnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Invoke")
@@ -334,7 +343,11 @@ class DevnetClient(
         )
     }
 
-    private fun runSnCast(command: String, args: List<String>, accountName: String = "__default__"): SnCastResponse {
+    private fun runSnCast(
+        command: String,
+        args: List<String>,
+        accountName: String = "__default__",
+    ): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
             "--json",

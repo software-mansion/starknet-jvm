@@ -167,6 +167,43 @@ class AccountTest {
     }
 
     @Test
+    fun `estimate fee for declare v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val account = constNonceAccount
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val casmContractDefinition = CasmContractDefinition(casmCode)
+
+        val nonce = account.getNonce().send()
+        val params = DeclareParamsV3(
+            nonce = nonce,
+            l1ResourceBounds = ResourceBounds.ZERO,
+        )
+        val declareTransactionPayload = account.signDeclare(
+            sierraContractDefinition = contractDefinition,
+            casmContractDefinition = casmContractDefinition,
+            params = params,
+            forFeeEstimate = true,
+        )
+
+        val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
+
+        val feeEstimate = feeEstimateRequest.send().first()
+        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.gasPrice)
+        assertNotEquals(Felt(0), feeEstimate.overallFee)
+    }
+
+    @Test
     fun `sign and send declare v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
@@ -266,6 +303,48 @@ class AccountTest {
         val result = request.send()
 
         Thread.sleep(30000)
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        assertTrue(receipt.isAccepted)
+    }
+
+    @Test
+    fun `sign and send declare v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+        // Note to future developers experiencing experiencing failures in this test.
+        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
+
+        val account = standardAccount
+
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val l1ResourceBounds = ResourceBounds(
+            maxAmount = Uint64(5000),
+            maxPricePerUnit = Uint128(200000000),
+        )
+        val params = DeclareParamsV3(
+            nonce = nonce,
+            l1ResourceBounds = l1ResourceBounds,
+        )
+        val declareTransactionPayload = account.signDeclare(
+            contractDefinition,
+            contractCasmDefinition,
+            params,
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+
+        Thread.sleep(60000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
@@ -512,7 +591,7 @@ class AccountTest {
             privateKey,
             provider,
         )
-        val payloadForFeeEstimate = deployedAccount.signDeployAccountV3(
+        val payloadForFeeEstimate = deployedAccount.signDeployAccount(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -545,7 +624,7 @@ class AccountTest {
             nonce = Felt.ZERO,
             resourceBounds = resourceBounds,
         )
-        val payload = deployedAccount.signDeployAccountV3(
+        val payload = deployedAccount.signDeployAccount(
             classHash = classHash,
             salt = salt,
             calldata = calldata,

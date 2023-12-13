@@ -442,6 +442,21 @@ interface Provider {
      * Estimate a fee for a provided transaction list.
      *
      * @param payload transaction, for which the fee is to be estimated.
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockHash: Felt,
+    ): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
      * @param simulationFlags set of flags to be used for simulation.
      * @param blockNumber a number of the block in respect to what the query will be made
      *
@@ -459,6 +474,21 @@ interface Provider {
      * Estimate a fee for a provided transaction list.
      *
      * @param payload transaction, for which the fee is to be estimated.
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockNumber: Int,
+    ): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
      * @param simulationFlags set of flags to be used for simulation.
      * @param blockTag a tag of the block in respect to what the query will be made
      *
@@ -468,6 +498,21 @@ interface Provider {
         payload: List<TransactionPayload>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate a fee.
+     *
+     * Estimate a fee for a provided transaction list.
+     *
+     * @param payload transaction, for which the fee is to be estimated.
+     * @param blockTag a tag of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockTag: BlockTag,
     ): Request<List<EstimateFeeResponse>>
 
     /**
