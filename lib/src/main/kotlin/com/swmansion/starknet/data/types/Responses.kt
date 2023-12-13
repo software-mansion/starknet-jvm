@@ -443,11 +443,14 @@ data class ResourceBounds(
 
     @SerialName("max_price_per_unit")
     val maxPricePerUnit: Uint128,
-)
 ) {
     companion object {
         @field:JvmField
         val ZERO = ResourceBounds(Uint64.ZERO, Uint128.ZERO)
+    }
+
+    fun toMaxFee(): Felt {
+        return maxAmount.value.multiply(maxPricePerUnit.value).toFelt
     }
 }
 
