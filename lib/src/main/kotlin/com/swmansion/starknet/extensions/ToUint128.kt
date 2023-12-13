@@ -9,6 +9,10 @@ val BigInteger.toUint128: Uint128
     get() = Uint128(this)
 
 @get:JvmSynthetic
+val String.toUint128: Uint128
+    get() = Uint128.fromHex(this)
+
+@get:JvmSynthetic
 val Int.toUint128: Uint128
     get() = Uint128(this)
 
