@@ -5,9 +5,7 @@ import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
-import com.swmansion.starknet.extensions.toFelt
-import com.swmansion.starknet.extensions.toUint128
-import com.swmansion.starknet.extensions.toUint64
+import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -427,12 +425,16 @@ data class PendingStateUpdateResponse(
     override val stateDiff: StateDiff,
 ) : StateUpdate()
 
+// TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ResourceBoundsMapping(
     @SerialName("l1_gas")
+    @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
 
     @SerialName("l2_gas")
+    @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
 )
 
