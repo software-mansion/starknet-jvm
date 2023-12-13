@@ -16,7 +16,7 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         return when (type) {
             TransactionType.INVOKE -> selectInvokeDeserializer(element)
             TransactionType.DECLARE -> selectDeclareDeserializer(element)
-            TransactionType.DEPLOY_ACCOUNT -> DeployAccountTransactionV1.serializer()
+            TransactionType.DEPLOY_ACCOUNT -> selectDeployAccountDeserializer(element)
             TransactionType.DEPLOY -> DeployTransaction.serializer()
             TransactionType.L1_HANDLER -> L1HandlerTransaction.serializer()
         }
@@ -31,6 +31,18 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
             Felt.ONE -> InvokeTransactionV1.serializer()
             Felt.ZERO -> InvokeTransactionV0.serializer()
             else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
+        }
+    }
+
+    private fun selectDeployAccountDeserializer(element: JsonElement): DeserializationStrategy<DeployAccountTransaction> {
+        val jsonElement = element.jsonObject
+        val versionElement = jsonElement.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+
+        val version = Json.decodeFromJsonElement(Felt.serializer(), versionElement)
+        return when (version) {
+            Felt(3) -> DeployAccountTransactionV3.serializer()
+            Felt.ONE -> DeployAccountTransactionV1.serializer()
+            else -> throw IllegalArgumentException("Invalid deploy account transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
 
