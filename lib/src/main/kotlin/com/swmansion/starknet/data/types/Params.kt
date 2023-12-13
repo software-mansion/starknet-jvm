@@ -20,7 +20,9 @@ sealed class ParamsV3 : ParamsBase() {
     abstract val feeDataAvailabilityMode: DAMode
 }
 
-data class ExecutionParamsV3(
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+@Suppress("DataClassPrivateConstructor")
+data class ExecutionParamsV3 private constructor(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,
@@ -43,7 +45,9 @@ data class ExecutionParamsV3(
     )
 }
 
-data class DeclareParamsV3(
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+@Suppress("DataClassPrivateConstructor")
+data class DeclareParamsV3 private constructor(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,
@@ -66,7 +70,9 @@ data class DeclareParamsV3(
     )
 }
 
-data class DeployAccountParamsV3(
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+@Suppress("DataClassPrivateConstructor")
+data class DeployAccountParamsV3 private constructor(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,
