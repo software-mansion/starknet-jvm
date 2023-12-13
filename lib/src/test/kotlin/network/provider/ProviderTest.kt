@@ -219,12 +219,13 @@ class ProviderTest {
         assertTrue(tx is InvokeTransaction)
         assertEquals(transactionHash, tx.hash)
         assertEquals(TransactionType.INVOKE, tx.type)
+        assertEquals(Felt(3), tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        assertTrue(receipt.events.size > 2)
+        assertTrue(receipt.events.size >= 2)
 
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
