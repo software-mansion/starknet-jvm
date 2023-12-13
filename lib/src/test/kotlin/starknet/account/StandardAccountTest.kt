@@ -55,8 +55,10 @@ class StandardAccountTest {
             try {
                 devnetClient.start()
 
-                // Prepare devnet address book
-                val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
+                // TODO: (#371) instead, deploy manutally "standard_account_test" account
+                //  and prefund it with STRK, once minting STRK is supported on devnet.
+                val accountDetails = DevnetClient.predeployedAccount1
+                devnetClient.prefundAccountEth(accountDetails.address)
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
@@ -331,6 +333,41 @@ class StandardAccountTest {
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000)),
+        )
+        val request = provider.declareContract(declareTransactionPayload)
+        val result = request.send()
+
+        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+        assertTrue(receipt.isAccepted)
+    }
+
+    @Test
+    fun `sign and send declare v3 transaction`() {
+        ScarbClient.createSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo2ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val nonce = account.getNonce().send()
+
+        val params = DeclareParamsV3(
+            nonce = nonce,
+            l1ResourceBounds = ResourceBounds(
+                maxAmount = Uint64(20000),
+                maxPricePerUnit = Uint128(120000000000)
+            ),
+        )
+        val declareTransactionPayload = account.signDeclareV3(
+            contractDefinition,
+            contractCasmDefinition,
+            params,
+            false
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
