@@ -52,7 +52,7 @@ class StandardAccount(
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> estimateVersion(Felt.ONE)
-            false -> estimateVersion(Felt(3))
+            false -> Felt.ONE
         }
         val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
@@ -128,7 +128,7 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt(2))
+            true -> estimateVersion(Felt(3))
             false -> Felt(3)
         }
         val tx = TransactionFactory.makeDeployAccountV3Transaction(
