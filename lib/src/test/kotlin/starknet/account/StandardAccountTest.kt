@@ -766,7 +766,7 @@ class StandardAccountTest {
 
     @Test
     fun `estimate deploy account v1 fee`() {
-        val privateKey = Felt(11111)
+        val privateKey = Felt(11112)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
         val salt = Felt.ONE
@@ -801,7 +801,7 @@ class StandardAccountTest {
 
     @Test
     fun `estimate deploy account v3 fee`() {
-        val privateKey = Felt(22222)
+        val privateKey = Felt(22223)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
         val salt = Felt(2)
