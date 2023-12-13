@@ -113,6 +113,36 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
+    override fun signDeployAccountV3(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        params: DeployAccountParamsV3,
+        forFeeEstimate: Boolean,
+    ): DeployAccountTransactionV3Payload {
+        val signVersion = when (forFeeEstimate) {
+            true -> Felt(estimateVersion + BigInteger.valueOf(2))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeDeployAccountV3Transaction(
+            classHash = classHash,
+            senderAddress = address,
+            salt = salt,
+            calldata = calldata,
+            chainId = provider.chainId,
+            version = signVersion,
+            nonce = params.nonce,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
     override fun signDeclare(
         contractDefinition: Cairo0ContractDefinition,
         classHash: Felt,
@@ -293,11 +323,22 @@ class StandardAccount(
         return estimateFee(calls, BlockTag.PENDING, emptySet())
     }
 
+    override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, emptySet())
+    }
+
     override fun estimateFee(
         calls: List<Call>,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<List<EstimateFeeResponse>> {
         return estimateFee(calls, BlockTag.PENDING, simulationFlags)
+    }
+
+    override fun estimateFeeV3(
+        calls: List<Call>,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, simulationFlags)
     }
 
     override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
@@ -315,6 +356,17 @@ class StandardAccount(
         }
     }
 
+    override fun estimateFeeV3(
+        calls: List<Call>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return getNonce(blockTag).compose { nonce ->
+            val payload = buildEstimateFeeV3Payload(calls, nonce)
+            return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
+        }
+    }
+
     private fun buildEstimateFeePayload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams, true)
@@ -327,6 +379,30 @@ class StandardAccount(
             maxFee = payload.maxFee,
             signature = payload.signature,
             version = payload.version,
+        )
+        return listOf(signedTransaction.toPayload())
+    }
+
+    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
+        val executionParams = ExecutionParamsV3(
+            nonce = nonce,
+            l1ResourceBounds = ResourceBounds.ZERO,
+        )
+        val payload = signV3(calls, executionParams, false)
+
+        val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
+            senderAddress = payload.senderAddress,
+            calldata = payload.calldata,
+            chainId = provider.chainId,
+            nonce = nonce,
+            signature = payload.signature,
+            version = payload.version,
+            resourceBounds = payload.resourceBounds,
+            tip = payload.tip,
+            paymasterData = payload.paymasterData,
+            accountDeploymentData = payload.accountDeploymentData,
+            nonceDataAvailabilityMode = payload.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = payload.feeDataAvailabilityMode,
         )
         return listOf(signedTransaction.toPayload())
     }
