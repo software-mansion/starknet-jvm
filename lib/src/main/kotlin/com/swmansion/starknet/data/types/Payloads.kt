@@ -51,9 +51,7 @@ data class GetTransactionStatusPayload(
 @Serializable
 data class EstimateTransactionFeePayload(
     @SerialName("request")
-    val request: List<
-        TransactionPayload,
-        >,
+    val request: List<TransactionPayload>,
 
     @SerialName("simulation_flags")
     val simulationFlags: Set<SimulationFlagForEstimateFee>,
