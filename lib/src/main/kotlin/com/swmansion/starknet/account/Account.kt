@@ -144,7 +144,7 @@ interface Account {
      *
      * Sign a deploy account transaction that requires prefunding deployed address.
      *
-     * @param classHash hash of the contract that will be deployed. Has to be declared first!
+     * @param classHash hash of the contract that will be deployed
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
      * @param params additional params for the transaction
