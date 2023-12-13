@@ -220,9 +220,6 @@ data class PendingDeclareTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-
-    @SerialName("contract_address")
-    val contractAddress: Felt,
 ) : PendingTransactionReceipt()
 
 @Serializable
