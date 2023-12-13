@@ -287,6 +287,16 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
+    override fun declareContract(payload: DeclareTransactionV3Payload): Request<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, payload)
+        val jsonPayload = buildJsonObject {
+            put("declare_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
+    }
+
+
     override fun getBlockNumber(): Request<Int> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 

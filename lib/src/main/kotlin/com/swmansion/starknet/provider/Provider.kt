@@ -79,6 +79,17 @@ interface Provider {
     fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse>
 
     /**
+     * Declare contract using version 3 transaction.
+     *
+     * Declare a contract on Starknet using version 3 transaction.
+     *
+     * @param payload declare transaction version 3 payload
+     *
+     * @throws RequestFailedException
+     */
+    fun declareContract(payload: DeclareTransactionV3Payload): Request<DeclareResponse>
+
+    /**
      * Get the block number.
      *
      * Get the most recent accepted block number.
