@@ -77,8 +77,8 @@ val compileContracts = task<Exec>("compileContracts") {
 // For tests, we simply use version from crypto build
 // For jars we use version from lib/build/libs/native
 tasks.test {
-//    dependsOn(buildCrypto)
-//    dependsOn(compileContracts)
+    dependsOn(buildCrypto)
+    dependsOn(compileContracts)
 
     useJUnitPlatform()
 
