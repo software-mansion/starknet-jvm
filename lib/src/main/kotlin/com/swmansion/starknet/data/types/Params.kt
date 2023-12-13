@@ -4,8 +4,15 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.types.transactions.DAMode
 
+/**
+ * Params used for sign and sending transactions.
+ */
+
 sealed class ParamsBase
 
+/**
+ * Params used for signing and sending v1 and v2 transactions.
+ */
 data class ExecutionParams(
     val nonce: Felt,
     val maxFee: Felt,
@@ -20,6 +27,9 @@ sealed class ParamsV3 : ParamsBase() {
     abstract val feeDataAvailabilityMode: DAMode
 }
 
+/**
+ * Params used for signing and sending v3 invoke transactions.
+ */
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class ExecutionParamsV3 private constructor(
@@ -45,6 +55,9 @@ data class ExecutionParamsV3 private constructor(
     )
 }
 
+/**
+ * Params used for signing and sending v3 declare transactions.
+ */
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeclareParamsV3 private constructor(
@@ -70,6 +83,9 @@ data class DeclareParamsV3 private constructor(
     )
 }
 
+/**
+ * Params used for signing and sending v3 deploy account transactions.
+ */
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeployAccountParamsV3 private constructor(
