@@ -18,7 +18,7 @@ data class Uint128(override val value: BigInteger) : NumAsHexBase(value), Conver
             throw IllegalArgumentException("Default Uint128 constructor does not accept negative numbers, [$value] given.")
         }
         if (value >= MAX) {
-            throw IllegalArgumentException("Default Uint128 constructor does not accept numbers higher than 2^64-1, [$value] given.")
+            throw IllegalArgumentException("Default Uint128 constructor does not accept numbers higher than 2^128-1, [$value] given.")
         }
     }
 
