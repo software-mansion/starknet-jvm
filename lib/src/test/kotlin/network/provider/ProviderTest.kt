@@ -47,12 +47,18 @@ class ProviderTest {
             Network.TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
         }
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
+        }
         assertNotNull(transactionStatus.executionStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
 
         val transactionStatus2 = provider.getTransactionStatus(transactionHash2).send()
-        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
+        }
         assertNotNull(transactionStatus2.executionStatus)
         assertEquals(TransactionExecutionStatus.REVERTED, transactionStatus2.executionStatus)
     }
@@ -109,7 +115,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get deploy account transaction`() {
+    fun `get deploy account v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -118,6 +124,7 @@ class ProviderTest {
         }
         val tx = provider.getTransaction(transactionHash).send()
         assertEquals(transactionHash, tx.hash)
+        assertEquals(Felt.ONE, tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
@@ -128,7 +135,29 @@ class ProviderTest {
     }
 
     @Test
-    fun `get reverted invoke transaction`() {
+    fun `get deploy account v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        assumeTrue(network == Network.INTEGRATION)
+        val transactionHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x007c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
+            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+        }
+
+        val tx = provider.getTransaction(transactionHash).send()
+        assertEquals(transactionHash, tx.hash)
+        assertEquals(Felt(3), tx.version)
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        val receipt = receiptRequest.send()
+
+        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
+        assertTrue(receipt.isAccepted)
+        assertNull(receipt.revertReason)
+    }
+
+    @Test
+    fun `get reverted invoke v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
@@ -144,16 +173,19 @@ class ProviderTest {
         assertTrue(receipt is ProcessedInvokeTransactionReceipt)
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNotNull(receipt.revertReason)
     }
 
     @Test
-    fun `get invoke transaction with events`() {
+    fun `get invoke v1 transaction with events`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
+            Network.INTEGRATION -> Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
             Network.TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
         }
         val tx = provider.getTransaction(transactionHash).send()
@@ -166,6 +198,34 @@ class ProviderTest {
 
         assertTrue(receipt.isAccepted)
         assertTrue(receipt.events.size > 2)
+
+        assertTrue(receipt.isAccepted)
+        assertNull(receipt.revertReason)
+
+        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
+    }
+
+    @Test
+    fun `get invoke v3 transaction with events`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        assumeTrue(network == Network.INTEGRATION)
+        val transactionHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x06f99b0650eb02eaf16cc97820075b1dc8c8a4ada22ef0a606f3c0b066d7ce07")
+            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+        }
+
+        val tx = provider.getTransaction(transactionHash).send()
+        assertTrue(tx is InvokeTransaction)
+        assertEquals(transactionHash, tx.hash)
+        assertEquals(TransactionType.INVOKE, tx.type)
+        assertEquals(Felt(3), tx.version)
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        val receipt = receiptRequest.send()
+
+        assertTrue(receipt.isAccepted)
+        assertTrue(receipt.events.size >= 2)
 
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
@@ -187,11 +247,15 @@ class ProviderTest {
         val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNull(receipt.revertReason)
 
         receipt is ProcessedDeclareTransactionReceipt
-        assertEquals(Felt.ZERO, receipt.actualFee)
+        assertEquals(Felt.ZERO, receipt.actualFee.amount)
+        assertEquals(PriceUnit.WEI, receipt.actualFee.unit)
     }
 
     @Test
@@ -199,7 +263,7 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x6d346ba207eb124355960c19c737698ad37a3c920a588b741e0130ff5bd4d6d")
+            Network.INTEGRATION -> Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
             Network.TESTNET -> Felt.fromHex("0x6801a86a4a6873f62aaa478151ba03171691edde897c434ec8cf9db3bb77573")
         }
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
@@ -212,7 +276,10 @@ class ProviderTest {
         assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
+        if (network != Network.INTEGRATION) {
+            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        }
         assertNull(receipt.revertReason)
     }
 
@@ -225,6 +292,28 @@ class ProviderTest {
             Network.TESTNET -> Felt.fromHex("0x747a364442ed4d72cd24d7e26f2c6ab0bc98c0a835f2276cd2bc07266331555")
         }
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
+        assertNotEquals(Felt.ZERO, tx.classHash)
+        assertEquals(transactionHash, tx.hash)
+
+        val receiptRequest = provider.getTransactionReceipt(transactionHash)
+        val receipt = receiptRequest.send()
+
+        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
+        assertTrue(receipt.isAccepted)
+        assertNull(receipt.revertReason)
+    }
+
+    @Test
+    fun `get declare v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        assumeTrue(network == Network.INTEGRATION)
+        val transactionHash = when (network) {
+            Network.INTEGRATION -> Felt.fromHex("0x86693a36721bb586bee1f8c8b9ea33fbbb7f820dde48d9068dfa94a99ef53")
+            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+        }
+
+        val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV3
         assertNotEquals(Felt.ZERO, tx.classHash)
         assertEquals(transactionHash, tx.hash)
 

@@ -3,8 +3,9 @@ package com.swmansion.starknet.account
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionPayload
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
+import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -26,8 +27,14 @@ class StandardAccount(
     private val provider: Provider,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
-    private val version = Felt.ONE
-    private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
+    private fun estimateVersion(version: Felt): Felt {
+        return BigInteger.valueOf(2).pow(128)
+            .add(version.value)
+            .toFelt
+    }
+    private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
+        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+    }
 
     /**
      * @param provider a provider used to interact with Starknet
@@ -41,19 +48,44 @@ class StandardAccount(
         cairoVersion,
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionPayload {
+    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> Felt.ONE
         }
-        val tx = TransactionFactory.makeInvokeTransaction(
+        val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
             calldata = calldata,
             chainId = provider.chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
             version = signVersion,
+        )
+
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
+    override fun sign(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
+        val signVersion = when (forFeeEstimate) {
+            true -> estimateVersion(Felt(3))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeInvokeV3Transaction(
+            senderAddress = address,
+            calldata = calldata,
+            chainId = provider.chainId,
+            nonce = params.nonce,
+            version = signVersion,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            accountDeploymentData = params.accountDeploymentData,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -68,12 +100,12 @@ class StandardAccount(
         maxFee: Felt,
         nonce: Felt,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionPayload {
+    ): DeployAccountTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> Felt.ONE
         }
-        val tx = TransactionFactory.makeDeployAccountTransaction(
+        val tx = TransactionFactory.makeDeployAccountV1Transaction(
             classHash = classHash,
             contractAddress = address,
             salt = salt,
@@ -88,6 +120,36 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
+    override fun signDeployAccount(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        params: DeployAccountParamsV3,
+        forFeeEstimate: Boolean,
+    ): DeployAccountTransactionV3Payload {
+        val signVersion = when (forFeeEstimate) {
+            true -> estimateVersion(Felt(3))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeDeployAccountV3Transaction(
+            classHash = classHash,
+            senderAddress = address,
+            salt = salt,
+            calldata = calldata,
+            chainId = provider.chainId,
+            version = signVersion,
+            nonce = params.nonce,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
     override fun signDeclare(
         contractDefinition: Cairo0ContractDefinition,
         classHash: Felt,
@@ -95,8 +157,8 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> Felt.ONE
         }
         val tx = TransactionFactory.makeDeclareV1Transaction(
             contractDefinition = contractDefinition,
@@ -119,7 +181,7 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion + BigInteger.valueOf(1))
+            true -> estimateVersion(Felt(2))
             false -> Felt(2)
         }
         val tx = TransactionFactory.makeDeclareV2Transaction(
@@ -130,6 +192,35 @@ class StandardAccount(
             maxFee = params.maxFee,
             version = signVersion,
             casmContractDefinition = casmContractDefinition,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
+    override fun signDeclare(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: DeclareParamsV3,
+        forFeeEstimate: Boolean,
+    ): DeclareTransactionV3Payload {
+        val signVersion = when (forFeeEstimate) {
+            true -> estimateVersion(Felt(3))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeDeclareV3Transaction(
+            contractDefinition = sierraContractDefinition,
+            senderAddress = address,
+            chainId = provider.chainId,
+            nonce = params.nonce,
+            version = signVersion,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            accountDeploymentData = params.accountDeploymentData,
+            casmContractDefinition = casmContractDefinition,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -194,11 +285,46 @@ class StandardAccount(
         }
     }
 
+    override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+        return getNonce().compose { nonce ->
+            val signParams = ExecutionParamsV3(
+                nonce = nonce,
+                l1ResourceBounds = l1ResourceBounds,
+            )
+            val payload = sign(calls, signParams, false)
+
+            return@compose provider.invokeFunction(payload)
+        }
+    }
+
     override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFee(calls).compose { estimateFee ->
-            val maxFee = estimatedFeeToMaxFee(estimateFee.first().overallFee)
+            val maxFee = estimateFee.first().toMaxFee()
             execute(calls, maxFee)
         }
+    }
+
+    override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
+        return estimateFee(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.first().toResourceBounds()
+            executeV3(calls, resourceBounds.l1Gas)
+        }
+    }
+
+    override fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
+        return execute(listOf(call), maxFee)
+    }
+
+    override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), l1ResourceBounds)
+    }
+
+    override fun execute(call: Call): Request<InvokeFunctionResponse> {
+        return execute(listOf(call))
+    }
+
+    override fun executeV3(call: Call): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call))
     }
 
     override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
@@ -209,14 +335,94 @@ class StandardAccount(
 
     override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
 
+    override fun estimateFee(call: Call): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call))
+    }
+
+    override fun estimateFee(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), simulationFlags)
+    }
+
+    override fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag)
+    }
+
+    override fun estimateFee(
+        call: Call,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFee(listOf(call), blockTag, simulationFlags)
+    }
+
     override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFee(calls, BlockTag.PENDING)
     }
 
+    override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
+    }
+
+    override fun estimateFee(
+        calls: List<Call>,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFee(calls, BlockTag.PENDING, simulationFlags)
+    }
+
+    override fun estimateFeeV3(
+        calls: List<Call>,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, simulationFlags)
+    }
+
+    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, blockTag)
+    }
+
     override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFee(calls, blockTag, defaultFeeEstimateSimulationFlags)
+    }
+
+    override fun estimateFee(
+        calls: List<Call>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
         return getNonce(blockTag).compose { nonce ->
             val payload = buildEstimateFeePayload(calls, nonce)
-            return@compose provider.getEstimateFee(payload, blockTag)
+            return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
+        }
+    }
+
+    override fun estimateFeeV3(
+        call: Call,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), simulationFlags)
+    }
+
+    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag)
+    }
+
+    override fun estimateFeeV3(
+        call: Call,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag, simulationFlags)
+    }
+
+    override fun estimateFeeV3(
+        calls: List<Call>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return getNonce(blockTag).compose { nonce ->
+            val payload = buildEstimateFeeV3Payload(calls, nonce)
+            return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
     }
 
@@ -224,7 +430,7 @@ class StandardAccount(
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = sign(calls, executionParams, true)
 
-        val signedTransaction = TransactionFactory.makeInvokeTransaction(
+        val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
             chainId = provider.chainId,
@@ -232,6 +438,30 @@ class StandardAccount(
             maxFee = payload.maxFee,
             signature = payload.signature,
             version = payload.version,
+        )
+        return listOf(signedTransaction.toPayload())
+    }
+
+    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
+        val executionParams = ExecutionParamsV3(
+            nonce = nonce,
+            l1ResourceBounds = ResourceBounds.ZERO,
+        )
+        val payload = sign(calls, executionParams, false)
+
+        val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
+            senderAddress = payload.senderAddress,
+            calldata = payload.calldata,
+            chainId = provider.chainId,
+            nonce = nonce,
+            signature = payload.signature,
+            version = payload.version,
+            resourceBounds = payload.resourceBounds,
+            tip = payload.tip,
+            paymasterData = payload.paymasterData,
+            accountDeploymentData = payload.accountDeploymentData,
+            nonceDataAvailabilityMode = payload.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = payload.feeDataAvailabilityMode,
         )
         return listOf(signedTransaction.toPayload())
     }

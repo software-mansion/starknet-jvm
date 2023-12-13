@@ -3,7 +3,6 @@ package starknet.provider
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -48,7 +47,7 @@ class ProviderTest {
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                deployAccountTransactionHash = devnetClient.createDeployAccount("provider_test").transactionHash
+                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",
@@ -65,19 +64,6 @@ class ProviderTest {
         fun after() {
             devnetClient.close()
         }
-
-        data class AddressBook(
-            val balanceContractAddress: Felt,
-            val balanceClassHash: Felt,
-            val invokeTransactionHash: Felt,
-            val declareTransactionHash: Felt,
-            val deployAccountTransactionHash: Felt,
-        )
-
-        data class ProviderParameters(
-            val provider: Provider,
-            val addressBook: AddressBook,
-        )
     }
 
     @Test
@@ -322,7 +308,10 @@ class ProviderTest {
                         "jsonrpc": "2.0",
                         "result":
                         {
-                            "actual_fee": "0x0",
+                            "actual_fee": {
+                                "amount": "0x244adfc7e22",
+                                "unit": "WEI"
+                            },
                             "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
                             "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
                             "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
@@ -336,15 +325,15 @@ class ProviderTest {
                             [],
                             "execution_resources": 
                             {
-                                "steps": "0x999",
-                                "memory_holes": "0x1",
-                                "range_check_builtin_applications": "0x21",
-                                "pedersen_builtin_applications": "0x37",
-                                "poseidon_builtin_applications": "0x451",
-                                "ec_op_builtin_applications": "0x123",
-                                "ecdsa_builtin_applications": "0x789",
-                                "bitwise_builtin_applications": "0x0",
-                                "keccak_builtin_applications": "0xd"
+                                "steps": "999",
+                                "memory_holes": "1",
+                                "range_check_builtin_applications": "21",
+                                "pedersen_builtin_applications": "37",
+                                "poseidon_builtin_applications": "451",
+                                "ec_op_builtin_applications": "123",
+                                "ecdsa_builtin_applications": "789",
+                                "bitwise_builtin_applications": "1",
+                                "keccak_builtin_applications": "1"
                             }
                         }
                     }
@@ -385,22 +374,25 @@ class ProviderTest {
             "result": {
                 "type": "INVOKE",
                 "transaction_hash": "0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a",
-                "actual_fee": "0x244adfc7e22",
+                "actual_fee": {
+                    "amount": "0x244adfc7e22",
+                    "unit": "FRI"
+                },
                 "messages_sent": [],
                 "events": [],
                 "execution_status": "SUCCEEDED",
                 "finality_status": "ACCEPTED_ON_L2",
                 "execution_resources": 
                 {
-                    "steps": "0x999",
-                    "memory_holes": "0x1",
-                    "range_check_builtin_applications": "0x21",
-                    "pedersen_builtin_applications": "0x37",
-                    "poseidon_builtin_applications": "0x451",
-                    "ec_op_builtin_applications": "0x123",
-                    "ecdsa_builtin_applications": "0x789",
-                    "bitwise_builtin_applications": "0x0",
-                    "keccak_builtin_applications": "0xd"
+                    "steps": "999",
+                    "memory_holes": "1",
+                    "range_check_builtin_applications": "21",
+                    "pedersen_builtin_applications": "37",
+                    "poseidon_builtin_applications": "451",
+                    "ec_op_builtin_applications": "123",
+                    "ecdsa_builtin_applications": "789",
+                    "bitwise_builtin_applications": "1",
+                    "keccak_builtin_applications": "1"
                 }
             }
         }
@@ -419,6 +411,7 @@ class ProviderTest {
 
         assertTrue(receipt is PendingTransactionReceipt)
         assertTrue(receipt is PendingInvokeTransactionReceipt)
+        assertEquals(PriceUnit.FRI, receipt.actualFee.unit)
     }
 
     @Test
@@ -433,7 +426,10 @@ class ProviderTest {
                         "jsonrpc": "2.0",
                         "result": {
                             "transaction_hash": "0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7",
-                            "actual_fee": "0x0",
+                            "actual_fee": {
+                                "amount": "0x244adfc7e22",
+                                "unit": "WEI"
+                            },
                             "finality_status": "ACCEPTED_ON_L2",
                             "execution_status": "SUCCEEDED",
                             "block_hash": "0x16c6bc59271e7b727ac0b139bbf99336fec1c0bfb6d41540d36fe1b3e2994c9",
@@ -467,15 +463,15 @@ class ProviderTest {
                             ],
                             "execution_resources": 
                             {
-                                "steps": "0x999",
-                                "memory_holes": "0x1",
-                                "range_check_builtin_applications": "0x21",
-                                "pedersen_builtin_applications": "0x37",
-                                "poseidon_builtin_applications": "0x451",
-                                "ec_op_builtin_applications": "0x123",
-                                "ecdsa_builtin_applications": "0x789",
-                                "bitwise_builtin_applications": "0x0",
-                                "keccak_builtin_applications": "0xd"
+                                "steps": "999",
+                                "memory_holes": "1",
+                                "range_check_builtin_applications": "21",
+                                "pedersen_builtin_applications": "37",
+                                "poseidon_builtin_applications": "451",
+                                "ec_op_builtin_applications": "123",
+                                "ecdsa_builtin_applications": "789",
+                                "bitwise_builtin_applications": "1",
+                                "keccak_builtin_applications": "1"
                             },
                             "message_hash": "0x8000000000000110000000000000000000000000000000000000011111111111"
                         }
@@ -490,6 +486,7 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is ProcessedTransactionReceipt)
+        assertEquals(PriceUnit.WEI, response.actualFee.unit)
     }
 
     @Test
@@ -792,7 +789,7 @@ class ProviderTest {
                     "l1_gas_price": 
                     {
                         "price_in_wei": "0x2137",
-                        "price_in_strk": "0x1234"
+                        "price_in_fri": "0x1234"
                     },
                     "starknet_version": "0.12.3",
                     "transactions": [
@@ -874,9 +871,9 @@ class ProviderTest {
                     "l1_gas_price": 
                     {
                         "price_in_wei": "0x2137",
-                        "price_in_strk": "0x1234"
+                        "price_in_fri": "0x1234"
                     },
-                    "starknet_version": "0.12.3",
+                    "starknet_version": "0.13.0",
                     "transactions": [
                         "0x01",
                         "0x02"

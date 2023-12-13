@@ -45,7 +45,7 @@ object StandardDeployerTest {
             balanceContractClassHash = devnetClient.declareContract("Balance").classHash
 
             // Prepare devnet address book
-            val accountDetails = devnetClient.createDeployAccount("standard_account_test").details
+            val accountDetails = devnetClient.deployAccount("standard_deployer_test", prefund = true).details
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             standardDeployer = StandardDeployer(

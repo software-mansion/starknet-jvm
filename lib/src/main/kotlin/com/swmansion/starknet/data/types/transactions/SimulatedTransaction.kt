@@ -31,6 +31,11 @@ enum class SimulationFlag(val value: String) {
 }
 
 @Serializable
+enum class SimulationFlagForEstimateFee(val value: String) {
+    SKIP_VALIDATE("SKIP_VALIDATE"),
+}
+
+@Serializable
 data class FunctionInvocation(
     @SerialName("contract_address")
     val contractAddress: Felt,
@@ -64,6 +69,9 @@ data class FunctionInvocation(
 
     @SerialName("messages")
     val messages: List<OrderedMessageL2ToL1>,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 )
 
 @Serializable

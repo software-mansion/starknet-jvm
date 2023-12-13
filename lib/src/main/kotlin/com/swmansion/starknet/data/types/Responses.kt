@@ -5,10 +5,13 @@ import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
+import java.math.BigInteger
+import kotlin.math.roundToInt
 
 @Serializable
 data class CallContractResponse(
@@ -41,18 +44,44 @@ data class DeployAccountResponse(
     val address: Felt? = null,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EstimateFeeResponse(
-    @JsonNames("gas_consumed", "gas_usage")
+    @SerialName("gas_consumed")
     val gasConsumed: Felt,
 
-    @JsonNames("gas_price")
+    @SerialName("gas_price")
     val gasPrice: Felt,
 
-    @JsonNames("overall_fee")
+    @SerialName("overall_fee")
     val overallFee: Felt,
-)
+
+    // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
+    @SerialName("unit")
+    val feeUnit: PriceUnit? = null,
+) {
+    fun toMaxFee(overhead: Double = 0.5): Felt {
+        return addOverhead(overallFee.value, overhead).toFelt
+    }
+
+    fun toResourceBounds(
+        amountOverhead: Double = 0.1,
+        unitPriceOverhead: Double = 0.5,
+    ): ResourceBoundsMapping {
+        val maxAmount = addOverhead(gasConsumed.value, amountOverhead).toUint64
+        val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
+
+        // As of Starknet 0.13.0, the L2 gas is not supported
+        // Because of this, the L2 gas values are hardcoded to 0
+        return ResourceBoundsMapping(
+            l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
+            l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
+        )
+    }
+    private fun addOverhead(value: BigInteger, overhead: Double): BigInteger {
+        val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
+        return value.multiply(multiplier).divide(BigInteger.valueOf(100))
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -396,11 +425,65 @@ data class PendingStateUpdateResponse(
     override val stateDiff: StateDiff,
 ) : StateUpdate()
 
+// TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class ResourceBoundsMapping(
+    @SerialName("l1_gas")
+    @JsonNames("L1_GAS")
+    val l1Gas: ResourceBounds,
+
+    @SerialName("l2_gas")
+    @JsonNames("L2_GAS")
+    val l2Gas: ResourceBounds,
+)
+
+@Serializable
+data class ResourceBounds(
+    @SerialName("max_amount")
+    val maxAmount: Uint64,
+
+    @SerialName("max_price_per_unit")
+    val maxPricePerUnit: Uint128,
+) {
+    companion object {
+        @field:JvmField
+        val ZERO = ResourceBounds(Uint64.ZERO, Uint128.ZERO)
+    }
+
+    fun toMaxFee(): Felt {
+        return maxAmount.value.multiply(maxPricePerUnit.value).toFelt
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ResourcePrice(
+    // TODO: (#344) This is a deviation from the spec, make this non-nullable once Juno is updated
     @SerialName("price_in_wei")
-    val priceInWei: NumAsHex,
+    val priceInWei: Felt? = null,
 
-    @SerialName("price_in_strk")
-    val priceInStark: NumAsHex? = null,
+    @SerialName("price_in_fri")
+    @JsonNames("price_in_strk") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
+    val priceInFri: Felt,
 )
+
+@Serializable
+data class FeePayment(
+    @SerialName("amount")
+    val amount: Felt,
+
+    @SerialName("unit")
+    val unit: PriceUnit,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+enum class PriceUnit {
+    @SerialName("WEI")
+    WEI,
+
+    @SerialName("FRI")
+    @JsonNames("STRK") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
+    FRI,
+}

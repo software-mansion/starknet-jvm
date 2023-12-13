@@ -1,29 +1,74 @@
 package starknet.crypto
 
-import com.swmansion.starknet.account.estimatedFeeToMaxFee
-import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FeeUtilsTest {
-    @Test
-    fun `estimate fee to max fee - default`() {
-        val result = estimatedFeeToMaxFee(Felt(100))
-
-        assertEquals(result, Felt(110))
+    companion object {
+        val estimateFee = EstimateFeeResponse(
+            gasConsumed = Felt(1000),
+            gasPrice = Felt(100),
+            overallFee = Felt(1000 * 100),
+            feeUnit = PriceUnit.WEI,
+        )
     }
 
-    @Test
-    fun `estimate fee to max fee - 10 percent overhead`() {
-        val result = estimatedFeeToMaxFee(Felt(100), 0.50)
+    @Nested
+    inner class EstimateFeeToMaxFeeTest {
+        @Test
+        fun `estimate fee to max fee - default`() {
+            val result = estimateFee.toMaxFee()
 
-        assertEquals(result, Felt(150))
+            assertEquals(result, Felt(150000))
+        }
+
+        @Test
+        fun `estimate fee to max fee - specific overhead`() {
+            val result = estimateFee.toMaxFee(0.13)
+
+            assertEquals(result, Felt(113000))
+        }
+
+        @Test
+        fun `estimate fee to max fee - 0 overhead`() {
+            val result = estimateFee.toMaxFee(0.0)
+
+            assertEquals(result, Felt(100000))
+        }
     }
 
-    @Test
-    fun `estimate fee to max fee - 0 overhead`() {
-        val result = estimatedFeeToMaxFee(Felt(100), 0.0)
+    @Nested
+    inner class EstimateFeeToResourceBoundsTest {
+        @Test
+        fun `estimate fee to resource bounds - default`() {
+            val result = estimateFee.toResourceBounds()
+            val expected = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(maxAmount = Uint64(1100), maxPricePerUnit = Uint128(150)),
+                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
+            )
+            assertEquals(expected, result)
+        }
 
-        assertEquals(result, Felt(100))
+        @Test
+        fun `estimate fee to resource bounds - specific overhead`() {
+            val result = estimateFee.toResourceBounds(0.19, 0.13)
+            val expected = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(maxAmount = Uint64(1190), maxPricePerUnit = Uint128(113)),
+                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
+            )
+            assertEquals(expected, result)
+        }
+
+        @Test
+        fun `estimate fee to resource bounds - 0 overhead`() {
+            val result = estimateFee.toResourceBounds(0.0, 0.0)
+            val expected = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(maxAmount = Uint64(1000), maxPricePerUnit = Uint128(100)),
+                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
+            )
+            assertEquals(expected, result)
+        }
     }
 }

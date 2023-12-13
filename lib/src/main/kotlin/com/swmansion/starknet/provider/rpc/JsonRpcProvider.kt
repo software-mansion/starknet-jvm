@@ -34,6 +34,10 @@ class JsonRpcProvider(
 
     private val jsonWithDefaults = Json { encodeDefaults = true }
 
+    private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
+        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+    }
+
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
         val map = mapOf(
             "jsonrpc" to JsonPrimitive("2.0"),
@@ -92,7 +96,16 @@ class JsonRpcProvider(
         return callContract(call, BlockTag.LATEST)
     }
 
-    override fun deployAccount(payload: DeployAccountTransactionPayload): Request<DeployAccountResponse> {
+    override fun deployAccount(payload: DeployAccountTransactionV1Payload): Request<DeployAccountResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("deploy_account_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
+    }
+
+    override fun deployAccount(payload: DeployAccountTransactionV3Payload): Request<DeployAccountResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
@@ -155,7 +168,18 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeTransactionPayload,
+        payload: InvokeTransactionV1Payload,
+    ): Request<InvokeFunctionResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("invoke_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
+    }
+
+    override fun invokeFunction(
+        payload: InvokeTransactionV3Payload,
     ): Request<InvokeFunctionResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
         val jsonPayload = buildJsonObject {
@@ -267,6 +291,15 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
+    override fun declareContract(payload: DeclareTransactionV3Payload): Request<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, payload)
+        val jsonPayload = buildJsonObject {
+            put("declare_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
+    }
+
     override fun getBlockNumber(): Request<Int> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
@@ -325,31 +358,67 @@ class JsonRpcProvider(
     }
 
     private fun getEstimateFee(payload: EstimateTransactionFeePayload): Request<List<EstimateFeeResponse>> {
-        val jsonPayload = jsonWithDefaults.encodeToJsonElement(EstimateTransactionFeePayloadSerializer, payload)
+        val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Hash(blockHash))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockHash: Felt,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Number(blockNumber))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockHash: Felt,
+    ): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, blockHash, defaultFeeEstimateSimulationFlags)
+    }
+
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockNumber: Int,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        val estimatePayload = EstimateTransactionFeePayload(payload, BlockId.Tag(blockTag))
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockNumber: Int,
+    ): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, blockNumber, defaultFeeEstimateSimulationFlags)
+    }
+
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
     }
 
+    override fun getEstimateFee(
+        payload: List<TransactionPayload>,
+        blockTag: BlockTag,
+    ): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, blockTag, defaultFeeEstimateSimulationFlags)
+    }
+
+    override fun getEstimateFee(payload: List<TransactionPayload>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
+        return getEstimateFee(payload, BlockTag.PENDING, simulationFlags)
+    }
     override fun getEstimateFee(payload: List<TransactionPayload>): Request<List<EstimateFeeResponse>> {
-        return getEstimateFee(payload, BlockTag.LATEST)
+        return getEstimateFee(payload, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
     }
 
     private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): Request<EstimateFeeResponse> {

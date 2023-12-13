@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.8.2"
+version = "0.9.0"
 group = "com.swmansion.starknet"
 
 plugins {

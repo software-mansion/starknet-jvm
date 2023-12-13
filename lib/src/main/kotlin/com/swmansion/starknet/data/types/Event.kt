@@ -40,25 +40,24 @@ data class OrderedEvent(
     val data: List<Felt>,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EmittedEvent(
-    @JsonNames("address", "from_address")
+    @SerialName("from_address")
     val address: Felt,
 
-    @JsonNames("keys")
+    @SerialName("keys")
     val keys: List<Felt>,
 
-    @JsonNames("data")
+    @SerialName("data")
     val data: List<Felt>,
 
-    @JsonNames("block_hash")
-    val blockHash: Felt,
+    @SerialName("block_hash")
+    val blockHash: Felt? = null,
 
-    @JsonNames("block_number")
-    val blockNumber: Int,
+    @SerialName("block_number")
+    val blockNumber: Int? = null,
 
-    @JsonNames("transaction_hash")
+    @SerialName("transaction_hash")
     val transactionHash: Felt,
 )
 
