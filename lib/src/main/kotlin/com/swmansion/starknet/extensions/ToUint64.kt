@@ -1,6 +1,5 @@
 package com.swmansion.starknet.extensions
 
-import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.NumAsHexBase
 import com.swmansion.starknet.data.types.Uint64
 import java.math.BigInteger
