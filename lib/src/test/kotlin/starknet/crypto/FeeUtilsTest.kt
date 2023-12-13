@@ -16,7 +16,7 @@ class FeeUtilsTest {
     }
 
     @Nested
-    inner class EstimateFeeToMaxFeeTests {
+    inner class EstimateFeeToMaxFeeTest {
         @Test
         fun `estimate fee to max fee - default`() {
             val result = estimateFee.toMaxFee()
@@ -40,7 +40,7 @@ class FeeUtilsTest {
     }
 
     @Nested
-    inner class EstimateFeeToResourceBoundsTests {
+    inner class EstimateFeeToResourceBoundsTest {
         @Test
         fun `estimate fee to resource bounds - default`() {
             val result = estimateFee.toResourceBounds()
