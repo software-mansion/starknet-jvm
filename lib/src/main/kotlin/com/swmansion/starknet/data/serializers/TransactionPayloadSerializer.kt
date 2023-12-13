@@ -149,6 +149,7 @@ internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTrans
             put("nonce", value.nonce)
             put("type", value.type.toString())
             put("compiled_class_hash", value.compiledClassHash.hexString())
+            put("resource_bounds", Json.encodeToJsonElement(value.resourceBounds))
             put("tip", value.tip.hexString())
             putJsonArray("paymaster_data") { value.paymasterData.forEach { add(it) } }
             putJsonArray("account_deployment_data") { value.accountDeploymentData.forEach { add(it) } }
