@@ -191,6 +191,35 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
+    override fun signDeclareV3(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: DeclareParamsV3,
+        forFeeEstimate: Boolean,
+    ): DeclareTransactionV3Payload {
+        val signVersion = when (forFeeEstimate) {
+            true -> Felt(estimateVersion + BigInteger.valueOf(3))
+            false -> Felt(3)
+        }
+        val tx = TransactionFactory.makeDeclareV3Transaction(
+            contractDefinition = sierraContractDefinition,
+            senderAddress = address,
+            chainId = provider.chainId,
+            nonce = params.nonce,
+            version = signVersion,
+            resourceBounds = params.resourceBounds,
+            tip = params.tip,
+            paymasterData = params.paymasterData,
+            accountDeploymentData = params.accountDeploymentData,
+            casmContractDefinition = casmContractDefinition,
+            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
+        )
+        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
+
+        return signedTransaction.toPayload()
+    }
+
     override fun signTypedData(typedData: TypedData): Signature {
         return signer.signTypedData(typedData, address)
     }
