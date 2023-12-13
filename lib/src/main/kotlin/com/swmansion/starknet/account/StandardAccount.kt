@@ -5,6 +5,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
+import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -26,8 +27,14 @@ class StandardAccount(
     private val provider: Provider,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
-    private val version = Felt.ONE
-    private val estimateVersion: BigInteger = BigInteger.valueOf(2).pow(128).add(version.value)
+    private fun estimateVersion(version: Felt): Felt {
+        return BigInteger.valueOf(2).pow(128)
+            .add(version.value)
+            .toFelt
+    }
+    private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
+        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+    }
 
     /**
      * @param provider a provider used to interact with Starknet
@@ -44,8 +51,8 @@ class StandardAccount(
     override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> estimateVersion(Felt(3))
         }
         val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
@@ -64,7 +71,7 @@ class StandardAccount(
     override fun signV3(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion + BigInteger.valueOf(2))
+            true -> estimateVersion(Felt(3))
             false -> Felt(3)
         }
         val tx = TransactionFactory.makeInvokeV3Transaction(
@@ -95,8 +102,8 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> Felt.ONE
         }
         val tx = TransactionFactory.makeDeployAccountV1Transaction(
             classHash = classHash,
@@ -113,7 +120,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeployAccountV3(
+    override fun signDeployAccount(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -121,7 +128,7 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion + BigInteger.valueOf(2))
+            true -> estimateVersion(Felt(2))
             false -> Felt(3)
         }
         val tx = TransactionFactory.makeDeployAccountV3Transaction(
@@ -150,8 +157,8 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV1Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion)
-            false -> version
+            true -> estimateVersion(Felt.ONE)
+            false -> Felt.ONE
         }
         val tx = TransactionFactory.makeDeclareV1Transaction(
             contractDefinition = contractDefinition,
@@ -174,7 +181,7 @@ class StandardAccount(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion + BigInteger.valueOf(1))
+            true -> estimateVersion(Felt(2))
             false -> Felt(2)
         }
         val tx = TransactionFactory.makeDeclareV2Transaction(
@@ -191,14 +198,14 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeclareV3(
+    override fun signDeclare(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload {
         val signVersion = when (forFeeEstimate) {
-            true -> Felt(estimateVersion + BigInteger.valueOf(3))
+            true -> estimateVersion(Felt(3))
             false -> Felt(3)
         }
         val tx = TransactionFactory.makeDeclareV3Transaction(
@@ -349,11 +356,11 @@ class StandardAccount(
     }
 
     override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, BlockTag.PENDING, emptySet())
+        return estimateFee(calls, BlockTag.PENDING)
     }
 
     override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(calls, BlockTag.PENDING, emptySet())
+        return estimateFeeV3(calls, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
     }
 
     override fun estimateFee(
@@ -370,8 +377,12 @@ class StandardAccount(
         return estimateFeeV3(calls, BlockTag.PENDING, simulationFlags)
     }
 
+    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, blockTag)
+    }
+
     override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, blockTag, emptySet())
+        return estimateFee(calls, blockTag, defaultFeeEstimateSimulationFlags)
     }
 
     override fun estimateFee(
@@ -383,6 +394,25 @@ class StandardAccount(
             val payload = buildEstimateFeePayload(calls, nonce)
             return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
+    }
+
+    override fun estimateFeeV3(
+        call: Call,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), simulationFlags)
+    }
+
+    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag)
+    }
+
+    override fun estimateFeeV3(
+        call: Call,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag, simulationFlags)
     }
 
     override fun estimateFeeV3(
