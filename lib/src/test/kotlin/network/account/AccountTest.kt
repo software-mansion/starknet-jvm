@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.deployercontract.StandardDeployer
 import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.extensions.toUint256
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
 import network.utils.NetworkConfig
@@ -32,7 +33,6 @@ class AccountTest {
         private val signer = StarkCurveSigner(config.privateKey)
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
-
         private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
 
         val standardAccount = StandardAccount(
@@ -56,6 +56,7 @@ class AccountTest {
             Network.TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
         }
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
+        private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf") // Same for testnet and integration.
     }
 
@@ -417,7 +418,7 @@ class AccountTest {
     }
 
     @Test
-    fun `deploy account`() {
+    fun `sign and send deploy account v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val account = standardAccount
@@ -482,6 +483,91 @@ class AccountTest {
         assertEquals(payload.version, tx.version)
         assertEquals(payload.nonce, tx.nonce)
         assertEquals(payload.maxFee, tx.maxFee)
+        assertEquals(payload.signature, tx.signature)
+
+        val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+        assertTrue(receipt.isAccepted)
+    }
+
+    @Test
+    fun `sign and send deploy account v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+
+        val account = standardAccount
+
+        val privateKey = Felt(System.currentTimeMillis())
+        val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+        val classHash = accountContractClassHash
+        val salt = Felt(System.currentTimeMillis())
+        val calldata = listOf(publicKey)
+        val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+        )
+
+        val deployedAccount = StandardAccount(
+            deployedAccountAddress,
+            privateKey,
+            provider,
+        )
+        val payloadForFeeEstimate = deployedAccount.signDeployAccountV3(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            params = DeployAccountParamsV3(
+                nonce = Felt.ZERO,
+                l1ResourceBounds = ResourceBounds.ZERO,
+            ),
+            forFeeEstimate = false, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
+        )
+        val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
+
+        val feeEstimate = feeEstimateRequest.send().first()
+        val resourceBounds = feeEstimate.toResourceBounds()
+
+        val call = Call(
+            contractAddress = strkContractAddress,
+            entrypoint = "transfer",
+            calldata = listOf(deployedAccountAddress) +
+                resourceBounds.l1Gas.toMaxFee().toUint256.toCalldata(),
+        )
+
+        val transferRequest = account.executeV3(call)
+        val transferResponse = transferRequest.send()
+        Thread.sleep(15000)
+
+        val transferReceipt = provider.getTransactionReceipt(transferResponse.transactionHash).send()
+        assertTrue(transferReceipt.isAccepted)
+
+        val params = DeployAccountParamsV3(
+            nonce = Felt.ZERO,
+            resourceBounds = resourceBounds,
+        )
+        val payload = deployedAccount.signDeployAccountV3(
+            classHash = classHash,
+            salt = salt,
+            calldata = calldata,
+            params = params,
+            forFeeEstimate = false,
+        )
+
+        val response = provider.deployAccount(payload).send()
+
+        // Make sure the address matches the calculated one
+        // TODO: (#344) re-enable this assertion once the address is non-nullable again
+        // assertEquals(deployedAccountAddress, response.address)
+
+        // Make sure tx matches what we sent
+        Thread.sleep(15000)
+
+        val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+        assertEquals(payload.classHash, tx.classHash)
+        assertEquals(payload.salt, tx.contractAddressSalt)
+        assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+        assertEquals(payload.version, tx.version)
+        assertEquals(payload.nonce, tx.nonce)
         assertEquals(payload.signature, tx.signature)
 
         val receipt = provider.getTransactionReceipt(response.transactionHash).send()
