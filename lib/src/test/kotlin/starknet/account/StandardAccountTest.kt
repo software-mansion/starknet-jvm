@@ -492,7 +492,7 @@ class StandardAccountTest {
                 ),
             )
 
-            val payload = account.signV3(call, params)
+            val payload = account.sign(call, params)
             val request = provider.invokeFunction(payload)
             val response = request.send()
 
@@ -609,7 +609,7 @@ class StandardAccountTest {
                 ),
             )
 
-            val payload = account.signV3(listOf(call, call, call), params)
+            val payload = account.sign(listOf(call, call, call), params)
             val response = provider.invokeFunction(payload).send()
 
             val receipt = provider.getTransactionReceipt(response.transactionHash).send()

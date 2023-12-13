@@ -68,7 +68,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signV3(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    override fun sign(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> estimateVersion(Felt(3))
@@ -291,7 +291,7 @@ class StandardAccount(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
             )
-            val payload = signV3(calls, signParams, false)
+            val payload = sign(calls, signParams, false)
 
             return@compose provider.invokeFunction(payload)
         }
@@ -447,7 +447,7 @@ class StandardAccount(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
         )
-        val payload = signV3(calls, executionParams, false)
+        val payload = sign(calls, executionParams, false)
 
         val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = payload.senderAddress,
