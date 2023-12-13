@@ -142,7 +142,7 @@ interface Account {
     /**
      * Sign version 3 deploy account transaction.
      *
-     * Sign a deploy account transaction that requires prefunding deployed address.
+     * Sign a deploy account transaction that requires prefunding said account.
      *
      * @param classHash hash of the contract that will be deployed
      * @param calldata constructor calldata for the contract deployment
