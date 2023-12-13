@@ -28,7 +28,7 @@ interface Provider {
      *
      * Invoke a function in deployed contract using version 1 transaction.
      *
-     * @param payload invoke function payload
+     * @param payload invoke function version 1 payload
      *
      * @throws RequestFailedException
      */
@@ -39,7 +39,7 @@ interface Provider {
      *
      * Invoke a function in deployed contract using version 3 transaction.
      *
-     * @param payload invoke function payload
+     * @param payload invoke function version 3 payload
      *
      * @throws RequestFailedException
      */
@@ -127,15 +127,26 @@ interface Provider {
     fun getBlockTransactionCount(blockNumber: Int): Request<Int>
 
     /**
-     * Deploy an account contract.
+     * Deploy an account contract using version 1 transaction.
      *
      * Deploy a new account contract on Starknet.
      *
-     * @param payload deploy account transaction payload
+     * @param payload deploy account transaction version 1 payload
      *
      * @throws RequestFailedException
      */
     fun deployAccount(payload: DeployAccountTransactionV1Payload): Request<DeployAccountResponse>
+
+    /**
+     * Deploy an account contract using version 3 transaction.
+     *
+     * Deploy a new account contract on Starknet.
+     *
+     * @param payload deploy account transaction version 3 payload
+     *
+     * @throws RequestFailedException
+     */
+    fun deployAccount(payload: DeployAccountTransactionV3Payload): Request<DeployAccountResponse>
 
     /**
      * Calls a contract deployed on Starknet.

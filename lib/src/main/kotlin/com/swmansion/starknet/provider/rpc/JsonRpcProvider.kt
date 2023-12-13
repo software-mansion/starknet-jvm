@@ -101,6 +101,15 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
     }
 
+    override fun deployAccount(payload: DeployAccountTransactionV3Payload): Request<DeployAccountResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val jsonPayload = buildJsonObject {
+            put("deploy_account_transaction", params)
+        }
+
+        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
+    }
+
     private fun getStorageAt(payload: GetStorageAtPayload): Request<Felt> {
         val params = Json.encodeToJsonElement(payload)
 
