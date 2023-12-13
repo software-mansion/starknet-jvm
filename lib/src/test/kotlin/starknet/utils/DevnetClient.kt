@@ -51,10 +51,11 @@ class DevnetClient(
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
 
     companion object {
-        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/323f907bc3e3e4dc66b403ec6f8b58744e8d6f9a/crates/starknet/src/constants.rs
+        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/85495efb71a37ad3921c8986474b7e78a9a9f5fc/crates/starknet/src/constants.rs
         val accountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
-        val erc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
-        val erc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+        val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
+        val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+        val strkErc20ContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         val udcContractClassHash = Felt.fromHex("0x7b3e05f48f0c69e4a65ce5e076a66271a527aff2c34ce1083ec6e1526997a69")
         val udcContractAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
 
@@ -125,7 +126,7 @@ class DevnetClient(
         isDevnetRunning = false
     }
 
-    fun prefundAccount(accountAddress: Felt) {
+    fun prefundAccountEth(accountAddress: Felt) {
         val payload = HttpService.Payload(
             url = mintUrl,
             body =
@@ -179,7 +180,7 @@ class DevnetClient(
         prefund: Boolean = false,
     ): DeployAccountResult {
         if (prefund) {
-            prefundAccount(readAccountDetails(name).address)
+            prefundAccountEth(readAccountDetails(name).address)
         }
 
         val params = listOf(
@@ -213,7 +214,7 @@ class DevnetClient(
         val accountName = name ?: UUID.randomUUID().toString()
         val createResult = createAccount(accountName, classHash, salt)
         val details = createResult.details
-        prefundAccount(details.address)
+        prefundAccountEth(details.address)
         val deployResult = deployAccount(accountName, classHash, maxFee)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")

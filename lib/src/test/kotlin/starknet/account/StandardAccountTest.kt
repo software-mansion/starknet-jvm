@@ -611,7 +611,7 @@ class StandardAccountTest {
             calldata = calldata,
             salt = salt,
         )
-        devnetClient.prefundAccount(address)
+        devnetClient.prefundAccountEth(address)
 
         val account = StandardAccount(
             address,
@@ -693,7 +693,7 @@ class StandardAccountTest {
     @Test
     fun `simulate invoke and deploy account transactions`() {
         val account = StandardAccount(accountAddress, signer, provider)
-        devnetClient.prefundAccount(accountAddress)
+        devnetClient.prefundAccountEth(accountAddress)
 
         val nonce = account.getNonce().send()
         val call = Call(
@@ -720,7 +720,7 @@ class StandardAccountTest {
             privateKey,
             provider,
         )
-        devnetClient.prefundAccount(newAccountAddress)
+        devnetClient.prefundAccountEth(newAccountAddress)
         val deployAccountTx = newAccount.signDeployAccount(
             classHash = accountContractClassHash,
             salt = salt,
