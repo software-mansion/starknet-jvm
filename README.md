@@ -182,7 +182,13 @@ Use the following command to run tests:
 ### Network Tests
 Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are:
+  - `SEPOLIA_TESTNET`
+  - `SEPOLIA_INTEGRATION`
+  - `GOERLI_TESTNET`
+  - `GOERLI_INTEGRATION`
+
+Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
 You will also need to provide an **RPC node URL** and an **account address** (along with its **private key**).
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
