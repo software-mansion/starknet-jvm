@@ -35,6 +35,20 @@ class ProviderTest {
     }
 
     @Test
+    fun `get chain id`() {
+        val request = provider.getChainId()
+        val chainId = request.send()
+
+        val expectedChainId = when (network) {
+            Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
+            Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
+            Network.SEPOLIA_INTEGRATION -> StarknetChainId.SEPOLIA_INTEGRATION
+            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA_TESTNET
+        }
+        assertEquals(expectedChainId, chainId)
+    }
+
+    @Test
     fun `get transaction status`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
