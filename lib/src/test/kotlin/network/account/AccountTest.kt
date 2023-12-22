@@ -96,7 +96,7 @@ class AccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -228,7 +228,7 @@ class AccountTest {
         // Chances are, the contract was compiled with a different compiler version.
         // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -796,7 +796,7 @@ class AccountTest {
         // If this test starts randomly falling, try recalculating class hash.
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
 
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,

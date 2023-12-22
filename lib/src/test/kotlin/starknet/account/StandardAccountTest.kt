@@ -208,7 +208,7 @@ class StandardAccountTest {
         // Note to future developers experiencing failures in this test. Compiled contract format sometimes
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -269,7 +269,7 @@ class StandardAccountTest {
 
         val l1l2ContractCode = Path.of("src/test/resources/contracts_v0/target/release/l1l2.json").readText()
         val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
-        val classHash = Felt.fromHex("0x77c2e9e978afe2e159f5c13d958df7816e954b89e396d0424a2cd50ddef3cc8")
+        val classHash = Felt.fromHex("0x310b77cf1190f2555fca715a990f9ff9f5c42e1b30b42cc3fdb573b8ab95fc1")
         val nonce = account.getNonce().send()
         val declareTransactionPayload = account.signDeclare(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
@@ -313,7 +313,7 @@ class StandardAccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -1070,7 +1070,7 @@ class StandardAccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
