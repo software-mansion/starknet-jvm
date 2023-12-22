@@ -45,7 +45,7 @@ class DevnetClient(
 
     lateinit var defaultAccountDetails: AccountDetails
 
-    val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET) }
+    val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.GOERLI) }
 
     private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS

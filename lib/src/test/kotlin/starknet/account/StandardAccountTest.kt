@@ -41,7 +41,7 @@ class StandardAccountTest {
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
         private val rpcUrl = devnetClient.rpcUrl
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.GOERLI)
 
         private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
@@ -439,7 +439,7 @@ class StandardAccountTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.GOERLI, httpService)
         val account = StandardAccount(Felt.ONE, Felt.ONE, provider)
 
         val typedData = loadTypedData("typed_data_struct_array_example.json")
@@ -1152,7 +1152,7 @@ class StandardAccountTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.GOERLI, httpService)
 
         val nonce = account.getNonce().send()
         val maxFee = Felt(1)

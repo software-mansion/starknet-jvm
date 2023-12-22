@@ -33,7 +33,7 @@ class AccountTest {
         private val signer = StarkCurveSigner(config.privateKey)
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.GOERLI)
 
         val standardAccount = StandardAccount(
             accountAddress,

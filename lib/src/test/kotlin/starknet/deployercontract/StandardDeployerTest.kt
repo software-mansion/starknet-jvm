@@ -27,7 +27,7 @@ object StandardDeployerTest {
     )
     private val provider = JsonRpcProvider(
         devnetClient.rpcUrl,
-        StarknetChainId.TESTNET,
+        StarknetChainId.GOERLI,
     )
 
     private lateinit var signer: Signer
