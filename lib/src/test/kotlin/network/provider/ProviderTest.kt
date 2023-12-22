@@ -36,6 +36,7 @@ class ProviderTest {
 
     @Test
     fun `get chain id`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         val request = provider.getChainId()
         val chainId = request.send()
 
