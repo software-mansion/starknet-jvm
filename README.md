@@ -59,7 +59,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -93,7 +93,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -133,16 +133,16 @@ This way you reuse connections and thread pools.
 
 ✅ **Do:** 
 ```java
-var provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
 var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
 ```
 
 ❌ **Don't:**
 ```java
-var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
