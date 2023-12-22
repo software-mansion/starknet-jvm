@@ -22,15 +22,13 @@ import kotlinx.serialization.json.*
  * httpService or provide it with your own httpService.
  *
  * @param url url of the service providing a rpc interface
- * @param chainId an id of the network
  * @param httpService service used for making http requests
  */
 class JsonRpcProvider(
     val url: String,
-    override val chainId: StarknetChainId,
     private val httpService: HttpService,
 ) : Provider {
-    constructor(url: String, chainId: StarknetChainId) : this(url, chainId, OkHttpService())
+    constructor(url: String) : this(url, OkHttpService())
 
     private val jsonWithDefaults = Json { encodeDefaults = true }
 
@@ -482,6 +480,12 @@ class JsonRpcProvider(
         )
     }
 
+    override fun getChainId(): Request<StarknetChainId> {
+        val params = Json.encodeToJsonElement(JsonArray(emptyList()))
+
+        return buildRequest(JsonRpcMethod.CHAIN_ID, params, StarknetChainId.serializer())
+    }
+
     private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
@@ -620,6 +624,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
     GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
     GET_SYNCING("starknet_syncing"),
+    CHAIN_ID("starknet_chainId"),
     ESTIMATE_FEE("starknet_estimateFee"),
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
