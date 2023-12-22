@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                     // Display the receipt details in the UI
                     withContext(Dispatchers.Main) {
                         receiptExecutionStatusValue.text = receipt.executionStatus.toString()
-                        receiptActualFeeValue.text = receipt.actualFee?.let { "${it.value} wei" } ?: getString(R.string.not_available)
+                        receiptActualFeeValue.text = receipt.actualFee.let { "${it.amount.value} ${it.unit.toString().lowercase()}" }
                         receiptRevertReasonValue.text = receipt.revertReason ?: getString(R.string.not_available)
                     }
                 } catch (e: RpcRequestFailedException) {
