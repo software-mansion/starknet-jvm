@@ -483,7 +483,7 @@ class JsonRpcProvider(
     override fun getChainId(): Request<StarknetChainId> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
-        return buildRequest(JsonRpcMethod.CHAIN_ID, params, StarknetChainId.serializer())
+        return buildRequest(JsonRpcMethod.GET_CHAIN_ID, params, StarknetChainId.serializer())
     }
 
     private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
@@ -624,7 +624,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_BLOCK_HASH_AND_NUMBER("starknet_blockHashAndNumber"),
     GET_BLOCK_TRANSACTION_COUNT("starknet_getBlockTransactionCount"),
     GET_SYNCING("starknet_syncing"),
-    CHAIN_ID("starknet_chainId"),
+    GET_CHAIN_ID("starknet_chainId"),
     ESTIMATE_FEE("starknet_estimateFee"),
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
