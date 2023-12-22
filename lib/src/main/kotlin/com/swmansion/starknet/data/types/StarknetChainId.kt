@@ -8,7 +8,7 @@ enum class StarknetChainId(val value: Felt) {
     @SerialName("0x534e5f4d41494e")
     MAINNET(Felt.fromHex("0x534e5f4d41494e")), // encodeShortString('SN_MAIN'),
 
-    // TODO: add deprecated warning
+    @Deprecated("Consider using SEPOLIA instead")
     @SerialName("0x534e5f474f45524c49")
     GOERLI(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 
