@@ -54,6 +54,7 @@ class AccountTest {
         private val predeployedMapContractAddress = when (network) {
             Network.GOERLI_INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
             Network.GOERLI_TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
         private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
@@ -71,7 +72,11 @@ class AccountTest {
             entrypoint = "put",
             calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
         )
-        val estimateFeeRequest = account.estimateFee(listOf(call))
+        val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
+        val estimateFeeRequest = account.estimateFee(
+            listOf(call),
+            simulationFlags
+        )
         val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)
     }
@@ -694,6 +699,7 @@ class AccountTest {
             Network.GOERLI_INTEGRATION -> setOf(SimulationFlag.SKIP_FEE_CHARGE)
             // Juno currently always fails on simulating invoke when SKIP_FEE_CHARGE flag is passed
             Network.GOERLI_TESTNET -> emptySet()
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(invokeTx, invokeTx2),
@@ -881,7 +887,7 @@ class AccountTest {
         assumeTrue(network == Network.GOERLI_TESTNET)
         val classHash = when (network) {
             Network.GOERLI_TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-            else -> throw IllegalStateException("Unsupported network: $network")
+            else -> throw NotImplementedError("Unsupported network: $network")
         }
 
         val account = standardAccount
