@@ -15,6 +15,8 @@ class NetworkConfig {
     enum class Network(val value: String) {
         GOERLI_INTEGRATION("GOERLI_INTEGRATION"),
         GOERLI_TESTNET("GOERLI_TESTNET"),
+        SEPOLIA_INTEGRATION("SEPOLIA_INTEGRATION"),
+        SEPOLIA_TESTNET("SEPOLIA_TESTNET"),
     }
 
     enum class NetworkTestMode {
