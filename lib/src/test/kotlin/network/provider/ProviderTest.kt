@@ -19,7 +19,7 @@ class ProviderTest {
         private val network = config.network
         private val rpcUrl = config.rpcUrl
 
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.GOERLI)
+        private val provider = JsonRpcProvider(rpcUrl)
     }
 
     @Test

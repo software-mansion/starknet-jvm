@@ -33,7 +33,7 @@ class AccountTest {
         private val signer = StarkCurveSigner(config.privateKey)
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.GOERLI)
+        private val provider = JsonRpcProvider(rpcUrl)
 
         val standardAccount = StandardAccount(
             accountAddress,
@@ -75,7 +75,7 @@ class AccountTest {
         val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
         val estimateFeeRequest = account.estimateFee(
             listOf(call),
-            simulationFlags
+            simulationFlags,
         )
         val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)
@@ -110,7 +110,7 @@ class AccountTest {
             classHash = classHash,
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.chainId,
+            chainId = provider.getChainId().send(),
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -156,7 +156,7 @@ class AccountTest {
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
             casmContractDefinition = casmContractDefinition,
-            chainId = provider.chainId,
+            chainId = provider.getChainId().send(),
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
