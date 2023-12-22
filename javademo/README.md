@@ -48,7 +48,7 @@ Running the demo on a network other than devnet (Mainnet/Testen/Integration) req
 ### Prerequisites
 - URL of a Starknet RPC node.
 - Details (address and private key) of an account deployed on said network with some funds on it.
-If you're using **testnet**, you can obtain some funds from the [faucet](https://faucet.goerli.starknet.io/).
+If you're using **Goerli testnet**, you can obtain some funds from the [faucet](https://faucet.goerli.starknet.io/).
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager with [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
 ### Steps
