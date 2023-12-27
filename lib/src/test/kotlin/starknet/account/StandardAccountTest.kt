@@ -7,7 +7,6 @@ import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.extensions.toUint256
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
@@ -57,10 +56,7 @@ class StandardAccountTest {
             try {
                 devnetClient.start()
 
-                // TODO: (#371) instead, deploy manutally "standard_account_test" account
-                //  and prefund it with STRK, once minting STRK is supported on devnet.
-                val accountDetails = DevnetClient.predeployedAccount1
-                devnetClient.prefundAccountEth(accountDetails.address)
+                val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
@@ -915,12 +911,7 @@ class StandardAccountTest {
         )
 
         // Prefund the new account address with STRK
-        val transferCall = Call(
-            contractAddress = DevnetClient.strkErc20ContractAddress,
-            entrypoint = "transfer",
-            calldata = listOf(address) + l1ResourceBounds.toMaxFee().toUint256.toCalldata(),
-        )
-        account.executeV3(transferCall).send()
+        devnetClient.prefundAccountStrk(address)
 
         val payload = newAccount.signDeployAccount(
             classHash = accountContractClassHash,
