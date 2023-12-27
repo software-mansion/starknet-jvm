@@ -1,6 +1,7 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.PriceUnit
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
@@ -127,13 +128,22 @@ class DevnetClient(
     }
 
     fun prefundAccountEth(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.WEI)
+    }
+    fun prefundAccountStrk(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.FRI)
+    }
+
+    private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
+        val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
             url = mintUrl,
             body =
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000
+              "amount": 500000000000000000000000000000,
+              "unit": $unit
             }
             """.trimIndent(),
             method = "POST",
@@ -182,6 +192,7 @@ class DevnetClient(
     ): DeployAccountResult {
         if (prefund) {
             prefundAccountEth(readAccountDetails(name).address)
+            prefundAccountStrk(readAccountDetails(name).address)
         }
 
         val params = listOf(
