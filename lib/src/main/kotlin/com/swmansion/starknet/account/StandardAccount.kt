@@ -291,7 +291,7 @@ class StandardAccount(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
             )
-            val payload = sign(calls, signParams, false)
+            val payload = sign(calls, signParams, true)
 
             return@compose provider.invokeFunction(payload)
         }
@@ -447,7 +447,7 @@ class StandardAccount(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
         )
-        val payload = sign(calls, executionParams, false)
+        val payload = sign(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = payload.senderAddress,
