@@ -291,7 +291,7 @@ class StandardAccount(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
             )
-            val payload = sign(calls, signParams, true)
+            val payload = sign(calls, signParams, false)
 
             return@compose provider.invokeFunction(payload)
         }
