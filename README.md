@@ -59,7 +59,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -93,7 +93,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -133,16 +133,16 @@ This way you reuse connections and thread pools.
 
 ✅ **Do:** 
 ```java
-var provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
 var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
 ```
 
 ❌ **Don't:**
 ```java
-var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
@@ -180,9 +180,15 @@ Use the following command to run tests:
 ```
 
 ### Network Tests
-Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+Running tests on networks requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are:
+  - `SEPOLIA_TESTNET`
+  - `SEPOLIA_INTEGRATION`
+  - `GOERLI_TESTNET`
+  - `GOERLI_INTEGRATION`
+
+Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
 You will also need to provide an **RPC node URL** and an **account address** (along with its **private key**).
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env

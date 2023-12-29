@@ -19,7 +19,7 @@ class ProviderTest {
         private val network = config.network
         private val rpcUrl = config.rpcUrl
 
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl)
     }
 
     @Test
@@ -35,20 +35,37 @@ class ProviderTest {
     }
 
     @Test
+    fun `get chain id`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+        val request = provider.getChainId()
+        val chainId = request.send()
+
+        val expectedChainId = when (network) {
+            Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
+            Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
+            Network.SEPOLIA_INTEGRATION -> StarknetChainId.SEPOLIA_INTEGRATION
+            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA_TESTNET
+        }
+        assertEquals(expectedChainId, chainId)
+    }
+
+    @Test
     fun `get transaction status`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
-            Network.TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x26396c032286bcefb54616581eea5c7e373f0a21c322c44912cfa0944a52926")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val transactionHash2 = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
-            Network.TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
         // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.INTEGRATION) {
+        if (network != Network.GOERLI_INTEGRATION) {
             assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
         }
         assertNotNull(transactionStatus.executionStatus)
@@ -56,7 +73,7 @@ class ProviderTest {
 
         val transactionStatus2 = provider.getTransactionStatus(transactionHash2).send()
         // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.INTEGRATION) {
+        if (network != Network.GOERLI_INTEGRATION) {
             assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, transactionStatus2.finalityStatus)
         }
         assertNotNull(transactionStatus2.executionStatus)
@@ -69,23 +86,26 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // TODO: (#344) Currently, Juno fails to estimate the message fee.
-        assumeFalse(network == Network.TESTNET)
+        assumeFalse(network == Network.GOERLI_TESTNET)
 
         val gasConsumed = Felt(19931)
         val gasPrice = Felt(1022979559)
         val overallFee = Felt(20389005590429)
 
         val fromAddress = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1")
-            Network.TESTNET -> Felt.fromHex("0xf7d519a1660dd9237d47c039696fe4a2b93b6987")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0xf7d519a1660dd9237d47c039696fe4a2b93b6987")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val toAddress = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82")
-            Network.TESTNET -> Felt.fromHex("0x0677d43766e880bfa6ddcf43e2ff54d54c64105e4a7fce20b7b1d40086a3a674")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x0677d43766e880bfa6ddcf43e2ff54d54c64105e4a7fce20b7b1d40086a3a674")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val selector = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5")
-            Network.TESTNET -> Felt.fromHex("0x026490f901ea8ad5a245d987479919f1d20fbb0c164367e33ef09a9ea4ba8d04")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x026490f901ea8ad5a245d987479919f1d20fbb0c164367e33ef09a9ea4ba8d04")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val message = MessageL1ToL2(
             fromAddress = fromAddress,
@@ -119,8 +139,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x029da9f8997ce580718fa02ed0bd628976418b30a0c5c542510aaef21a4445e4")
-            Network.TESTNET -> Felt.fromHex("0xa8f359bad1181a37e41479b70a5c69a34e824b90accf8fbfba022708b7f08f")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x029da9f8997ce580718fa02ed0bd628976418b30a0c5c542510aaef21a4445e4")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0xa8f359bad1181a37e41479b70a5c69a34e824b90accf8fbfba022708b7f08f")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send()
         assertEquals(transactionHash, tx.hash)
@@ -138,10 +159,11 @@ class ProviderTest {
     fun `get deploy account v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        assumeTrue(network == Network.INTEGRATION)
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x007c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
-            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x007c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
+            Network.GOERLI_TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
 
         val tx = provider.getTransaction(transactionHash).send()
@@ -161,8 +183,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
-            Network.TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x5e2e61a59e3f254f2c65109344be985dff979abd01b9c15b659a95f466689bf")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x6bf08a6547a8be3cd3d718a068c2c0e9d3820252935f766c1ba6dd46f62e05")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send()
         assertEquals(transactionHash, tx.hash)
@@ -174,7 +197,7 @@ class ProviderTest {
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
         // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.INTEGRATION) {
+        if (network != Network.GOERLI_INTEGRATION) {
             assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         }
         assertNotNull(receipt.revertReason)
@@ -185,8 +208,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
-            Network.TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x34223514e92989608e3b36f2a2a53011fa0699a275d7936a18921a11963c792")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x72776cb6462e7e1268bd93dee8ad2df5ee0abed955e3010182161bdb0daea62")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send()
         assertTrue(tx is InvokeTransaction)
@@ -209,10 +233,11 @@ class ProviderTest {
     fun `get invoke v3 transaction with events`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        assumeTrue(network == Network.INTEGRATION)
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x06f99b0650eb02eaf16cc97820075b1dc8c8a4ada22ef0a606f3c0b066d7ce07")
-            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x06f99b0650eb02eaf16cc97820075b1dc8c8a4ada22ef0a606f3c0b066d7ce07")
+            Network.GOERLI_TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
 
         val tx = provider.getTransaction(transactionHash).send()
@@ -248,7 +273,7 @@ class ProviderTest {
 
         assertTrue(receipt.isAccepted)
         // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.INTEGRATION) {
+        if (network != Network.GOERLI_INTEGRATION) {
             assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         }
         assertNull(receipt.revertReason)
@@ -263,8 +288,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
-            Network.TESTNET -> Felt.fromHex("0x6801a86a4a6873f62aaa478151ba03171691edde897c434ec8cf9db3bb77573")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x0417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x6801a86a4a6873f62aaa478151ba03171691edde897c434ec8cf9db3bb77573")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
         assertNotEquals(Felt.ZERO, tx.classHash)
@@ -277,7 +303,7 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
         // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.INTEGRATION) {
+        if (network != Network.GOERLI_INTEGRATION) {
             assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         }
         assertNull(receipt.revertReason)
@@ -288,8 +314,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
-            Network.TESTNET -> Felt.fromHex("0x747a364442ed4d72cd24d7e26f2c6ab0bc98c0a835f2276cd2bc07266331555")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x747a364442ed4d72cd24d7e26f2c6ab0bc98c0a835f2276cd2bc07266331555")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
         assertNotEquals(Felt.ZERO, tx.classHash)
@@ -307,10 +334,11 @@ class ProviderTest {
     fun `get declare v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        assumeTrue(network == Network.INTEGRATION)
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x86693a36721bb586bee1f8c8b9ea33fbbb7f820dde48d9068dfa94a99ef53")
-            Network.TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x86693a36721bb586bee1f8c8b9ea33fbbb7f820dde48d9068dfa94a99ef53")
+            Network.GOERLI_TESTNET -> throw NotImplementedError("No support for testing deploy account v3 on testnet")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
 
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV3
@@ -330,8 +358,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x5753d979e05f7c079b04c8fdafe2b6f4951492b6509f66f1d86e7c061882ee3")
-            Network.TESTNET -> Felt.fromHex("0x47ca5f1e16ba2cf997ebc33e60dfa3e5323fb3eebf63b0b9319fb4f6174ade8")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x5753d979e05f7c079b04c8fdafe2b6f4951492b6509f66f1d86e7c061882ee3")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x47ca5f1e16ba2cf997ebc33e60dfa3e5323fb3eebf63b0b9319fb4f6174ade8")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val tx = provider.getTransaction(transactionHash).send()
         assertTrue(tx is L1HandlerTransaction)
@@ -345,8 +374,9 @@ class ProviderTest {
         assertNull(receipt.revertReason)
 
         val expectedMessageHash = when (network) {
-            Network.TESTNET -> NumAsHex.fromHex("0x6411d0d085d25a8da5f53b45f616d8c8473c12d5af0e9ed84515af0a58a28bf1")
-            Network.INTEGRATION -> NumAsHex.fromHex("0xf6359249ccef7caea9158c76133893d8bcbc09701df4caf111e7e2fc1283eb08")
+            Network.GOERLI_TESTNET -> NumAsHex.fromHex("0x6411d0d085d25a8da5f53b45f616d8c8473c12d5af0e9ed84515af0a58a28bf1")
+            Network.GOERLI_INTEGRATION -> NumAsHex.fromHex("0xf6359249ccef7caea9158c76133893d8bcbc09701df4caf111e7e2fc1283eb08")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
 
         assertEquals(expectedMessageHash, (receipt as ProcessedL1HandlerTransactionReceipt).messageHash)
@@ -357,8 +387,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
-            Network.TESTNET -> Felt.fromHex("0xd73488307e92d91ddf1a84b5670b37d3b1598e56096ad9be9925597133b681")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0xd73488307e92d91ddf1a84b5670b37d3b1598e56096ad9be9925597133b681")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
@@ -405,8 +436,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val blockHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
-            Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val request = provider.getBlockWithTxs(blockHash)
         val response = request.send()
@@ -461,8 +493,9 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val blockHash = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
-            Network.TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x164923d2819eb5dd207275b51348ea2ac6b46965290ffcdf89350c998f28048")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x42be1d27e55744ab5d43ee98b8feb9895e96a034d6bb742a8204f530c680f3c")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val request = provider.getBlockWithTxHashes(blockHash)
         val response = request.send()

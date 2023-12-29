@@ -4,7 +4,6 @@ import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.deployercontract.StandardDeployer
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -25,10 +24,7 @@ object StandardDeployerTest {
         accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
         contractsDirectory = Paths.get("src/test/resources/contracts"),
     )
-    private val provider = JsonRpcProvider(
-        devnetClient.rpcUrl,
-        StarknetChainId.TESTNET,
-    )
+    private val provider = JsonRpcProvider(devnetClient.rpcUrl)
 
     private lateinit var signer: Signer
 

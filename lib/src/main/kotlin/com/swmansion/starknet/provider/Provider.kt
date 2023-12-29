@@ -10,8 +10,6 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
  * Implementers of this interface provide methods for interacting with Starknet, for example through Starknet JSON-RPC.
  */
 interface Provider {
-    val chainId: StarknetChainId
-
     /**
      * Get a transaction.
      *
@@ -631,6 +629,15 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getSyncing(): Request<Syncing>
+
+    /**
+     * Get the chain id.
+     *
+     * Get the currently configured Starknet chain id.
+     *
+     * @throws RequestFailedException
+     */
+    fun getChainId(): Request<StarknetChainId>
 
     /**
      * Get a block with transactions.
