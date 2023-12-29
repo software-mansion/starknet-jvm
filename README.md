@@ -189,15 +189,15 @@ To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment va
   - `GOERLI_INTEGRATION`
 
 Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
-You will also need to provide the following variables for the network you're planning to use (by adding `NETWORK_NAME_` as a prefix):
+To properly configure your network, ensure the following variables are set with the `NETWORK_NAME_` prefix:  
   - `RPC_URL` - url of your RPC node
   - `ACCOUNT_ADDRESS` and `PRIVATE_KEY` - address and private key of your account
 
 Additionally, you can also set:
-  - `CONSTANT_NONCE_ACCOUNT_ADDRESS` and `CONSTANT_NONCE_PRIVATE_KEY` - address and private key exclusively for non-gas network tests, preventing potential inconsistencies (sometimes, `getNonce` may report higher nonce than expected).
+  - `CONST_NONCE_ACCOUNT_ADDRESS` and `CONST_NONCE_PRIVATE_KEY` - address and private key exclusively for non-gas network tests, preventing potential inconsistencies (sometimes, `getNonce` may report higher nonce than expected).
   Recommended for reliable non-gas testing. 
   These default to `ACCOUNT_ADDRESS` and `PRIVATE_KEY` if not set.
-  - `ACCOUNT_CAIRO_VERSION` - Cairo version of the `ACCOUNT_ADDRESS` and `CONSTANT_NONCE_ACCOUNT_ADDRESS` accounts. Defaults to `0`.
+  - `ACCOUNT_CAIRO_VERSION` - Cairo version of the `ACCOUNT_ADDRESS` and `CONST_NONCE_ACCOUNT_ADDRESS` accounts. Defaults to `0`.
 
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
