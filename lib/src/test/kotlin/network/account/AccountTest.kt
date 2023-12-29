@@ -61,7 +61,7 @@ class AccountTest {
         }
         private val predeployedMapContractAddress = when (network) {
             Network.GOERLI_INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x2BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x06b248bde9ce00d69099304a527640bc9515a08f0b49e5168e2096656f207e1d")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x061bbcfc1e11d8de0efcb502f9e1163b4033c74c7977cbb2b8c545164236a88c")
         }

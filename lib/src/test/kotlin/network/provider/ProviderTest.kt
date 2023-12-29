@@ -306,7 +306,7 @@ class ProviderTest {
         assertTrue(receipt is ProcessedDeclareTransactionReceipt)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
-        // assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
+        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
     }
 
