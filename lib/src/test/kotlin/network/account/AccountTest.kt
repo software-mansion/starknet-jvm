@@ -723,7 +723,8 @@ class AccountTest {
         )
         val invokeTx2 = account.sign(call2, params2)
 
-        val simulationFlags  = emptySet<SimulationFlag>()
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
 
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(invokeTx, invokeTx2),
@@ -785,19 +786,17 @@ class AccountTest {
         assertEquals(1, simulationResult.size)
         assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
 
+        val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
 
-            val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+        val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
+        val simulationResult2 = provider.simulateTransactions(
+            transactions = listOf(deployAccountTxWithoutSignature),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags2,
+        ).send()
 
-            val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
-            val simulationResult2 = provider.simulateTransactions(
-                transactions = listOf(deployAccountTxWithoutSignature),
-                blockTag = BlockTag.LATEST,
-                simulationFlags = simulationFlags2,
-            ).send()
-
-            assertEquals(1, simulationResult2.size)
-            assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
-
+        assertEquals(1, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
     }
 
     @Test
@@ -826,8 +825,8 @@ class AccountTest {
             ),
         )
 
-        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
-        val simulationFlags  = emptySet<SimulationFlag>()
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(declareTransactionPayload),
             blockTag = BlockTag.LATEST,
@@ -865,7 +864,8 @@ class AccountTest {
             ),
         )
 
-        val simulationFlags  = emptySet<SimulationFlag>()
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(declareTransactionPayload),
             blockTag = BlockTag.LATEST,
