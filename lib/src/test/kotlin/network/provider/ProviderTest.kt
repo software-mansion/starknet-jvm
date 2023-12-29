@@ -79,60 +79,6 @@ class ProviderTest {
         assertEquals(TransactionExecutionStatus.REVERTED, transactionStatus2.executionStatus)
     }
 
-    @Disabled
-    @Test
-    fun `estimate message fee`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        // TODO: (#344) Currently, Juno fails to estimate the message fee.
-        assumeFalse(network == Network.GOERLI_TESTNET)
-
-        val gasConsumed = Felt(19931)
-        val gasPrice = Felt(1022979559)
-        val overallFee = Felt(20389005590429)
-
-        val fromAddress = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromHex("0xbe1259ff905cadbbaa62514388b71bdefb8aacc1")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0xf7d519a1660dd9237d47c039696fe4a2b93b6987")
-            else -> throw NotImplementedError("Sepolia networks are not yet supported")
-        }
-        val toAddress = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x073314940630fd6dcda0d772d4c972c4e0a9946bef9dabf4ef84eda8ef542b82")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x0677d43766e880bfa6ddcf43e2ff54d54c64105e4a7fce20b7b1d40086a3a674")
-            else -> throw NotImplementedError("Sepolia networks are not yet supported")
-        }
-        val selector = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x02d757788a8d8d6f21d1cd40bce38a8222d70654214e96ff95d8086e684fbee5")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x026490f901ea8ad5a245d987479919f1d20fbb0c164367e33ef09a9ea4ba8d04")
-            else -> throw NotImplementedError("Sepolia networks are not yet supported")
-        }
-        val message = MessageL1ToL2(
-            fromAddress = fromAddress,
-            toAddress = toAddress,
-            selector = selector,
-            payload = listOf(
-                Felt.fromHex("0x54d01e5fc6eb4e919ceaab6ab6af192e89d1beb4f29d916768c61a4d48e6c95"),
-                Felt.fromHex("0x38d7ea4c68000"),
-                Felt.fromHex("0x0"),
-            ),
-        )
-
-        val request = provider.getEstimateMessageFee(
-            message = message,
-            blockNumber = 10000,
-        )
-        val response = request.send()
-
-        assertNotNull(response)
-        assertNotNull(response.gasConsumed)
-        assertNotNull(response.gasPrice)
-        assertNotNull(response.overallFee)
-
-        assertEquals(gasPrice, response.gasPrice)
-        assertEquals(gasConsumed, response.gasConsumed)
-        assertEquals(overallFee, response.overallFee)
-    }
-
     @Test
     fun `get deploy account v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
