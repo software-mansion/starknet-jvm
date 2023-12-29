@@ -46,11 +46,11 @@ sealed class Transaction {
     abstract val type: TransactionType
 }
 
-// @Serializable
-// data class TransactionV1 {
-//    @SerialName("max_fee")
-//    val maxFee: Felt
-// }
+@Serializable
+sealed interface DeprecatedTransaction {
+    @SerialName("max_fee")
+    val maxFee: Felt
+}
 
 @Serializable
 sealed interface TransactionV3 {
@@ -124,7 +124,7 @@ data class InvokeTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt,
+    override val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ONE,
@@ -135,7 +135,7 @@ data class InvokeTransactionV1(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction() {
+) : InvokeTransaction(), DeprecatedTransaction {
     fun toPayload(): InvokeTransactionV1Payload {
         return InvokeTransactionV1Payload(
             calldata = calldata,
@@ -289,7 +289,7 @@ data class DeclareTransactionV0(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt,
+    override val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ZERO,
@@ -302,7 +302,7 @@ data class DeclareTransactionV0(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction()
+) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
 data class DeclareTransactionV1(
@@ -317,7 +317,7 @@ data class DeclareTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt,
+    override val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt.ONE,
@@ -330,7 +330,7 @@ data class DeclareTransactionV1(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction() {
+) : DeclareTransaction(), DeprecatedTransaction {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV1Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
@@ -360,7 +360,7 @@ data class DeclareTransactionV2(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt,
+    override val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt = Felt(2),
@@ -376,7 +376,7 @@ data class DeclareTransactionV2(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction() {
+) : DeclareTransaction(), DeprecatedTransaction {
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
@@ -476,7 +476,7 @@ data class L1HandlerTransaction(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt = Felt.ZERO,
+    override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
     override val version: Felt,
@@ -489,7 +489,7 @@ data class L1HandlerTransaction(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
-) : Transaction()
+) : Transaction(), DeprecatedTransaction
 
 @Serializable
 @SerialName("DEPLOY_ACCOUNT")
@@ -530,7 +530,7 @@ data class DeployAccountTransactionV1(
     override val hash: Felt? = null,
 
     @SerialName("max_fee")
-    val maxFee: Felt,
+    override val maxFee: Felt,
 
     @SerialName("version")
     override val version: Felt,
@@ -540,7 +540,7 @@ data class DeployAccountTransactionV1(
 
     @SerialName("nonce")
     override val nonce: Felt,
-) : DeployAccountTransaction() {
+) : DeployAccountTransaction(), DeprecatedTransaction {
     internal fun toPayload(): DeployAccountTransactionV1Payload {
         return DeployAccountTransactionV1Payload(
             classHash = classHash,
