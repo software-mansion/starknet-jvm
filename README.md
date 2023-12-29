@@ -189,7 +189,16 @@ To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment va
   - `GOERLI_INTEGRATION`
 
 Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
-You will also need to provide an **RPC node URL** and an **account address** (along with its **private key**).
+You will also need to provide the following variables for the network you're planning to use (by adding `NETWORK_NAME_` as a prefix):
+  - `RPC_URL` - url of your RPC node
+  - `ACCOUNT_ADDRESS` and `PRIVATE_KEY` - address and private key of your account
+
+Additionally, you can also set:
+  - `CONSTANT_NONCE_ACCOUNT_ADDRESS` and `CONSTANT_NONCE_PRIVATE_KEY` - address and private key exclusively for non-gas network tests, preventing potential inconsistencies (sometimes, `getNonce` may report higher nonce than expected).
+  Recommended for reliable non-gas testing. 
+  These default to `ACCOUNT_ADDRESS` and `PRIVATE_KEY` if not set.
+  - `ACCOUNT_CAIRO_VERSION` - Cairo version of the `ACCOUNT_ADDRESS` and `CONSTANT_NONCE_ACCOUNT_ADDRESS` accounts. Defaults to `0`.
+
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
 NETWORK_TEST_MODE=non_gas
@@ -205,12 +214,7 @@ Alternatively, you can use flag to specify whether to run network and gas tests:
 ./gradlew :lib:test -PnetworkTestMode=non_gas
 ./gradlew :lib:test -PnetworkTestMode=all
 ```
-Flag takes precendece over the env variable if both are set.
-
-⚠️ WARNING ⚠️ Some network tests may fail due to `getNonce` receiving higher nonce than expected by other methods.
-It is adviced to additionaly provide an account (along with its **private key**) with a constant **nonce** to ensure non-gas tests pass.
-Such account shouldn't be used for any other purpose than running non-gas network tests.
-If not set, the main account provided in the config will be used for this purpose.
+Flag takes precendece over the environment variable if both are set.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 
