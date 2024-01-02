@@ -33,7 +33,7 @@ class AccountTest {
         private val signer = StarkCurveSigner(config.privateKey)
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl)
 
         val standardAccount = StandardAccount(
             accountAddress,
@@ -52,8 +52,9 @@ class AccountTest {
 
         private val accountContractClassHash = Felt.fromHex("0x05a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8") // Account contract written in Cairo 0, hence the same class hash for tesnet and integration.
         private val predeployedMapContractAddress = when (network) {
-            Network.INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
-            Network.TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
+            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
         private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
@@ -71,7 +72,11 @@ class AccountTest {
             entrypoint = "put",
             calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
         )
-        val estimateFeeRequest = account.estimateFee(listOf(call))
+        val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
+        val estimateFeeRequest = account.estimateFee(
+            listOf(call),
+            simulationFlags,
+        )
         val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)
     }
@@ -91,7 +96,7 @@ class AccountTest {
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -105,7 +110,7 @@ class AccountTest {
             classHash = classHash,
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.chainId,
+            chainId = provider.getChainId().send(),
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -151,7 +156,7 @@ class AccountTest {
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
             casmContractDefinition = casmContractDefinition,
-            chainId = provider.chainId,
+            chainId = provider.getChainId().send(),
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -223,7 +228,7 @@ class AccountTest {
         // Chances are, the contract was compiled with a different compiler version.
         // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
             classHash,
@@ -691,9 +696,10 @@ class AccountTest {
 
         val simulationFlags = when (network) {
             // Pathfinder currently always requires SKIP_FEE_CHARGE flag
-            Network.INTEGRATION -> setOf(SimulationFlag.SKIP_FEE_CHARGE)
+            Network.GOERLI_INTEGRATION -> setOf(SimulationFlag.SKIP_FEE_CHARGE)
             // Juno currently always fails on simulating invoke when SKIP_FEE_CHARGE flag is passed
-            Network.TESTNET -> emptySet()
+            Network.GOERLI_TESTNET -> emptySet()
+            else -> throw NotImplementedError("Sepolia networks are not yet supported")
         }
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(invokeTx, invokeTx2),
@@ -708,7 +714,7 @@ class AccountTest {
         assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
 
         // Juno currently does not support SKIP_VALIDATE flag
-        if (network != Network.TESTNET) {
+        if (network != Network.GOERLI_TESTNET) {
             val invokeTxWithoutSignature = InvokeTransactionV1Payload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
             val invokeTxWihtoutSignature2 = InvokeTransactionV1Payload(invokeTx2.senderAddress, invokeTx2.calldata, emptyList(), invokeTx2.maxFee, invokeTx2.version, invokeTx2.nonce)
             val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
@@ -760,7 +766,7 @@ class AccountTest {
         assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
 
         // Juno currently does not support SKIP_VALIDATE flag
-        if (network != Network.TESTNET) {
+        if (network != Network.GOERLI_TESTNET) {
             val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
 
             val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
@@ -790,7 +796,7 @@ class AccountTest {
         // If this test starts randomly falling, try recalculating class hash.
         // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
         // Chances are, the contract was compiled with a different compiler version.
-        val classHash = Felt.fromHex("0x3b42e8a947465f018f6312c3fb5c4960d32626b3dfef46d4aba709ba2f63e9b")
+        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
 
         val declareTransactionPayload = account.signDeclare(
             contractDefinition,
@@ -878,10 +884,10 @@ class AccountTest {
     fun `test udc deploy with constructor`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
-        assumeTrue(network == Network.TESTNET)
+        assumeTrue(network == Network.GOERLI_TESTNET)
         val classHash = when (network) {
-            Network.TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-            else -> throw IllegalStateException("Unsupported network: $network")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
+            else -> throw NotImplementedError("Unsupported network: $network")
         }
 
         val account = standardAccount

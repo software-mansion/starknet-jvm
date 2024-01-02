@@ -1,7 +1,6 @@
 package starknet.provider.handlers
 
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -21,7 +20,7 @@ class HttpErrorHandlerTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(false, 500, message)
         }
-        val provider = JsonRpcProvider("", StarknetChainId.TESTNET, httpServiceMock)
+        val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
         val exception = assertThrows(RequestFailedException::class.java) {
@@ -47,7 +46,7 @@ class HttpErrorHandlerTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, message)
         }
-        val provider = JsonRpcProvider("", StarknetChainId.TESTNET, httpServiceMock)
+        val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {
@@ -75,7 +74,7 @@ class HttpErrorHandlerTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, message)
         }
-        val provider = JsonRpcProvider("", StarknetChainId.TESTNET, httpServiceMock)
+        val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {
@@ -107,7 +106,7 @@ class HttpErrorHandlerTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, message)
         }
-        val provider = JsonRpcProvider("", StarknetChainId.TESTNET, httpServiceMock)
+        val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {
@@ -134,7 +133,7 @@ class HttpErrorHandlerTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, message)
         }
-        val provider = JsonRpcProvider("", StarknetChainId.TESTNET, httpServiceMock)
+        val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
         val exception = assertThrows(RpcRequestFailedException::class.java) {

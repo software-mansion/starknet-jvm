@@ -2,7 +2,6 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.PriceUnit
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
@@ -46,7 +45,7 @@ class DevnetClient(
 
     lateinit var defaultAccountDetails: AccountDetails
 
-    val provider: Provider by lazy { JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET) }
+    val provider: Provider by lazy { JsonRpcProvider(rpcUrl) }
 
     private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS

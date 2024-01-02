@@ -8,6 +8,7 @@ import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload;
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.deployercontract.ContractDeployment;
+import com.swmansion.starknet.deployercontract.Deployer;
 import com.swmansion.starknet.deployercontract.StandardDeployer;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
@@ -37,7 +38,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // Create a provider for interacting with Starknet
-        JsonRpcProvider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl, StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl, StarknetChainId.TESTNET);
 
         // Set up an account
         // Please note the account must be deployed and have enough funds to paying the fees
@@ -167,7 +168,7 @@ public class Main {
         Felt salt = new Felt(20);
 
         // Deploy a contract
-        StandardDeployer contractDeployer = new StandardDeployer(udcAddress, provider, account);
+        Deployer contractDeployer = new StandardDeployer(udcAddress, provider, account);
         Request<ContractDeployment> deployRequest = contractDeployer.deployContract(classHash, true, salt, constructorCalldata);
         ContractDeployment deployResponse = deployRequest.send();
 
