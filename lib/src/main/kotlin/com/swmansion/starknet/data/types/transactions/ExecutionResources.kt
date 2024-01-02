@@ -1,35 +1,38 @@
 package com.swmansion.starknet.data.types.transactions
 
-import com.swmansion.starknet.data.types.NumAsHex
+import com.swmansion.starknet.data.serializers.ExecutionResourcesSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
+@Serializable(with = ExecutionResourcesSerializer::class)
 data class ExecutionResources(
     @SerialName("steps")
-    val steps: NumAsHex,
+    val steps: Int,
 
     @SerialName("memory_holes")
-    val memoryHoles: NumAsHex? = null,
+    val memoryHoles: Int? = null,
 
     @SerialName("range_check_builtin_applications")
-    val rangeCheckApplications: NumAsHex,
+    val rangeCheckApplications: Int? = null,
 
     @SerialName("pedersen_builtin_applications")
-    val pedersenApplications: NumAsHex,
+    val pedersenApplications: Int? = null,
 
     @SerialName("poseidon_builtin_applications")
-    val poseidonApplications: NumAsHex,
+    val poseidonApplications: Int? = null,
 
     @SerialName("ec_op_builtin_applications")
-    val ecOpApplications: NumAsHex,
+    val ecOpApplications: Int? = null,
 
     @SerialName("ecdsa_builtin_applications")
-    val ecdsaApplications: NumAsHex,
+    val ecdsaApplications: Int? = null,
 
     @SerialName("bitwise_builtin_applications")
-    val bitwiseApplications: NumAsHex,
+    val bitwiseApplications: Int? = null,
 
     @SerialName("keccak_builtin_applications")
-    val keccakApplications: NumAsHex,
+    val keccakApplications: Int? = null,
+
+    @SerialName("segment_arena_builtin")
+    val segmentArenaApplications: Int? = null,
 )

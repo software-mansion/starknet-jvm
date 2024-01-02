@@ -1,44 +1,22 @@
 package network.utils
 
-import com.swmansion.starknet.data.NetUrls
 import com.swmansion.starknet.data.types.Felt
 
 class NetworkConfig {
     data class Config(
         val network: Network,
         val rpcUrl: String,
-        val gatewayUrl: String,
-        val feederGatewayUrl: String,
         val accountAddress: Felt,
         val privateKey: Felt,
         val constNonceAccountAddress: Felt? = null,
         val constNoncePrivateKey: Felt? = null,
-    ) {
-        companion object {
-
-            @JvmStatic
-            fun getDefaultGatewayURL(network: Network): String {
-                val baseUrl = when (network) {
-                    Network.INTEGRATION -> NetUrls.INTEGRATION_URL
-                    Network.TESTNET -> NetUrls.TESTNET_URL
-                }
-                return "$baseUrl/gateway"
-            }
-
-            @JvmStatic
-            fun getDefaultFeederGatewayURL(network: Network): String {
-                val baseUrl = when (network) {
-                    Network.INTEGRATION -> NetUrls.INTEGRATION_URL
-                    Network.TESTNET -> NetUrls.TESTNET_URL
-                }
-                return "$baseUrl/feeder_gateway"
-            }
-        }
-    }
+    )
 
     enum class Network(val value: String) {
-        INTEGRATION("INTEGRATION"),
-        TESTNET("TESTNET"),
+        GOERLI_INTEGRATION("GOERLI_INTEGRATION"),
+        GOERLI_TESTNET("GOERLI_TESTNET"),
+        SEPOLIA_INTEGRATION("SEPOLIA_INTEGRATION"),
+        SEPOLIA_TESTNET("SEPOLIA_TESTNET"),
     }
 
     enum class NetworkTestMode {
@@ -50,7 +28,7 @@ class NetworkConfig {
         companion object {
             @JvmStatic
             fun fromString(value: String): NetworkTestMode {
-                return values().firstOrNull { it.name.equals(value, ignoreCase = true) } ?: DISABLED
+                return entries.firstOrNull { it.name.equals(value, ignoreCase = true) } ?: DISABLED
             }
         }
     }
@@ -72,10 +50,8 @@ class NetworkConfig {
         private fun makeConfigFromEnv(): Config {
             if (testMode == NetworkTestMode.DISABLED) {
                 return Config(
-                    network = Network.INTEGRATION,
+                    network = Network.GOERLI_INTEGRATION,
                     rpcUrl = "",
-                    gatewayUrl = "",
-                    feederGatewayUrl = "",
                     accountAddress = Felt.ZERO,
                     privateKey = Felt.ZERO,
                 )
@@ -87,15 +63,9 @@ class NetworkConfig {
             )
             return Config(
                 network = network,
-                rpcUrl = env.getOrElse("${network.value}_RPC_URL") { throw RuntimeException("${network.value}_RPC_URL not found in environment variables") },
-                gatewayUrl = env.getOrDefault("${network.value}_GATEWAY_URL", Config.getDefaultGatewayURL(network)),
-                feederGatewayUrl = env.getOrDefault("${network.value}_FEEDER_GATEWAY_URL", Config.getDefaultFeederGatewayURL(network)),
-                accountAddress = Felt.fromHex(
-                    env.getOrElse("${network.value}_ACCOUNT_ADDRESS") { throw RuntimeException("${network.value}_ACCOUNT_ADDRESS not found in environment variables") },
-                ),
-                privateKey = Felt.fromHex(
-                    env.getOrElse("${network.value}_PRIVATE_KEY") { throw RuntimeException("${network.value}_PRIVATE_KEY not found in environment variables") },
-                ),
+                rpcUrl = "${network.value}_RPC_URL".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } },
+                accountAddress = "${network.value}_ACCOUNT_ADDRESS".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } }.let { Felt.fromHex(it) },
+                privateKey = "${network.value}_PRIVATE_KEY".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } }.let { Felt.fromHex(it) },
                 constNonceAccountAddress = env["${network.value}_CONST_NONCE_ACCOUNT_ADDRESS"]?.let { Felt.fromHex(it) },
                 constNoncePrivateKey = env["${network.value}_CONST_NONCE_PRIVATE_KEY"]?.let { Felt.fromHex(it) },
             )

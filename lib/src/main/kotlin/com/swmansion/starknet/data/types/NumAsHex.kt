@@ -6,15 +6,6 @@ import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
-sealed class NumAsHexBase(open val value: BigInteger) : Comparable<NumAsHexBase> {
-    override fun compareTo(other: NumAsHexBase): Int {
-        return value.compareTo(other.value)
-    }
-
-    abstract fun hexString(): String
-    abstract fun decString(): String
-}
-
 @Serializable(with = NumAsHexSerializer::class)
 data class NumAsHex(override val value: BigInteger) : NumAsHexBase(value) {
     constructor(value: Long) : this(BigInteger.valueOf(value))
@@ -26,23 +17,11 @@ data class NumAsHex(override val value: BigInteger) : NumAsHexBase(value) {
         }
     }
 
-    override fun toString(): String {
-        return "NumAsHex(${value.toHex()})"
-    }
+    override fun toString() = "NumAsHex(${value.toHex()})"
 
-    /**
-     * Encode as hexadecimal string, including "0x" prefix.
-     */
-    override fun hexString(): String {
-        return value.toHex()
-    }
+    override fun hexString() = value.toHex()
 
-    /**
-     * Encode as decimal string.
-     */
-    override fun decString(): String {
-        return value.toString(10)
-    }
+    override fun decString(): String = value.toString(10)
 
     companion object {
         @field:JvmField
@@ -58,13 +37,5 @@ data class NumAsHex(override val value: BigInteger) : NumAsHexBase(value) {
          */
         @JvmStatic
         fun fromHex(value: String): NumAsHex = NumAsHex(parseHex(value))
-
-        /**
-         * Create NumAsHex from Felt.
-         *
-         * @param value Felt.
-         */
-        @JvmStatic
-        fun fromFelt(value: Felt): NumAsHex = NumAsHex(value.value)
     }
 }

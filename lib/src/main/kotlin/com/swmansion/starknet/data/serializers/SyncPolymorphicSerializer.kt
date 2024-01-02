@@ -6,14 +6,14 @@ import com.swmansion.starknet.data.types.SyncingResponse
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.*
 
-internal object JsonRpcSyncPolymorphicSerializer : JsonContentPolymorphicSerializer<Syncing>(Syncing::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Syncing> = when (element) {
-        JsonPrimitive(false) -> JsonRpcNotSyncingTransformingSerializer
+internal object SyncPolymorphicSerializer : JsonContentPolymorphicSerializer<Syncing>(Syncing::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Syncing> = when (element) {
+        JsonPrimitive(false) -> NotSyncingTransformingSerializer
         else -> SyncingResponse.serializer()
     }
 }
 
-internal object JsonRpcNotSyncingTransformingSerializer :
+internal object NotSyncingTransformingSerializer :
     JsonTransformingSerializer<NotSyncingResponse>(NotSyncingResponse.serializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement = buildJsonObject { put("status", element) }
 }

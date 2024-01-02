@@ -1,8 +1,6 @@
 package starknet.utils.data
 
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.transactions.GatewayFailureReason
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -47,5 +45,5 @@ data class AccountDetails(
 )
 
 class DevnetSetupFailedException(message: String) : Exception(message)
-class LegacyDevnetOperationFailed(val failureReason: GatewayFailureReason?, val status: TransactionStatus) :
-    Exception(failureReason?.errorMessage ?: "Devnet operation failed")
+
+class DevnetTransactionFailedException(message: String) : Exception(message)

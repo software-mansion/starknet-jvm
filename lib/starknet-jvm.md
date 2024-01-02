@@ -1,11 +1,9 @@
 # Module starknet-jvm
 
-Starknet-jvm is a library allowing for easy interaction with Starknet gateway and nodes, including
+Starknet-jvm is a library allowing for easy interaction with the Starknet JSON-RPC nodes, including
 querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
-
-⚠️Gateway provider is currently marked as deprecated and will soon be removed. Please use JSON-RPC provider instead.
 
 ## Making synchronous requests
 
@@ -23,7 +21,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -51,7 +49,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
@@ -89,7 +87,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -117,7 +115,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
     // Create an account interface
     val accountAddress = Felt.fromHex("0x1052524524")
     val privateKey = Felt.fromHex("0x4232362662")
@@ -154,7 +152,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Create an account interface
         Felt privateKey = Felt.fromHex("0x123");
@@ -194,7 +192,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Create an account interface
     val privateKey = Felt.fromHex("0x123")
@@ -246,7 +244,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -282,7 +280,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -337,7 +335,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -367,7 +365,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -421,7 +419,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -460,7 +458,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -526,7 +524,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -566,7 +564,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET)
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
     val privateKey = Felt.fromHex("0x1234")
@@ -627,7 +625,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
         Account account = new StandardAccount(address, privateKey, provider);
@@ -809,22 +807,6 @@ try {
 
 In the case of `Request.sendAsync()`, an exception would have to be handled in the returned `CompletableFuture`.
 
-# Package com.swmansion.starknet.provider.gateway
-
-Provider utilising Starknet gateway and feeder gateway for communication with the network.
-
-```java
-// Create a provider using GatewayProvider static methods
-GatewayProvider.makeTestnetProvider();
-// Custom HttpService can be specified
-GatewayProvider.makeTestnetProvider(myHttpService);
-
-// Provider can be also created using a constructor
-new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET);
-// or with a custom HttpService
-new GatewayProvider("feederGatewayUrl", "gatewayUrl", StarknetChainId.TESTNET, myHttpService); 
-```
-
 # Package com.swmansion.starknet.provider.rpc
 
 Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
@@ -832,9 +814,9 @@ to communicate with the network.
 
 ```java
 // JsonRpcProvider can only be created using constructor
-new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+new JsonRpcProvider("https://example-node-url.com/rpc");
 // or with a custom HttpService
-new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET, myHttpService);
+new JsonRpcProvider("https://example-node-url.com/rpc", myHttpService);
 ```
 
 # Package com.swmansion.starknet.service.http

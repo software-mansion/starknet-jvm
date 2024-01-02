@@ -9,6 +9,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 typealias Calldata = List<Felt>
+typealias PaymasterData = List<Felt>
+typealias AccountDeploymentData = List<Felt>
 typealias Signature = List<Felt>
 typealias CallArguments = List<ConvertibleToCalldata>
 
@@ -92,11 +94,6 @@ data class Call(
     }
 }
 
-data class ExecutionParams(
-    val nonce: Felt,
-    val maxFee: Felt,
-)
-
 object AccountCalldataTransformer {
     @JvmSynthetic
     private fun callsToExecuteCalldataCairo1(calls: List<Call>): List<Felt> {
@@ -136,7 +133,7 @@ object AccountCalldataTransformer {
     }
 
     @JvmStatic
-    public fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
+    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
         if (cairoVersion == Felt.ONE) {
             return callsToExecuteCalldataCairo1(calls)
         }

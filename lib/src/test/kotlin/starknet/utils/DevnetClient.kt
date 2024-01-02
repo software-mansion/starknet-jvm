@@ -1,6 +1,11 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.PriceUnit
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
 import kotlinx.serialization.json.*
@@ -14,7 +19,6 @@ import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class DevnetClient(
@@ -41,11 +45,20 @@ class DevnetClient(
 
     lateinit var defaultAccountDetails: AccountDetails
 
+    val provider: Provider by lazy { JsonRpcProvider(rpcUrl) }
+
+    private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
+    private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
+
+    private enum class StateArchiveCapacity(val value: String) { FULL("full"), NONE("none") }
+    private val stateArchiveCapacity = StateArchiveCapacity.FULL
+
     companion object {
-        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/323f907bc3e3e4dc66b403ec6f8b58744e8d6f9a/crates/starknet/src/constants.rs
+        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/85495efb71a37ad3921c8986474b7e78a9a9f5fc/crates/starknet/src/constants.rs
         val accountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
-        val erc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
-        val erc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+        val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
+        val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+        val strkErc20ContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         val udcContractClassHash = Felt.fromHex("0x7b3e05f48f0c69e4a65ce5e076a66271a527aff2c34ce1083ec6e1526997a69")
         val udcContractAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
 
@@ -86,6 +99,9 @@ class DevnetClient(
             port.toString(),
             "--seed",
             seed.toString(),
+            // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
+            "--state-archive-capacity",
+            stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(3, TimeUnit.SECONDS)
@@ -95,11 +111,14 @@ class DevnetClient(
         }
         isDevnetRunning = true
 
-        if (accountDirectory.exists()) {
-            accountDirectory.toFile().walkTopDown().forEach { it.delete() }
-        }
+        // TODO: Use the previous approach once sncast is updated to RPC 0.6.0
+        // if (accountDirectory.exists()) {
+        //    accountDirectory.toFile().walkTopDown().forEach { it.delete() }
+        // }
 
-        defaultAccountDetails = createDeployAccount("__default__").details
+        // defaultAccountDetails = createDeployAccount("__default__").details
+
+        defaultAccountDetails = deployAccount("__default__", prefund = true).details
     }
 
     override fun close() {
@@ -113,14 +132,23 @@ class DevnetClient(
         isDevnetRunning = false
     }
 
-    fun prefundAccount(accountAddress: Felt) {
+    fun prefundAccountEth(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.WEI)
+    }
+    fun prefundAccountStrk(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.FRI)
+    }
+
+    private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
+        val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
             url = mintUrl,
             body =
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000
+              "amount": 500000000000000000000000000000,
+              "unit": $unit
             }
             """.trimIndent(),
             method = "POST",
@@ -164,7 +192,14 @@ class DevnetClient(
         name: String,
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
+        prefund: Boolean = false,
+        accountName: String = "__default__",
     ): DeployAccountResult {
+        if (prefund) {
+            prefundAccountEth(readAccountDetails(name).address)
+            prefundAccountStrk(readAccountDetails(name).address)
+        }
+
         val params = listOf(
             "deploy",
             "--name",
@@ -177,7 +212,10 @@ class DevnetClient(
         val response = runSnCast(
             command = "account",
             args = params,
+            accountName = accountName,
         ) as AccountDeploySnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
             details = readAccountDetails(name),
@@ -190,12 +228,14 @@ class DevnetClient(
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployAccountResult {
-        val accountName = name ?: UUID.randomUUID().toString()
-        val createResult = createAccount(accountName, classHash, salt)
+        val newAccountName = name ?: UUID.randomUUID().toString()
+        val createResult = createAccount(newAccountName, classHash, salt)
         val details = createResult.details
-        val prefundResult = prefundAccount(details.address)
-        val deployResult = deployAccount(accountName, classHash, maxFee)
+        val deployResult = deployAccount(newAccountName, classHash, maxFee, prefund = true, accountName)
+
+        requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
             details = details,
@@ -206,6 +246,7 @@ class DevnetClient(
     fun declareContract(
         contractName: String,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeclareContractResult {
         val params = listOf(
             "--contract-name",
@@ -216,7 +257,10 @@ class DevnetClient(
         val response = runSnCast(
             command = "declare",
             args = params,
+            accountName = accountName,
         ) as DeclareSnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash, "Declare")
 
         return DeclareContractResult(
             classHash = response.classHash,
@@ -230,6 +274,7 @@ class DevnetClient(
         salt: Felt? = null,
         unique: Boolean = false,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployContractResult {
         val params = mutableListOf(
             "--class-hash",
@@ -251,7 +296,10 @@ class DevnetClient(
         val response = runSnCast(
             command = "deploy",
             args = params,
+            accountName = accountName,
         ) as DeploySnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash, "Deploy Contract")
 
         return DeployContractResult(
             transactionHash = response.transactionHash,
@@ -266,10 +314,12 @@ class DevnetClient(
         unique: Boolean = false,
         maxFeeDeclare: Felt = Felt(1000000000000000),
         maxFeeDeploy: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): DeployContractResult {
-        val declareResponse = declareContract(contractName, maxFeeDeclare)
+        val declareResponse = declareContract(contractName, maxFeeDeclare, accountName)
+
         val classHash = declareResponse.classHash
-        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy)
+        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy, accountName)
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -282,6 +332,7 @@ class DevnetClient(
         function: String,
         calldata: List<Felt>,
         maxFee: Felt = Felt(1000000000000000),
+        accountName: String = "__default__",
     ): InvokeContractResult {
         val params = mutableListOf(
             "--contract-address",
@@ -298,14 +349,21 @@ class DevnetClient(
         val response = runSnCast(
             command = "invoke",
             args = params,
+            accountName = accountName,
         ) as InvokeSnCastResponse
+
+        requireTransactionSuccessful(response.transactionHash, "Invoke")
 
         return InvokeContractResult(
             transactionHash = response.transactionHash,
         )
     }
 
-    private fun runSnCast(command: String, args: List<String>, accountName: String = "__default__"): SnCastResponse {
+    private fun runSnCast(
+        command: String,
+        args: List<String>,
+        accountName: String = "__default__",
+    ): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
             "--json",
@@ -348,5 +406,33 @@ class DevnetClient(
     private fun readAccountDetails(accountName: String): AccountDetails {
         val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
+    }
+
+    private fun requireTransactionSuccessful(transactionHash: Felt, type: String) {
+        // Receipt provides a more detailed error message than status, but is less reliable than getTransactionStatus
+        // Use status by default, use receipt for debugging purposes if needed
+        when (transactionVerificiationMode) {
+            TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash, type)
+            TransactionVerificiationMode.STATUS -> requireTransactionStatusSuccessful(transactionHash, type)
+            TransactionVerificiationMode.DISABLED -> {}
+        }
+    }
+
+    private fun requireTransactionReceiptSuccessful(transactionHash: Felt, type: String) {
+        val request = provider.getTransactionReceipt(transactionHash)
+        val receipt = request.send()
+        if (!receipt.isAccepted) {
+            throw DevnetTransactionFailedException("$type transaction failed. Reason: ${receipt.revertReason}")
+        }
+    }
+
+    private fun requireTransactionStatusSuccessful(transactionHash: Felt, type: String) {
+        val request = provider.getTransactionStatus(transactionHash)
+        val status = request.send()
+        if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED &&
+            (status.finalityStatus == TransactionStatus.ACCEPTED_ON_L1 || status.finalityStatus == TransactionStatus.ACCEPTED_ON_L2)
+        ) {
+            throw DevnetTransactionFailedException("$type transaction failed.")
+        }
     }
 }

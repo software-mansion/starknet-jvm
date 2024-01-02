@@ -38,7 +38,7 @@ internal class MerkleTreeTest {
     }
 
     @Nested
-    inner class BuildFromElementsTests {
+    inner class BuildFromElementsTest {
         @Test
         fun `build merkle tree from 1 element`() {
             val leaves = listOf(Felt.ONE)

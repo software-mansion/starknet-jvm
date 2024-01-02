@@ -5,12 +5,13 @@ package com.swmansion.starknet.provider.exceptions
  *
  * @param message error message
  * @param payload payload returned by the service used to communicate with Starknet
+ * @param data data returned by the rpc provider
  */
-open class RequestFailedException(message: String = "Request failed", val revertError: String? = null, val payload: String) : RuntimeException(message) {
+open class RequestFailedException(message: String = "Request failed", val data: String? = null, val payload: String) : RuntimeException(message) {
     override fun toString(): String {
-        return when (revertError) {
+        return when (data) {
             null -> "$message: $payload"
-            else -> "$message: $revertError : $payload"
+            else -> "$message: $data : $payload"
         }
     }
 }

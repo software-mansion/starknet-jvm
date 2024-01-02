@@ -15,10 +15,8 @@ jobs:
         ]
 
     runs-on: ${{ matrix.os }}
-    # TODO: (#310) Remove when migrating to macOS arm64 runner
     env:
-      V2_COMPILER_BUILD_PATH: ${{ github.workspace }}/cairo2/target/release
-      DEVNET_SHA: 74a7bf77291ef0365d35cb725712c90d25c686c4
+      DEVNET_SHA: 1bd447d8ac8c2fb0a3eaf2d54512671f4a16c7ba
     steps:
       - uses: actions/checkout@v3
         with:
@@ -41,7 +39,7 @@ jobs:
           python-version: 3.9.12
           cache: 'pip'
 
-      - name: Install legacy devnet
+      - name: Install cairo-lang
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -88,42 +86,16 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      # TODO: (#345) Remove once legacy devnet is removed or CI migrated to macOS arm64 runner
-      - name: Clone Cairo repo (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: git clone -b v2.2.0 https://github.com/starkware-libs/cairo.git cairo2
-
-      - name: Cache Cairo compiler v2 binaries (macOS only)
-        if: matrix.os == 'macos-latest'
-        uses: actions/cache@v3
-        with:
-          path: cairo2/target/release
-          key: ${{ runner.os }}-cairo2-target-release-${{ hashFiles('cairo2/Cargo.lock') }}
-
-      - name: Build Cairo compiler binaries (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          if [[ ! -d "$V2_COMPILER_BUILD_PATH" ]]; then
-            curl -sSf https://sh.rustup.rs | sh -s -- -y
-            pushd ${{ github.workspace }}/cairo2
-            cargo build --release
-            cargo run --bin starknet-compile -- --version
-            cargo run --bin starknet-sierra-compile -- --version
-            popd
-          else
-            echo "Found existing binaries, skipping compilation."
-          fi
-
       - name: Run tests and generate coverage report
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
-          NETWORK_TEST_MODE: "non_gas"
+          NETWORK_TEST_MODE: "disabled"
           NETWORK_TEST_NETWORK_NAME: "TESTNET"
-          TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
-          TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
-          TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
-          TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
-          TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
+          GOERLI_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          GOERLI_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+          GOERLI_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+          GOERLI_TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
+          GOERLI_TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov

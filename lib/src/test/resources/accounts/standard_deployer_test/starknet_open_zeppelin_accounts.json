@@ -1,0 +1,20 @@
+{
+  "alpha-goerli": {
+    "__default__": {
+      "address": "0x6afe63e01a71f2e6dfdae23300d60728432e5760836c94a568c06a1b7c49868",
+      "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
+      "deployed": true,
+      "private_key": "0x2642371cff2281696e5cc7978ac154d6d07e1405b4d101ed49c54b9cf7e0415",
+      "public_key": "0x769afd8dc3a6ac5601908646eb30e8c1d8a972108ba8d2bb3a9c8620d457825",
+      "salt": "0x29c5bd48c16c7771"
+    },
+    "standard_deployer_test": {
+      "address": "0x5b0fe31220be579b7c28158b0a89ffe4b08e6eb3953d55d0ad0905e10d90e93",
+      "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
+      "deployed": true,
+      "private_key": "0x417b9fd73fdd42a225ed669ae59306d4d7d6d489a4381fa6e71bdfb4887c520",
+      "public_key": "0x13cd1df69047336334bb41901cb48f69c9315106a73ec431f96ebb1bdecc91e",
+      "salt": "0xf0fd66a92dc871da"
+    }
+  }
+}

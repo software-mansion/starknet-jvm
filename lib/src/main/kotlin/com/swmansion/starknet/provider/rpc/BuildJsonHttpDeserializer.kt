@@ -1,5 +1,7 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.serializers.JsonRpcErrorPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.JsonRpcStandardErrorSerializer
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpResponseDeserializer
@@ -19,26 +21,54 @@ private data class JsonRpcResponse<T>(
     val result: T? = null,
 
     @SerialName("error")
+    @Serializable(with = JsonRpcErrorPolymorphicSerializer::class)
     val error: JsonRpcError? = null,
 )
 
-@Serializable
-private data class JsonRpcError(
+internal sealed class JsonRpcError {
     @SerialName("code")
-    val code: Int,
+    abstract val code: Int
 
     @SerialName("message")
-    val message: String,
+    abstract val message: String
 
     @SerialName("data")
-    val data: JsonRpcErrorData? = null,
-)
+    abstract val data: Any?
+}
+
+@Serializable(with = JsonRpcStandardErrorSerializer::class)
+internal data class JsonRpcStandardError(
+    @SerialName("code")
+    override val code: Int,
+
+    @SerialName("message")
+    override val message: String,
+
+    @SerialName("data")
+    override val data: String? = null,
+) : JsonRpcError()
 
 @Serializable
-private data class JsonRpcErrorData(
+internal data class JsonRpcContractError(
+    @SerialName("code")
+    override val code: Int,
+
+    @SerialName("message")
+    override val message: String,
+
+    @SerialName("data")
+    override val data: JsonRpcContractErrorData,
+) : JsonRpcError()
+
+@Serializable
+internal data class JsonRpcContractErrorData(
     @SerialName("revert_error")
     val revertError: String,
-)
+) {
+    override fun toString(): String {
+        return revertError
+    }
+}
 
 @JvmSynthetic
 internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
@@ -59,7 +89,7 @@ internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<
             throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
                 message = jsonRpcResponse.error.message,
-                revertError = jsonRpcResponse.error.data?.revertError,
+                data = jsonRpcResponse.error.data?.toString(),
                 payload = response.body,
             )
         }
