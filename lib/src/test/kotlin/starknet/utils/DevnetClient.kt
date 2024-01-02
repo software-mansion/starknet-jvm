@@ -1,6 +1,7 @@
 package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.PriceUnit
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.Provider
@@ -49,6 +50,9 @@ class DevnetClient(
     private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
 
+    private enum class StateArchiveCapacity(val value: String) { FULL("full"), NONE("none") }
+    private val stateArchiveCapacity = StateArchiveCapacity.FULL
+
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/85495efb71a37ad3921c8986474b7e78a9a9f5fc/crates/starknet/src/constants.rs
         val accountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
@@ -95,6 +99,9 @@ class DevnetClient(
             port.toString(),
             "--seed",
             seed.toString(),
+            // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
+            "--state-archive-capacity",
+            stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(3, TimeUnit.SECONDS)
@@ -126,13 +133,22 @@ class DevnetClient(
     }
 
     fun prefundAccountEth(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.WEI)
+    }
+    fun prefundAccountStrk(accountAddress: Felt) {
+        prefundAccount(accountAddress, PriceUnit.FRI)
+    }
+
+    private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
+        val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
             url = mintUrl,
             body =
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000
+              "amount": 500000000000000000000000000000,
+              "unit": $unit
             }
             """.trimIndent(),
             method = "POST",
@@ -181,6 +197,7 @@ class DevnetClient(
     ): DeployAccountResult {
         if (prefund) {
             prefundAccountEth(readAccountDetails(name).address)
+            prefundAccountStrk(readAccountDetails(name).address)
         }
 
         val params = listOf(
