@@ -4,6 +4,7 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
+import com.swmansion.starknet.extensions.toCalldata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -64,7 +65,7 @@ data class Call(
          */
         @JvmStatic
         fun fromCallArguments(contractAddress: Felt, entrypoint: Felt, arguments: CallArguments): Call {
-            val calldata = arguments.flatMap { it.toCalldata() }
+            val calldata = arguments.toCalldata()
             return Call(contractAddress, entrypoint, calldata)
         }
 
