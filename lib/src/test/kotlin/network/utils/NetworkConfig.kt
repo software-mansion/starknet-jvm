@@ -8,6 +8,7 @@ class NetworkConfig {
         val rpcUrl: String,
         val accountAddress: Felt,
         val privateKey: Felt,
+        val cairoVersion: Int = 0,
         val constNonceAccountAddress: Felt? = null,
         val constNoncePrivateKey: Felt? = null,
     )
@@ -66,6 +67,7 @@ class NetworkConfig {
                 rpcUrl = "${network.value}_RPC_URL".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } },
                 accountAddress = "${network.value}_ACCOUNT_ADDRESS".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } }.let { Felt.fromHex(it) },
                 privateKey = "${network.value}_PRIVATE_KEY".let { env.getOrElse(it) { throw RuntimeException("$it not found in environment variables") } }.let { Felt.fromHex(it) },
+                cairoVersion = env["${network.value}_ACCOUNT_CAIRO_VERSION"]?.toInt() ?: 0,
                 constNonceAccountAddress = env["${network.value}_CONST_NONCE_ACCOUNT_ADDRESS"]?.let { Felt.fromHex(it) },
                 constNoncePrivateKey = env["${network.value}_CONST_NONCE_PRIVATE_KEY"]?.let { Felt.fromHex(it) },
             )

@@ -34,11 +34,13 @@ class AccountTest {
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
         private val provider = JsonRpcProvider(rpcUrl)
+        private val cairoVersion = config.cairoVersion.toFelt
 
         val standardAccount = StandardAccount(
             accountAddress,
             signer,
             provider,
+            cairoVersion,
         )
 
         // Note to future developers:
@@ -48,17 +50,29 @@ class AccountTest {
             constNonceAccountAddress,
             constNonceSigner,
             provider,
+            cairoVersion,
         )
 
-        private val accountContractClassHash = Felt.fromHex("0x05a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8") // Account contract written in Cairo 0, hence the same class hash for tesnet and integration.
+        private val predeclaredAccount = when (network) {
+            Network.GOERLI_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x5a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8"), Felt.ZERO)
+            Network.GOERLI_TESTNET -> DeclaredAccount(Felt.fromHex("0x5a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8"), Felt.ZERO)
+            Network.SEPOLIA_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x2338634f11772ea342365abd5be9d9dc8a6f44f159ad782fdebd3db5d969738"), Felt.ONE)
+            Network.SEPOLIA_TESTNET -> DeclaredAccount(Felt.fromHex("0x4c6d6cf894f8bc96bb9c525e6853e5483177841f7388f74a46cfda6f028c755"), Felt.ONE)
+        }
         private val predeployedMapContractAddress = when (network) {
             Network.GOERLI_INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x02BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
-            else -> throw NotImplementedError("Sepolia networks are not yet supported")
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x2BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
+            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x06b248bde9ce00d69099304a527640bc9515a08f0b49e5168e2096656f207e1d")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x061bbcfc1e11d8de0efcb502f9e1163b4033c74c7977cbb2b8c545164236a88c")
         }
-        private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7") // Same for testnet and integration.
+        private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
         private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
-        private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf") // Same for testnet and integration.
+        private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
+
+        data class DeclaredAccount(
+            val classHash: Felt,
+            val cairoVersion: Felt,
+        )
     }
 
     @Test
@@ -319,6 +333,9 @@ class AccountTest {
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
+        // TODO: (#384) Test v3 transactions on Sepolia
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
+
         val account = standardAccount
 
         ScarbClient.createSaltedContract(
@@ -366,13 +383,16 @@ class AccountTest {
         val call = Call(
             contractAddress = predeployedMapContractAddress,
             entrypoint = "put",
-            calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
+            calldata = listOf(
+                Felt.fromHex("0x1D2C3B7A8"),
+                Felt.fromHex("0x451"),
+            ),
         )
 
-        val invokeRequest = account.execute(call)
+        val invokeRequest = account.execute(call, Felt(1000000000000000L))
         val invokeResponse = invokeRequest.send()
 
-        Thread.sleep(30000)
+        Thread.sleep(20000)
 
         val receipt = provider.getTransactionReceipt(invokeResponse.transactionHash).send()
         assertTrue(receipt.isAccepted)
@@ -383,6 +403,9 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
+
+        // TODO: (#384) Test v3 transactions on Sepolia
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
 
         val account = standardAccount
 
@@ -413,7 +436,7 @@ class AccountTest {
             calldata = listOf(Felt.fromHex("0x1D2C3B7A8")),
         )
 
-        val getRequest = provider.callContract(call, BlockTag.LATEST)
+        val getRequest = provider.callContract(call)
         val getResponse = getRequest.send()
         val value = getResponse.first()
         assertNotEquals(Felt.ZERO, value)
@@ -426,7 +449,7 @@ class AccountTest {
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-        val classHash = accountContractClassHash
+        val (classHash, cairoVersion) = predeclaredAccount
 
         val salt = Felt(System.currentTimeMillis())
 
@@ -441,6 +464,7 @@ class AccountTest {
             address,
             privateKey,
             provider,
+            cairoVersion,
         )
 
         val payloadForFeeEstimation = account.signDeployAccount(
@@ -510,7 +534,7 @@ class AccountTest {
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-        val classHash = accountContractClassHash
+        val (classHash, cairoVersion) = predeclaredAccount
         val salt = Felt(System.currentTimeMillis())
         val calldata = listOf(publicKey)
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
@@ -523,6 +547,7 @@ class AccountTest {
             deployedAccountAddress,
             privateKey,
             provider,
+            cairoVersion,
         )
 
         val deployMaxFee = Uint256(5523000060522)
@@ -577,12 +602,15 @@ class AccountTest {
     fun `sign and send deploy account v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
+        // TODO: (#384) Test v3 transactions on Sepolia
+        assumeTrue(network == Network.GOERLI_INTEGRATION)
+
         val account = standardAccount
 
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-        val classHash = accountContractClassHash
+        val (classHash, cairoVersion) = predeclaredAccount
         val salt = Felt(System.currentTimeMillis())
         val calldata = listOf(publicKey)
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
@@ -595,6 +623,7 @@ class AccountTest {
             deployedAccountAddress,
             privateKey,
             provider,
+            cairoVersion,
         )
         val payloadForFeeEstimate = deployedAccount.signDeployAccount(
             classHash = classHash,
@@ -694,13 +723,9 @@ class AccountTest {
         )
         val invokeTx2 = account.sign(call2, params2)
 
-        val simulationFlags = when (network) {
-            // Pathfinder currently always requires SKIP_FEE_CHARGE flag
-            Network.GOERLI_INTEGRATION -> setOf(SimulationFlag.SKIP_FEE_CHARGE)
-            // Juno currently always fails on simulating invoke when SKIP_FEE_CHARGE flag is passed
-            Network.GOERLI_TESTNET -> emptySet()
-            else -> throw NotImplementedError("Sepolia networks are not yet supported")
-        }
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
+        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
+
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(invokeTx, invokeTx2),
             blockTag = BlockTag.LATEST,
@@ -713,24 +738,21 @@ class AccountTest {
         assertTrue(simulationResult[1].transactionTrace is RevertedInvokeTransactionTrace)
         assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
 
-        // Juno currently does not support SKIP_VALIDATE flag
-        if (network != Network.GOERLI_TESTNET) {
-            val invokeTxWithoutSignature = InvokeTransactionV1Payload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
-            val invokeTxWihtoutSignature2 = InvokeTransactionV1Payload(invokeTx2.senderAddress, invokeTx2.calldata, emptyList(), invokeTx2.maxFee, invokeTx2.version, invokeTx2.nonce)
-            val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
-            val simulationResult2 = provider.simulateTransactions(
-                transactions = listOf(invokeTxWithoutSignature, invokeTxWihtoutSignature2),
-                blockTag = BlockTag.LATEST,
-                simulationFlags = simulationFlags2,
-            ).send()
+        val invokeTxWithoutSignature = InvokeTransactionV1Payload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
+        val invokeTxWihtoutSignature2 = InvokeTransactionV1Payload(invokeTx2.senderAddress, invokeTx2.calldata, emptyList(), invokeTx2.maxFee, invokeTx2.version, invokeTx2.nonce)
+        val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
+        val simulationResult2 = provider.simulateTransactions(
+            transactions = listOf(invokeTxWithoutSignature, invokeTxWihtoutSignature2),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags2,
+        ).send()
 
-            assertEquals(2, simulationResult2.size)
-            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-            assertTrue(simulationResult[1].transactionTrace is InvokeTransactionTraceBase)
-            assertTrue(simulationResult[1].transactionTrace is RevertedInvokeTransactionTrace)
-            assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
-        }
+        assertEquals(2, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult[1].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult[1].transactionTrace is RevertedInvokeTransactionTrace)
+        assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
     }
 
     @Test
@@ -740,12 +762,12 @@ class AccountTest {
         val privateKey = Felt(System.currentTimeMillis())
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-        val classHash = accountContractClassHash
+        val (classHash, cairoVersion) = predeclaredAccount
         val salt = Felt(System.currentTimeMillis())
         val calldata = listOf(publicKey)
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
 
-        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider)
+        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, cairoVersion)
         val deployAccountTx = deployedAccount.signDeployAccount(
             classHash = classHash,
             salt = salt,
@@ -753,8 +775,7 @@ class AccountTest {
             maxFee = Felt(1_000_000_000_000_000),
         )
 
-        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
-        // Juno currently fails on deploy account simulated transaction with MaxFeeExceedsBalance without SKIP_FEE_CHARGE flag
+        // Use SKIP_FEE_CHARGE flag to avoid having to transfer funds to the account
         val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
 
         val simulationResult = provider.simulateTransactions(
@@ -765,20 +786,17 @@ class AccountTest {
         assertEquals(1, simulationResult.size)
         assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
 
-        // Juno currently does not support SKIP_VALIDATE flag
-        if (network != Network.GOERLI_TESTNET) {
-            val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+        val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
 
-            val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
-            val simulationResult2 = provider.simulateTransactions(
-                transactions = listOf(deployAccountTxWithoutSignature),
-                blockTag = BlockTag.LATEST,
-                simulationFlags = simulationFlags2,
-            ).send()
+        val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
+        val simulationResult2 = provider.simulateTransactions(
+            transactions = listOf(deployAccountTxWithoutSignature),
+            blockTag = BlockTag.LATEST,
+            simulationFlags = simulationFlags2,
+        ).send()
 
-            assertEquals(1, simulationResult2.size)
-            assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
-        }
+        assertEquals(1, simulationResult2.size)
+        assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
     }
 
     @Test
@@ -807,7 +825,7 @@ class AccountTest {
             ),
         )
 
-        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
         val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(declareTransactionPayload),
@@ -846,7 +864,7 @@ class AccountTest {
             ),
         )
 
-        // Pathfinder currently always requires SKIP_FEE_CHARGE flag
+        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
         val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
         val simulationResult = provider.simulateTransactions(
             transactions = listOf(declareTransactionPayload),
@@ -862,7 +880,13 @@ class AccountTest {
     fun `test udc deploy with parameters`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
-        val classHash = Felt.fromHex("0x353434f1495ca9a9943cab1c093fb765179163210b8d513613660ff371a5490") // cairo 0 contract, hence the same class hash for tesnet and integration.
+        assumeFalse(network == Network.GOERLI_INTEGRATION)
+        val classHash = when (network) {
+            Network.GOERLI_TESTNET -> Felt.fromHex("0x40971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
+            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
+            else -> throw NotImplementedError("Test is not yet supported for this network $network")
+        }
 
         val account = standardAccount
         val deployer = StandardDeployer(udcAddress, provider, account)
@@ -870,7 +894,7 @@ class AccountTest {
         val deployment = deployer.deployContract(
             classHash = classHash,
             constructorCalldata = emptyList(),
-            maxFee = Felt(4340000039060 * 2),
+            maxFee = Felt(1000000000000000L),
             unique = true,
             salt = Felt(System.currentTimeMillis()),
         ).send()
@@ -884,10 +908,12 @@ class AccountTest {
     fun `test udc deploy with constructor`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
-        assumeTrue(network == Network.GOERLI_TESTNET)
+        assumeFalse(network == Network.GOERLI_INTEGRATION)
         val classHash = when (network) {
             Network.GOERLI_TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-            else -> throw NotImplementedError("Unsupported network: $network")
+            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
+            else -> throw NotImplementedError("Test is not yet supported for this network $network")
         }
 
         val account = standardAccount
@@ -897,7 +923,7 @@ class AccountTest {
         val deployment = deployer.deployContract(
             classHash = classHash,
             constructorCalldata = listOf(initialBalance),
-            maxFee = Felt(4340000039060 * 2),
+            maxFee = Felt(1000000000000000L),
         ).send()
         Thread.sleep(120000)
 
