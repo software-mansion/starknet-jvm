@@ -1,11 +1,8 @@
 package starknet.deployercontract
 
 import com.swmansion.starknet.account.StandardAccount
-import com.swmansion.starknet.data.types.BlockTag
-import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.deployercontract.StandardDeployer
-import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
@@ -55,89 +52,120 @@ object StandardDeployerTest {
         }
     }
 
-    data class StandardDeployerParameters(
-        val standardDeployer: StandardDeployer,
-        val provider: Provider,
-        val addressBook: AddressBook,
-    )
-    data class AddressBook(
-        val deployerAddress: Felt,
-        val accountAddress: Felt,
-        val balanceContractClassHash: Felt,
-    )
-
     @Test
-    fun `test udc deploy`() {
+    fun `test udc deploy v1`() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContract(
+        val deployment = standardDeployer.deployContractV1(
             classHash = balanceContractClassHash,
             unique = true,
-            salt = Felt(1234),
+            salt = Felt(101),
             constructorCalldata = listOf(initialBalance),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
-        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue)
     }
 
     @Test
-    fun `test udc deploy with specific fee`() {
+    fun `test udc deploy v3`() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContract(
+        val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
             unique = true,
-            salt = Felt(789),
+            salt = Felt(301),
+            constructorCalldata = listOf(initialBalance),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue)
+    }
+
+    @Test
+    fun `test udc deploy v1 with specific fee`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContractV1(
+            classHash = balanceContractClassHash,
+            unique = true,
+            salt = Felt(102),
             constructorCalldata = listOf(initialBalance),
             maxFee = Felt(1_000_000_000_000_000),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
-        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue)
     }
 
     @Test
-    fun `test udc deploy with default parameters`() {
+    fun `test udc deploy v3 with specific resource bounds`() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContract(
+        val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
-    }
-
-    @Test
-    fun `test udc deploy with specific fee and default parameters`() {
-        val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContract(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-            maxFee = Felt(1_000_000_000_000_000),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        assertDoesNotThrow { provider.callContract(Call(address, "get_balance"), BlockTag.LATEST).send() }
-    }
-
-    @Test
-    fun `test udc deploy with constructor`() {
-        val classHash = devnetClient.declareContract("ContractWithConstructor").classHash
-        val constructorVal1 = Felt(451)
-
-        val deployment = standardDeployer.deployContract(
-            classHash = classHash,
             unique = true,
-            salt = Felt(1234),
-            constructorCalldata = listOf(
-                constructorVal1,
-                Felt(789), // Dummy value, ignored by the contract constructor.
+            salt = Felt(302),
+            constructorCalldata = listOf(initialBalance),
+            l1ResourceBounds = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
             ),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
-        val contractValue = provider.callContract(Call(address, "get_val1"), BlockTag.LATEST).send()
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue) }
 
-        assertEquals(listOf(constructorVal1), contractValue)
-    }
+    @Test
+    fun `test udc deploy v1 with default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContractV1(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue) }
+
+    @Test
+    fun `test udc deploy v3 with default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContractV3(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue) }
+
+    @Test
+    fun `test udc deploy v1 with specific fee and default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContractV1(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+            maxFee = Felt(1_000_000_000_000_000),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue) }
+
+    @Test
+    fun `test udc deploy v3 with specific fee and default parameters`() {
+        val initialBalance = Felt(1000)
+        val deployment = standardDeployer.deployContractV3(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+            l1ResourceBounds = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
+            ),
+        ).send()
+        val address = standardDeployer.findContractAddress(deployment).send()
+
+        val contractValue = provider.callContract(Call(address, "get_balance")).send()
+        assertEquals(listOf(initialBalance), contractValue) }
 }
