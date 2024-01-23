@@ -88,7 +88,7 @@ data class DeployTransaction(
 
     // not in RPC spec
     @SerialName("max_fee")
-    val maxFee: Felt = Felt.ZERO,
+    override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
     override val version: Felt,
@@ -102,7 +102,7 @@ data class DeployTransaction(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY,
-) : Transaction()
+) : Transaction(), DeprecatedTransaction
 
 @Serializable
 @SerialName("INVOKE_FUNCTION")
