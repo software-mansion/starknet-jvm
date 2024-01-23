@@ -32,7 +32,7 @@ sealed class ParamsV3 : ParamsBase() {
  */
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
-data class ExecutionParamsV3 private constructor(
+data class InvokeParamsV3 private constructor(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,

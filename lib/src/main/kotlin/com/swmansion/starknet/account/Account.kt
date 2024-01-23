@@ -37,7 +37,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         return signV3(listOf(call), params, forFeeEstimate)
     }
 
@@ -63,7 +63,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: ExecutionParamsV3): InvokeTransactionV3Payload {
+    fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3Payload {
         return signV3(listOf(call), params, false)
     }
 
@@ -89,7 +89,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
+    fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
 
     /**
      * Sign multiple calls as a single version 1 invoke transaction.
@@ -113,7 +113,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: ExecutionParamsV3): InvokeTransactionV3Payload {
+    fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3Payload {
         return signV3(calls, params, false)
     }
 

@@ -480,7 +480,7 @@ class StandardAccountTest {
                 entrypoint = "increase_balance",
             )
 
-            val params = ExecutionParamsV3(
+            val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
                 l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
@@ -597,7 +597,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val params = ExecutionParamsV3(
+            val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
                 l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
