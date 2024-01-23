@@ -305,7 +305,7 @@ class StandardAccount(
     }
 
     override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
-        return estimateFee(calls).compose { estimateFee ->
+        return estimateFeeV3(calls).compose { estimateFee ->
             val resourceBounds = estimateFee.first().toResourceBounds()
             executeV3(calls, resourceBounds.l1Gas)
         }
