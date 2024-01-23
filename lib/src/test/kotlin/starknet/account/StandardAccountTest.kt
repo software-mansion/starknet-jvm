@@ -124,7 +124,7 @@ class StandardAccountTest {
                 entrypoint = "increase_balance",
                 calldata = listOf(Felt(10)),
             )
-            account.execute(call).send()
+            account.executeV1(call).send()
 
             val endNonce = account.getNonce().send()
             assertEquals(
@@ -144,7 +144,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val request = account.estimateFee(call)
+            val request = account.estimateFeeV1(call)
             val response = request.send()
             val feeEstimate = response.first()
 
@@ -184,7 +184,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val request = account.estimateFee(call, BlockTag.LATEST)
+            val request = account.estimateFeeV1(call, BlockTag.LATEST)
             val response = request.send()
             val feeEstimate = response.first()
 
@@ -205,7 +205,7 @@ class StandardAccountTest {
         // changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(nonce, Felt(1000000000000000)),
@@ -267,7 +267,7 @@ class StandardAccountTest {
         val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
         val classHash = Felt.fromHex("0x310b77cf1190f2555fca715a990f9ff9f5c42e1b30b42cc3fdb573b8ab95fc1")
         val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclare(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
+        val declareTransactionPayload = account.signDeclareV1(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
             classHash = l2ContractClassHash,
@@ -310,7 +310,7 @@ class StandardAccountTest {
         // Chances are, the contract was compiled with a different compiler version.
 
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(nonce, Felt(1000000000000000L)),
@@ -333,7 +333,7 @@ class StandardAccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000L)),
@@ -355,7 +355,7 @@ class StandardAccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000)),
@@ -389,7 +389,7 @@ class StandardAccountTest {
                 maxPricePerUnit = Uint128(120000000000),
             ),
         )
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
             contractCasmDefinition,
             params,
@@ -463,7 +463,7 @@ class StandardAccountTest {
                 nonce = account.getNonce().send(),
             )
 
-            val payload = account.sign(call, params)
+            val payload = account.signV1(call, params)
             val request = provider.invokeFunction(payload)
             val response = request.send()
 
@@ -488,7 +488,7 @@ class StandardAccountTest {
                 ),
             )
 
-            val payload = account.sign(call, params)
+            val payload = account.signV3(call, params)
             val request = provider.invokeFunction(payload)
             val response = request.send()
 
@@ -505,7 +505,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val result = account.execute(call).send()
+            val result = account.executeV1(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -538,7 +538,7 @@ class StandardAccountTest {
             )
 
             val maxFee = Felt(10000000000000000L)
-            val result = account.execute(call, maxFee).send()
+            val result = account.executeV1(call, maxFee).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -581,7 +581,7 @@ class StandardAccountTest {
                 nonce = account.getNonce().send(),
             )
 
-            val payload = account.sign(listOf(call, call, call), params)
+            val payload = account.signV1(listOf(call, call, call), params)
             val response = provider.invokeFunction(payload).send()
 
             val receipt = provider.getTransactionReceipt(response.transactionHash).send()
@@ -605,7 +605,7 @@ class StandardAccountTest {
                 ),
             )
 
-            val payload = account.sign(listOf(call, call, call), params)
+            val payload = account.signV3(listOf(call, call, call), params)
             val response = provider.invokeFunction(payload).send()
 
             val receipt = provider.getTransactionReceipt(response.transactionHash).send()
@@ -627,7 +627,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val result = account.execute(listOf(call1, call2)).send()
+            val result = account.executeV1(listOf(call1, call2)).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -663,7 +663,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val result = account.execute(call).send()
+            val result = account.executeV1(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
@@ -674,7 +674,7 @@ class StandardAccountTest {
                 calldata = listOf(Felt(20)),
             )
 
-            val result2 = account.execute(call2).send()
+            val result2 = account.executeV1(call2).send()
 
             val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
             assertTrue(receipt2.isAccepted)
@@ -732,7 +732,7 @@ class StandardAccountTest {
                 cairoVersion = Felt.ONE,
             )
             val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
-            val signedTx = account.sign(listOf(call1, call2, call3), params)
+            val signedTx = account.signV1(listOf(call1, call2, call3), params)
 
             val expectedCalldata = listOf(
                 Felt(3),
@@ -754,7 +754,7 @@ class StandardAccountTest {
 
             assertEquals(expectedCalldata, signedTx.calldata)
 
-            val signedEmptyTx = account.sign(listOf<Call>(), params)
+            val signedEmptyTx = account.signV1(listOf<Call>(), params)
 
             assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
         }
@@ -778,7 +778,7 @@ class StandardAccountTest {
             privateKey,
             provider,
         )
-        val payloadForFeeEstimation = account.signDeployAccount(
+        val payloadForFeeEstimation = account.signDeployAccountV1(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -816,7 +816,7 @@ class StandardAccountTest {
             nonce = Felt.ZERO,
             l1ResourceBounds = ResourceBounds.ZERO,
         )
-        val payloadForFeeEstimation = account.signDeployAccount(
+        val payloadForFeeEstimation = account.signDeployAccountV3(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -847,7 +847,7 @@ class StandardAccountTest {
             privateKey,
             provider,
         )
-        val payload = account.signDeployAccount(
+        val payload = account.signDeployAccountV1(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -876,7 +876,7 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
             calldata = listOf(Felt(10)),
         )
-        val result = account.execute(call).send()
+        val result = account.executeV1(call).send()
 
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -913,7 +913,7 @@ class StandardAccountTest {
         // Prefund the new account address with STRK
         devnetClient.prefundAccountStrk(address)
 
-        val payload = newAccount.signDeployAccount(
+        val payload = newAccount.signDeployAccountV3(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -966,7 +966,7 @@ class StandardAccountTest {
             privateKey,
             provider,
         )
-        val payloadForFeeEstimation = account.signDeployAccount(
+        val payloadForFeeEstimation = account.signDeployAccountV1(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -997,7 +997,7 @@ class StandardAccountTest {
         )
         val params = ExecutionParams(nonce, Felt(5_482_000_000_000_00))
 
-        val invokeTx = account.sign(call, params)
+        val invokeTx = account.signV1(call, params)
 
         val privateKey = Felt(22222)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
@@ -1015,7 +1015,7 @@ class StandardAccountTest {
             provider,
         )
         devnetClient.prefundAccountEth(newAccountAddress)
-        val deployAccountTx = newAccount.signDeployAccount(
+        val deployAccountTx = newAccount.signDeployAccountV1(
             classHash = accountContractClassHash,
             salt = salt,
             calldata = calldata,
@@ -1062,7 +1062,7 @@ class StandardAccountTest {
         // Chances are, the contract was compiled with a different compiler version.
 
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(
@@ -1095,7 +1095,7 @@ class StandardAccountTest {
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             casmContractDefinition,
             ExecutionParams(
@@ -1149,7 +1149,7 @@ class StandardAccountTest {
         val maxFee = Felt(1)
         val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
         val params = ExecutionParams(nonce, maxFee)
-        val invokeTx = account.sign(call, params)
+        val invokeTx = account.signV1(call, params)
 
         val simulationFlags = setOf<SimulationFlag>()
         val simulationResult = mockProvider.simulateTransactions(

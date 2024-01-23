@@ -49,7 +49,7 @@ class StandardAccount(
         cairoVersion,
     )
 
-    override fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
+    override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> estimateVersion(Felt.ONE)
@@ -69,7 +69,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun sign(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    override fun signV3(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = when (forFeeEstimate) {
             true -> estimateVersion(Felt(3))
@@ -94,7 +94,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeployAccount(
+    override fun signDeployAccountV1(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -121,7 +121,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeployAccount(
+    override fun signDeployAccountV3(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -151,7 +151,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeclare(
+    override fun signDeclareV1(
         contractDefinition: Cairo0ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
@@ -175,7 +175,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeclare(
+    override fun signDeclareV2(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
@@ -199,7 +199,7 @@ class StandardAccount(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeclare(
+    override fun signDeclareV3(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
@@ -277,10 +277,10 @@ class StandardAccount(
         throw e
     }
 
-    override fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
+    override fun executeV1(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
-            val payload = sign(calls, signParams)
+            val payload = signV1(calls, signParams)
 
             return@compose provider.invokeFunction(payload)
         }
@@ -292,16 +292,16 @@ class StandardAccount(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
             )
-            val payload = sign(calls, signParams, false)
+            val payload = signV3(calls, signParams, false)
 
             return@compose provider.invokeFunction(payload)
         }
     }
 
-    override fun execute(calls: List<Call>): Request<InvokeFunctionResponse> {
-        return estimateFee(calls).compose { estimateFee ->
+    override fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse> {
+        return estimateFeeV1(calls).compose { estimateFee ->
             val maxFee = estimateFee.first().toMaxFee()
-            execute(calls, maxFee)
+            executeV1(calls, maxFee)
         }
     }
 
@@ -312,16 +312,16 @@ class StandardAccount(
         }
     }
 
-    override fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
-        return execute(listOf(call), maxFee)
+    override fun executeV1(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
+        return executeV1(listOf(call), maxFee)
     }
 
     override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), l1ResourceBounds)
     }
 
-    override fun execute(call: Call): Request<InvokeFunctionResponse> {
-        return execute(listOf(call))
+    override fun executeV1(call: Call): Request<InvokeFunctionResponse> {
+        return executeV1(listOf(call))
     }
 
     override fun executeV3(call: Call): Request<InvokeFunctionResponse> {
@@ -336,39 +336,39 @@ class StandardAccount(
 
     override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
 
-    override fun estimateFee(call: Call): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call))
+    override fun estimateFeeV1(call: Call): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV1(listOf(call))
     }
 
-    override fun estimateFee(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call), simulationFlags)
+    override fun estimateFeeV1(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV1(listOf(call), simulationFlags)
     }
 
-    override fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call), blockTag)
+    override fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV1(listOf(call), blockTag)
     }
 
-    override fun estimateFee(
+    override fun estimateFeeV1(
         call: Call,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<List<EstimateFeeResponse>> {
-        return estimateFee(listOf(call), blockTag, simulationFlags)
+        return estimateFeeV1(listOf(call), blockTag, simulationFlags)
     }
 
-    override fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, BlockTag.PENDING)
+    override fun estimateFeeV1(calls: List<Call>): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV1(calls, BlockTag.PENDING)
     }
 
     override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(calls, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
     }
 
-    override fun estimateFee(
+    override fun estimateFeeV1(
         calls: List<Call>,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, BlockTag.PENDING, simulationFlags)
+        return estimateFeeV1(calls, BlockTag.PENDING, simulationFlags)
     }
 
     override fun estimateFeeV3(
@@ -382,11 +382,11 @@ class StandardAccount(
         return estimateFeeV3(calls, blockTag)
     }
 
-    override fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFee(calls, blockTag, defaultFeeEstimateSimulationFlags)
+    override fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV1(calls, blockTag, defaultFeeEstimateSimulationFlags)
     }
 
-    override fun estimateFee(
+    override fun estimateFeeV1(
         calls: List<Call>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
@@ -429,7 +429,7 @@ class StandardAccount(
 
     private fun buildEstimateFeePayload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
-        val payload = sign(calls, executionParams, true)
+        val payload = signV1(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = payload.senderAddress,
@@ -448,7 +448,7 @@ class StandardAccount(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
         )
-        val payload = sign(calls, executionParams, true)
+        val payload = signV3(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = payload.senderAddress,
