@@ -5,7 +5,7 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.types.transactions.DAMode
 
 /**
- * Params used for sign and sending transactions.
+ * Params used for signing and sending transactions.
  */
 
 sealed class ParamsBase
