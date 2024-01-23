@@ -27,6 +27,7 @@ class StandardAccount(
     private val provider: Provider,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
+    private val chainId: StarknetChainId by lazy { provider.getChainId().send() }
     private fun estimateVersion(version: Felt): Felt {
         return BigInteger.valueOf(2).pow(128)
             .add(version.value)
@@ -57,7 +58,7 @@ class StandardAccount(
         val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
             calldata = calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
             version = signVersion,
@@ -77,7 +78,7 @@ class StandardAccount(
         val tx = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = address,
             calldata = calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = params.nonce,
             version = signVersion,
             resourceBounds = params.resourceBounds,
@@ -110,7 +111,7 @@ class StandardAccount(
             contractAddress = address,
             salt = salt,
             calldata = calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             maxFee = maxFee,
             version = signVersion,
             nonce = nonce,
@@ -136,7 +137,7 @@ class StandardAccount(
             senderAddress = address,
             salt = salt,
             calldata = calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             version = signVersion,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
@@ -164,7 +165,7 @@ class StandardAccount(
             contractDefinition = contractDefinition,
             classHash = classHash,
             senderAddress = address,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
             version = signVersion,
@@ -187,7 +188,7 @@ class StandardAccount(
         val tx = TransactionFactory.makeDeclareV2Transaction(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
             version = signVersion,
@@ -211,7 +212,7 @@ class StandardAccount(
         val tx = TransactionFactory.makeDeclareV3Transaction(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = params.nonce,
             version = signVersion,
             resourceBounds = params.resourceBounds,
@@ -433,7 +434,7 @@ class StandardAccount(
         val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = nonce,
             maxFee = payload.maxFee,
             signature = payload.signature,
@@ -452,7 +453,7 @@ class StandardAccount(
         val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
-            chainId = provider.chainId,
+            chainId = chainId,
             nonce = nonce,
             signature = payload.signature,
             version = payload.version,

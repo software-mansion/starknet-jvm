@@ -7,7 +7,6 @@ import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.extensions.toUint256
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
@@ -41,7 +40,7 @@ class StandardAccountTest {
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
         private val rpcUrl = devnetClient.rpcUrl
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl)
 
         private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
@@ -57,10 +56,7 @@ class StandardAccountTest {
             try {
                 devnetClient.start()
 
-                // TODO: (#371) instead, deploy manutally "standard_account_test" account
-                //  and prefund it with STRK, once minting STRK is supported on devnet.
-                val accountDetails = DevnetClient.predeployedAccount1
-                devnetClient.prefundAccountEth(accountDetails.address)
+                val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
@@ -219,7 +215,7 @@ class StandardAccountTest {
             classHash = classHash,
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.chainId,
+            chainId = provider.getChainId().send(),
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -439,7 +435,7 @@ class StandardAccountTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
         val account = StandardAccount(Felt.ONE, Felt.ONE, provider)
 
         val typedData = loadTypedData("typed_data_struct_array_example.json")
@@ -915,12 +911,7 @@ class StandardAccountTest {
         )
 
         // Prefund the new account address with STRK
-        val transferCall = Call(
-            contractAddress = DevnetClient.strkErc20ContractAddress,
-            entrypoint = "transfer",
-            calldata = listOf(address) + l1ResourceBounds.toMaxFee().toUint256.toCalldata(),
-        )
-        account.executeV3(transferCall).send()
+        devnetClient.prefundAccountStrk(address)
 
         val payload = newAccount.signDeployAccount(
             classHash = accountContractClassHash,
@@ -1152,7 +1143,7 @@ class StandardAccountTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, StarknetChainId.TESTNET, httpService)
+        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
 
         val nonce = account.getNonce().send()
         val maxFee = Felt(1)

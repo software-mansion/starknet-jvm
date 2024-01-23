@@ -16,7 +16,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: 85495efb71a37ad3921c8986474b7e78a9a9f5fc
+      DEVNET_SHA: 1bd447d8ac8c2fb0a3eaf2d54512671f4a16c7ba
     steps:
       - uses: actions/checkout@v3
         with:
@@ -91,14 +91,14 @@ jobs:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
           NETWORK_TEST_MODE: "disabled"
           NETWORK_TEST_NETWORK_NAME: "TESTNET"
-          TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
-          TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
-          TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
-          TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
-          TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
+          GOERLI_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          GOERLI_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+          GOERLI_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+          GOERLI_TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
+          GOERLI_TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
         with:
-          files: lib/build/reports/kover/project-xml/report.xml
+          files: lib/build/reports/kover/report.xml

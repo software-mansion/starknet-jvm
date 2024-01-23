@@ -25,7 +25,7 @@ class ProviderTest {
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
         val rpcUrl = devnetClient.rpcUrl
-        private val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET)
+        private val provider = JsonRpcProvider(rpcUrl)
 
         private lateinit var balanceContractAddress: Felt
         private lateinit var balanceClassHash: Felt
@@ -340,7 +340,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
@@ -406,7 +406,7 @@ class ProviderTest {
             )
         }
 
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
         val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
 
         assertTrue(receipt is PendingTransactionReceipt)
@@ -479,7 +479,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
         val response = request.send()
@@ -523,7 +523,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
@@ -591,7 +591,7 @@ class ProviderTest {
                 """.trimIndent(),
             )
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getTransaction(Felt.ZERO)
         val response = request.send()
@@ -734,7 +734,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
         val request = provider.getSyncing()
         val response = request.send()
 
@@ -745,6 +745,14 @@ class ProviderTest {
         assertEquals(1, response.currentBlockNumber)
         assertEquals(Felt.fromHex("0x9"), response.highestBlockHash)
         assertEquals(10, response.highestBlockNumber)
+    }
+
+    @Test
+    fun `get chain id`() {
+        val request = provider.getChainId()
+        val response = request.send()
+
+        assertEquals(StarknetChainId.GOERLI, response)
     }
 
     @Test
@@ -821,7 +829,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
         val response = request.send()
@@ -884,7 +892,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
         val response = request.send()
@@ -950,7 +958,7 @@ class ProviderTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(rpcUrl, StarknetChainId.TESTNET, httpService)
+        val provider = JsonRpcProvider(rpcUrl, httpService)
 
         val request = provider.getStateUpdate(BlockTag.PENDING)
         val response = request.send()

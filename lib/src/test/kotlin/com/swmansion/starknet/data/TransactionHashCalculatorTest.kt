@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 internal class TransactionHashCalculatorTest {
     private val calldata = listOf(Felt(999), Felt(888), Felt(777))
     private val maxFee = Felt.fromHex("0xabcd987654210")
-    private val chainId = StarknetChainId.TESTNET
+    private val chainId = StarknetChainId.GOERLI
     private val version = Felt.ONE
 
     @Test

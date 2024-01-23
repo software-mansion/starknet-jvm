@@ -59,7 +59,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -93,7 +93,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Create an account interface
         Felt accountAddress = Felt.fromHex("0x13241455");
@@ -133,16 +133,16 @@ This way you reuse connections and thread pools.
 
 ✅ **Do:** 
 ```java
-var provider = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
 var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
 ```
 
 ❌ **Don't:**
 ```java
-var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc", StarknetChainId.TESTNET);
+var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
 var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
@@ -180,10 +180,25 @@ Use the following command to run tests:
 ```
 
 ### Network Tests
-Running tests on networks (integration or testnet) requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
+Running tests on networks requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are `INTEGRATION` and `TESTNET`.
-You will also need to provide an **RPC node URL** and an **account address** (along with its **private key**).
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are:
+  - `SEPOLIA_TESTNET`
+  - `SEPOLIA_INTEGRATION`
+  - `GOERLI_TESTNET`
+  - `GOERLI_INTEGRATION`
+
+Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
+To properly configure your network, ensure the following variables are set with the `NETWORK_NAME_` prefix:  
+  - `RPC_URL` - url of your RPC node
+  - `ACCOUNT_ADDRESS` and `PRIVATE_KEY` - address and private key of your account
+
+Additionally, you can also set:
+  - `CONST_NONCE_ACCOUNT_ADDRESS` and `CONST_NONCE_PRIVATE_KEY` - address and private key exclusively for non-gas network tests, preventing potential inconsistencies (sometimes, `getNonce` may report higher nonce than expected).
+  Recommended for reliable non-gas testing. 
+  These default to `ACCOUNT_ADDRESS` and `PRIVATE_KEY` if not set.
+  - `ACCOUNT_CAIRO_VERSION` - Cairo version of the `ACCOUNT_ADDRESS` and `CONST_NONCE_ACCOUNT_ADDRESS` accounts. Defaults to `0`.
+
 Network tests are disabled by default. To enable them, you can set the environment variable: 
 ```env
 NETWORK_TEST_MODE=non_gas
@@ -199,12 +214,7 @@ Alternatively, you can use flag to specify whether to run network and gas tests:
 ./gradlew :lib:test -PnetworkTestMode=non_gas
 ./gradlew :lib:test -PnetworkTestMode=all
 ```
-Flag takes precendece over the env variable if both are set.
-
-⚠️ WARNING ⚠️ Some network tests may fail due to `getNonce` receiving higher nonce than expected by other methods.
-It is adviced to additionaly provide an account (along with its **private key**) with a constant **nonce** to ensure non-gas tests pass.
-Such account shouldn't be used for any other purpose than running non-gas network tests.
-If not set, the main account provided in the config will be used for this purpose.
+Flag takes precendece over the environment variable if both are set.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 
