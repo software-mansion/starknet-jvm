@@ -362,15 +362,25 @@ interface Account {
     fun estimateFeeV1(call: Call): Request<List<EstimateFeeResponse>>
 
     /**
+     * Estimate fee for a call as a version 3 invoke transaction.
+     *
+     * Estimate fee for a signed call on starknet.
+     *
+     * @param call a call used to estimate a fee.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFeeV3(call: Call): Request<List<EstimateFeeResponse>>
+
+    /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
      * Estimate fee for a signed call on starknet.
      *
      * @param call a call used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV1(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
@@ -378,10 +388,10 @@ interface Account {
      * Estimate fee for a signed call on starknet.
      *
      * @param call a call used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
@@ -412,10 +422,10 @@ interface Account {
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV1(call: Call, blockTag: BlockTag, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(call: Call, blockTag: BlockTag, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
@@ -424,10 +434,10 @@ interface Account {
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, blockTag: BlockTag, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(call: Call, blockTag: BlockTag, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
@@ -455,10 +465,10 @@ interface Account {
      * Estimate fee for a signed list of calls on starknet.
      *
      * @param calls a list of calls used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFeeV1(calls: List<Call>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
@@ -466,10 +476,10 @@ interface Account {
      * Estimate fee for a signed list of calls on starknet.
      *
      * @param calls a list of calls used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFeeV3(calls: List<Call>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
@@ -500,13 +510,13 @@ interface Account {
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
     fun estimateFeeV1(
         calls: List<Call>,
         blockTag: BlockTag,
-        simulationFlags: Set<SimulationFlagForEstimateFee>,
+        skipValidate: Boolean,
     ): Request<List<EstimateFeeResponse>>
 
     /**
@@ -516,13 +526,13 @@ interface Account {
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
     fun estimateFeeV3(
         calls: List<Call>,
         blockTag: BlockTag,
-        simulationFlags: Set<SimulationFlagForEstimateFee>,
+        skipValidate: Boolean,
     ): Request<List<EstimateFeeResponse>>
 
     /**
