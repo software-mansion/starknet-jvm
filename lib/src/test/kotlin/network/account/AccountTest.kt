@@ -86,10 +86,9 @@ class AccountTest {
             entrypoint = "put",
             calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
         )
-        val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
         val estimateFeeRequest = account.estimateFeeV1(
             listOf(call),
-            simulationFlags,
+            skipValidate = false,
         )
         val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)

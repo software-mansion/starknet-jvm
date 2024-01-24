@@ -162,10 +162,9 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
             val request = account.estimateFeeV3(
                 listOf(call),
-                simulationFlags,
+                skipValidate = false,
             )
             val response = request.send()
             val feeEstimate = response.first()
