@@ -33,7 +33,7 @@ class JsonRpcProvider(
     private val jsonWithDefaults = Json { encodeDefaults = true }
 
     private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
-        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+        emptySet()
     }
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
