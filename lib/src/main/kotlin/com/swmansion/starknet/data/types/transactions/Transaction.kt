@@ -341,6 +341,7 @@ data class DeclareTransactionV1(
             maxFee = maxFee,
             nonce = nonce,
             signature = signature,
+            version = version,
         )
     }
 
@@ -387,6 +388,7 @@ data class DeclareTransactionV2(
             nonce = nonce,
             signature = signature,
             compiledClassHash = compiledClassHash,
+            version = version,
         )
     }
 
@@ -453,6 +455,7 @@ data class DeclareTransactionV3(
             feeDataAvailabilityMode = feeDataAvailabilityMode,
             signature = signature,
             compiledClassHash = compiledClassHash,
+            version = version,
         )
     }
 

@@ -35,17 +35,7 @@ data class InvokeTransactionV1Payload(
 
     @SerialName("nonce")
     val nonce: Felt,
-) : InvokeTransactionPayload() {
-
-    constructor(senderAddress: Felt, calldata: Calldata, signature: Signature, maxFee: Felt, nonce: Felt) : this(
-        senderAddress = senderAddress,
-        calldata = calldata,
-        signature = signature,
-        maxFee = maxFee,
-        version = Felt.ONE,
-        nonce = nonce,
-    )
-}
+) : InvokeTransactionPayload()
 
 @Serializable
 data class InvokeTransactionV3Payload(
@@ -81,33 +71,7 @@ data class InvokeTransactionV3Payload(
 
     @SerialName("version")
     val version: Felt,
-) : InvokeTransactionPayload() {
-
-    constructor(
-        senderAddress: Felt,
-        calldata: Calldata,
-        signature: Signature,
-        nonce: Felt,
-        resourceBounds: ResourceBoundsMapping,
-        tip: Uint64,
-        paymasterData: List<Felt>,
-        accountDeploymentData: List<Felt>,
-        nonceDataAvailabilityMode: DAMode,
-        feeDataAvailabilityMode: DAMode,
-    ) : this(
-        senderAddress = senderAddress,
-        calldata = calldata,
-        signature = signature,
-        nonce = nonce,
-        resourceBounds = resourceBounds,
-        tip = tip,
-        paymasterData = paymasterData,
-        accountDeploymentData = accountDeploymentData,
-        nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-        feeDataAvailabilityMode = feeDataAvailabilityMode,
-        version = Felt(3),
-    )
-}
+) : InvokeTransactionPayload()
 
 @Serializable
 sealed class DeclareTransactionPayload() : TransactionPayload()
@@ -130,7 +94,7 @@ data class DeclareTransactionV1Payload(
     val senderAddress: Felt,
 
     @SerialName("version")
-    val version: Felt = Felt.ONE,
+    val version: Felt,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -157,7 +121,7 @@ data class DeclareTransactionV2Payload(
     val compiledClassHash: Felt,
 
     @SerialName("version")
-    val version: Felt = Felt(2),
+    val version: Felt,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -199,7 +163,7 @@ data class DeclareTransactionV3Payload(
     val feeDataAvailabilityMode: DAMode,
 
     @SerialName("version")
-    val version: Felt = Felt(3),
+    val version: Felt,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
