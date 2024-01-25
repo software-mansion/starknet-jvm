@@ -47,6 +47,9 @@ data class MessageL1ToL2(
 
 @Serializable
 data class OrderedMessageL2ToL1(
+    @SerialName("order")
+    val order: Int,
+
     @SerialName("from_address")
     val fromAddress: Felt,
 
