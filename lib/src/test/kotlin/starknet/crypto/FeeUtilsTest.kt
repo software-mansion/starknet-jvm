@@ -46,7 +46,6 @@ class FeeUtilsTest {
             val result = estimateFee.toResourceBounds()
             val expected = ResourceBoundsMapping(
                 l1Gas = ResourceBounds(maxAmount = Uint64(1100), maxPricePerUnit = Uint128(150)),
-                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
             )
             assertEquals(expected, result)
         }
@@ -56,7 +55,6 @@ class FeeUtilsTest {
             val result = estimateFee.toResourceBounds(0.19, 0.13)
             val expected = ResourceBoundsMapping(
                 l1Gas = ResourceBounds(maxAmount = Uint64(1190), maxPricePerUnit = Uint128(113)),
-                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
             )
             assertEquals(expected, result)
         }
@@ -66,7 +64,6 @@ class FeeUtilsTest {
             val result = estimateFee.toResourceBounds(0.0, 0.0)
             val expected = ResourceBoundsMapping(
                 l1Gas = ResourceBounds(maxAmount = Uint64(1000), maxPricePerUnit = Uint128(100)),
-                l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
             )
             assertEquals(expected, result)
         }

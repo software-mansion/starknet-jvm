@@ -45,7 +45,6 @@ data class InvokeParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -73,7 +72,6 @@ data class DeclareParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -115,7 +113,6 @@ data class DeployAccountParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds.ZERO,
         ),
     )
 }

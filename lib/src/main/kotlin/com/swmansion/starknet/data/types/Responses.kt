@@ -70,11 +70,8 @@ data class EstimateFeeResponse(
         val maxAmount = addOverhead(gasConsumed.value, amountOverhead).toUint64
         val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
 
-        // As of Starknet 0.13.0, the L2 gas is not supported
-        // Because of this, the L2 gas values are hardcoded to 0
         return ResourceBoundsMapping(
             l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
-            l2Gas = ResourceBounds(maxAmount = Uint64.ZERO, maxPricePerUnit = Uint128.ZERO),
         )
     }
     private fun addOverhead(value: BigInteger, overhead: Double): BigInteger {
@@ -426,9 +423,10 @@ data class PendingStateUpdateResponse(
 ) : StateUpdate()
 
 // TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
+@Suppress("DataClassPrivateConstructor")
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class ResourceBoundsMapping(
+data class ResourceBoundsMapping private constructor(
     @SerialName("l1_gas")
     @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
@@ -436,7 +434,16 @@ data class ResourceBoundsMapping(
     @SerialName("l2_gas")
     @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
-)
+) {
+    constructor(
+        l1Gas: ResourceBounds
+    ) : this(
+        // As of Starknet 0.13.0, the L2 gas is not supported
+        // Because of this, the L2 gas values are hardcoded to 0
+        l1Gas = l1Gas,
+        l2Gas = ResourceBounds.ZERO,
+    )
+}
 
 @Serializable
 data class ResourceBounds(
