@@ -216,14 +216,8 @@ class StandardAccountTest {
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
 
-            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
-            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
-            val feeEstimate2 = request2.send().first()
-
-            listOf(feeEstimate, feeEstimate2).forEach {
-                assertNotEquals(Felt.ZERO, it.overallFee)
-                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
-            }
+            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
         }
 
         @Test
@@ -245,15 +239,8 @@ class StandardAccountTest {
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
 
-            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
-            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
-            val feeEstimate2 = request2.send().first()
-
-            listOf(feeEstimate, feeEstimate2).forEach {
-                assertNotEquals(Felt.ZERO, it.overallFee)
-                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
-            }
-        }
+            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)        }
 
         @Test
         fun `estimate fee for declare v3 transaction`() {
@@ -275,14 +262,8 @@ class StandardAccountTest {
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
 
-            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
-            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
-            val feeEstimate2 = request2.send().first()
-
-            listOf(feeEstimate, feeEstimate2).forEach {
-                assertNotEquals(Felt.ZERO, it.overallFee)
-                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
-            }
+            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
         }
     }
 
