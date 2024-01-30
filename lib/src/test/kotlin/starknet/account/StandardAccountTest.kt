@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
@@ -119,11 +120,8 @@ class StandardAccountTest {
         @Test
         fun `get nonce twice`() {
             val startNonce = account.getNonce().send()
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+
             account.executeV1(call).send()
 
             val endNonce = account.getNonce().send()
@@ -138,57 +136,58 @@ class StandardAccountTest {
     inner class InvokeEstimateTest {
         @Test
         fun `estimate fee for invoke v1 transaction`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV1(call)
-            val response = request.send()
-            val feeEstimate = response.first()
+            val feeEstimate = request.send().first()
 
-            assertNotEquals(Felt.ZERO, feeEstimate.gasPrice)
-            assertNotEquals(Felt.ZERO, feeEstimate.gasConsumed)
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
         }
 
         @Test
         fun `estimate fee for invoke v3 transaction`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV3(
                 listOf(call),
                 skipValidate = false,
             )
-            val response = request.send()
-            val feeEstimate = response.first()
+            val feeEstimate = request.send().first()
 
-            assertNotEquals(Felt.ZERO, feeEstimate.gasPrice)
-            assertNotEquals(Felt.ZERO, feeEstimate.gasConsumed)
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
         }
 
         @Test
-        fun `estimate fee for invoke v1 transaction at latest block tag`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
+        fun `estimate fee with skip validate flag`() {
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+
+            val nonce = account.getNonce().send()
+            val invokeTxV1Payload = account.signV1(call, ExecutionParams(nonce, Felt.ZERO))
+            val invokeTxV3Payload = account.signV3(call, InvokeParamsV3(nonce.value.add(BigInteger.ONE).toFelt, ResourceBounds.ZERO))
+
+            val invokeTxV1PayloadWithoutSignature = invokeTxV1Payload.copy(signature = emptyList())
+            val invokeTxV3PayloadWithoutSignature = invokeTxV3Payload.copy(signature = emptyList())
+
+            val request = provider.getEstimateFee(
+                payload = listOf(invokeTxV1PayloadWithoutSignature, invokeTxV3PayloadWithoutSignature),
+                simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE),
             )
+            val feeEstimates = request.send()
+            feeEstimates.forEach {
+                assertNotEquals(Felt.ZERO, it.overallFee)
+                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+            }
+        }
+
+        @Test
+        fun `estimate fee for invoke v1 transaction at latest block tag`() {
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV1(call, BlockTag.LATEST)
-            val response = request.send()
-            val feeEstimate = response.first()
+            val feeEstimate = request.send().first()
 
-            assertNotEquals(Felt.ZERO, feeEstimate.gasPrice)
-            assertNotEquals(Felt.ZERO, feeEstimate.gasConsumed)
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
         }
@@ -240,7 +239,7 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)        }
+            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value) }
 
         @Test
         fun `estimate fee for declare v3 transaction`() {
@@ -842,8 +841,9 @@ class StandardAccountTest {
             assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
         }
     }
+
     @Test
-    fun `sing and send deploy account v1 transaction`() {
+    fun `sign and send deploy account v1 transaction`() {
         val privateKey = Felt(11111)
         val publicKey = StarknetCurve.getPublicKey(privateKey)
 
