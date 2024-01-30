@@ -27,14 +27,12 @@ data class Uint256(override val value: BigInteger) : NumAsHexBase(value), Conver
     /**
      * Get low 128 bits of Uint256
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     val low: Felt
         get() = Felt(value.mod(SHIFT_MOD))
 
     /**
      * Get high 128 bits of Uint256
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     val high: Felt
         get() = Felt(value.shiftRight(SHIFT))
 
