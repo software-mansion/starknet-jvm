@@ -45,25 +45,25 @@ internal class TransactionHashCalculatorTest {
 
     @Test
     fun `calculate data availability modes`(){
-        val result = TransactionHashCalculator.dataAvailabilityModes(
+        val result = TransactionHashCalculator.prepareDataAvailabilityModes(
             feeDataAvailabilityMode = DAMode.L1,
             nonceDataAvailabilityMode = DAMode.L1,
         )
         assertEquals(Felt.ZERO, result)
 
-        val result2 = TransactionHashCalculator.dataAvailabilityModes(
+        val result2 = TransactionHashCalculator.prepareDataAvailabilityModes(
             feeDataAvailabilityMode = DAMode.L2,
             nonceDataAvailabilityMode = DAMode.L1,
         )
         assertEquals(Felt.ONE, result2)
 
-        val result3 = TransactionHashCalculator.dataAvailabilityModes(
+        val result3 = TransactionHashCalculator.prepareDataAvailabilityModes(
             feeDataAvailabilityMode = DAMode.L1,
             nonceDataAvailabilityMode = DAMode.L2,
         )
         assertEquals(Felt.fromHex("0x100000000"), result3)
 
-        val result4 = TransactionHashCalculator.dataAvailabilityModes(
+        val result4 = TransactionHashCalculator.prepareDataAvailabilityModes(
             feeDataAvailabilityMode = DAMode.L2,
             nonceDataAvailabilityMode = DAMode.L2,
         )
