@@ -262,7 +262,7 @@ object TransactionHashCalculator {
         )
     }
 
-    internal fun prepareResourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
+    private fun prepareResourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
         val l1GasBound = l1GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l1Gas.maxPricePerUnit.value)
