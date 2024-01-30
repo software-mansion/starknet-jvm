@@ -176,7 +176,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `estimate fee for invoke transaction at latest block tag`() {
+        fun `estimate fee for invoke v1 transaction at latest block tag`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
