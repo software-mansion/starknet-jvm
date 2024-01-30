@@ -210,11 +210,6 @@ data class InvokeTransactionV3(
             senderAddress = senderAddress,
             version = version,
             resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
         )
     }
 
@@ -448,11 +443,6 @@ data class DeclareTransactionV3(
             senderAddress = senderAddress,
             nonce = nonce,
             resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
             signature = signature,
             compiledClassHash = compiledClassHash,
             version = version,
@@ -609,11 +599,6 @@ data class DeployAccountTransactionV3(
             nonce = nonce,
             signature = signature,
             resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-
         )
     }
 }

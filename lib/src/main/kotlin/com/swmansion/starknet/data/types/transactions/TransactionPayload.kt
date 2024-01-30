@@ -37,8 +37,9 @@ data class InvokeTransactionV1Payload(
     val nonce: Felt,
 ) : InvokeTransactionPayload()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeTransactionV3Payload(
+data class InvokeTransactionV3Payload private constructor(
     @SerialName("sender_address")
     val senderAddress: Felt,
 
@@ -71,7 +72,28 @@ data class InvokeTransactionV3Payload(
 
     @SerialName("version")
     val version: Felt,
-) : InvokeTransactionPayload()
+) : InvokeTransactionPayload() {
+    constructor(
+        senderAddress: Felt,
+        calldata: Calldata,
+        signature: Signature,
+        nonce: Felt,
+        resourceBounds: ResourceBoundsMapping,
+        version: Felt,
+    ) : this(
+        senderAddress = senderAddress,
+        calldata = calldata,
+        signature = signature,
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+        version = version,
+    )
+}
 
 @Serializable
 sealed class DeclareTransactionPayload() : TransactionPayload()
@@ -127,8 +149,9 @@ data class DeclareTransactionV2Payload(
     override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransactionPayload()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionV3Payload(
+data class DeclareTransactionV3Payload private constructor(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition,
 
@@ -167,7 +190,30 @@ data class DeclareTransactionV3Payload(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
-) : DeclareTransactionPayload()
+) : DeclareTransactionPayload() {
+    constructor(
+        contractDefinition: Cairo1ContractDefinition,
+        nonce: Felt,
+        signature: Signature,
+        senderAddress: Felt,
+        compiledClassHash: Felt,
+        resourceBounds: ResourceBoundsMapping,
+        version: Felt,
+    ) : this(
+        contractDefinition = contractDefinition,
+        nonce = nonce,
+        signature = signature,
+        senderAddress = senderAddress,
+        compiledClassHash = compiledClassHash,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+        version = version,
+    )
+}
 
 @Serializable
 sealed class DeployAccountTransactionPayload() : TransactionPayload()
@@ -199,8 +245,9 @@ data class DeployAccountTransactionV1Payload(
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : DeployAccountTransactionPayload()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionV3Payload(
+data class DeployAccountTransactionV3Payload private constructor(
     @SerialName("class_hash")
     val classHash: Felt,
 
@@ -236,4 +283,26 @@ data class DeployAccountTransactionV3Payload(
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-) : DeployAccountTransactionPayload()
+) : DeployAccountTransactionPayload() {
+    constructor(
+        classHash: Felt,
+        salt: Felt,
+        constructorCalldata: Calldata,
+        version: Felt,
+        nonce: Felt,
+        signature: Signature,
+        resourceBounds: ResourceBoundsMapping,
+    ) : this(
+        classHash = classHash,
+        salt = salt,
+        constructorCalldata = constructorCalldata,
+        version = version,
+        nonce = nonce,
+        signature = signature,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+}
