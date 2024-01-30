@@ -369,11 +369,10 @@ class StandardAccountTest {
 
     @Test
     fun `sign and send declare v3 transaction`() {
-        ScarbClient.createSaltedContract(
+        ScarbClient.buildSaltedContract(
             placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
             saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
         )
-        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v2"))
         val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
@@ -1082,11 +1081,10 @@ class StandardAccountTest {
 
     @Test
     fun `simulate declare v2 transaction`() {
-        ScarbClient.createSaltedContract(
+        ScarbClient.buildSaltedContract(
             placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
             saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
         )
-        ScarbClient.buildContracts(Path.of("src/test/resources/contracts_v1"))
         val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
