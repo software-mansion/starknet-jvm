@@ -620,12 +620,13 @@ data class DeployAccountTransactionV3(
 
 object TransactionFactory {
     @JvmStatic
+    @JvmOverloads
     fun makeInvokeV1Transaction(
         senderAddress: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
         nonce: Felt,
-        maxFee: Felt = Felt.ZERO,
+        maxFee: Felt,
         signature: Signature = emptyList(),
         version: Felt,
     ): InvokeTransactionV1 {
@@ -649,6 +650,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeInvokeV3Transaction(
         senderAddress: Felt,
         calldata: Calldata,
@@ -693,6 +695,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeDeployAccountV1Transaction(
         classHash: Felt,
         contractAddress: Felt,
@@ -700,7 +703,7 @@ object TransactionFactory {
         calldata: Calldata,
         chainId: StarknetChainId,
         version: Felt,
-        maxFee: Felt = Felt.ZERO,
+        maxFee: Felt,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
     ): DeployAccountTransactionV1 {
@@ -727,6 +730,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeDeployAccountV3Transaction(
         classHash: Felt,
         senderAddress: Felt,
@@ -773,6 +777,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeDeclareV1Transaction(
         classHash: Felt,
         senderAddress: Felt,
@@ -804,6 +809,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
@@ -839,6 +845,7 @@ object TransactionFactory {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun makeDeclareV3Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
