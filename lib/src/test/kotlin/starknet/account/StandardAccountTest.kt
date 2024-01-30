@@ -791,74 +791,76 @@ class StandardAccountTest {
         }
     }
 
-    @Test
-    fun `estimate deploy account v1 fee`() {
-        val privateKey = Felt(11112)
-        val publicKey = StarknetCurve.getPublicKey(privateKey)
+    @Nested
+    inner class DeployAccountEstimateTest {
+        @Test
+        fun `estimate fee for deploy account v1 transaction`() {
+            val privateKey = Felt(11112)
+            val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-        val salt = Felt.ONE
-        val calldata = listOf(publicKey)
-        val address = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = accountContractClassHash,
-            calldata = calldata,
-            salt = salt,
-        )
+            val salt = Felt.ONE
+            val calldata = listOf(publicKey)
+            val address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+            )
 
-        val account = StandardAccount(
-            address,
-            privateKey,
-            provider,
-        )
-        val payloadForFeeEstimation = account.signDeployAccountV1(
-            classHash = accountContractClassHash,
-            salt = salt,
-            calldata = calldata,
-            maxFee = Felt.ZERO,
-            nonce = Felt.ZERO,
-            forFeeEstimate = true,
-        )
-        assertEquals(
-            payloadForFeeEstimation.version,
-            Felt(BigInteger("340282366920938463463374607431768211457")),
-        )
+            val account = StandardAccount(
+                address,
+                privateKey,
+                provider,
+            )
+            val payloadForFeeEstimation = account.signDeployAccountV1(
+                classHash = accountContractClassHash,
+                salt = salt,
+                calldata = calldata,
+                maxFee = Felt.ZERO,
+                nonce = Felt.ZERO,
+                forFeeEstimate = true,
+            )
+            assertEquals(
+                payloadForFeeEstimation.version,
+                Felt(BigInteger("340282366920938463463374607431768211457")),
+            )
 
-        val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-        assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
+            val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
+        }
+
+        @Test
+        fun `estimate fee for deploy account v3 transaction`() {
+            val privateKey = Felt(22223)
+            val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+            val salt = Felt(2)
+            val calldata = listOf(publicKey)
+            val address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+            )
+            val account = StandardAccount(
+                address,
+                privateKey,
+                provider,
+            )
+            val params = DeployAccountParamsV3(
+                nonce = Felt.ZERO,
+                l1ResourceBounds = ResourceBounds.ZERO,
+            )
+            val payloadForFeeEstimation = account.signDeployAccountV3(
+                classHash = accountContractClassHash,
+                salt = salt,
+                calldata = calldata,
+                params = params,
+                forFeeEstimate = true,
+            )
+
+            val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
+        }
     }
-
-    @Test
-    fun `estimate deploy account v3 fee`() {
-        val privateKey = Felt(22223)
-        val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-        val salt = Felt(2)
-        val calldata = listOf(publicKey)
-        val address = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = accountContractClassHash,
-            calldata = calldata,
-            salt = salt,
-        )
-        val account = StandardAccount(
-            address,
-            privateKey,
-            provider,
-        )
-        val params = DeployAccountParamsV3(
-            nonce = Felt.ZERO,
-            l1ResourceBounds = ResourceBounds.ZERO,
-        )
-        val payloadForFeeEstimation = account.signDeployAccountV3(
-            classHash = accountContractClassHash,
-            salt = salt,
-            calldata = calldata,
-            params = params,
-            forFeeEstimate = true,
-        )
-
-        val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-        assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
-    }
-
     @Test
     fun `sing and send deploy account v1 transaction`() {
         val privateKey = Felt(11111)
