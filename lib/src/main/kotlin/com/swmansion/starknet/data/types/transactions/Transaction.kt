@@ -604,6 +604,12 @@ data class DeployAccountTransactionV3(
 }
 
 object TransactionFactory {
+    private val tip = Uint64.ZERO
+    private val paymasterData: PaymasterData = emptyList()
+    private val accountDeploymentData: AccountDeploymentData = emptyList()
+    private val nonceDataAvailabilityMode = DAMode.L1
+    private val feeDataAvailabilityMode = DAMode.L1
+
     @JvmStatic
     @JvmOverloads
     fun makeInvokeV1Transaction(
@@ -644,11 +650,6 @@ object TransactionFactory {
         signature: Signature = emptyList(),
         version: Felt,
         resourceBounds: ResourceBoundsMapping,
-        tip: Uint64,
-        paymasterData: List<Felt>,
-        accountDeploymentData: List<Felt>,
-        nonceDataAvailabilityMode: DAMode,
-        feeDataAvailabilityMode: DAMode,
     ): InvokeTransactionV3 {
         val hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
             senderAddress = senderAddress,
@@ -726,10 +727,6 @@ object TransactionFactory {
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
         resourceBounds: ResourceBoundsMapping,
-        tip: Uint64,
-        paymasterData: List<Felt>,
-        nonceDataAvailabilityMode: DAMode,
-        feeDataAvailabilityMode: DAMode,
     ): DeployAccountTransactionV3 {
         val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
             classHash = classHash,
@@ -838,13 +835,8 @@ object TransactionFactory {
         version: Felt,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
-        resourceBounds: ResourceBoundsMapping,
-        tip: Uint64,
-        paymasterData: List<Felt>,
-        accountDeploymentData: List<Felt>,
-        nonceDataAvailabilityMode: DAMode,
-        feeDataAvailabilityMode: DAMode,
         signature: Signature = emptyList(),
+        resourceBounds: ResourceBoundsMapping,
     ): DeclareTransactionV3 {
         val classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
         val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition)

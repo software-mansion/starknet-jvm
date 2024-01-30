@@ -79,11 +79,6 @@ class StandardAccount(
             nonce = params.nonce,
             version = signVersion,
             resourceBounds = params.resourceBounds,
-            tip = params.tip,
-            paymasterData = params.paymasterData,
-            accountDeploymentData = params.accountDeploymentData,
-            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -138,10 +133,6 @@ class StandardAccount(
             version = signVersion,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
-            tip = params.tip,
-            paymasterData = params.paymasterData,
-            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -213,12 +204,7 @@ class StandardAccount(
             nonce = params.nonce,
             version = signVersion,
             resourceBounds = params.resourceBounds,
-            tip = params.tip,
-            paymasterData = params.paymasterData,
-            accountDeploymentData = params.accountDeploymentData,
             casmContractDefinition = casmContractDefinition,
-            nonceDataAvailabilityMode = params.nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = params.feeDataAvailabilityMode,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -463,11 +449,6 @@ class StandardAccount(
             signature = payload.signature,
             version = payload.version,
             resourceBounds = payload.resourceBounds,
-            tip = payload.tip,
-            paymasterData = payload.paymasterData,
-            accountDeploymentData = payload.accountDeploymentData,
-            nonceDataAvailabilityMode = payload.nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = payload.feeDataAvailabilityMode,
         )
         return listOf(signedTransaction.toPayload())
     }
