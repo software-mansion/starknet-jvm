@@ -1006,8 +1006,6 @@ class StandardAccountTest {
         }
     }
 
-
-
     @Nested
     inner class SimulateTransactionsTest {
         @Test
