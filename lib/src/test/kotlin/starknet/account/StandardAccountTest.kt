@@ -1071,323 +1071,334 @@ class StandardAccountTest {
         assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
     }
 
-    @Test
-    fun `simulate invoke v3 and deploy account v3 transactions`() {
-        val account = StandardAccount(accountAddress, signer, provider)
-        devnetClient.prefundAccountStrk(accountAddress)
+    @Nested
+    inner class SimulateTransactionsTest {
+        @Test
+        fun `simulate invoke v3 and deploy account v3 transactions`() {
+            val account = StandardAccount(accountAddress, signer, provider)
+            devnetClient.prefundAccountStrk(accountAddress)
 
-        val nonce = account.getNonce().send()
-        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-        val params = InvokeParamsV3(
-            nonce = nonce,
-            l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
-            ),
-        )
-
-        val invokeTx = account.signV3(call, params)
-
-        val privateKey = Felt(22222)
-        val publicKey = StarknetCurve.getPublicKey(privateKey)
-        val salt = Felt.ONE
-        val calldata = listOf(publicKey)
-
-        val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = accountContractClassHash,
-            calldata = calldata,
-            salt = salt,
-        )
-        val newAccount = StandardAccount(newAccountAddress, privateKey, provider)
-
-        devnetClient.prefundAccountStrk(newAccountAddress)
-        val deployAccountTx = newAccount.signDeployAccountV3(
-            classHash = accountContractClassHash,
-            salt = salt,
-            calldata = calldata,
-            l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
-            ),
-        )
-
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(invokeTx, deployAccountTx),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(2, simulationResult.size)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
-    }
-
-    @Test
-    fun `simulate declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test.
-        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-        // Chances are, the contract was compiled with a different compiler version.
-
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(declareTransactionPayload),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(1, simulationResult.size)
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is DeclareTransactionTrace)
-    }
-
-    @Test
-    fun `simulate declare v2 transaction`() {
-        ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
-        )
-        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
-
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val casmContractDefinition = CasmContractDefinition(casmCode)
-
-        val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclareV2(
-            contractDefinition,
-            casmContractDefinition,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(declareTransactionPayload),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(1, simulationResult.size)
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is DeclareTransactionTrace)
-    }
-
-    @Test
-    fun `simulate declare v3 transaction`() {
-        ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
-        )
-        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
-
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val casmContractDefinition = CasmContractDefinition(casmCode)
-
-        val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclareV3(
-            contractDefinition,
-            casmContractDefinition,
-            DeclareParamsV3(
+            val nonce = account.getNonce().send()
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val params = InvokeParamsV3(
                 nonce = nonce,
                 l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-            ),
-        )
+            )
 
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(declareTransactionPayload),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(1, simulationResult.size)
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is DeclareTransactionTrace)
-    }
+            val invokeTx = account.signV3(call, params)
 
-    // TODO: replace this with a proper devnet test
-    // Legacy devnet never returns invoke transaction trace that has revert_reason field in execution_invocation.
-    @Test
-    fun `simulate reverted invoke transaction`() {
-        val mockedResponse = """
-        {
-            "jsonrpc": "2.0",
-            "id": 0,
-            "result": [
-                {
-                    "fee_estimation": {
-                        "gas_consumed": "0x9d8",
-                        "gas_price": "0x3b9aca2f",
-                        "overall_fee": "0x24abbb63ea8"
-                    },
-                    "transaction_trace": {
-                        "type": "INVOKE",
-                        "execute_invocation": {
-                           "revert_reason": "Placeholder revert reason."
-                        }
-                    }
-                }
-            ]
+            val privateKey = Felt(22222)
+            val publicKey = StarknetCurve.getPublicKey(privateKey)
+            val salt = Felt.ONE
+            val calldata = listOf(publicKey)
+
+            val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+            )
+            val newAccount = StandardAccount(newAccountAddress, privateKey, provider)
+
+            devnetClient.prefundAccountStrk(newAccountAddress)
+            val deployAccountTx = newAccount.signDeployAccountV3(
+                classHash = accountContractClassHash,
+                salt = salt,
+                calldata = calldata,
+                l1ResourceBounds = ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
+            )
+
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = provider.simulateTransactions(
+                transactions = listOf(invokeTx, deployAccountTx),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+            assertEquals(2, simulationResult.size)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+            assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
         }
-        """.trimIndent()
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+
+        @Test
+        fun `simulate declare v1 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
+            val contractDefinition = Cairo0ContractDefinition(contractCode)
+            val nonce = account.getNonce().send()
+
+            // Note to future developers experiencing failures in this test.
+            // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
+            // If this test starts randomly falling, try recalculating class hash.
+            // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+            // Chances are, the contract was compiled with a different compiler version.
+
+            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
+            val declareTransactionPayload = account.signDeclareV1(
+                contractDefinition,
+                classHash,
+                ExecutionParams(
+                    nonce = nonce,
+                    maxFee = Felt(1000000000000000L),
+                ),
+            )
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = provider.simulateTransactions(
+                transactions = listOf(declareTransactionPayload),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+            assertEquals(1, simulationResult.size)
+            val trace = simulationResult.first().transactionTrace
+            assertTrue(trace is DeclareTransactionTrace)
         }
-        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
 
-        val nonce = account.getNonce().send()
-        val maxFee = Felt(1)
-        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-        val params = ExecutionParams(nonce, maxFee)
-        val invokeTx = account.signV1(call, params)
+        @Test
+        fun `simulate declare v2 transaction`() {
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+            )
+            val contractCode =
+                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
+                    .readText()
+            val casmCode =
+                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
+                    .readText()
 
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = mockProvider.simulateTransactions(
-            transactions = listOf(invokeTx),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val casmContractDefinition = CasmContractDefinition(casmCode)
 
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is InvokeTransactionTraceBase)
-        assertTrue(trace is RevertedInvokeTransactionTrace)
-        val revertedTrace = trace as RevertedInvokeTransactionTrace
-        assertNotNull(revertedTrace.executeInvocation)
-        assertNotNull(revertedTrace.executeInvocation.revertReason)
-    }
+            val nonce = account.getNonce().send()
+            val declareTransactionPayload = account.signDeclareV2(
+                contractDefinition,
+                casmContractDefinition,
+                ExecutionParams(
+                    nonce = nonce,
+                    maxFee = Felt(1000000000000000L),
+                ),
+            )
 
-    @Test
-    fun `simulate transaction with messages`() {
-        val mockedResponse = """
-        {
-            "jsonrpc": "2.0",
-            "id": 0,
-            "result": [
-                {
-                    "fee_estimation": {
-                        "gas_consumed": "0x9d8",
-                        "gas_price": "0x3b9aca2f",
-                        "overall_fee": "0x24abbb63ea8"
-                    },
-                    "transaction_trace": {
-                        "type": "INVOKE",
-                        "execute_invocation": {
-                            "contract_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
-                            "entry_point_selector": "0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad",
-                            "calldata": [
-                                "0x1",
-                                "0x2"
-                            ],
-                            "caller_address": "0x0",
-                            "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
-                            "entry_point_type": "EXTERNAL",
-                            "call_type": "CALL",
-                            "result": [
-                                "0x1",
-                                "0x1"
-                            ],
-                            "calls": [
-                                {
-                                    "contract_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-                                    "entry_point_selector": "0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e",
-                                    "calldata": [
-                                        "0x1",
-                                        "0x3e8",
-                                        "0x0"
-                                    ],
-                                    "caller_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
-                                    "class_hash": "0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf",
-                                    "entry_point_type": "EXTERNAL",
-                                    "call_type": "CALL",
-                                    "result": [
-                                        "0x1"
-                                    ],
-                                    "calls": [],
-                                    "events": [
-                                        {
-                                            "keys": [
-                                                "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9"
-                                            ],
-                                            "data": [
-                                                "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
-                                                "0x1"
-                                            ],
-                                            "order": 0
-                                        }
-                                    ],
-                                    "messages": [],
-                                    "execution_resources": {
-                                        "steps": 582
-                                    }
-                                }
-                            ],
-                            "events": [],
-                            "messages": [
-                                {
-                                    "order": 0,
-                                    "from_address": "0x123",
-                                    "to_address": "0x456",
-                                    "payload": ["0x1", "0x2"]
-                                }, 
-                                {
-                                    "order": 1,
-                                    "from_address": "0x456",
-                                    "to_address": "0x789",
-                                    "payload": []
-                                }
-                            ],
-                            "execution_resources": {
-                                "steps": 800
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = provider.simulateTransactions(
+                transactions = listOf(declareTransactionPayload),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+            assertEquals(1, simulationResult.size)
+            val trace = simulationResult.first().transactionTrace
+            assertTrue(trace is DeclareTransactionTrace)
+        }
+
+        @Test
+        fun `simulate declare v3 transaction`() {
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+            )
+            val contractCode =
+                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
+                    .readText()
+            val casmCode =
+                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
+                    .readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val casmContractDefinition = CasmContractDefinition(casmCode)
+
+            val nonce = account.getNonce().send()
+            val declareTransactionPayload = account.signDeclareV3(
+                contractDefinition,
+                casmContractDefinition,
+                DeclareParamsV3(
+                    nonce = nonce,
+                    l1ResourceBounds = ResourceBounds(
+                        maxAmount = Uint64(20000),
+                        maxPricePerUnit = Uint128(120000000000),
+                    ),
+                ),
+            )
+
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = provider.simulateTransactions(
+                transactions = listOf(declareTransactionPayload),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+            assertEquals(1, simulationResult.size)
+            val trace = simulationResult.first().transactionTrace
+            assertTrue(trace is DeclareTransactionTrace)
+        }
+
+        // TODO: replace this with a proper devnet test
+        // Legacy devnet never returns invoke transaction trace that has revert_reason field in execution_invocation.
+        @Test
+        fun `simulate reverted invoke transaction`() {
+            val mockedResponse = """
+            {
+                "jsonrpc": "2.0",
+                "id": 0,
+                "result": [
+                    {
+                        "fee_estimation": {
+                            "gas_consumed": "0x9d8",
+                            "gas_price": "0x3b9aca2f",
+                            "overall_fee": "0x24abbb63ea8"
+                        },
+                        "transaction_trace": {
+                            "type": "INVOKE",
+                            "execute_invocation": {
+                               "revert_reason": "Placeholder revert reason."
                             }
                         }
                     }
-                }
-            ]
+                ]
+            }
+            """.trimIndent()
+            val httpService = mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
+            val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+
+            val nonce = account.getNonce().send()
+            val maxFee = Felt(1)
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val params = ExecutionParams(nonce, maxFee)
+            val invokeTx = account.signV1(call, params)
+
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = mockProvider.simulateTransactions(
+                transactions = listOf(invokeTx),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+
+            val trace = simulationResult.first().transactionTrace
+            assertTrue(trace is InvokeTransactionTraceBase)
+            assertTrue(trace is RevertedInvokeTransactionTrace)
+            val revertedTrace = trace as RevertedInvokeTransactionTrace
+            assertNotNull(revertedTrace.executeInvocation)
+            assertNotNull(revertedTrace.executeInvocation.revertReason)
         }
-        """.trimIndent()
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+
+        @Test
+        fun `simulate transaction with messages`() {
+            val mockedResponse = """
+            {
+                "jsonrpc": "2.0",
+                "id": 0,
+                "result": [
+                    {
+                        "fee_estimation": {
+                            "gas_consumed": "0x9d8",
+                            "gas_price": "0x3b9aca2f",
+                            "overall_fee": "0x24abbb63ea8"
+                        },
+                        "transaction_trace": {
+                            "type": "INVOKE",
+                            "execute_invocation": {
+                                "contract_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                                "entry_point_selector": "0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad",
+                                "calldata": [
+                                    "0x1",
+                                    "0x2"
+                                ],
+                                "caller_address": "0x0",
+                                "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
+                                "entry_point_type": "EXTERNAL",
+                                "call_type": "CALL",
+                                "result": [
+                                    "0x1",
+                                    "0x1"
+                                ],
+                                "calls": [
+                                    {
+                                        "contract_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                                        "entry_point_selector": "0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e",
+                                        "calldata": [
+                                            "0x1",
+                                            "0x3e8",
+                                            "0x0"
+                                        ],
+                                        "caller_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                                        "class_hash": "0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf",
+                                        "entry_point_type": "EXTERNAL",
+                                        "call_type": "CALL",
+                                        "result": [
+                                            "0x1"
+                                        ],
+                                        "calls": [],
+                                        "events": [
+                                            {
+                                                "keys": [
+                                                    "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9"
+                                                ],
+                                                "data": [
+                                                    "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                                                    "0x1"
+                                                ],
+                                                "order": 0
+                                            }
+                                        ],
+                                        "messages": [],
+                                        "execution_resources": {
+                                            "steps": 582
+                                        }
+                                    }
+                                ],
+                                "events": [],
+                                "messages": [
+                                    {
+                                        "order": 0,
+                                        "from_address": "0x123",
+                                        "to_address": "0x456",
+                                        "payload": ["0x1", "0x2"]
+                                    }, 
+                                    {
+                                        "order": 1,
+                                        "from_address": "0x456",
+                                        "to_address": "0x789",
+                                        "payload": []
+                                    }
+                                ],
+                                "execution_resources": {
+                                    "steps": 800
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+            """.trimIndent()
+            val httpService = mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
+            val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+
+            val nonce = account.getNonce().send()
+            val maxFee = Felt(1)
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val params = ExecutionParams(nonce, maxFee)
+            val invokeTx = account.signV1(call, params)
+
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = mockProvider.simulateTransactions(
+                transactions = listOf(invokeTx),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+
+            val trace = simulationResult.first().transactionTrace
+            assertTrue(trace is InvokeTransactionTrace)
+            val invokeTrace = trace as InvokeTransactionTrace
+            val messages = invokeTrace.executeInvocation.messages
+            assertEquals(2, messages.size)
+            assertEquals(0, messages[0].order)
+            assertEquals(1, messages[1].order)
         }
-        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
-
-        val nonce = account.getNonce().send()
-        val maxFee = Felt(1)
-        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-        val params = ExecutionParams(nonce, maxFee)
-        val invokeTx = account.signV1(call, params)
-
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = mockProvider.simulateTransactions(
-            transactions = listOf(invokeTx),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is InvokeTransactionTrace)
-        val invokeTrace = trace as InvokeTransactionTrace
-        val messages = invokeTrace.executeInvocation.messages
-        assertEquals(2, messages.size)
-        assertEquals(0, messages[0].order)
-        assertEquals(1, messages[1].order)
     }
 }
