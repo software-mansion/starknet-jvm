@@ -1164,4 +1164,120 @@ class StandardAccountTest {
         assertNotNull(revertedTrace.executeInvocation)
         assertNotNull(revertedTrace.executeInvocation.revertReason)
     }
+
+    @Test
+    fun `simulate transaction with messages`() {
+        val mockedResponse = """
+        {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": [
+                {
+                    "fee_estimation": {
+                        "gas_consumed": "0x9d8",
+                        "gas_price": "0x3b9aca2f",
+                        "overall_fee": "0x24abbb63ea8"
+                    },
+                    "transaction_trace": {
+                        "type": "INVOKE",
+                        "execute_invocation": {
+                            "contract_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                            "entry_point_selector": "0x15d40a3d6ca2ac30f4031e42be28da9b056fef9bb7357ac5e85627ee876e5ad",
+                            "calldata": [
+                                "0x1",
+                                "0x2"
+                            ],
+                            "caller_address": "0x0",
+                            "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
+                            "entry_point_type": "EXTERNAL",
+                            "call_type": "CALL",
+                            "result": [
+                                "0x1",
+                                "0x1"
+                            ],
+                            "calls": [
+                                {
+                                    "contract_address": "0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                                    "entry_point_selector": "0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e",
+                                    "calldata": [
+                                        "0x1",
+                                        "0x3e8",
+                                        "0x0"
+                                    ],
+                                    "caller_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                                    "class_hash": "0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf",
+                                    "entry_point_type": "EXTERNAL",
+                                    "call_type": "CALL",
+                                    "result": [
+                                        "0x1"
+                                    ],
+                                    "calls": [],
+                                    "events": [
+                                        {
+                                            "keys": [
+                                                "0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9"
+                                            ],
+                                            "data": [
+                                                "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+                                                "0x1"
+                                            ],
+                                            "order": 0
+                                        }
+                                    ],
+                                    "messages": [],
+                                    "execution_resources": {
+                                        "steps": 582
+                                    }
+                                }
+                            ],
+                            "events": [],
+                            "messages": [
+                                {
+                                    "order": 0,
+                                    "from_address": "0x123",
+                                    "to_address": "0x456",
+                                    "payload": ["0x1", "0x2"]
+                                }, 
+                                {
+                                    "order": 1,
+                                    "from_address": "0x456",
+                                    "to_address": "0x789",
+                                    "payload": []
+                                }
+                            ],
+                            "execution_resources": {
+                                "steps": 800
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+
+        val nonce = account.getNonce().send()
+        val maxFee = Felt(1)
+        val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+        val params = ExecutionParams(nonce, maxFee)
+        val invokeTx = account.sign(call, params)
+
+        val simulationFlags = setOf<SimulationFlag>()
+        val simulationResult = mockProvider.simulateTransactions(
+            transactions = listOf(invokeTx),
+            blockTag = BlockTag.PENDING,
+            simulationFlags = simulationFlags,
+        ).send()
+
+        val trace = simulationResult.first().transactionTrace
+        assertTrue(trace is InvokeTransactionTrace)
+        val invokeTrace = trace as InvokeTransactionTrace
+        val messages = invokeTrace.executeInvocation.messages
+        assertEquals(2, messages.size)
+        assertEquals(0, messages[0].order)
+        assertEquals(1, messages[1].order)
+    }
 }
