@@ -262,7 +262,7 @@ object TransactionHashCalculator {
         )
     }
 
-    private fun resourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
+    internal fun resourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
         val l1GasBound = l1GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l1Gas.maxPricePerUnit.value)
@@ -275,7 +275,7 @@ object TransactionHashCalculator {
         return l1GasBound to l2GasBound
     }
 
-    private fun dataAvailabilityModes(
+    internal fun dataAvailabilityModes(
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
