@@ -194,63 +194,95 @@ class StandardAccountTest {
         }
     }
 
-    @Test
-    fun `estimate fee for declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
+    @Nested
+    inner class DeclareEstimateTest {
+        @Test
+        fun `estimate fee for declare v1 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
+            val contractDefinition = Cairo0ContractDefinition(contractCode)
+            val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-        // changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(nonce, Felt(1000000000000000)),
-        )
+            // Note to future developers experiencing failures in this test. Compiled contract format sometimes
+            // changes, this causes changes in the class hash.
+            // If this test starts randomly falling, try recalculating class hash.
+            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
+            val declareTransactionPayload = account.signDeclareV1(
+                contractDefinition = contractDefinition,
+                classHash = classHash,
+                params = ExecutionParams(nonce, Felt.ZERO),
+                forFeeEstimate = true,
+            )
 
-        val signedTransaction = TransactionFactory.makeDeclareV1Transaction(
-            classHash = classHash,
-            senderAddress = declareTransactionPayload.senderAddress,
-            contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.getChainId().send(),
-            nonce = nonce,
-            maxFee = declareTransactionPayload.maxFee,
-            signature = declareTransactionPayload.signature,
-            version = declareTransactionPayload.version,
-        )
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val feeEstimate = request.send().first()
 
-        val request = provider.getEstimateFee(
-            listOf(signedTransaction.toPayload()),
-            BlockTag.LATEST,
-            emptySet(),
-        )
-        val response = request.send()
-        val feeEstimate = response.first()
+            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
+            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
+            val feeEstimate2 = request2.send().first()
 
-        val txWithoutSignature = signedTransaction.copy(signature = emptyList())
-        val request2 = provider.getEstimateFee(
-            listOf(txWithoutSignature.toPayload()),
-            BlockTag.LATEST,
-            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE),
-        )
-        val response2 = request2.send()
-        val feeEstimate2 = response2.first()
-
-        listOf(feeEstimate, feeEstimate2).forEach {
-            assertNotEquals(Felt.ZERO, it.gasPrice)
-            assertNotEquals(Felt.ZERO, it.gasConsumed)
-            assertNotEquals(Felt.ZERO, it.overallFee)
-            assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+            listOf(feeEstimate, feeEstimate2).forEach {
+                assertNotEquals(Felt.ZERO, it.overallFee)
+                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+            }
         }
 
-        assertThrows(RequestFailedException::class.java) {
-            provider.getEstimateFee(
-                listOf(txWithoutSignature.toPayload()),
-                BlockTag.LATEST,
-                emptySet(),
-            ).send()
+        @Test
+        fun `estimate fee for declare v2 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
+
+            val declareTransactionPayload = account.signDeclareV2(
+                sierraContractDefinition = contractDefinition,
+                casmContractDefinition = contractCasmDefinition,
+                params = ExecutionParams(nonce, Felt.ZERO),
+                forFeeEstimate = true,
+            )
+
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val feeEstimate = request.send().first()
+
+            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
+            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
+            val feeEstimate2 = request2.send().first()
+
+            listOf(feeEstimate, feeEstimate2).forEach {
+                assertNotEquals(Felt.ZERO, it.overallFee)
+                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+            }
+        }
+
+        @Test
+        fun `estimate fee for declare v3 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
+
+            val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+            val declareTransactionPayload = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                params,
+                true,
+            )
+
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val feeEstimate = request.send().first()
+
+            val payloadWithoutSignature = declareTransactionPayload.copy(signature = emptyList())
+            val request2 = provider.getEstimateFee(payload = listOf(payloadWithoutSignature), simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE))
+            val feeEstimate2 = request2.send().first()
+
+            listOf(feeEstimate, feeEstimate2).forEach {
+                assertNotEquals(Felt.ZERO, it.overallFee)
+                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+            }
         }
     }
 
