@@ -1006,73 +1006,75 @@ class StandardAccountTest {
         }
     }
 
-    @Test
-    fun `simulate invoke v1 and deploy account v1 transactions`() {
-        val account = StandardAccount(accountAddress, signer, provider)
-        devnetClient.prefundAccountEth(accountAddress)
 
-        val nonce = account.getNonce().send()
-        val call = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "increase_balance",
-            calldata = listOf(Felt(1000)),
-        )
-        val params = ExecutionParams(nonce, Felt(5_482_000_000_000_00))
-
-        val invokeTx = account.signV1(call, params)
-
-        val privateKey = Felt(22222)
-        val publicKey = StarknetCurve.getPublicKey(privateKey)
-        val salt = Felt.ONE
-        val calldata = listOf(publicKey)
-
-        val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = accountContractClassHash,
-            calldata = calldata,
-            salt = salt,
-        )
-        val newAccount = StandardAccount(
-            newAccountAddress,
-            privateKey,
-            provider,
-        )
-        devnetClient.prefundAccountEth(newAccountAddress)
-        val deployAccountTx = newAccount.signDeployAccountV1(
-            classHash = accountContractClassHash,
-            salt = salt,
-            calldata = calldata,
-            maxFee = Felt(4_482_000_000_000_00),
-        )
-
-        val simulationFlags = setOf<SimulationFlag>()
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(invokeTx, deployAccountTx),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(2, simulationResult.size)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
-
-        val invokeTxWithoutSignature = invokeTx.copy(signature = emptyList())
-        val deployAccountTxWithoutSignature = deployAccountTx.copy(signature = emptyList())
-
-        val simulationFlags2 = setOf(SimulationFlag.SKIP_VALIDATE)
-        val simulationResult2 = provider.simulateTransactions(
-            transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
-            blockTag = BlockTag.PENDING,
-            simulationFlags = simulationFlags2,
-        ).send()
-
-        assertEquals(2, simulationResult2.size)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
-    }
 
     @Nested
     inner class SimulateTransactionsTest {
+        @Test
+        fun `simulate invoke v1 and deploy account v1 transactions`() {
+            val account = StandardAccount(accountAddress, signer, provider)
+            devnetClient.prefundAccountEth(accountAddress)
+
+            val nonce = account.getNonce().send()
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(1000)),
+            )
+            val params = ExecutionParams(nonce, Felt(5_482_000_000_000_00))
+
+            val invokeTx = account.signV1(call, params)
+
+            val privateKey = Felt(22222)
+            val publicKey = StarknetCurve.getPublicKey(privateKey)
+            val salt = Felt.ONE
+            val calldata = listOf(publicKey)
+
+            val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+            )
+            val newAccount = StandardAccount(
+                newAccountAddress,
+                privateKey,
+                provider,
+            )
+            devnetClient.prefundAccountEth(newAccountAddress)
+            val deployAccountTx = newAccount.signDeployAccountV1(
+                classHash = accountContractClassHash,
+                salt = salt,
+                calldata = calldata,
+                maxFee = Felt(4_482_000_000_000_00),
+            )
+
+            val simulationFlags = setOf<SimulationFlag>()
+            val simulationResult = provider.simulateTransactions(
+                transactions = listOf(invokeTx, deployAccountTx),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags,
+            ).send()
+            assertEquals(2, simulationResult.size)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+            assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+
+            val invokeTxWithoutSignature = invokeTx.copy(signature = emptyList())
+            val deployAccountTxWithoutSignature = deployAccountTx.copy(signature = emptyList())
+
+            val simulationFlags2 = setOf(SimulationFlag.SKIP_VALIDATE)
+            val simulationResult2 = provider.simulateTransactions(
+                transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
+                blockTag = BlockTag.PENDING,
+                simulationFlags = simulationFlags2,
+            ).send()
+
+            assertEquals(2, simulationResult2.size)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
+            assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
+            assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
+        }
+
         @Test
         fun `simulate invoke v3 and deploy account v3 transactions`() {
             val account = StandardAccount(accountAddress, signer, provider)
