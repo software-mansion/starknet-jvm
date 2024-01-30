@@ -422,7 +422,6 @@ class StandardAccountTest {
             contractDefinition,
             contractCasmDefinition,
             params,
-            false,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
