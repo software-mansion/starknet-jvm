@@ -286,14 +286,13 @@ class StandardAccountTest {
         }
     }
 
-    // TODO: Use message mocking instead of deploying l1l2 contract.
-    //  This is planned for when Cairo 0 support is dropped, provided that devnet supports message mocking by then.
     @Test
     fun `estimate message fee`() {
         // Note to future developers experiencing failures in this test.
         // Compiled contract format sometimes changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
 
+        // TODO: Migrate l1l2 contract to Cairo 1.
         val l1l2ContractCode = Path.of("src/test/resources/contracts_v0/target/release/l1l2.json").readText()
         val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
         val classHash = Felt.fromHex("0x310b77cf1190f2555fca715a990f9ff9f5c42e1b30b42cc3fdb573b8ab95fc1")
