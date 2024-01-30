@@ -1263,7 +1263,7 @@ class StandardAccountTest {
         val maxFee = Felt(1)
         val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
         val params = ExecutionParams(nonce, maxFee)
-        val invokeTx = account.sign(call, params)
+        val invokeTx = account.signV1(call, params)
 
         val simulationFlags = setOf<SimulationFlag>()
         val simulationResult = mockProvider.simulateTransactions(
