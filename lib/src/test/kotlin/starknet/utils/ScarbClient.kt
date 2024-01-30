@@ -62,18 +62,31 @@ class ScarbClient {
         }
 
         @JvmStatic
-        fun createSaltedContract(
+        @Synchronized
+        fun buildSaltedContract(
             placeholderContractPath: Path,
             saltedContractPath: Path,
             placeholderText: String = "__placeholder__",
             saltText: String = "t${System.currentTimeMillis()}",
         ) {
+            val originalCode = saltedContractPath.readText()
+
+            createSaltedContract(
+                placeholderContractPath = placeholderContractPath,
+                saltedContractPath = saltedContractPath,
+                placeholderText = placeholderText,
+                saltText = saltText,
+            )
+            buildContracts(saltedContractPath.parent)
+
+            saltedContractPath.writeText(originalCode)
+        }
+
+        @JvmStatic
+        private fun createSaltedContract(placeholderContractPath: Path, saltedContractPath: Path, placeholderText: String, saltText: String) {
             val contractCode = placeholderContractPath.readText()
             val newContractCode = contractCode.replace(placeholderText, saltText)
-            if (saltedContractPath.toFile().exists()) {
-                saltedContractPath.toFile().delete()
-            }
-            saltedContractPath.toFile().createNewFile()
+
             saltedContractPath.writeText(newContractCode)
         }
 
