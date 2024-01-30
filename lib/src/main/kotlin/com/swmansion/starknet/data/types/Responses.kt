@@ -436,7 +436,7 @@ data class ResourceBoundsMapping private constructor(
     val l2Gas: ResourceBounds,
 ) {
     constructor(
-        l1Gas: ResourceBounds
+        l1Gas: ResourceBounds,
     ) : this(
         // As of Starknet 0.13.0, the L2 gas is not supported
         // Because of this, the L2 gas values are hardcoded to 0
