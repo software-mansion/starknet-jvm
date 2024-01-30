@@ -327,108 +327,111 @@ class StandardAccountTest {
         assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
     }
 
-    @Test
-    fun `sign and send declare v1 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
+    @Nested
+    inner class DeclareTest {
+        @Test
+        fun `sign and send declare v1 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
+            val contractDefinition = Cairo0ContractDefinition(contractCode)
+            val nonce = account.getNonce().send()
 
-        // Note to future developers experiencing failures in this test.
-        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-        // Chances are, the contract was compiled with a different compiler version.
+            // Note to future developers experiencing failures in this test.
+            // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
+            // If this test starts randomly falling, try recalculating class hash.
+            // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
+            // Chances are, the contract was compiled with a different compiler version.
 
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(nonce, Felt(1000000000000000L)),
-        )
+            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
+            val declareTransactionPayload = account.signDeclareV1(
+                contractDefinition,
+                classHash,
+                ExecutionParams(nonce, Felt(1000000000000000L)),
+            )
 
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
+            val request = provider.declareContract(declareTransactionPayload)
+            val result = request.send()
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.isAccepted)
-    }
+            assertTrue(receipt.isAccepted)
+        }
 
-    @Test
-    fun `sign and send declare v2 transaction`() {
-        val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+        @Test
+        fun `sign and send declare v2 transaction`() {
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
-        val nonce = account.getNonce().send()
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclareV2(
-            contractDefinition,
-            contractCasmDefinition,
-            ExecutionParams(nonce, Felt(1000000000000000L)),
-        )
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
+            val declareTransactionPayload = account.signDeclareV2(
+                contractDefinition,
+                contractCasmDefinition,
+                ExecutionParams(nonce, Felt(1000000000000000L)),
+            )
+            val request = provider.declareContract(declareTransactionPayload)
+            val result = request.send()
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.isAccepted)
-    }
+            assertTrue(receipt.isAccepted)
+        }
 
-    @Test
-    fun `sign and send declare v2 transaction (cairo compiler v2)`() {
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
+        @Test
+        fun `sign and send declare v2 transaction (cairo compiler v2)`() {
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
 
-        val contractDefinition = Cairo2ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
-        val nonce = account.getNonce().send()
+            val contractDefinition = Cairo2ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclareV2(
-            contractDefinition,
-            contractCasmDefinition,
-            ExecutionParams(nonce, Felt(1000000000000000)),
-        )
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
+            val declareTransactionPayload = account.signDeclareV2(
+                contractDefinition,
+                contractCasmDefinition,
+                ExecutionParams(nonce, Felt(1000000000000000)),
+            )
+            val request = provider.declareContract(declareTransactionPayload)
+            val result = request.send()
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.isAccepted)
-    }
+            assertTrue(receipt.isAccepted)
+        }
 
-    @Test
-    fun `sign and send declare v3 transaction`() {
-        ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
-        )
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+        @Test
+        fun `sign and send declare v3 transaction`() {
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            )
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
-        val contractDefinition = Cairo2ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
-        val nonce = account.getNonce().send()
+            val contractDefinition = Cairo2ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
 
-        val params = DeclareParamsV3(
-            nonce = nonce,
-            l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
-            ),
-        )
-        val declareTransactionPayload = account.signDeclareV3(
-            contractDefinition,
-            contractCasmDefinition,
-            params,
-        )
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
+            val params = DeclareParamsV3(
+                nonce = nonce,
+                l1ResourceBounds = ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
+            )
+            val declareTransactionPayload = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                params,
+            )
+            val request = provider.declareContract(declareTransactionPayload)
+            val result = request.send()
 
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        assertTrue(receipt.isAccepted)
+            assertTrue(receipt.isAccepted)
+        }
     }
 
     @Test
