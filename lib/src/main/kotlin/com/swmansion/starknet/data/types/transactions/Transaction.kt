@@ -170,21 +170,6 @@ data class InvokeTransactionV1(
             version = version,
         )
     }
-
-    companion object {
-        @JvmStatic
-        internal fun fromPayload(payload: InvokeTransactionV1Payload): InvokeTransactionV1 {
-            return InvokeTransactionV1(
-                senderAddress = payload.senderAddress,
-                calldata = payload.calldata,
-                hash = null,
-                maxFee = payload.maxFee,
-                version = payload.version,
-                signature = payload.signature,
-                nonce = payload.nonce,
-            )
-        }
-    }
 }
 
 @Serializable
@@ -235,26 +220,6 @@ data class InvokeTransactionV3(
             version = version,
             resourceBounds = resourceBounds,
         )
-    }
-
-    companion object {
-        @JvmStatic
-        internal fun fromPayload(payload: InvokeTransactionV3Payload): InvokeTransactionV3 {
-            return InvokeTransactionV3(
-                senderAddress = payload.senderAddress,
-                calldata = payload.calldata,
-                hash = null,
-                version = payload.version,
-                signature = payload.signature,
-                nonce = payload.nonce,
-                resourceBounds = payload.resourceBounds,
-                tip = payload.tip,
-                paymasterData = payload.paymasterData,
-                accountDeploymentData = payload.accountDeploymentData,
-                nonceDataAvailabilityMode = payload.nonceDataAvailabilityMode,
-                feeDataAvailabilityMode = payload.feeDataAvailabilityMode,
-            )
-        }
     }
 }
 
