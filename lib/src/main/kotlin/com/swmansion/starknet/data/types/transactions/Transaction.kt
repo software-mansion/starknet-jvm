@@ -177,7 +177,7 @@ data class InvokeTransactionV1(
             return InvokeTransactionV1(
                 senderAddress = payload.senderAddress,
                 calldata = payload.calldata,
-                hash = Felt.ZERO,
+                hash = null,
                 maxFee = payload.maxFee,
                 version = payload.version,
                 signature = payload.signature,
@@ -243,7 +243,7 @@ data class InvokeTransactionV3(
             return InvokeTransactionV3(
                 senderAddress = payload.senderAddress,
                 calldata = payload.calldata,
-                hash = Felt.ZERO,
+                hash = null,
                 version = payload.version,
                 signature = payload.signature,
                 nonce = payload.nonce,
