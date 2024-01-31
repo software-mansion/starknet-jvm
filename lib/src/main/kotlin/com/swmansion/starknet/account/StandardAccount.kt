@@ -323,12 +323,24 @@ class StandardAccount(
         return estimateFeeV1(listOf(call))
     }
 
+    override fun estimateFeeV3(call: Call): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call))
+    }
+
     override fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call), skipValidate)
     }
 
+    override fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), skipValidate)
+    }
+
     override fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call), blockTag)
+    }
+
+    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag)
     }
 
     override fun estimateFeeV1(
@@ -339,16 +351,36 @@ class StandardAccount(
         return estimateFeeV1(listOf(call), blockTag, skipValidate)
     }
 
+    override fun estimateFeeV3(
+        call: Call,
+        blockTag: BlockTag,
+        skipValidate: Boolean,
+    ): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(listOf(call), blockTag, skipValidate)
+    }
+
     override fun estimateFeeV1(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, BlockTag.PENDING, false)
+    }
+
+    override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, false)
     }
 
     override fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, BlockTag.PENDING, skipValidate)
     }
 
+    override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
+    }
+
     override fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, blockTag, false)
+    }
+
+    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
+        return estimateFeeV3(calls, blockTag, false)
     }
 
     override fun estimateFeeV1(
@@ -361,41 +393,6 @@ class StandardAccount(
             val payload = buildEstimateFeeV1Payload(calls, nonce)
             return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
-    }
-
-    override fun estimateFeeV3(call: Call): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(listOf(call))
-    }
-
-    override fun estimateFeeV3(
-        call: Call,
-        skipValidate: Boolean,
-    ): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(listOf(call), skipValidate)
-    }
-
-    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(listOf(call), blockTag)
-    }
-
-    override fun estimateFeeV3(
-        call: Call,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
-    ): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(listOf(call), blockTag, skipValidate)
-    }
-
-    override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(calls, BlockTag.PENDING, false)
-    }
-
-    override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
-    }
-
-    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
-        return estimateFeeV3(calls, blockTag, false)
     }
 
     override fun estimateFeeV3(
