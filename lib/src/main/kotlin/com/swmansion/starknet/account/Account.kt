@@ -300,7 +300,7 @@ interface Account {
     /**
      * Execute single call using version 1 invoke transaction.
      *
-     * Execute single call on starknet.
+     * Execute single call on Starknet.
      *
      * @param call a call to be executed.
      * @param maxFee a max fee to pay for the transaction.
@@ -311,7 +311,7 @@ interface Account {
     /**
      * Execute single call using version 3 invoke transaction.
      *
-     * Execute single call on starknet.
+     * Execute single call on Starknet.
      *
      * @param call a call to be executed.
      * @param l1ResourceBounds L1 resource bounds for the transaction.
@@ -354,7 +354,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
@@ -364,7 +364,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
@@ -374,7 +374,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
@@ -385,7 +385,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
@@ -396,7 +396,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -407,7 +407,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -418,7 +418,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -430,7 +430,7 @@ interface Account {
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -442,7 +442,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
@@ -452,7 +452,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
@@ -462,7 +462,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
@@ -473,7 +473,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
@@ -484,7 +484,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -495,7 +495,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -506,7 +506,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls using version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -522,7 +522,7 @@ interface Account {
     /**
      * Estimate fee for a list of calls.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
