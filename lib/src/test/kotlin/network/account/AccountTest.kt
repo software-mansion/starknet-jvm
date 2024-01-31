@@ -650,7 +650,7 @@ class AccountTest {
 
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
-            resourceBounds = resourceBounds,
+            l1ResourceBounds = resourceBounds.l1Gas,
         )
         val payload = deployedAccount.signDeployAccountV3(
             classHash = classHash,
