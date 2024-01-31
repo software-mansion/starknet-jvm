@@ -130,7 +130,7 @@ data class DeployTransaction(
 
 @Serializable
 @SerialName("INVOKE_FUNCTION")
-sealed class InvokeTransaction() : Transaction() {
+sealed class InvokeTransaction : Transaction() {
     abstract val calldata: Calldata
     override val type: TransactionType = TransactionType.INVOKE
 }
@@ -254,7 +254,7 @@ data class InvokeTransactionV0(
 
 @Serializable
 @SerialName("DECLARE")
-sealed class DeclareTransaction() : Transaction() {
+sealed class DeclareTransaction : Transaction() {
     abstract val classHash: Felt
     abstract val senderAddress: Felt
     override val type: TransactionType = TransactionType.DECLARE

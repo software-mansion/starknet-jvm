@@ -782,7 +782,7 @@ class StandardAccountTest {
 
             assertEquals(expectedCalldata, signedTx.calldata)
 
-            val signedEmptyTx = account.signV1(listOf<Call>(), params)
+            val signedEmptyTx = account.signV1(listOf(), params)
 
             assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
         }
