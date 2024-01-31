@@ -48,12 +48,36 @@ sealed class Transaction {
 
 @Serializable
 sealed interface DeprecatedTransaction {
+    @SerialName("version")
+    val version: Felt
+
+    @SerialName("signature")
+    val signature: Signature
+
+    @SerialName("nonce")
+    val nonce: Felt
+
+    @SerialName("type")
+    val type: TransactionType
+
     @SerialName("max_fee")
     val maxFee: Felt
 }
 
 @Serializable
 sealed interface TransactionV3 {
+    @SerialName("version")
+    val version: Felt
+
+    @SerialName("signature")
+    val signature: Signature
+
+    @SerialName("nonce")
+    val nonce: Felt
+
+    @SerialName("type")
+    val type: TransactionType
+
     @SerialName("resource_bounds")
     val resourceBounds: ResourceBoundsMapping
 
