@@ -407,14 +407,6 @@ class StandardAccount(
         }
     }
 
-    private fun prepareSimulationFlagsForFeeEstimate(skipValidate: Boolean): Set<SimulationFlagForEstimateFee> {
-        return if (skipValidate) {
-            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
-        } else {
-            emptySet()
-        }
-    }
-
     private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = signV1(calls, executionParams, true)
@@ -448,5 +440,13 @@ class StandardAccount(
             resourceBounds = payload.resourceBounds,
         )
         return listOf(signedTransaction.toPayload())
+    }
+
+    private fun prepareSimulationFlagsForFeeEstimate(skipValidate: Boolean): Set<SimulationFlagForEstimateFee> {
+        return if (skipValidate) {
+            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+        } else {
+            emptySet()
+        }
     }
 }
