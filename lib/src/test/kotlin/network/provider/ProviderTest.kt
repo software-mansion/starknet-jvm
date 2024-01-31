@@ -107,8 +107,8 @@ class ProviderTest {
         val expectedChainId = when (network) {
             Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
             Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
-            Network.SEPOLIA_INTEGRATION -> StarknetChainId.SEPOLIA_INTEGRATION
-            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA_TESTNET
+            Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
+            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
         }
         assertEquals(expectedChainId, chainId)
     }

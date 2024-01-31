@@ -13,8 +13,8 @@ enum class StarknetChainId(val value: Felt) {
     GOERLI(Felt.fromHex("0x534e5f474f45524c49")), // encodeShortString('SN_GOERLI'),
 
     @SerialName("0x534e5f5345504f4c4941")
-    SEPOLIA_TESTNET(Felt.fromHex("0x534e5f5345504f4c4941")), // encodeShortString('SN_SEPOLIA'),]
+    SEPOLIA(Felt.fromHex("0x534e5f5345504f4c4941")), // encodeShortString('SN_SEPOLIA'),]
 
     @SerialName("0x534e5f494e544547524154494f4e5f5345504f4c4941")
-    SEPOLIA_INTEGRATION(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")), // encodeShortString('SN_INTEGRATION_SEPOLIA'),
+    INTEGRATION_SEPOLIA(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")), // encodeShortString('SN_INTEGRATION_SEPOLIA'),
 }
