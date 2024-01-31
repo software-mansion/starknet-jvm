@@ -149,7 +149,7 @@ data class InvokeTransactionV1(
 
     companion object {
         @JvmStatic
-        internal fun fromPayload(payload: InvokeTransactionV1Payload): InvokeTransaction {
+        internal fun fromPayload(payload: InvokeTransactionV1Payload): InvokeTransactionV1 {
             return InvokeTransactionV1(
                 senderAddress = payload.senderAddress,
                 calldata = payload.calldata,
