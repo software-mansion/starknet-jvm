@@ -24,13 +24,13 @@ import kotlinx.serialization.json.*
  * @param url url of the service providing a rpc interface
  * @param httpService service used for making http requests
  */
-class JsonRpcProvider(
+class JsonRpcProvider @JvmOverloads constructor(
     val url: String,
-    private val httpService: HttpService,
+    private val httpService: HttpService = OkHttpService(),
+    private val ignoreUnknownJsonKeys: Boolean = false,
 ) : Provider {
-    constructor(url: String) : this(url, OkHttpService())
-
     private val jsonWithDefaults = Json { encodeDefaults = true }
+    private val deserializationJson = Json { ignoreUnknownKeys = ignoreUnknownJsonKeys }
 
     private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
         setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
@@ -57,7 +57,7 @@ class JsonRpcProvider(
         val payload =
             HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
-        return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
+        return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer, deserializationJson), httpService)
     }
 
     override fun getSpecVersion(): Request<String> {
