@@ -126,19 +126,17 @@ data class Cairo0ContractDefinition @JvmOverloads constructor(
     private val entryPointsByType: JsonElement
     private val abi: JsonElement?
 
-    private val deserializationJson by lazy { Json { ignoreUnknownKeys = ignoreUnknownJsonKeys } }
-
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
 
     init {
-        val (program, entryPointsByType, abi) = parseContract(contract)
+        val (program, entryPointsByType, abi) = parseContract(contract, Json { ignoreUnknownKeys = ignoreUnknownJsonKeys })
         this.program = program
         this.entryPointsByType = entryPointsByType
         this.abi = abi
     }
 
-    private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
+    private fun parseContract(contract: String, deserializationJson: Json): Triple<JsonElement, JsonElement, JsonElement> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
         val program = compiledContract["program"] ?: throw InvalidContractException("program")
 
@@ -173,8 +171,9 @@ data class Cairo1ContractDefinition @JvmOverloads constructor(
     private val abi: JsonElement?
 
     internal val deserializationJson by lazy { Json { ignoreUnknownKeys = ignoreUnknownJsonKeys } }
-
-    private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
+    companion object {
+        private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
+    }
 
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
