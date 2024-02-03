@@ -1,4 +1,4 @@
-package starknet.provider.handlers
+package starknet.provider.providers
 
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
@@ -17,26 +17,9 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class HttpErrorHandlerTest {
+class JsonRpcResponseTest {
     @Test
-    fun `rpc handler falls back to basic exception on unknown format`() {
-        val message = "{\"status_code\": 500, \"status_message\": \"error\"}"
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(false, 500, message)
-        }
-        val provider = JsonRpcProvider("", httpServiceMock)
-        val request = provider.getTransaction(Felt(1))
-
-        val exception = assertThrows(RequestFailedException::class.java) {
-            request.send()
-        }
-        assertFalse(exception is RpcRequestFailedException)
-        assertEquals("Request failed", exception.message)
-        assertEquals(message, exception.payload)
-    }
-
-    @Test
-    fun `rpc handler parses response with unknown keys`() {
+    fun `rpc provider parses response with unknown keys`() {
         val mockResponse = """
             {
                 "id": 0,
@@ -81,9 +64,26 @@ class HttpErrorHandlerTest {
             request2.send()
         }
     }
+    
+    @Test
+    fun `rpc provider falls back to basic exception on unknown format`() {
+        val message = "{\"status_code\": 500, \"status_message\": \"error\"}"
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(false, 500, message)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+        val request = provider.getTransaction(Felt(1))
+
+        val exception = assertThrows(RequestFailedException::class.java) {
+            request.send()
+        }
+        assertFalse(exception is RpcRequestFailedException)
+        assertEquals("Request failed", exception.message)
+        assertEquals(message, exception.payload)
+    }
 
     @Test
-    fun `rpc handler parses rpc error`() {
+    fun `rpc provider parses rpc error`() {
         val message = """
             {
                 "id": 0,
@@ -108,7 +108,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc contract error`() {
+    fun `rpc provider parses rpc contract error`() {
         val message = """
             {
                 "id": 0,
@@ -137,7 +137,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc error with data object`() {
+    fun `rpc provider parses rpc error with data object`() {
         val message = """
             {
                 "id": 0,
@@ -169,7 +169,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc error with data primive`() {
+    fun `rpc provider parses rpc error with data primive`() {
         val message = """
             {
                 "id": 0,
