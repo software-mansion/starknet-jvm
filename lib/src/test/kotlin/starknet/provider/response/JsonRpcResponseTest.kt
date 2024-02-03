@@ -169,7 +169,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses rpc error with data primive`() {
+    fun `rpc provider parses rpc error with data primitive`() {
         val message = """
             {
                 "id": 0,
