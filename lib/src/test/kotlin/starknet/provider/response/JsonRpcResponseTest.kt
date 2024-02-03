@@ -1,4 +1,4 @@
-package starknet.provider.providers
+package starknet.provider.response
 
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
