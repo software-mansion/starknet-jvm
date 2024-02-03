@@ -39,13 +39,9 @@ class JsonRpcResponseTest {
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
         }
-
-        val provider = JsonRpcProvider(
-            url = "",
-            httpService = httpServiceMock,
-            ignoreUnknownJsonKeys = true,
-        )
         val message = MessageL1ToL2(Felt.ONE, Felt.ONE, Felt.ONE, Felt.ONE, listOf(Felt.ZERO, Felt.ONE))
+
+        val provider = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = true)
         val request = provider.getEstimateMessageFee(message, BlockTag.PENDING)
         val response = request.send()
 
@@ -54,11 +50,7 @@ class JsonRpcResponseTest {
         assertEquals(Felt.fromHex("0x9abc"), response.overallFee)
         assertEquals(PriceUnit.FRI, response.feeUnit)
 
-        val provider2 = JsonRpcProvider(
-            url = "",
-            httpService = httpServiceMock,
-            ignoreUnknownJsonKeys = false,
-        )
+        val provider2 = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = false)
         val request2 = provider2.getEstimateMessageFee(message, BlockTag.PENDING)
         assertThrows<SerializationException> {
             request2.send()
