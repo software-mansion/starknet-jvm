@@ -303,15 +303,9 @@ data class TypedData private constructor(
          * Create TypedData from JSON string.
          *
          * @param typedData json string of typed data
-         * @param ignoreUnknownJsonKeys when set to `true`, unknown json keys will be ignored
          */
         @JvmStatic
-        @JvmOverloads
-        fun fromJsonString(typedData: String, ignoreUnknownJsonKeys: Boolean = false): TypedData {
-            val json = if (ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
-            return json.decodeFromString(serializer(), typedData)
-        }
-
-        private val jsonWithIgnoreUnknownKeys = Json { ignoreUnknownKeys = true }
+        fun fromJsonString(typedData: String): TypedData =
+            Json.decodeFromString(serializer(), typedData)
     }
 }
