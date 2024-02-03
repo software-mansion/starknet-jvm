@@ -29,11 +29,13 @@ class JsonRpcProvider @JvmOverloads constructor(
     private val httpService: HttpService = OkHttpService(),
     private val ignoreUnknownJsonKeys: Boolean = false,
 ) : Provider {
-    private val jsonWithDefaults = Json { encodeDefaults = true }
     private val deserializationJson = Json { ignoreUnknownKeys = ignoreUnknownJsonKeys }
 
-    private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
-        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+    companion object {
+        private val jsonWithDefaults = Json { encodeDefaults = true }
+        private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
+            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+        }
     }
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
