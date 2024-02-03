@@ -64,7 +64,7 @@ class JsonRpcResponseTest {
             request2.send()
         }
     }
-    
+
     @Test
     fun `rpc provider falls back to basic exception on unknown format`() {
         val message = "{\"status_code\": 500, \"status_message\": \"error\"}"
