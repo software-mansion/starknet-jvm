@@ -163,14 +163,13 @@ data class Cairo0ContractDefinition @JvmOverloads constructor(
 data class Cairo1ContractDefinition @JvmOverloads constructor(
     private val contract: String,
     @Transient
-    private val ignoreUnknownJsonKeys: Boolean = false,
+    internal val ignoreUnknownJsonKeys: Boolean = false,
 ) {
     private val sierraProgram: JsonElement
     private val entryPointsByType: JsonElement
     private val contractClassVersion: JsonElement
     private val abi: JsonElement?
 
-    internal val deserializationJson by lazy { Json { ignoreUnknownKeys = ignoreUnknownJsonKeys } }
     companion object {
         private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
     }
@@ -218,7 +217,7 @@ data class Cairo1ContractDefinition @JvmOverloads constructor(
 data class CasmContractDefinition @JvmOverloads constructor(
     private val contract: String,
     @Transient
-    private val ignoreUnknownJsonKeys: Boolean = false,
+    internal val ignoreUnknownJsonKeys: Boolean = false,
 ) {
     private val casmClassVersion: JsonElement = JsonPrimitive("COMPILED_CLASS_V1")
     private val prime: JsonElement
@@ -226,8 +225,6 @@ data class CasmContractDefinition @JvmOverloads constructor(
     private val compilerVersion: JsonElement
     private val entryPointsByType: JsonElement
     private val bytecode: JsonElement
-
-    internal val deserializationJson by lazy { Json { ignoreUnknownKeys = ignoreUnknownJsonKeys } }
 
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")

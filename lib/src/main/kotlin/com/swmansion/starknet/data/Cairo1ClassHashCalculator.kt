@@ -3,10 +3,14 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.starknetKeccak
 import com.swmansion.starknet.data.types.*
+import kotlinx.serialization.json.Json
 
 object Cairo1ClassHashCalculator {
+    private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
+
     fun computeSierraClassHash(contract: Cairo1ContractDefinition): Felt {
-        val contractClass = contract.deserializationJson.decodeFromJsonElement(ContractClass.serializer(), contract.toJson())
+        val json = if (contract.ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
+        val contractClass = json.decodeFromJsonElement(ContractClass.serializer(), contract.toJson())
 
         val sierraVersion = Felt.fromShortString("CONTRACT_CLASS_V" + contractClass.contractClassVersion)
         val externalEntryPointHash = Poseidon.poseidonHash(getSierraEntryPointsArray(contractClass.entryPointsByType.external))
@@ -19,7 +23,8 @@ object Cairo1ClassHashCalculator {
     }
 
     fun computeCasmClassHash(contract: CasmContractDefinition): Felt {
-        val contractClass = contract.deserializationJson.decodeFromJsonElement(CasmContractClass.serializer(), contract.toJson())
+        val json = if (contract.ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
+        val contractClass = json.decodeFromJsonElement(CasmContractClass.serializer(), contract.toJson())
 
         val casmVersion = Felt.fromShortString(contractClass.casmClassVersion)
         val externalEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
