@@ -24,12 +24,16 @@ import kotlinx.serialization.json.*
  * @param url url of the service providing a rpc interface
  * @param httpService service used for making http requests
  */
-class JsonRpcProvider @JvmOverloads constructor(
+class JsonRpcProvider(
     val url: String,
-    private val httpService: HttpService = OkHttpService(),
-    ignoreUnknownJsonKeys: Boolean = false,
+    private val httpService: HttpService,
+    ignoreUnknownJsonKeys: Boolean,
 ) : Provider {
     private val deserializationJson = if (ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
+
+    constructor(url: String, ignoreUnknownJsonKeys: Boolean) : this(url, OkHttpService(), ignoreUnknownJsonKeys)
+    constructor(url: String, httpService: HttpService) : this(url, httpService, false)
+    constructor(url: String) : this(url, OkHttpService(), false)
 
     companion object {
         private val jsonWithDefaults = Json { encodeDefaults = true }
