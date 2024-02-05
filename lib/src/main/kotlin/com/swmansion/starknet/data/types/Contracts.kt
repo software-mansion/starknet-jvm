@@ -117,10 +117,8 @@ data class EntryPointsByType(
 )
 
 @Serializable
-data class Cairo0ContractDefinition @JvmOverloads constructor(
+data class Cairo0ContractDefinition(
     private val contract: String,
-    @Transient
-    private val ignoreUnknownJsonKeys: Boolean = false,
 ) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
@@ -130,19 +128,19 @@ data class Cairo0ContractDefinition @JvmOverloads constructor(
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
 
     init {
-        val (program, entryPointsByType, abi) = parseContract(contract, Json { ignoreUnknownKeys = ignoreUnknownJsonKeys })
+        val (program, entryPointsByType, abi) = parseContract(contract)
         this.program = program
         this.entryPointsByType = entryPointsByType
         this.abi = abi
     }
 
-    private fun parseContract(contract: String, deserializationJson: Json): Triple<JsonElement, JsonElement, JsonElement> {
+    private fun parseContract(contract: String): Triple<JsonElement, JsonElement, JsonElement> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
         val program = compiledContract["program"] ?: throw InvalidContractException("program")
 
         val sourceEntryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
-        val deserializedEntryPointsByType = deserializationJson.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
+        val deserializedEntryPointsByType = Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
         val entryPointsByType = Json.encodeToJsonElement(deserializedEntryPointsByType)
 
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
