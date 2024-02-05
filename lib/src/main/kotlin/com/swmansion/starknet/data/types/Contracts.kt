@@ -117,9 +117,7 @@ data class EntryPointsByType(
 )
 
 @Serializable
-data class Cairo0ContractDefinition(
-    private val contract: String,
-) {
+data class Cairo0ContractDefinition(private val contract: String) {
     private val program: JsonElement
     private val entryPointsByType: JsonElement
     private val abi: JsonElement?
