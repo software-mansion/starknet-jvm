@@ -27,12 +27,14 @@ import kotlinx.serialization.json.*
 class JsonRpcProvider @JvmOverloads constructor(
     val url: String,
     private val httpService: HttpService = OkHttpService(),
-    private val ignoreUnknownJsonKeys: Boolean = false,
+    ignoreUnknownJsonKeys: Boolean = false,
 ) : Provider {
-    private val deserializationJson = Json { ignoreUnknownKeys = ignoreUnknownJsonKeys }
+    private val deserializationJson = if (ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
 
     companion object {
         private val jsonWithDefaults = Json { encodeDefaults = true }
+        private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
+
         private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
             setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
         }
