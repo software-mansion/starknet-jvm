@@ -71,16 +71,18 @@ internal data class JsonRpcContractErrorData(
 }
 
 @JvmSynthetic
-internal fun <T> buildJsonHttpDeserializer(deserializationStrategy: KSerializer<T>): HttpResponseDeserializer<T> {
+internal fun <T> buildJsonHttpDeserializer(
+    deserializationStrategy: KSerializer<T>,
+    deserializationJson: Json,
+): HttpResponseDeserializer<T> {
     return Function { response ->
         if (!response.isSuccessful) {
             throw RequestFailedException(
                 payload = response.body,
             )
         }
-
         val jsonRpcResponse =
-            Json.decodeFromString(
+            deserializationJson.decodeFromString(
                 JsonRpcResponse.serializer(deserializationStrategy),
                 response.body,
             )

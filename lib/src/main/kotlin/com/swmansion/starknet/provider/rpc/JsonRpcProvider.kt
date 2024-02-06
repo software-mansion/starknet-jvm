@@ -27,13 +27,21 @@ import kotlinx.serialization.json.*
 class JsonRpcProvider(
     val url: String,
     private val httpService: HttpService,
+    ignoreUnknownJsonKeys: Boolean,
 ) : Provider {
-    constructor(url: String) : this(url, OkHttpService())
+    private val deserializationJson = if (ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
 
-    private val jsonWithDefaults = Json { encodeDefaults = true }
+    constructor(url: String, ignoreUnknownJsonKeys: Boolean) : this(url, OkHttpService(), ignoreUnknownJsonKeys)
+    constructor(url: String, httpService: HttpService) : this(url, httpService, false)
+    constructor(url: String) : this(url, OkHttpService(), false)
 
-    private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
-        setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+    companion object {
+        private val jsonWithDefaults = Json { encodeDefaults = true }
+        private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
+
+        private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
+            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+        }
     }
 
     private fun buildRequestJson(method: String, paramsJson: JsonElement): Map<String, JsonElement> {
@@ -57,7 +65,7 @@ class JsonRpcProvider(
         val payload =
             HttpService.Payload(url, "POST", emptyList(), requestJson.toString())
 
-        return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer), httpService)
+        return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer, deserializationJson), httpService)
     }
 
     override fun getSpecVersion(): Request<String> {

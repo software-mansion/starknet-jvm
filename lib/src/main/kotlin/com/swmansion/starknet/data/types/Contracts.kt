@@ -156,11 +156,19 @@ data class Cairo0ContractDefinition(private val contract: String) {
 }
 
 @Serializable
-data class Cairo1ContractDefinition(private val contract: String) {
+data class Cairo1ContractDefinition @JvmOverloads constructor(
+    private val contract: String,
+    @Transient
+    internal val ignoreUnknownJsonKeys: Boolean = false,
+) {
     private val sierraProgram: JsonElement
     private val entryPointsByType: JsonElement
     private val contractClassVersion: JsonElement
     private val abi: JsonElement?
+
+    companion object {
+        private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
+    }
 
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
@@ -190,7 +198,7 @@ data class Cairo1ContractDefinition(private val contract: String) {
             put("contract_class_version", contractClassVersion)
             if (abi != null) put(
                 "abi",
-                Json { prettyPrint = true }.encodeToString(abi)
+                jsonWithPrettyPrint.encodeToString(abi)
                     .lineSequence().map { it.trim() }.joinToString("\n")
                     .replace("\n", "")
                     .replace(",\"", ", \"")
@@ -202,7 +210,11 @@ data class Cairo1ContractDefinition(private val contract: String) {
 }
 
 @Serializable
-data class CasmContractDefinition(private val contract: String) {
+data class CasmContractDefinition @JvmOverloads constructor(
+    private val contract: String,
+    @Transient
+    internal val ignoreUnknownJsonKeys: Boolean = false,
+) {
     private val casmClassVersion: JsonElement = JsonPrimitive("COMPILED_CLASS_V1")
     private val prime: JsonElement
     private val hints: JsonElement

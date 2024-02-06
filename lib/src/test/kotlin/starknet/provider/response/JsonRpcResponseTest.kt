@@ -1,21 +1,64 @@
-package starknet.provider.handlers
+package starknet.provider.response
 
+import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.MessageL1ToL2
+import com.swmansion.starknet.data.types.PriceUnit
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
+import kotlinx.serialization.SerializationException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class HttpErrorHandlerTest {
+class JsonRpcResponseTest {
+    @Test
+    fun `rpc provider parses response with unknown keys`() {
+        val mockResponse = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "uknown_key": "value",
+                "result": {
+                    "unknown_primitive": "value",
+                    "gas_consumed": "0x1234",
+                    "gas_price": "0x5678",
+                    "overall_fee": "0x9abc",
+                    "unknown_object": {"key_1": "value_1", "key_2": "value_2"},
+                    "unit": "FRI",
+                    "unknown_sequence": ["0x1", "0x2"]
+                }
+            }
+        """.trimIndent()
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val message = MessageL1ToL2(Felt.ONE, Felt.ONE, Felt.ONE, Felt.ONE, listOf(Felt.ZERO, Felt.ONE))
+
+        val provider = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = true)
+        val request = provider.getEstimateMessageFee(message, BlockTag.PENDING)
+        val response = request.send()
+
+        assertEquals(Felt.fromHex("0x1234"), response.gasConsumed)
+        assertEquals(Felt.fromHex("0x5678"), response.gasPrice)
+        assertEquals(Felt.fromHex("0x9abc"), response.overallFee)
+        assertEquals(PriceUnit.FRI, response.feeUnit)
+
+        val provider2 = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = false)
+        val request2 = provider2.getEstimateMessageFee(message, BlockTag.PENDING)
+        assertThrows<SerializationException> {
+            request2.send()
+        }
+    }
 
     @Test
-    fun `rpc handler falls back to basic exception on unknown format`() {
+    fun `rpc provider falls back to basic exception on unknown format`() {
         val message = "{\"status_code\": 500, \"status_message\": \"error\"}"
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(false, 500, message)
@@ -32,7 +75,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc error`() {
+    fun `rpc provider parses rpc error`() {
         val message = """
             {
                 "id": 0,
@@ -57,7 +100,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc contract error`() {
+    fun `rpc provider parses rpc contract error`() {
         val message = """
             {
                 "id": 0,
@@ -86,7 +129,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc error with data object`() {
+    fun `rpc provider parses rpc error with data object`() {
         val message = """
             {
                 "id": 0,
@@ -118,7 +161,7 @@ class HttpErrorHandlerTest {
     }
 
     @Test
-    fun `rpc handler parses rpc error with data primive`() {
+    fun `rpc provider parses rpc error with data primitive`() {
         val message = """
             {
                 "id": 0,
