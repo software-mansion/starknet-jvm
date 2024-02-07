@@ -6,9 +6,12 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
 import com.swmansion.starknet.data.types.transactions.TransactionType
 import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.provider.Provider
 
 /**
  * Toolkit for calculating hashes of transactions.
+ *
+ * To obtain the chain id, [Provider.getChainId] can be used. Alternatively, the chain id can be encoded from the network name using [Felt.fromShortString], e.g. `Felt.fromShortString("SN_SEPOLIA")`.
  */
 object TransactionHashCalculator {
     private val l1GasPrefix by lazy { Felt.fromShortString("L1_GAS") }

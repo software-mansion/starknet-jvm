@@ -3,6 +3,7 @@ package com.swmansion.starknet.data.types.transactions
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -592,6 +593,11 @@ data class DeployAccountTransactionV3(
     }
 }
 
+/**
+ * Factory for creating transaction objects.
+
+ * To obtain the chain id, [Provider.getChainId] can be used. Alternatively, the chain id can be encoded from the network name using [Felt.fromShortString], e.g. `Felt.fromShortString("SN_SEPOLIA")`.
+ */
 object TransactionFactory {
     private val tip = Uint64.ZERO
     private val paymasterData: PaymasterData = emptyList()
