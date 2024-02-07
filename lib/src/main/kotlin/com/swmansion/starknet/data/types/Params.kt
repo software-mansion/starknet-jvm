@@ -5,7 +5,7 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.types.transactions.DAMode
 
 /**
- * Params used for sign and sending transactions.
+ * Params used for signing and sending transactions.
  */
 
 sealed class ParamsBase
@@ -32,7 +32,7 @@ sealed class ParamsV3 : ParamsBase() {
  */
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
-data class ExecutionParamsV3 private constructor(
+data class InvokeParamsV3 private constructor(
     override val nonce: Felt,
     override val resourceBounds: ResourceBoundsMapping,
     override val tip: Uint64,
@@ -45,7 +45,6 @@ data class ExecutionParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -73,7 +72,6 @@ data class DeclareParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -96,18 +94,7 @@ data class DeployAccountParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    constructor(
-        nonce: Felt = Felt.ZERO,
-        resourceBounds: ResourceBoundsMapping,
-    ) : this(
-        nonce = nonce,
-        resourceBounds = resourceBounds,
-        tip = Uint64.ZERO,
-        paymasterData = emptyList(),
-        nonceDataAvailabilityMode = DAMode.L1,
-        feeDataAvailabilityMode = DAMode.L1,
-    )
-
+    @JvmOverloads
     constructor(
         nonce: Felt = Felt.ZERO,
         l1ResourceBounds: ResourceBounds,
@@ -115,7 +102,10 @@ data class DeployAccountParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = ResourceBounds.ZERO,
         ),
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
     )
 }

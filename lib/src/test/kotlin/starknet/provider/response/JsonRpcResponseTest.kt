@@ -75,7 +75,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses rpc error`() {
+    fun `rpc provider parses rpc error without data`() {
         val message = """
             {
                 "id": 0,
@@ -100,35 +100,6 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses rpc contract error`() {
-        val message = """
-            {
-                "id": 0,
-                "jsonrpc": "2.0",
-                "error": {
-                    "code": 40,
-                    "message": "Contract error",
-                    "data": {
-                        "revert_error": "Example revert error"
-                    }
-                }
-            }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, message)
-        }
-        val provider = JsonRpcProvider("", httpServiceMock)
-        val request = provider.getTransaction(Felt(1))
-
-        val exception = assertThrows(RpcRequestFailedException::class.java) {
-            request.send()
-        }
-        assertEquals(40, exception.code)
-        assertEquals("Contract error", exception.message)
-        assertEquals("Example revert error", exception.data)
-    }
-
-    @Test
     fun `rpc provider parses rpc error with data object`() {
         val message = """
             {
@@ -140,7 +111,8 @@ class JsonRpcResponseTest {
                     "data": {
                         "error": "Invalid message selector",
                         "details": {
-                            "selector": "0x1234"
+                            "selector": "0x1234",
+                            "id": 789
                         }
                     }
                 }
@@ -157,7 +129,7 @@ class JsonRpcResponseTest {
         }
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
-        assertEquals("{\"error\":\"Invalid message selector\",\"details\":{\"selector\":\"0x1234\"}}", exception.data)
+        assertEquals("{\"error\":\"Invalid message selector\",\"details\":{\"selector\":\"0x1234\",\"id\":789}}", exception.data)
     }
 
     @Test
@@ -185,5 +157,35 @@ class JsonRpcResponseTest {
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("Invalid message selector", exception.data)
+    }
+
+    @Test
+    fun `rpc handler parses rpc error with data array`() {
+        val message = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": "Internal error",
+                    "data": [
+                        "Invalid message selector",
+                        "0x1234"
+                    ]
+                }
+            }
+        """.trimIndent()
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, message)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+        val request = provider.getTransaction(Felt(1))
+
+        val exception = assertThrows(RpcRequestFailedException::class.java) {
+            request.send()
+        }
+        assertEquals(-32603, exception.code)
+        assertEquals("Internal error", exception.message)
+        assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
     }
 }

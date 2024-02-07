@@ -40,7 +40,7 @@ class JsonRpcProvider(
         private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
 
         private val defaultFeeEstimateSimulationFlags: Set<SimulationFlagForEstimateFee> by lazy {
-            setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE)
+            emptySet()
         }
     }
 

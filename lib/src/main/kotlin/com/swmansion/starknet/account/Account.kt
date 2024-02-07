@@ -23,8 +23,8 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 1 payload
      */
-    fun sign(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
-        return sign(listOf(call), params, forFeeEstimate)
+    fun signV1(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
+        return signV1(listOf(call), params, forFeeEstimate)
     }
 
     /**
@@ -37,8 +37,8 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun sign(call: Call, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
-        return sign(listOf(call), params, forFeeEstimate)
+    fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+        return signV3(listOf(call), params, forFeeEstimate)
     }
 
     /**
@@ -50,8 +50,8 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
      */
-    fun sign(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
-        return sign(listOf(call), params, false)
+    fun signV1(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
+        return signV1(listOf(call), params, false)
     }
 
     /**
@@ -63,8 +63,8 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun sign(call: Call, params: ExecutionParamsV3): InvokeTransactionV3Payload {
-        return sign(listOf(call), params, false)
+    fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3Payload {
+        return signV3(listOf(call), params, false)
     }
 
     /**
@@ -77,7 +77,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 1 payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
+    fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
 
     /**
      * Sign multiple calls as a single version 3 invoke transaction.
@@ -89,7 +89,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
+    fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
 
     /**
      * Sign multiple calls as a single version 1 invoke transaction.
@@ -100,8 +100,8 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
-        return sign(calls, params, false)
+    fun signV1(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
+        return signV1(calls, params, false)
     }
 
     /**
@@ -113,8 +113,8 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun sign(calls: List<Call>, params: ExecutionParamsV3): InvokeTransactionV3Payload {
-        return sign(calls, params, false)
+    fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3Payload {
+        return signV3(calls, params, false)
     }
 
     /**
@@ -130,7 +130,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
      */
-    fun signDeployAccount(
+    fun signDeployAccountV1(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -151,7 +151,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
      */
-    fun signDeployAccount(
+    fun signDeployAccountV3(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -160,7 +160,7 @@ interface Account {
     ): DeployAccountTransactionV3Payload
 
     /**
-     * Sign deploy account transaction.
+     * Sign version 1 deploy account transaction.
      *
      * Sign a deploy account transaction that requires prefunding deployed address.
      *
@@ -170,13 +170,13 @@ interface Account {
      * @param maxFee max fee to be consumed by this transaction
      * @return signed deploy account payload
      */
-    fun signDeployAccount(
+    fun signDeployAccountV1(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
     ): DeployAccountTransactionV1Payload {
-        return signDeployAccount(classHash, calldata, salt, maxFee, Felt.ZERO, false)
+        return signDeployAccountV1(classHash, calldata, salt, maxFee, Felt.ZERO, false)
     }
 
     /**
@@ -190,7 +190,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
      */
-    fun signDeployAccount(
+    fun signDeployAccountV3(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
@@ -201,7 +201,7 @@ interface Account {
             nonce = Felt.ZERO,
             l1ResourceBounds = l1ResourceBounds,
         )
-        return signDeployAccount(classHash, calldata, salt, params, forFeeEstimate)
+        return signDeployAccountV3(classHash, calldata, salt, params, forFeeEstimate)
     }
 
     /**
@@ -215,7 +215,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
      */
-    fun signDeclare(
+    fun signDeclareV1(
         contractDefinition: Cairo0ContractDefinition,
         classHash: Felt,
         params: ExecutionParams,
@@ -233,7 +233,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
      */
-    fun signDeclare(
+    fun signDeclareV2(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
@@ -251,7 +251,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
      */
-    fun signDeclare(
+    fun signDeclareV3(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
@@ -284,7 +284,7 @@ interface Account {
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse>
+    fun executeV1(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 3 invoke transaction.
@@ -300,18 +300,18 @@ interface Account {
     /**
      * Execute single call using version 1 invoke transaction.
      *
-     * Execute single call on starknet.
+     * Execute single call on Starknet.
      *
      * @param call a call to be executed.
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call, maxFee: Felt): Request<InvokeFunctionResponse>
+    fun executeV1(call: Call, maxFee: Felt): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 3 invoke transaction.
      *
-     * Execute single call on starknet.
+     * Execute single call on Starknet.
      *
      * @param call a call to be executed.
      * @param l1ResourceBounds L1 resource bounds for the transaction.
@@ -325,7 +325,7 @@ interface Account {
      * @param calls a list of calls to be executed.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(calls: List<Call>): Request<InvokeFunctionResponse>
+    fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls with automatically estimated fee using version 3 invoke transaction.
@@ -341,7 +341,7 @@ interface Account {
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
      */
-    fun execute(call: Call): Request<InvokeFunctionResponse>
+    fun executeV1(call: Call): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call with automatically estimated fee using version 3 invoke transaction.
@@ -354,50 +354,60 @@ interface Account {
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call): Request<List<EstimateFeeResponse>>
-
-    /**
-     * Estimate fee for a call as a version 1 invoke transaction.
-     *
-     * Estimate fee for a signed call on starknet.
-     *
-     * @param call a call used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
-     * @return Field value representing estimated fee.
-     */
-    fun estimateFee(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(call: Call): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet.
+     * Estimate fee for a signed call on Starknet.
      *
      * @param call a call used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(call: Call): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet.
+     *
+     * @param call a call used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a call as a version 3 invoke transaction.
+     *
+     * Estimate fee for a signed call on Starknet.
+     *
+     * @param call a call used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
+     * @return Field value representing estimated fee.
+     */
+    fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
+
+    /**
+     * Estimate fee for a call as a version 1 invoke transaction.
+     *
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -406,43 +416,43 @@ interface Account {
     fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
 
     /**
-     * Estimate fee for a call.
+     * Estimate fee for a call as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFee(call: Call, blockTag: BlockTag, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(call: Call, blockTag: BlockTag, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed call on starknet for specified block tag.
+     * Estimate fee for a signed call on Starknet for specified block tag.
      *
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, blockTag: BlockTag, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(call: Call, blockTag: BlockTag, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(calls: List<Call>): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @return estimated fee as field value.
@@ -452,40 +462,40 @@ interface Account {
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFeeV3(calls: List<Call>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls as a version 1 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return estimated fee as field value.
      */
-    fun estimateFee(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
+    fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
@@ -496,33 +506,33 @@ interface Account {
     /**
      * Estimate fee for a list of calls using version 3 invoke transaction.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFee(
+    fun estimateFeeV1(
         calls: List<Call>,
         blockTag: BlockTag,
-        simulationFlags: Set<SimulationFlagForEstimateFee>,
+        skipValidate: Boolean,
     ): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate fee for a list of calls.
      *
-     * Estimate fee for a signed list of calls on starknet.
+     * Estimate fee for a signed list of calls on Starknet.
      *
      * @param calls a list of calls used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
-     * @param simulationFlags a set of simulation flags used to estimate a fee.
+     * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
     fun estimateFeeV3(
         calls: List<Call>,
         blockTag: BlockTag,
-        simulationFlags: Set<SimulationFlagForEstimateFee>,
+        skipValidate: Boolean,
     ): Request<List<EstimateFeeResponse>>
 
     /**

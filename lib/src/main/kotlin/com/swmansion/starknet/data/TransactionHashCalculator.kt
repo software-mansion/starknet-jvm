@@ -48,7 +48,7 @@ object TransactionHashCalculator {
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return Poseidon.poseidonHash(
-            *CommonTransanctionV3Fields(
+            *prepareCommonTransanctionV3Fields(
                 txType = TransactionType.INVOKE,
                 version = version,
                 address = senderAddress,
@@ -112,7 +112,7 @@ object TransactionHashCalculator {
             salt = salt,
         )
         return Poseidon.poseidonHash(
-            *CommonTransanctionV3Fields(
+            *prepareCommonTransanctionV3Fields(
                 txType = TransactionType.DEPLOY_ACCOUNT,
                 version = version,
                 address = contractAddress,
@@ -192,7 +192,7 @@ object TransactionHashCalculator {
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return Poseidon.poseidonHash(
-            *CommonTransanctionV3Fields(
+            *prepareCommonTransanctionV3Fields(
                 txType = TransactionType.DECLARE,
                 version = version,
                 address = senderAddress,
@@ -232,7 +232,7 @@ object TransactionHashCalculator {
         )
     }
 
-    private fun CommonTransanctionV3Fields(
+    private fun prepareCommonTransanctionV3Fields(
         txType: TransactionType,
         version: Felt,
         address: Felt,
@@ -250,19 +250,19 @@ object TransactionHashCalculator {
             address,
             Poseidon.poseidonHash(
                 tip.toFelt,
-                *resourceBoundsForFee(resourceBounds).toList().toTypedArray(),
+                *prepareResourceBoundsForFee(resourceBounds).toList().toTypedArray(),
             ),
             Poseidon.poseidonHash(paymasterData),
             chainId.value.toFelt,
             nonce,
-            dataAvailabilityModes(
+            prepareDataAvailabilityModes(
                 feeDataAvailabilityMode,
                 nonceDataAvailabilityMode,
             ),
         )
     }
 
-    private fun resourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
+    private fun prepareResourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
         val l1GasBound = l1GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l1Gas.maxPricePerUnit.value)
@@ -275,7 +275,7 @@ object TransactionHashCalculator {
         return l1GasBound to l2GasBound
     }
 
-    private fun dataAvailabilityModes(
+    internal fun prepareDataAvailabilityModes(
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
     ): Felt {

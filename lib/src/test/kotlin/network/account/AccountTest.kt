@@ -86,10 +86,9 @@ class AccountTest {
             entrypoint = "put",
             calldata = listOf(Felt.fromHex("0x1D2C3B7A8"), Felt.fromHex("0x451")),
         )
-        val simulationFlags = emptySet<SimulationFlagForEstimateFee>()
-        val estimateFeeRequest = account.estimateFee(
+        val estimateFeeRequest = account.estimateFeeV1(
             listOf(call),
-            simulationFlags,
+            skipValidate = false,
         )
         val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)
@@ -111,7 +110,7 @@ class AccountTest {
         // Chances are, the contract was compiled with a different compiler version.
 
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(
@@ -156,7 +155,7 @@ class AccountTest {
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             casmContractDefinition,
             ExecutionParams(
@@ -205,7 +204,7 @@ class AccountTest {
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
         )
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV3(
             sierraContractDefinition = contractDefinition,
             casmContractDefinition = casmContractDefinition,
             params = params,
@@ -241,7 +240,7 @@ class AccountTest {
         // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(nonce, Felt(1000000000000000L)),
@@ -276,7 +275,7 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000L)),
@@ -309,7 +308,7 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000L)),
@@ -353,7 +352,7 @@ class AccountTest {
             nonce = nonce,
             l1ResourceBounds = l1ResourceBounds,
         )
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
             contractCasmDefinition,
             params,
@@ -384,7 +383,7 @@ class AccountTest {
             ),
         )
 
-        val invokeRequest = account.execute(call, Felt(1000000000000000L))
+        val invokeRequest = account.executeV1(call, Felt(1000000000000000L))
         val invokeResponse = invokeRequest.send()
 
         Thread.sleep(20000)
@@ -462,7 +461,7 @@ class AccountTest {
             cairoVersion,
         )
 
-        val payloadForFeeEstimation = account.signDeployAccount(
+        val payloadForFeeEstimation = account.signDeployAccountV1(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -512,7 +511,7 @@ class AccountTest {
             calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
         )
 
-        val request = account.execute(call)
+        val request = account.executeV1(call)
         val response = request.send()
         Thread.sleep(15000)
 
@@ -556,14 +555,14 @@ class AccountTest {
             ),
         )
 
-        val transferRequest = account.execute(call)
+        val transferRequest = account.executeV1(call)
         val transferResponse = transferRequest.send()
         Thread.sleep(15000)
 
         val transferReceipt = provider.getTransactionReceipt(transferResponse.transactionHash).send()
         assertTrue(transferReceipt.isAccepted)
 
-        val payload = deployedAccount.signDeployAccount(
+        val payload = deployedAccount.signDeployAccountV1(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -620,7 +619,7 @@ class AccountTest {
             provider,
             cairoVersion,
         )
-        val payloadForFeeEstimate = deployedAccount.signDeployAccount(
+        val payloadForFeeEstimate = deployedAccount.signDeployAccountV3(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -628,7 +627,7 @@ class AccountTest {
                 nonce = Felt.ZERO,
                 l1ResourceBounds = ResourceBounds.ZERO,
             ),
-            forFeeEstimate = false, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
+            forFeeEstimate = true, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
         )
         val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
 
@@ -651,9 +650,9 @@ class AccountTest {
 
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
-            resourceBounds = resourceBounds,
+            l1ResourceBounds = resourceBounds.l1Gas,
         )
-        val payload = deployedAccount.signDeployAccount(
+        val payload = deployedAccount.signDeployAccountV3(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -701,7 +700,7 @@ class AccountTest {
             nonce = nonce,
             maxFee = Felt(1_000_000_000_000_000),
         )
-        val invokeTx = account.sign(call, params)
+        val invokeTx = account.signV1(call, params)
 
         val call2 = Call(
             contractAddress = predeployedMapContractAddress,
@@ -716,7 +715,7 @@ class AccountTest {
             nonce = nonce.value.add(BigInteger.ONE).toFelt,
             maxFee = Felt(1_000_000_000_000_000),
         )
-        val invokeTx2 = account.sign(call2, params2)
+        val invokeTx2 = account.signV1(call2, params2)
 
         // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
         val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
@@ -763,7 +762,7 @@ class AccountTest {
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
 
         val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, cairoVersion)
-        val deployAccountTx = deployedAccount.signDeployAccount(
+        val deployAccountTx = deployedAccount.signDeployAccountV1(
             classHash = classHash,
             salt = salt,
             calldata = calldata,
@@ -811,7 +810,7 @@ class AccountTest {
         // Chances are, the contract was compiled with a different compiler version.
         val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
 
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV1(
             contractDefinition,
             classHash,
             ExecutionParams(
@@ -849,7 +848,7 @@ class AccountTest {
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce(BlockTag.LATEST).send()
-        val declareTransactionPayload = account.signDeclare(
+        val declareTransactionPayload = account.signDeclareV2(
             contractDefinition,
             casmContractDefinition,
             ExecutionParams(
@@ -885,7 +884,7 @@ class AccountTest {
         val account = standardAccount
         val deployer = StandardDeployer(udcAddress, provider, account)
 
-        val deployment = deployer.deployContract(
+        val deployment = deployer.deployContractV1(
             classHash = classHash,
             constructorCalldata = emptyList(),
             maxFee = Felt(1000000000000000L),
@@ -914,7 +913,7 @@ class AccountTest {
         val deployer = StandardDeployer(udcAddress, provider, account)
 
         val initialBalance = Felt(1000)
-        val deployment = deployer.deployContract(
+        val deployment = deployer.deployContractV1(
             classHash = classHash,
             constructorCalldata = listOf(initialBalance),
             maxFee = Felt(1000000000000000L),

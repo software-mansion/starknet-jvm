@@ -1,7 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.serializers.JsonRpcErrorPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.JsonRpcStandardErrorSerializer
+import com.swmansion.starknet.data.serializers.JsonRpcErrorSerializer
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpResponseDeserializer
@@ -21,54 +20,20 @@ private data class JsonRpcResponse<T>(
     val result: T? = null,
 
     @SerialName("error")
-    @Serializable(with = JsonRpcErrorPolymorphicSerializer::class)
     val error: JsonRpcError? = null,
 )
 
-internal sealed class JsonRpcError {
+@Serializable(with = JsonRpcErrorSerializer::class)
+internal data class JsonRpcError(
     @SerialName("code")
-    abstract val code: Int
+    val code: Int,
 
     @SerialName("message")
-    abstract val message: String
+    val message: String,
 
     @SerialName("data")
-    abstract val data: Any?
-}
-
-@Serializable(with = JsonRpcStandardErrorSerializer::class)
-internal data class JsonRpcStandardError(
-    @SerialName("code")
-    override val code: Int,
-
-    @SerialName("message")
-    override val message: String,
-
-    @SerialName("data")
-    override val data: String? = null,
-) : JsonRpcError()
-
-@Serializable
-internal data class JsonRpcContractError(
-    @SerialName("code")
-    override val code: Int,
-
-    @SerialName("message")
-    override val message: String,
-
-    @SerialName("data")
-    override val data: JsonRpcContractErrorData,
-) : JsonRpcError()
-
-@Serializable
-internal data class JsonRpcContractErrorData(
-    @SerialName("revert_error")
-    val revertError: String,
-) {
-    override fun toString(): String {
-        return revertError
-    }
-}
+    val data: String? = null,
+)
 
 @JvmSynthetic
 internal fun <T> buildJsonHttpDeserializer(
@@ -91,7 +56,7 @@ internal fun <T> buildJsonHttpDeserializer(
             throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
                 message = jsonRpcResponse.error.message,
-                data = jsonRpcResponse.error.data?.toString(),
+                data = jsonRpcResponse.error.data,
                 payload = response.body,
             )
         }

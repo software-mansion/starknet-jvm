@@ -2,10 +2,7 @@ package com.swmansion.starknet.deployercontract
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.data.selectorFromName
-import com.swmansion.starknet.data.types.Call
-import com.swmansion.starknet.data.types.Calldata
-import com.swmansion.starknet.data.types.Event
-import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.extensions.toFelt
@@ -18,7 +15,7 @@ class StandardDeployer(
     private val provider: Provider,
     private val account: Account,
 ) : Deployer {
-    override fun deployContract(
+    override fun deployContractV1(
         classHash: Felt,
         unique: Boolean,
         salt: Felt,
@@ -27,10 +24,22 @@ class StandardDeployer(
     ): Request<ContractDeployment> {
         val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
-        return account.execute(call, maxFee).map { ContractDeployment(it.transactionHash) }
+        return account.executeV1(call, maxFee).map { ContractDeployment(it.transactionHash) }
     }
 
-    override fun deployContract(
+    override fun deployContractV3(
+        classHash: Felt,
+        unique: Boolean,
+        salt: Felt,
+        constructorCalldata: Calldata,
+        l1ResourceBounds: ResourceBounds,
+    ): Request<ContractDeployment> {
+        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
+
+        return account.executeV3(call, l1ResourceBounds).map { ContractDeployment(it.transactionHash) }
+    }
+
+    override fun deployContractV1(
         classHash: Felt,
         unique: Boolean,
         salt: Felt,
@@ -38,17 +47,38 @@ class StandardDeployer(
     ): Request<ContractDeployment> {
         val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
-        return account.execute(call).map { ContractDeployment(it.transactionHash) }
+        return account.executeV1(call).map { ContractDeployment(it.transactionHash) }
     }
 
-    override fun deployContract(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
-        val salt = randomSalt()
-        return deployContract(classHash, true, salt, constructorCalldata, maxFee)
+    override fun deployContractV3(
+        classHash: Felt,
+        unique: Boolean,
+        salt: Felt,
+        constructorCalldata: Calldata,
+    ): Request<ContractDeployment> {
+        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
+
+        return account.executeV3(call).map { ContractDeployment(it.transactionHash) }
     }
 
-    override fun deployContract(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
+    override fun deployContractV1(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
         val salt = randomSalt()
-        return deployContract(classHash, true, salt, constructorCalldata)
+        return deployContractV1(classHash, true, salt, constructorCalldata, maxFee)
+    }
+
+    override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, l1ResourceBounds: ResourceBounds): Request<ContractDeployment> {
+        val salt = randomSalt()
+        return deployContractV3(classHash, true, salt, constructorCalldata, l1ResourceBounds)
+    }
+
+    override fun deployContractV1(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
+        val salt = randomSalt()
+        return deployContractV1(classHash, true, salt, constructorCalldata)
+    }
+
+    override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
+        val salt = randomSalt()
+        return deployContractV3(classHash, true, salt, constructorCalldata)
     }
 
     private fun buildDeployContractCall(
