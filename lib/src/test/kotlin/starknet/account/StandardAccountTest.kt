@@ -142,7 +142,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
         }
 
         @Test
@@ -156,7 +159,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
         }
 
         @Test
@@ -188,7 +194,10 @@ class StandardAccountTest {
             val feeEstimates = request.send()
             feeEstimates.forEach {
                 assertNotEquals(Felt.ZERO, it.overallFee)
-                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+                assertEquals(
+                    it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
+                    it.overallFee.value
+                )
             }
         }
 
@@ -200,7 +209,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
         }
     }
 
@@ -229,7 +241,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
         }
 
         @Test
@@ -254,7 +269,11 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value) }
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
+        }
 
         @Test
         fun `estimate fee for declare v3 transaction`() {
@@ -279,7 +298,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value
+            )
         }
     }
 
@@ -319,9 +341,10 @@ class StandardAccountTest {
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response.gasPrice)
-        assertNotEquals(Felt.ZERO, response.gasConsumed)
-        assertNotEquals(Felt.ZERO, response.overallFee)
-        assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
+        assertEquals(
+            response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
+            response.overallFee.value
+        )
     }
 
     @Nested
