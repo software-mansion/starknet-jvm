@@ -461,7 +461,7 @@ data class L1HandlerTransaction(
     override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
-    override val version: Felt,
+    override val version: Felt = Felt.ZERO,
 
     @SerialName("signature")
     override val signature: Signature = emptyList(),
