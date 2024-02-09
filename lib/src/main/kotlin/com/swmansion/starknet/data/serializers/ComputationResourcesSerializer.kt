@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.serializers
 
-import com.swmansion.starknet.data.types.transactions.ExecutionResources
+import com.swmansion.starknet.data.types.transactions.ComputationResources
 import com.swmansion.starknet.extensions.toNumAsHex
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -12,8 +12,8 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 // TODO: (#344) Remove this workaround serializer once ExecutionResources conform to the RPC spec on Pathfinder side.
-internal object ExecutionResourcesSerializer : KSerializer<ExecutionResources> {
-    override fun deserialize(decoder: Decoder): ExecutionResources {
+internal object ComputationResourcesSerializer : KSerializer<ComputationResources> {
+    override fun deserialize(decoder: Decoder): ComputationResources {
         // This accepts both integer and NUM_AS_HEX values, as a temporary workaround until this is fixed on Pathfinder side.
         val input = decoder as? JsonDecoder ?: throw SerializationException("Expected JsonInput for ${decoder::class}")
 
@@ -32,7 +32,7 @@ internal object ExecutionResourcesSerializer : KSerializer<ExecutionResources> {
         val keccakApplications = getAsInt(jsonObject, "keccak_builtin_applications")
         val segmentArenaApplications = getAsInt(jsonObject, "segment_arena_builtin")
 
-        return ExecutionResources(
+        return ComputationResources(
             steps = steps,
             memoryHoles = memoryHoles,
             rangeCheckApplications = rangeCheckApplications,
@@ -49,7 +49,7 @@ internal object ExecutionResourcesSerializer : KSerializer<ExecutionResources> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("ExecutionResources", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: ExecutionResources) {
+    override fun serialize(encoder: Encoder, value: ComputationResources) {
         throw SerializationException("Class used for deserialization only.")
     }
 
