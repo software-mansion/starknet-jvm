@@ -160,24 +160,34 @@ data class SyncingResponse(
     override val highestBlockNumber: Int,
 ) : Syncing()
 
-@Serializable
-sealed class GetBlockWithResponse {
-    abstract val timestamp: Int
-    abstract val sequencerAddress: Felt
-    abstract val parentHash: Felt
-    abstract val l1GasPrice: ResourcePrice
-    abstract val starknetVersion: String
+sealed interface GetBlockWithResponse {
+    val timestamp: Int
+    val sequencerAddress: Felt
+    val parentHash: Felt
+    val l1GasPrice: ResourcePrice
+    val starknetVersion: String
+}
+
+sealed interface ProcessedBlock : GetBlockWithResponse {
+    val status: BlockStatus
+    val blockHash: Felt
+    val blockNumber: Int
+    val newRoot: Felt
+}
+sealed interface PendingBlock : GetBlockWithResponse {
+    val status: BlockStatus
+        get() = BlockStatus.PENDING
 }
 
 @Serializable
-sealed class GetBlockWithTransactionsResponse : GetBlockWithResponse() {
+sealed class GetBlockWithTransactionsResponse : GetBlockWithResponse {
     abstract val transactions: List<Transaction>
 }
 
 @Serializable
 data class BlockWithTransactionsResponse(
     @SerialName("status")
-    val status: BlockStatus,
+    override val status: BlockStatus,
 
     // Block body
 
@@ -193,13 +203,13 @@ data class BlockWithTransactionsResponse(
     override val parentHash: Felt,
 
     @SerialName("block_hash")
-    val blockHash: Felt,
+    override val blockHash: Felt,
 
     @SerialName("block_number")
-    val blockNumber: Int,
+    override val blockNumber: Int,
 
     @SerialName("new_root")
-    val newRoot: Felt,
+    override val newRoot: Felt,
 
     @SerialName("timestamp")
     override val timestamp: Int,
@@ -212,13 +222,13 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse()
+) : GetBlockWithTransactionsResponse(), ProcessedBlock
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
     // Not in RPC schema, but can be returned by nodes
     @SerialName("status")
-    val status: BlockStatus = BlockStatus.PENDING,
+    override val status: BlockStatus = BlockStatus.PENDING,
 
     // Block body
 
@@ -244,17 +254,17 @@ data class PendingBlockWithTransactionsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse()
+) : GetBlockWithTransactionsResponse(), PendingBlock
 
 @Serializable
-sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse() {
+sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse {
     abstract val transactionHashes: List<Felt>
 }
 
 @Serializable
 data class BlockWithTransactionHashesResponse(
     @SerialName("status")
-    val status: BlockStatus,
+    override val status: BlockStatus,
 
     // Block body
 
@@ -264,13 +274,13 @@ data class BlockWithTransactionHashesResponse(
     // Block header
 
     @SerialName("block_hash")
-    val blockHash: Felt,
+    override val blockHash: Felt,
 
     @SerialName("block_number")
-    val blockNumber: Int,
+    override val blockNumber: Int,
 
     @SerialName("new_root")
-    val newRoot: Felt,
+    override val newRoot: Felt,
 
     @SerialName("timestamp")
     override val timestamp: Int,
@@ -286,13 +296,13 @@ data class BlockWithTransactionHashesResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse()
+) : GetBlockWithTransactionHashesResponse(), ProcessedBlock
 
 @Serializable
 data class PendingBlockWithTransactionHashesResponse(
     // Not in RPC schema, but can be returned by nodes
     @SerialName("status")
-    val status: BlockStatus = BlockStatus.PENDING,
+    override val status: BlockStatus = BlockStatus.PENDING,
 
     // Block body
 
@@ -315,7 +325,7 @@ data class PendingBlockWithTransactionHashesResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse()
+) : GetBlockWithTransactionHashesResponse(), PendingBlock
 
 @Serializable
 data class StorageEntries(
