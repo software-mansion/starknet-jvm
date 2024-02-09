@@ -173,6 +173,8 @@ sealed interface ProcessedBlock : GetBlockWithResponse {
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
+    val l1DataGasPrice: ResourcePrice
+    val l1DataAvailabilityMode: L1DAMode
 }
 sealed interface PendingBlock : GetBlockWithResponse {
     val status: BlockStatus
@@ -219,6 +221,12 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
@@ -293,6 +301,12 @@ data class BlockWithTransactionHashesResponse(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
@@ -503,4 +517,13 @@ enum class PriceUnit {
     @SerialName("FRI")
     @JsonNames("STRK") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
     FRI,
+}
+
+@Serializable
+enum class L1DAMode {
+    @SerialName("BLOB")
+    BLOB,
+
+    @SerialName("CALLDATA")
+    CALLDATA,
 }
