@@ -5,9 +5,8 @@ package com.swmansion.starknet.data.types.transactions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
-sealed class Resources{
+sealed class Resources {
     abstract val steps: Int
     abstract val memoryHoles: Int?
     abstract val rangeCheckApplications: Int?
