@@ -628,7 +628,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getChainId(): Request<StarknetChainId>
+    fun getChainId(): Request<Felt>
 
     /**
      * Get a block with transactions.
