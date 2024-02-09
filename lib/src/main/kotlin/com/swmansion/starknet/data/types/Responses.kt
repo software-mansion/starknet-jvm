@@ -266,12 +266,12 @@ data class PendingBlockWithTransactionsResponse(
 ) : GetBlockWithTransactionsResponse(), PendingBlock
 
 @Serializable
-sealed class GetBlockWithTransactionsReceiptsResponse : GetBlockWithResponse {
+sealed class GetBlockWithReceiptsResponse : GetBlockWithResponse {
     abstract val receipts: List<TransactionReceipt>
 }
 
 @Serializable
-data class BlockWithTransactionReceiptsResponse(
+data class BlockWithReceiptsResponse(
     @SerialName("status")
     override val status: BlockStatus,
 
@@ -311,10 +311,10 @@ data class BlockWithTransactionReceiptsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsReceiptsResponse(), ProcessedBlock
+) : GetBlockWithReceiptsResponse(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithTransactionReceiptsResponse(
+data class PendingBlockWithReceiptsResponse(
     // Not in RPC schema, but can be returned by nodes
     @SerialName("status")
     override val status: BlockStatus = BlockStatus.PENDING,
@@ -340,7 +340,7 @@ data class PendingBlockWithTransactionReceiptsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsReceiptsResponse(), PendingBlock
+) : GetBlockWithReceiptsResponse(), PendingBlock
 
 @Serializable
 sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse {
