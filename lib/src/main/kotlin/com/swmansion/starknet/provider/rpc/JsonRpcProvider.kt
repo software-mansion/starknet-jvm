@@ -563,7 +563,7 @@ class JsonRpcProvider(
     private fun getBlockWithReceipts(payload: GetBlockWithReceiptsPayload): Request<GetBlockWithReceiptsResponse> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_RECEIPTS, jsonPayload, GetBlockWithReceiptsResponse.serializer())
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_RECEIPTS, jsonPayload, GetBlockWithReceiptsPolymorphicSerializer)
     }
 
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
