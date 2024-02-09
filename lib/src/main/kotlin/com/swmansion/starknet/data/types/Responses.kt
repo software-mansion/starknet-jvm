@@ -4,6 +4,7 @@ import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionReceipt
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -263,6 +264,83 @@ data class PendingBlockWithTransactionsResponse(
     @SerialName("starknet_version")
     override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse(), PendingBlock
+
+@Serializable
+sealed class GetBlockWithTransactionsReceiptsResponse : GetBlockWithResponse {
+    abstract val receipts: List<TransactionReceipt>
+}
+
+@Serializable
+data class BlockWithTransactionReceiptsResponse(
+    @SerialName("status")
+    override val status: BlockStatus,
+
+    // Block body
+
+    @SerialName("receipts")
+    override val receipts: List<TransactionReceipt>,
+
+    // Block header
+
+    @SerialName("block_hash")
+    override val blockHash: Felt,
+
+    @SerialName("block_number")
+    override val blockNumber: Int,
+
+    @SerialName("new_root")
+    override val newRoot: Felt,
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
+) : GetBlockWithTransactionsReceiptsResponse(), ProcessedBlock
+
+@Serializable
+data class PendingBlockWithTransactionReceiptsResponse(
+    // Not in RPC schema, but can be returned by nodes
+    @SerialName("status")
+    override val status: BlockStatus = BlockStatus.PENDING,
+
+    // Block body
+
+    @SerialName("receipts")
+    override val receipts: List<TransactionReceipt>,
+
+    // Pending block header
+
+    @SerialName("timestamp")
+    override val timestamp: Int,
+
+    @SerialName("sequencer_address")
+    override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    override val parentHash: Felt,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: ResourcePrice,
+
+    @SerialName("starknet_version")
+    override val starknetVersion: String,
+) : GetBlockWithTransactionsReceiptsResponse(), PendingBlock
 
 @Serializable
 sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse {
