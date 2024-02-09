@@ -74,7 +74,10 @@ data class EstimateFeeResponse(
         amountOverhead: Double = 0.1,
         unitPriceOverhead: Double = 0.5,
     ): ResourceBoundsMapping {
-        val maxAmount = addOverhead(gasConsumed.value, amountOverhead).toUint64
+        val maxAmount = when (gasPrice) {
+            Felt.ZERO -> Uint64.ZERO
+            else -> addOverhead(overallFee.value.divide(gasPrice.value), amountOverhead).toUint64
+        }
         val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
 
         return ResourceBoundsMapping(
