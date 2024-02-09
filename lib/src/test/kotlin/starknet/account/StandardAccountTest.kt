@@ -144,7 +144,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
 
@@ -161,7 +161,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
 
@@ -196,7 +196,7 @@ class StandardAccountTest {
                 assertNotEquals(Felt.ZERO, it.overallFee)
                 assertEquals(
                     it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
-                    it.overallFee.value
+                    it.overallFee.value,
                 )
             }
         }
@@ -211,7 +211,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
     }
@@ -243,7 +243,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
 
@@ -271,7 +271,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
 
@@ -300,7 +300,7 @@ class StandardAccountTest {
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value
+                feeEstimate.overallFee.value,
             )
         }
     }
@@ -343,7 +343,7 @@ class StandardAccountTest {
         assertNotEquals(Felt.ZERO, response.gasPrice)
         assertEquals(
             response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
-            response.overallFee.value
+            response.overallFee.value,
         )
     }
 
