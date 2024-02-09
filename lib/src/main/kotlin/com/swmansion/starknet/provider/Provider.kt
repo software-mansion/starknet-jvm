@@ -697,6 +697,39 @@ interface Provider {
     fun getBlockWithTxHashes(blockNumber: Int): Request<GetBlockWithTransactionHashesResponse>
 
     /**
+     * Get a block with transaction receipts.
+     *
+     * Get block information with transaction receipts given the block id.
+     *
+     * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockTag: BlockTag): Request<GetBlockWithReceiptsResponse>
+
+    /**
+     * Get a block with transaction receipts.
+     *
+     * Get block information with transaction receipts given the block id.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockHash: Felt): Request<GetBlockWithReceiptsResponse>
+
+    /**
+     * Get a block with transaction receipts.
+     *
+     * Get block information with transaction receipts given the block id.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockNumber: Int): Request<GetBlockWithReceiptsResponse>
+
+    /**
      * Get block state information.
      *
      * Get the information about the result of executing the requested block.

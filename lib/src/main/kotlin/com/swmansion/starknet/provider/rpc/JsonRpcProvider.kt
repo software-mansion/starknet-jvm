@@ -542,6 +542,30 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, GetBlockWithTransactionHashesPolymorphicSerializer)
     }
 
+    override fun getBlockWithReceipts(blockTag: BlockTag): Request<GetBlockWithReceiptsResponse> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Tag(blockTag))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    override fun getBlockWithReceipts(blockHash: Felt): Request<GetBlockWithReceiptsResponse> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Hash(blockHash))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    override fun getBlockWithReceipts(blockNumber: Int): Request<GetBlockWithReceiptsResponse> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Number(blockNumber))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    private fun getBlockWithReceipts(payload: GetBlockWithReceiptsPayload): Request<GetBlockWithReceiptsResponse> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_RECEIPTS, jsonPayload, GetBlockWithReceiptsResponse.serializer())
+    }
+
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
@@ -637,6 +661,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
     GET_BLOCK_WITH_TX_HASHES("starknet_getBlockWithTxHashes"),
+    GET_BLOCK_WITH_RECEIPTS("starknet_getBlockWithReceipts"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_NONCE("starknet_getNonce"),
