@@ -161,13 +161,17 @@ data class SyncingResponse(
 ) : Syncing()
 
 @Serializable
-sealed class GetBlockWithTransactionsResponse {
-    abstract val transactions: List<Transaction>
+sealed class GetBlockWithResponse {
     abstract val timestamp: Int
     abstract val sequencerAddress: Felt
     abstract val parentHash: Felt
     abstract val l1GasPrice: ResourcePrice
     abstract val starknetVersion: String
+}
+
+@Serializable
+sealed class GetBlockWithTransactionsResponse : GetBlockWithResponse() {
+    abstract val transactions: List<Transaction>
 }
 
 @Serializable
@@ -242,13 +246,9 @@ data class PendingBlockWithTransactionsResponse(
     override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse()
 
-sealed class GetBlockWithTransactionHashesResponse {
-    abstract val timestamp: Int
-    abstract val sequencerAddress: Felt
-    abstract val parentHash: Felt
+@Serializable
+sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse() {
     abstract val transactionHashes: List<Felt>
-    abstract val l1GasPrice: ResourcePrice
-    abstract val starknetVersion: String
 }
 
 @Serializable
