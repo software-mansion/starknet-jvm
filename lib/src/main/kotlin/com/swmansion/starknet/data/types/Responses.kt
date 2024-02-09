@@ -53,6 +53,12 @@ data class EstimateFeeResponse(
     @SerialName("gas_price")
     val gasPrice: Felt,
 
+    @SerialName("data_gas_consumed")
+    val dataGasConsumed: Felt,
+
+    @SerialName("data_gas_price")
+    val dataGasPrice: Felt,
+
     @SerialName("overall_fee")
     val overallFee: Felt,
 
