@@ -11,7 +11,7 @@ internal class TransactionHashCalculatorTest {
     inner class DeprecatedTransactionHashTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
         private val maxFee = Felt.fromHex("0xabcd987654210")
-        private val chainId = StarknetChainId.GOERLI
+        private val chainId = Felt.fromShortString("SN_GOERLI")
 
         @Test
         fun `calculate invoke v1 transaction hash`() {
@@ -74,7 +74,7 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        private val chainId = StarknetChainId.GOERLI
+        private val chainId = Felt.fromShortString("SN_GOERLI")
 
         @Test
         fun `prepare data availability modes`() {

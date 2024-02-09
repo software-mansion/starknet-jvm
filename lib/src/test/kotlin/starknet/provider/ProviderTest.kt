@@ -752,7 +752,7 @@ class ProviderTest {
         val request = provider.getChainId()
         val response = request.send()
 
-        assertEquals(StarknetChainId.GOERLI, response)
+        assertEquals(Felt.fromShortString("SN_GOERLI"), response)
     }
 
     @Test
