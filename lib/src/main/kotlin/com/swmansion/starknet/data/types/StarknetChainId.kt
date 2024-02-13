@@ -1,9 +1,10 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.StarknetChainIdSerializer
 import kotlinx.serialization.Serializable
 
-@Serializable
-class StarknetChainId private constructor(val value: Felt) {
+@Serializable(with = StarknetChainIdSerializer::class)
+data class StarknetChainId(val value: Felt) {
     companion object {
         @field:JvmField
         val MAIN = StarknetChainId(Felt.fromHex("0x534e5f4d41494e")) // encodeShortString('SN_MAIN'),
@@ -20,23 +21,12 @@ class StarknetChainId private constructor(val value: Felt) {
 
         @JvmStatic
         fun fromShortString(shortString: String): StarknetChainId {
-            return fromFelt(Felt.fromShortString(shortString))
+            return StarknetChainId(Felt.fromShortString(shortString))
         }
 
         @JvmStatic
         fun fromHex(hex: String): StarknetChainId {
-            return fromFelt(Felt.fromHex(hex))
-        }
-
-        @JvmStatic
-        fun fromFelt(felt: Felt): StarknetChainId {
-            return when (felt) {
-                MAIN.value -> MAIN
-                GOERLI.value -> GOERLI
-                SEPOLIA.value -> SEPOLIA
-                INTEGRATION_SEPOLIA.value -> INTEGRATION_SEPOLIA
-                else -> StarknetChainId(felt)
-            }
+            return StarknetChainId(Felt.fromHex(hex))
         }
     }
 }
