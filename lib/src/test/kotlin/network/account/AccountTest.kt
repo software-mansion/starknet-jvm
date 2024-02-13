@@ -36,10 +36,18 @@ class AccountTest {
         private val provider = JsonRpcProvider(rpcUrl)
         private val cairoVersion = config.cairoVersion.toFelt
 
+        val chainId = when (network) {
+            Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
+            Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
+            Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
+            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
+        }
+
         val standardAccount = StandardAccount(
             accountAddress,
             signer,
             provider,
+            chainId,
             cairoVersion,
         )
 
@@ -50,6 +58,7 @@ class AccountTest {
             constNonceAccountAddress,
             constNonceSigner,
             provider,
+            chainId,
             cairoVersion,
         )
 
@@ -123,7 +132,7 @@ class AccountTest {
             classHash = classHash,
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = provider.getChainId().send(),
+            chainId = chainId,
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -168,7 +177,7 @@ class AccountTest {
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
             casmContractDefinition = casmContractDefinition,
-            chainId = provider.getChainId().send(),
+            chainId = chainId,
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
@@ -458,6 +467,7 @@ class AccountTest {
             address,
             privateKey,
             provider,
+            chainId,
             cairoVersion,
         )
 
@@ -541,6 +551,7 @@ class AccountTest {
             deployedAccountAddress,
             privateKey,
             provider,
+            chainId,
             cairoVersion,
         )
 
@@ -617,6 +628,7 @@ class AccountTest {
             deployedAccountAddress,
             privateKey,
             provider,
+            chainId,
             cairoVersion,
         )
         val payloadForFeeEstimate = deployedAccount.signDeployAccountV3(
@@ -761,7 +773,7 @@ class AccountTest {
         val calldata = listOf(publicKey)
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
 
-        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, cairoVersion)
+        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, chainId, cairoVersion)
         val deployAccountTx = deployedAccount.signDeployAccountV1(
             classHash = classHash,
             salt = salt,
