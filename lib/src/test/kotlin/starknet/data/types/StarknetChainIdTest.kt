@@ -30,8 +30,8 @@ internal class StarknetChainIdTest {
 
     @ParameterizedTest
     @MethodSource("getChainIdData")
-    fun `from short string`(data: ChainIdData) {
-        val chainId = StarknetChainId.fromShortString(data.name)
+    fun `from network name`(data: ChainIdData) {
+        val chainId = StarknetChainId.fromNetworkName(data.name)
         assertEquals(data.chainId, chainId)
     }
 

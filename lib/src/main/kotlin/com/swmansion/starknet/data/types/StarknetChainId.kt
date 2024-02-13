@@ -20,7 +20,7 @@ data class StarknetChainId(val value: Felt) {
             StarknetChainId(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")) // encodeShortString('SN_INTEGRATION_SEPOLIA'),
 
         @JvmStatic
-        fun fromShortString(shortString: String): StarknetChainId {
+        fun fromNetworkName(shortString: String): StarknetChainId {
             return StarknetChainId(Felt.fromShortString(shortString))
         }
 
