@@ -28,11 +28,6 @@ class StandardAccount(
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
     private val chainId: StarknetChainId by lazy { provider.getChainId().send() }
-    private fun estimateVersion(version: Felt): Felt {
-        return BigInteger.valueOf(2).pow(128)
-            .add(version.value)
-            .toFelt
-    }
 
     /**
      * @param provider a provider used to interact with Starknet
@@ -448,5 +443,11 @@ class StandardAccount(
         } else {
             emptySet()
         }
+    }
+
+    private fun estimateVersion(version: Felt): Felt {
+        return BigInteger.valueOf(2).pow(128)
+            .add(version.value)
+            .toFelt
     }
 }
