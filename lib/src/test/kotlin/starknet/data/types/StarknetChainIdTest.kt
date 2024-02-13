@@ -11,11 +11,11 @@ internal class StarknetChainIdTest {
         @JvmStatic
         fun getChainIdData(): List<ChainIdData> {
             return listOf(
-                ChainIdData(StarknetChainId.Main, "SN_MAIN", "0x534e5f4d41494e"),
-                ChainIdData(StarknetChainId.Goerli, "SN_GOERLI", "0x534e5f474f45524c49"),
-                ChainIdData(StarknetChainId.Sepolia, "SN_SEPOLIA", "0x534e5f5345504f4c4941"),
+                ChainIdData(StarknetChainId.MAIN, "SN_MAIN", "0x534e5f4d41494e"),
+                ChainIdData(StarknetChainId.GOERLI, "SN_GOERLI", "0x534e5f474f45524c49"),
+                ChainIdData(StarknetChainId.SEPOLIA, "SN_SEPOLIA", "0x534e5f5345504f4c4941"),
                 ChainIdData(
-                    StarknetChainId.IntegrationSepolia,
+                    StarknetChainId.INTEGRATION_SEPOLIA,
                     "SN_INTEGRATION_SEPOLIA",
                     "0x534e5f494e544547524154494f4e5f5345504f4c4941",
                 ),
@@ -38,6 +38,6 @@ internal class StarknetChainIdTest {
     @Test
     fun `from hex`() {
         val chainId = StarknetChainId.fromHex("0x534e5f4d41494e")
-        assertEquals(StarknetChainId.Main, chainId)
+        assertEquals(StarknetChainId.MAIN, chainId)
     }
 }
