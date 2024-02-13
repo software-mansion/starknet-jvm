@@ -27,7 +27,7 @@ class StandardAccount @JvmOverloads constructor(
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
-    private val chainId: StarknetChainId,
+    override val chainId: StarknetChainId,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
     /**
