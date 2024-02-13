@@ -6,12 +6,9 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
 import com.swmansion.starknet.data.types.transactions.TransactionType
 import com.swmansion.starknet.extensions.toFelt
-import com.swmansion.starknet.provider.Provider
 
 /**
  * Toolkit for calculating hashes of transactions.
- *
- * To obtain the chain id, [Provider.getChainId] can be used. Alternatively, the chain id can be encoded from the network name using [Felt.fromShortString], e.g. `Felt.fromShortString("SN_SEPOLIA")`.
  */
 object TransactionHashCalculator {
     private val l1GasPrefix by lazy { Felt.fromShortString("L1_GAS") }
@@ -21,7 +18,7 @@ object TransactionHashCalculator {
     fun calculateInvokeTxV1Hash(
         contractAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
         maxFee: Felt,
@@ -40,7 +37,7 @@ object TransactionHashCalculator {
     fun calculateInvokeTxV3Hash(
         senderAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
         tip: Uint64,
@@ -73,7 +70,7 @@ object TransactionHashCalculator {
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: Felt,
         maxFee: Felt,
         nonce: Felt,
@@ -101,7 +98,7 @@ object TransactionHashCalculator {
         constructorCalldata: Calldata,
         salt: Felt,
         paymasterData: PaymasterData,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: Felt,
         nonce: Felt,
         tip: Uint64,
@@ -136,7 +133,7 @@ object TransactionHashCalculator {
     @JvmStatic
     fun calculateDeclareV1TxHash(
         classHash: Felt,
-        chainId: Felt,
+        chainId: StarknetChainId,
         senderAddress: Felt,
         maxFee: Felt,
         version: Felt,
@@ -150,7 +147,7 @@ object TransactionHashCalculator {
             Felt.ZERO,
             hash,
             maxFee,
-            chainId,
+            chainId.value,
             nonce,
         )
     }
@@ -158,7 +155,7 @@ object TransactionHashCalculator {
     @JvmStatic
     fun calculateDeclareV2TxHash(
         classHash: Felt,
-        chainId: Felt,
+        chainId: StarknetChainId,
         senderAddress: Felt,
         maxFee: Felt,
         version: Felt,
@@ -173,7 +170,7 @@ object TransactionHashCalculator {
             Felt.ZERO,
             calldataHash,
             maxFee,
-            chainId,
+            chainId.value,
             nonce,
             compiledClassHash,
         )
@@ -182,7 +179,7 @@ object TransactionHashCalculator {
     @JvmStatic
     fun calculateDeclareV3TxHash(
         classHash: Felt,
-        chainId: Felt,
+        chainId: StarknetChainId,
         senderAddress: Felt,
         version: Felt,
         nonce: Felt,
@@ -220,7 +217,7 @@ object TransactionHashCalculator {
         entryPointSelector: Felt,
         calldata: Calldata,
         maxFee: Felt,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
     ): Felt {
         return StarknetCurve.pedersenOnElements(
@@ -230,7 +227,7 @@ object TransactionHashCalculator {
             entryPointSelector,
             StarknetCurve.pedersenOnElements(calldata),
             maxFee,
-            chainId,
+            chainId.value,
             nonce,
         )
     }
@@ -242,7 +239,7 @@ object TransactionHashCalculator {
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
         paymasterData: PaymasterData,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
         nonceDataAvailabilityMode: DAMode,
         feeDataAvailabilityMode: DAMode,

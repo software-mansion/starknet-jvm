@@ -27,7 +27,7 @@ class StandardAccount(
     private val provider: Provider,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
-    private val chainId: Felt by lazy { provider.getChainId().send() }
+    private val chainId: StarknetChainId by lazy { provider.getChainId().send() }
     private fun estimateVersion(version: Felt): Felt {
         return BigInteger.valueOf(2).pow(128)
             .add(version.value)
