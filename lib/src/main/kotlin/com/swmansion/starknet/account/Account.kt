@@ -12,6 +12,7 @@ import com.swmansion.starknet.provider.Request
  */
 interface Account {
     val address: Felt
+    val chainId: StarknetChainId
 
     /**
      * Sign a version 1 invoke transaction.
