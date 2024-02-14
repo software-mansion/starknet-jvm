@@ -28,4 +28,7 @@ data class StarknetChainId(val value: Felt) {
             return StarknetChainId(Felt.fromHex(hex))
         }
     }
+    fun toNetworkName(): String {
+        return value.toShortString()
+    }
 }

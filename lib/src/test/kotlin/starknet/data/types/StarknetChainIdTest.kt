@@ -40,4 +40,11 @@ internal class StarknetChainIdTest {
         val chainId = StarknetChainId.fromHex(data.hex)
         assertEquals(data.chainId, chainId)
     }
+
+    @ParameterizedTest
+    @MethodSource("getChainIdData")
+    fun `to network name`(data: ChainIdData) {
+        val chainId = StarknetChainId.fromHex(data.hex)
+        assertEquals(data.name, chainId.toNetworkName())
+    }
 }
