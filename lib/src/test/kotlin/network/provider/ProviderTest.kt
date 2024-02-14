@@ -105,10 +105,10 @@ class ProviderTest {
         val chainId = request.send()
 
         val expectedChainId = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromShortString("SN_GOERLI")
-            Network.GOERLI_TESTNET -> Felt.fromShortString("SN_GOERLI")
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("SN_INTEGRATION_SEPOLIA")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("SN_SEPOLIA")
+            Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
+            Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
+            Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
+            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
         }
         assertEquals(expectedChainId, chainId)
     }

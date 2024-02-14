@@ -627,11 +627,6 @@ data class DeployAccountTransactionV3(
     }
 }
 
-/**
- * Factory for creating transaction objects.
-
- * To obtain the chain id, [Provider.getChainId] can be used. Alternatively, the chain id can be encoded from the network name using [Felt.fromShortString], e.g. `Felt.fromShortString("SN_SEPOLIA")`.
- */
 object TransactionFactory {
     private val tip = Uint64.ZERO
     private val paymasterData: PaymasterData = emptyList()
@@ -644,7 +639,7 @@ object TransactionFactory {
     fun makeInvokeV1Transaction(
         senderAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
         maxFee: Felt,
         signature: Signature = emptyList(),
@@ -674,7 +669,7 @@ object TransactionFactory {
     fun makeInvokeV3Transaction(
         senderAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
         signature: Signature = emptyList(),
         version: TransactionVersion,
@@ -716,7 +711,7 @@ object TransactionFactory {
         contractAddress: Felt,
         salt: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: TransactionVersion,
         maxFee: Felt,
         signature: Signature = emptyList(),
@@ -751,7 +746,7 @@ object TransactionFactory {
         senderAddress: Felt,
         salt: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: TransactionVersion,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
@@ -793,7 +788,7 @@ object TransactionFactory {
         classHash: Felt,
         senderAddress: Felt,
         contractDefinition: Cairo0ContractDefinition,
-        chainId: Felt,
+        chainId: StarknetChainId,
         maxFee: Felt,
         version: TransactionVersion,
         nonce: Felt,
@@ -824,7 +819,7 @@ object TransactionFactory {
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
-        chainId: Felt,
+        chainId: StarknetChainId,
         maxFee: Felt,
         version: TransactionVersion,
         nonce: Felt,
@@ -860,7 +855,7 @@ object TransactionFactory {
     fun makeDeclareV3Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
-        chainId: Felt,
+        chainId: StarknetChainId,
         version: TransactionVersion,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
