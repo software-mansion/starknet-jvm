@@ -2,6 +2,7 @@ package starknet.data.types
 
 import com.swmansion.starknet.data.types.StarknetChainId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -46,5 +47,11 @@ internal class StarknetChainIdTest {
     fun `to network name`(data: ChainIdData) {
         val chainId = StarknetChainId.fromHex(data.hex)
         assertEquals(data.name, chainId.toNetworkName())
+    }
+
+    @Test
+    fun `custom chain id`() {
+        val chainId = StarknetChainId.fromHex("0x4b4154414e41")
+        assertEquals("KATANA", chainId.toNetworkName())
     }
 }
