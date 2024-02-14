@@ -20,30 +20,30 @@ import java.util.concurrent.CompletableFuture
  * @param provider a provider used to interact with Starknet
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
+ * @param chainId the chain id of the Starknet network
+ * @param cairoVersion the version of Cairo language in which account contract is written
  */
-class StandardAccount(
+class StandardAccount @JvmOverloads constructor(
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
+    override val chainId: StarknetChainId,
     private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
-    private val chainId: StarknetChainId by lazy { provider.getChainId().send() }
-    private fun estimateVersion(version: Felt): Felt {
-        return BigInteger.valueOf(2).pow(128)
-            .add(version.value)
-            .toFelt
-    }
-
     /**
      * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
+     * @param chainId the chain id of the Starknet network
+     * @param cairoVersion the version of Cairo language in which account contract is written
      */
-    constructor(address: Felt, privateKey: Felt, provider: Provider, cairoVersion: Felt = Felt.ZERO) : this(
-        address,
-        StarkCurveSigner(privateKey),
-        provider,
-        cairoVersion,
+    @JvmOverloads
+    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: Felt = Felt.ZERO) : this(
+        address = address,
+        signer = StarkCurveSigner(privateKey),
+        provider = provider,
+        chainId = chainId,
+        cairoVersion = cairoVersion,
     )
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
@@ -448,5 +448,11 @@ class StandardAccount(
         } else {
             emptySet()
         }
+    }
+
+    private fun estimateVersion(version: Felt): Felt {
+        return BigInteger.valueOf(2).pow(128)
+            .add(version.value)
+            .toFelt
     }
 }
