@@ -48,10 +48,7 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt.ONE)
-            false -> Felt.ONE
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = address,
             calldata = calldata,
@@ -68,10 +65,7 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt(3))
-            false -> Felt(3)
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeInvokeV3Transaction(
             senderAddress = address,
             calldata = calldata,
@@ -94,10 +88,7 @@ class StandardAccount @JvmOverloads constructor(
         nonce: Felt,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV1Payload {
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt.ONE)
-            false -> Felt.ONE
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeDeployAccountV1Transaction(
             classHash = classHash,
             contractAddress = address,
@@ -120,10 +111,7 @@ class StandardAccount @JvmOverloads constructor(
         params: DeployAccountParamsV3,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt(3))
-            false -> Felt(3)
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeDeployAccountV3Transaction(
             classHash = classHash,
             senderAddress = address,
@@ -145,10 +133,7 @@ class StandardAccount @JvmOverloads constructor(
         params: ExecutionParams,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV1Payload {
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt.ONE)
-            false -> Felt.ONE
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeDeclareV1Transaction(
             contractDefinition = contractDefinition,
             classHash = classHash,
@@ -169,10 +154,7 @@ class StandardAccount @JvmOverloads constructor(
         params: ExecutionParams,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt(2))
-            false -> Felt(2)
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2
         val tx = TransactionFactory.makeDeclareV2Transaction(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
@@ -193,10 +175,7 @@ class StandardAccount @JvmOverloads constructor(
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload {
-        val signVersion = when (forFeeEstimate) {
-            true -> estimateVersion(Felt(3))
-            false -> Felt(3)
-        }
+        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeDeclareV3Transaction(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
