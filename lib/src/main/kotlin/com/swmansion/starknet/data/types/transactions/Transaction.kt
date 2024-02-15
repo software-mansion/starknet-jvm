@@ -37,7 +37,7 @@ enum class TransactionType(val txPrefix: Felt) {
  * Standard versions include [V0], [V1], [V2], and [V3]. These are utilized for regular transaction execution.
  * Query versions [V1_QUERY], [V2_QUERY], and [V3_QUERY] should only be used for creating transactions to be used
  * in queries that do not alter the chain state, as in methods like [Provider.simulateTransactions] and [Provider.getEstimateFee].
- * Avoid using query versions for transactions intended for execution.
+ * Sending transaction with a query version for execution will result in a failure.
  */
 @Serializable
 enum class TransactionVersion(val value: Felt) {
