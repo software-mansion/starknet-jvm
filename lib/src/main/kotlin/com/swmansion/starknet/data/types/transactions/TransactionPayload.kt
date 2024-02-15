@@ -31,7 +31,7 @@ data class InvokeTransactionV1Payload(
     val maxFee: Felt,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("nonce")
     val nonce: Felt,
@@ -71,7 +71,7 @@ data class InvokeTransactionV3Payload private constructor(
     val feeDataAvailabilityMode: DAMode,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 ) : InvokeTransactionPayload() {
     constructor(
         senderAddress: Felt,
@@ -79,7 +79,7 @@ data class InvokeTransactionV3Payload private constructor(
         signature: Signature,
         nonce: Felt,
         resourceBounds: ResourceBoundsMapping,
-        version: Felt,
+        version: TransactionVersion,
     ) : this(
         senderAddress = senderAddress,
         calldata = calldata,
@@ -116,7 +116,7 @@ data class DeclareTransactionV1Payload(
     val senderAddress: Felt,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -143,7 +143,7 @@ data class DeclareTransactionV2Payload(
     val compiledClassHash: Felt,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -186,7 +186,7 @@ data class DeclareTransactionV3Payload private constructor(
     val feeDataAvailabilityMode: DAMode,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -198,7 +198,7 @@ data class DeclareTransactionV3Payload private constructor(
         senderAddress: Felt,
         compiledClassHash: Felt,
         resourceBounds: ResourceBoundsMapping,
-        version: Felt,
+        version: TransactionVersion,
     ) : this(
         contractDefinition = contractDefinition,
         nonce = nonce,
@@ -230,7 +230,7 @@ data class DeployAccountTransactionV1Payload(
     val constructorCalldata: Calldata,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("nonce")
     val nonce: Felt,
@@ -258,7 +258,7 @@ data class DeployAccountTransactionV3Payload private constructor(
     val constructorCalldata: Calldata,
 
     @SerialName("version")
-    val version: Felt,
+    val version: TransactionVersion,
 
     @SerialName("nonce")
     val nonce: Felt,
@@ -288,7 +288,7 @@ data class DeployAccountTransactionV3Payload private constructor(
         classHash: Felt,
         salt: Felt,
         constructorCalldata: Calldata,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         signature: Signature,
         resourceBounds: ResourceBoundsMapping,

@@ -5,6 +5,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
 import com.swmansion.starknet.data.types.transactions.TransactionType
+import com.swmansion.starknet.data.types.transactions.TransactionVersion
 import com.swmansion.starknet.extensions.toFelt
 
 /**
@@ -19,7 +20,7 @@ object TransactionHashCalculator {
         contractAddress: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         maxFee: Felt,
     ): Felt = transactionHashCommon(
@@ -38,7 +39,7 @@ object TransactionHashCalculator {
         senderAddress: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
@@ -71,7 +72,7 @@ object TransactionHashCalculator {
         calldata: Calldata,
         salt: Felt,
         chainId: StarknetChainId,
-        version: Felt,
+        version: TransactionVersion,
         maxFee: Felt,
         nonce: Felt,
     ): Felt {
@@ -99,7 +100,7 @@ object TransactionHashCalculator {
         salt: Felt,
         paymasterData: PaymasterData,
         chainId: StarknetChainId,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
@@ -136,13 +137,13 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         senderAddress: Felt,
         maxFee: Felt,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
     ): Felt {
         val hash = StarknetCurve.pedersenOnElements(listOf(classHash))
         return StarknetCurve.pedersenOnElements(
             TransactionType.DECLARE.txPrefix,
-            version,
+            version.value,
             senderAddress,
             Felt.ZERO,
             hash,
@@ -158,14 +159,14 @@ object TransactionHashCalculator {
         chainId: StarknetChainId,
         senderAddress: Felt,
         maxFee: Felt,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         compiledClassHash: Felt,
     ): Felt {
         val calldataHash = StarknetCurve.pedersenOnElements(listOf(classHash))
         return StarknetCurve.pedersenOnElements(
             TransactionType.DECLARE.txPrefix,
-            version,
+            version.value,
             senderAddress,
             Felt.ZERO,
             calldataHash,
@@ -181,7 +182,7 @@ object TransactionHashCalculator {
         classHash: Felt,
         chainId: StarknetChainId,
         senderAddress: Felt,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         compiledClassHash: Felt,
         tip: Uint64,
@@ -212,7 +213,7 @@ object TransactionHashCalculator {
 
     private fun transactionHashCommon(
         txType: TransactionType,
-        version: Felt,
+        version: TransactionVersion,
         contractAddress: Felt,
         entryPointSelector: Felt,
         calldata: Calldata,
@@ -222,7 +223,7 @@ object TransactionHashCalculator {
     ): Felt {
         return StarknetCurve.pedersenOnElements(
             txType.txPrefix,
-            version,
+            version.value,
             contractAddress,
             entryPointSelector,
             StarknetCurve.pedersenOnElements(calldata),
@@ -234,7 +235,7 @@ object TransactionHashCalculator {
 
     private fun prepareCommonTransanctionV3Fields(
         txType: TransactionType,
-        version: Felt,
+        version: TransactionVersion,
         address: Felt,
         tip: Uint64,
         resourceBounds: ResourceBoundsMapping,
@@ -246,7 +247,7 @@ object TransactionHashCalculator {
     ): List<Felt> {
         return listOf(
             txType.txPrefix,
-            version,
+            version.value,
             address,
             Poseidon.poseidonHash(
                 tip.toFelt,
