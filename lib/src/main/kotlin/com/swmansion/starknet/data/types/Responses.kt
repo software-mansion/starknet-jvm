@@ -175,6 +175,8 @@ sealed interface GetBlockWithResponse {
     val sequencerAddress: Felt
     val parentHash: Felt
     val l1GasPrice: ResourcePrice
+    val l1DataGasPrice: ResourcePrice
+    val l1DataAvailabilityMode: L1DAMode
     val starknetVersion: String
 }
 
@@ -183,8 +185,6 @@ sealed interface ProcessedBlock : GetBlockWithResponse {
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
-    val l1DataGasPrice: ResourcePrice
-    val l1DataAvailabilityMode: L1DAMode
 }
 sealed interface PendingBlock : GetBlockWithResponse {
     val status: BlockStatus
@@ -270,6 +270,12 @@ data class PendingBlockWithTransactionsResponse(
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
+
     @SerialName("starknet_version")
     override val starknetVersion: String,
 ) : GetBlockWithTransactionsResponse(), PendingBlock
@@ -353,6 +359,12 @@ data class PendingBlockWithReceiptsResponse(
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
+
     @SerialName("starknet_version")
     override val starknetVersion: String,
 ) : GetBlockWithReceiptsResponse(), PendingBlock
@@ -429,6 +441,12 @@ data class PendingBlockWithTransactionHashesResponse(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: ResourcePrice,
+
+    @SerialName("l1_da_mode")
+    override val l1DataAvailabilityMode: L1DAMode,
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
