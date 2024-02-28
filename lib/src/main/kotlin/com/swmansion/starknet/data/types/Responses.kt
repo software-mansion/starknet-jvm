@@ -90,7 +90,7 @@ data class EstimateFeeResponse(
      * @return Resource bounds with added overhead.
      */
     fun toResourceBounds(
-        amountOverhead: Double = 0.1,
+        amountOverhead: Double = 0.5,
         unitPriceOverhead: Double = 0.5,
     ): ResourceBoundsMapping {
         val maxAmount = when (gasPrice) {
