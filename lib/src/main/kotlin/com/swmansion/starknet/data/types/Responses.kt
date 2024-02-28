@@ -275,8 +275,14 @@ data class PendingBlockWithTransactionsResponse(
 ) : GetBlockWithTransactionsResponse(), PendingBlock
 
 @Serializable
+data class TransactionWithReceipt(
+    val transaction: Transaction,
+    val receipt: TransactionReceipt,
+)
+
+@Serializable
 sealed class GetBlockWithReceiptsResponse : GetBlockWithResponse {
-    abstract val receipts: List<TransactionReceipt>
+    abstract val receipts: List<TransactionWithReceipt>
 }
 
 @Serializable
@@ -287,7 +293,7 @@ data class BlockWithReceiptsResponse(
     // Block body
 
     @SerialName("receipts")
-    override val receipts: List<TransactionReceipt>,
+    override val receipts: List<TransactionWithReceipt>,
 
     // Block header
 
@@ -331,7 +337,7 @@ data class PendingBlockWithReceiptsResponse(
     // Block body
 
     @SerialName("receipts")
-    override val receipts: List<TransactionReceipt>,
+    override val receipts: List<TransactionWithReceipt>,
 
     // Pending block header
 
