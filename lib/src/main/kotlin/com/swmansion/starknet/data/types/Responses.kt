@@ -85,7 +85,7 @@ data class EstimateFeeResponse(
      * Adds overhead to the estimated fee. Calculates multiplier as m = round((1 + overhead) * 100%).
      * Then multiplies fee by m and performs integer division by 100.
      *
-     * @param amountOverhead How big overhead should be added (as a fraction of amount) to the amount, defaults to 0.1.
+     * @param amountOverhead How big overhead should be added (as a fraction of amount) to the amount, defaults to 0.5.
      * @param unitPriceOverhead How big overhead should be added (as a fraction of unit price) to the unit price, defaults to 0.5.
      * @return Resource bounds with added overhead.
      */
