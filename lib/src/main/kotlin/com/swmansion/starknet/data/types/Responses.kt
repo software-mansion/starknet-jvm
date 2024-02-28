@@ -66,10 +66,29 @@ data class EstimateFeeResponse(
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
 ) {
+    /**
+     * Convert estimated fee to max fee with added overhead.
+     *
+     * Adds overhead to estimated fee. Calculates multiplier as m = round((1 + overhead) * 100%).
+     * Then multiplies fee by m and performs integer division by 100.
+     *
+     * @param overhead How big overhead should be added (as a fraction of fee) to the fee, defaults to 0.5.
+     * @return Fee with added overhead.
+     */
     fun toMaxFee(overhead: Double = 0.5): Felt {
         return addOverhead(overallFee.value, overhead).toFelt
     }
 
+    /**
+     * Convert estimated fee to resource bounds with added overhead.
+     *
+     * Adds overhead to the estimated fee. Calculates multiplier as m = round((1 + overhead) * 100%).
+     * Then multiplies fee by m and performs integer division by 100.
+     *
+     * @param amountOverhead How big overhead should be added (as a fraction of amount) to the amount, defaults to 0.1.
+     * @param unitPriceOverhead How big overhead should be added (as a fraction of unit price) to the unit price, defaults to 0.5.
+     * @return Resource bounds with added overhead.
+     */
     fun toResourceBounds(
         amountOverhead: Double = 0.1,
         unitPriceOverhead: Double = 0.5,
