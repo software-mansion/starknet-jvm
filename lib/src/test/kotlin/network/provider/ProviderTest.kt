@@ -478,4 +478,57 @@ class ProviderTest {
         assertTrue(response is BlockWithTransactionHashesResponse)
         assertTrue(response.transactionHashes.size >= 4)
     }
+
+    @Test
+    fun `get block with receipts with latest block tag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val request = provider.getBlockWithReceipts(BlockTag.LATEST)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithReceiptsResponse)
+    }
+
+    @Disabled
+    @Test
+    fun `get block with receipts with pending block tag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+        // Note to future developers experiencing failures in this test:
+        // 1. This test may fail because there's temporarily no pending block at the moment.
+        // If this happens, try running the test again after a while or disable it.
+        // 2. The node can be configured such way that accessing pending block is not supported.
+
+        val request = provider.getBlockWithReceipts(BlockTag.PENDING)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is PendingBlockWithReceiptsResponse)
+    }
+
+    @Test
+    fun `get block with receipts with block hash`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val blockHash = specificBlockHash
+        val request = provider.getBlockWithReceipts(blockHash)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response.transactionWithReceipts.size >= 4)
+    }
+
+    @Test
+    fun `get block with receipts with block number`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val blockNumber = specificBlockNumber
+        val request = provider.getBlockWithReceipts(blockNumber)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response.transactionWithReceipts.size >= 4)
+    }
 }
