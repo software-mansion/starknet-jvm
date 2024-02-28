@@ -2,6 +2,7 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt
@@ -303,13 +304,18 @@ data class PendingBlockWithTransactionsResponse(
 
 @Serializable
 data class TransactionWithReceipt(
+    @Serializable(with = TransactionPolymorphicSerializer::class)
+    @SerialName("transaction")
     val transaction: Transaction,
+
+    @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
+    @SerialName("receipt")
     val receipt: TransactionReceipt,
 )
 
 @Serializable
 sealed class GetBlockWithReceiptsResponse : GetBlockWithResponse {
-    abstract val receipts: List<TransactionWithReceipt>
+    abstract val transactionWithReceipts: List<TransactionWithReceipt>
 }
 
 @Serializable
@@ -319,8 +325,8 @@ data class BlockWithReceiptsResponse(
 
     // Block body
 
-    @SerialName("receipts")
-    override val receipts: List<TransactionWithReceipt>,
+    @SerialName("transactions")
+    override val transactionWithReceipts: List<TransactionWithReceipt>,
 
     // Block header
 
@@ -363,8 +369,8 @@ data class PendingBlockWithReceiptsResponse(
 
     // Block body
 
-    @SerialName("receipts")
-    override val receipts: List<TransactionWithReceipt>,
+    @SerialName("transactions")
+    override val transactionWithReceipts: List<TransactionWithReceipt>,
 
     // Pending block header
 
