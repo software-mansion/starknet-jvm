@@ -320,6 +320,52 @@ interface Account {
     fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
 
     /**
+     * Execute a list of calls using version 1 invoke transaction with automatically estimated fee
+     * and specified overhead that will be added to the estimated fee when max fee is calculated.
+     *
+     * @param calls a list of calls to be executed.
+     * @param estimateFeeOverhead how big overhead should be added to the estimated fee.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV1(calls: List<Call>, estimateFeeOverhead: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute a list of calls using version 3 invoke transaction with automatically estimated fee
+     * and specified overheads that will be added to the estimated fee when resource bounds are calculated.
+     *
+     * @param calls a list of calls to be executed.
+     * @param estimateAmountOverhead how big overhead should be added to the estimated amount.
+     * @param estimateUnitPriceOverhead how big overhead should be added to the estimated unit price.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(calls: List<Call>, estimateAmountOverhead: Double, estimateUnitPriceOverhead: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 1 invoke transaction with automatically estimated fee
+     * and specified overheads that will be added to the estimated fee when max fee is calculated.
+     *
+     * @param call a call to be executed.
+     * @param estimateFeeOverhead how big overhead should be added to the estimated fee.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV1(call: Call, estimateFeeOverhead: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 3 invoke transaction with automatically estimated fee
+     * and specified overhead that will be added to the estimated fee when resource bounds are calculated.
+     *
+     * @param call a call to be executed.
+     * @param estimateAmountOverhead how big overhead should be added to the estimated amount.
+     * @param estimateUnitPriceOverhead how big overhead should be added to the estimated unit price.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call, estimateAmountOverhead: Double, estimateUnitPriceOverhead: Double): Request<InvokeFunctionResponse>
+
+    /**
      * Execute a list of calls with automatically estimated fee using version 1 invoke transaction.
      *
      * @param calls a list of calls to be executed.

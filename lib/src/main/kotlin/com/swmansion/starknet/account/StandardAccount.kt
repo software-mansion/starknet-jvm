@@ -281,6 +281,27 @@ class StandardAccount(
         }
     }
 
+    override fun executeV1(calls: List<Call>, estimateFeeOverhead: Double): Request<InvokeFunctionResponse> {
+        return estimateFeeV1(calls).compose { estimateFee ->
+            val maxFee = estimateFee.first().toMaxFee(estimateFeeOverhead)
+            executeV1(calls, maxFee)
+        }
+    }
+
+    override fun executeV3(
+        calls: List<Call>,
+        estimateAmountOverhead: Double,
+        estimateUnitPriceOverhead: Double,
+    ): Request<InvokeFunctionResponse> {
+        return estimateFeeV3(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.first().toResourceBounds(
+                amountOverhead = estimateAmountOverhead,
+                unitPriceOverhead = estimateUnitPriceOverhead,
+            )
+            executeV3(calls, resourceBounds.l1Gas)
+        }
+    }
+
     override fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV1(calls).compose { estimateFee ->
             val maxFee = estimateFee.first().toMaxFee()
@@ -301,6 +322,18 @@ class StandardAccount(
 
     override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), l1ResourceBounds)
+    }
+
+    override fun executeV1(call: Call, estimateFeeOverhead: Double): Request<InvokeFunctionResponse> {
+        return executeV1(listOf(call), estimateFeeOverhead)
+    }
+
+    override fun executeV3(
+        call: Call,
+        estimateAmountOverhead: Double,
+        estimateUnitPriceOverhead: Double,
+    ): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), estimateAmountOverhead, estimateUnitPriceOverhead)
     }
 
     override fun executeV1(call: Call): Request<InvokeFunctionResponse> {
