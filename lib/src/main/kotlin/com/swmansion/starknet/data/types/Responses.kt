@@ -73,6 +73,7 @@ data class EstimateFeeResponse(
      * Then multiplies fee by m and performs integer division by 100.
      *
      * @param overhead How big overhead should be added (as a fraction of fee) to the fee, defaults to 0.5.
+     *
      * @return Fee with added overhead.
      */
     fun toMaxFee(overhead: Double = 0.5): Felt {
@@ -87,6 +88,7 @@ data class EstimateFeeResponse(
      *
      * @param amountOverhead How big overhead should be added (as a fraction of amount) to the amount, defaults to 0.5.
      * @param unitPriceOverhead How big overhead should be added (as a fraction of unit price) to the unit price, defaults to 0.5.
+     *
      * @return Resource bounds with added overhead.
      */
     fun toResourceBounds(
