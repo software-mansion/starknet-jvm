@@ -502,7 +502,7 @@ class StandardAccountTest {
     @Nested
     inner class InvokeTest {
         @Test
-        fun `sign single call`() {
+        fun `sign v1 single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 calldata = listOf(Felt(10)),
@@ -549,7 +549,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute single call`() {
+        fun `execute v1 single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -579,7 +579,41 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute single call with specific fee`() {
+        fun `execute v1 single call with specific fee estimate overhead`() {
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val result = account.executeV1(call, estimateFeeOverhead = 0.59).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
+        fun `execute v3 single call with specific fee estimate overheads`() {
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val result = account.executeV3(
+                call,
+                estimateAmountOverhead = 0.59,
+                estimateUnitPriceOverhead = 0.39,
+            ).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
+        fun `execute v1 single call with specific fee`() {
             // Note to future developers experiencing failures in this test:
             // This transaction may fail if the fee is too low.
             val call = Call(
@@ -620,7 +654,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign multiple calls test`() {
+        fun `sign v1 multiple calls test`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -665,7 +699,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute multiple calls`() {
+        fun `execute v1 multiple calls`() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -707,7 +741,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `two executes with single call`() {
+        fun `two executes v1 with single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
