@@ -16,7 +16,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: 55191ee549b33ccbb0bc9d20dd929e39832a5ea5
+      DEVNET_SHA: 5eddfa62918aac86751ed93b09827e9b79ffb100
     steps:
       - uses: actions/checkout@v3
         with:
