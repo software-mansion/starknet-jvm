@@ -348,12 +348,6 @@ data class PendingDeployTransactionReceipt(
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
-    override val blockHash: Felt,
-
-    @SerialName("block_number")
-    override val blockNumber: Int,
-
     @SerialName("type")
     override val type: TransactionType,
 
@@ -371,7 +365,7 @@ data class PendingDeployTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : ProcessedTransactionReceipt()
+) : PendingTransactionReceipt()
 
 @Serializable
 data class ProcessedL1HandlerTransactionReceipt(
