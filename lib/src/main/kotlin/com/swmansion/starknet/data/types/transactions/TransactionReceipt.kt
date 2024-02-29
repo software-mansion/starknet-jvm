@@ -333,6 +333,46 @@ data class ProcessedDeployTransactionReceipt(
     val contractAddress: Felt,
 ) : ProcessedTransactionReceipt()
 
+// Techically, pending deploy transactions are not possible, but this is needed for starknet_getBlockWithReceipts response unless this is reworked in the spec
+@Serializable
+data class PendingDeployTransactionReceipt(
+    @SerialName("transaction_hash")
+    override val hash: Felt,
+
+    @SerialName("actual_fee")
+    override val actualFee: FeePayment,
+
+    @SerialName("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @SerialName("finality_status")
+    override val finalityStatus: TransactionFinalityStatus,
+
+    @SerialName("block_hash")
+    override val blockHash: Felt,
+
+    @SerialName("block_number")
+    override val blockNumber: Int,
+
+    @SerialName("type")
+    override val type: TransactionType,
+
+    @SerialName("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @SerialName("revert_reason")
+    override val revertReason: String? = null,
+
+    @SerialName("events")
+    override val events: List<Event>,
+
+    @SerialName("execution_resources")
+    override val executionResources: ExecutionResources,
+
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+) : ProcessedTransactionReceipt()
+
 @Serializable
 data class ProcessedL1HandlerTransactionReceipt(
     @SerialName("transaction_hash")

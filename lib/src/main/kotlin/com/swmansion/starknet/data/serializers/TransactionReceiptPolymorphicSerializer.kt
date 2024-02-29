@@ -27,7 +27,10 @@ internal object TransactionReceiptPolymorphicSerializer :
                 false -> ProcessedDeployAccountTransactionReceipt.serializer()
                 true -> PendingDeployAccountTransactionReceipt.serializer()
             }
-            TransactionType.DEPLOY -> ProcessedDeployTransactionReceipt.serializer()
+            TransactionType.DEPLOY -> when (isPending) {
+                false -> ProcessedDeployTransactionReceipt.serializer()
+                true -> PendingDeployTransactionReceipt.serializer()
+            }
             TransactionType.L1_HANDLER -> when (isPending) {
                 false -> ProcessedL1HandlerTransactionReceipt.serializer()
                 true -> PendingL1HandlerTransactionReceipt.serializer()
