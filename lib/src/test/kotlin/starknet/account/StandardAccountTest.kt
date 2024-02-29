@@ -378,6 +378,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v2 transaction`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -388,7 +390,7 @@ class StandardAccountTest {
             val declareTransactionPayload = account.signDeclareV2(
                 contractDefinition,
                 contractCasmDefinition,
-                ExecutionParams(nonce, Felt(1000000000000000L)),
+                ExecutionParams(nonce, Felt(5000000000000000L)),
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -400,6 +402,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v2 transaction (cairo compiler v2)`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
 
@@ -410,7 +414,7 @@ class StandardAccountTest {
             val declareTransactionPayload = account.signDeclareV2(
                 contractDefinition,
                 contractCasmDefinition,
-                ExecutionParams(nonce, Felt(1000000000000000)),
+                ExecutionParams(nonce, Felt(10000000000000000)),
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -422,6 +426,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v3 transaction`() {
+            devnetClient.prefundAccountStrk(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -436,8 +442,8 @@ class StandardAccountTest {
             val params = DeclareParamsV3(
                 nonce = nonce,
                 l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
                 ),
             )
             val declareTransactionPayload = account.signDeclareV3(
@@ -1216,6 +1222,8 @@ class StandardAccountTest {
 
         @Test
         fun `simulate declare v2 transaction`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
@@ -1236,7 +1244,7 @@ class StandardAccountTest {
                 casmContractDefinition,
                 ExecutionParams(
                     nonce = nonce,
-                    maxFee = Felt(1000000000000000L),
+                    maxFee = Felt(3000000000000000),
                 ),
             )
 
@@ -1253,6 +1261,8 @@ class StandardAccountTest {
 
         @Test
         fun `simulate declare v3 transaction`() {
+            devnetClient.prefundAccountStrk(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
@@ -1274,9 +1284,9 @@ class StandardAccountTest {
                 DeclareParamsV3(
                     nonce = nonce,
                     l1ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(20000),
-                        maxPricePerUnit = Uint128(120000000000),
-                    ),
+                        maxAmount = Uint64(100000),
+                        maxPricePerUnit = Uint128(1000000000000),
+                    )
                 ),
             )
 
@@ -1304,12 +1314,21 @@ class StandardAccountTest {
                         "fee_estimation": {
                             "gas_consumed": "0x9d8",
                             "gas_price": "0x3b9aca2f",
+                            "data_gas_consumed": "0x3a",
+                            "data_gas_price": "0x1a05",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",
                             "execute_invocation": {
                                "revert_reason": "Placeholder revert reason."
+                            },
+                            "execution_resources": {
+                                "steps": 582,
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
+                                }
                             }
                         }
                     }
@@ -1353,6 +1372,8 @@ class StandardAccountTest {
                         "fee_estimation": {
                             "gas_consumed": "0x9d8",
                             "gas_price": "0x3b9aca2f",
+                            "data_gas_consumed": "0x3a",
+                            "data_gas_price": "0x1a05",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
@@ -1424,6 +1445,13 @@ class StandardAccountTest {
                                 ],
                                 "execution_resources": {
                                     "steps": 800
+                                }
+                            },
+                            "execution_resources": {
+                                "steps": 1600,
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
                                 }
                             }
                         }
