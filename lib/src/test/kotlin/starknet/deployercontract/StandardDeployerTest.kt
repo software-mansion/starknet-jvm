@@ -41,10 +41,11 @@ object StandardDeployerTest {
             val accountDetails = devnetClient.deployAccount("standard_deployer_test", prefund = true).details
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
+            val chainId = provider.getChainId().send()
             standardDeployer = StandardDeployer(
                 deployerAddress,
                 provider,
-                StandardAccount(accountAddress, signer, provider),
+                StandardAccount(accountAddress, signer, provider, chainId),
             )
         } catch (ex: Exception) {
             devnetClient.close()

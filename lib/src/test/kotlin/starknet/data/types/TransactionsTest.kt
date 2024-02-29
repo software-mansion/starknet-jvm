@@ -13,15 +13,13 @@ import java.math.BigInteger
 internal class TransactionsTest {
     @Test
     fun getHash() {
-        val chainId = Felt.fromShortString("SN_GOERLI")
-
         val tx1 = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = Felt.fromHex("0x2a"),
             calldata = listOf(),
-            chainId = chainId,
+            chainId = StarknetChainId.GOERLI,
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
-            version = Felt.ONE,
+            version = TransactionVersion.V1,
         )
 
         assertEquals(Felt.fromHex("0x22294fe217f962c39e4cb694a5db3f71e1132988451a9b2abc2d2ea8512088e"), tx1.hash)
@@ -48,10 +46,10 @@ internal class TransactionsTest {
                     BigInteger("2"),
                 ),
             ),
-            chainId = chainId,
+            chainId = StarknetChainId.GOERLI,
             nonce = Felt.ZERO,
             maxFee = Felt(BigInteger("100000000")),
-            version = Felt.ONE,
+            version = TransactionVersion.V1,
         )
 
         assertEquals(Felt.fromHex("0xff63c84949d3ab0ced753c227528493dea3dc4680c65c1facb7f86ae0472df"), tx2.hash)

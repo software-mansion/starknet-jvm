@@ -2,6 +2,7 @@ package com.swmansion.starknet.data
 
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
+import com.swmansion.starknet.data.types.transactions.TransactionVersion
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -11,7 +12,7 @@ internal class TransactionHashCalculatorTest {
     inner class DeprecatedTransactionHashTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
         private val maxFee = Felt.fromHex("0xabcd987654210")
-        private val chainId = Felt.fromShortString("SN_GOERLI")
+        private val chainId = StarknetChainId.GOERLI
 
         @Test
         fun `calculate invoke v1 transaction hash`() {
@@ -19,7 +20,7 @@ internal class TransactionHashCalculatorTest {
                 contractAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
                 calldata = calldata,
                 chainId = chainId,
-                version = Felt.ONE,
+                version = TransactionVersion.V1,
                 nonce = Felt(9876),
                 maxFee = maxFee,
             )
@@ -34,7 +35,7 @@ internal class TransactionHashCalculatorTest {
                 calldata = calldata,
                 salt = Felt(1234),
                 chainId = chainId,
-                version = Felt.ONE,
+                version = TransactionVersion.V1,
                 maxFee = maxFee,
                 nonce = Felt.ZERO,
             )
@@ -47,7 +48,7 @@ internal class TransactionHashCalculatorTest {
             val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
                 classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
                 senderAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
-                version = Felt.ONE,
+                version = TransactionVersion.V1,
                 chainId = chainId,
                 nonce = Felt(9876),
                 maxFee = maxFee,
@@ -62,7 +63,7 @@ internal class TransactionHashCalculatorTest {
                 classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
                 compiledClassHash = Felt.fromHex("0x1add56d64bebf8140f3b8a38bdf102b7874437f0c861ab4ca7526ec33b4d0f8"),
                 senderAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
-                version = Felt(2),
+                version = TransactionVersion.V2,
                 chainId = chainId,
                 nonce = Felt(9876),
                 maxFee = maxFee,
@@ -74,7 +75,7 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        private val chainId = Felt.fromShortString("SN_GOERLI")
+        private val chainId = StarknetChainId.GOERLI
 
         @Test
         fun `prepare data availability modes`() {
@@ -126,7 +127,7 @@ internal class TransactionHashCalculatorTest {
                     Felt.fromHex("0x613816405e6334ab420e53d4b38a0451cb2ebca2755171315958c87d303cf6"),
                 ),
                 chainId = chainId,
-                version = Felt(3),
+                version = TransactionVersion.V3,
                 nonce = Felt.fromHex("0x8a9"),
                 accountDeploymentData = emptyList(),
                 tip = Uint64.ZERO,
@@ -153,7 +154,7 @@ internal class TransactionHashCalculatorTest {
                 classHash = Felt.fromHex("0x2338634f11772ea342365abd5be9d9dc8a6f44f159ad782fdebd3db5d969738"),
                 salt = Felt.ZERO,
                 chainId = chainId,
-                version = Felt(3),
+                version = TransactionVersion.V3,
                 nonce = Felt.ZERO,
                 resourceBounds = ResourceBoundsMapping(
                     l1Gas = ResourceBounds(
@@ -176,7 +177,7 @@ internal class TransactionHashCalculatorTest {
                 classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
                 compiledClassHash = Felt.fromHex("0x1add56d64bebf8140f3b8a38bdf102b7874437f0c861ab4ca7526ec33b4d0f8"),
                 senderAddress = Felt.fromHex("0x2fab82e4aef1d8664874e1f194951856d48463c3e6bf9a8c68e234a629a6f50"),
-                version = Felt(3),
+                version = TransactionVersion.V3,
                 chainId = chainId,
                 nonce = Felt.ONE,
                 resourceBounds = ResourceBoundsMapping(

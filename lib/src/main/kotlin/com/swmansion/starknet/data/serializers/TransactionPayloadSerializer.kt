@@ -95,7 +95,7 @@ internal object DeclareTransactionV1PayloadSerializer : KSerializer<DeclareTrans
         val jsonObject = buildJsonObject {
             put("contract_class", value.contractDefinition.toJson())
             put("sender_address", value.senderAddress.hexString())
-            put("version", value.version)
+            put("version", value.version.value.hexString())
             put("max_fee", value.maxFee.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("nonce", value.nonce)
@@ -119,7 +119,7 @@ internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTrans
         val jsonObject = buildJsonObject {
             put("contract_class", value.contractDefinition.toJson())
             put("sender_address", value.senderAddress.hexString())
-            put("version", value.version)
+            put("version", value.version.value.hexString())
             put("max_fee", value.maxFee.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("nonce", value.nonce)
@@ -144,7 +144,7 @@ internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTrans
         val jsonObject = buildJsonObject {
             put("contract_class", value.contractDefinition.toJson())
             put("sender_address", value.senderAddress.hexString())
-            put("version", value.version)
+            put("version", value.version.value.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
             put("nonce", value.nonce)
             put("type", value.type.toString())

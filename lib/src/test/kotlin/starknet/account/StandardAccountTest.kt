@@ -49,6 +49,7 @@ class StandardAccountTest {
 
         private lateinit var signer: Signer
 
+        private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
 
         @JvmStatic
@@ -62,10 +63,12 @@ class StandardAccountTest {
                 accountAddress = accountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
+                chainId = provider.getChainId().send()
                 account = StandardAccount(
                     address = accountAddress,
                     signer = signer,
                     provider = provider,
+                    chainId = chainId,
                     cairoVersion = Felt.ZERO,
                 )
             } catch (ex: Exception) {
@@ -84,7 +87,7 @@ class StandardAccountTest {
     @Test
     fun `creating account with private key`() {
         val privateKey = Felt(1234)
-        StandardAccount(Felt.ZERO, privateKey, provider)
+        StandardAccount(Felt.ZERO, privateKey, provider, chainId)
     }
 
     @Nested
@@ -180,8 +183,8 @@ class StandardAccountTest {
                 params = InvokeParamsV3(nonce.value.add(BigInteger.ONE).toFelt, ResourceBounds.ZERO),
                 forFeeEstimate = true,
             )
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), invokeTxV1Payload.version)
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), invokeTxV3Payload.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), invokeTxV1Payload.version.value)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), invokeTxV3Payload.version.value)
 
             val invokeTxV1PayloadWithoutSignature = invokeTxV1Payload.copy(signature = emptyList())
             val invokeTxV3PayloadWithoutSignature = invokeTxV3Payload.copy(signature = emptyList())
@@ -235,7 +238,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), declareTransactionPayload.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), declareTransactionPayload.version.value)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -263,7 +266,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000002"), declareTransactionPayload.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000002"), declareTransactionPayload.version.value)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -292,7 +295,7 @@ class StandardAccountTest {
                 true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), declareTransactionPayload.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), declareTransactionPayload.version.value)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -493,7 +496,7 @@ class StandardAccountTest {
             )
         }
         val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
-        val account = StandardAccount(Felt.ONE, Felt.ONE, provider)
+        val account = StandardAccount(Felt.ONE, Felt.ONE, provider, chainId)
 
         val typedData = loadTypedData("typed_data_struct_array_example.json")
         val signature = account.signTypedData(typedData)
@@ -820,6 +823,7 @@ class StandardAccountTest {
                 address = accountAddress,
                 signer = signer,
                 provider = provider,
+                chainId = chainId,
                 cairoVersion = Felt.ONE,
             )
             val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
@@ -870,6 +874,7 @@ class StandardAccountTest {
                 address,
                 privateKey,
                 provider,
+                chainId,
             )
             val payloadForFeeEstimation = account.signDeployAccountV1(
                 classHash = accountContractClassHash,
@@ -879,7 +884,7 @@ class StandardAccountTest {
                 nonce = Felt.ZERO,
                 forFeeEstimate = true,
             )
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version.value)
 
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
             assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
@@ -901,6 +906,7 @@ class StandardAccountTest {
                 address,
                 privateKey,
                 provider,
+                chainId,
             )
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
@@ -914,7 +920,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), payloadForFeeEstimation.version)
+            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), payloadForFeeEstimation.version.value)
 
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
             assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
@@ -941,6 +947,7 @@ class StandardAccountTest {
                 address,
                 privateKey,
                 provider,
+                chainId,
             )
             val payload = account.signDeployAccountV1(
                 classHash = accountContractClassHash,
@@ -991,6 +998,7 @@ class StandardAccountTest {
                 address,
                 privateKey,
                 provider,
+                chainId,
             )
             val l1ResourceBounds = ResourceBounds(
                 maxAmount = Uint64(20000),
@@ -1053,6 +1061,7 @@ class StandardAccountTest {
             address,
             privateKey,
             provider,
+            chainId,
         )
         val payloadForFeeEstimation = account.signDeployAccountV1(
             classHash = accountContractClassHash,
@@ -1062,7 +1071,7 @@ class StandardAccountTest {
             nonce = Felt.ONE,
             forFeeEstimate = true,
         )
-        assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version)
+        assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version.value)
 
         assertThrows(RequestFailedException::class.java) {
             provider.deployAccount(payloadForFeeEstimation).send()
@@ -1073,7 +1082,7 @@ class StandardAccountTest {
     inner class SimulateTransactionsTest {
         @Test
         fun `simulate invoke v1 and deploy account v1 transactions`() {
-            val account = StandardAccount(accountAddress, signer, provider)
+            val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountEth(accountAddress)
 
             val nonce = account.getNonce().send()
@@ -1100,6 +1109,7 @@ class StandardAccountTest {
                 newAccountAddress,
                 privateKey,
                 provider,
+                chainId,
             )
             devnetClient.prefundAccountEth(newAccountAddress)
             val deployAccountTx = newAccount.signDeployAccountV1(
@@ -1138,7 +1148,7 @@ class StandardAccountTest {
 
         @Test
         fun `simulate invoke v3 and deploy account v3 transactions`() {
-            val account = StandardAccount(accountAddress, signer, provider)
+            val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
 
             val nonce = account.getNonce().send()
@@ -1163,7 +1173,7 @@ class StandardAccountTest {
                 calldata = calldata,
                 salt = salt,
             )
-            val newAccount = StandardAccount(newAccountAddress, privateKey, provider)
+            val newAccount = StandardAccount(newAccountAddress, privateKey, provider, chainId)
 
             devnetClient.prefundAccountStrk(newAccountAddress)
             val deployAccountTx = newAccount.signDeployAccountV3(

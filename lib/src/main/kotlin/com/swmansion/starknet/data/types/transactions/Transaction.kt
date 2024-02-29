@@ -29,6 +29,40 @@ enum class TransactionType(val txPrefix: Felt) {
     L1_HANDLER(Felt.fromHex("0x6c315f68616e646c6572")), // encodeShortString('l1_handler')
 }
 
+/**
+ * The version of the transaction.
+ *
+ * The version is used to determine the transaction format and is used for transaction signing.
+ *
+ * Standard versions include [V0], [V1], [V2], and [V3]. These are utilized for regular transaction execution.
+ * Query versions [V1_QUERY], [V2_QUERY], and [V3_QUERY] should only be used for creating transactions to be used
+ * in queries that do not alter the chain state, as in methods like [Provider.simulateTransactions] and [Provider.getEstimateFee].
+ * Sending transaction with a query version for execution will result in a failure.
+ */
+@Serializable
+enum class TransactionVersion(val value: Felt) {
+    @SerialName("0x0")
+    V0(Felt.ZERO),
+
+    @SerialName("0x1")
+    V1(Felt.ONE),
+
+    @SerialName("0x100000000000000000000000000000001")
+    V1_QUERY(Felt.fromHex("0x100000000000000000000000000000001")),
+
+    @SerialName("0x2")
+    V2(Felt(2)),
+
+    @SerialName("0x100000000000000000000000000000002")
+    V2_QUERY(Felt.fromHex("0x100000000000000000000000000000002")),
+
+    @SerialName("0x3")
+    V3(Felt(3)),
+
+    @SerialName("0x100000000000000000000000000000003")
+    V3_QUERY(Felt.fromHex("0x100000000000000000000000000000003")),
+}
+
 @Serializable
 enum class DAMode(val value: Int) {
     @SerialName("L1")
@@ -41,7 +75,7 @@ enum class DAMode(val value: Int) {
 @Serializable
 sealed class Transaction {
     abstract val hash: Felt?
-    abstract val version: Felt
+    abstract val version: TransactionVersion
     abstract val signature: Signature
     abstract val nonce: Felt
     abstract val type: TransactionType
@@ -50,7 +84,7 @@ sealed class Transaction {
 @Serializable
 sealed interface DeprecatedTransaction {
     @SerialName("version")
-    val version: Felt
+    val version: TransactionVersion
 
     @SerialName("signature")
     val signature: Signature
@@ -68,7 +102,7 @@ sealed interface DeprecatedTransaction {
 @Serializable
 sealed interface TransactionV3 {
     @SerialName("version")
-    val version: Felt
+    val version: TransactionVersion
 
     @SerialName("signature")
     val signature: Signature
@@ -116,7 +150,7 @@ data class DeployTransaction(
     override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
-    override val version: Felt,
+    override val version: TransactionVersion,
 
     // not in RPC spec
     @SerialName("signature")
@@ -152,7 +186,7 @@ data class InvokeTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ONE,
+    override val version: TransactionVersion = TransactionVersion.V1,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -186,7 +220,7 @@ data class InvokeTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: Felt = Felt(3),
+    override val version: TransactionVersion = TransactionVersion.V3,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -237,7 +271,7 @@ data class InvokeTransactionV0(
     val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: TransactionVersion = TransactionVersion.V0,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -277,7 +311,7 @@ data class DeclareTransactionV0(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: TransactionVersion = TransactionVersion.V0,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -305,7 +339,7 @@ data class DeclareTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt.ONE,
+    override val version: TransactionVersion = TransactionVersion.V1,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -349,7 +383,7 @@ data class DeclareTransactionV2(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt = Felt(2),
+    override val version: TransactionVersion = TransactionVersion.V2,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -393,7 +427,7 @@ data class DeclareTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: Felt = Felt(3),
+    override val version: TransactionVersion = TransactionVersion.V3,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -462,7 +496,7 @@ data class L1HandlerTransaction(
     override val maxFee: Felt = Felt.ZERO,
 
     @SerialName("version")
-    override val version: Felt = Felt.ZERO,
+    override val version: TransactionVersion = TransactionVersion.V0,
 
     @SerialName("signature")
     override val signature: Signature = emptyList(),
@@ -516,7 +550,7 @@ data class DeployAccountTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: Felt,
+    override val version: TransactionVersion = TransactionVersion.V1,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -557,7 +591,7 @@ data class DeployAccountTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: Felt,
+    override val version: TransactionVersion = TransactionVersion.V3,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -593,11 +627,6 @@ data class DeployAccountTransactionV3(
     }
 }
 
-/**
- * Factory for creating transaction objects.
-
- * To obtain the chain id, [Provider.getChainId] can be used. Alternatively, the chain id can be encoded from the network name using [Felt.fromShortString], e.g. `Felt.fromShortString("SN_SEPOLIA")`.
- */
 object TransactionFactory {
     private val tip = Uint64.ZERO
     private val paymasterData: PaymasterData = emptyList()
@@ -610,11 +639,11 @@ object TransactionFactory {
     fun makeInvokeV1Transaction(
         senderAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
         maxFee: Felt,
         signature: Signature = emptyList(),
-        version: Felt,
+        version: TransactionVersion,
     ): InvokeTransactionV1 {
         val hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
             contractAddress = senderAddress,
@@ -640,10 +669,10 @@ object TransactionFactory {
     fun makeInvokeV3Transaction(
         senderAddress: Felt,
         calldata: Calldata,
-        chainId: Felt,
+        chainId: StarknetChainId,
         nonce: Felt,
         signature: Signature = emptyList(),
-        version: Felt,
+        version: TransactionVersion,
         resourceBounds: ResourceBoundsMapping,
     ): InvokeTransactionV3 {
         val hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
@@ -682,8 +711,8 @@ object TransactionFactory {
         contractAddress: Felt,
         salt: Felt,
         calldata: Calldata,
-        chainId: Felt,
-        version: Felt,
+        chainId: StarknetChainId,
+        version: TransactionVersion,
         maxFee: Felt,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
@@ -717,8 +746,8 @@ object TransactionFactory {
         senderAddress: Felt,
         salt: Felt,
         calldata: Calldata,
-        chainId: Felt,
-        version: Felt,
+        chainId: StarknetChainId,
+        version: TransactionVersion,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
         resourceBounds: ResourceBoundsMapping,
@@ -759,9 +788,9 @@ object TransactionFactory {
         classHash: Felt,
         senderAddress: Felt,
         contractDefinition: Cairo0ContractDefinition,
-        chainId: Felt,
+        chainId: StarknetChainId,
         maxFee: Felt,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         signature: Signature = emptyList(),
     ): DeclareTransactionV1 {
@@ -790,9 +819,9 @@ object TransactionFactory {
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
-        chainId: Felt,
+        chainId: StarknetChainId,
         maxFee: Felt,
-        version: Felt,
+        version: TransactionVersion,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
         signature: Signature = emptyList(),
@@ -826,8 +855,8 @@ object TransactionFactory {
     fun makeDeclareV3Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
-        chainId: Felt,
-        version: Felt,
+        chainId: StarknetChainId,
+        version: TransactionVersion,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
         signature: Signature = emptyList(),

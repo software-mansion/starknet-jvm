@@ -488,10 +488,10 @@ class JsonRpcProvider(
         )
     }
 
-    override fun getChainId(): Request<Felt> {
+    override fun getChainId(): Request<StarknetChainId> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
-        return buildRequest(JsonRpcMethod.GET_CHAIN_ID, params, Felt.serializer())
+        return buildRequest(JsonRpcMethod.GET_CHAIN_ID, params, StarknetChainId.serializer())
     }
 
     private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
