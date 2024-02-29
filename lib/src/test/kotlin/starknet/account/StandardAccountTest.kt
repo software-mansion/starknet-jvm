@@ -1286,7 +1286,7 @@ class StandardAccountTest {
                     l1ResourceBounds = ResourceBounds(
                         maxAmount = Uint64(100000),
                         maxPricePerUnit = Uint128(1000000000000),
-                    )
+                    ),
                 ),
             )
 
