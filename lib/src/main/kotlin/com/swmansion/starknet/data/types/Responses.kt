@@ -208,10 +208,7 @@ sealed interface ProcessedBlock : GetBlockWithResponse {
     val blockNumber: Int
     val newRoot: Felt
 }
-sealed interface PendingBlock : GetBlockWithResponse {
-    val status: BlockStatus
-        get() = BlockStatus.PENDING
-}
+sealed interface PendingBlock : GetBlockWithResponse
 
 @Serializable
 sealed class GetBlockWithTransactionsResponse : GetBlockWithResponse {
@@ -266,10 +263,6 @@ data class BlockWithTransactionsResponse(
 
 @Serializable
 data class PendingBlockWithTransactionsResponse(
-    // Not in RPC schema, but can be returned by nodes
-    @SerialName("status")
-    override val status: BlockStatus = BlockStatus.PENDING,
-
     // Block body
 
     @SerialName("transactions")
@@ -363,10 +356,6 @@ data class BlockWithReceiptsResponse(
 
 @Serializable
 data class PendingBlockWithReceiptsResponse(
-    // Not in RPC schema, but can be returned by nodes
-    @SerialName("status")
-    override val status: BlockStatus = BlockStatus.PENDING,
-
     // Block body
 
     @SerialName("transactions")
@@ -446,10 +435,6 @@ data class BlockWithTransactionHashesResponse(
 
 @Serializable
 data class PendingBlockWithTransactionHashesResponse(
-    // Not in RPC schema, but can be returned by nodes
-    @SerialName("status")
-    override val status: BlockStatus = BlockStatus.PENDING,
-
     // Block body
 
     @SerialName("transactions")
