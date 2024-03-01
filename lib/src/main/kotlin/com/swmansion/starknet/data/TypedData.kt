@@ -7,6 +7,12 @@ import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+@Serializable
+enum class TypedDataRevision(val value: Felt) {
+    V0(Felt.ZERO),
+    V1(Felt.ONE),
+}
+
 /**
  * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/argentlabs/argent-x/discussions/14).
  *
