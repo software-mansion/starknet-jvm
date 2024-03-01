@@ -194,7 +194,7 @@ data class SyncingResponse(
     override val highestBlockNumber: Int,
 ) : Syncing()
 
-sealed interface GetBlockWithResponse {
+sealed interface Block {
     val timestamp: Int
     val sequencerAddress: Felt
     val parentHash: Felt
@@ -204,21 +204,21 @@ sealed interface GetBlockWithResponse {
     val starknetVersion: String
 }
 
-sealed interface ProcessedBlock : GetBlockWithResponse {
+sealed interface ProcessedBlock : Block {
     val status: BlockStatus
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
 }
-sealed interface PendingBlock : GetBlockWithResponse
+sealed interface PendingBlock : Block
 
 @Serializable
-sealed class GetBlockWithTransactionsResponse : GetBlockWithResponse {
+sealed class BlockWithTransactions : Block {
     abstract val transactions: List<Transaction>
 }
 
 @Serializable
-data class BlockWithTransactionsResponse(
+data class ProcessedBlockWithTransactions(
     @SerialName("status")
     override val status: BlockStatus,
 
@@ -261,10 +261,10 @@ data class BlockWithTransactionsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse(), ProcessedBlock
+) : BlockWithTransactions(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithTransactionsResponse(
+data class PendingBlockWithTransactions(
     // Block body
 
     @SerialName("transactions")
@@ -295,7 +295,7 @@ data class PendingBlockWithTransactionsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse(), PendingBlock
+) : BlockWithTransactions(), PendingBlock
 
 @Serializable
 data class TransactionWithReceipt(
@@ -309,12 +309,12 @@ data class TransactionWithReceipt(
 )
 
 @Serializable
-sealed class GetBlockWithReceiptsResponse : GetBlockWithResponse {
+sealed class BlockWithReceipts : Block {
     abstract val transactionWithReceipts: List<TransactionWithReceipt>
 }
 
 @Serializable
-data class BlockWithReceiptsResponse(
+data class ProcessedBlockWithReceipts(
     @SerialName("status")
     override val status: BlockStatus,
 
@@ -354,10 +354,10 @@ data class BlockWithReceiptsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithReceiptsResponse(), ProcessedBlock
+) : BlockWithReceipts(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithReceiptsResponse(
+data class PendingBlockWithReceipts(
     // Block body
 
     @SerialName("transactions")
@@ -385,15 +385,15 @@ data class PendingBlockWithReceiptsResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithReceiptsResponse(), PendingBlock
+) : BlockWithReceipts(), PendingBlock
 
 @Serializable
-sealed class GetBlockWithTransactionHashesResponse : GetBlockWithResponse {
+sealed class BlockWithTransactionHashes : Block {
     abstract val transactionHashes: List<Felt>
 }
 
 @Serializable
-data class BlockWithTransactionHashesResponse(
+data class ProcessedBlockWithTransactionHashes(
     @SerialName("status")
     override val status: BlockStatus,
 
@@ -433,10 +433,10 @@ data class BlockWithTransactionHashesResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse(), ProcessedBlock
+) : BlockWithTransactionHashes(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithTransactionHashesResponse(
+data class PendingBlockWithTransactionHashes(
     // Block body
 
     @SerialName("transactions")
@@ -464,7 +464,7 @@ data class PendingBlockWithTransactionHashesResponse(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse(), PendingBlock
+) : BlockWithTransactionHashes(), PendingBlock
 
 @Serializable
 data class StorageEntries(

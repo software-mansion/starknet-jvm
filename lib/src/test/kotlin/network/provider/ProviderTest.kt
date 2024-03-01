@@ -381,7 +381,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
     }
 
     @Disabled
@@ -397,7 +397,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithTransactionsResponse)
+        assertTrue(response is PendingBlockWithTransactions)
     }
 
     @Test
@@ -409,7 +409,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
         assertTrue(response.transactions.size >= 4)
     }
 
@@ -422,7 +422,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
         assertTrue(response.transactions.size >= 4)
     }
 
@@ -434,7 +434,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Disabled
@@ -450,7 +450,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithTransactionHashesResponse)
+        assertTrue(response is PendingBlockWithTransactionHashes)
     }
 
     @Test
@@ -462,7 +462,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
         assertTrue(response.transactionHashes.size >= 4)
     }
 
@@ -475,7 +475,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
         assertTrue(response.transactionHashes.size >= 4)
     }
 
@@ -487,7 +487,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
     }
 
     @Disabled
@@ -503,7 +503,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithReceiptsResponse)
+        assertTrue(response is PendingBlockWithReceipts)
     }
 
     @Test
@@ -515,7 +515,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
         assertTrue(response.transactionWithReceipts.size >= 4)
     }
 
@@ -528,7 +528,7 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
         assertTrue(response.transactionWithReceipts.size >= 4)
     }
 }

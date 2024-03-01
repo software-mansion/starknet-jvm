@@ -639,7 +639,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockTag: BlockTag): Request<GetBlockWithTransactionsResponse>
+    fun getBlockWithTxs(blockTag: BlockTag): Request<BlockWithTransactions>
 
     /**
      * Get a block with transactions.
@@ -650,7 +650,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockHash: Felt): Request<GetBlockWithTransactionsResponse>
+    fun getBlockWithTxs(blockHash: Felt): Request<BlockWithTransactions>
 
     /**
      * Get a block with transactions.
@@ -661,7 +661,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockNumber: Int): Request<GetBlockWithTransactionsResponse>
+    fun getBlockWithTxs(blockNumber: Int): Request<BlockWithTransactions>
 
     /**
      * Get a block with transaction hashes.
@@ -672,7 +672,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxHashes(blockTag: BlockTag): Request<GetBlockWithTransactionHashesResponse>
+    fun getBlockWithTxHashes(blockTag: BlockTag): Request<BlockWithTransactionHashes>
 
     /**
      * Get a block with transaction hashes.
@@ -683,7 +683,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxHashes(blockHash: Felt): Request<GetBlockWithTransactionHashesResponse>
+    fun getBlockWithTxHashes(blockHash: Felt): Request<BlockWithTransactionHashes>
 
     /**
      * Get a block with transaction hashes.
@@ -694,7 +694,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxHashes(blockNumber: Int): Request<GetBlockWithTransactionHashesResponse>
+    fun getBlockWithTxHashes(blockNumber: Int): Request<BlockWithTransactionHashes>
 
     /**
      * Get a block with transaction receipts.
@@ -705,7 +705,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockTag: BlockTag): Request<GetBlockWithReceiptsResponse>
+    fun getBlockWithReceipts(blockTag: BlockTag): Request<BlockWithReceipts>
 
     /**
      * Get a block with transaction receipts.
@@ -716,7 +716,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockHash: Felt): Request<GetBlockWithReceiptsResponse>
+    fun getBlockWithReceipts(blockHash: Felt): Request<BlockWithReceipts>
 
     /**
      * Get a block with transaction receipts.
@@ -727,7 +727,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockNumber: Int): Request<GetBlockWithReceiptsResponse>
+    fun getBlockWithReceipts(blockNumber: Int): Request<BlockWithReceipts>
 
     /**
      * Get block state information.

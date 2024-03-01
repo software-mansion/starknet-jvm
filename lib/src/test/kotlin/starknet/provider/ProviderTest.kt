@@ -687,7 +687,7 @@ class ProviderTest {
         assertNotEquals(0, blockNumber)
         assertNotEquals(Felt.ZERO, blockHash)
 
-        val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as BlockWithTransactionHashesResponse
+        val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as ProcessedBlockWithTransactionHashes
         val expectedHash = getBlockResponse.blockHash
 
         assertEquals(expectedHash, blockHash)
@@ -852,7 +852,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactionsResponse)
+        assertTrue(response is PendingBlockWithTransactions)
     }
 
     @Test
@@ -860,7 +860,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
     }
 
     @Test
@@ -870,7 +870,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(blockHash)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
     }
 
     @Test
@@ -880,7 +880,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(blockNumber)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
     }
 
     @Test
@@ -997,7 +997,7 @@ class ProviderTest {
         val request = provider.getBlockWithReceipts(BlockTag.PENDING)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithReceiptsResponse)
+        assertTrue(response is PendingBlockWithReceipts)
     }
 
     @Test
@@ -1005,7 +1005,7 @@ class ProviderTest {
         val request = provider.getBlockWithReceipts(BlockTag.LATEST)
         val response = request.send()
 
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
     }
 
     @Test
@@ -1015,7 +1015,7 @@ class ProviderTest {
         val request = provider.getBlockWithReceipts(blockHash)
         val response = request.send()
 
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
     }
 
     @Test
@@ -1025,7 +1025,7 @@ class ProviderTest {
         val request = provider.getBlockWithReceipts(blockNumber)
         val response = request.send()
 
-        assertTrue(response is BlockWithReceiptsResponse)
+        assertTrue(response is ProcessedBlockWithReceipts)
     }
 
     @Test
@@ -1066,7 +1066,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactionHashesResponse)
+        assertTrue(response is PendingBlockWithTransactionHashes)
     }
 
     @Test
@@ -1074,7 +1074,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Test
@@ -1084,7 +1084,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(blockHash)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Test
@@ -1094,7 +1094,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(blockNumber)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Test
