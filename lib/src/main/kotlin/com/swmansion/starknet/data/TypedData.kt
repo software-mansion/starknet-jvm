@@ -7,6 +7,14 @@ import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+/**
+ * TypedData revision.
+ *
+ * The revision of the specification to be used.
+ *
+ * [V0] - Legacy revision, represents the de facto spec before [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+ * [V1] - Initial and current revision, represents the spec after [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+ */
 @Serializable
 enum class TypedDataRevision(val value: Felt) {
     V0(Felt.ZERO),
