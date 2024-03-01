@@ -183,8 +183,8 @@ class StandardAccountTest {
                 params = InvokeParamsV3(nonce.value.add(BigInteger.ONE).toFelt, ResourceBounds.ZERO),
                 forFeeEstimate = true,
             )
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), invokeTxV1Payload.version.value)
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), invokeTxV3Payload.version.value)
+            assertEquals(TransactionVersion.V1_QUERY, invokeTxV1Payload.version)
+            assertEquals(TransactionVersion.V3_QUERY, invokeTxV3Payload.version)
 
             val invokeTxV1PayloadWithoutSignature = invokeTxV1Payload.copy(signature = emptyList())
             val invokeTxV3PayloadWithoutSignature = invokeTxV3Payload.copy(signature = emptyList())
@@ -238,7 +238,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), declareTransactionPayload.version.value)
+            assertEquals(TransactionVersion.V1_QUERY, declareTransactionPayload.version)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -266,7 +266,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000002"), declareTransactionPayload.version.value)
+            assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -295,7 +295,7 @@ class StandardAccountTest {
                 true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), declareTransactionPayload.version.value)
+            assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
 
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
@@ -884,7 +884,7 @@ class StandardAccountTest {
                 nonce = Felt.ZERO,
                 forFeeEstimate = true,
             )
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version.value)
+            assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
             assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
@@ -920,7 +920,7 @@ class StandardAccountTest {
                 forFeeEstimate = true,
             )
 
-            assertEquals(Felt.fromHex("0x100000000000000000000000000000003"), payloadForFeeEstimation.version.value)
+            assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
             assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
@@ -1071,7 +1071,7 @@ class StandardAccountTest {
             nonce = Felt.ONE,
             forFeeEstimate = true,
         )
-        assertEquals(Felt.fromHex("0x100000000000000000000000000000001"), payloadForFeeEstimation.version.value)
+        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
         assertThrows(RequestFailedException::class.java) {
             provider.deployAccount(payloadForFeeEstimation).send()

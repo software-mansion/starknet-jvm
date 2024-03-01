@@ -140,7 +140,7 @@ class ProviderTest {
         val transactionHash = deployAccountV1TransactionHash
         val tx = provider.getTransaction(transactionHash).send()
         assertEquals(transactionHash, tx.hash)
-        assertEquals(Felt.ONE, tx.version)
+        assertEquals(TransactionVersion.V1, tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
@@ -161,7 +161,7 @@ class ProviderTest {
 
         val tx = provider.getTransaction(transactionHash).send()
         assertEquals(transactionHash, tx.hash)
-        assertEquals(Felt(3), tx.version)
+        assertEquals(TransactionVersion.V3, tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
@@ -223,7 +223,7 @@ class ProviderTest {
         assertTrue(tx is InvokeTransaction)
         assertEquals(transactionHash, tx.hash)
         assertEquals(TransactionType.INVOKE, tx.type)
-        assertEquals(Felt(3), tx.version)
+        assertEquals(TransactionVersion.V3, tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
@@ -245,7 +245,7 @@ class ProviderTest {
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV0
         assertEquals(transactionHash, tx.hash)
         assertNotEquals(Felt.ZERO, tx.classHash)
-        assertEquals(Felt.ZERO, tx.version)
+        assertEquals(TransactionVersion.V0, tx.version)
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()

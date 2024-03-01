@@ -479,7 +479,7 @@ class AccountTest {
             nonce = Felt.ZERO,
             forFeeEstimate = true,
         )
-        assertEquals(payloadForFeeEstimation.version, Felt(BigInteger("340282366920938463463374607431768211457")))
+        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
         val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
         assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
