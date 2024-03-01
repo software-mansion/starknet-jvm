@@ -85,11 +85,11 @@ data class ExecutionResources(
     override val segmentArenaApplications: Int? = null,
 
     @SerialName("data_availability")
-    val dataAvailability: DataAvailability,
+    val dataAvailability: DataResources,
 ) : Resources()
 
 @Serializable
-data class DataAvailability(
+data class DataResources(
     @SerialName("l1_gas")
     val l1Gas: Int,
 
