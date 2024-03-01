@@ -137,6 +137,13 @@ data class TypedData private constructor(
         val contains: String,
     ) : TypeBase()
 
+    @Serializable
+    data class EnumType(
+        override val name: String,
+        override val type: String = "enum",
+        val contains: String,
+    ) : TypeBase()
+
     data class Context(
         val parent: String?,
         val key: String?,
