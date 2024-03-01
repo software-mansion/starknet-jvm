@@ -68,47 +68,49 @@ data class EstimateFeeResponse(
     val feeUnit: PriceUnit? = null,
 ) {
     /**
-     * Convert estimated fee to max fee with added overhead.
+     * Convert estimated fee to max fee with applied multiplier.
      *
-     * Adds overhead to estimated fee. Calculates multiplier as m = round((1 + overhead) * 100%).
-     * Then multiplies fee by m and performs integer division by 100.
+     * Multiplies [overallFee] by round([multiplier] * 100%) and performs integer division by 100.
      *
-     * @param overhead How big overhead should be added (as a fraction of fee) to the fee, defaults to 0.5.
-     *
-     * @return Fee with added overhead.
+     * @param multiplier Multiplier for max fee, defaults to 1.5.
      */
-    fun toMaxFee(overhead: Double = 0.5): Felt {
-        return addOverhead(overallFee.value, overhead).toFelt
+    fun toMaxFee(multiplier: Double = 1.5): Felt {
+        require(multiplier >= 0)
+
+        return overallFee.value.applyMultiplier(multiplier).toFelt
     }
 
     /**
-     * Convert estimated fee to resource bounds with added overhead.
+     * Convert estimated fee to resource bounds with applied multipliers.
      *
-     * Adds overhead to the estimated fee. Calculates multiplier as m = round((1 + overhead) * 100%).
-     * Then multiplies fee by m and performs integer division by 100.
+     * Calculates max amount as maxAmount = [overallFee] / [gasPrice], unless [gasPrice] is 0, then maxAmount is 0.
+     * Calculates max price per unit as maxPricePerUnit = [gasPrice].
+     * Then multiplies maxAmount by round([amountMultiplier] * 100%) and maxPricePerUnit by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
      *
-     * @param amountOverhead How big overhead should be added (as a fraction of amount) to the amount, defaults to 0.5.
-     * @param unitPriceOverhead How big overhead should be added (as a fraction of unit price) to the unit price, defaults to 0.5.
+     * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
+     * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
      *
-     * @return Resource bounds with added overhead.
+     * @return Resource bounds with applied multipliers.
      */
     fun toResourceBounds(
-        amountOverhead: Double = 0.5,
-        unitPriceOverhead: Double = 0.5,
+        amountMultiplier: Double = 1.5,
+        unitPriceMultiplier: Double = 1.5,
     ): ResourceBoundsMapping {
+        require(amountMultiplier >= 0)
+        require(unitPriceMultiplier >= 0)
+
         val maxAmount = when (gasPrice) {
             Felt.ZERO -> Uint64.ZERO
-            else -> addOverhead(overallFee.value.divide(gasPrice.value), amountOverhead).toUint64
+            else -> (overallFee.value / gasPrice.value).applyMultiplier(amountMultiplier).toUint64
         }
-        val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
+        val maxPricePerUnit = gasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
 
         return ResourceBoundsMapping(
             l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
         )
     }
-    private fun addOverhead(value: BigInteger, overhead: Double): BigInteger {
-        val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
-        return value.multiply(multiplier).divide(BigInteger.valueOf(100))
+    private fun BigInteger.applyMultiplier(multiplier: Double): BigInteger {
+        return (this * (multiplier * 100).roundToInt().toBigInteger()) / BigInteger.valueOf(100)
     }
 }
 

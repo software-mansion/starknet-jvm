@@ -260,22 +260,22 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun executeV1(calls: List<Call>, estimateFeeOverhead: Double): Request<InvokeFunctionResponse> {
+    override fun executeV1(calls: List<Call>, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
         return estimateFeeV1(calls).compose { estimateFee ->
-            val maxFee = estimateFee.first().toMaxFee(estimateFeeOverhead)
+            val maxFee = estimateFee.first().toMaxFee(estimateFeeMultiplier)
             executeV1(calls, maxFee)
         }
     }
 
     override fun executeV3(
         calls: List<Call>,
-        estimateAmountOverhead: Double,
-        estimateUnitPriceOverhead: Double,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
     ): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
             val resourceBounds = estimateFee.first().toResourceBounds(
-                amountOverhead = estimateAmountOverhead,
-                unitPriceOverhead = estimateUnitPriceOverhead,
+                amountMultiplier = estimateAmountMultiplier,
+                unitPriceMultiplier = estimateUnitPriceMultiplier,
             )
             executeV3(calls, resourceBounds.l1Gas)
         }
@@ -303,16 +303,20 @@ class StandardAccount @JvmOverloads constructor(
         return executeV3(listOf(call), l1ResourceBounds)
     }
 
-    override fun executeV1(call: Call, estimateFeeOverhead: Double): Request<InvokeFunctionResponse> {
-        return executeV1(listOf(call), estimateFeeOverhead)
+    override fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
+        return executeV1(listOf(call), estimateFeeMultiplier)
     }
 
     override fun executeV3(
         call: Call,
-        estimateAmountOverhead: Double,
-        estimateUnitPriceOverhead: Double,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
     ): Request<InvokeFunctionResponse> {
-        return executeV3(listOf(call), estimateAmountOverhead, estimateUnitPriceOverhead)
+        return executeV3(
+            calls = listOf(call),
+            estimateAmountMultiplier = estimateAmountMultiplier,
+            estimateUnitPriceMultiplier = estimateUnitPriceMultiplier,
+        )
     }
 
     override fun executeV1(call: Call): Request<InvokeFunctionResponse> {

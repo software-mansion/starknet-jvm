@@ -588,14 +588,14 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v1 single call with specific fee estimate overhead`() {
+        fun `execute v1 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
                 calldata = listOf(Felt(10)),
             )
 
-            val result = account.executeV1(call, estimateFeeOverhead = 0.59).send()
+            val result = account.executeV1(call, estimateFeeMultiplier = 1.59).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -603,7 +603,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v3 single call with specific fee estimate overheads`() {
+        fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -612,8 +612,8 @@ class StandardAccountTest {
 
             val result = account.executeV3(
                 call,
-                estimateAmountOverhead = 0.59,
-                estimateUnitPriceOverhead = 0.39,
+                estimateAmountMultiplier = 1.59,
+                estimateUnitPriceMultiplier = 1.39,
             ).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
