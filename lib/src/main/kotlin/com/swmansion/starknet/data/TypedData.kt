@@ -103,10 +103,33 @@ data class TypedData private constructor(
     val domain: JsonObject,
     val message: JsonObject,
 ) {
+    private val revision: TypedDataRevision = Json.decodeFromJsonElement<Domain>(domain).revision ?: TypedDataRevision.V0
+
+    private val domainObjectName: String = when (revision) {
+        TypedDataRevision.V0 -> "StarkNetDomain"
+        TypedDataRevision.V1 -> "StarknetDomain"
+    }
     init {
-        val reservedTypeNames = listOf("felt", "felt*", "string", "string*", "selector", "selector*", "merkletree", "merkletree*", "raw", "raw*")
-        reservedTypeNames.forEach {
-            require(!types.containsKey(it)) { "Types must not contain $it." }
+        verifyTypes()
+    }
+
+    private fun verifyTypes() {
+        val reservedTypes = when (revision) {
+            TypedDataRevision.V0 -> reservedTypesV0
+            TypedDataRevision.V1 -> reservedTypesV1
+        }
+        reservedTypes.forEach { require(it !in types) { "Types must not contain $it." } }
+
+        require(domainObjectName in types) { "Types must contain $domainObjectName." }
+
+        val referencedTypes = types.values.flatten().map { it.type }
+
+        types.keys.forEach {
+            require(it.isNotEmpty()) { "Types cannot be empty." }
+            require(!it.endsWith("*")) { "Types cannot end in *. $it was found." }
+            require(!it.startsWith("(") || !it.endsWith(")")) { "Types cannot be enclosed in parenthesis. $it was found." }
+            require(!it.contains(",")) { "Types cannot contain commas. $it was found." }
+            require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type $it was found." }
         }
     }
 
@@ -332,6 +355,10 @@ data class TypedData private constructor(
     }
 
     companion object {
+        private val reservedTypesV0 by lazy { listOf("felt", "bool", "string", "selector", "merkletree", "raw") }
+
+        private val reservedTypesV1 by lazy { reservedTypesV0 + listOf("enum", "bool", "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + listOf("u256", "NftId", "TokenAmount") }
+
         /**
          * Create TypedData from JSON string.
          *
