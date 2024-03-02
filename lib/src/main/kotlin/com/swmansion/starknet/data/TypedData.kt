@@ -26,7 +26,7 @@ enum class TypedDataRevision(val value: Felt) {
 }
 
 /**
- * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/argentlabs/argent-x/discussions/14).
+ * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md).
  *
  * ```java
  * String typedDataString = """
