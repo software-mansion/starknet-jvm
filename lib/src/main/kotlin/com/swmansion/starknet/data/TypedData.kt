@@ -122,6 +122,14 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @Serializable
+    data class Domain(
+        val name: String,
+        val version: String,
+        val chainId: String,
+        val revision: TypedDataRevision? = null,
+    )
+
     @Serializable(with = TypedDataTypeBaseSerializer::class)
     sealed class TypeBase {
         abstract val name: String
