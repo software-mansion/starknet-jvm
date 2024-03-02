@@ -4,6 +4,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
@@ -17,7 +18,10 @@ import kotlinx.serialization.json.*
  */
 @Serializable
 enum class TypedDataRevision(val value: Felt) {
+    @SerialName("0")
     V0(Felt.ZERO),
+
+    @SerialName("1")
     V1(Felt.ONE),
 }
 
