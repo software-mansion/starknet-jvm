@@ -103,9 +103,9 @@ data class TypedData private constructor(
     val domain: JsonObject,
     val message: JsonObject,
 ) {
-    private val revision: TypedDataRevision = Json.decodeFromJsonElement<Domain>(domain).revision ?: TypedDataRevision.V0
+    private val revision = Json.decodeFromJsonElement<Domain>(domain).revision ?: TypedDataRevision.V0
 
-    private val domainObjectName: String = when (revision) {
+    private val domainObjectName = when (revision) {
         TypedDataRevision.V0 -> "StarkNetDomain"
         TypedDataRevision.V1 -> "StarknetDomain"
     }
