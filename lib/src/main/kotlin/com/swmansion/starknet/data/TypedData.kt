@@ -1,9 +1,11 @@
 package com.swmansion.starknet.data
 
+import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -145,11 +147,16 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     data class Domain(
-        val name: String,
-        val version: String,
-        val chainId: String,
+        val name: JsonPrimitive,
+
+        val version: JsonPrimitive,
+
+        @JsonNames("chain_id", "chainId")
+        val chainId: JsonPrimitive,
+
         val revision: TypedDataRevision? = null,
     )
 
