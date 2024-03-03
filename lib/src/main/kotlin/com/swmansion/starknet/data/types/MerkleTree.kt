@@ -1,9 +1,21 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 
-data class MerkleTree(
+enum class MerkleHashFunction(private val hashFunction: (Felt, Felt) -> Felt) {
+    PEDERSEN(StarknetCurve::pedersen),
+    POSEIDON(Poseidon::poseidonHash),
+    ;
+
+    fun hash(first: Felt, second: Felt): Felt {
+        return hashFunction.invoke(first, second)
+    }
+}
+
+data class MerkleTree @JvmOverloads constructor(
     val leafHashes: List<Felt>,
+    val hashFunction: MerkleHashFunction = MerkleHashFunction.PEDERSEN,
 ) {
     private val buildResult = build(leafHashes)
 
@@ -12,9 +24,9 @@ data class MerkleTree(
 
     companion object {
         @JvmStatic
-        fun hash(a: Felt, b: Felt): Felt {
+        fun hash(a: Felt, b: Felt, hashFunction: MerkleHashFunction): Felt {
             val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
-            return StarknetCurve.pedersen(aSorted, bSorted)
+            return hashFunction.hash(aSorted, bSorted)
         }
     }
 
@@ -32,7 +44,7 @@ data class MerkleTree(
             false -> branches
         }
         val newLeaves = leaves.indices.step(2).map {
-            hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO })
+            hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO }, hashFunction)
         }
 
         return build(newLeaves, newBranches)
