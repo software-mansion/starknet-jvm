@@ -222,6 +222,7 @@ internal class TypedDataTest {
         )
         val invalidTypedData = TD_SESSION.copy(
             types = TD_SESSION.types.toMutableMap().apply {
+                remove("Policy")
                 val types = this["Session"]!!.toMutableList()
                 types.apply {
                     this[this.indexOfFirst { it.type == "merkletree" }] = invalidMerkleTreeType

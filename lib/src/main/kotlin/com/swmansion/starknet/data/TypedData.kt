@@ -124,7 +124,13 @@ data class TypedData private constructor(
 
         require(domainObjectName in types) { "Types must contain $domainObjectName." }
 
-        val referencedTypes = types.values.flatten().map { it.type }
+        val referencedTypes = domainObjectName + primaryType + types.values.flatten().flatMap {
+            when (it) {
+                is EnumType -> extractEnumTypes(it.type) + it.contains
+                is MerkleTreeType -> listOf(it.contains)
+                is Type -> listOf(stripPointer(it.type))
+            }
+        }.distinct()
 
         types.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
@@ -344,6 +350,12 @@ data class TypedData private constructor(
 
     private fun stripPointer(value: String): String {
         return value.removeSuffix("*")
+    }
+
+    private fun extractEnumTypes(value: String): List<String> {
+        val enumPattern = Regex("""\(\s*([^,]+)\s*\)""")
+        val matches = enumPattern.findAll(value)
+        return matches.map { it.groupValues[1].trim() }.toList()
     }
 
     fun getStructHash(typeName: String, data: String): Felt {
