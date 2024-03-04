@@ -322,7 +322,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
+        assertTrue(receipt is DeclareTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
     }
@@ -344,7 +345,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedL1HandlerTransactionReceipt)
+        assertTrue(receipt is L1HandlerTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
@@ -355,7 +357,7 @@ class ProviderTest {
             Network.SEPOLIA_TESTNET -> NumAsHex.fromHex("0x42e76df4e3d5255262929c27132bd0d295a8d3db2cfe63d2fcd061c7a7a7ab34")
         }
 
-        assertEquals(expectedMessageHash, (receipt as ProcessedL1HandlerTransactionReceipt).messageHash)
+        assertEquals(expectedMessageHash, (receipt as L1HandlerTransactionReceipt).messageHash)
     }
 
     @Test
@@ -372,7 +374,7 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
 
         assertEquals(2, receipt.messagesSent.size)

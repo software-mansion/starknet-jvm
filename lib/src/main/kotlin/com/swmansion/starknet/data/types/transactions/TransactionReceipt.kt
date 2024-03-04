@@ -80,17 +80,15 @@ sealed class TransactionReceipt {
                 (finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
             )
 
-@Serializable
-sealed class ProcessedTransactionReceipt : TransactionReceipt() {
-    abstract val blockHash: Felt
-    abstract val blockNumber: Int
-    override val isPending: Boolean = false
-}
+    /**
+     * Checks if the receipt has block info.
+     *
+     * Checks if the receipt matches `TXN_RECEIPT_WITH_BLOCK_INFO` schema from the JSON-RPC spec.
+     **
+     * @return true if both [blockHash] and [blockNumber] are not null, false otherwise.
+     */
     val hasBlockInfo get() = listOf(blockHash, blockNumber).all { it != null }
 
-@Serializable
-sealed class PendingTransactionReceipt : TransactionReceipt() {
-    override val isPending: Boolean = true
     /**
      * Checks if the transaction is pending.
      *

@@ -202,6 +202,8 @@ sealed interface Block {
     val l1DataGasPrice: ResourcePrice
     val l1DataAvailabilityMode: L1DAMode
     val starknetVersion: String
+
+    val isPending: Boolean
 }
 
 sealed interface ProcessedBlock : Block {
@@ -209,8 +211,12 @@ sealed interface ProcessedBlock : Block {
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
+
+    override val isPending: Boolean get() = false
 }
-sealed interface PendingBlock : Block
+sealed interface PendingBlock : Block {
+    override val isPending: Boolean get() = true
+}
 
 @Serializable
 sealed class BlockWithTransactions : Block {
