@@ -526,7 +526,7 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is ProcessedBlockWithReceipts)
-        assertTrue(response.transactionWithReceipts.size >= 4)
+        assertTrue(response.transactionsWithReceipts.size >= 4)
     }
 
     @Test
@@ -539,6 +539,6 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is ProcessedBlockWithReceipts)
-        assertTrue(response.transactionWithReceipts.size >= 4)
+        assertTrue(response.transactionsWithReceipts.size >= 4)
     }
 }

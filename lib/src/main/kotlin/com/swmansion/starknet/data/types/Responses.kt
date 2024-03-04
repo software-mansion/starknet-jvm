@@ -316,7 +316,7 @@ data class TransactionWithReceipt(
 
 @Serializable
 sealed class BlockWithReceipts : Block {
-    abstract val transactionWithReceipts: List<TransactionWithReceipt>
+    abstract val transactionsWithReceipts: List<TransactionWithReceipt>
 }
 
 @Serializable
@@ -327,7 +327,7 @@ data class ProcessedBlockWithReceipts(
     // Block body
 
     @SerialName("transactions")
-    override val transactionWithReceipts: List<TransactionWithReceipt>,
+    override val transactionsWithReceipts: List<TransactionWithReceipt>,
 
     // Block header
 
@@ -367,7 +367,7 @@ data class PendingBlockWithReceipts(
     // Block body
 
     @SerialName("transactions")
-    override val transactionWithReceipts: List<TransactionWithReceipt>,
+    override val transactionsWithReceipts: List<TransactionWithReceipt>,
 
     // Pending block header
 
