@@ -107,7 +107,7 @@ data class TypedData private constructor(
 ) {
     private val revision = Json.decodeFromJsonElement<Domain>(domain).revision ?: TypedDataRevision.V0
 
-    private val domainObjectName = when (revision) {
+    private val domainSeparatorName = when (revision) {
         TypedDataRevision.V0 -> "StarkNetDomain"
         TypedDataRevision.V1 -> "StarknetDomain"
     }
@@ -122,15 +122,15 @@ data class TypedData private constructor(
         }
         reservedTypes.forEach { require(it !in types) { "Types must not contain $it." } }
 
-        require(domainObjectName in types) { "Types must contain $domainObjectName." }
+        require(domainSeparatorName in types) { "Types must contain $domainSeparatorName." }
 
-        val referencedTypes = domainObjectName + primaryType + types.values.flatten().flatMap {
+        val referencedTypes = types.values.flatten().flatMap {
             when (it) {
                 is EnumType -> extractEnumTypes(it.type) + it.contains
                 is MerkleTreeType -> listOf(it.contains)
                 is Type -> listOf(stripPointer(it.type))
             }
-        }.distinct()
+        }.distinct() + domainSeparatorName + primaryType
 
         types.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
@@ -183,7 +183,13 @@ data class TypedData private constructor(
         override val name: String,
         override val type: String = "merkletree",
         val contains: String,
-    ) : TypeBase()
+    ) : TypeBase() {
+        init {
+            require(!contains.endsWith("*")) {
+                "Merkletree 'contains' field cannot be an array, got '$contains' in type '$name'."
+            }
+        }
+    }
 
     @Serializable
     data class EnumType(
@@ -275,9 +281,7 @@ data class TypedData private constructor(
                 ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
 
             require(merkleType is MerkleTreeType) { "Key '$key' in parent '$parent' is not a merkletree." }
-            require(!merkleType.contains.endsWith("*")) {
-                "Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'."
-            }
+
             merkleType.contains
         } else {
             "raw"
