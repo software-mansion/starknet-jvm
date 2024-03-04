@@ -145,7 +145,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
+        assertTrue(receipt is DeployAccountTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
     }
@@ -166,7 +167,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
+        assertTrue(receipt is DeployAccountTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
     }
@@ -182,7 +184,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
+        assertTrue(receipt is InvokeTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertFalse(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.REVERTED, receipt.executionStatus)
         assertNotNull(receipt.revertReason)
@@ -207,7 +210,8 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
+        assertTrue(receipt is InvokeTransactionReceipt)
+        assertFalse(receipt.isPending)
     }
 
     @Test
@@ -234,7 +238,8 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        assertTrue(receipt is ProcessedInvokeTransactionReceipt)
+        assertTrue(receipt is InvokeTransactionReceipt)
+        assertFalse(receipt.isPending)
     }
 
     @Test
@@ -257,7 +262,8 @@ class ProviderTest {
         }
         assertNull(receipt.revertReason)
 
-        receipt is ProcessedDeclareTransactionReceipt
+        receipt is DeclareTransactionReceipt
+        assertFalse(receipt.isPending)
         assertEquals(Felt.ZERO, receipt.actualFee.amount)
         assertEquals(PriceUnit.WEI, receipt.actualFee.unit)
     }
@@ -274,7 +280,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
+        assertTrue(receipt is DeclareTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
         assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
@@ -293,7 +300,8 @@ class ProviderTest {
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
 
-        assertTrue(receipt is ProcessedDeclareTransactionReceipt)
+        assertTrue(receipt is DeclareTransactionReceipt)
+        assertFalse(receipt.isPending)
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
     }
