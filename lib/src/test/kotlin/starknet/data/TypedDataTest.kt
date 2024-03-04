@@ -209,29 +209,12 @@ internal class TypedDataTest {
     }
 
     @Test fun `merkletree with invalid contains`() {
-        val leaves = listOf(
-            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
-        )
-
-        val invalidMerkleTreeType = MerkleTreeType(
-            name = "root",
-            type = "merkletree",
-            contains = "felt*",
-        )
-        val invalidTypedData = TD_SESSION.copy(
-            types = TD_SESSION.types.toMutableMap().apply {
-                remove("Policy")
-                val types = this["Session"]!!.toMutableList()
-                types.apply {
-                    this[this.indexOfFirst { it.type == "merkletree" }] = invalidMerkleTreeType
-                }
-                this["Session"] = types
-            },
-        )
-        assertThrows<IllegalArgumentException>("Merkletree 'contains' field cannot be an array, got '${invalidMerkleTreeType.contains}.'") {
-            invalidTypedData.encodeValue("merkletree", Json.encodeToJsonElement(leaves), Context(parent = "Session", key = "root"))
+        assertThrows<IllegalArgumentException>("Merkletree 'contains' field cannot be an array, got 'felt*' in type 'root'.") {
+            MerkleTreeType(
+                name = "root",
+                type = "merkletree",
+                contains = "felt*",
+            )
         }
     }
 
