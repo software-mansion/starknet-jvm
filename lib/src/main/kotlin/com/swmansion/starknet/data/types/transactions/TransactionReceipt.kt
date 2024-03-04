@@ -81,21 +81,22 @@ sealed class TransactionReceipt {
             )
 
     /**
-     * Checks if the receipt has block info.
+     * Checks if the receipt contains block information.
      *
-     * Checks if the receipt matches `TXN_RECEIPT_WITH_BLOCK_INFO` schema from the JSON-RPC spec.
-     **
-     * @return true if both [blockHash] and [blockNumber] are not null, false otherwise.
+     * This method verifies whether the receipt conforms to the `TXN_RECEIPT_WITH_BLOCK_INFO` schema as defined in the JSON-RPC spec.
+     *
+     * @return `true` if both [blockHash] and [blockNumber] are not null; `false` otherwise.
      */
-    val hasBlockInfo get() = listOf(blockHash, blockNumber).all { it != null }
+    val hasBlockInfo: Boolean
+        get() = listOf(blockHash, blockNumber).all { it != null }
 
     /**
-     * Checks if the transaction is pending.
+     * Checks if the transaction is in a pending block.
      *
-     * Returns correct result only for receipts obtained using [Provider.getTransactionReceipt].
-     * For receipts obtained using [Provider.getBlockWithReceipts], use [BlockWithReceipts.isPending].
+     * This method provides accurate results for receipts obtained through [Provider.getTransactionReceipt].
+     * For receipts acquired using [Provider.getBlockWithReceipts], refer to [BlockWithReceipts.isPending].
      *
-     * @return true if the transaction is pending, false otherwise.
+     * @return `true` if the transaction is pending; `false` otherwise.
      */
     val isPending: Boolean
         get() = !hasBlockInfo && finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2
