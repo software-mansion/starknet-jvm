@@ -5,12 +5,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class PayloadWithBlockId {
+internal sealed class PayloadWithBlockId {
     abstract val blockId: BlockId
 }
 
 @Serializable
-data class CallContractPayload(
+internal data class CallContractPayload(
     @SerialName("request")
     val request: Call,
 
@@ -19,7 +19,7 @@ data class CallContractPayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetStorageAtPayload(
+internal data class GetStorageAtPayload(
     @SerialName("contract_address")
     val contractAddress: Felt,
 
@@ -31,25 +31,25 @@ data class GetStorageAtPayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetTransactionByHashPayload(
+internal data class GetTransactionByHashPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 )
 
 @Serializable
-data class GetTransactionReceiptPayload(
+internal data class GetTransactionReceiptPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 )
 
 @Serializable
-data class GetTransactionStatusPayload(
+internal data class GetTransactionStatusPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 )
 
 @Serializable
-data class EstimateTransactionFeePayload(
+internal data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<TransactionPayload>,
 
@@ -61,7 +61,7 @@ data class EstimateTransactionFeePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class EstimateMessageFeePayload(
+internal data class EstimateMessageFeePayload(
     @SerialName("message")
     val message: MessageL1ToL2,
 
@@ -70,13 +70,13 @@ data class EstimateMessageFeePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetBlockTransactionCountPayload(
+internal data class GetBlockTransactionCountPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetNoncePayload(
+internal data class GetNoncePayload(
     @SerialName("contract_address")
     val contractAddress: Felt,
 
@@ -85,25 +85,25 @@ data class GetNoncePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetBlockWithTransactionsPayload(
+internal data class GetBlockWithTransactionsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetBlockWithTransactionHashesPayload(
+internal data class GetBlockWithTransactionHashesPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetStateUpdatePayload(
+internal data class GetStateUpdatePayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
 
 @Serializable
-data class GetTransactionByBlockIdAndIndexPayload(
+internal data class GetTransactionByBlockIdAndIndexPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 
@@ -112,7 +112,7 @@ data class GetTransactionByBlockIdAndIndexPayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-data class SimulateTransactionsPayload(
+internal data class SimulateTransactionsPayload(
     @SerialName("transactions")
     val transactions: List<
         TransactionPayload,
