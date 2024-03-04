@@ -153,16 +153,11 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     data class Domain(
         val name: JsonPrimitive,
-
         val version: JsonPrimitive,
-
-        @JsonNames("chain_id", "chainId")
         val chainId: JsonPrimitive,
-
         val revision: TypedDataRevision? = null,
     )
 

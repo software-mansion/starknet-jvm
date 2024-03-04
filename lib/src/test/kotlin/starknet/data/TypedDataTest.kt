@@ -117,7 +117,7 @@ internal class TypedDataTest {
             Arguments.of(
                 TD_SESSION,
                 "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
-                "0x751fb7d98545f7649d0d0eadc80d770fcd88d8cfaa55590b284f4e1b701ef0a",
+                "0x5d28fa1b31f92e63022f7d85271606e52bed89c046c925f16b09e644dc99794",
             ),
             Arguments.of(
                 TD_VALIDATE,
