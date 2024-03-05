@@ -206,6 +206,11 @@ sealed interface Block {
     val isPending: Boolean
 }
 
+/**
+ * Represents a processed block.
+ *
+ * Corresponds to the `BLOCK_HEADER` schema defined in the JSON-RPC spec.
+ */
 sealed interface ProcessedBlock : Block {
     val status: BlockStatus
     val blockHash: Felt
@@ -214,6 +219,12 @@ sealed interface ProcessedBlock : Block {
 
     override val isPending: Boolean get() = false
 }
+
+/**
+ * Represents a pending block.
+ *
+ * Corresponds to the `PENDING_BLOCK_HEADER` schema defined in the JSON-RPC spec.
+ */
 sealed interface PendingBlock : Block {
     override val isPending: Boolean get() = true
 }
