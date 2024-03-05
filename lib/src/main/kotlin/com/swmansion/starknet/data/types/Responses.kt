@@ -204,12 +204,23 @@ sealed interface Block {
     val starknetVersion: String
 }
 
+/**
+ * Represents a processed block.
+ *
+ * Corresponds to the `BLOCK_HEADER` schema defined in the JSON-RPC spec.
+ */
 sealed interface ProcessedBlock : Block {
     val status: BlockStatus
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
 }
+
+/**
+ * Represents a pending block.
+ *
+ * Corresponds to the `PENDING_BLOCK_HEADER` schema defined in the JSON-RPC spec.
+ */
 sealed interface PendingBlock : Block
 
 @Serializable
