@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -80,14 +79,6 @@ sealed class TransactionReceipt {
                 (finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
             )
 
-    /**
-     * Checks if the transaction is in a pending block.
-     *
-     * This method provides accurate results for receipts obtained through [Provider.getTransactionReceipt].
-     * For receipts acquired using [Provider.getBlockWithReceipts], refer to [BlockWithReceipts.isPending].
-     *
-     * @return `true` if the transaction is pending; `false` otherwise.
-     */
     val isPending: Boolean
         get() = !hasBlockInfo && finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2
 

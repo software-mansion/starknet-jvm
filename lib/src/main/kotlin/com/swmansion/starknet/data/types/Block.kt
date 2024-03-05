@@ -52,8 +52,6 @@ sealed interface Block {
     val l1DataGasPrice: ResourcePrice
     val l1DataAvailabilityMode: L1DAMode
     val starknetVersion: String
-
-    val isPending: Boolean
 }
 
 /**
@@ -66,8 +64,6 @@ sealed interface ProcessedBlock : Block {
     val blockHash: Felt
     val blockNumber: Int
     val newRoot: Felt
-
-    override val isPending: Boolean get() = false
 }
 
 /**
@@ -75,9 +71,7 @@ sealed interface ProcessedBlock : Block {
  *
  * Corresponds to the `PENDING_BLOCK_HEADER` schema defined in the JSON-RPC spec.
  */
-sealed interface PendingBlock : Block {
-    override val isPending: Boolean get() = true
-}
+sealed interface PendingBlock : Block
 
 @Serializable
 sealed class BlockWithTransactions : Block {
