@@ -97,6 +97,12 @@ internal data class GetBlockWithTransactionHashesPayload(
 ) : PayloadWithBlockId()
 
 @Serializable
+internal data class GetBlockWithReceiptsPayload(
+    @SerialName("block_id")
+    override val blockId: BlockId,
+) : PayloadWithBlockId()
+
+@Serializable
 internal data class GetStateUpdatePayload(
     @SerialName("block_id")
     override val blockId: BlockId,

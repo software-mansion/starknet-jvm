@@ -333,7 +333,11 @@ class ProviderTest {
                                 "ec_op_builtin_applications": "123",
                                 "ecdsa_builtin_applications": "789",
                                 "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1"
+                                "keccak_builtin_applications": "1",
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
+                                }
                             }
                         }
                     }
@@ -345,7 +349,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
 
-        assertTrue(response is ProcessedDeployTransactionReceipt)
+        assertTrue(response is DeployTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -353,7 +359,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(declareTransactionHash)
         val response = request.send()
 
-        assertTrue(response is ProcessedDeclareTransactionReceipt)
+        assertTrue(response is DeclareTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -361,7 +369,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
-        assertTrue(response is ProcessedInvokeTransactionReceipt)
+        assertTrue(response is InvokeTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -392,7 +402,11 @@ class ProviderTest {
                     "ec_op_builtin_applications": "123",
                     "ecdsa_builtin_applications": "789",
                     "bitwise_builtin_applications": "1",
-                    "keccak_builtin_applications": "1"
+                    "keccak_builtin_applications": "1",
+                    "data_availability": {
+                        "l1_gas": "123",
+                        "l1_data_gas": "456"
+                    }
                 }
             }
         }
@@ -409,8 +423,8 @@ class ProviderTest {
         val provider = JsonRpcProvider(rpcUrl, httpService)
         val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
 
-        assertTrue(receipt is PendingTransactionReceipt)
-        assertTrue(receipt is PendingInvokeTransactionReceipt)
+        assertTrue(receipt is InvokeTransactionReceipt)
+        assertTrue(receipt.isPending)
         assertEquals(PriceUnit.FRI, receipt.actualFee.unit)
     }
 
@@ -471,7 +485,11 @@ class ProviderTest {
                                 "ec_op_builtin_applications": "123",
                                 "ecdsa_builtin_applications": "789",
                                 "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1"
+                                "keccak_builtin_applications": "1",
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
+                                }
                             },
                             "message_hash": "0x8000000000000110000000000000000000000000000000000000011111111111"
                         }
@@ -485,7 +503,9 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is ProcessedTransactionReceipt)
+        assertTrue(response is L1HandlerTransactionReceipt)
+        assertTrue(response.hasBlockInfo)
+        assertFalse(response.isPending)
         assertEquals(PriceUnit.WEI, response.actualFee.unit)
     }
 
@@ -549,7 +569,9 @@ class ProviderTest {
     @Test
     fun `get deploy account transaction receipt`() {
         val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
-        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
+        assertTrue(receipt is DeployAccountTransactionReceipt)
+        assertTrue(receipt.hasBlockInfo)
+        assertFalse(receipt.isPending)
     }
 
     // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.
@@ -675,7 +697,7 @@ class ProviderTest {
         assertNotEquals(0, blockNumber)
         assertNotEquals(Felt.ZERO, blockHash)
 
-        val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as BlockWithTransactionHashesResponse
+        val getBlockResponse = provider.getBlockWithTxHashes(blockNumber).send() as ProcessedBlockWithTransactionHashes
         val expectedHash = getBlockResponse.blockHash
 
         assertEquals(expectedHash, blockHash)
@@ -799,7 +821,13 @@ class ProviderTest {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
                     },
-                    "starknet_version": "0.12.3",
+                    "l1_data_gas_price":
+                    {
+                        "price_in_wei": "0x789",
+                        "price_in_fri": "0x123"
+                    },
+                    "l1_da_mode": "BLOB",
+                    "starknet_version": "0.13.1",
                     "transactions": [
                         {
                             "transaction_hash": "0x01",
@@ -834,7 +862,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(BlockTag.PENDING)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactionsResponse)
+        assertTrue(response is PendingBlockWithTransactions)
     }
 
     @Test
@@ -842,7 +870,9 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
+        val block = response as ProcessedBlockWithTransactions
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -852,7 +882,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(blockHash)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
     }
 
     @Test
@@ -862,7 +892,154 @@ class ProviderTest {
         val request = provider.getBlockWithTxs(blockNumber)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionsResponse)
+        assertTrue(response is ProcessedBlockWithTransactions)
+    }
+
+    @Test
+    fun `get pending block with transaction receipts`() {
+        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
+        val mockedResponse = """
+            {
+                "id":0,
+                "jsonrpc":"2.0",
+                "result":{
+                    "parent_hash": "0x123",
+                    "timestamp": 7312,
+                    "sequencer_address": "0x1234",
+                    "l1_gas_price": 
+                    {
+                        "price_in_wei": "0x2137",
+                        "price_in_fri": "0x1234"
+                    },
+                    "l1_data_gas_price":
+                    {
+                        "price_in_wei": "0x789",
+                        "price_in_fri": "0x123"
+                    },
+                    "l1_da_mode": "BLOB",
+                    "starknet_version": "0.13.1",
+                    "transactions": [
+                        {
+                            "transaction": 
+                            {
+                                "transaction_hash": "0x01",
+                                "class_hash": "0x98",
+                                "version": "0x0",
+                                "type": "DEPLOY",
+                                "max_fee": "0x1",
+                                "signature": [],
+                                "nonce": "0x1",
+                                "contract_address_salt": "0x0",
+                                "constructor_calldata": []
+                            },
+                            "receipt": 
+                            {
+                                "actual_fee": {
+                                    "amount": "0x244adfc7e22",
+                                    "unit": "WEI"
+                                },
+                                "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
+                                "contract_address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb",
+                                "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                                "finality_status": "ACCEPTED_ON_L1",
+                                "execution_status": "SUCCEEDED",
+                                "block_number": 264715,
+                                "type": "DEPLOY",
+                                "events":
+                                [],
+                                "messages_sent":
+                                [],
+                                "execution_resources": 
+                                {
+                                    "steps": "999",
+                                    "data_availability": {
+                                        "l1_gas": "123",
+                                        "l1_data_gas": "456"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "transaction": 
+                            {
+                                "transaction_hash": "0x02",
+                                "class_hash": "0x99",
+                                "version": "0x1",
+                                "max_fee": "0x1",
+                                "type": "DECLARE",
+                                "sender_address": "0x15",
+                                "signature": [],
+                                "nonce": "0x1"
+                            },
+                            "receipt": 
+                            {
+                                "actual_fee": {
+                                    "amount": "0x244adfc7e22",
+                                    "unit": "WEI"
+                                },
+                                "block_hash": "0x4e782152c52c8637e03df60048deb4f6adf122ef37cf53eeb72322a4b9c9c52",
+                                "transaction_hash": "0x1a9d9e311ff31e27b20a7919bec6861dd6b603d72b7e8df9900cd7603200d0b",
+                                "finality_status": "ACCEPTED_ON_L1",
+                                "execution_status": "SUCCEEDED",
+                                "block_number": 264715,
+                                "type": "DECLARE",
+                                "events":
+                                [],
+                                "messages_sent":
+                                [],
+                                "execution_resources": 
+                                {
+                                    "steps": "999",
+                                    "data_availability": {
+                                        "l1_gas": "123",
+                                        "l1_data_gas": "456"
+                                    }
+                                }
+                            }
+                        } 
+                    ]
+                }
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+
+        val request = provider.getBlockWithReceipts(BlockTag.PENDING)
+        val response = request.send()
+
+        assertTrue(response is PendingBlockWithReceipts)
+    }
+
+    @Test
+    fun `get block with transaction receipts with block tag`() {
+        val request = provider.getBlockWithReceipts(BlockTag.LATEST)
+        val response = request.send()
+
+        assertTrue(response is ProcessedBlockWithReceipts)
+        val block = response as ProcessedBlockWithReceipts
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
+    }
+
+    @Test
+    fun `get block with transaction receipts with block hash`() {
+        val blockHash = provider.getBlockHashAndNumber().send().blockHash
+
+        val request = provider.getBlockWithReceipts(blockHash)
+        val response = request.send()
+
+        assertTrue(response is ProcessedBlockWithReceipts)
+    }
+
+    @Test
+    fun `get block with transaction receipts with block number`() {
+        val blockNumber = provider.getBlockNumber().send()
+
+        val request = provider.getBlockWithReceipts(blockNumber)
+        val response = request.send()
+
+        assertTrue(response is ProcessedBlockWithReceipts)
     }
 
     @Test
@@ -881,7 +1058,13 @@ class ProviderTest {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
                     },
-                    "starknet_version": "0.13.0",
+                    "l1_data_gas_price":
+                    {
+                        "price_in_wei": "0x789",
+                        "price_in_fri": "0x123"
+                    },
+                    "l1_da_mode": "BLOB",
+                    "starknet_version": "0.13.1",
                     "transactions": [
                         "0x01",
                         "0x02"
@@ -897,7 +1080,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactionHashesResponse)
+        assertTrue(response is PendingBlockWithTransactionHashes)
     }
 
     @Test
@@ -905,7 +1088,9 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
+        val block = response as ProcessedBlockWithTransactionHashes
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -915,7 +1100,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(blockHash)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Test
@@ -925,7 +1110,7 @@ class ProviderTest {
         val request = provider.getBlockWithTxHashes(blockNumber)
         val response = request.send()
 
-        assertTrue(response is BlockWithTransactionHashesResponse)
+        assertTrue(response is ProcessedBlockWithTransactionHashes)
     }
 
     @Test

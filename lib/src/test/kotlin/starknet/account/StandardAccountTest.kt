@@ -145,7 +145,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
         }
 
         @Test
@@ -159,7 +162,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
         }
 
         @Test
@@ -191,7 +197,10 @@ class StandardAccountTest {
             val feeEstimates = request.send()
             feeEstimates.forEach {
                 assertNotEquals(Felt.ZERO, it.overallFee)
-                assertEquals(it.gasPrice.value.multiply(it.gasConsumed.value), it.overallFee.value)
+                assertEquals(
+                    it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
+                    it.overallFee.value,
+                )
             }
         }
 
@@ -203,7 +212,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
         }
     }
 
@@ -232,7 +244,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
         }
 
         @Test
@@ -257,7 +272,11 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value) }
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
+        }
 
         @Test
         fun `estimate fee for declare v3 transaction`() {
@@ -282,7 +301,10 @@ class StandardAccountTest {
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(feeEstimate.gasPrice.value.multiply(feeEstimate.gasConsumed.value), feeEstimate.overallFee.value)
+            assertEquals(
+                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.overallFee.value,
+            )
         }
     }
 
@@ -322,9 +344,10 @@ class StandardAccountTest {
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response.gasPrice)
-        assertNotEquals(Felt.ZERO, response.gasConsumed)
-        assertNotEquals(Felt.ZERO, response.overallFee)
-        assertEquals(response.gasPrice.value.multiply(response.gasConsumed.value), response.overallFee.value)
+        assertEquals(
+            response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
+            response.overallFee.value,
+        )
     }
 
     @Nested
@@ -358,6 +381,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v2 transaction`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -368,7 +393,7 @@ class StandardAccountTest {
             val declareTransactionPayload = account.signDeclareV2(
                 contractDefinition,
                 contractCasmDefinition,
-                ExecutionParams(nonce, Felt(1000000000000000L)),
+                ExecutionParams(nonce, Felt(5000000000000000L)),
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -380,6 +405,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v2 transaction (cairo compiler v2)`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
 
@@ -390,7 +417,7 @@ class StandardAccountTest {
             val declareTransactionPayload = account.signDeclareV2(
                 contractDefinition,
                 contractCasmDefinition,
-                ExecutionParams(nonce, Felt(1000000000000000)),
+                ExecutionParams(nonce, Felt(10000000000000000)),
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -402,6 +429,8 @@ class StandardAccountTest {
 
         @Test
         fun `sign and send declare v3 transaction`() {
+            devnetClient.prefundAccountStrk(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -416,8 +445,8 @@ class StandardAccountTest {
             val params = DeclareParamsV3(
                 nonce = nonce,
                 l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
                 ),
             )
             val declareTransactionPayload = account.signDeclareV3(
@@ -482,7 +511,7 @@ class StandardAccountTest {
     @Nested
     inner class InvokeTest {
         @Test
-        fun `sign single call`() {
+        fun `sign v1 single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 calldata = listOf(Felt(10)),
@@ -529,7 +558,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute single call`() {
+        fun `execute v1 single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -559,7 +588,41 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute single call with specific fee`() {
+        fun `execute v1 single call with specific fee estimate multiplier`() {
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val result = account.executeV1(call, estimateFeeMultiplier = 1.59).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
+        fun `execute v3 single call with specific fee estimate multiplier`() {
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val result = account.executeV3(
+                call,
+                estimateAmountMultiplier = 1.59,
+                estimateUnitPriceMultiplier = 1.39,
+            ).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
+        fun `execute v1 single call with specific fee`() {
             // Note to future developers experiencing failures in this test:
             // This transaction may fail if the fee is too low.
             val call = Call(
@@ -600,7 +663,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign multiple calls test`() {
+        fun `sign v1 multiple calls test`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -645,7 +708,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute multiple calls`() {
+        fun `execute v1 multiple calls`() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -687,7 +750,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `two executes with single call`() {
+        fun `two executes v1 with single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -1169,6 +1232,8 @@ class StandardAccountTest {
 
         @Test
         fun `simulate declare v2 transaction`() {
+            devnetClient.prefundAccountEth(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
@@ -1189,7 +1254,7 @@ class StandardAccountTest {
                 casmContractDefinition,
                 ExecutionParams(
                     nonce = nonce,
-                    maxFee = Felt(1000000000000000L),
+                    maxFee = Felt(3000000000000000),
                 ),
             )
 
@@ -1206,6 +1271,8 @@ class StandardAccountTest {
 
         @Test
         fun `simulate declare v3 transaction`() {
+            devnetClient.prefundAccountStrk(accountAddress)
+
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
@@ -1227,8 +1294,8 @@ class StandardAccountTest {
                 DeclareParamsV3(
                     nonce = nonce,
                     l1ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(20000),
-                        maxPricePerUnit = Uint128(120000000000),
+                        maxAmount = Uint64(100000),
+                        maxPricePerUnit = Uint128(1000000000000),
                     ),
                 ),
             )
@@ -1257,12 +1324,21 @@ class StandardAccountTest {
                         "fee_estimation": {
                             "gas_consumed": "0x9d8",
                             "gas_price": "0x3b9aca2f",
+                            "data_gas_consumed": "0x3a",
+                            "data_gas_price": "0x1a05",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",
                             "execute_invocation": {
                                "revert_reason": "Placeholder revert reason."
+                            },
+                            "execution_resources": {
+                                "steps": 582,
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
+                                }
                             }
                         }
                     }
@@ -1306,6 +1382,8 @@ class StandardAccountTest {
                         "fee_estimation": {
                             "gas_consumed": "0x9d8",
                             "gas_price": "0x3b9aca2f",
+                            "data_gas_consumed": "0x3a",
+                            "data_gas_price": "0x1a05",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
@@ -1377,6 +1455,13 @@ class StandardAccountTest {
                                 ],
                                 "execution_resources": {
                                     "steps": 800
+                                }
+                            },
+                            "execution_resources": {
+                                "steps": 1600,
+                                "data_availability": {
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456"
                                 }
                             }
                         }

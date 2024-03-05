@@ -245,7 +245,7 @@ class DevnetClient(
 
     fun declareContract(
         contractName: String,
-        maxFee: Felt = Felt(1000000000000000),
+        maxFee: Felt = Felt(5000000000000000),
         accountName: String = "__default__",
     ): DeclareContractResult {
         val params = listOf(
@@ -312,7 +312,7 @@ class DevnetClient(
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
         unique: Boolean = false,
-        maxFeeDeclare: Felt = Felt(1000000000000000),
+        maxFeeDeclare: Felt = Felt(5000000000000000),
         maxFeeDeploy: Felt = Felt(1000000000000000),
         accountName: String = "__default__",
     ): DeployContractResult {

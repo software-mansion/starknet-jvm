@@ -29,6 +29,8 @@ class JsonRpcResponseTest {
                     "unknown_primitive": "value",
                     "gas_consumed": "0x1234",
                     "gas_price": "0x5678",
+                    "data_gas_consumed": "0xabc",
+                    "data_gas_price": "0x789",
                     "overall_fee": "0x9abc",
                     "unknown_object": {"key_1": "value_1", "key_2": "value_2"},
                     "unit": "FRI",
