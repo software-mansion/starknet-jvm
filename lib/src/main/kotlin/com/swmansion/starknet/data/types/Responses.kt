@@ -239,15 +239,11 @@ data class ProcessedBlockWithTransactions(
     @SerialName("status")
     override val status: BlockStatus,
 
-    // Block body
-
     @SerialName("transactions")
     override val transactions: List<
         @Serializable(with = TransactionPolymorphicSerializer::class)
         Transaction,
         >,
-
-    // Block header
 
     @SerialName("parent_hash")
     override val parentHash: Felt,
@@ -282,15 +278,11 @@ data class ProcessedBlockWithTransactions(
 
 @Serializable
 data class PendingBlockWithTransactions(
-    // Block body
-
     @SerialName("transactions")
     override val transactions: List<
         @Serializable(with = TransactionPolymorphicSerializer::class)
         Transaction,
         >,
-
-    // Pending block header
 
     @SerialName("timestamp")
     override val timestamp: Int,
@@ -335,12 +327,8 @@ data class ProcessedBlockWithReceipts(
     @SerialName("status")
     override val status: BlockStatus,
 
-    // Block body
-
     @SerialName("transactions")
     override val transactionsWithReceipts: List<TransactionWithReceipt>,
-
-    // Block header
 
     @SerialName("block_hash")
     override val blockHash: Felt,
@@ -375,12 +363,8 @@ data class ProcessedBlockWithReceipts(
 
 @Serializable
 data class PendingBlockWithReceipts(
-    // Block body
-
     @SerialName("transactions")
     override val transactionsWithReceipts: List<TransactionWithReceipt>,
-
-    // Pending block header
 
     @SerialName("timestamp")
     override val timestamp: Int,
@@ -414,12 +398,8 @@ data class ProcessedBlockWithTransactionHashes(
     @SerialName("status")
     override val status: BlockStatus,
 
-    // Block body
-
     @SerialName("transactions")
     override val transactionHashes: List<Felt>,
-
-    // Block header
 
     @SerialName("block_hash")
     override val blockHash: Felt,
@@ -454,12 +434,8 @@ data class ProcessedBlockWithTransactionHashes(
 
 @Serializable
 data class PendingBlockWithTransactionHashes(
-    // Block body
-
     @SerialName("transactions")
     override val transactionHashes: List<Felt>,
-
-    // Pending block header
 
     @SerialName("timestamp")
     override val timestamp: Int,

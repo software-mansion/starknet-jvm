@@ -873,6 +873,8 @@ class ProviderTest {
 
         assertTrue(response is ProcessedBlockWithTransactions)
         assertFalse(response.isPending)
+        val block = response as ProcessedBlockWithTransactions
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -1022,6 +1024,8 @@ class ProviderTest {
 
         assertTrue(response is ProcessedBlockWithReceipts)
         assertFalse(response.isPending)
+        val block = response as ProcessedBlockWithReceipts
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -1095,6 +1099,8 @@ class ProviderTest {
 
         assertTrue(response is ProcessedBlockWithTransactionHashes)
         assertFalse(response.isPending)
+        val block = response as ProcessedBlockWithTransactionHashes
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
