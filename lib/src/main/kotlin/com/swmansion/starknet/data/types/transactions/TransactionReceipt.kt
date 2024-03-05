@@ -87,7 +87,7 @@ sealed class TransactionReceipt {
      *
      * This method verifies whether the receipt conforms to the `TXN_RECEIPT_WITH_BLOCK_INFO` schema as defined in the JSON-RPC spec.
      *
-     * @return `true` if both [blockHash] and [blockNumber] are not null; `false` otherwise.
+     * @return `true` if both [blockHash] and [blockNumber] are not `null`; `false` otherwise.
      */
     val hasBlockInfo: Boolean
         get() = listOf(blockHash, blockNumber).all { it != null }
