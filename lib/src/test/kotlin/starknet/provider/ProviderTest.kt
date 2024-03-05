@@ -349,7 +349,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(Felt.ZERO)
         val response = request.send()
 
-        assertTrue(response is ProcessedDeployTransactionReceipt)
+        assertTrue(response is DeployTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -357,7 +359,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(declareTransactionHash)
         val response = request.send()
 
-        assertTrue(response is ProcessedDeclareTransactionReceipt)
+        assertTrue(response is DeclareTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -365,7 +369,9 @@ class ProviderTest {
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
-        assertTrue(response is ProcessedInvokeTransactionReceipt)
+        assertTrue(response is InvokeTransactionReceipt)
+        assertFalse(response.isPending)
+        assertTrue(response.hasBlockInfo)
     }
 
     @Test
@@ -417,8 +423,8 @@ class ProviderTest {
         val provider = JsonRpcProvider(rpcUrl, httpService)
         val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
 
-        assertTrue(receipt is PendingTransactionReceipt)
-        assertTrue(receipt is PendingInvokeTransactionReceipt)
+        assertTrue(receipt is InvokeTransactionReceipt)
+        assertTrue(receipt.isPending)
         assertEquals(PriceUnit.FRI, receipt.actualFee.unit)
     }
 
@@ -497,7 +503,9 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is ProcessedTransactionReceipt)
+        assertTrue(response is L1HandlerTransactionReceipt)
+        assertTrue(response.hasBlockInfo)
+        assertFalse(response.isPending)
         assertEquals(PriceUnit.WEI, response.actualFee.unit)
     }
 
@@ -561,7 +569,9 @@ class ProviderTest {
     @Test
     fun `get deploy account transaction receipt`() {
         val receipt = provider.getTransactionReceipt(deployAccountTransactionHash).send()
-        assertTrue(receipt is ProcessedDeployAccountTransactionReceipt)
+        assertTrue(receipt is DeployAccountTransactionReceipt)
+        assertTrue(receipt.hasBlockInfo)
+        assertFalse(receipt.isPending)
     }
 
     // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.

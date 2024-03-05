@@ -105,11 +105,9 @@ class StandardDeployer(
         contractDeployment: ContractDeployment,
     ): Event? {
         val events = when (transactionReceipt) {
-            is PendingInvokeTransactionReceipt -> transactionReceipt.events
-            is ProcessedInvokeTransactionReceipt -> transactionReceipt.events
-            is ProcessedDeployTransactionReceipt -> transactionReceipt.events
-            is PendingDeployAccountTransactionReceipt -> transactionReceipt.events
-            is ProcessedDeployAccountTransactionReceipt -> transactionReceipt.events
+            is InvokeTransactionReceipt -> transactionReceipt.events
+            is DeployTransactionReceipt -> transactionReceipt.events
+            is DeployAccountTransactionReceipt -> transactionReceipt.events
             else -> throw AddressRetrievalFailedException("Invalid transaction type", contractDeployment)
         }
         val deploymentEvents = events.filter { it.keys.contains(selectorFromName("ContractDeployed")) }
