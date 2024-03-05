@@ -861,6 +861,8 @@ class ProviderTest {
         val response = request.send()
 
         assertTrue(response is ProcessedBlockWithTransactions)
+        val block = response as ProcessedBlockWithTransactions
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -1006,6 +1008,8 @@ class ProviderTest {
         val response = request.send()
 
         assertTrue(response is ProcessedBlockWithReceipts)
+        val block = response as ProcessedBlockWithReceipts
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
@@ -1075,6 +1079,8 @@ class ProviderTest {
         val response = request.send()
 
         assertTrue(response is ProcessedBlockWithTransactionHashes)
+        val block = response as ProcessedBlockWithTransactionHashes
+        assertEquals(BlockStatus.ACCEPTED_ON_L2, block.status)
     }
 
     @Test
