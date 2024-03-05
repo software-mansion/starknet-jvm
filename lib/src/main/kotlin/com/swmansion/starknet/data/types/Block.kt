@@ -24,9 +24,6 @@ enum class BlockStatus {
 
     @JsonNames("REJECTED")
     REJECTED,
-
-    @JsonNames("UNKNOWN")
-    UNKNOWN,
 }
 
 @Serializable(with = BlockIdSerializer::class)
