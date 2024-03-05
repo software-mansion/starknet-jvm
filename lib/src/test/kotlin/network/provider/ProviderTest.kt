@@ -514,6 +514,9 @@ class ProviderTest {
 
         assertNotNull(response)
         assertTrue(response is PendingBlockWithReceipts)
+        response.transactionsWithReceipts.forEach {
+            assertTrue(it.receipt.isPending)
+        }
     }
 
     @Test
@@ -527,6 +530,9 @@ class ProviderTest {
         assertNotNull(response)
         assertTrue(response is ProcessedBlockWithReceipts)
         assertTrue(response.transactionsWithReceipts.size >= 4)
+        response.transactionsWithReceipts.forEach {
+            assertFalse(it.receipt.isPending)
+        }
     }
 
     @Test
@@ -540,5 +546,8 @@ class ProviderTest {
         assertNotNull(response)
         assertTrue(response is ProcessedBlockWithReceipts)
         assertTrue(response.transactionsWithReceipts.size >= 4)
+        response.transactionsWithReceipts.forEach {
+            assertFalse(it.receipt.isPending)
+        }
     }
 }
