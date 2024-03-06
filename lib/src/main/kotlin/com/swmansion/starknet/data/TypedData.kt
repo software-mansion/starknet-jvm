@@ -145,9 +145,9 @@ data class TypedData private constructor(
 
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
-    private fun escapeTypeString(type: String) = when (revision) {
-        TypedDataRevision.V0 -> type
-        TypedDataRevision.V1 -> "\"$type\""
+    private fun escape(typeName: String) = when (revision) {
+        TypedDataRevision.V0 -> typeName
+        TypedDataRevision.V1 -> "\"$typeName\""
     }
 
     private fun verifyTypes() {
@@ -263,9 +263,21 @@ data class TypedData private constructor(
     }
 
     private fun encodeDependency(dependency: String): String {
-        val fields =
-            types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
-        val encodedFields = fields.joinToString(",") { "${it.name}:${it.type}" }
+        val fields = types.getOrElse(dependency) {
+            throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
+        }
+        val encodedFields = fields.joinToString(",") {
+            val targetType = when {
+                it is EnumType && revision == TypedDataRevision.V1 -> it.contains
+                else -> it.type
+            }
+            val typeString = when {
+                targetType.isEnum() -> extractEnumTypes(targetType).joinToString("", transform = ::escape)
+                else -> escape(targetType)
+            }
+            "${it.name}:$typeString"
+        }
+
         return "$dependency($encodedFields)"
     }
 
