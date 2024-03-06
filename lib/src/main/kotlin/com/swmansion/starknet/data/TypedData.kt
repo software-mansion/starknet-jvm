@@ -104,6 +104,18 @@ data class TypedData private constructor(
     val domain: Domain,
     val message: JsonObject,
 ) {
+    constructor(
+        types: Map<String, List<TypeBase>>,
+        primaryType: String,
+        domain: String,
+        message: String,
+    ) : this(
+        types = types,
+        primaryType = primaryType,
+        domain = Json.decodeFromString(domain),
+        message = Json.parseToJsonElement(message).jsonObject,
+    )
+
     private val revision = domain.revision ?: TypedDataRevision.V0
 
     private val hashMethod = when (revision) {
@@ -142,18 +154,6 @@ data class TypedData private constructor(
             require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type $it was found." }
         }
     }
-
-    constructor(
-        types: Map<String, List<TypeBase>>,
-        primaryType: String,
-        domain: String,
-        message: String,
-    ) : this(
-        types = types,
-        primaryType = primaryType,
-        domain = Json.decodeFromString(domain),
-        message = Json.parseToJsonElement(message).jsonObject,
-    )
 
     @Serializable
     data class Domain(
