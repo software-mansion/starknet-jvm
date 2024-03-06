@@ -242,7 +242,7 @@ internal class TypedDataTest {
     fun `invalid types`(type: String) {
         assertThrows<IllegalArgumentException>("Types must not contain $type.") {
             TypedData(
-                types = mapOf(type to emptyList()),
+                customTypes = mapOf(type to emptyList()),
                 primaryType = type,
                 domain = "{}",
                 message = "{\"$type\": 1}",

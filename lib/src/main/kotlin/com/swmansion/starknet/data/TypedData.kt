@@ -7,6 +7,7 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.*
 
 /**
@@ -99,18 +100,22 @@ enum class TypedDataRevision(val value: Felt) {
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
-    val types: Map<String, List<TypeBase>>,
+    @SerialName("types")
+    val customTypes: Map<String, List<TypeBase>>,
+
     val primaryType: String,
+
     val domain: Domain,
+
     val message: JsonObject,
 ) {
     constructor(
-        types: Map<String, List<TypeBase>>,
+        customTypes: Map<String, List<TypeBase>>,
         primaryType: String,
         domain: String,
         message: String,
     ) : this(
-        types = types,
+        customTypes = customTypes,
         primaryType = primaryType,
         domain = Json.decodeFromString(domain),
         message = Json.parseToJsonElement(message).jsonObject,
@@ -118,18 +123,28 @@ data class TypedData private constructor(
 
     private val revision = domain.revision ?: TypedDataRevision.V0
 
+    @Transient
+    val types: Map<String, List<TypeBase>> = run {
+        val presetTypes = when (revision) {
+            TypedDataRevision.V0 -> presetTypesV0
+            TypedDataRevision.V1 -> presetTypesV1
+        }
+        customTypes + presetTypes
+    }
+
     private val hashMethod = when (revision) {
         TypedDataRevision.V0 -> HashMethod.PEDERSEN
         TypedDataRevision.V1 -> HashMethod.POSEIDON
     }
 
     init {
-        verifyTypes()
+        verifyTypes(customTypes)
     }
 
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
     private fun verifyTypes() {
+    private fun verifyTypes(types: Map<String, List<TypeBase>>) {
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
             TypedDataRevision.V1 -> reservedTypesV1
@@ -388,7 +403,28 @@ data class TypedData private constructor(
     companion object {
         private val reservedTypesV0 by lazy { listOf("felt", "bool", "string", "selector", "merkletree", "raw") }
 
-        private val reservedTypesV1 by lazy { reservedTypesV0 + listOf("enum", "bool", "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + listOf("u256", "NftId", "TokenAmount") }
+        private val reservedTypesV1 by lazy {
+            reservedTypesV0 + listOf("enum", "bool", "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + presetTypesV1.keys
+        }
+
+        private val presetTypesV0: Map<String, List<TypeBase>> by lazy { emptyMap() }
+
+        private val presetTypesV1: Map<String, List<TypeBase>> by lazy {
+            mapOf(
+                "u256" to listOf(
+                    Type("low", "u128"),
+                    Type("high", "u128"),
+                ),
+                "TokenAmount" to listOf(
+                    Type("token_address", "ContractAddress"),
+                    Type("amount", "u256"),
+                ),
+                "NftId" to listOf(
+                    Type("collection_address", "ContractAddress"),
+                    Type("token_id", "u256"),
+                ),
+            )
+        }
 
         /**
          * Create TypedData from JSON string.
