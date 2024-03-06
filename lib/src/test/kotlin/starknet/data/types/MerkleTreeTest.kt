@@ -1,9 +1,9 @@
 package starknet.data.types
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MerkleHashFunction
 import com.swmansion.starknet.data.types.MerkleTree
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
@@ -14,11 +14,11 @@ import org.junit.jupiter.params.provider.EnumSource
 
 internal class MerkleTreeTest {
     @ParameterizedTest
-    @EnumSource(MerkleHashFunction::class)
-    fun `calculate hashes`(hashFunction: MerkleHashFunction) {
+    @EnumSource(HashMethod::class)
+    fun `calculate hashes`(hashFunction: HashMethod) {
         val applyHash: (Felt, Felt) -> Felt = when (hashFunction) {
-            MerkleHashFunction.PEDERSEN -> StarknetCurve::pedersen
-            MerkleHashFunction.POSEIDON -> Poseidon::poseidonHash
+            HashMethod.PEDERSEN -> StarknetCurve::pedersen
+            HashMethod.POSEIDON -> Poseidon::poseidonHash
         }
 
         val leaves = listOf(
@@ -50,8 +50,8 @@ internal class MerkleTreeTest {
     @Nested
     inner class BuildFromElementsTest {
         @ParameterizedTest
-        @EnumSource(MerkleHashFunction::class)
-        fun `build merkle tree from 1 element`(hashFunction: MerkleHashFunction) {
+        @EnumSource(HashMethod::class)
+        fun `build merkle tree from 1 element`(hashFunction: HashMethod) {
             val leaves = listOf(Felt.ONE)
             val tree = MerkleTree(leaves, hashFunction)
 
@@ -62,8 +62,8 @@ internal class MerkleTreeTest {
         }
 
         @ParameterizedTest
-        @EnumSource(MerkleHashFunction::class)
-        fun `build merkle tree from 2 elements`(hashFunction: MerkleHashFunction) {
+        @EnumSource(HashMethod::class)
+        fun `build merkle tree from 2 elements`(hashFunction: HashMethod) {
             val leaves = listOf(Felt.ONE, Felt.fromHex("0x2"))
             val tree = MerkleTree(leaves, hashFunction)
 
@@ -74,8 +74,8 @@ internal class MerkleTreeTest {
         }
 
         @ParameterizedTest
-        @EnumSource(MerkleHashFunction::class)
-        fun `build merkle tree from 4 elements`(hashFunction: MerkleHashFunction) {
+        @EnumSource(HashMethod::class)
+        fun `build merkle tree from 4 elements`(hashFunction: HashMethod) {
             val leaves = (1..4).map { Felt.fromHex("0x$it") }
             val tree = MerkleTree(leaves, hashFunction)
 
@@ -89,8 +89,8 @@ internal class MerkleTreeTest {
         }
 
         @ParameterizedTest
-        @EnumSource(MerkleHashFunction::class)
-        fun `build merkle tree from 6 elements`(hashFunction: MerkleHashFunction) {
+        @EnumSource(HashMethod::class)
+        fun `build merkle tree from 6 elements`(hashFunction: HashMethod) {
             val leaves = (1..6).map { Felt.fromHex("0x$it") }
             val tree = MerkleTree(leaves, hashFunction)
 
@@ -113,8 +113,8 @@ internal class MerkleTreeTest {
         }
 
         @ParameterizedTest
-        @EnumSource(MerkleHashFunction::class)
-        fun `build merkle tree from 7 elements`(hashFunction: MerkleHashFunction) {
+        @EnumSource(HashMethod::class)
+        fun `build merkle tree from 7 elements`(hashFunction: HashMethod) {
             val leaves = (1..7).map { Felt.fromHex("0x$it") }
             val tree = MerkleTree(leaves, hashFunction)
 
