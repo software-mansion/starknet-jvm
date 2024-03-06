@@ -216,7 +216,7 @@ data class TypedData private constructor(
             for (param in params) {
                 val typeStripped = stripPointer(param.type)
 
-                if (types.containsKey(typeStripped) && !deps.contains(typeStripped)) {
+                if (typeStripped in types && typeStripped !in deps) {
                     deps.add(typeStripped)
                     toVisit.add(typeStripped)
                 }
@@ -295,11 +295,11 @@ data class TypedData private constructor(
         value: JsonElement,
         context: Context = Context(null, null),
     ): Pair<String, Felt> {
-        if (types.containsKey(typeName)) {
+        if (typeName in types) {
             return typeName to getStructHash(typeName, value as JsonObject)
         }
 
-        if (types.containsKey(stripPointer(typeName))) {
+        if (stripPointer(typeName) in types) {
             val array = value as JsonArray
             val hashes = array.map { struct -> getStructHash(stripPointer(typeName), struct as JsonObject) }
             val hash = hashArray(hashes)
