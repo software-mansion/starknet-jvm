@@ -257,7 +257,7 @@ internal class TypedDataTest {
         ) {
             TypedData(
                 mapOf(
-                    "house" to listOf(TypedData.Type("fridge", "ice cream")),
+                    "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
                 ),
                 "felt",
                 "{}",

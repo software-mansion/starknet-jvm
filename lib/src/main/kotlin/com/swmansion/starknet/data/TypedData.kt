@@ -101,7 +101,7 @@ enum class TypedDataRevision(val value: Felt) {
 @Serializable
 data class TypedData private constructor(
     @SerialName("types")
-    val customTypes: Map<String, List<TypeBase>>,
+    val customTypes: Map<String, List<Type>>,
 
     val primaryType: String,
 
@@ -110,7 +110,7 @@ data class TypedData private constructor(
     val message: JsonObject,
 ) {
     constructor(
-        customTypes: Map<String, List<TypeBase>>,
+        customTypes: Map<String, List<Type>>,
         primaryType: String,
         domain: String,
         message: String,
@@ -124,7 +124,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: TypedDataRevision.V0
 
     @Transient
-    val types: Map<String, List<TypeBase>> = run {
+    val types: Map<String, List<Type>> = run {
         val presetTypes = when (revision) {
             TypedDataRevision.V0 -> presetTypesV0
             TypedDataRevision.V1 -> presetTypesV1
@@ -132,9 +132,11 @@ data class TypedData private constructor(
         customTypes + presetTypes
     }
 
-    private val hashMethod = when (revision) {
-        TypedDataRevision.V0 -> HashMethod.PEDERSEN
-        TypedDataRevision.V1 -> HashMethod.POSEIDON
+    private val hashMethod by lazy {
+        when (revision) {
+            TypedDataRevision.V0 -> HashMethod.PEDERSEN
+            TypedDataRevision.V1 -> HashMethod.POSEIDON
+        }
     }
 
     init {
@@ -145,6 +147,7 @@ data class TypedData private constructor(
 
     private fun verifyTypes() {
     private fun verifyTypes(types: Map<String, List<TypeBase>>) {
+    private fun verifyTypes(types: Map<String, List<Type>>) {
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
             TypedDataRevision.V1 -> reservedTypesV1
@@ -157,7 +160,7 @@ data class TypedData private constructor(
             when (it) {
                 is EnumType -> extractEnumTypes(it.type) + it.contains
                 is MerkleTreeType -> listOf(it.contains)
-                is Type -> listOf(stripPointer(it.type))
+                is StandardType -> listOf(stripPointer(it.type))
             }
         }.distinct() + domain.separatorName + primaryType
 
@@ -184,23 +187,23 @@ data class TypedData private constructor(
     }
 
     @Serializable(with = TypedDataTypeBaseSerializer::class)
-    sealed class TypeBase {
+    sealed class Type {
         abstract val name: String
         abstract val type: String
     }
 
     @Serializable
-    data class Type(
+    data class StandardType(
         override val name: String,
         override val type: String,
-    ) : TypeBase()
+    ) : Type()
 
     @Serializable
     data class MerkleTreeType(
         override val name: String,
         override val type: String = "merkletree",
         val contains: String,
-    ) : TypeBase() {
+    ) : Type() {
         init {
             require(!contains.isArray()) {
                 "Merkletree 'contains' field cannot be an array, got '$contains' in type '$name'."
@@ -213,7 +216,7 @@ data class TypedData private constructor(
         override val name: String,
         override val type: String = "enum",
         val contains: String,
-    ) : TypeBase()
+    ) : Type()
 
     data class Context(
         val parent: String?,
@@ -407,21 +410,21 @@ data class TypedData private constructor(
             reservedTypesV0 + listOf("enum", "bool", "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + presetTypesV1.keys
         }
 
-        private val presetTypesV0: Map<String, List<TypeBase>> by lazy { emptyMap() }
+        private val presetTypesV0: Map<String, List<Type>> by lazy { emptyMap() }
 
-        private val presetTypesV1: Map<String, List<TypeBase>> by lazy {
+        private val presetTypesV1: Map<String, List<Type>> by lazy {
             mapOf(
                 "u256" to listOf(
-                    Type("low", "u128"),
-                    Type("high", "u128"),
+                    StandardType("low", "u128"),
+                    StandardType("high", "u128"),
                 ),
                 "TokenAmount" to listOf(
-                    Type("token_address", "ContractAddress"),
-                    Type("amount", "u256"),
+                    StandardType("token_address", "ContractAddress"),
+                    StandardType("amount", "u256"),
                 ),
                 "NftId" to listOf(
-                    Type("collection_address", "ContractAddress"),
-                    Type("token_id", "u256"),
+                    StandardType("collection_address", "ContractAddress"),
+                    StandardType("token_id", "u256"),
                 ),
             )
         }
