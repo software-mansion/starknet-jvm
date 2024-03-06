@@ -145,8 +145,6 @@ data class TypedData private constructor(
 
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
-    private fun verifyTypes() {
-    private fun verifyTypes(types: Map<String, List<TypeBase>>) {
     private fun verifyTypes(types: Map<String, List<Type>>) {
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
