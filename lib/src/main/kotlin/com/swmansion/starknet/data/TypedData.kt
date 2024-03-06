@@ -140,21 +140,26 @@ data class TypedData private constructor(
     }
 
     init {
-        verifyTypes(customTypes)
+        verifyTypes()
     }
 
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
-    private fun verifyTypes(types: Map<String, List<Type>>) {
+    private fun escapeTypeString(type: String) = when (revision) {
+        TypedDataRevision.V0 -> type
+        TypedDataRevision.V1 -> "\"$type\""
+    }
+
+    private fun verifyTypes() {
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
             TypedDataRevision.V1 -> reservedTypesV1
         }
-        reservedTypes.forEach { require(it !in types) { "Types must not contain $it." } }
+        reservedTypes.forEach { require(it !in customTypes) { "Types must not contain $it." } }
 
-        require(domain.separatorName in types) { "Types must contain ${domain.separatorName}." }
+        require(domain.separatorName in customTypes) { "Types must contain ${domain.separatorName}." }
 
-        val referencedTypes = types.values.flatten().flatMap {
+        val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
                 is EnumType -> extractEnumTypes(it.type) + it.contains
                 is MerkleTreeType -> listOf(it.contains)
@@ -162,7 +167,7 @@ data class TypedData private constructor(
             }
         }.distinct() + domain.separatorName + primaryType
 
-        types.keys.forEach {
+        customTypes.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
             require(!it.isArray()) { "Types cannot end in *. $it was found." }
             require(!it.startsWith("(") || !it.endsWith(")")) { "Types cannot be enclosed in parenthesis. $it was found." }
