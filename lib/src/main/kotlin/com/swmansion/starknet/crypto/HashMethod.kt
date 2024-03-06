@@ -8,7 +8,7 @@ enum class HashMethod {
             return StarknetCurve.pedersen(first, second)
         }
         override fun hash(values: List<Felt>): Felt {
-            return StarknetCurve.pedersen(values)
+            return StarknetCurve.pedersenOnElements(values)
         }
     },
     POSEIDON {
