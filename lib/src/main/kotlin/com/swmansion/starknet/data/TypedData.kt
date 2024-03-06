@@ -187,7 +187,7 @@ data class TypedData private constructor(
         val contains: String,
     ) : TypeBase() {
         init {
-            require(!contains.endsWith("*")) {
+            require(!contains.isArray()) {
                 "Merkletree 'contains' field cannot be an array, got '$contains' in type '$name'."
             }
         }
