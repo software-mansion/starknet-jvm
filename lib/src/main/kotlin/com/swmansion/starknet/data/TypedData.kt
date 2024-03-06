@@ -136,7 +136,7 @@ data class TypedData private constructor(
 
         types.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
-            require(!it.endsWith("*")) { "Types cannot end in *. $it was found." }
+            require(!it.isArray()) { "Types cannot end in *. $it was found." }
             require(!it.startsWith("(") || !it.endsWith(")")) { "Types cannot be enclosed in parenthesis. $it was found." }
             require(!it.contains(",")) { "Types cannot contain commas. $it was found." }
             require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type $it was found." }
@@ -394,3 +394,7 @@ data class TypedData private constructor(
             Json.decodeFromString(serializer(), typedData)
     }
 }
+
+internal fun String.isArray() = endsWith("*")
+
+internal fun String.isEnum() = startsWith("(") && endsWith(")")
