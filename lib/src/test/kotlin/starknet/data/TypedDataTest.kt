@@ -278,12 +278,12 @@ internal class TypedDataTest {
     @MethodSource("getStructHashArguments")
     fun `struct hash calculation`(data: TypedData, typeName: String, dataSource: String, expectedResult: String) {
         val dataStruct = if (dataSource == "domain") {
-            data.domain
+            Json.encodeToString(data.domain)
         } else {
-            data.message
+            Json.encodeToString(data.message)
         }
 
-        val hash = data.getStructHash(typeName, Json.encodeToString(dataStruct))
+        val hash = data.getStructHash(typeName, dataStruct)
 
         assertEquals(Felt.fromHex(expectedResult), hash)
     }

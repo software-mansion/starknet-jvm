@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data
 
+import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
@@ -100,10 +101,10 @@ enum class TypedDataRevision(val value: Felt) {
 data class TypedData private constructor(
     val types: Map<String, List<TypeBase>>,
     val primaryType: String,
-    val domain: JsonObject,
+    val domain: Domain,
     val message: JsonObject,
 ) {
-    private val revision = Json.decodeFromJsonElement<Domain>(domain).revision ?: TypedDataRevision.V0
+    private val revision = domain.revision ?: TypedDataRevision.V0
 
     private val domainSeparatorName = when (revision) {
         TypedDataRevision.V0 -> "StarkNetDomain"
@@ -147,7 +148,7 @@ data class TypedData private constructor(
     ) : this(
         types = types,
         primaryType = primaryType,
-        domain = Json.parseToJsonElement(domain).jsonObject,
+        domain = Json.decodeFromString(domain),
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
@@ -364,7 +365,7 @@ data class TypedData private constructor(
     fun getMessageHash(accountAddress: Felt): Felt {
         return StarknetCurve.pedersenOnElements(
             Felt.fromShortString("StarkNet Message"),
-            getStructHash("StarkNetDomain", domain),
+            getStructHash("StarkNetDomain", Json.encodeToJsonElement(domain).jsonObject),
             accountAddress,
             getStructHash(primaryType, message),
         )
