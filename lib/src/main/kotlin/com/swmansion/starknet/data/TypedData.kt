@@ -106,11 +106,6 @@ data class TypedData private constructor(
 ) {
     private val revision = domain.revision ?: TypedDataRevision.V0
 
-    private val domainSeparatorName = when (revision) {
-        TypedDataRevision.V0 -> "StarkNetDomain"
-        TypedDataRevision.V1 -> "StarknetDomain"
-    }
-
     private val hashMethod = when (revision) {
         TypedDataRevision.V0 -> HashMethod.PEDERSEN
         TypedDataRevision.V1 -> HashMethod.POSEIDON
@@ -129,7 +124,7 @@ data class TypedData private constructor(
         }
         reservedTypes.forEach { require(it !in types) { "Types must not contain $it." } }
 
-        require(domainSeparatorName in types) { "Types must contain $domainSeparatorName." }
+        require(domain.separatorName in types) { "Types must contain ${domain.separatorName}." }
 
         val referencedTypes = types.values.flatten().flatMap {
             when (it) {
@@ -137,7 +132,7 @@ data class TypedData private constructor(
                 is MerkleTreeType -> listOf(it.contains)
                 is Type -> listOf(stripPointer(it.type))
             }
-        }.distinct() + domainSeparatorName + primaryType
+        }.distinct() + domain.separatorName + primaryType
 
         types.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
@@ -166,7 +161,12 @@ data class TypedData private constructor(
         val version: JsonPrimitive,
         val chainId: JsonPrimitive,
         val revision: TypedDataRevision? = null,
-    )
+    ) {
+        val separatorName = when (revision ?: TypedDataRevision.V0) {
+            TypedDataRevision.V0 -> "StarkNetDomain"
+            TypedDataRevision.V1 -> "StarknetDomain"
+        }
+    }
 
     @Serializable(with = TypedDataTypeBaseSerializer::class)
     sealed class TypeBase {
