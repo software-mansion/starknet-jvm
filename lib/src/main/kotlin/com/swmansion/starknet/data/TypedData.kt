@@ -145,11 +145,6 @@ data class TypedData private constructor(
 
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
-    private fun escape(typeName: String) = when (revision) {
-        TypedDataRevision.V0 -> typeName
-        TypedDataRevision.V1 -> "\"$typeName\""
-    }
-
     private fun verifyTypes() {
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
@@ -263,6 +258,11 @@ data class TypedData private constructor(
     }
 
     private fun encodeDependency(dependency: String): String {
+        fun escape(typeName: String) = when (revision) {
+            TypedDataRevision.V0 -> typeName
+            TypedDataRevision.V1 -> "\"$typeName\""
+        }
+
         val fields = types.getOrElse(dependency) {
             throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
         }
