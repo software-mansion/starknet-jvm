@@ -215,10 +215,19 @@ data class TypedData private constructor(
 
             for (param in params) {
                 val typeStripped = stripPointer(param.type)
+            params.forEach { param ->
+                val extractedTypes = when {
 
-                if (typeStripped in types && typeStripped !in deps) {
-                    deps.add(typeStripped)
-                    toVisit.add(typeStripped)
+                    param is EnumType && revision == TypedDataRevision.V1 -> listOf(param.contains)
+                    param.type.isEnum() && revision == TypedDataRevision.V1 -> extractEnumTypes(param.type)
+                    else -> listOf(param.type)
+                }.map { stripPointer(it) }
+
+                extractedTypes.forEach {
+                    if (it in types && it !in deps) {
+                        deps.add(it)
+                        toVisit.add(it)
+                    }
                 }
             }
         }
