@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data
 
-import com.swmansion.starknet.crypto.Poseidon
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
@@ -110,9 +110,17 @@ data class TypedData private constructor(
         TypedDataRevision.V0 -> "StarkNetDomain"
         TypedDataRevision.V1 -> "StarknetDomain"
     }
+
+    private val hashMethod = when (revision) {
+        TypedDataRevision.V0 -> HashMethod.PEDERSEN
+        TypedDataRevision.V1 -> HashMethod.POSEIDON
+    }
+
     init {
         verifyTypes()
     }
+
+    private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
     private fun verifyTypes() {
         val reservedTypes = when (revision) {
@@ -294,7 +302,7 @@ data class TypedData private constructor(
         if (types.containsKey(stripPointer(typeName))) {
             val array = value as JsonArray
             val hashes = array.map { struct -> getStructHash(stripPointer(typeName), struct as JsonObject) }
-            val hash = StarknetCurve.pedersenOnElements(hashes)
+            val hash = hashArray(hashes)
 
             return typeName to hash
         }
@@ -303,7 +311,7 @@ data class TypedData private constructor(
             "felt*" -> {
                 val array = value as JsonArray
                 val feltArray = array.map { feltFromPrimitive(it.jsonPrimitive) }
-                val hash = StarknetCurve.pedersenOnElements(feltArray)
+                val hash = hashArray(feltArray)
                 typeName to hash
             }
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
@@ -314,7 +322,7 @@ data class TypedData private constructor(
                 val merkleTreeType = getMerkleTreeType(context)
                 val array = value as JsonArray
                 val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
-                val root = MerkleTree(structHashes).rootHash
+                val root = MerkleTree(structHashes, hashMethod).rootHash
                 "merkletree" to root
             }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
@@ -343,7 +351,7 @@ data class TypedData private constructor(
     private fun getStructHash(typeName: String, data: JsonObject): Felt {
         val encodedData = encodeData(typeName, data)
 
-        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
+        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
     private fun stripPointer(value: String): String {
@@ -359,7 +367,7 @@ data class TypedData private constructor(
     fun getStructHash(typeName: String, data: String): Felt {
         val encodedData = encodeData(typeName, Json.parseToJsonElement(data).jsonObject)
 
-        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
+        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
