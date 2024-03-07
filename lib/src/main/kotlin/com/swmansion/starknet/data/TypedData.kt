@@ -21,12 +21,12 @@ import kotlinx.serialization.json.*
  * [V1] - Initial and current revision, represents the spec after [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
  */
 @Serializable
-enum class TypedDataRevision(val value: Felt) {
+enum class TypedDataRevision(val value: Int) {
     @SerialName("0")
-    V0(Felt.ZERO),
+    V0(0),
 
     @SerialName("1")
-    V1(Felt.ONE),
+    V1(1),
 }
 
 /**
