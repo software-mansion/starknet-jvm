@@ -472,10 +472,10 @@ data class TypedData private constructor(
     }
 
     companion object {
-        private val reservedTypesV0 by lazy { listOf("felt", "bool", "string", "selector", "merkletree", "raw") }
+        private val reservedTypesV0 by lazy { setOf("felt", "bool", "string", "selector", "merkletree", "raw") }
 
         private val reservedTypesV1 by lazy {
-            reservedTypesV0 + listOf("enum", "bool", "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + presetTypesV1.keys
+            reservedTypesV0 + setOf("enum", "bool", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + presetTypesV1.keys
         }
 
         private val presetTypesV0: Map<String, List<Type>> by lazy { emptyMap() }
