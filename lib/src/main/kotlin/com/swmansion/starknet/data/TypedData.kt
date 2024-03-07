@@ -372,10 +372,6 @@ data class TypedData private constructor(
 
                 "enum" to hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
             }
-            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
-            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
-            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
             "merkletree" -> {
                 val merkleTreeType = getMerkleTreeType(context)
                 val array = value as JsonArray
@@ -383,6 +379,11 @@ data class TypedData private constructor(
                 val root = MerkleTree(structHashes, hashMethod).rootHash
                 "felt" to root
             }
+            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
+            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
+            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
+            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
+
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
         }
     }
