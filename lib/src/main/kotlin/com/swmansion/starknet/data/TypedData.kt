@@ -5,6 +5,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
+import com.swmansion.starknet.extensions.splitToShortStrings
 import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -306,6 +307,25 @@ data class TypedData private constructor(
         }
     }
 
+    private fun prepareLongString(string: String): Felt {
+        val shortStrings = string.splitToShortStrings()
+
+        val encodedShortStrings = shortStrings.map(Felt::fromShortString)
+
+        val (data, pendingWord, pendingWordLength) = when {
+            shortStrings.isEmpty() -> Triple(listOf(Felt.ZERO), Felt.ZERO, 0)
+            shortStrings.last().length == 31 -> Triple(encodedShortStrings, Felt.ZERO, 0)
+            else -> Triple(
+                encodedShortStrings.dropLast(1),
+                encodedShortStrings.last(),
+                shortStrings.last().length,
+            )
+        }
+
+        val elements = listOf(data.size.toFelt) + data + listOf(pendingWord, pendingWordLength.toFelt)
+        return hashArray(elements)
+    }
+
     private fun prepareSelector(name: String): Felt {
         return try {
             Felt.fromHex(name)
@@ -379,8 +399,11 @@ data class TypedData private constructor(
                 val root = MerkleTree(structHashes, hashMethod).rootHash
                 "felt" to root
             }
+            "string" -> when (revision) {
+                TypedDataRevision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
+                TypedDataRevision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
+            }
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
 
