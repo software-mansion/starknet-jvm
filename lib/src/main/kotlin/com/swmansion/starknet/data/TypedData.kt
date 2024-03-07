@@ -5,6 +5,7 @@ import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
+import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -347,6 +348,30 @@ data class TypedData private constructor(
         }
 
         return when (typeName) {
+            "enum" -> {
+                require(revision == TypedDataRevision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+
+                val (variantKey, variantData) = value.jsonObject.entries.single()
+                val parent = context.parent ?: throw IllegalArgumentException("Parent is not defined for 'enum' type.")
+                val parentType = types.getOrElse(parent) {
+                    throw IllegalArgumentException("Parent '$parent' is not defined in types.")
+                }.first()
+                require(parentType is EnumType)
+                val enumType = types.getOrElse(parentType.contains) { throw IllegalArgumentException("Type '${parentType.contains}' is not defined in types") }
+                val variantType = enumType.find { it.name == variantKey }
+                    ?: throw IllegalArgumentException("Key '$variantKey' is not defined in parent '$parent'.")
+
+                val variantIndex = extractEnumTypes(variantType.type).indexOf(variantData.jsonPrimitive.content)
+
+                val encodedSubtypes = extractEnumTypes(variantType.type)
+                    .filter { it.isNotEmpty() }
+                    .mapIndexed { index, subtype ->
+                        val subtypeData = variantData.jsonArray[index]
+                        encodeValue(subtype, subtypeData).second
+                    }
+
+                "enum" to hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
+            }
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
