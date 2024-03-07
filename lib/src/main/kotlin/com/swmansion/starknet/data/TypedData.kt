@@ -335,24 +335,18 @@ data class TypedData private constructor(
         context: Context = Context(null, null),
     ): Pair<String, Felt> {
         if (typeName in types) {
-            return typeName to getStructHash(typeName, value as JsonObject)
+            return typeName to getStructHash(typeName, value.jsonObject)
         }
 
-        if (stripPointer(typeName) in types) {
-            val array = value as JsonArray
-            val hashes = array.map { struct -> getStructHash(stripPointer(typeName), struct as JsonObject) }
-            val hash = hashArray(hashes)
+        if (typeName.isArray()) {
+            val hashes = value.jsonArray.map {
+                encodeValue(stripPointer(typeName), it).second
+            }
 
-            return typeName to hash
+            return typeName to hashArray(hashes)
         }
 
         return when (typeName) {
-            "felt*" -> {
-                val array = value as JsonArray
-                val feltArray = array.map { feltFromPrimitive(it.jsonPrimitive) }
-                val hash = hashArray(feltArray)
-                typeName to hash
-            }
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
@@ -362,7 +356,7 @@ data class TypedData private constructor(
                 val array = value as JsonArray
                 val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
                 val root = MerkleTree(structHashes, hashMethod).rootHash
-                "merkletree" to root
+                "felt" to root
             }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
         }
