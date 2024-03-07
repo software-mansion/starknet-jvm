@@ -463,7 +463,7 @@ data class TypedData private constructor(
     fun getMessageHash(accountAddress: Felt): Felt {
         return StarknetCurve.pedersenOnElements(
             Felt.fromShortString("StarkNet Message"),
-            getStructHash("StarkNetDomain", Json.encodeToJsonElement(domain).jsonObject),
+            getStructHash(domain.separatorName, Json.encodeToJsonElement(domain).jsonObject),
             accountAddress,
             getStructHash(primaryType, message),
         )
