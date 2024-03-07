@@ -295,6 +295,11 @@ data class TypedData private constructor(
                     return Felt(it)
                 }
 
+                val boolean = primitive.booleanOrNull
+                boolean?.let {
+                    return Felt(if (it) 1 else 0)
+                }
+
                 return try {
                     Felt.fromHex(primitive.content)
                 } catch (e: Exception) {
@@ -406,7 +411,10 @@ data class TypedData private constructor(
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-
+            "bool", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
+                require(revision == TypedDataRevision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
+                typeName to feltFromPrimitive(value.jsonPrimitive)
+            }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
         }
     }
