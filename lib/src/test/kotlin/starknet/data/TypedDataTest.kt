@@ -3,6 +3,7 @@ package starknet.data
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.TypedData.Context
 import com.swmansion.starknet.data.TypedData.MerkleTreeType
+import com.swmansion.starknet.data.TypedDataRevision
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
@@ -10,12 +11,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 
 fun loadTypedData(name: String): TypedData {
@@ -237,16 +239,61 @@ internal class TypedDataTest {
         }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["felt", "string", "selector", "merkletree", "felt*", "string*", "selector*", "merkletree*"])
-    fun `invalid types`(type: String) {
-        assertThrows<IllegalArgumentException>("Types must not contain $type.") {
-            TypedData(
-                customTypes = mapOf(type to emptyList()),
-                primaryType = type,
-                domain = "{}",
-                message = "{\"$type\": 1}",
-            )
+    @Nested
+    inner class InvalidTypesTest {
+        private val domainTypeV0 = "StarkNetDomain" to listOf(
+            TypedData.StandardType("name", "felt"),
+            TypedData.StandardType("version", "felt"),
+            TypedData.StandardType("chainId", "felt"),
+        )
+        private val domainTypeV1 = "StarknetDomain" to listOf(
+            TypedData.StandardType("name", "shortstring"),
+            TypedData.StandardType("version", "shortstring"),
+            TypedData.StandardType("chainId", "shortstring"),
+            TypedData.StandardType("revision", "shortstring"),
+        )
+        private val domainObjectV0 = """
+            {
+                "name": "DomainV0",
+                "version": 1,
+                "chainId": 2137
+            }
+        """.trimIndent()
+        private val domainObjectV1 = """
+            {
+                "name": "DomainV1",
+                "version": "1",
+                "chainId": "2137",
+                "revision": "1"
+            }
+        """.trimIndent()
+
+        private val reservedTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
+        private val reservedTypesV1 = reservedTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring", "u256", "TokenAmount", "NftId")
+
+        @ParameterizedTest
+        @EnumSource(TypedDataRevision::class)
+        fun `redefined basic types`(revision: TypedDataRevision) {
+            val (domainType, domainObject, types) = when (revision) {
+                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, reservedTypesV0)
+                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, reservedTypesV1)
+            }
+
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    TypedData(
+                        customTypes = mapOf(
+                            type to emptyList(),
+                            domainType,
+                        ),
+                        primaryType = type,
+                        domain = domainObject,
+                        message = "{\"$type\": 1}",
+                    )
+                }
+
+                assertEquals("Types must not contain $type.", exception.message)
+            }
         }
     }
 
