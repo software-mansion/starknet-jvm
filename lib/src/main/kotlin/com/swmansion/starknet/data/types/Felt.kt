@@ -99,5 +99,24 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
             return true
         }
+
+        @JvmStatic
+        internal fun fromSigned(value: BigInteger): Felt {
+            if (value < BigInteger.ZERO) {
+                require(-value < PRIME) { "Values below -Felt.PRIME are not supported, $value given." }
+                return Felt(PRIME + value)
+            }
+            return Felt(value)
+        }
+
+        @JvmStatic
+        internal fun fromSigned(value: Long): Felt {
+            return fromSigned(BigInteger.valueOf(value))
+        }
+
+        @JvmStatic
+        internal fun fromSigned(value: Int): Felt {
+            return fromSigned(BigInteger.valueOf(value.toLong()))
+        }
     }
 }
