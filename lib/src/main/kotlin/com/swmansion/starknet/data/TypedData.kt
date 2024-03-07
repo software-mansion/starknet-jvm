@@ -148,13 +148,13 @@ data class TypedData private constructor(
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
     private fun verifyTypes() {
+        require(domain.separatorName in customTypes) { "Types must contain ${domain.separatorName}." }
+
         val reservedTypes = when (revision) {
             TypedDataRevision.V0 -> reservedTypesV0
             TypedDataRevision.V1 -> reservedTypesV1
         }
         reservedTypes.forEach { require(it !in customTypes) { "Types must not contain $it." } }
-
-        require(domain.separatorName in customTypes) { "Types must contain ${domain.separatorName}." }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
