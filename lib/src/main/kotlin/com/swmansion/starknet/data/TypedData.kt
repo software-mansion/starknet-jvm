@@ -283,7 +283,7 @@ data class TypedData private constructor(
         return "$dependency($encodedFields)"
     }
 
-    private fun feltFromPrimitive(primitive: JsonPrimitive): Felt {
+    private fun feltFromPrimitive(primitive: JsonPrimitive, allowSigned: Boolean = false): Felt {
         when (primitive.isString) {
             true -> {
                 if (primitive.content == "") {
@@ -292,7 +292,7 @@ data class TypedData private constructor(
 
                 val decimal = primitive.content.toBigIntegerOrNull()
                 decimal?.let {
-                    return Felt(it)
+                    return if (allowSigned) Felt.fromSigned(it) else Felt(it)
                 }
 
                 val boolean = primitive.booleanOrNull
@@ -307,7 +307,7 @@ data class TypedData private constructor(
                 }
             }
             false -> {
-                return Felt(primitive.long)
+                return if (allowSigned) return Felt.fromSigned(primitive.long) else Felt(primitive.long)
             }
         }
     }
@@ -411,7 +411,9 @@ data class TypedData private constructor(
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            "bool", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
+            "bool" -> "bool" to feltFromPrimitive(value.jsonPrimitive)
+            "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
                 require(revision == TypedDataRevision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
                 typeName to feltFromPrimitive(value.jsonPrimitive)
             }
