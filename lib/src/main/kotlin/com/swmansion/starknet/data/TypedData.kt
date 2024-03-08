@@ -153,7 +153,6 @@ data class TypedData private constructor(
         getBasicTypes(revision).forEach { require(it !in customTypes) { "Types must not contain basic types. [$it] was found." } }
         getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
 
-
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
                 is EnumType -> extractEnumTypes(it.type) + it.contains

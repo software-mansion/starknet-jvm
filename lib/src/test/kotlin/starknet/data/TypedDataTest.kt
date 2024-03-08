@@ -269,7 +269,7 @@ internal class TypedDataTest {
         """.trimIndent()
 
         private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
-        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring", )
+        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
         private val presetTypesV0 = emptySet<String>()
         private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
 
