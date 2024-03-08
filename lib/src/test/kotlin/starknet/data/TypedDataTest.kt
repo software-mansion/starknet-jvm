@@ -20,8 +20,8 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 
-internal fun loadTypedData(name: String): TypedData {
-    val content = File("src/test/resources/typed-data/$name").readText()
+internal fun loadTypedData(path: String): TypedData {
+    val content = File("src/test/resources/typed_data/$path").readText()
 
     return TypedData.fromJsonString(content)
 }
@@ -31,12 +31,12 @@ internal class TypedDataTest {
     companion object {
         internal class CasesRev0 {
             companion object {
-                val TD by lazy { loadTypedData("typed_data_example.json") }
-                val TD_FELT_ARR by lazy { loadTypedData("typed_data_felt_array_example.json") }
-                val TD_STRING by lazy { loadTypedData("typed_data_long_string_example.json") }
-                val TD_STRUCT_ARR by lazy { loadTypedData("typed_data_struct_array_example.json") }
-                val TD_SESSION by lazy { loadTypedData("typed_data_session_example.json") }
-                val TD_VALIDATE by lazy { loadTypedData("typed_data_validate_example.json") }
+                val TD by lazy { loadTypedData("rev_0/typed_data_example.json") }
+                val TD_FELT_ARR by lazy { loadTypedData("rev_0/typed_data_felt_array_example.json") }
+                val TD_STRING by lazy { loadTypedData("rev_0/typed_data_long_string_example.json") }
+                val TD_STRUCT_ARR by lazy { loadTypedData("rev_0/typed_data_struct_array_example.json") }
+                val TD_SESSION by lazy { loadTypedData("rev_0/typed_data_session_example.json") }
+                val TD_VALIDATE by lazy { loadTypedData("rev_0/typed_data_validate_example.json") }
             }
         }
 
