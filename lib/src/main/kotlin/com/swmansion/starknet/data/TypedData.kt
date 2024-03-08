@@ -277,7 +277,7 @@ data class TypedData private constructor(
             "${it.name}:$typeString"
         }
 
-        return "$dependency($encodedFields)"
+        return "${escape(dependency)}($encodedFields)"
     }
 
     private fun feltFromPrimitive(primitive: JsonPrimitive, allowSigned: Boolean = false): Felt {
