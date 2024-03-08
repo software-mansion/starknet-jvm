@@ -276,22 +276,14 @@ internal class TypedDataTest {
         @ParameterizedTest
         @EnumSource(Revision::class)
         fun `basic types redefinition`(revision: Revision) {
-            val (domainType, domainObject, types) = when (revision) {
-                Revision.V0 -> Triple(domainTypeV0, domainObjectV0, basicTypesV0)
-                Revision.V1 -> Triple(domainTypeV1, domainObjectV1, basicTypesV1)
+            val types = when (revision) {
+                Revision.V0 -> basicTypesV0
+                Revision.V1 -> basicTypesV1
             }
 
             types.forEach { type ->
                 val exception = assertThrows<IllegalArgumentException> {
-                    TypedData(
-                        customTypes = mapOf(
-                            domainType,
-                            type to emptyList(),
-                        ),
-                        primaryType = type,
-                        domain = domainObject,
-                        message = "{\"$type\": 1}",
-                    )
+                    makeTypedData(revision, type)
                 }
                 assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
             }
@@ -300,25 +292,87 @@ internal class TypedDataTest {
         @ParameterizedTest
         @EnumSource(Revision::class)
         fun `preset types redefinition`(revision: Revision) {
-            val (domainType, domainObject, types) = when (revision) {
-                Revision.V0 -> Triple(domainTypeV0, domainObjectV0, presetTypesV0)
-                Revision.V1 -> Triple(domainTypeV1, domainObjectV1, presetTypesV1)
+            val types = when (revision) {
+                Revision.V0 -> presetTypesV0
+                Revision.V1 -> presetTypesV1
             }
 
             types.forEach { type ->
                 val exception = assertThrows<IllegalArgumentException> {
-                    TypedData(
-                        customTypes = mapOf(
-                            domainType,
-                            type to emptyList(),
-                        ),
-                        primaryType = type,
-                        domain = domainObject,
-                        message = "{\"$type\": 1}",
-                    )
+                    makeTypedData(revision, type)
                 }
                 assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
             }
+        }
+
+        @Test
+        fun `type with asterisk`() {
+            val types = listOf("felt*", "u256*", "mytype*")
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(Revision.V1, type)
+                }
+                assertEquals("Types cannot end in *. [$type] was found.", exception.message)
+            }
+        }
+
+        @Test
+        fun `type with parentheses`() {
+            val types = listOf("(left", "right)", "(both)")
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(Revision.V1, type)
+                }
+                assertEquals("Types cannot be enclosed in parentheses. [$type] was found.", exception.message)
+            }
+        }
+
+        @Test
+        fun `type with commas`() {
+            val types = listOf(",mytype", "my,type", "mytype,")
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(Revision.V1, type)
+                }
+                assertEquals("Types cannot contain commas. [$type] was found.", exception.message)
+            }
+        }
+
+        @Test
+        fun `dangling types`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                TypedData(
+                    customTypes = mapOf(
+                        domainTypeV1,
+                        "dangling" to emptyList(),
+                        "mytype" to emptyList(),
+                    ),
+                    primaryType = "mytype",
+                    domain = domainObjectV1,
+                    message = "{\"mytype\": 1}",
+                )
+            }
+            assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
+        }
+
+        private fun makeTypedData(
+            revision: Revision,
+            includedType: String,
+        ) {
+            val (domainType, domainObject) = when (revision) {
+                Revision.V0 -> domainTypeV0 to domainObjectV0
+                Revision.V1 -> domainTypeV1 to domainObjectV1
+            }
+
+            TypedData(
+                customTypes = mapOf(
+                    domainType,
+                    includedType to emptyList(),
+                ),
+                primaryType = includedType,
+                domain = domainObject,
+                message = "{\"$includedType\": 1}",
+            )
         }
     }
 
