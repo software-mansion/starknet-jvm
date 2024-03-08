@@ -177,7 +177,7 @@ data class TypedData private constructor(
         val chainId: JsonPrimitive,
         val revision: Revision? = null,
     ) {
-        val separatorName = when (revision ?: Revision.V0) {
+        internal val separatorName = when (revision ?: Revision.V0) {
             Revision.V0 -> "StarkNetDomain"
             Revision.V1 -> "StarknetDomain"
         }
