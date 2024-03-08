@@ -133,6 +133,18 @@ internal class TypedDataTest {
     }
 
     @Test
+    fun `encode type`() {
+        assertEquals(
+            "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)",
+            CasesRev0.TD.encodeType("Mail"),
+        )
+        assertEquals(
+            "Mail(from:Person,to:Person,posts_len:felt,posts:Post*)Person(name:felt,wallet:felt)Post(title:felt,content:felt)",
+            CasesRev0.TD_STRUCT_ARR.encodeType("Mail"),
+        )
+    }
+
+    @Test
     fun `selector type`() {
         val selector = "transfer"
         val selectorHash = selectorFromName(selector)

@@ -247,7 +247,7 @@ data class TypedData private constructor(
         return deps
     }
 
-    private fun encodeType(type: String): String {
+    internal fun encodeType(type: String): String {
         val deps = getDependencies(type)
 
         val sorted = deps.subList(1, deps.size).sorted()
