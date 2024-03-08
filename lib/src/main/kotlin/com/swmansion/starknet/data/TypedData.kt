@@ -150,11 +150,9 @@ data class TypedData private constructor(
     private fun verifyTypes() {
         require(domain.separatorName in customTypes) { "Types must contain ${domain.separatorName}." }
 
-        val reservedTypes = when (revision) {
-            TypedDataRevision.V0 -> reservedTypesV0
-            TypedDataRevision.V1 -> reservedTypesV1
-        }
-        reservedTypes.forEach { require(it !in customTypes) { "Types must not contain $it." } }
+        getBasicTypes(revision).forEach { require(it !in customTypes) { "Types must not contain basic types. [$it] was found." } }
+        getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
+
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
@@ -472,16 +470,31 @@ data class TypedData private constructor(
     }
 
     companion object {
-        private val reservedTypesV0 by lazy { setOf("felt", "bool", "string", "selector", "merkletree", "raw") }
-
-        private val reservedTypesV1 by lazy {
-            reservedTypesV0 + setOf("enum", "bool", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring") + presetTypesV1.keys
+        private fun getBasicTypes(revision: TypedDataRevision): Set<String> {
+            return when (revision) {
+                TypedDataRevision.V0 -> basicTypesV0
+                TypedDataRevision.V1 -> basicTypesV1
+            }
         }
 
-        private val presetTypesV0: Map<String, List<Type>> by lazy { emptyMap() }
+        private fun getPresetTypes(revision: TypedDataRevision): Map<String, List<Type>> {
+            return when (revision) {
+                TypedDataRevision.V0 -> presetTypesV0
+                TypedDataRevision.V1 -> presetTypesV1
+            }
+        }
 
-        private val presetTypesV1: Map<String, List<Type>> by lazy {
-            mapOf(
+        private val basicTypesV0: Set<String>
+            get() = setOf("felt", "bool", "string", "selector", "merkletree", "raw")
+
+        private val basicTypesV1: Set<String>
+            get() = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
+
+        private val presetTypesV0: Map<String, List<Type>>
+            get() = emptyMap()
+
+        private val presetTypesV1: Map<String, List<Type>>
+            get() = mapOf(
                 "u256" to listOf(
                     StandardType("low", "u128"),
                     StandardType("high", "u128"),
@@ -495,7 +508,6 @@ data class TypedData private constructor(
                     StandardType("token_id", "u256"),
                 ),
             )
-        }
 
         /**
          * Create TypedData from JSON string.

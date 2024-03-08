@@ -268,31 +268,56 @@ internal class TypedDataTest {
             }
         """.trimIndent()
 
-        private val reservedTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
-        private val reservedTypesV1 = reservedTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring", "u256", "TokenAmount", "NftId")
+        private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
+        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring", )
+        private val presetTypesV0 = emptySet<String>()
+        private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
 
         @ParameterizedTest
         @EnumSource(TypedDataRevision::class)
-        fun `redefined basic types`(revision: TypedDataRevision) {
+        fun `basic types redefinition`(revision: TypedDataRevision) {
             val (domainType, domainObject, types) = when (revision) {
-                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, reservedTypesV0)
-                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, reservedTypesV1)
+                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, basicTypesV0)
+                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, basicTypesV1)
             }
 
             types.forEach { type ->
                 val exception = assertThrows<IllegalArgumentException> {
                     TypedData(
                         customTypes = mapOf(
-                            type to emptyList(),
                             domainType,
+                            type to emptyList(),
                         ),
                         primaryType = type,
                         domain = domainObject,
                         message = "{\"$type\": 1}",
                     )
                 }
+                assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
+            }
+        }
 
-                assertEquals("Types must not contain $type.", exception.message)
+        @ParameterizedTest
+        @EnumSource(TypedDataRevision::class)
+        fun `preset types redefinition`(revision: TypedDataRevision) {
+            val (domainType, domainObject, types) = when (revision) {
+                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, presetTypesV0)
+                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, presetTypesV1)
+            }
+
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    TypedData(
+                        customTypes = mapOf(
+                            domainType,
+                            type to emptyList(),
+                        ),
+                        primaryType = type,
+                        domain = domainObject,
+                        message = "{\"$type\": 1}",
+                    )
+                }
+                assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
             }
         }
     }
