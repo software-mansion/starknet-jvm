@@ -30,12 +30,12 @@ internal class TypedDataTest {
 
     companion object {
 
-        private val TD = loadTypedData("typed_data_example.json")
-        private val TD_FELT_ARR = loadTypedData("typed_data_felt_array_example.json")
-        private val TD_STRING = loadTypedData("typed_data_long_string_example.json")
-        private val TD_STRUCT_ARR = loadTypedData("typed_data_struct_array_example.json")
-        private val TD_SESSION = loadTypedData("typed_data_session_example.json")
-        private val TD_VALIDATE = loadTypedData("typed_data_validate_example.json")
+        private val TD by lazy { loadTypedData("typed_data_example.json") }
+        private val TD_FELT_ARR by lazy { loadTypedData("typed_data_felt_array_example.json") }
+        private val TD_STRING by lazy { loadTypedData("typed_data_long_string_example.json") }
+        private val TD_STRUCT_ARR by lazy { loadTypedData("typed_data_struct_array_example.json") }
+        private val TD_SESSION by lazy { loadTypedData("typed_data_session_example.json") }
+        private val TD_VALIDATE by lazy { loadTypedData("typed_data_validate_example.json") }
 
         @JvmStatic
         fun getTypeHashArguments() = listOf(
