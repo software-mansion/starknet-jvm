@@ -3,7 +3,7 @@ package starknet.data
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.TypedData.Context
 import com.swmansion.starknet.data.TypedData.MerkleTreeType
-import com.swmansion.starknet.data.TypedDataRevision
+import com.swmansion.starknet.data.TypedData.Revision
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
@@ -274,11 +274,11 @@ internal class TypedDataTest {
         private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
 
         @ParameterizedTest
-        @EnumSource(TypedDataRevision::class)
-        fun `basic types redefinition`(revision: TypedDataRevision) {
+        @EnumSource(Revision::class)
+        fun `basic types redefinition`(revision: Revision) {
             val (domainType, domainObject, types) = when (revision) {
-                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, basicTypesV0)
-                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, basicTypesV1)
+                Revision.V0 -> Triple(domainTypeV0, domainObjectV0, basicTypesV0)
+                Revision.V1 -> Triple(domainTypeV1, domainObjectV1, basicTypesV1)
             }
 
             types.forEach { type ->
@@ -298,11 +298,11 @@ internal class TypedDataTest {
         }
 
         @ParameterizedTest
-        @EnumSource(TypedDataRevision::class)
-        fun `preset types redefinition`(revision: TypedDataRevision) {
+        @EnumSource(Revision::class)
+        fun `preset types redefinition`(revision: Revision) {
             val (domainType, domainObject, types) = when (revision) {
-                TypedDataRevision.V0 -> Triple(domainTypeV0, domainObjectV0, presetTypesV0)
-                TypedDataRevision.V1 -> Triple(domainTypeV1, domainObjectV1, presetTypesV1)
+                Revision.V0 -> Triple(domainTypeV0, domainObjectV0, presetTypesV0)
+                Revision.V1 -> Triple(domainTypeV1, domainObjectV1, presetTypesV1)
             }
 
             types.forEach { type ->

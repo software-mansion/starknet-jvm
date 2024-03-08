@@ -13,23 +13,6 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.*
 
 /**
- * TypedData revision.
- *
- * The revision of the specification to be used.
- *
- * [V0] - Legacy revision, represents the de facto spec before [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
- * [V1] - Initial and current revision, represents the spec after [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
- */
-@Serializable
-enum class TypedDataRevision(val value: Int) {
-    @SerialName("0")
-    V0(0),
-
-    @SerialName("1")
-    V1(1),
-}
-
-/**
  * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md).
  *
  * ```java
@@ -123,21 +106,21 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
-    private val revision = domain.revision ?: TypedDataRevision.V0
+    private val revision = domain.revision ?: Revision.V0
 
     @Transient
     val types: Map<String, List<Type>> = run {
         val presetTypes = when (revision) {
-            TypedDataRevision.V0 -> presetTypesV0
-            TypedDataRevision.V1 -> presetTypesV1
+            Revision.V0 -> presetTypesV0
+            Revision.V1 -> presetTypesV1
         }
         customTypes + presetTypes
     }
 
     private val hashMethod by lazy {
         when (revision) {
-            TypedDataRevision.V0 -> HashMethod.PEDERSEN
-            TypedDataRevision.V1 -> HashMethod.POSEIDON
+            Revision.V0 -> HashMethod.PEDERSEN
+            Revision.V1 -> HashMethod.POSEIDON
         }
     }
 
@@ -148,7 +131,7 @@ data class TypedData private constructor(
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
     private fun verifyTypes() {
-        require(domain.separatorName in customTypes) { "Types must contain ${domain.separatorName}." }
+        require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
         getBasicTypes(revision).forEach { require(it !in customTypes) { "Types must not contain basic types. [$it] was found." } }
         getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
@@ -163,11 +146,28 @@ data class TypedData private constructor(
 
         customTypes.keys.forEach {
             require(it.isNotEmpty()) { "Types cannot be empty." }
-            require(!it.isArray()) { "Types cannot end in *. $it was found." }
-            require(!it.startsWith("(") || !it.endsWith(")")) { "Types cannot be enclosed in parenthesis. $it was found." }
-            require(!it.contains(",")) { "Types cannot contain commas. $it was found." }
-            require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type $it was found." }
+            require(!it.isArray()) { "Types cannot end in *. [$it] was found." }
+            require(!it.startsWith("(") || !it.endsWith(")")) { "Types cannot be enclosed in parenthesis. [$it] was found." }
+            require(!it.contains(",")) { "Types cannot contain commas. [$it] was found." }
+            require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type [$it] was found." }
         }
+    }
+
+    /**
+     * TypedData revision.
+     *
+     * The revision of the specification to be used.
+     *
+     * [V0] - Legacy revision, represents the de facto spec before [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+     * [V1] - Initial and current revision, represents the spec after [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+     */
+    @Serializable
+    enum class Revision(val value: Int) {
+        @SerialName("0")
+        V0(0),
+
+        @SerialName("1")
+        V1(1),
     }
 
     @Serializable
@@ -175,11 +175,11 @@ data class TypedData private constructor(
         val name: JsonPrimitive,
         val version: JsonPrimitive,
         val chainId: JsonPrimitive,
-        val revision: TypedDataRevision? = null,
+        val revision: Revision? = null,
     ) {
-        val separatorName = when (revision ?: TypedDataRevision.V0) {
-            TypedDataRevision.V0 -> "StarkNetDomain"
-            TypedDataRevision.V1 -> "StarknetDomain"
+        val separatorName = when (revision ?: Revision.V0) {
+            Revision.V0 -> "StarkNetDomain"
+            Revision.V1 -> "StarknetDomain"
         }
     }
 
@@ -203,7 +203,7 @@ data class TypedData private constructor(
     ) : Type() {
         init {
             require(!contains.isArray()) {
-                "Merkletree 'contains' field cannot be an array, got '$contains' in type '$name'."
+                "Merkletree 'contains' field cannot be an array, got [$contains] in type [$name]."
             }
         }
     }
@@ -230,8 +230,8 @@ data class TypedData private constructor(
 
             params.forEach { param ->
                 val extractedTypes = when {
-                    param is EnumType && revision == TypedDataRevision.V1 -> listOf(param.contains)
-                    param.type.isEnum() && revision == TypedDataRevision.V1 -> extractEnumTypes(param.type)
+                    param is EnumType && revision == Revision.V1 -> listOf(param.contains)
+                    param.type.isEnum() && revision == Revision.V1 -> extractEnumTypes(param.type)
                     else -> listOf(param.type)
                 }.map { stripPointer(it) }
 
@@ -258,8 +258,8 @@ data class TypedData private constructor(
 
     private fun encodeDependency(dependency: String): String {
         fun escape(typeName: String) = when (revision) {
-            TypedDataRevision.V0 -> typeName
-            TypedDataRevision.V1 -> "\"$typeName\""
+            Revision.V0 -> typeName
+            Revision.V1 -> "\"$typeName\""
         }
 
         val fields = types.getOrElse(dependency) {
@@ -267,7 +267,7 @@ data class TypedData private constructor(
         }
         val encodedFields = fields.joinToString(",") {
             val targetType = when {
-                it is EnumType && revision == TypedDataRevision.V1 -> it.contains
+                it is EnumType && revision == Revision.V1 -> it.contains
                 else -> it.type
             }
             val typeString = when {
@@ -340,11 +340,11 @@ data class TypedData private constructor(
         val (parent, key) = context.parent to context.key
 
         return if (parent != null && key != null) {
-            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent '$parent' is not defined in types.") }
+            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
             val merkleType = parentType.find { it.name == key }
-                ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
+                ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
 
-            require(merkleType is MerkleTreeType) { "Key '$key' in parent '$parent' is not a merkletree." }
+            require(merkleType is MerkleTreeType) { "Key [$key] in parent [$parent] is not a merkletree." }
 
             merkleType.contains
         } else {
@@ -371,17 +371,17 @@ data class TypedData private constructor(
 
         return when (typeName) {
             "enum" -> {
-                require(revision == TypedDataRevision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
 
                 val (variantKey, variantData) = value.jsonObject.entries.single()
                 val parent = context.parent ?: throw IllegalArgumentException("Parent is not defined for 'enum' type.")
                 val parentType = types.getOrElse(parent) {
-                    throw IllegalArgumentException("Parent '$parent' is not defined in types.")
+                    throw IllegalArgumentException("Parent [$parent] is not defined in types.")
                 }.first()
                 require(parentType is EnumType)
-                val enumType = types.getOrElse(parentType.contains) { throw IllegalArgumentException("Type '${parentType.contains}' is not defined in types") }
+                val enumType = types.getOrElse(parentType.contains) { throw IllegalArgumentException("Type [${parentType.contains}] is not defined in types") }
                 val variantType = enumType.find { it.name == variantKey }
-                    ?: throw IllegalArgumentException("Key '$variantKey' is not defined in parent '$parent'.")
+                    ?: throw IllegalArgumentException("Key [$variantKey] is not defined in parent [$parent].")
 
                 val variantIndex = extractEnumTypes(variantType.type).indexOf(variantData.jsonPrimitive.content)
 
@@ -402,8 +402,8 @@ data class TypedData private constructor(
                 "felt" to root
             }
             "string" -> when (revision) {
-                TypedDataRevision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
-                TypedDataRevision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
+                Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
+                Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
             }
             "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
@@ -411,7 +411,7 @@ data class TypedData private constructor(
             "bool" -> "bool" to feltFromPrimitive(value.jsonPrimitive)
             "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
             "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
-                require(revision == TypedDataRevision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
+                require(revision == Revision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
                 typeName to feltFromPrimitive(value.jsonPrimitive)
             }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
@@ -469,17 +469,17 @@ data class TypedData private constructor(
     }
 
     companion object {
-        private fun getBasicTypes(revision: TypedDataRevision): Set<String> {
+        private fun getBasicTypes(revision: Revision): Set<String> {
             return when (revision) {
-                TypedDataRevision.V0 -> basicTypesV0
-                TypedDataRevision.V1 -> basicTypesV1
+                Revision.V0 -> basicTypesV0
+                Revision.V1 -> basicTypesV1
             }
         }
 
-        private fun getPresetTypes(revision: TypedDataRevision): Map<String, List<Type>> {
+        private fun getPresetTypes(revision: Revision): Map<String, List<Type>> {
             return when (revision) {
-                TypedDataRevision.V0 -> presetTypesV0
-                TypedDataRevision.V1 -> presetTypesV1
+                Revision.V0 -> presetTypesV0
+                Revision.V1 -> presetTypesV1
             }
         }
 
