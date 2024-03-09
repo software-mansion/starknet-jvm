@@ -271,7 +271,12 @@ data class TypedData private constructor(
                 else -> it.type
             }
             val typeString = when {
-                targetType.isEnum() -> extractEnumTypes(targetType).joinToString("", transform = ::escape)
+                targetType.isEnum() -> extractEnumTypes(targetType).joinToString(
+                    separator = ",",
+                    prefix = "(",
+                    postfix = ")",
+                    transform = ::escape,
+                )
                 else -> escape(targetType)
             }
             "${escape(it.name)}:$typeString"
@@ -447,10 +452,15 @@ data class TypedData private constructor(
         return value.removeSuffix("*")
     }
 
-    private fun extractEnumTypes(value: String): List<String> {
-        val enumPattern = Regex("""\(\s*([^,]+)\s*\)""")
-        val matches = enumPattern.findAll(value)
-        return matches.map { it.groupValues[1].trim() }.toList()
+    private fun extractEnumTypes(type: String): List<String> {
+        require(type.isEnum()) { "Type [$type] is not an enum." }
+
+        return type.substring(1, type.length-1).let{
+            when {
+                it.trim().isEmpty() -> emptyList()
+                else -> it.split(",").map(String::trim)
+            }
+        }
     }
 
     fun getStructHash(typeName: String, data: String): Felt {
