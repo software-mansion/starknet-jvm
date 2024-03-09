@@ -40,6 +40,16 @@ internal class TypedDataTest {
             }
         }
 
+        internal class CasesRev1 {
+            companion object{
+                val TD_BASIC_TYPES by lazy { loadTypedData("rev_1/typed_data_basic_types_example.json") }
+                val TD_PRESET_TYPES by lazy { loadTypedData("rev_1/typed_data_preset_types_example.json") }
+                val TD_ENUM_TYPE by lazy { loadTypedData("rev_1/typed_data_enum_example.json") }
+                val TD by lazy { loadTypedData("rev_1/typed_data_example.json") }
+                val TD_STRUCT_ARR by lazy { loadTypedData("rev_1/typed_data_struct_array_example.json") }
+            }
+        }
+
         @JvmStatic
         fun getTypeHashArguments() = listOf(
             Arguments.of(CasesRev0.TD, "StarkNetDomain", "0x1bfc207425a47a5dfa1a50a4f5241203f50624ca5fdf5e18755765416b8e288"),
@@ -141,6 +151,36 @@ internal class TypedDataTest {
         assertEquals(
             "Mail(from:Person,to:Person,posts_len:felt,posts:Post*)Person(name:felt,wallet:felt)Post(title:felt,content:felt)",
             CasesRev0.TD_STRUCT_ARR.encodeType("Mail"),
+        )
+        assertEquals(
+            """
+                "Mail"("from":"Person","to":"Person","contents":"felt")"Person"("name":"felt","wallet":"felt")
+            """.trimIndent(),
+            CasesRev1.TD.encodeType("Mail"),
+        )
+        assertEquals(
+            """
+                "Mail"("from":"Person","to":"Person","posts_len":"felt","posts":"Post*")"Person"("name":"felt","wallet":"felt")"Post"("title":"felt","content":"felt")
+            """.trimIndent(),
+            CasesRev1.TD_STRUCT_ARR.encodeType("Mail"),
+        )
+        assertEquals(
+            """
+                "Example"("n0":"felt","n1":"bool","n2":"string","n3":"selector","n4":"u128","n5":"i128","n6":"ContractAddress","n7":"ClassHash","n8":"timestamp","n9":"shortstring")
+            """.trimIndent(),
+            CasesRev1.TD_BASIC_TYPES.encodeType("Example"),
+        )
+        assertEquals(
+            """
+                "Example"("n0":"TokenAmount","n1":"NftId")"NftId"("collection_address":"ContractAddress","token_id":"u256")"TokenAmount"("token_address":"ContractAddress","amount":"u256")"u256"("low":"u128","high":"u128")
+            """.trimIndent(),
+            CasesRev1.TD_PRESET_TYPES.encodeType("Example"),
+        )
+        assertEquals(
+            """
+                "Example"("someEnum":"MyEnum")"MyEnum"("Variant 1":(),"Variant 2":("u128","u128*"),"Variant 3":("u128"))
+            """.trimIndent(),
+            CasesRev1.TD_ENUM_TYPE.encodeType("Example"),
         )
     }
 
