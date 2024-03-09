@@ -425,6 +425,23 @@ internal class TypedDataTest {
             assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
         }
 
+        @Test
+        fun `missing dependency`() {
+            val td = TypedData(
+                customTypes = mapOf(
+                    domainTypeV1,
+                    "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
+                ),
+                primaryType = "house",
+                domain = domainObjectV1,
+                message = "{\"fridge\": 1}",
+            )
+            val exception = assertThrows<IllegalArgumentException> {
+                td.getStructHash("house", "{\"fridge\": 1}")
+            }
+            assertEquals("Type [ice cream] is not defined in types.", exception.message)
+        }
+
         private fun makeTypedData(
             revision: Revision,
             includedType: String,
@@ -443,22 +460,6 @@ internal class TypedDataTest {
                 domain = domainObject,
                 message = "{\"$includedType\": 1}",
             )
-        }
-    }
-
-    @Test
-    fun `missing dependency`() {
-        assertThrows<IllegalArgumentException>(
-            "Dependency [ice cream] is not defined in types.",
-        ) {
-            TypedData(
-                mapOf(
-                    "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
-                ),
-                "felt",
-                "{}",
-                "{}",
-            ).getStructHash("house", "{\"fridge\": 1}")
         }
     }
 
