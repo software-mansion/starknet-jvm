@@ -138,9 +138,12 @@ data class TypedData private constructor(
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
-                is EnumType -> extractEnumTypes(it.type) + it.contains
+                is EnumType -> listOf(it.contains)
                 is MerkleTreeType -> listOf(it.contains)
-                is StandardType -> listOf(stripPointer(it.type))
+                is StandardType -> when {
+                    it.type.isEnum() && revision == Revision.V1 -> extractEnumTypes(it.type)
+                    else -> listOf(stripPointer(it.type))
+                }
             }
         }.distinct() + domain.separatorName + primaryType
 
