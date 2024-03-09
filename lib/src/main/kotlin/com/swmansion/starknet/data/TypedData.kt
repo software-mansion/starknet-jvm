@@ -274,7 +274,7 @@ data class TypedData private constructor(
                 targetType.isEnum() -> extractEnumTypes(targetType).joinToString("", transform = ::escape)
                 else -> escape(targetType)
             }
-            "${it.name}:$typeString"
+            "${escape(it.name)}:$typeString"
         }
 
         return "${escape(dependency)}($encodedFields)"
