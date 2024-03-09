@@ -41,7 +41,7 @@ internal class TypedDataTest {
         }
 
         internal class CasesRev1 {
-            companion object{
+            companion object {
                 val TD_BASIC_TYPES by lazy { loadTypedData("rev_1/typed_data_basic_types_example.json") }
                 val TD_PRESET_TYPES by lazy { loadTypedData("rev_1/typed_data_preset_types_example.json") }
                 val TD_ENUM_TYPE by lazy { loadTypedData("rev_1/typed_data_enum_example.json") }

@@ -458,7 +458,7 @@ data class TypedData private constructor(
     private fun extractEnumTypes(type: String): List<String> {
         require(type.isEnum()) { "Type [$type] is not an enum." }
 
-        return type.substring(1, type.length-1).let{
+        return type.substring(1, type.length - 1).let {
             when {
                 it.trim().isEmpty() -> emptyList()
                 else -> it.split(",").map(String::trim)
