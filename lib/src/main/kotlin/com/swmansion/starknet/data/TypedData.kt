@@ -451,8 +451,8 @@ data class TypedData private constructor(
         return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
-    private fun stripPointer(value: String): String {
-        return value.removeSuffix("*")
+    private fun stripPointer(type: String): String {
+        return type.removeSuffix("*")
     }
 
     private fun extractEnumTypes(type: String): List<String> {
