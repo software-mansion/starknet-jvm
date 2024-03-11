@@ -288,32 +288,27 @@ data class TypedData private constructor(
     }
 
     private fun feltFromPrimitive(primitive: JsonPrimitive, allowSigned: Boolean = false): Felt {
-        when (primitive.isString) {
-            true -> {
-                if (primitive.content == "") {
-                    return Felt.ZERO
-                }
+        val decimal = primitive.content.toBigIntegerOrNull()
+        decimal?.let {
+            return if (allowSigned) Felt.fromSigned(it) else Felt(it)
+        }
+        primitive.booleanOrNull?.let {
+            return if (it) Felt.ONE else Felt.ZERO
+        }
 
-                val decimal = primitive.content.toBigIntegerOrNull()
-                decimal?.let {
-                    return if (allowSigned) Felt.fromSigned(it) else Felt(it)
-                }
-
-                val boolean = primitive.booleanOrNull
-                boolean?.let {
-                    return Felt(if (it) 1 else 0)
-                }
-
-                return try {
-                    Felt.fromHex(primitive.content)
-                } catch (e: Exception) {
-                    Felt.fromShortString(primitive.content)
-                }
+        if (primitive.isString) {
+            if (primitive.content == "") {
+                return Felt.ZERO
             }
-            false -> {
-                return if (allowSigned) return Felt.fromSigned(primitive.long) else Felt(primitive.long)
+
+            return try {
+                Felt.fromHex(primitive.content)
+            } catch (e: Exception) {
+                Felt.fromShortString(primitive.content)
             }
         }
+
+        throw IllegalArgumentException("Unsupported primitive type: $primitive")
     }
 
     private fun prepareLongString(string: String): Felt {
