@@ -364,15 +364,16 @@ data class TypedData private constructor(
 
                 val (variantKey, variantData) = value.jsonObject.entries.single()
                 val parent = context.parent ?: throw IllegalArgumentException("Parent is not defined for 'enum' type.")
+                val key = context.key ?: throw IllegalArgumentException("Key is not defined for 'enum' type.")
                 val parentType = types.getOrElse(parent) {
                     throw IllegalArgumentException("Parent [$parent] is not defined in types.")
-                }.first()
+                }.find { it.name == context.key } ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
                 require(parentType is EnumType)
                 val enumType = types.getOrElse(parentType.contains) { throw IllegalArgumentException("Type [${parentType.contains}] is not defined in types") }
                 val variantType = enumType.find { it.name == variantKey }
                     ?: throw IllegalArgumentException("Key [$variantKey] is not defined in parent [$parent].")
 
-                val variantIndex = extractEnumTypes(variantType.type).indexOf(variantData.jsonPrimitive.content)
+                val variantIndex = enumType.indexOf(variantType)
 
                 val encodedSubtypes = extractEnumTypes(variantType.type)
                     .filter { it.isNotEmpty() }
