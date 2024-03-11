@@ -4,7 +4,7 @@ import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
-import com.swmansion.starknet.extensions.splitToShortStrings
+import com.swmansion.starknet.data.types.StarknetByteArray
 import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -317,22 +317,9 @@ data class TypedData private constructor(
     }
 
     private fun prepareLongString(string: String): Felt {
-        val shortStrings = string.splitToShortStrings()
+        val byteArray = StarknetByteArray.fromString(string)
 
-        val encodedShortStrings = shortStrings.map(Felt::fromShortString)
-
-        val (data, pendingWord, pendingWordLength) = when {
-            shortStrings.isEmpty() -> Triple(listOf(Felt.ZERO), Felt.ZERO, 0)
-            shortStrings.last().length == 31 -> Triple(encodedShortStrings, Felt.ZERO, 0)
-            else -> Triple(
-                encodedShortStrings.dropLast(1),
-                encodedShortStrings.last(),
-                shortStrings.last().length,
-            )
-        }
-
-        val elements = listOf(data.size.toFelt) + data + listOf(pendingWord, pendingWordLength.toFelt)
-        return hashArray(elements)
+        return hashArray(byteArray.toCalldata())
     }
 
     private fun prepareSelector(name: String): Felt {
