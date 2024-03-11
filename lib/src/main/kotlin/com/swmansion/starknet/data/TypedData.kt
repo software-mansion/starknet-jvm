@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.HashMethod
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
@@ -473,11 +472,13 @@ data class TypedData private constructor(
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
-        return StarknetCurve.pedersenOnElements(
-            Felt.fromShortString("StarkNet Message"),
-            getStructHash(domain.separatorName, Json.encodeToJsonElement(domain).jsonObject),
-            accountAddress,
-            getStructHash(primaryType, message),
+        return hashArray(
+            listOf(
+                Felt.fromShortString("StarkNet Message"),
+                getStructHash(domain.separatorName, Json.encodeToJsonElement(domain).jsonObject),
+                accountAddress,
+                getStructHash(primaryType, message),
+            ),
         )
     }
 
