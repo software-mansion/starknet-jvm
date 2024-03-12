@@ -373,6 +373,13 @@ data class TypedData private constructor(
         return hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
     }
 
+    private fun prepareMerkletreeRoot(value: JsonArray, context: Context): Felt {
+        val merkleTreeType = getMerkleTreeType(context)
+        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct).second }
+
+        return MerkleTree(structHashes, hashMethod).rootHash
+    }
+
     internal fun encodeValue(
         typeName: String,
         value: JsonElement,
@@ -396,13 +403,7 @@ data class TypedData private constructor(
 
                 "enum" to prepareEnum(value.jsonObject, context)
             }
-            "merkletree" -> {
-                val merkleTreeType = getMerkleTreeType(context)
-                val array = value as JsonArray
-                val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
-                val root = MerkleTree(structHashes, hashMethod).rootHash
-                "felt" to root
-            }
+            "merkletree" -> "felt" to prepareMerkletreeRoot(value.jsonArray, context)
             "string" -> when (revision) {
                 Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
                 Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
