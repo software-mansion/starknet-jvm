@@ -110,7 +110,6 @@ internal class TypedDataTest {
             Arguments.of(CasesRev0.TD_VALIDATE, "Validate", "0x1fc17ee4903c000b1c8c6c1424136d4efc4759d1e83915e981b18bc1074a72d"),
             Arguments.of(CasesRev0.TD_VALIDATE, "Airdrop", "0x37dcb14df3270824843bbbf50c72a724bcb303179dfcce56b653262cbb6957c"),
             Arguments.of(CasesRev1.TD_BASIC_TYPES, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
-            // TODO: verify whether the hash is correct
             Arguments.of(CasesRev1.TD_PRESET_TYPES, "Example", "0x1a25a8bb84b761090b1fadaebe762c4b679b0d8883d2bedda695ea340839a55"),
             Arguments.of(CasesRev1.TD_ENUM_TYPE, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
         )
@@ -154,6 +153,31 @@ internal class TypedDataTest {
                 "message",
                 "0x389e55e4a3d36c6ba04f46f1021a695c934d6782eaf64e47ac059a06a2520c2",
             ),
+            Arguments.of(
+                CasesRev1.TD_BASIC_TYPES,
+                "StarknetDomain",
+                "domain",
+                "0x555f72e550b308e50c1a4f8611483a174026c982a9893a05c185eeb85399657",
+            ),
+            Arguments.of(
+                CasesRev1.TD_BASIC_TYPES,
+                "Example",
+                "message",
+                "0x391d09a51a31dd17f7270aaa9904688fbeeb9c56a7e2d15c5a6af32e981c730",
+            ),
+            Arguments.of(
+                CasesRev1.TD_PRESET_TYPES,
+                "Example",
+                "message",
+                "0x74fba3f77f8a6111a9315bac313bf75ecfa46d1234e0fda60312fb6a6517667",
+            ),
+            Arguments.of(
+                CasesRev1.TD_ENUM_TYPE,
+                "Example",
+                "message",
+                "0x3d4384ff5cec32b86462e89f5a803b55ff0048c4f5a10ba9d6cd381317d9c3",
+            ),
+
         )
 
         @JvmStatic
@@ -187,6 +211,21 @@ internal class TypedDataTest {
                 CasesRev0.TD_VALIDATE,
                 "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
                 "0x6038f35de58f40a6afa9d359859b2f930e5eb987580ba6875324cc4dbfcee",
+            ),
+            Arguments.of(
+                CasesRev1.TD_BASIC_TYPES,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x2d80b87b8bc32068247c779b2ef0f15f65c9c449325e44a9df480fb01eb43ec",
+            ),
+            Arguments.of(
+                CasesRev1.TD_PRESET_TYPES,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x185b339d5c566a883561a88fb36da301051e2c0225deb325c91bb7aa2f3473a",
+            ),
+            Arguments.of(
+                CasesRev1.TD_ENUM_TYPE,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x3df10475ad5a8f49db4345a04a5b09164d2e24b09f6e1e236bc1ccd87627cc",
             ),
         )
     }
