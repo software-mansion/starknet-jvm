@@ -358,6 +358,21 @@ data class TypedData private constructor(
         return variants
     }
 
+    private fun prepareEnum(value: JsonObject, context: Context): Felt {
+        val variants = getEnumVariants(context)
+
+        val (variantName, variantData) = value.entries.singleOrNull()?.let { it.key to it.value.jsonArray } ?: throw IllegalArgumentException("Only one 'enum' variant can be selected.")
+        val variantType = variants.singleOrNull { it.name == variantName } ?: throw IllegalArgumentException("Variant [$variantName] is not defined in parent [${context.parent}].")
+        val variantIndex = variants.indexOf(variantType)
+
+        val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
+            val subtypeData = variantData[index]
+            encodeValue(subtype, subtypeData).second
+        }
+
+        return hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
+    }
+
     internal fun encodeValue(
         typeName: String,
         value: JsonElement,
@@ -379,18 +394,7 @@ data class TypedData private constructor(
             "enum" -> {
                 require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
 
-                val (variantName, variantData) = value.jsonObject.entries.singleOrNull()?.let { it.key to it.value.jsonArray } ?: throw IllegalArgumentException("Only one 'enum' variant can be selected.")
-                val variants = getEnumVariants(context)
-
-                val variantType = variants.singleOrNull { it.name == variantName } ?: throw IllegalArgumentException("Variant [$variantName] is not defined in parent [${context.parent}].")
-                val variantIndex = variants.indexOf(variantType)
-
-                val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
-                    val subtypeData = variantData[index]
-                    encodeValue(subtype, subtypeData).second
-                }
-
-                "enum" to hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
+                "enum" to prepareEnum(value.jsonObject, context)
             }
             "merkletree" -> {
                 val merkleTreeType = getMerkleTreeType(context)
