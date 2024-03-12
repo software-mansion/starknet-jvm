@@ -341,6 +341,23 @@ data class TypedData private constructor(
         }
     }
 
+    private fun getEnumVariants(context: Context): List<Type> {
+        val (parent, key) = context.parent to context.key
+
+        requireNotNull(parent) { "Parent is not defined for 'enum' type." }
+        requireNotNull(key) { "Key is not defined for 'enum' type." }
+
+        val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
+        val enumType = parentType.find { it.name == key }
+            ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
+
+        require(enumType is EnumType) { "Key [$key] in parent [$parent] is not an 'enum'." }
+
+        val variants = types.getOrElse(enumType.contains) { throw IllegalArgumentException("Type [${enumType.contains}] is not defined in types") }
+
+        return variants
+    }
+
     internal fun encodeValue(
         typeName: String,
         value: JsonElement,
@@ -362,25 +379,16 @@ data class TypedData private constructor(
             "enum" -> {
                 require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
 
-                val (variantKey, variantData) = value.jsonObject.entries.single()
-                val parent = context.parent ?: throw IllegalArgumentException("Parent is not defined for 'enum' type.")
-                val key = context.key ?: throw IllegalArgumentException("Key is not defined for 'enum' type.")
-                val parentType = types.getOrElse(parent) {
-                    throw IllegalArgumentException("Parent [$parent] is not defined in types.")
-                }.find { it.name == context.key } ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
-                require(parentType is EnumType)
-                val enumType = types.getOrElse(parentType.contains) { throw IllegalArgumentException("Type [${parentType.contains}] is not defined in types") }
-                val variantType = enumType.find { it.name == variantKey }
-                    ?: throw IllegalArgumentException("Key [$variantKey] is not defined in parent [$parent].")
+                val (variantName, variantData) = value.jsonObject.entries.singleOrNull()?.let { it.key to it.value.jsonArray } ?: throw IllegalArgumentException("Only one 'enum' variant can be selected.")
+                val variants = getEnumVariants(context)
 
-                val variantIndex = enumType.indexOf(variantType)
+                val variantType = variants.singleOrNull { it.name == variantName } ?: throw IllegalArgumentException("Variant [$variantName] is not defined in parent [${context.parent}].")
+                val variantIndex = variants.indexOf(variantType)
 
-                val encodedSubtypes = extractEnumTypes(variantType.type)
-                    .filter { it.isNotEmpty() }
-                    .mapIndexed { index, subtype ->
-                        val subtypeData = variantData.jsonArray[index]
-                        encodeValue(subtype, subtypeData).second
-                    }
+                val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
+                    val subtypeData = variantData[index]
+                    encodeValue(subtype, subtypeData).second
+                }
 
                 "enum" to hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
             }
