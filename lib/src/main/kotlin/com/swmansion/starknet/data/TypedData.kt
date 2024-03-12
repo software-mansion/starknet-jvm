@@ -393,14 +393,12 @@ data class TypedData private constructor(
             val hashes = value.jsonArray.map {
                 encodeValue(stripPointer(typeName), it).second
             }
-
             return typeName to hashArray(hashes)
         }
 
         return when (typeName) {
             "enum" -> {
                 require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
-
                 "enum" to prepareEnum(value.jsonObject, context)
             }
             "merkletree" -> "felt" to prepareMerkletreeRoot(value.jsonArray, context)
@@ -408,10 +406,8 @@ data class TypedData private constructor(
                 Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
                 Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
             }
-            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
+            "felt", "bool", "raw" -> typeName to feltFromPrimitive(value.jsonPrimitive)
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            "bool" -> "bool" to feltFromPrimitive(value.jsonPrimitive)
             "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
             "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
                 require(revision == Revision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
