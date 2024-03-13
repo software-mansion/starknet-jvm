@@ -113,6 +113,9 @@ internal class TypedDataTest {
             Arguments.of(CasesRev0.TD_STRUCT_MERKLETREE, "Policy", "0x2f0026e78543f036f33e26a8f5891b88c58dc1e20cbbfaf0bb53274da6fa568"),
             Arguments.of(CasesRev0.TD_VALIDATE, "Validate", "0x1fc17ee4903c000b1c8c6c1424136d4efc4759d1e83915e981b18bc1074a72d"),
             Arguments.of(CasesRev0.TD_VALIDATE, "Airdrop", "0x37dcb14df3270824843bbbf50c72a724bcb303179dfcce56b653262cbb6957c"),
+            Arguments.of(CasesRev1.TD, "StarknetDomain", "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210"),
+            Arguments.of(CasesRev1.TD, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
+            Arguments.of(CasesRev1.TD, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
             Arguments.of(CasesRev1.TD_BASIC_TYPES, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
             Arguments.of(CasesRev1.TD_PRESET_TYPES, "Example", "0x1a25a8bb84b761090b1fadaebe762c4b679b0d8883d2bedda695ea340839a55"),
             Arguments.of(CasesRev1.TD_ENUM_TYPE, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
@@ -157,6 +160,12 @@ internal class TypedDataTest {
                 "Validate",
                 "message",
                 "0x389e55e4a3d36c6ba04f46f1021a695c934d6782eaf64e47ac059a06a2520c2",
+            ),
+            Arguments.of(
+                CasesRev1.TD,
+                "StarknetDomain",
+                "domain",
+                "0x555f72e550b308e50c1a4f8611483a174026c982a9893a05c185eeb85399657",
             ),
             Arguments.of(
                 CasesRev1.TD_BASIC_TYPES,
@@ -221,6 +230,11 @@ internal class TypedDataTest {
                 CasesRev0.TD_VALIDATE,
                 "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
                 "0x6038f35de58f40a6afa9d359859b2f930e5eb987580ba6875324cc4dbfcee",
+            ),
+            Arguments.of(
+                CasesRev1.TD,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x7f6e8c3d8965b5535f5cc68f837c04e3bbe568535b71aa6c621ddfb188932b8",
             ),
             Arguments.of(
                 CasesRev1.TD_BASIC_TYPES,
