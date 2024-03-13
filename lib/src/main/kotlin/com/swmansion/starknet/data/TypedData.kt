@@ -218,8 +218,8 @@ data class TypedData private constructor(
     ) : Type()
 
     data class Context(
-        val parent: String?,
-        val key: String?,
+        val parent: String,
+        val key: String,
     )
 
     private fun getDependencies(typeName: String): List<String> {
@@ -325,33 +325,33 @@ data class TypedData private constructor(
         }
     }
 
-    private fun getMerkleTreeType(context: Context): String {
+    private inline fun <reified T : Type> resolveType(context: Context): T {
         val (parent, key) = context.parent to context.key
 
-        return if (parent != null && key != null) {
-            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
-            val merkleType = parentType.find { it.name == key }
-                ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
+        val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
+        val targetType = parentType.singleOrNull { it.name == key }
+            ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent] or multiple definitions are present.")
 
-            require(merkleType is MerkleTreeType) { "Key [$key] in parent [$parent] is not a merkletree." }
+        require(targetType is T) { "Key [$key] in parent [$parent] is not a '${T::class.simpleName}'." }
 
-            merkleType.contains
-        } else {
-            "raw"
-        }
+        return targetType
+    }
+
+    private fun getMerkleTreeLeavesType(context: Context): String {
+        val merkleType = resolveType<MerkleTreeType>(context)
+
+        return merkleType.contains
+    }
+
+    private fun prepareMerkletreeRoot(value: JsonArray, context: Context): Felt {
+        val merkleTreeType = getMerkleTreeLeavesType(context)
+        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct).second }
+
+        return MerkleTree(structHashes, hashMethod).rootHash
     }
 
     private fun getEnumVariants(context: Context): List<Type> {
-        val (parent, key) = context.parent to context.key
-
-        requireNotNull(parent) { "Parent is not defined for 'enum' type." }
-        requireNotNull(key) { "Key is not defined for 'enum' type." }
-
-        val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
-        val enumType = parentType.find { it.name == key }
-            ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent].")
-
-        require(enumType is EnumType) { "Key [$key] in parent [$parent] is not an 'enum'." }
+        val enumType = resolveType<EnumType>(context)
 
         val variants = types.getOrElse(enumType.contains) { throw IllegalArgumentException("Type [${enumType.contains}] is not defined in types") }
 
@@ -359,10 +359,12 @@ data class TypedData private constructor(
     }
 
     private fun prepareEnum(value: JsonObject, context: Context): Felt {
-        val variants = getEnumVariants(context)
+        val (variantName, variantData) = value.entries.singleOrNull()?.let { it.key to it.value.jsonArray }
+            ?: throw IllegalArgumentException("'enum' value must contain a single variant.")
 
-        val (variantName, variantData) = value.entries.singleOrNull()?.let { it.key to it.value.jsonArray } ?: throw IllegalArgumentException("Only one 'enum' variant can be selected.")
-        val variantType = variants.singleOrNull { it.name == variantName } ?: throw IllegalArgumentException("Variant [$variantName] is not defined in parent [${context.parent}].")
+        val variants = getEnumVariants(context)
+        val variantType = variants.singleOrNull { it.name == variantName }
+            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in 'enum' type [${context.key}] or multiple definitions are present.")
         val variantIndex = variants.indexOf(variantType)
 
         val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
@@ -373,17 +375,10 @@ data class TypedData private constructor(
         return hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
     }
 
-    private fun prepareMerkletreeRoot(value: JsonArray, context: Context): Felt {
-        val merkleTreeType = getMerkleTreeType(context)
-        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct).second }
-
-        return MerkleTree(structHashes, hashMethod).rootHash
-    }
-
     internal fun encodeValue(
         typeName: String,
         value: JsonElement,
-        context: Context = Context(null, null),
+        context: Context? = null,
     ): Pair<String, Felt> {
         if (typeName in types) {
             return typeName to getStructHash(typeName, value.jsonObject)
@@ -399,14 +394,18 @@ data class TypedData private constructor(
         return when (typeName) {
             "enum" -> {
                 require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                requireNotNull(context) { "Context is not provided for 'enum' type." }
                 "enum" to prepareEnum(value.jsonObject, context)
             }
-            "merkletree" -> "felt" to prepareMerkletreeRoot(value.jsonArray, context)
+            "merkletree" -> {
+                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                "felt" to prepareMerkletreeRoot(value.jsonArray, context)
+            }
             "string" -> when (revision) {
                 Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
                 Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
             }
-            "felt", "bool", "raw" -> typeName to feltFromPrimitive(value.jsonPrimitive)
+            "felt", "bool" -> typeName to feltFromPrimitive(value.jsonPrimitive)
             "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
             "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
             "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
