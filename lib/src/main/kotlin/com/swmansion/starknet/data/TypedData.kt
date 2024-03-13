@@ -137,10 +137,16 @@ data class TypedData private constructor(
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
-                is EnumType -> listOf(it.contains)
+                is EnumType -> {
+                    require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                    listOf(it.contains)
+                }
                 is MerkleTreeType -> listOf(it.contains)
                 is StandardType -> when {
-                    it.type.isEnum() && revision == Revision.V1 -> extractEnumTypes(it.type)
+                    it.type.isEnum() -> {
+                        require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+                        extractEnumTypes(it.type)
+                    }
                     else -> listOf(stripPointer(it.type))
                 }
             }
@@ -232,8 +238,14 @@ data class TypedData private constructor(
 
             params.forEach { param ->
                 val extractedTypes = when {
-                    param is EnumType && revision == Revision.V1 -> listOf(param.contains)
-                    param.type.isEnum() && revision == Revision.V1 -> extractEnumTypes(param.type)
+                    param is EnumType -> {
+                        require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                        listOf(param.contains)
+                    }
+                    param.type.isEnum() -> {
+                        require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+                        extractEnumTypes(param.type)
+                    }
                     else -> listOf(param.type)
                 }.map { stripPointer(it) }
 
@@ -273,12 +285,16 @@ data class TypedData private constructor(
                 else -> it.type
             }
             val typeString = when {
-                targetType.isEnum() -> extractEnumTypes(targetType).joinToString(
-                    separator = ",",
-                    prefix = "(",
-                    postfix = ")",
-                    transform = ::escape,
-                )
+                targetType.isEnum() -> {
+                    require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+
+                    extractEnumTypes(targetType).joinToString(
+                        separator = ",",
+                        prefix = "(",
+                        postfix = ")",
+                        transform = ::escape,
+                    )
+                }
                 else -> escape(targetType)
             }
             "${escape(it.name)}:$typeString"
