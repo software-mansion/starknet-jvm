@@ -54,6 +54,38 @@ internal class TypedDataTest {
             }
         }
 
+        private val domainTypeV0 = "StarkNetDomain" to listOf(
+            TypedData.StandardType("name", "felt"),
+            TypedData.StandardType("version", "felt"),
+            TypedData.StandardType("chainId", "felt"),
+        )
+        private val domainTypeV1 = "StarknetDomain" to listOf(
+            TypedData.StandardType("name", "shortstring"),
+            TypedData.StandardType("version", "shortstring"),
+            TypedData.StandardType("chainId", "shortstring"),
+            TypedData.StandardType("revision", "shortstring"),
+        )
+        private val domainObjectV0 = """
+            {
+                "name": "DomainV0",
+                "version": 1,
+                "chainId": 2137
+            }
+        """.trimIndent()
+        private val domainObjectV1 = """
+            {
+                "name": "DomainV1",
+                "version": "1",
+                "chainId": "2137",
+                "revision": "1"
+            }
+        """.trimIndent()
+
+        private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
+        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
+        private val presetTypesV0 = emptySet<String>()
+        private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
+
         @JvmStatic
         fun encodeTypeArguments() = listOf(
             Arguments.of(CasesRev0.TD, "Mail", "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)"),
@@ -396,158 +428,125 @@ internal class TypedDataTest {
         }
     }
 
-    @Nested
-    inner class InvalidTypesTest {
-        private val domainTypeV0 = "StarkNetDomain" to listOf(
-            TypedData.StandardType("name", "felt"),
-            TypedData.StandardType("version", "felt"),
-            TypedData.StandardType("chainId", "felt"),
-        )
-        private val domainTypeV1 = "StarknetDomain" to listOf(
-            TypedData.StandardType("name", "shortstring"),
-            TypedData.StandardType("version", "shortstring"),
-            TypedData.StandardType("chainId", "shortstring"),
-            TypedData.StandardType("revision", "shortstring"),
-        )
-        private val domainObjectV0 = """
-            {
-                "name": "DomainV0",
-                "version": 1,
-                "chainId": 2137
-            }
-        """.trimIndent()
-        private val domainObjectV1 = """
-            {
-                "name": "DomainV1",
-                "version": "1",
-                "chainId": "2137",
-                "revision": "1"
-            }
-        """.trimIndent()
 
-        private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
-        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
-        private val presetTypesV0 = emptySet<String>()
-        private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
 
-        @ParameterizedTest
-        @EnumSource(Revision::class)
-        fun `basic types redefinition`(revision: Revision) {
-            val types = when (revision) {
-                Revision.V0 -> basicTypesV0
-                Revision.V1 -> basicTypesV1
-            }
-
-            types.forEach { type ->
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(revision, type)
-                }
-                assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
-            }
+    @ParameterizedTest
+    @EnumSource(Revision::class)
+    fun `basic types redefinition`(revision: Revision) {
+        val types = when (revision) {
+            Revision.V0 -> basicTypesV0
+            Revision.V1 -> basicTypesV1
         }
 
-        @ParameterizedTest
-        @EnumSource(Revision::class)
-        fun `preset types redefinition`(revision: Revision) {
-            val types = when (revision) {
-                Revision.V0 -> presetTypesV0
-                Revision.V1 -> presetTypesV1
-            }
-
-            types.forEach { type ->
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(revision, type)
-                }
-                assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
-            }
-        }
-
-        @Test
-        fun `type with asterisk`() {
-            val types = listOf("felt*", "u256*", "mytype*")
-            types.forEach { type ->
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(Revision.V1, type)
-                }
-                assertEquals("Types cannot end in *. [$type] was found.", exception.message)
-            }
-        }
-
-        @Test
-        fun `type with parentheses`() {
-            val types = listOf("(left", "right)", "(both)")
-            types.forEach { type ->
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(Revision.V1, type)
-                }
-                assertEquals("Types cannot be enclosed in parentheses. [$type] was found.", exception.message)
-            }
-        }
-
-        @Test
-        fun `type with commas`() {
-            val types = listOf(",mytype", "my,type", "mytype,")
-            types.forEach { type ->
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(Revision.V1, type)
-                }
-                assertEquals("Types cannot contain commas. [$type] was found.", exception.message)
-            }
-        }
-
-        @Test
-        fun `dangling types`() {
+        types.forEach { type ->
             val exception = assertThrows<IllegalArgumentException> {
-                TypedData(
-                    customTypes = mapOf(
-                        domainTypeV1,
-                        "dangling" to emptyList(),
-                        "mytype" to emptyList(),
-                    ),
-                    primaryType = "mytype",
-                    domain = domainObjectV1,
-                    message = "{\"mytype\": 1}",
-                )
+                makeTypedData(revision, type)
             }
-            assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
+            assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(Revision::class)
+    fun `preset types redefinition`(revision: Revision) {
+        val types = when (revision) {
+            Revision.V0 -> presetTypesV0
+            Revision.V1 -> presetTypesV1
         }
 
-        @Test
-        fun `missing dependency`() {
-            val td = TypedData(
-                customTypes = mapOf(
-                    domainTypeV1,
-                    "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
-                ),
-                primaryType = "house",
-                domain = domainObjectV1,
-                message = "{\"fridge\": 1}",
-            )
+        types.forEach { type ->
             val exception = assertThrows<IllegalArgumentException> {
-                td.getStructHash("house", "{\"fridge\": 1}")
+                makeTypedData(revision, type)
             }
-            assertEquals("Type [ice cream] is not defined in types.", exception.message)
+            assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
         }
+    }
 
-        private fun makeTypedData(
-            revision: Revision,
-            includedType: String,
-        ) {
-            val (domainType, domainObject) = when (revision) {
-                Revision.V0 -> domainTypeV0 to domainObjectV0
-                Revision.V1 -> domainTypeV1 to domainObjectV1
+    @Test
+    fun `type with asterisk`() {
+        val types = listOf("felt*", "u256*", "mytype*")
+        types.forEach { type ->
+            val exception = assertThrows<IllegalArgumentException> {
+                makeTypedData(Revision.V1, type)
             }
+            assertEquals("Types cannot end in *. [$type] was found.", exception.message)
+        }
+    }
 
+    @Test
+    fun `type with parentheses`() {
+        val types = listOf("(left", "right)", "(both)")
+        types.forEach { type ->
+            val exception = assertThrows<IllegalArgumentException> {
+                makeTypedData(Revision.V1, type)
+            }
+            assertEquals("Types cannot be enclosed in parentheses. [$type] was found.", exception.message)
+        }
+    }
+
+    @Test
+    fun `type with commas`() {
+        val types = listOf(",mytype", "my,type", "mytype,")
+        types.forEach { type ->
+            val exception = assertThrows<IllegalArgumentException> {
+                makeTypedData(Revision.V1, type)
+            }
+            assertEquals("Types cannot contain commas. [$type] was found.", exception.message)
+        }
+    }
+
+    @Test
+    fun `dangling types`() {
+        val exception = assertThrows<IllegalArgumentException> {
             TypedData(
                 customTypes = mapOf(
-                    domainType,
-                    includedType to emptyList(),
+                    domainTypeV1,
+                    "dangling" to emptyList(),
+                    "mytype" to emptyList(),
                 ),
-                primaryType = includedType,
-                domain = domainObject,
-                message = "{\"$includedType\": 1}",
+                primaryType = "mytype",
+                domain = domainObjectV1,
+                message = "{\"mytype\": 1}",
             )
         }
+        assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
+    }
+
+    @Test
+    fun `missing dependency`() {
+        val td = TypedData(
+            customTypes = mapOf(
+                domainTypeV1,
+                "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
+            ),
+            primaryType = "house",
+            domain = domainObjectV1,
+            message = "{\"fridge\": 1}",
+        )
+        val exception = assertThrows<IllegalArgumentException> {
+            td.getStructHash("house", "{\"fridge\": 1}")
+        }
+        assertEquals("Type [ice cream] is not defined in types.", exception.message)
+    }
+
+    private fun makeTypedData(
+        revision: Revision,
+        includedType: String,
+    ) {
+        val (domainType, domainObject) = when (revision) {
+            Revision.V0 -> domainTypeV0 to domainObjectV0
+            Revision.V1 -> domainTypeV1 to domainObjectV1
+        }
+
+        TypedData(
+            customTypes = mapOf(
+                domainType,
+                includedType to emptyList(),
+            ),
+            primaryType = includedType,
+            domain = domainObject,
+            message = "{\"$includedType\": 1}",
+        )
     }
 
     @ParameterizedTest
