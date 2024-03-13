@@ -14,7 +14,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -332,99 +331,96 @@ internal class TypedDataTest {
         )
     }
 
-    @Nested
-    inner class MerkletreeTest {
-        @Test
-        fun `merkletree with felt leaves`() {
-            val td = CasesRev1.TD_FELT_MERKLETREE
+    @Test
+    fun `merkletree with felt leaves`() {
+        val td = CasesRev1.TD_FELT_MERKLETREE
 
-            val leaves = td.message.getValue("root").jsonArray.map { Felt.fromHex(it.jsonPrimitive.content) }
-            assertEquals((1..3).map { Felt(it) }, leaves)
+        val leaves = td.message.getValue("root").jsonArray.map { Felt.fromHex(it.jsonPrimitive.content) }
+        assertEquals((1..3).map { Felt(it) }, leaves)
 
-            val tree = MerkleTree(
-                leafHashes = leaves,
-                hashFunction = HashMethod.POSEIDON,
-            )
+        val tree = MerkleTree(
+            leafHashes = leaves,
+            hashFunction = HashMethod.POSEIDON,
+        )
 
-            val merkleTreeHash = td.encodeValue(
-                typeName = "merkletree",
-                value = Json.encodeToJsonElement(tree.leafHashes),
-                context = Context(parent = "Example", key = "root"),
+        val merkleTreeHash = td.encodeValue(
+            typeName = "merkletree",
+            value = Json.encodeToJsonElement(tree.leafHashes),
+            context = Context(parent = "Example", key = "root"),
+        ).second
+
+        assertEquals(tree.rootHash, merkleTreeHash)
+        assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
+    }
+
+    @Test
+    fun `merkletree with custom types`() {
+        val leaves = listOf(
+            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+        )
+
+        val hashedLeaves = leaves.map { leaf ->
+            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                typeName = "Policy",
+                value = Json.encodeToJsonElement(leaf),
             ).second
-
-            assertEquals(tree.rootHash, merkleTreeHash)
-            assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
         }
+        val tree = MerkleTree(hashedLeaves)
 
-        @Test
-        fun `merkletree with custom types`() {
-            val leaves = listOf(
-                mapOf("contractAddress" to "0x1", "selector" to "transfer"),
-                mapOf("contractAddress" to "0x2", "selector" to "transfer"),
-                mapOf("contractAddress" to "0x3", "selector" to "transfer"),
-            )
+        val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+            typeName = "merkletree",
+            value = Json.encodeToJsonElement(leaves),
+            context = Context(parent = "Session", key = "root"),
+        ).second
 
-            val hashedLeaves = leaves.map { leaf ->
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-                    typeName = "Policy",
-                    value = Json.encodeToJsonElement(leaf),
-                ).second
-            }
-            val tree = MerkleTree(hashedLeaves)
+        assertEquals(tree.rootHash, merkleTreeHash)
+        assertEquals(
+            Felt.fromHex("0x12354b159e3799dc0ebe86d62dde4ce7b300538d471e5a7fef23dcbac076011"),
+            merkleTreeHash,
+        )
+    }
 
-            val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+    @Test
+    fun `merkletree from empty leaves`() {
+        assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
+            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
                 typeName = "merkletree",
-                value = Json.encodeToJsonElement(leaves),
+                value = Json.encodeToJsonElement(emptyList<Felt>()),
                 context = Context(parent = "Session", key = "root"),
-            ).second
-
-            assertEquals(tree.rootHash, merkleTreeHash)
-            assertEquals(
-                Felt.fromHex("0x12354b159e3799dc0ebe86d62dde4ce7b300538d471e5a7fef23dcbac076011"),
-                merkleTreeHash,
             )
         }
+    }
 
-        @Test
-        fun `merkletree from empty leaves`() {
-            assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-                    typeName = "merkletree",
-                    value = Json.encodeToJsonElement(emptyList<Felt>()),
-                    context = Context(parent = "Session", key = "root"),
-                )
-            }
-        }
-
-        @Test
-        fun `merkletree with invalid contains`() {
-            val exception = assertThrows<IllegalArgumentException> {
-                MerkleTreeType(
-                    name = "root",
-                    type = "merkletree",
-                    contains = "felt*",
-                )
-            }
-            assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
-        }
-
-        @Test
-        fun `merkletree with invalid context`() {
-            val leaves = listOf(
-                mapOf("contractAddress" to "0x1", "selector" to "transfer"),
-                mapOf("contractAddress" to "0x2", "selector" to "transfer"),
-                mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+    @Test
+    fun `merkletree with invalid contains`() {
+        val exception = assertThrows<IllegalArgumentException> {
+            MerkleTreeType(
+                name = "root",
+                type = "merkletree",
+                contains = "felt*",
             )
+        }
+        assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
+    }
 
-            val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
-            val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
+    @Test
+    fun `merkletree with invalid context`() {
+        val leaves = listOf(
+            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+        )
 
-            assertThrows<IllegalArgumentException>("Parent type '${invalidParentContext.parent}' is not defined in types.") {
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
-            }
-            assertThrows<IllegalArgumentException>("Key '${invalidKeyContext.key}' is not defined in type '${invalidKeyContext.parent}'.") {
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
-            }
+        val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
+        val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
+
+        assertThrows<IllegalArgumentException>("Parent type '${invalidParentContext.parent}' is not defined in types.") {
+            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
+        }
+        assertThrows<IllegalArgumentException>("Key '${invalidKeyContext.key}' is not defined in type '${invalidKeyContext.parent}'.") {
+            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
         }
     }
 
