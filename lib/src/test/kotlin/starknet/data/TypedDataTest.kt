@@ -107,8 +107,8 @@ internal class TypedDataTest {
                 "Example",
                 """
                     "Example"("value":"felt","root":"merkletree")
-                """.trimIndent()
-            )
+                """.trimIndent(),
+            ),
         )
 
         @JvmStatic
