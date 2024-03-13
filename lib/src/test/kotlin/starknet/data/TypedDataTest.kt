@@ -116,6 +116,7 @@ internal class TypedDataTest {
             Arguments.of(CasesRev1.TD_BASIC_TYPES, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
             Arguments.of(CasesRev1.TD_PRESET_TYPES, "Example", "0x1a25a8bb84b761090b1fadaebe762c4b679b0d8883d2bedda695ea340839a55"),
             Arguments.of(CasesRev1.TD_ENUM_TYPE, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
+            Arguments.of(CasesRev1.TD_FELT_MERKLETREE, "Example", "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
         )
 
         @JvmStatic
@@ -181,7 +182,12 @@ internal class TypedDataTest {
                 "message",
                 "0x3d4384ff5cec32b86462e89f5a803b55ff0048c4f5a10ba9d6cd381317d9c3",
             ),
-
+            Arguments.of(
+                CasesRev1.TD_FELT_MERKLETREE,
+                "Example",
+                "message",
+                "0x40ef40c56c0469799a916f0b7e3bc4f1bbf28bf659c53fb8c5ee4d8d1b4f5f0",
+            ),
         )
 
         @JvmStatic
@@ -230,6 +236,11 @@ internal class TypedDataTest {
                 CasesRev1.TD_ENUM_TYPE,
                 "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
                 "0x3df10475ad5a8f49db4345a04a5b09164d2e24b09f6e1e236bc1ccd87627cc",
+            ),
+            Arguments.of(
+                CasesRev1.TD_FELT_MERKLETREE,
+                "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
+                "0x4f706783e0d7d0e61433d41343a248a213e9ab341d50ba978dfc055f26484c9",
             ),
         )
     }
