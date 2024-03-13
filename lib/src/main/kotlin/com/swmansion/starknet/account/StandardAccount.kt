@@ -260,6 +260,27 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun executeV1(calls: List<Call>, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
+        return estimateFeeV1(calls).compose { estimateFee ->
+            val maxFee = estimateFee.first().toMaxFee(estimateFeeMultiplier)
+            executeV1(calls, maxFee)
+        }
+    }
+
+    override fun executeV3(
+        calls: List<Call>,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse> {
+        return estimateFeeV3(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.first().toResourceBounds(
+                amountMultiplier = estimateAmountMultiplier,
+                unitPriceMultiplier = estimateUnitPriceMultiplier,
+            )
+            executeV3(calls, resourceBounds.l1Gas)
+        }
+    }
+
     override fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV1(calls).compose { estimateFee ->
             val maxFee = estimateFee.first().toMaxFee()
@@ -280,6 +301,22 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), l1ResourceBounds)
+    }
+
+    override fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
+        return executeV1(listOf(call), estimateFeeMultiplier)
+    }
+
+    override fun executeV3(
+        call: Call,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse> {
+        return executeV3(
+            calls = listOf(call),
+            estimateAmountMultiplier = estimateAmountMultiplier,
+            estimateUnitPriceMultiplier = estimateUnitPriceMultiplier,
+        )
     }
 
     override fun executeV1(call: Call): Request<InvokeFunctionResponse> {

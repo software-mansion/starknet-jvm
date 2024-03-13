@@ -1,8 +1,6 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
-import com.swmansion.starknet.data.types.transactions.Transaction
 import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.extensions.*
@@ -52,6 +50,12 @@ data class EstimateFeeResponse(
     @SerialName("gas_price")
     val gasPrice: Felt,
 
+    @SerialName("data_gas_consumed")
+    val dataGasConsumed: Felt,
+
+    @SerialName("data_gas_price")
+    val dataGasPrice: Felt,
+
     @SerialName("overall_fee")
     val overallFee: Felt,
 
@@ -59,24 +63,50 @@ data class EstimateFeeResponse(
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
 ) {
-    fun toMaxFee(overhead: Double = 0.5): Felt {
-        return addOverhead(overallFee.value, overhead).toFelt
+    /**
+     * Convert estimated fee to max fee with applied multiplier.
+     *
+     * Multiplies [overallFee] by round([multiplier] * 100%) and performs integer division by 100.
+     *
+     * @param multiplier Multiplier for max fee, defaults to 1.5.
+     */
+    fun toMaxFee(multiplier: Double = 1.5): Felt {
+        require(multiplier >= 0)
+
+        return overallFee.value.applyMultiplier(multiplier).toFelt
     }
 
+    /**
+     * Convert estimated fee to resource bounds with applied multipliers.
+     *
+     * Calculates max amount as maxAmount = [overallFee] / [gasPrice], unless [gasPrice] is 0, then maxAmount is 0.
+     * Calculates max price per unit as maxPricePerUnit = [gasPrice].
+     * Then multiplies maxAmount by round([amountMultiplier] * 100%) and maxPricePerUnit by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
+     *
+     * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
+     * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
+     *
+     * @return Resource bounds with applied multipliers.
+     */
     fun toResourceBounds(
-        amountOverhead: Double = 0.1,
-        unitPriceOverhead: Double = 0.5,
+        amountMultiplier: Double = 1.5,
+        unitPriceMultiplier: Double = 1.5,
     ): ResourceBoundsMapping {
-        val maxAmount = addOverhead(gasConsumed.value, amountOverhead).toUint64
-        val maxPricePerUnit = addOverhead(gasPrice.value, unitPriceOverhead).toUint128
+        require(amountMultiplier >= 0)
+        require(unitPriceMultiplier >= 0)
+
+        val maxAmount = when (gasPrice) {
+            Felt.ZERO -> Uint64.ZERO
+            else -> (overallFee.value / gasPrice.value).applyMultiplier(amountMultiplier).toUint64
+        }
+        val maxPricePerUnit = gasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
 
         return ResourceBoundsMapping(
             l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
         )
     }
-    private fun addOverhead(value: BigInteger, overhead: Double): BigInteger {
-        val multiplier = ((1 + overhead) * 100).roundToInt().toBigInteger()
-        return value.multiply(multiplier).divide(BigInteger.valueOf(100))
+    private fun BigInteger.applyMultiplier(multiplier: Double): BigInteger {
+        return (this * (multiplier * 100).roundToInt().toBigInteger()) / BigInteger.valueOf(100)
     }
 }
 
@@ -159,163 +189,6 @@ data class SyncingResponse(
     @JsonNames("highest_block_num")
     override val highestBlockNumber: Int,
 ) : Syncing()
-
-@Serializable
-sealed class GetBlockWithTransactionsResponse {
-    abstract val transactions: List<Transaction>
-    abstract val timestamp: Int
-    abstract val sequencerAddress: Felt
-    abstract val parentHash: Felt
-    abstract val l1GasPrice: ResourcePrice
-    abstract val starknetVersion: String
-}
-
-@Serializable
-data class BlockWithTransactionsResponse(
-    @SerialName("status")
-    val status: BlockStatus,
-
-    // Block body
-
-    @SerialName("transactions")
-    override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
-        Transaction,
-        >,
-
-    // Block header
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
-
-    @SerialName("block_hash")
-    val blockHash: Felt,
-
-    @SerialName("block_number")
-    val blockNumber: Int,
-
-    @SerialName("new_root")
-    val newRoot: Felt,
-
-    @SerialName("timestamp")
-    override val timestamp: Int,
-
-    @SerialName("sequencer_address")
-    override val sequencerAddress: Felt,
-
-    @SerialName("l1_gas_price")
-    override val l1GasPrice: ResourcePrice,
-
-    @SerialName("starknet_version")
-    override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse()
-
-@Serializable
-data class PendingBlockWithTransactionsResponse(
-    // Not in RPC schema, but can be returned by nodes
-    @SerialName("status")
-    val status: BlockStatus = BlockStatus.PENDING,
-
-    // Block body
-
-    @SerialName("transactions")
-    override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
-        Transaction,
-        >,
-
-    // Pending block header
-
-    @SerialName("timestamp")
-    override val timestamp: Int,
-
-    @SerialName("sequencer_address")
-    override val sequencerAddress: Felt,
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
-
-    @SerialName("l1_gas_price")
-    override val l1GasPrice: ResourcePrice,
-
-    @SerialName("starknet_version")
-    override val starknetVersion: String,
-) : GetBlockWithTransactionsResponse()
-
-sealed class GetBlockWithTransactionHashesResponse {
-    abstract val timestamp: Int
-    abstract val sequencerAddress: Felt
-    abstract val parentHash: Felt
-    abstract val transactionHashes: List<Felt>
-    abstract val l1GasPrice: ResourcePrice
-    abstract val starknetVersion: String
-}
-
-@Serializable
-data class BlockWithTransactionHashesResponse(
-    @SerialName("status")
-    val status: BlockStatus,
-
-    // Block body
-
-    @SerialName("transactions")
-    override val transactionHashes: List<Felt>,
-
-    // Block header
-
-    @SerialName("block_hash")
-    val blockHash: Felt,
-
-    @SerialName("block_number")
-    val blockNumber: Int,
-
-    @SerialName("new_root")
-    val newRoot: Felt,
-
-    @SerialName("timestamp")
-    override val timestamp: Int,
-
-    @SerialName("sequencer_address")
-    override val sequencerAddress: Felt,
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
-
-    @SerialName("l1_gas_price")
-    override val l1GasPrice: ResourcePrice,
-
-    @SerialName("starknet_version")
-    override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse()
-
-@Serializable
-data class PendingBlockWithTransactionHashesResponse(
-    // Not in RPC schema, but can be returned by nodes
-    @SerialName("status")
-    val status: BlockStatus = BlockStatus.PENDING,
-
-    // Block body
-
-    @SerialName("transactions")
-    override val transactionHashes: List<Felt>,
-
-    // Pending block header
-
-    @SerialName("timestamp")
-    override val timestamp: Int,
-
-    @SerialName("sequencer_address")
-    override val sequencerAddress: Felt,
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
-
-    @SerialName("l1_gas_price")
-    override val l1GasPrice: ResourcePrice,
-
-    @SerialName("starknet_version")
-    override val starknetVersion: String,
-) : GetBlockWithTransactionHashesResponse()
 
 @Serializable
 data class StorageEntries(
@@ -493,4 +366,13 @@ enum class PriceUnit {
     @SerialName("FRI")
     @JsonNames("STRK") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
     FRI,
+}
+
+@Serializable
+enum class L1DAMode {
+    @SerialName("BLOB")
+    BLOB,
+
+    @SerialName("CALLDATA")
+    CALLDATA,
 }

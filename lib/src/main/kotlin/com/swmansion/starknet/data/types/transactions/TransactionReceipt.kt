@@ -70,29 +70,31 @@ sealed class TransactionReceipt {
     abstract val events: List<Event>
     abstract val messagesSent: List<MessageL2ToL1>
     abstract val executionResources: ExecutionResources
+    abstract val blockHash: Felt?
+    abstract val blockNumber: Int?
 
     val isAccepted: Boolean
         get() = (
             executionStatus == TransactionExecutionStatus.SUCCEEDED &&
                 (finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L1 || finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2)
             )
-    abstract val isPending: Boolean
+
+    val isPending: Boolean
+        get() = !hasBlockInfo && finalityStatus == TransactionFinalityStatus.ACCEPTED_ON_L2
+
+    /**
+     * Checks if the receipt contains block information.
+     *
+     * This method verifies whether the receipt conforms to the `TXN_RECEIPT_WITH_BLOCK_INFO` schema as defined in the JSON-RPC spec.
+     *
+     * @return `true` if both [blockHash] and [blockNumber] are not `null`; `false` otherwise.
+     */
+    val hasBlockInfo: Boolean
+        get() = listOf(blockHash, blockNumber).all { it != null }
 }
 
 @Serializable
-sealed class ProcessedTransactionReceipt : TransactionReceipt() {
-    abstract val blockHash: Felt
-    abstract val blockNumber: Int
-    override val isPending: Boolean = false
-}
-
-@Serializable
-sealed class PendingTransactionReceipt : TransactionReceipt() {
-    override val isPending: Boolean = true
-}
-
-@Serializable
-data class ProcessedInvokeTransactionReceipt(
+data class InvokeTransactionReceipt(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -106,10 +108,10 @@ data class ProcessedInvokeTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt? = null,
 
     @SerialName("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
@@ -125,40 +127,10 @@ data class ProcessedInvokeTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : ProcessedTransactionReceipt()
+) : TransactionReceipt()
 
 @Serializable
-data class PendingInvokeTransactionReceipt(
-    @SerialName("transaction_hash")
-    override val hash: Felt,
-
-    @SerialName("actual_fee")
-    override val actualFee: FeePayment,
-
-    @SerialName("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @SerialName("events")
-    override val events: List<Event>,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
-
-    @SerialName("revert_reason")
-    override val revertReason: String? = null,
-
-    @SerialName("finality_status")
-    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
-
-    @SerialName("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @SerialName("execution_resources")
-    override val executionResources: ExecutionResources,
-) : PendingTransactionReceipt()
-
-@Serializable
-data class ProcessedDeclareTransactionReceipt(
+data class DeclareTransactionReceipt(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -172,10 +144,10 @@ data class ProcessedDeclareTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt? = null,
 
     @SerialName("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int? = null,
 
     override val type: TransactionType = TransactionType.DECLARE,
 
@@ -190,40 +162,10 @@ data class ProcessedDeclareTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : ProcessedTransactionReceipt()
+) : TransactionReceipt()
 
 @Serializable
-data class PendingDeclareTransactionReceipt(
-    @SerialName("transaction_hash")
-    override val hash: Felt,
-
-    @SerialName("actual_fee")
-    override val actualFee: FeePayment,
-
-    @SerialName("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @SerialName("events")
-    override val events: List<Event>,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
-
-    @SerialName("revert_reason")
-    override val revertReason: String? = null,
-
-    @SerialName("finality_status")
-    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
-
-    @SerialName("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @SerialName("execution_resources")
-    override val executionResources: ExecutionResources,
-) : PendingTransactionReceipt()
-
-@Serializable
-data class ProcessedDeployAccountTransactionReceipt(
+data class DeployAccountTransactionReceipt(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -237,10 +179,10 @@ data class ProcessedDeployAccountTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt? = null,
 
     @SerialName("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
@@ -259,43 +201,10 @@ data class ProcessedDeployAccountTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : ProcessedTransactionReceipt()
+) : TransactionReceipt()
 
 @Serializable
-data class PendingDeployAccountTransactionReceipt(
-    @SerialName("transaction_hash")
-    override val hash: Felt,
-
-    @SerialName("actual_fee")
-    override val actualFee: FeePayment,
-
-    @SerialName("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @SerialName("events")
-    override val events: List<Event>,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-
-    @SerialName("revert_reason")
-    override val revertReason: String? = null,
-
-    @SerialName("finality_status")
-    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
-
-    @SerialName("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @SerialName("execution_resources")
-    override val executionResources: ExecutionResources,
-
-    @SerialName("contract_address")
-    val contractAddress: Felt,
-) : PendingTransactionReceipt()
-
-@Serializable
-data class ProcessedDeployTransactionReceipt(
+data class DeployTransactionReceipt(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -309,10 +218,10 @@ data class ProcessedDeployTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt? = null,
 
     @SerialName("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int? = null,
 
     @SerialName("type")
     override val type: TransactionType,
@@ -331,10 +240,10 @@ data class ProcessedDeployTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : ProcessedTransactionReceipt()
+) : TransactionReceipt()
 
 @Serializable
-data class ProcessedL1HandlerTransactionReceipt(
+data class L1HandlerTransactionReceipt(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -348,10 +257,10 @@ data class ProcessedL1HandlerTransactionReceipt(
     override val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("block_hash")
-    override val blockHash: Felt,
+    override val blockHash: Felt? = null,
 
     @SerialName("block_number")
-    override val blockNumber: Int,
+    override val blockNumber: Int? = null,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
@@ -370,37 +279,4 @@ data class ProcessedL1HandlerTransactionReceipt(
 
     @SerialName("message_hash")
     val messageHash: NumAsHex,
-) : ProcessedTransactionReceipt()
-
-@Serializable
-data class PendingL1HandlerTransactionReceipt(
-    @SerialName("transaction_hash")
-    override val hash: Felt,
-
-    @SerialName("actual_fee")
-    override val actualFee: FeePayment,
-
-    @SerialName("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @SerialName("events")
-    override val events: List<Event>,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.L1_HANDLER,
-
-    @SerialName("revert_reason")
-    override val revertReason: String? = null,
-
-    @SerialName("finality_status")
-    override val finalityStatus: TransactionFinalityStatus = TransactionFinalityStatus.ACCEPTED_ON_L2,
-
-    @SerialName("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @SerialName("execution_resources")
-    override val executionResources: ExecutionResources,
-
-    @SerialName("message_hash")
-    val messageHash: Felt,
-) : PendingTransactionReceipt()
+) : TransactionReceipt()

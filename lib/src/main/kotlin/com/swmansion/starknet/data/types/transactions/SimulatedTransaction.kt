@@ -71,7 +71,7 @@ data class FunctionInvocation(
     val messages: List<OrderedMessageL2ToL1>,
 
     @SerialName("execution_resources")
-    val executionResources: ExecutionResources,
+    val computationResources: ComputationResources,
 )
 
 @Serializable
@@ -111,6 +111,9 @@ data class InvokeTransactionTrace(
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
@@ -126,6 +129,9 @@ data class RevertedInvokeTransactionTrace(
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 ) : InvokeTransactionTraceBase()
 
 @Serializable
@@ -138,6 +144,9 @@ data class DeclareTransactionTrace(
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 
     @SerialName("type")
     override val type: TransactionType = TransactionType.DECLARE,
@@ -156,6 +165,9 @@ data class DeployAccountTransactionTrace(
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
 
     @SerialName("type")
     override val type: TransactionType,

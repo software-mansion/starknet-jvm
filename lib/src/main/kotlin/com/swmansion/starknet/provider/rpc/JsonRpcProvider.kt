@@ -1,7 +1,7 @@
 package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.serializers.*
-import com.swmansion.starknet.data.serializers.GetBlockWithTransactionsPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
@@ -494,52 +494,76 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_CHAIN_ID, params, StarknetChainId.serializer())
     }
 
-    private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<GetBlockWithTransactionsResponse> {
+    private fun getBlockWithTxs(payload: GetBlockWithTransactionsPayload): Request<BlockWithTransactions> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TXS, jsonPayload, GetBlockWithTransactionsPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TXS, jsonPayload, BlockWithTransactionsPolymorphicSerializer)
     }
 
-    override fun getBlockWithTxs(blockTag: BlockTag): Request<GetBlockWithTransactionsResponse> {
+    override fun getBlockWithTxs(blockTag: BlockTag): Request<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Tag(blockTag))
 
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxs(blockHash: Felt): Request<GetBlockWithTransactionsResponse> {
+    override fun getBlockWithTxs(blockHash: Felt): Request<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Hash(blockHash))
 
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxs(blockNumber: Int): Request<GetBlockWithTransactionsResponse> {
+    override fun getBlockWithTxs(blockNumber: Int): Request<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Number(blockNumber))
 
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxHashes(blockTag: BlockTag): Request<GetBlockWithTransactionHashesResponse> {
+    override fun getBlockWithTxHashes(blockTag: BlockTag): Request<BlockWithTransactionHashes> {
         val payload = GetBlockWithTransactionHashesPayload(BlockId.Tag(blockTag))
 
         return getBlockWithTxHashes(payload)
     }
 
-    override fun getBlockWithTxHashes(blockHash: Felt): Request<GetBlockWithTransactionHashesResponse> {
+    override fun getBlockWithTxHashes(blockHash: Felt): Request<BlockWithTransactionHashes> {
         val payload = GetBlockWithTransactionHashesPayload(BlockId.Hash(blockHash))
 
         return getBlockWithTxHashes(payload)
     }
 
-    override fun getBlockWithTxHashes(blockNumber: Int): Request<GetBlockWithTransactionHashesResponse> {
+    override fun getBlockWithTxHashes(blockNumber: Int): Request<BlockWithTransactionHashes> {
         val payload = GetBlockWithTransactionHashesPayload(BlockId.Number(blockNumber))
 
         return getBlockWithTxHashes(payload)
     }
 
-    private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): Request<GetBlockWithTransactionHashesResponse> {
+    private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): Request<BlockWithTransactionHashes> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, GetBlockWithTransactionHashesPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, BlockWithTransactionHashesPolymorphicSerializer)
+    }
+
+    override fun getBlockWithReceipts(blockTag: BlockTag): Request<BlockWithReceipts> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Tag(blockTag))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    override fun getBlockWithReceipts(blockHash: Felt): Request<BlockWithReceipts> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Hash(blockHash))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    override fun getBlockWithReceipts(blockNumber: Int): Request<BlockWithReceipts> {
+        val payload = GetBlockWithReceiptsPayload(BlockId.Number(blockNumber))
+
+        return getBlockWithReceipts(payload)
+    }
+
+    private fun getBlockWithReceipts(payload: GetBlockWithReceiptsPayload): Request<BlockWithReceipts> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_RECEIPTS, jsonPayload, BlockWithReceiptsPolymorphicSerializer)
     }
 
     private fun getStateUpdate(payload: GetStateUpdatePayload): Request<StateUpdate> {
@@ -637,6 +661,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     ESTIMATE_MESSAGE_FEE("starknet_estimateMessageFee"),
     GET_BLOCK_WITH_TXS("starknet_getBlockWithTxs"),
     GET_BLOCK_WITH_TX_HASHES("starknet_getBlockWithTxHashes"),
+    GET_BLOCK_WITH_RECEIPTS("starknet_getBlockWithReceipts"),
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_NONCE("starknet_getNonce"),

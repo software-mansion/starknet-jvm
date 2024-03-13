@@ -321,6 +321,60 @@ interface Account {
     fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
 
     /**
+     * Execute a list of calls using version 1 invoke transaction with automatically estimated fee
+     * that will be multiplied by the specified multiplier when max fee is calculated.
+     *
+     * @see [EstimateFeeResponse.toMaxFee] for algorithm used to calculate max fee.
+     *
+     * @param calls a list of calls to be executed.
+     * @param estimateFeeMultiplier how big multiplier should be used for the estimated fee.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV1(calls: List<Call>, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute a list of calls using version 3 invoke transaction with automatically estimated fee
+     * that will be multiplied by the specified multipliers when resource bounds are calculated.
+     *
+     * @see [EstimateFeeResponse.toResourceBounds] for algorithm used to calculate resource bounds.
+     *
+     * @param calls a list of calls to be executed.
+     * @param estimateAmountMultiplier how big multiplier should be used for the estimated amount.
+     * @param estimateUnitPriceMultiplier how big multiplier should be used for the estimated unit price.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(calls: List<Call>, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 1 invoke transaction with automatically estimated fee
+     * that will be multiplied by the specified multiplier when max fee is calculated.
+     *
+     * @see [EstimateFeeResponse.toMaxFee] for algorithm used to calculate max fee.
+     *
+     * @param call a call to be executed.
+     * @param estimateFeeMultiplier how big multiplier should be used for the estimated fee.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 3 invoke transaction with automatically estimated fee
+     * that will be multiplied by the specified multipliers when resource bounds are calculated.
+     *
+     * @see [EstimateFeeResponse.toResourceBounds] for algorithm used to calculate resource bounds.
+     *
+     * @param call a call to be executed.
+     * @param estimateAmountMultiplier how big multiplier should be used for the estimated amount.
+     * @param estimateUnitPriceMultiplier how big multiplier should be used for the estimated unit price.
+     *
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+
+    /**
      * Execute a list of calls with automatically estimated fee using version 1 invoke transaction.
      *
      * @param calls a list of calls to be executed.
