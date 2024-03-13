@@ -18,12 +18,10 @@ data class StarknetByteArray(
             val shortStrings = string.splitToShortStrings()
             val encodedShortStrings = shortStrings.map(Felt::fromShortString)
 
-            val (data, pendingWord, pendingWordLen) = if (shortStrings.isEmpty() || shortStrings.last().length == 31)
-                Triple(encodedShortStrings, Felt.ZERO, 0)
+            return if (shortStrings.isEmpty() || shortStrings.last().length == 31)
+                StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
             else
-                Triple(encodedShortStrings.dropLast(1), encodedShortStrings.last(), shortStrings.last().length)
-
-            return StarknetByteArray(data.ifEmpty { listOf(Felt.ZERO) }, pendingWord, pendingWordLen)
+                StarknetByteArray(encodedShortStrings.dropLast(1), encodedShortStrings.last(), shortStrings.last().length)
         }
     }
 }

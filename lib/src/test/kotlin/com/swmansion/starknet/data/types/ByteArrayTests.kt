@@ -19,7 +19,7 @@ internal class ByteArrayTests {
             return listOf(
                 ByteArrayTestCase(
                     input = "hello",
-                    data = listOf(Felt.ZERO),
+                    data = emptyList(),
                     pendingWord = Felt.fromHex("0x68656c6c6f"),
                     pendingWordLen = 5,
                 ),
@@ -46,13 +46,13 @@ internal class ByteArrayTests {
                 ),
                 ByteArrayTestCase(
                     input = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234",
-                    data = listOf(Felt.ZERO),
+                    data = listOf(),
                     pendingWord = Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a31323334"),
                     pendingWordLen = 30,
                 ),
                 ByteArrayTestCase(
                     input = "",
-                    data = listOf(Felt.ZERO),
+                    data = emptyList(),
                     pendingWord = Felt.ZERO,
                     pendingWordLen = 0,
                 ),
