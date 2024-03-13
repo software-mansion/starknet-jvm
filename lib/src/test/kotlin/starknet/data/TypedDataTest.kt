@@ -63,6 +63,11 @@ internal class TypedDataTest {
                 "Mail(from:Person,to:Person,posts_len:felt,posts:Post*)Person(name:felt,wallet:felt)Post(title:felt,content:felt)",
             ),
             Arguments.of(
+                CasesRev0.TD_STRUCT_MERKLETREE,
+                "Session",
+                "Session(key:felt,expires:felt,root:merkletree)",
+            ),
+            Arguments.of(
                 CasesRev1.TD,
                 "Mail",
                 """
@@ -97,6 +102,13 @@ internal class TypedDataTest {
                     "Example"("someEnum":"MyEnum")"MyEnum"("Variant 1":(),"Variant 2":("u128","u128*"),"Variant 3":("u128"))
                 """.trimIndent(),
             ),
+            Arguments.of(
+                CasesRev1.TD_FELT_MERKLETREE,
+                "Example",
+                """
+                    "Example"("value":"felt","root":"merkletree")
+                """.trimIndent()
+            )
         )
 
         @JvmStatic
