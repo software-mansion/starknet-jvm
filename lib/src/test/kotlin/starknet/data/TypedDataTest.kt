@@ -428,8 +428,6 @@ internal class TypedDataTest {
         }
     }
 
-
-
     @ParameterizedTest
     @EnumSource(Revision::class)
     fun `basic types redefinition`(revision: Revision) {
