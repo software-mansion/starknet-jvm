@@ -366,13 +366,14 @@ internal class TypedDataTest {
 
         @Test
         fun `merkletree with invalid contains`() {
-            assertThrows<IllegalArgumentException>("Merkletree 'contains' field cannot be an array, got 'felt*' in type 'root'.") {
+            val exception = assertThrows<IllegalArgumentException> {
                 MerkleTreeType(
                     name = "root",
                     type = "merkletree",
                     contains = "felt*",
                 )
             }
+            assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
         }
 
         @Test
