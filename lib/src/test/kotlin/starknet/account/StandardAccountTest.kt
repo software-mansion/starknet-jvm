@@ -17,7 +17,6 @@ import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -410,33 +409,6 @@ class StandardAccountTest {
 
             val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
-
-            val contractDefinition = Cairo2ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
-            val nonce = account.getNonce().send()
-
-            val declareTransactionPayload = account.signDeclareV2(
-                contractDefinition,
-                contractCasmDefinition,
-                ExecutionParams(nonce, Felt(10000000000000000)),
-            )
-            val request = provider.declareContract(declareTransactionPayload)
-            val result = request.send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        // TODO: Re-enable this test once devnet supports 2.6.0 casm hash calculation
-        //  https://github.com/0xSpaceShard/starknet-devnet-rs/issues/374
-        @Disabled
-        @Test
-        fun `sign and send declare v2 transaction (cairo compiler v2_6)`(){
-            devnetClient.prefundAccountEth(accountAddress)
-
-            val contractCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.contract_class.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.compiled_contract_class.json").readText()
 
             val contractDefinition = Cairo2ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
