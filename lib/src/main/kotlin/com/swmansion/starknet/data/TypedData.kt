@@ -108,13 +108,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    val types: Map<String, List<Type>> = run {
-        val presetTypes = when (revision) {
-            Revision.V0 -> presetTypesV0
-            Revision.V1 -> presetTypesV1
-        }
-        customTypes + presetTypes
-    }
+    private val types: Map<String, List<Type>> = customTypes + getPresetTypes(revision)
 
     private val hashMethod by lazy {
         when (revision) {
