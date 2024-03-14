@@ -130,6 +130,36 @@ internal class NumAsHexBaseTests {
         }
 
         @Test
+        fun `from signed integer`() {
+            assertEquals(
+                Felt.MAX.toFelt,
+                Felt.fromSigned(-1),
+            )
+            assertEquals(
+                Felt.ONE,
+                Felt.fromSigned(-Felt.MAX),
+            )
+            assertEquals(
+                (Felt.PRIME - Int.MAX_VALUE.toBigInteger()).toFelt,
+                Felt.fromSigned(-Int.MAX_VALUE),
+            )
+            assertEquals(
+                (Felt.PRIME - Long.MAX_VALUE.toBigInteger()).toFelt,
+                Felt.fromSigned(-Long.MAX_VALUE),
+            )
+
+            assertEquals(Felt.ZERO, Felt.fromSigned(0))
+            assertEquals(Felt.ONE, Felt.fromSigned(1))
+
+            assertThrows<IllegalArgumentException> {
+                Felt.fromSigned(Felt.PRIME)
+            }
+            assertThrows<IllegalArgumentException> {
+                Felt.fromSigned(-Felt.PRIME)
+            }
+        }
+
+        @Test
         fun `felt array is convertible to calldata`() {
             val convertibleToCalldata = ArrayList<ConvertibleToCalldata>()
 
