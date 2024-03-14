@@ -2,9 +2,9 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.crypto.HashMethod
 
-data class MerkleTree @JvmOverloads constructor(
+data class MerkleTree(
     val leafHashes: List<Felt>,
-    val hashFunction: HashMethod = HashMethod.PEDERSEN,
+    val hashFunction: HashMethod,
 ) {
     private val buildResult = build(leafHashes)
 

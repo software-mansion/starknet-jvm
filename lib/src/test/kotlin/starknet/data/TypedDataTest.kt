@@ -367,7 +367,7 @@ internal class TypedDataTest {
                 value = Json.encodeToJsonElement(leaf),
             ).second
         }
-        val tree = MerkleTree(hashedLeaves)
+        val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
 
         val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
             typeName = "merkletree",
