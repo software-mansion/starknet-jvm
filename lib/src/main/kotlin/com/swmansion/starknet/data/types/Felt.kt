@@ -99,5 +99,37 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
             return true
         }
+
+        /**
+         * Create Felt from signed [BigInteger] value. It must be in range (-[Felt.PRIME], [Felt.PRIME]).
+         *
+         * Calculated as [value] mod [Felt.PRIME].
+         */
+        @JvmStatic
+        fun fromSigned(value: BigInteger): Felt {
+            require(value.abs() < PRIME) { "Values outside the range (-Felt.PRIME, Felt.PRIME) are not allowed, [$value] given." }
+
+            return Felt(value.mod(PRIME))
+        }
+
+        /**
+         * Create Felt from signed [Long] value.
+         *
+         * Calculated as [value] mod [Felt.PRIME].
+         */
+        @JvmStatic
+        fun fromSigned(value: Long): Felt {
+            return fromSigned(BigInteger.valueOf(value))
+        }
+
+        /**
+         * Create Felt from signed [Int] value.
+         *
+         * Calculated as [value] mod [Felt.PRIME].
+         */
+        @JvmStatic
+        fun fromSigned(value: Int): Felt {
+            return fromSigned(BigInteger.valueOf(value.toLong()))
+        }
     }
 }
