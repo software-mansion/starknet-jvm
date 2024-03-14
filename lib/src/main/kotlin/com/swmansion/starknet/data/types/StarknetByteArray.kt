@@ -14,6 +14,7 @@ data class StarknetByteArray(
     }
 
     companion object {
+        @JvmStatic
         fun fromString(string: String): StarknetByteArray {
             val shortStrings = string.splitToShortStrings()
             val encodedShortStrings = shortStrings.map(Felt::fromShortString)
