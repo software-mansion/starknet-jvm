@@ -19,8 +19,8 @@ data class StarknetByteArray(
     val pendingWordLen: Int,
 ) : ConvertibleToCalldata {
     init {
-        data.forEach{
-            require(it.byteLength == 31) { "All elements of 'data' must be 31 bytes long. [${it.hexString()}] of length [${it.byteLength}] given."}
+        data.forEach {
+            require(it.byteLength == 31) { "All elements of 'data' must be 31 bytes long. [${it.hexString()}] of length [${it.byteLength}] given." }
         }
         require(pendingWordLen in 0..30) {
             "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
