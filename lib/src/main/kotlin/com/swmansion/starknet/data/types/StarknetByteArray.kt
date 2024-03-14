@@ -18,6 +18,18 @@ data class StarknetByteArray(
     val pendingWord: Felt,
     val pendingWordLen: Int,
 ) : ConvertibleToCalldata {
+    init {
+        data.forEach{
+            require(it.byteLength == 31) { "All elements of 'data' must be 31 bytes long. [${it.hexString()}] of length [${it.byteLength}] given."}
+        }
+        require(pendingWordLen in 0..30) {
+            "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
+        }
+        require(pendingWord.byteLength == pendingWordLen) {
+            "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
+        }
+    }
+
     /**
      * Encode as a Felt list
      */
@@ -43,3 +55,6 @@ data class StarknetByteArray(
         }
     }
 }
+
+internal val Felt.byteLength: Int
+    get() = (value.bitLength() + 7) / 8

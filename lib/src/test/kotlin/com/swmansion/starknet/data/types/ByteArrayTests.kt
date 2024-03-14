@@ -2,6 +2,9 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.extensions.toFelt
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -73,5 +76,50 @@ internal class ByteArrayTests {
             listOf(testCase.data.size.toFelt) + testCase.data + listOf(testCase.pendingWord, testCase.pendingWordLen.toFelt),
             byteArray.toCalldata(),
         )
+    }
+
+    @Nested
+    inner class InvalidByteArrayTests {
+        @Test
+        fun `byte array from string with invalid pending word length`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                StarknetByteArray(
+                    data = emptyList(),
+                    pendingWord = Felt.fromHex("0x68656c6c6f"),
+                    pendingWordLen = 31,
+                )
+            }
+
+            assertEquals("The length of 'pendingWord' must be between 0 and 30. [31] given.", exception.message)
+        }
+
+        @Test
+        fun `byte array from string with invalid pending word`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                StarknetByteArray(
+                    data = emptyList(),
+                    pendingWord = Felt.fromHex("0x68656c6c6f"),
+                    pendingWordLen = 4,
+                )
+            }
+
+            assertEquals("The length of 'pendingWord' must be equal to 'pendingWordLen'. [0x68656c6c6f] of length [5] given.", exception.message)
+        }
+
+        @Test
+        fun `byte array from string with invalid data`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                StarknetByteArray(
+                    data = listOf(
+                        Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
+                        Felt.fromHex("0x68656c6c6f"),
+                    ),
+                    pendingWord = Felt.ZERO,
+                    pendingWordLen = 0,
+                )
+            }
+
+            assertEquals("All elements of 'data' must be 31 bytes long. [0x68656c6c6f] of length [5] given.", exception.message)
+        }
     }
 }
