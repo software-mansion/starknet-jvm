@@ -105,6 +105,7 @@ data class TypedData private constructor(
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @Transient
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
