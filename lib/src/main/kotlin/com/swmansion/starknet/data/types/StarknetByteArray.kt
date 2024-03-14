@@ -26,6 +26,11 @@ data class StarknetByteArray(
     }
 
     companion object {
+        /**
+         * Create byte array from a string.
+         *
+         * @param string The string to be transformed to byte array
+         */
         @JvmStatic
         fun fromString(string: String): StarknetByteArray {
             val shortStrings = string.splitToShortStrings()
