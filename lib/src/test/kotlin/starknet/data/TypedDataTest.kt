@@ -157,7 +157,7 @@ internal class TypedDataTest {
                 Felt(2),
                 Felt(3),
             ),
-            HashMethod.PEDERSEN
+            HashMethod.PEDERSEN,
         )
         val leaves = tree.leafHashes
 
