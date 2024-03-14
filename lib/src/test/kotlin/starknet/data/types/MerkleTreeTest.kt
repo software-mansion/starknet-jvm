@@ -38,12 +38,13 @@ internal class MerkleTreeTest {
         assertEquals(rawHash2, merkleHash2)
     }
 
-    @Test
-    fun `throws on 0 elements`() {
+    @ParameterizedTest
+    @EnumSource(HashMethod::class)
+    fun `throws on 0 elements`(hashFunction: HashMethod) {
         val leaves = emptyList<Felt>()
 
         assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
-            MerkleTree(leaves)
+            MerkleTree(leaves, hashFunction)
         }
     }
 

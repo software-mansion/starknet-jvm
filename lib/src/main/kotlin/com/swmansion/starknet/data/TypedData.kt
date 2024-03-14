@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
@@ -247,7 +248,7 @@ data class TypedData private constructor(
                 val merkleTreeType = getMerkleTreeType(context)
                 val array = value as JsonArray
                 val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
-                val root = MerkleTree(structHashes).rootHash
+                val root = MerkleTree(structHashes, HashMethod.PEDERSEN).rootHash
                 "merkletree" to root
             }
             else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
