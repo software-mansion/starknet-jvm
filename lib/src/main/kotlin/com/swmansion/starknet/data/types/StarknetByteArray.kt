@@ -4,6 +4,15 @@ import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.splitToShortStrings
 import com.swmansion.starknet.extensions.toFelt
 
+/**
+ * Represents a ByteArray struct from Cairo.
+ *
+ * The ByteArray struct is used to represent a string in Cairo.
+ *
+ * @param data The list of 31-byte chunks of the byte array
+ * @param pendingWord The last chunk of the byte array, which consists of at most 30 bytes
+ * @param pendingWordLen The number of bytes in [pendingWord]
+ */
 data class StarknetByteArray(
     val data: List<Felt>,
     val pendingWord: Felt,
