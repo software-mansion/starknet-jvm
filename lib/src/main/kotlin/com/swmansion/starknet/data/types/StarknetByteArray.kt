@@ -18,6 +18,9 @@ data class StarknetByteArray(
     val pendingWord: Felt,
     val pendingWordLen: Int,
 ) : ConvertibleToCalldata {
+    /**
+     * Encode as a Felt list
+     */
     override fun toCalldata(): List<Felt> {
         return listOf(data.size.toFelt) + data + listOf(pendingWord, pendingWordLen.toFelt)
     }
