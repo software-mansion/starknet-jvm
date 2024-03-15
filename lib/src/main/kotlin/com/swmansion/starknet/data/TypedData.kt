@@ -474,84 +474,84 @@ data class TypedData private constructor(
         )
     }
 
+    private sealed class BasicType {
+        abstract val typeName: String
+
+        override fun toString() = typeName
+
+        sealed interface V0
+        sealed interface V1
+
+        data object Felt : BasicType(), V0, V1 { override val typeName = "felt" }
+        data object Bool : BasicType(), V0, V1 { override val typeName = "bool" }
+        data object Selector : BasicType(), V0, V1 { override val typeName = "selector" }
+        data object MerkleTree : BasicType(), V0, V1 { override val typeName = "merkletree" }
+        data object StringV0 : BasicType(), V0 { override val typeName = "string" }
+        data object StringV1 : BasicType(), V1 { override val typeName = "string" }
+        data object Enum : BasicType(), V1 { override val typeName = "enum" }
+        data object I128 : BasicType(), V1 { override val typeName = "i128" }
+        data object U128 : BasicType(), V1 { override val typeName = "u128" }
+        data object ContractAddress : BasicType(), V1 { override val typeName = "ContractAddress" }
+        data object ClassHash : BasicType(), V1 { override val typeName = "ClassHash" }
+        data object Timestamp : BasicType(), V1 { override val typeName = "timestamp" }
+        data object ShortString : BasicType(), V1 { override val typeName = "shortstring" }
+
+        companion object {
+            fun values(revision: Revision): List<BasicType> {
+                val instances = BasicType::class.sealedSubclasses.mapNotNull { it.objectInstance }
+
+                return when (revision) {
+                    Revision.V0 -> instances.filterIsInstance<V0>()
+                    Revision.V1 -> instances.filterIsInstance<V1>()
+                }.map { it as BasicType }
+            }
+
+            fun fromName(typeName: String, revision: Revision): BasicType? {
+                return values(revision).find { it.typeName == typeName }
+            }
+        }
+    }
+
+    private sealed class PresetType {
+        abstract val typeName: String
+        abstract val params: List<Type>
+
+        override fun toString() = typeName
+
+        sealed interface V1
+
+        data object U256 : PresetType(), V1 {
+            override val typeName = "u256"
+            override val params = listOf(
+                StandardType("low", "u128"),
+                StandardType("high", "u128"),
+            )
+        }
+        data object TokenAmount : PresetType(), V1 {
+            override val typeName = "TokenAmount"
+            override val params = listOf(
+                StandardType("token_address", "ContractAddress"),
+                StandardType("amount", "u256"),
+            )
+        }
+        data object NftId : PresetType(), V1 {
+            override val typeName = "NftId"
+            override val params = listOf(
+                StandardType("collection_address", "ContractAddress"),
+                StandardType("token_id", "u256"),
+            )
+        }
+        companion object {
+            fun values(revision: Revision): List<PresetType> {
+                return when (revision) {
+                    Revision.V0 -> emptyList()
+                    Revision.V1 -> PresetType::class.sealedSubclasses.mapNotNull { it.objectInstance }.filterIsInstance<V1>()
+                }.map { it as PresetType }
+            }
+        }
+    }
+
     companion object {
-        private sealed class BasicType {
-            abstract val typeName: String
-
-            override fun toString() = typeName
-
-            sealed interface V0
-            sealed interface V1
-
-            data object Felt : BasicType(), V0, V1 { override val typeName = "felt" }
-            data object Bool : BasicType(), V0, V1 { override val typeName = "bool" }
-            data object Selector : BasicType(), V0, V1 { override val typeName = "selector" }
-            data object MerkleTree : BasicType(), V0, V1 { override val typeName = "merkletree" }
-            data object StringV0 : BasicType(), V0 { override val typeName = "string" }
-            data object StringV1 : BasicType(), V1 { override val typeName = "string" }
-            data object Enum : BasicType(), V1 { override val typeName = "enum" }
-            data object I128 : BasicType(), V1 { override val typeName = "i128" }
-            data object U128 : BasicType(), V1 { override val typeName = "u128" }
-            data object ContractAddress : BasicType(), V1 { override val typeName = "ContractAddress" }
-            data object ClassHash : BasicType(), V1 { override val typeName = "ClassHash" }
-            data object Timestamp : BasicType(), V1 { override val typeName = "timestamp" }
-            data object ShortString : BasicType(), V1 { override val typeName = "shortstring" }
-
-            companion object {
-                fun values(revision: Revision): List<BasicType> {
-                    val instances = BasicType::class.sealedSubclasses.mapNotNull { it.objectInstance }
-
-                    return when (revision) {
-                        Revision.V0 -> instances.filterIsInstance<V0>()
-                        Revision.V1 -> instances.filterIsInstance<V1>()
-                    }.map { it as BasicType }
-                }
-
-                fun fromName(typeName: String, revision: Revision): BasicType? {
-                    return values(revision).find { it.typeName == typeName }
-                }
-            }
-        }
-
-        private sealed class PresetType {
-            abstract val typeName: String
-            abstract val params: List<Type>
-
-            override fun toString() = typeName
-
-            sealed interface V1
-
-            data object U256 : PresetType(), V1 {
-                override val typeName = "u256"
-                override val params = listOf(
-                    StandardType("low", "u128"),
-                    StandardType("high", "u128"),
-                )
-            }
-            data object TokenAmount : PresetType(), V1 {
-                override val typeName = "TokenAmount"
-                override val params = listOf(
-                    StandardType("token_address", "ContractAddress"),
-                    StandardType("amount", "u256"),
-                )
-            }
-            data object NftId : PresetType(), V1 {
-                override val typeName = "NftId"
-                override val params = listOf(
-                    StandardType("collection_address", "ContractAddress"),
-                    StandardType("token_id", "u256"),
-                )
-            }
-            companion object {
-                fun values(revision: Revision): List<PresetType> {
-                    return when (revision) {
-                        Revision.V0 -> emptyList()
-                        Revision.V1 -> PresetType::class.sealedSubclasses.mapNotNull { it.objectInstance }.filterIsInstance<V1>()
-                    }.map { it as PresetType }
-                }
-            }
-        }
-
         /**
          * Create TypedData from JSON string.
          *
