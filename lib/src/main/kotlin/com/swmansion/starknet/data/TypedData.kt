@@ -487,19 +487,19 @@ data class TypedData private constructor(
             sealed interface V0
             sealed interface V1
 
-            data object Felt : BasicType(), V0, V1 { override val typeName: String = "felt" }
-            data object Bool : BasicType(), V0, V1 { override val typeName: String = "bool" }
-            data object Selector : BasicType(), V0, V1 { override val typeName: String = "selector" }
-            data object MerkleTree : BasicType(), V0, V1 { override val typeName: String = "merkletree" }
-            data object StringV0 : BasicType(), V0 { override val typeName: String = "string" }
-            data object StringV1 : BasicType(), V1 { override val typeName: String = "string" }
-            data object Enum : BasicType(), V1 { override val typeName: String = "enum" }
-            data object I128 : BasicType(), V1 { override val typeName: String = "i128" }
-            data object U128 : BasicType(), V1 { override val typeName: String = "u128" }
-            data object ContractAddress : BasicType(), V1 { override val typeName: String = "ContractAddress" }
-            data object ClassHash : BasicType(), V1 { override val typeName: String = "ClassHash" }
-            data object Timestamp : BasicType(), V1 { override val typeName: String = "timestamp" }
-            data object ShortString : BasicType(), V1 { override val typeName: String = "shortstring" }
+            data object Felt : BasicType(), V0, V1 { override val typeName = "felt" }
+            data object Bool : BasicType(), V0, V1 { override val typeName = "bool" }
+            data object Selector : BasicType(), V0, V1 { override val typeName = "selector" }
+            data object MerkleTree : BasicType(), V0, V1 { override val typeName = "merkletree" }
+            data object StringV0 : BasicType(), V0 { override val typeName = "string" }
+            data object StringV1 : BasicType(), V1 { override val typeName = "string" }
+            data object Enum : BasicType(), V1 { override val typeName = "enum" }
+            data object I128 : BasicType(), V1 { override val typeName = "i128" }
+            data object U128 : BasicType(), V1 { override val typeName = "u128" }
+            data object ContractAddress : BasicType(), V1 { override val typeName = "ContractAddress" }
+            data object ClassHash : BasicType(), V1 { override val typeName = "ClassHash" }
+            data object Timestamp : BasicType(), V1 { override val typeName = "timestamp" }
+            data object ShortString : BasicType(), V1 { override val typeName = "shortstring" }
 
             companion object {
                 fun values(revision: Revision): List<BasicType> {
@@ -526,22 +526,22 @@ data class TypedData private constructor(
             sealed interface V1
 
             data object U256 : PresetType(), V1 {
-                override val typeName: String = "u256"
-                override val params: List<Type> = listOf(
+                override val typeName = "u256"
+                override val params = listOf(
                     StandardType("low", "u128"),
                     StandardType("high", "u128"),
                 )
             }
             data object TokenAmount : PresetType(), V1 {
-                override val typeName: String = "TokenAmount"
-                override val params: List<Type> = listOf(
+                override val typeName = "TokenAmount"
+                override val params = listOf(
                     StandardType("token_address", "ContractAddress"),
                     StandardType("amount", "u256"),
                 )
             }
             data object NftId : PresetType(), V1 {
-                override val typeName: String = "NftId"
-                override val params: List<Type> = listOf(
+                override val typeName = "NftId"
+                override val params = listOf(
                     StandardType("collection_address", "ContractAddress"),
                     StandardType("token_id", "u256"),
                 )
