@@ -128,7 +128,7 @@ data class TypedData private constructor(
         require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
         BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [${it.typeName}] was found." } }
-        PresetType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [$it] was found." } }
+        PresetType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [${it.typeName}] was found." } }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
@@ -517,48 +517,43 @@ data class TypedData private constructor(
             }
         }
 
-        private interface PresetType {
-            val typeName: String
-            val params: List<Type>
-
-            companion object {
-                internal fun values(revision: Revision): List<PresetType> {
-                    return when (revision) {
-                        Revision.V0 -> emptyList()
-                        Revision.V1 -> PresetTypeV1.entries
-                    }
-                }
-            }
-        }
-
-        enum class PresetTypeV1(
-            override val typeName: String,
-            override val params: List<Type>,
-        ) : PresetType {
-            U256(
-                "u256",
-                listOf(
-                    StandardType("low", "u128"),
-                    StandardType("high", "u128"),
-                ),
-            ),
-            TOKEN_AMOUNT(
-                "TokenAmount",
-                listOf(
-                    StandardType("token_address", "ContractAddress"),
-                    StandardType("amount", "u256"),
-                ),
-            ),
-            NFT_ID(
-                "NftId",
-                listOf(
-                    StandardType("collection_address", "ContractAddress"),
-                    StandardType("token_id", "u256"),
-                ),
-            ),
-            ;
+        private sealed class PresetType {
+            abstract val typeName: String
+            abstract val params: List<Type>
 
             override fun toString() = typeName
+
+            sealed interface V1
+
+            data object U256 : PresetType(), V1 {
+                override val typeName: String = "u256"
+                override val params: List<Type> = listOf(
+                    StandardType("low", "u128"),
+                    StandardType("high", "u128"),
+                )
+            }
+            data object TokenAmount : PresetType(), V1 {
+                override val typeName: String = "TokenAmount"
+                override val params: List<Type> = listOf(
+                    StandardType("token_address", "ContractAddress"),
+                    StandardType("amount", "u256"),
+                )
+            }
+            data object NftId : PresetType(), V1 {
+                override val typeName: String = "NftId"
+                override val params: List<Type> = listOf(
+                    StandardType("collection_address", "ContractAddress"),
+                    StandardType("token_id", "u256"),
+                )
+            }
+            companion object {
+                fun values(revision: Revision): List<PresetType> {
+                    return when (revision) {
+                        Revision.V0 -> emptyList()
+                        Revision.V1 -> PresetType::class.sealedSubclasses.mapNotNull { it.objectInstance }.filterIsInstance<V1>()
+                    }.map { it as PresetType }
+                }
+            }
         }
 
         /**
