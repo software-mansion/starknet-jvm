@@ -32,17 +32,13 @@ object Cairo1ClassHashCalculator {
         val externalEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
         val l1HandlerEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
         val constructorEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
-        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { hashBytecodeSegments(contractClass) }
+        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths) }
             ?: Poseidon.poseidonHash(contractClass.bytecode)
 
         return (Poseidon.poseidonHash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
     }
 
-    private fun hashBytecodeSegments(contract: CasmContractClass): Felt {
-        val bytecode = contract.bytecode
-        val bytecodeSegmentLengths = contract.bytecodeSegmentLengths
-            ?: throw IllegalArgumentException("Missing mandatory field 'bytecodeSegmentLengths' in casm contract definition")
-
+    private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>): Felt {
         val segmentStarts = bytecodeSegmentLengths.scan(0, Int::plus)
 
         val hashLeaves = bytecodeSegmentLengths.flatMapIndexed { index, length ->
