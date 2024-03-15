@@ -404,9 +404,9 @@ data class TypedData private constructor(
         return when (basicType) {
             BasicType.Felt -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             BasicType.Bool -> "bool" to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
             BasicType.StringV0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
             BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
-            BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
             BasicType.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
             BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> basicType.name to feltFromPrimitive(value.jsonPrimitive)
             BasicType.MerkleTree -> {
