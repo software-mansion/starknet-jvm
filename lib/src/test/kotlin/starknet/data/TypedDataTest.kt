@@ -463,7 +463,7 @@ internal class TypedDataTest {
             val exception = assertThrows<IllegalArgumentException> {
                 makeTypedData(Revision.V1, type)
             }
-            assertEquals("Types cannot end in *. [$type] was found.", exception.message)
+            assertEquals("Type names cannot end in *. [$type] was found.", exception.message)
         }
     }
 
@@ -474,7 +474,7 @@ internal class TypedDataTest {
             val exception = assertThrows<IllegalArgumentException> {
                 makeTypedData(Revision.V1, type)
             }
-            assertEquals("Types cannot be enclosed in parentheses. [$type] was found.", exception.message)
+            assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
         }
     }
 
@@ -485,7 +485,7 @@ internal class TypedDataTest {
             val exception = assertThrows<IllegalArgumentException> {
                 makeTypedData(Revision.V1, type)
             }
-            assertEquals("Types cannot contain commas. [$type] was found.", exception.message)
+            assertEquals("Type names cannot contain commas. [$type] was found.", exception.message)
         }
     }
 
