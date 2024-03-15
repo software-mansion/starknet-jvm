@@ -497,7 +497,7 @@ data class TypedData private constructor(
         }
 
         private val basicTypesV0: Set<String>
-            get() = setOf("felt", "bool", "string", "selector", "merkletree", "raw")
+            get() = setOf("felt", "bool", "string", "selector", "merkletree")
 
         private val basicTypesV1: Set<String>
             get() = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
