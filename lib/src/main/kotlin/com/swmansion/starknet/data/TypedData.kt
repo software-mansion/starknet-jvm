@@ -148,10 +148,10 @@ data class TypedData private constructor(
         }.distinct() + domain.separatorName + primaryType
 
         customTypes.keys.forEach {
-            require(it.isNotEmpty()) { "Types cannot be empty." }
-            require(!it.isArray()) { "Types cannot end in *. [$it] was found." }
-            require(!it.startsWith("(") && !it.endsWith(")")) { "Types cannot be enclosed in parentheses. [$it] was found." }
-            require(!it.contains(",")) { "Types cannot contain commas. [$it] was found." }
+            require(it.isNotEmpty()) { "Type names cannot be empty." }
+            require(!it.isArray()) { "Type names cannot end in *. [$it] was found." }
+            require(!it.startsWith("(") && !it.endsWith(")")) { "Type names cannot be enclosed in parentheses. [$it] was found." }
+            require(!it.contains(",")) { "Type names cannot contain commas. [$it] was found." }
             require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type [$it] was found." }
         }
     }
