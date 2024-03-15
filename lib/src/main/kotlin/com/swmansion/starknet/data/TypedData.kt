@@ -402,21 +402,17 @@ data class TypedData private constructor(
             return typeName to hashArray(hashes)
         }
 
-        val basicType = BasicType.fromName(typeName, revision) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+        val basicType = BasicType.fromName(typeName, revision)
+            ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
-        return encodeBasicValue(basicType, value, context)
-    }
-
-    private fun encodeBasicValue(type: BasicType, value: JsonElement, context: Context?): Pair<String, Felt> {
-        require(type is BasicType.V0)
-        return when (type) {
+        return when (basicType) {
             BasicType.Felt -> "felt" to feltFromPrimitive(value.jsonPrimitive)
             BasicType.Bool -> "bool" to feltFromPrimitive(value.jsonPrimitive)
             BasicType.StringV0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
             BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
             BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
             BasicType.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> type.typeName to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> basicType.typeName to feltFromPrimitive(value.jsonPrimitive)
             BasicType.MerkleTree -> {
                 requireNotNull(context) { "Context is not provided for 'merkletree' type." }
                 "felt" to prepareMerkletreeRoot(value.jsonArray, context)
