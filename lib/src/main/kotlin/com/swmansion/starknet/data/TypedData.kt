@@ -109,7 +109,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    private val types: Map<String, List<Type>> = customTypes + PresetTypes.values(revision).associate { it.typeName to it.params }
+    private val types: Map<String, List<Type>> = customTypes + PresetType.values(revision).associate { it.typeName to it.params }
 
     private val hashMethod by lazy {
         when (revision) {
@@ -128,7 +128,7 @@ data class TypedData private constructor(
         require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
         BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [${it.typeName}] was found." } }
-        PresetTypes.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [$it] was found." } }
+        PresetType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [$it] was found." } }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
@@ -517,24 +517,24 @@ data class TypedData private constructor(
             }
         }
 
-        private interface PresetTypes {
+        private interface PresetType {
             val typeName: String
             val params: List<Type>
 
             companion object {
-                internal fun values(revision: Revision): List<PresetTypes> {
+                internal fun values(revision: Revision): List<PresetType> {
                     return when (revision) {
                         Revision.V0 -> emptyList()
-                        Revision.V1 -> PresetTypesV1.entries
+                        Revision.V1 -> PresetTypeV1.entries
                     }
                 }
             }
         }
 
-        enum class PresetTypesV1(
+        enum class PresetTypeV1(
             override val typeName: String,
             override val params: List<Type>,
-        ) : PresetTypes {
+        ) : PresetType {
             U256(
                 "u256",
                 listOf(
