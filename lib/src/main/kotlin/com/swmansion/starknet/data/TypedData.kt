@@ -105,7 +105,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    private val allTypes: Map<String, List<Type>> = types + PresetType.values(revision).associate { it.typeName to it.params }
+    private val allTypes: Map<String, List<Type>> = types + PresetType.values(revision).associate { it.name to it.params }
 
     private val hashMethod by lazy {
         when (revision) {
@@ -123,8 +123,8 @@ data class TypedData private constructor(
     private fun verifyTypes() {
         require(domain.separatorName in types) { "Types must contain '${domain.separatorName}'." }
 
-        BasicType.values(revision).forEach { require(it.typeName !in types) { "Types must not contain basic types. [${it.typeName}] was found." } }
-        PresetType.values(revision).forEach { require(it.typeName !in types) { "Types must not contain preset types. [${it.typeName}] was found." } }
+        BasicType.values(revision).forEach { require(it.name !in types) { "Types must not contain basic types. [${it.name}] was found." } }
+        PresetType.values(revision).forEach { require(it.name !in types) { "Types must not contain preset types. [${it.name}] was found." } }
 
         val referencedTypes = types.values.flatten().flatMap {
             when (it) {
@@ -408,7 +408,7 @@ data class TypedData private constructor(
             BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
             BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
             BasicType.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> basicType.typeName to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> basicType.name to feltFromPrimitive(value.jsonPrimitive)
             BasicType.MerkleTree -> {
                 requireNotNull(context) { "Context is not provided for 'merkletree' type." }
                 "felt" to prepareMerkletreeRoot(value.jsonArray, context)
@@ -457,10 +457,10 @@ data class TypedData private constructor(
         }
     }
 
-    fun getStructHash(typeName: String, data: String): Felt {
-        val encodedData = encodeData(typeName, Json.parseToJsonElement(data).jsonObject)
+    fun getStructHash(name: String, data: String): Felt {
+        val encodedData = encodeData(name, Json.parseToJsonElement(data).jsonObject)
 
-        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
+        return hashArray(listOf(getTypeHash(name)) + encodedData)
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
@@ -475,24 +475,24 @@ data class TypedData private constructor(
     }
 
     private sealed class BasicType {
-        abstract val typeName: String
+        abstract val name: String
 
         sealed interface V0
         sealed interface V1
 
-        data object Felt : BasicType(), V0, V1 { override val typeName = "felt" }
-        data object Bool : BasicType(), V0, V1 { override val typeName = "bool" }
-        data object Selector : BasicType(), V0, V1 { override val typeName = "selector" }
-        data object MerkleTree : BasicType(), V0, V1 { override val typeName = "merkletree" }
-        data object StringV0 : BasicType(), V0 { override val typeName = "string" }
-        data object StringV1 : BasicType(), V1 { override val typeName = "string" }
-        data object Enum : BasicType(), V1 { override val typeName = "enum" }
-        data object I128 : BasicType(), V1 { override val typeName = "i128" }
-        data object U128 : BasicType(), V1 { override val typeName = "u128" }
-        data object ContractAddress : BasicType(), V1 { override val typeName = "ContractAddress" }
-        data object ClassHash : BasicType(), V1 { override val typeName = "ClassHash" }
-        data object Timestamp : BasicType(), V1 { override val typeName = "timestamp" }
-        data object ShortString : BasicType(), V1 { override val typeName = "shortstring" }
+        data object Felt : BasicType(), V0, V1 { override val name = "felt" }
+        data object Bool : BasicType(), V0, V1 { override val name = "bool" }
+        data object Selector : BasicType(), V0, V1 { override val name = "selector" }
+        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree" }
+        data object StringV0 : BasicType(), V0 { override val name = "string" }
+        data object StringV1 : BasicType(), V1 { override val name = "string" }
+        data object Enum : BasicType(), V1 { override val name = "enum" }
+        data object I128 : BasicType(), V1 { override val name = "i128" }
+        data object U128 : BasicType(), V1 { override val name = "u128" }
+        data object ContractAddress : BasicType(), V1 { override val name = "ContractAddress" }
+        data object ClassHash : BasicType(), V1 { override val name = "ClassHash" }
+        data object Timestamp : BasicType(), V1 { override val name = "timestamp" }
+        data object ShortString : BasicType(), V1 { override val name = "shortstring" }
 
         companion object {
             fun values(revision: Revision): List<BasicType> {
@@ -504,39 +504,40 @@ data class TypedData private constructor(
                 }.map { it as BasicType }
             }
 
-            fun fromName(typeName: String, revision: Revision): BasicType? {
-                return values(revision).find { it.typeName == typeName }
+            fun fromName(name: String, revision: Revision): BasicType? {
+                return values(revision).find { it.name == name }
             }
         }
     }
 
     private sealed class PresetType {
-        abstract val typeName: String
+        abstract val name: String
         abstract val params: List<Type>
 
         sealed interface V1
 
         data object U256 : PresetType(), V1 {
-            override val typeName = "u256"
+            override val name = "u256"
             override val params = listOf(
                 StandardType("low", "u128"),
                 StandardType("high", "u128"),
             )
         }
         data object TokenAmount : PresetType(), V1 {
-            override val typeName = "TokenAmount"
+            override val name = "TokenAmount"
             override val params = listOf(
                 StandardType("token_address", "ContractAddress"),
                 StandardType("amount", "u256"),
             )
         }
         data object NftId : PresetType(), V1 {
-            override val typeName = "NftId"
+            override val name = "NftId"
             override val params = listOf(
                 StandardType("collection_address", "ContractAddress"),
                 StandardType("token_id", "u256"),
             )
         }
+
         companion object {
             fun values(revision: Revision): List<PresetType> {
                 return when (revision) {
