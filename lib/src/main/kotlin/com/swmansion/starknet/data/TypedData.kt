@@ -109,7 +109,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    private val types: Map<String, List<Type>> = customTypes + getPresetTypes(revision)
+    private val types: Map<String, List<Type>> = customTypes + PresetTypes.values(revision).associate { it.typeName to it.params }
 
     private val hashMethod by lazy {
         when (revision) {
@@ -128,7 +128,7 @@ data class TypedData private constructor(
         require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
         BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [$it] was found." } }
-        getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
+        PresetTypes.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [$it] was found." } }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
             when (it) {
@@ -553,31 +553,49 @@ data class TypedData private constructor(
             }
         }
 
-        private fun getPresetTypes(revision: Revision): Map<String, List<Type>> {
-            return when (revision) {
-                Revision.V0 -> presetTypesV0
-                Revision.V1 -> presetTypesV1
+        private interface PresetTypes {
+            val typeName: String
+            val params: List<Type>
+
+            companion object {
+                internal fun values(revision: Revision): List<PresetTypes> {
+                    return when (revision) {
+                        Revision.V0 -> emptyList()
+                        Revision.V1 -> PresetTypesV1.entries
+                    }
+                }
             }
         }
 
-        private val presetTypesV0: Map<String, List<Type>>
-            get() = emptyMap()
-
-        private val presetTypesV1: Map<String, List<Type>>
-            get() = mapOf(
-                "u256" to listOf(
+        enum class PresetTypesV1(
+            override val typeName: String,
+            override val params: List<Type>,
+        ) : PresetTypes {
+            U256(
+                "u256",
+                listOf(
                     StandardType("low", "u128"),
                     StandardType("high", "u128"),
                 ),
-                "TokenAmount" to listOf(
+            ),
+            TOKEN_AMOUNT(
+                "TokenAmount",
+                listOf(
                     StandardType("token_address", "ContractAddress"),
                     StandardType("amount", "u256"),
                 ),
-                "NftId" to listOf(
+            ),
+            NFT_ID(
+                "NftId",
+                listOf(
                     StandardType("collection_address", "ContractAddress"),
                     StandardType("token_id", "u256"),
                 ),
-            )
+            ),
+            ;
+
+            override fun toString() = typeName
+        }
 
         /**
          * Create TypedData from JSON string.
