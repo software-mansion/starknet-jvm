@@ -477,8 +477,6 @@ data class TypedData private constructor(
     private sealed class BasicType {
         abstract val typeName: String
 
-        override fun toString() = typeName
-
         sealed interface V0
         sealed interface V1
 
@@ -515,8 +513,6 @@ data class TypedData private constructor(
     private sealed class PresetType {
         abstract val typeName: String
         abstract val params: List<Type>
-
-        override fun toString() = typeName
 
         sealed interface V1
 
