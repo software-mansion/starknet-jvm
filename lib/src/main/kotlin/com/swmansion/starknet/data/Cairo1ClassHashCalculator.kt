@@ -32,8 +32,12 @@ object Cairo1ClassHashCalculator {
         val externalEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
         val l1HandlerEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
         val constructorEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
-        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths) }
-            ?: Poseidon.poseidonHash(contractClass.bytecode)
+        val bytecodeHash = contractClass.bytecode.let { bytecode ->
+            when (val bytecodeSegmentLengths = contractClass.bytecodeSegmentLengths) {
+                null -> Poseidon.poseidonHash(bytecode)
+                else -> hashBytecodeSegments(bytecode, bytecodeSegmentLengths)
+            }
+        }
 
         return (Poseidon.poseidonHash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
     }
