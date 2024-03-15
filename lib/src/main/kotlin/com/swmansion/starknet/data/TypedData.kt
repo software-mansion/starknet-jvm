@@ -84,22 +84,18 @@ import kotlinx.serialization.json.*
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
-    @SerialName("types")
-    val customTypes: Map<String, List<Type>>,
-
+    val types: Map<String, List<Type>>,
     val primaryType: String,
-
     val domain: Domain,
-
     val message: JsonObject,
 ) {
     constructor(
-        customTypes: Map<String, List<Type>>,
+        types: Map<String, List<Type>>,
         primaryType: String,
         domain: String,
         message: String,
     ) : this(
-        customTypes = customTypes,
+        types = types,
         primaryType = primaryType,
         domain = Json.decodeFromString(domain),
         message = Json.parseToJsonElement(message).jsonObject,
@@ -109,7 +105,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    private val types: Map<String, List<Type>> = customTypes + getPresetTypes(revision)
+    private val allTypes: Map<String, List<Type>> = types + getPresetTypes(revision)
 
     private val hashMethod by lazy {
         when (revision) {
@@ -125,12 +121,12 @@ data class TypedData private constructor(
     private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
 
     private fun verifyTypes() {
-        require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
+        require(domain.separatorName in types) { "Types must contain '${domain.separatorName}'." }
 
-        getBasicTypes(revision).forEach { require(it !in customTypes) { "Types must not contain basic types. [$it] was found." } }
-        getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
+        getBasicTypes(revision).forEach { require(it !in types) { "Types must not contain basic types. [$it] was found." } }
+        getPresetTypes(revision).keys.forEach { require(it !in types) { "Types must not contain preset types. [$it] was found." } }
 
-        val referencedTypes = customTypes.values.flatten().flatMap {
+        val referencedTypes = types.values.flatten().flatMap {
             when (it) {
                 is EnumType -> {
                     require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
@@ -147,7 +143,7 @@ data class TypedData private constructor(
             }
         }.distinct() + domain.separatorName + primaryType
 
-        customTypes.keys.forEach {
+        types.keys.forEach {
             require(it.isNotEmpty()) { "Type names cannot be empty." }
             require(!it.isArray()) { "Type names cannot end in *. [$it] was found." }
             require(!it.isEnum()) { "Type names cannot be enclosed in parentheses. [$it] was found." }
@@ -229,7 +225,7 @@ data class TypedData private constructor(
 
         while (toVisit.isNotEmpty()) {
             val type = toVisit.removeFirst()
-            val params = types[type] ?: emptyList()
+            val params = allTypes[type] ?: emptyList()
 
             params.forEach { param ->
                 val extractedTypes = when {
@@ -245,7 +241,7 @@ data class TypedData private constructor(
                 }.map { stripPointer(it) }
 
                 extractedTypes.forEach {
-                    if (it in types && it !in deps) {
+                    if (it in allTypes && it !in deps) {
                         deps.add(it)
                         toVisit.add(it)
                     }
@@ -271,7 +267,7 @@ data class TypedData private constructor(
             Revision.V1 -> "\"$typeName\""
         }
 
-        val fields = types.getOrElse(dependency) {
+        val fields = allTypes.getOrElse(dependency) {
             throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
         }
         val encodedFields = fields.joinToString(",") {
@@ -339,7 +335,7 @@ data class TypedData private constructor(
     private inline fun <reified T : Type> resolveType(context: Context): T {
         val (parent, key) = context.parent to context.key
 
-        val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
+        val parentType = allTypes.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
         val targetType = parentType.singleOrNull { it.name == key }
             ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent] or multiple definitions are present.")
 
@@ -364,7 +360,7 @@ data class TypedData private constructor(
     private fun getEnumVariants(context: Context): List<Type> {
         val enumType = resolveType<EnumType>(context)
 
-        val variants = types.getOrElse(enumType.contains) { throw IllegalArgumentException("Type [${enumType.contains}] is not defined in types") }
+        val variants = allTypes.getOrElse(enumType.contains) { throw IllegalArgumentException("Type [${enumType.contains}] is not defined in types") }
 
         return variants
     }
@@ -391,7 +387,7 @@ data class TypedData private constructor(
         value: JsonElement,
         context: Context? = null,
     ): Pair<String, Felt> {
-        if (typeName in types) {
+        if (typeName in allTypes) {
             return typeName to getStructHash(typeName, value.jsonObject)
         }
 
@@ -430,7 +426,7 @@ data class TypedData private constructor(
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
         val values = mutableListOf<Felt>()
 
-        for (param in types.getValue(typeName)) {
+        for (param in allTypes.getValue(typeName)) {
             val encodedValue = encodeValue(
                 typeName = param.type,
                 value = data.getValue(param.name),
