@@ -127,7 +127,7 @@ data class TypedData private constructor(
     private fun verifyTypes() {
         require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
-        BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [$it] was found." } }
+        BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [${it.typeName}] was found." } }
         PresetTypes.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain preset types. [$it] was found." } }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
@@ -402,46 +402,29 @@ data class TypedData private constructor(
             return typeName to hashArray(hashes)
         }
 
-        return when (revision) {
-            Revision.V0 -> encodeBasicValueV0(
-                type = BasicTypeV0.getEnum(typeName) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types."),
-                value = value,
-                context = context,
-            )
-            Revision.V1 -> encodeBasicValueV1(
-                type = BasicTypeV1.getEnum(typeName) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types."),
-                value = value,
-                context = context,
-            )
-        }
+        val basicType = BasicType.fromName(typeName, revision) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+
+        return encodeBasicValue(basicType, value, context)
     }
 
-    private fun encodeBasicValueV0(type: BasicTypeV0, value: JsonElement, context: Context?): Pair<String, Felt> {
+    private fun encodeBasicValue(type: BasicType, value: JsonElement, context: Context?): Pair<String, Felt> {
+        require(type is BasicType.V0)
         return when (type) {
-            BasicTypeV0.FELT -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            BasicTypeV0.BOOL -> "bool" to feltFromPrimitive(value.jsonPrimitive)
-            BasicTypeV0.STRING -> "string" to feltFromPrimitive(value.jsonPrimitive)
-            BasicTypeV0.SELECTOR -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            BasicTypeV0.MERKLETREE -> {
+            BasicType.Felt -> "felt" to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.Bool -> "bool" to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.StringV0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
+            BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
+            BasicType.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> type.typeName to feltFromPrimitive(value.jsonPrimitive)
+            BasicType.MerkleTree -> {
                 requireNotNull(context) { "Context is not provided for 'merkletree' type." }
                 "felt" to prepareMerkletreeRoot(value.jsonArray, context)
             }
-        }
-    }
-
-    private fun encodeBasicValueV1(type: BasicTypeV1, value: JsonElement, context: Context?): Pair<String, Felt> {
-        return when (type) {
-            BasicTypeV1.FELT -> encodeBasicValueV0(BasicTypeV0.FELT, value, context)
-            BasicTypeV1.BOOL -> encodeBasicValueV0(BasicTypeV0.BOOL, value, context)
-            BasicTypeV1.STRING -> "string" to prepareLongString(value.jsonPrimitive.content)
-            BasicTypeV1.SELECTOR -> encodeBasicValueV0(BasicTypeV0.SELECTOR, value, context)
-            BasicTypeV1.MERKLETREE -> encodeBasicValueV0(BasicTypeV0.MERKLETREE, value, context)
-            BasicTypeV1.ENUM -> {
+            BasicType.Enum -> {
                 requireNotNull(context) { "Context is not provided for 'enum' type." }
-                "enum" to prepareEnum(value.jsonObject, context)
+                "felt" to prepareEnum(value.jsonObject, context)
             }
-            BasicTypeV1.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            BasicTypeV1.U128, BasicTypeV1.CONTRACT_ADDRESS, BasicTypeV1.CLASS_HASH, BasicTypeV1.TIMESTAMP, BasicTypeV1.SHORTSTRING -> type.typeName to feltFromPrimitive(value.jsonPrimitive)
         }
     }
 
@@ -500,55 +483,40 @@ data class TypedData private constructor(
     }
 
     companion object {
-        private interface BasicType {
-            val typeName: String
+        private sealed class BasicType {
+            abstract val typeName: String
+
+            override fun toString() = typeName
+
+            sealed interface V0
+            sealed interface V1
+
+            data object Felt : BasicType(), V0, V1 { override val typeName: String = "felt" }
+            data object Bool : BasicType(), V0, V1 { override val typeName: String = "bool" }
+            data object Selector : BasicType(), V0, V1 { override val typeName: String = "selector" }
+            data object MerkleTree : BasicType(), V0, V1 { override val typeName: String = "merkletree" }
+            data object StringV0 : BasicType(), V0 { override val typeName: String = "string" }
+            data object StringV1 : BasicType(), V1 { override val typeName: String = "string" }
+            data object Enum : BasicType(), V1 { override val typeName: String = "enum" }
+            data object I128 : BasicType(), V1 { override val typeName: String = "i128" }
+            data object U128 : BasicType(), V1 { override val typeName: String = "u128" }
+            data object ContractAddress : BasicType(), V1 { override val typeName: String = "ContractAddress" }
+            data object ClassHash : BasicType(), V1 { override val typeName: String = "ClassHash" }
+            data object Timestamp : BasicType(), V1 { override val typeName: String = "timestamp" }
+            data object ShortString : BasicType(), V1 { override val typeName: String = "shortstring" }
 
             companion object {
-                internal fun values(revision: Revision): List<BasicType> {
+                fun values(revision: Revision): List<BasicType> {
+                    val instances = BasicType::class.sealedSubclasses.mapNotNull { it.objectInstance }
+
                     return when (revision) {
-                        Revision.V0 -> BasicTypeV0.entries
-                        Revision.V1 -> BasicTypeV1.entries
-                    }
+                        Revision.V0 -> instances.filterIsInstance<V0>()
+                        Revision.V1 -> instances.filterIsInstance<V1>()
+                    }.map { it as BasicType }
                 }
-            }
-        }
 
-        private enum class BasicTypeV0(override val typeName: String) : BasicType {
-            FELT("felt"),
-            BOOL("bool"),
-            STRING("string"),
-            SELECTOR("selector"),
-            MERKLETREE("merkletree"),
-            ;
-
-            override fun toString() = typeName
-            companion object {
-                @JvmStatic
-                fun getEnum(value: String): BasicTypeV0? {
-                    return entries.firstOrNull { it.typeName == value }
-                }
-            }
-        }
-
-        private enum class BasicTypeV1(override val typeName: String) : BasicType {
-            FELT("felt"),
-            BOOL("bool"),
-            STRING("string"),
-            SELECTOR("selector"),
-            MERKLETREE("merkletree"),
-            ENUM("enum"),
-            I128("i128"),
-            U128("u128"),
-            CONTRACT_ADDRESS("ContractAddress"),
-            CLASS_HASH("ClassHash"),
-            TIMESTAMP("timestamp"),
-            SHORTSTRING("shortstring"),
-            ;
-            override fun toString() = typeName
-            companion object {
-                @JvmStatic
-                fun getEnum(value: String): BasicTypeV1? {
-                    return entries.firstOrNull { it.typeName == value }
+                fun fromName(typeName: String, revision: Revision): BasicType? {
+                    return values(revision).find { it.typeName == typeName }
                 }
             }
         }
