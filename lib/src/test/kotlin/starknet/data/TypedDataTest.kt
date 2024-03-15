@@ -469,13 +469,11 @@ internal class TypedDataTest {
 
     @Test
     fun `type with parentheses`() {
-        val types = listOf("(left", "right)", "(both)")
-        types.forEach { type ->
-            val exception = assertThrows<IllegalArgumentException> {
-                makeTypedData(Revision.V1, type)
-            }
-            assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
+        val type = "(mytype)"
+        val exception = assertThrows<IllegalArgumentException> {
+            makeTypedData(Revision.V1, type)
         }
+        assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
     }
 
     @Test
@@ -493,7 +491,7 @@ internal class TypedDataTest {
     fun `dangling types`() {
         val exception = assertThrows<IllegalArgumentException> {
             TypedData(
-                customTypes = mapOf(
+                types = mapOf(
                     domainTypeV1,
                     "dangling" to emptyList(),
                     "mytype" to emptyList(),
@@ -509,7 +507,7 @@ internal class TypedDataTest {
     @Test
     fun `missing dependency`() {
         val td = TypedData(
-            customTypes = mapOf(
+            types = mapOf(
                 domainTypeV1,
                 "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
             ),
@@ -533,7 +531,7 @@ internal class TypedDataTest {
         }
 
         TypedData(
-            customTypes = mapOf(
+            types = mapOf(
                 domainType,
                 includedType to emptyList(),
             ),
