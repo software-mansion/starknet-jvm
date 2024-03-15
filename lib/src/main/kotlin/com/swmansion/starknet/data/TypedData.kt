@@ -127,7 +127,7 @@ data class TypedData private constructor(
     private fun verifyTypes() {
         require(domain.separatorName in customTypes) { "Types must contain '${domain.separatorName}'." }
 
-        getBasicTypes(revision).forEach { require(it !in customTypes) { "Types must not contain basic types. [$it] was found." } }
+        BasicType.values(revision).forEach { require(it.typeName !in customTypes) { "Types must not contain basic types. [$it] was found." } }
         getPresetTypes(revision).keys.forEach { require(it !in customTypes) { "Types must not contain preset types. [$it] was found." } }
 
         val referencedTypes = customTypes.values.flatten().flatMap {
@@ -402,28 +402,46 @@ data class TypedData private constructor(
             return typeName to hashArray(hashes)
         }
 
-        return when (typeName) {
-            "enum" -> {
-                require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
-                "enum" to prepareEnum(value.jsonObject, context)
-            }
-            "merkletree" -> {
+        return when (revision) {
+            Revision.V0 -> encodeBasicValueV0(
+                type = BasicTypeV0.getEnum(typeName) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types."),
+                value = value,
+                context = context,
+            )
+            Revision.V1 -> encodeBasicValueV1(
+                type = BasicTypeV1.getEnum(typeName) ?: throw IllegalArgumentException("Type [$typeName] is not defined in types."),
+                value = value,
+                context = context,
+            )
+        }
+    }
+
+    private fun encodeBasicValueV0(type: BasicTypeV0, value: JsonElement, context: Context?): Pair<String, Felt> {
+        return when (type) {
+            BasicTypeV0.FELT -> "felt" to feltFromPrimitive(value.jsonPrimitive)
+            BasicTypeV0.BOOL -> "bool" to feltFromPrimitive(value.jsonPrimitive)
+            BasicTypeV0.STRING -> "string" to feltFromPrimitive(value.jsonPrimitive)
+            BasicTypeV0.SELECTOR -> "felt" to prepareSelector(value.jsonPrimitive.content)
+            BasicTypeV0.MERKLETREE -> {
                 requireNotNull(context) { "Context is not provided for 'merkletree' type." }
                 "felt" to prepareMerkletreeRoot(value.jsonArray, context)
             }
-            "string" -> when (revision) {
-                Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
-                Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
+        }
+    }
+
+    private fun encodeBasicValueV1(type: BasicTypeV1, value: JsonElement, context: Context?): Pair<String, Felt> {
+        return when (type) {
+            BasicTypeV1.FELT -> encodeBasicValueV0(BasicTypeV0.FELT, value, context)
+            BasicTypeV1.BOOL -> encodeBasicValueV0(BasicTypeV0.BOOL, value, context)
+            BasicTypeV1.STRING -> "string" to prepareLongString(value.jsonPrimitive.content)
+            BasicTypeV1.SELECTOR -> encodeBasicValueV0(BasicTypeV0.SELECTOR, value, context)
+            BasicTypeV1.MERKLETREE -> encodeBasicValueV0(BasicTypeV0.MERKLETREE, value, context)
+            BasicTypeV1.ENUM -> {
+                requireNotNull(context) { "Context is not provided for 'enum' type." }
+                "enum" to prepareEnum(value.jsonObject, context)
             }
-            "felt", "bool" -> typeName to feltFromPrimitive(value.jsonPrimitive)
-            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
-                require(revision == Revision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
-                typeName to feltFromPrimitive(value.jsonPrimitive)
-            }
-            else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+            BasicTypeV1.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            BasicTypeV1.U128, BasicTypeV1.CONTRACT_ADDRESS, BasicTypeV1.CLASS_HASH, BasicTypeV1.TIMESTAMP, BasicTypeV1.SHORTSTRING -> type.typeName to feltFromPrimitive(value.jsonPrimitive)
         }
     }
 
@@ -482,10 +500,56 @@ data class TypedData private constructor(
     }
 
     companion object {
-        private fun getBasicTypes(revision: Revision): Set<String> {
-            return when (revision) {
-                Revision.V0 -> basicTypesV0
-                Revision.V1 -> basicTypesV1
+        private interface BasicType {
+            val typeName: String
+
+            companion object {
+                internal fun values(revision: Revision): List<BasicType> {
+                    return when (revision) {
+                        Revision.V0 -> BasicTypeV0.entries
+                        Revision.V1 -> BasicTypeV1.entries
+                    }
+                }
+            }
+        }
+
+        private enum class BasicTypeV0(override val typeName: String) : BasicType {
+            FELT("felt"),
+            BOOL("bool"),
+            STRING("string"),
+            SELECTOR("selector"),
+            MERKLETREE("merkletree"),
+            ;
+
+            override fun toString() = typeName
+            companion object {
+                @JvmStatic
+                fun getEnum(value: String): BasicTypeV0? {
+                    return entries.firstOrNull { it.typeName == value }
+                }
+            }
+        }
+
+        private enum class BasicTypeV1(override val typeName: String) : BasicType {
+            FELT("felt"),
+            BOOL("bool"),
+            STRING("string"),
+            SELECTOR("selector"),
+            MERKLETREE("merkletree"),
+            ENUM("enum"),
+            I128("i128"),
+            U128("u128"),
+            CONTRACT_ADDRESS("ContractAddress"),
+            CLASS_HASH("ClassHash"),
+            TIMESTAMP("timestamp"),
+            SHORTSTRING("shortstring"),
+            ;
+            override fun toString() = typeName
+            companion object {
+                @JvmStatic
+                fun getEnum(value: String): BasicTypeV1? {
+                    return entries.firstOrNull { it.typeName == value }
+                }
             }
         }
 
@@ -495,12 +559,6 @@ data class TypedData private constructor(
                 Revision.V1 -> presetTypesV1
             }
         }
-
-        private val basicTypesV0: Set<String>
-            get() = setOf("felt", "bool", "string", "selector", "merkletree")
-
-        private val basicTypesV1: Set<String>
-            get() = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
 
         private val presetTypesV0: Map<String, List<Type>>
             get() = emptyMap()
