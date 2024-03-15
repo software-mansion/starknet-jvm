@@ -47,7 +47,7 @@ object Cairo1ClassHashCalculator {
             listOf(length.toFelt) + Poseidon.poseidonHash(segment)
         }
 
-        return (Poseidon.poseidonHash(hashLeaves).value + BigInteger.ONE).toFelt
+        return (BigInteger.ONE + Poseidon.poseidonHash(hashLeaves).value).toFelt
     }
 
     private fun getSierraEntryPointsArray(arr: List<SierraEntryPoint>): List<Felt> {
