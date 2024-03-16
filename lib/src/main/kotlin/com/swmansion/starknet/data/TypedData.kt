@@ -434,22 +434,20 @@ data class TypedData private constructor(
         val basicType = BasicType.fromName(typeName, revision)
             ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
-        return basicType.let { t ->
-            when (t) {
-                BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> t.name to feltFromPrimitive(value.jsonPrimitive)
-                BasicType.Bool -> t.name to boolFromPrimitive(value.jsonPrimitive)
-                BasicType.Selector -> BasicType.Felt.name to prepareSelector(value.jsonPrimitive.content)
-                BasicType.StringV1 -> t.name to prepareLongString(value.jsonPrimitive.content)
-                BasicType.I128 -> t.name to i128fromPrimitive(value.jsonPrimitive)
-                BasicType.U128, BasicType.Timestamp -> t.name to u128fromPrimitive(value.jsonPrimitive)
-                BasicType.MerkleTree -> {
-                    requireNotNull(context) { "Context is not provided for 'merkletree' type." }
-                    BasicType.Felt.name to prepareMerkletreeRoot(value.jsonArray, context)
-                }
-                BasicType.Enum -> {
-                    requireNotNull(context) { "Context is not provided for 'enum' type." }
-                    BasicType.Felt.name to prepareEnum(value.jsonObject, context)
-                }
+        return basicType.encodeToType to when (basicType) {
+            BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> feltFromPrimitive(value.jsonPrimitive)
+            BasicType.Bool -> boolFromPrimitive(value.jsonPrimitive)
+            BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
+            BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
+            BasicType.I128 -> i128fromPrimitive(value.jsonPrimitive)
+            BasicType.U128, BasicType.Timestamp -> u128fromPrimitive(value.jsonPrimitive)
+            BasicType.MerkleTree -> {
+                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                prepareMerkletreeRoot(value.jsonArray, context)
+            }
+            BasicType.Enum -> {
+                requireNotNull(context) { "Context is not provided for 'enum' type." }
+                prepareEnum(value.jsonObject, context)
             }
         }
     }
@@ -510,17 +508,18 @@ data class TypedData private constructor(
 
     private sealed class BasicType {
         abstract val name: String
+        open val encodeToType get() = name
 
         sealed interface V0
         sealed interface V1
 
         data object Felt : BasicType(), V0, V1 { override val name = "felt" }
         data object Bool : BasicType(), V0, V1 { override val name = "bool" }
-        data object Selector : BasicType(), V0, V1 { override val name = "selector" }
-        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree" }
+        data object Selector : BasicType(), V0, V1 { override val name = "selector"; override val encodeToType = Felt.name }
+        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree"; override val encodeToType = Felt.name }
         data object StringV0 : BasicType(), V0 { override val name = "string" }
         data object StringV1 : BasicType(), V1 { override val name = "string" }
-        data object Enum : BasicType(), V1 { override val name = "enum" }
+        data object Enum : BasicType(), V1 { override val name = "enum"; override val encodeToType = Felt.name }
         data object I128 : BasicType(), V1 { override val name = "i128" }
         data object U128 : BasicType(), V1 { override val name = "u128" }
         data object ContractAddress : BasicType(), V1 { override val name = "ContractAddress" }
