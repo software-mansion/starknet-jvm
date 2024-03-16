@@ -434,22 +434,22 @@ data class TypedData private constructor(
         val basicType = BasicType.fromName(typeName, revision)
             ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
-        return when (basicType) {
-            BasicType.Felt -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Bool -> "bool" to boolFromPrimitive(value.jsonPrimitive)
-            BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            BasicType.StringV0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
-            BasicType.I128 -> "i128" to i128fromPrimitive(value.jsonPrimitive)
-            BasicType.U128, BasicType.Timestamp -> basicType.name to u128fromPrimitive(value.jsonPrimitive)
-            BasicType.ContractAddress, BasicType.ClassHash, BasicType.ShortString -> basicType.name to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.MerkleTree -> {
-                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
-                "felt" to prepareMerkletreeRoot(value.jsonArray, context)
-            }
-            BasicType.Enum -> {
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
-                "felt" to prepareEnum(value.jsonObject, context)
+        return basicType.let { t ->
+            when (t) {
+                BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> t.name to feltFromPrimitive(value.jsonPrimitive)
+                BasicType.Bool -> t.name to boolFromPrimitive(value.jsonPrimitive)
+                BasicType.Selector -> BasicType.Felt.name to prepareSelector(value.jsonPrimitive.content)
+                BasicType.StringV1 -> t.name to prepareLongString(value.jsonPrimitive.content)
+                BasicType.I128 -> t.name to i128fromPrimitive(value.jsonPrimitive)
+                BasicType.U128, BasicType.Timestamp -> t.name to u128fromPrimitive(value.jsonPrimitive)
+                BasicType.MerkleTree -> {
+                    requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                    BasicType.Felt.name to prepareMerkletreeRoot(value.jsonArray, context)
+                }
+                BasicType.Enum -> {
+                    requireNotNull(context) { "Context is not provided for 'enum' type." }
+                    BasicType.Felt.name to prepareEnum(value.jsonObject, context)
+                }
             }
         }
     }
