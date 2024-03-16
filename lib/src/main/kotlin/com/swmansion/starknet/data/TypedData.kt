@@ -294,12 +294,19 @@ data class TypedData private constructor(
         return "${escape(dependency)}($encodedFields)"
     }
 
-    private fun feltFromPrimitive(primitive: JsonPrimitive, allowSigned: Boolean = false): Felt {
+    private fun feltFromPrimitive(
+        primitive: JsonPrimitive,
+        allowSigned: Boolean = false,
+        allowBoolean: Boolean = false,
+        allowShortString: Boolean = true,
+    ): Felt {
         val decimal = primitive.content.toBigIntegerOrNull()
         decimal?.let {
             return if (allowSigned) Felt.fromSigned(it) else Felt(it)
         }
-        primitive.booleanOrNull?.let {
+        val boolean = primitive.booleanOrNull
+        boolean?.let {
+            require(allowBoolean) { "Unexpected boolean value: [$primitive]" }
             return if (it) Felt.ONE else Felt.ZERO
         }
 
@@ -311,11 +318,36 @@ data class TypedData private constructor(
             return try {
                 Felt.fromHex(primitive.content)
             } catch (e: Exception) {
+                require(allowShortString) { "Unexpected string value: [$primitive]." }
                 Felt.fromShortString(primitive.content)
             }
         }
 
-        throw IllegalArgumentException("Unsupported primitive type: $primitive")
+        throw IllegalArgumentException("Unsupported primitive type: [$primitive]")
+    }
+
+    private fun boolFromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowBoolean = true, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO) { "Expected boolean value, got [$primitive]." }
+
+        return felt
+    }
+
+    private fun u128fromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO.pow(128)) { "Value [$felt] is out of range for 'u128'." }
+
+        return felt
+    }
+
+    private fun i128fromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowSigned = true, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO.pow(127) || felt.value > Felt.PRIME - BigInteger.TWO.pow(127)) { "Value [$primitive] is out of range for 'i128'." }
+
+        return felt
     }
 
     private fun prepareLongString(string: String): Felt {
@@ -401,21 +433,22 @@ data class TypedData private constructor(
         val basicType = BasicType.fromName(typeName, revision)
             ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
-        return when (basicType) {
-            BasicType.Felt -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Bool -> "bool" to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Selector -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            BasicType.StringV0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.StringV1 -> "string" to prepareLongString(value.jsonPrimitive.content)
-            BasicType.I128 -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            BasicType.U128, BasicType.ContractAddress, BasicType.ClassHash, BasicType.Timestamp, BasicType.ShortString -> basicType.name to feltFromPrimitive(value.jsonPrimitive)
-            BasicType.MerkleTree -> {
-                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
-                "felt" to prepareMerkletreeRoot(value.jsonArray, context)
-            }
-            BasicType.Enum -> {
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
-                "felt" to prepareEnum(value.jsonObject, context)
+        return basicType.let { t ->
+            when (t) {
+                BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> t.name to feltFromPrimitive(value.jsonPrimitive)
+                BasicType.Bool -> t.name to feltFromPrimitive(value.jsonPrimitive)
+                BasicType.Selector -> BasicType.Felt.name to prepareSelector(value.jsonPrimitive.content)
+                BasicType.StringV1 -> t.name to prepareLongString(value.jsonPrimitive.content)
+                BasicType.I128 -> t.name to feltFromPrimitive(value.jsonPrimitive)
+                BasicType.U128, BasicType.Timestamp -> t.name to feltFromPrimitive(value.jsonPrimitive)
+                BasicType.MerkleTree -> {
+                    requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                    BasicType.Felt.name to prepareMerkletreeRoot(value.jsonArray, context)
+                }
+                BasicType.Enum -> {
+                    requireNotNull(context) { "Context is not provided for 'enum' type." }
+                    BasicType.Felt.name to prepareEnum(value.jsonObject, context)
+                }
             }
         }
     }
