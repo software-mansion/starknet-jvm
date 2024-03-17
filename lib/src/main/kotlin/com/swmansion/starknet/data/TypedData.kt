@@ -438,11 +438,11 @@ data class TypedData private constructor(
 
         return basicType.encodeToType to when (basicType) {
             BasicType.Enum -> {
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareEnum(value.jsonObject, context)
             }
             BasicType.MerkleTree -> {
-                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareMerkletreeRoot(value.jsonArray, context)
             }
             BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> feltFromPrimitive(value.jsonPrimitive)
