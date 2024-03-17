@@ -403,11 +403,11 @@ data class TypedData private constructor(
 
         return basicType.encodeToType to when (basicType) {
             BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Bool -> boolFromPrimitive(value.jsonPrimitive)
+            BasicType.Bool -> feltFromPrimitive(value.jsonPrimitive)
             BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
             BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
-            BasicType.I128 -> i128fromPrimitive(value.jsonPrimitive)
-            BasicType.U128, BasicType.Timestamp -> u128fromPrimitive(value.jsonPrimitive)
+            BasicType.I128 -> feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            BasicType.U128, BasicType.Timestamp -> feltFromPrimitive(value.jsonPrimitive)
             BasicType.MerkleTree -> {
                 requireNotNull(context) { "Context is not provided for 'merkletree' type." }
                 prepareMerkletreeRoot(value.jsonArray, context)
