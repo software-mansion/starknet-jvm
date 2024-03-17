@@ -337,9 +337,9 @@ data class TypedData private constructor(
 
         val parentType = allTypes.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
         val targetType = parentType.singleOrNull { it.name == key }
-            ?: throw IllegalArgumentException("Key [$key] is not defined in parent [$parent] or multiple definitions are present.")
+            ?: throw IllegalArgumentException("Key [$key] is not defined in type [$parent] or multiple definitions are present.")
 
-        require(targetType is T) { "Key [$key] in parent [$parent] is not a '${T::class.simpleName}'." }
+        require(targetType is T) { "Key [$key] in type [$parent] is not a '${T::class.simpleName}'." }
 
         return targetType
     }
