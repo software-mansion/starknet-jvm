@@ -516,6 +516,7 @@ data class TypedData private constructor(
 
         sealed interface V1
 
+        @Suppress("unused")
         data object U256 : PresetType(), V1 {
             override val name = "u256"
             override val params = listOf(
@@ -523,6 +524,8 @@ data class TypedData private constructor(
                 StandardType("high", "u128"),
             )
         }
+
+        @Suppress("unused")
         data object TokenAmount : PresetType(), V1 {
             override val name = "TokenAmount"
             override val params = listOf(
@@ -530,6 +533,8 @@ data class TypedData private constructor(
                 StandardType("amount", "u256"),
             )
         }
+
+        @Suppress("unused")
         data object NftId : PresetType(), V1 {
             override val name = "NftId"
             override val params = listOf(
