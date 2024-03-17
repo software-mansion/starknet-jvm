@@ -413,7 +413,7 @@ internal class TypedDataTest {
         }
 
         @Test
-        fun `unexpected values`(){
+        fun `unexpected values`() {
             val td = CasesRev1.TD_BASIC_TYPES
             val exception = assertThrows<IllegalArgumentException> {
                 td.encodeValue("u128", Json.encodeToJsonElement("hello"))
