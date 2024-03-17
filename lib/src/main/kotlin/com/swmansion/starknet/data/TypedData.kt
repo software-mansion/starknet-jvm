@@ -326,7 +326,7 @@ data class TypedData private constructor(
             }
         }
 
-        throw IllegalArgumentException("Unsupported primitive type: [$primitive]")
+        throw IllegalArgumentException("Unsupported primitive type: [$primitive].")
     }
 
     private fun boolFromPrimitive(primitive: JsonPrimitive): Felt {
