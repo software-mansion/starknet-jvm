@@ -413,6 +413,23 @@ internal class TypedDataTest {
         }
 
         @Test
+        fun `encode i128 - out of range`() {
+            val td = CasesRev1.TD_BASIC_TYPES
+            val values = listOf(
+                (-BigInteger.TWO.pow(127) - BigInteger.ONE).toString(),
+                (BigInteger.TWO.pow(127)).toString(),
+            )
+
+            values.forEach {
+                val value = Json.encodeToJsonElement(it)
+                val exception = assertThrows<IllegalArgumentException> {
+                    td.encodeValue("i128", value)
+                }
+                assertEquals("Value [$value] is out of range for 'i128'.", exception.message)
+            }
+        }
+
+        @Test
         fun `unexpected values`() {
             val td = CasesRev1.TD_BASIC_TYPES
             val exception = assertThrows<IllegalArgumentException> {

@@ -348,7 +348,7 @@ data class TypedData private constructor(
     private fun i128fromPrimitive(primitive: JsonPrimitive): Felt {
         val felt = feltFromPrimitive(primitive, allowSigned = true, allowShortString = false)
 
-        require(felt.value < BigInteger.TWO.pow(127) || felt.value >= Felt.PRIME - BigInteger.TWO.pow(127)) { "Value [$primitive] is out of range for '${BasicType.U128.name}'." }
+        require(felt.value < BigInteger.TWO.pow(127) || felt.value >= Felt.PRIME - BigInteger.TWO.pow(127)) { "Value [$primitive] is out of range for '${BasicType.I128.name}'." }
 
         return felt
     }
