@@ -402,20 +402,19 @@ data class TypedData private constructor(
             ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
         return basicType.encodeToType to when (basicType) {
-            BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Bool -> feltFromPrimitive(value.jsonPrimitive)
-            BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
-            BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
-            BasicType.I128 -> feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            BasicType.U128, BasicType.Timestamp -> feltFromPrimitive(value.jsonPrimitive)
-            BasicType.MerkleTree -> {
-                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
-                prepareMerkletreeRoot(value.jsonArray, context)
-            }
             BasicType.Enum -> {
                 requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareEnum(value.jsonObject, context)
             }
+            BasicType.MerkleTree -> {
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
+                prepareMerkletreeRoot(value.jsonArray, context)
+            }
+            BasicType.StringV0 -> feltFromPrimitive(value.jsonPrimitive)
+            BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
+            BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
+            BasicType.I128 -> feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            BasicType.Felt, BasicType.Bool, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash, BasicType.U128, BasicType.Timestamp -> feltFromPrimitive(value.jsonPrimitive)
         }
     }
 
