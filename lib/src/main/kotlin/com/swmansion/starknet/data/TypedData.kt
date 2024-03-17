@@ -129,7 +129,7 @@ data class TypedData private constructor(
         val referencedTypes = types.values.flatten().flatMap {
             when (it) {
                 is EnumType -> {
-                    require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                    require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
                     listOf(it.contains)
                 }
                 is MerkleTreeType -> listOf(it.contains)
@@ -197,7 +197,7 @@ data class TypedData private constructor(
     @Serializable
     data class MerkleTreeType(
         override val name: String,
-        override val type: String = "merkletree",
+        override val type: String = BasicType.MerkleTree.name,
         val contains: String,
     ) : Type() {
         init {
@@ -210,7 +210,7 @@ data class TypedData private constructor(
     @Serializable
     data class EnumType(
         override val name: String,
-        override val type: String = "enum",
+        override val type: String = BasicType.Enum.name,
         val contains: String,
     ) : Type()
 
@@ -230,7 +230,7 @@ data class TypedData private constructor(
             params.forEach { param ->
                 val extractedTypes = when {
                     param is EnumType -> {
-                        require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                        require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
                         listOf(param.contains)
                     }
                     param.type.isEnum() -> {
@@ -371,7 +371,7 @@ data class TypedData private constructor(
 
         val variants = getEnumVariants(context)
         val variantType = variants.singleOrNull { it.name == variantName }
-            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in 'enum' type [${context.key}] or multiple definitions are present.")
+            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in '${BasicType.Enum.name}' type [${context.key}] or multiple definitions are present.")
         val variantIndex = variants.indexOf(variantType)
 
         val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
@@ -409,11 +409,11 @@ data class TypedData private constructor(
             BasicType.I128 -> feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
             BasicType.U128, BasicType.Timestamp -> feltFromPrimitive(value.jsonPrimitive)
             BasicType.MerkleTree -> {
-                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareMerkletreeRoot(value.jsonArray, context)
             }
             BasicType.Enum -> {
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareEnum(value.jsonObject, context)
             }
         }
