@@ -416,12 +416,14 @@ internal class TypedDataTest {
         val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
         val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
 
-        assertThrows<IllegalArgumentException>("Parent type '${invalidParentContext.parent}' is not defined in types.") {
+        val parentException = assertThrows<IllegalArgumentException>{
             CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
         }
-        assertThrows<IllegalArgumentException>("Key '${invalidKeyContext.key}' is not defined in type '${invalidKeyContext.parent}'.") {
+        assertEquals("Parent [${invalidParentContext.parent}] is not defined in types.", parentException.message)
+        val keyException = assertThrows<IllegalArgumentException>{
             CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
         }
+        assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
     }
 
     @ParameterizedTest
