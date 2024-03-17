@@ -305,6 +305,7 @@ data class TypedData private constructor(
         decimal?.let {
             return if (allowSigned) Felt.fromSigned(it) else Felt(it)
         }
+
         val boolean = primitive.booleanOrNull
         boolean?.let {
             require(allowBoolean) { "Unexpected boolean value: [$primitive]" }
@@ -320,6 +321,7 @@ data class TypedData private constructor(
                 Felt.fromHex(primitive.content)
             } catch (e: Exception) {
                 require(allowShortString) { "Unexpected string value: [$primitive]." }
+
                 Felt.fromShortString(primitive.content)
             }
         }
@@ -338,7 +340,7 @@ data class TypedData private constructor(
     private fun u128fromPrimitive(primitive: JsonPrimitive): Felt {
         val felt = feltFromPrimitive(primitive, allowShortString = false)
 
-        require(felt.value < BigInteger.TWO.pow(128)) { "Value [$felt] is out of range for 'u128'." }
+        require(felt.value < BigInteger.TWO.pow(128)) { "Value [$primitive] is out of range for 'u128'." }
 
         return felt
     }
