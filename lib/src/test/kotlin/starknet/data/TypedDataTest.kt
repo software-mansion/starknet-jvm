@@ -435,7 +435,7 @@ internal class TypedDataTest {
             val exception = assertThrows<IllegalArgumentException> {
                 td.encodeValue("u128", Json.encodeToJsonElement("hello"))
             }
-            assertEquals("Unexpected short string value: [\"hello\"].", exception.message)
+            assertEquals("Unexpected string value: [\"hello\"].", exception.message)
             val exception2 = assertThrows<IllegalArgumentException> {
                 td.encodeValue("u128", Json.encodeToJsonElement(true))
             }
