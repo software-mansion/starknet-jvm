@@ -1,5 +1,6 @@
 package starknet.data
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.TypedData.Context
 import com.swmansion.starknet.data.TypedData.MerkleTreeType
@@ -156,6 +157,7 @@ internal class TypedDataTest {
                 Felt(2),
                 Felt(3),
             ),
+            HashMethod.PEDERSEN,
         )
         val leaves = tree.leafHashes
 
@@ -182,7 +184,7 @@ internal class TypedDataTest {
                 value = Json.encodeToJsonElement(leaf),
             ).second
         }
-        val tree = MerkleTree(hashedLeaves)
+        val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
 
         val merkleTreeHash = TD_SESSION.encodeValue(
             typeName = "merkletree",
