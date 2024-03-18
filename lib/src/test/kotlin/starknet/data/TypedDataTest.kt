@@ -559,6 +559,28 @@ internal class TypedDataTest {
 
         @ParameterizedTest
         @EnumSource(Revision::class)
+        fun `types should contain domain type`(revision: Revision) {
+            val domain = when (revision) {
+                Revision.V0 -> domainObjectV0
+                Revision.V1 -> domainObjectV1
+            }
+            val exception = assertThrows<IllegalArgumentException> {
+                TypedData(
+                    types = emptyMap(),
+                    primaryType = "Mail",
+                    domain = domain,
+                    message = "{}",
+                )
+            }
+            val domainTypeName = when (revision) {
+                Revision.V0 -> "StarkNetDomain"
+                Revision.V1 -> "StarknetDomain"
+            }
+            assertEquals("Types must contain '$domainTypeName'.", exception.message)
+        }
+
+        @ParameterizedTest
+        @EnumSource(Revision::class)
         fun `basic types redefinition`(revision: Revision) {
             val types = when (revision) {
                 Revision.V0 -> basicTypesV0
@@ -587,6 +609,14 @@ internal class TypedDataTest {
                 }
                 assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
             }
+        }
+
+        @Test
+        fun `empty type name`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                makeTypedData(Revision.V1, "")
+            }
+            assertEquals("Type names cannot be empty.", exception.message)
         }
 
         @Test
