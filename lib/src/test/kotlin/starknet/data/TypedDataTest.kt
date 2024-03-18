@@ -53,38 +53,6 @@ internal class TypedDataTest {
             }
         }
 
-        private val domainTypeV0 = "StarkNetDomain" to listOf(
-            TypedData.StandardType("name", "felt"),
-            TypedData.StandardType("version", "felt"),
-            TypedData.StandardType("chainId", "felt"),
-        )
-        private val domainTypeV1 = "StarknetDomain" to listOf(
-            TypedData.StandardType("name", "shortstring"),
-            TypedData.StandardType("version", "shortstring"),
-            TypedData.StandardType("chainId", "shortstring"),
-            TypedData.StandardType("revision", "shortstring"),
-        )
-        private val domainObjectV0 = """
-            {
-                "name": "DomainV0",
-                "version": 1,
-                "chainId": 2137
-            }
-        """.trimIndent()
-        private val domainObjectV1 = """
-            {
-                "name": "DomainV1",
-                "version": "1",
-                "chainId": "2137",
-                "revision": "1"
-            }
-        """.trimIndent()
-
-        private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
-        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
-        private val presetTypesV0 = emptySet<String>()
-        private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
-
         @JvmStatic
         fun encodeTypeArguments() = listOf(
             Arguments.of(CasesRev0.TD, "Mail", "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)"),
@@ -311,7 +279,7 @@ internal class TypedDataTest {
     }
 
     @Nested
-    inner class EncodeBasicTypeTests {
+    inner class EncodeBasicTypeTest {
         @Test
         fun `encode selector`() {
             val selector = "transfer"
@@ -457,216 +425,254 @@ internal class TypedDataTest {
         }
     }
 
-    @Test
-    fun `merkletree with felt leaves`() {
-        val td = CasesRev1.TD_FELT_MERKLETREE
+    @Nested
+    inner class MerkletreeTest {
+        @Test
+        fun `merkletree with felt leaves`() {
+            val td = CasesRev1.TD_FELT_MERKLETREE
 
-        val leaves = td.message.getValue("root").jsonArray.map { Felt.fromHex(it.jsonPrimitive.content) }
-        assertEquals((1..3).map { Felt(it) }, leaves)
+            val leaves = td.message.getValue("root").jsonArray.map { Felt.fromHex(it.jsonPrimitive.content) }
+            assertEquals((1..3).map { Felt(it) }, leaves)
 
-        val tree = MerkleTree(
-            leafHashes = leaves,
-            hashFunction = HashMethod.POSEIDON,
-        )
+            val tree = MerkleTree(
+                leafHashes = leaves,
+                hashFunction = HashMethod.POSEIDON,
+            )
 
-        val merkleTreeHash = td.encodeValue(
-            typeName = "merkletree",
-            value = Json.encodeToJsonElement(tree.leafHashes),
-            context = Context(parent = "Example", key = "root"),
-        ).second
-
-        assertEquals(tree.rootHash, merkleTreeHash)
-        assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
-    }
-
-    @Test
-    fun `merkletree with custom types`() {
-        val leaves = listOf(
-            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
-        )
-
-        val hashedLeaves = leaves.map { leaf ->
-            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-                typeName = "Policy",
-                value = Json.encodeToJsonElement(leaf),
-            ).second
-        }
-        val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
-
-        val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-            typeName = "merkletree",
-            value = Json.encodeToJsonElement(leaves),
-            context = Context(parent = "Session", key = "root"),
-        ).second
-
-        assertEquals(tree.rootHash, merkleTreeHash)
-        assertEquals(
-            Felt.fromHex("0x12354b159e3799dc0ebe86d62dde4ce7b300538d471e5a7fef23dcbac076011"),
-            merkleTreeHash,
-        )
-    }
-
-    @Test
-    fun `merkletree from empty leaves`() {
-        assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
-            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+            val merkleTreeHash = td.encodeValue(
                 typeName = "merkletree",
-                value = Json.encodeToJsonElement(emptyList<Felt>()),
+                value = Json.encodeToJsonElement(tree.leafHashes),
+                context = Context(parent = "Example", key = "root"),
+            ).second
+
+            assertEquals(tree.rootHash, merkleTreeHash)
+            assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
+        }
+
+        @Test
+        fun `merkletree with custom types`() {
+            val leaves = listOf(
+                mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+                mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+                mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+            )
+
+            val hashedLeaves = leaves.map { leaf ->
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                    typeName = "Policy",
+                    value = Json.encodeToJsonElement(leaf),
+                ).second
+            }
+            val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
+
+            val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                typeName = "merkletree",
+                value = Json.encodeToJsonElement(leaves),
                 context = Context(parent = "Session", key = "root"),
+            ).second
+
+            assertEquals(tree.rootHash, merkleTreeHash)
+            assertEquals(
+                Felt.fromHex("0x12354b159e3799dc0ebe86d62dde4ce7b300538d471e5a7fef23dcbac076011"),
+                merkleTreeHash,
             )
+        }
+
+        @Test
+        fun `merkletree from empty leaves`() {
+            assertThrows<IllegalArgumentException>("Cannot build Merkle tree from an empty list of leaves.") {
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                    typeName = "merkletree",
+                    value = Json.encodeToJsonElement(emptyList<Felt>()),
+                    context = Context(parent = "Session", key = "root"),
+                )
+            }
+        }
+
+        @Test
+        fun `merkletree with invalid contains`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                MerkleTreeType(
+                    name = "root",
+                    type = "merkletree",
+                    contains = "felt*",
+                )
+            }
+            assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
+        }
+
+        @Test
+        fun `merkletree with invalid context`() {
+            val leaves = listOf(
+                mapOf("contractAddress" to "0x1", "selector" to "transfer"),
+                mapOf("contractAddress" to "0x2", "selector" to "transfer"),
+                mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+            )
+
+            val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
+            val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
+
+            val parentException = assertThrows<IllegalArgumentException> {
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
+            }
+            assertEquals("Parent [${invalidParentContext.parent}] is not defined in types.", parentException.message)
+            val keyException = assertThrows<IllegalArgumentException> {
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
+            }
+            assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
         }
     }
 
-    @Test
-    fun `merkletree with invalid contains`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            MerkleTreeType(
-                name = "root",
-                type = "merkletree",
-                contains = "felt*",
-            )
-        }
-        assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
-    }
-
-    @Test
-    fun `merkletree with invalid context`() {
-        val leaves = listOf(
-            mapOf("contractAddress" to "0x1", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x2", "selector" to "transfer"),
-            mapOf("contractAddress" to "0x3", "selector" to "transfer"),
+    @Nested
+    inner class InvalidTypesTest {
+        private val domainTypeV0 = "StarkNetDomain" to listOf(
+            TypedData.StandardType("name", "felt"),
+            TypedData.StandardType("version", "felt"),
+            TypedData.StandardType("chainId", "felt"),
         )
-
-        val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
-        val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
-
-        val parentException = assertThrows<IllegalArgumentException> {
-            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
-        }
-        assertEquals("Parent [${invalidParentContext.parent}] is not defined in types.", parentException.message)
-        val keyException = assertThrows<IllegalArgumentException> {
-            CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
-        }
-        assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
-    }
-
-    @ParameterizedTest
-    @EnumSource(Revision::class)
-    fun `basic types redefinition`(revision: Revision) {
-        val types = when (revision) {
-            Revision.V0 -> basicTypesV0
-            Revision.V1 -> basicTypesV1
-        }
-
-        types.forEach { type ->
-            val exception = assertThrows<IllegalArgumentException> {
-                makeTypedData(revision, type)
+        private val domainTypeV1 = "StarknetDomain" to listOf(
+            TypedData.StandardType("name", "shortstring"),
+            TypedData.StandardType("version", "shortstring"),
+            TypedData.StandardType("chainId", "shortstring"),
+            TypedData.StandardType("revision", "shortstring"),
+        )
+        private val domainObjectV0 = """
+            {
+                "name": "DomainV0",
+                "version": 1,
+                "chainId": 2137
             }
-            assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
-        }
-    }
-
-    @ParameterizedTest
-    @EnumSource(Revision::class)
-    fun `preset types redefinition`(revision: Revision) {
-        val types = when (revision) {
-            Revision.V0 -> presetTypesV0
-            Revision.V1 -> presetTypesV1
-        }
-
-        types.forEach { type ->
-            val exception = assertThrows<IllegalArgumentException> {
-                makeTypedData(revision, type)
+        """.trimIndent()
+        private val domainObjectV1 = """
+            {
+                "name": "DomainV1",
+                "version": "1",
+                "chainId": "2137",
+                "revision": "1"
             }
-            assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
-        }
-    }
+        """.trimIndent()
 
-    @Test
-    fun `type with asterisk`() {
-        val types = listOf("felt*", "u256*", "mytype*")
-        types.forEach { type ->
+        private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
+        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
+        private val presetTypesV0 = emptySet<String>()
+        private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
+
+        @ParameterizedTest
+        @EnumSource(Revision::class)
+        fun `basic types redefinition`(revision: Revision) {
+            val types = when (revision) {
+                Revision.V0 -> basicTypesV0
+                Revision.V1 -> basicTypesV1
+            }
+
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(revision, type)
+                }
+                assertEquals("Types must not contain basic types. [$type] was found.", exception.message)
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(Revision::class)
+        fun `preset types redefinition`(revision: Revision) {
+            val types = when (revision) {
+                Revision.V0 -> presetTypesV0
+                Revision.V1 -> presetTypesV1
+            }
+
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(revision, type)
+                }
+                assertEquals("Types must not contain preset types. [$type] was found.", exception.message)
+            }
+        }
+
+        @Test
+        fun `type with asterisk`() {
+            val types = listOf("felt*", "u256*", "mytype*")
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(Revision.V1, type)
+                }
+                assertEquals("Type names cannot end in *. [$type] was found.", exception.message)
+            }
+        }
+
+        @Test
+        fun `type with parentheses`() {
+            val type = "(mytype)"
             val exception = assertThrows<IllegalArgumentException> {
                 makeTypedData(Revision.V1, type)
             }
-            assertEquals("Type names cannot end in *. [$type] was found.", exception.message)
+            assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
         }
-    }
 
-    @Test
-    fun `type with parentheses`() {
-        val type = "(mytype)"
-        val exception = assertThrows<IllegalArgumentException> {
-            makeTypedData(Revision.V1, type)
-        }
-        assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
-    }
-
-    @Test
-    fun `type with commas`() {
-        val types = listOf(",mytype", "my,type", "mytype,")
-        types.forEach { type ->
-            val exception = assertThrows<IllegalArgumentException> {
-                makeTypedData(Revision.V1, type)
+        @Test
+        fun `type with commas`() {
+            val types = listOf(",mytype", "my,type", "mytype,")
+            types.forEach { type ->
+                val exception = assertThrows<IllegalArgumentException> {
+                    makeTypedData(Revision.V1, type)
+                }
+                assertEquals("Type names cannot contain commas. [$type] was found.", exception.message)
             }
-            assertEquals("Type names cannot contain commas. [$type] was found.", exception.message)
         }
-    }
 
-    @Test
-    fun `dangling types`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            TypedData(
+        @Test
+        fun `dangling types`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                TypedData(
+                    types = mapOf(
+                        domainTypeV1,
+                        "dangling" to emptyList(),
+                        "mytype" to emptyList(),
+                    ),
+                    primaryType = "mytype",
+                    domain = domainObjectV1,
+                    message = "{\"mytype\": 1}",
+                )
+            }
+            assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
+        }
+
+        @Test
+        fun `missing dependency`() {
+            val td = TypedData(
                 types = mapOf(
                     domainTypeV1,
-                    "dangling" to emptyList(),
-                    "mytype" to emptyList(),
+                    "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
                 ),
-                primaryType = "mytype",
+                primaryType = "house",
                 domain = domainObjectV1,
-                message = "{\"mytype\": 1}",
+                message = "{\"fridge\": 1}",
+            )
+            val exception = assertThrows<IllegalArgumentException> {
+                td.getStructHash("house", "{\"fridge\": 1}")
+            }
+            assertEquals("Type [ice cream] is not defined in types.", exception.message)
+        }
+
+        private fun makeTypedData(
+            revision: Revision,
+            includedType: String,
+        ) {
+            val (domainType, domainObject) = when (revision) {
+                Revision.V0 -> domainTypeV0 to domainObjectV0
+                Revision.V1 -> domainTypeV1 to domainObjectV1
+            }
+
+            TypedData(
+                types = mapOf(
+                    domainType,
+                    includedType to emptyList(),
+                ),
+                primaryType = includedType,
+                domain = domainObject,
+                message = "{\"$includedType\": 1}",
             )
         }
-        assertEquals("Dangling types are not allowed. Unreferenced type [dangling] was found.", exception.message)
-    }
-
-    @Test
-    fun `missing dependency`() {
-        val td = TypedData(
-            types = mapOf(
-                domainTypeV1,
-                "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
-            ),
-            primaryType = "house",
-            domain = domainObjectV1,
-            message = "{\"fridge\": 1}",
-        )
-        val exception = assertThrows<IllegalArgumentException> {
-            td.getStructHash("house", "{\"fridge\": 1}")
-        }
-        assertEquals("Type [ice cream] is not defined in types.", exception.message)
-    }
-
-    private fun makeTypedData(
-        revision: Revision,
-        includedType: String,
-    ) {
-        val (domainType, domainObject) = when (revision) {
-            Revision.V0 -> domainTypeV0 to domainObjectV0
-            Revision.V1 -> domainTypeV1 to domainObjectV1
-        }
-
-        TypedData(
-            types = mapOf(
-                domainType,
-                includedType to emptyList(),
-            ),
-            primaryType = includedType,
-            domain = domainObject,
-            message = "{\"$includedType\": 1}",
-        )
     }
 
     @ParameterizedTest
