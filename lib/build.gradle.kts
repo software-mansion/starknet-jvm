@@ -123,6 +123,9 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20")
 
+    // Use the Kotlin reflection library.
+    implementation(kotlin("reflect"))
+
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")

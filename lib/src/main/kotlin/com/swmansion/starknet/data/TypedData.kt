@@ -105,7 +105,7 @@ data class TypedData private constructor(
     private val revision = domain.revision ?: Revision.V0
 
     @Transient
-    private val allTypes: Map<String, List<Type>> = types + getPresetTypes(revision)
+    private val allTypes: Map<String, List<Type>> = types + PresetType.values(revision).associate { it.name to it.params }
 
     private val hashMethod by lazy {
         when (revision) {
@@ -123,13 +123,13 @@ data class TypedData private constructor(
     private fun verifyTypes() {
         require(domain.separatorName in types) { "Types must contain '${domain.separatorName}'." }
 
-        getBasicTypes(revision).forEach { require(it !in types) { "Types must not contain basic types. [$it] was found." } }
-        getPresetTypes(revision).keys.forEach { require(it !in types) { "Types must not contain preset types. [$it] was found." } }
+        BasicType.values(revision).forEach { require(it.name !in types) { "Types must not contain basic types. [${it.name}] was found." } }
+        PresetType.values(revision).forEach { require(it.name !in types) { "Types must not contain preset types. [${it.name}] was found." } }
 
         val referencedTypes = types.values.flatten().flatMap {
             when (it) {
                 is EnumType -> {
-                    require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                    require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
                     listOf(it.contains)
                 }
                 is MerkleTreeType -> listOf(it.contains)
@@ -197,7 +197,7 @@ data class TypedData private constructor(
     @Serializable
     data class MerkleTreeType(
         override val name: String,
-        override val type: String = "merkletree",
+        override val type: String = BasicType.MerkleTree.name,
         val contains: String,
     ) : Type() {
         init {
@@ -210,7 +210,7 @@ data class TypedData private constructor(
     @Serializable
     data class EnumType(
         override val name: String,
-        override val type: String = "enum",
+        override val type: String = BasicType.Enum.name,
         val contains: String,
     ) : Type()
 
@@ -230,7 +230,7 @@ data class TypedData private constructor(
             params.forEach { param ->
                 val extractedTypes = when {
                     param is EnumType -> {
-                        require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
+                        require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
                         listOf(param.contains)
                     }
                     param.type.isEnum() -> {
@@ -373,7 +373,7 @@ data class TypedData private constructor(
 
         val variants = getEnumVariants(context)
         val variantType = variants.singleOrNull { it.name == variantName }
-            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in 'enum' type [${context.key}] or multiple definitions are present.")
+            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in '${BasicType.Enum.name}' type [${context.key}] or multiple definitions are present.")
         val variantIndex = variants.indexOf(variantType)
 
         val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
@@ -400,28 +400,23 @@ data class TypedData private constructor(
             return typeName to hashArray(hashes)
         }
 
-        return when (typeName) {
-            "enum" -> {
-                require(revision == Revision.V1) { "'enum' basic type is not supported in revision ${revision.value}." }
-                requireNotNull(context) { "Context is not provided for 'enum' type." }
-                "enum" to prepareEnum(value.jsonObject, context)
+        val basicType = BasicType.fromName(typeName, revision)
+            ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+
+        return basicType.encodeToType to when (basicType) {
+            BasicType.Enum -> {
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
+                prepareEnum(value.jsonObject, context)
             }
-            "merkletree" -> {
-                requireNotNull(context) { "Context is not provided for 'merkletree' type." }
-                "felt" to prepareMerkletreeRoot(value.jsonArray, context)
+            BasicType.MerkleTree -> {
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
+                prepareMerkletreeRoot(value.jsonArray, context)
             }
-            "string" -> when (revision) {
-                Revision.V0 -> "string" to feltFromPrimitive(value.jsonPrimitive)
-                Revision.V1 -> "string" to prepareLongString(value.jsonPrimitive.content)
-            }
-            "felt", "bool" -> typeName to feltFromPrimitive(value.jsonPrimitive)
-            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            "i128" -> "i128" to feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
-            "u128", "ContractAddress", "ClassHash", "timestamp", "shortstring" -> {
-                require(revision == Revision.V1) { "'$typeName' basic type is not supported in revision ${revision.value}." }
-                typeName to feltFromPrimitive(value.jsonPrimitive)
-            }
-            else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+            BasicType.StringV0 -> feltFromPrimitive(value.jsonPrimitive)
+            BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
+            BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
+            BasicType.I128 -> feltFromPrimitive(value.jsonPrimitive, allowSigned = true)
+            BasicType.Felt, BasicType.Bool, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash, BasicType.U128, BasicType.Timestamp -> feltFromPrimitive(value.jsonPrimitive)
         }
     }
 
@@ -479,46 +474,87 @@ data class TypedData private constructor(
         )
     }
 
-    companion object {
-        private fun getBasicTypes(revision: Revision): Set<String> {
-            return when (revision) {
-                Revision.V0 -> basicTypesV0
-                Revision.V1 -> basicTypesV1
+    private sealed class BasicType {
+        abstract val name: String
+        open val encodeToType get() = name
+
+        sealed interface V0
+        sealed interface V1
+
+        data object Felt : BasicType(), V0, V1 { override val name = "felt" }
+        data object Bool : BasicType(), V0, V1 { override val name = "bool" }
+        data object Selector : BasicType(), V0, V1 { override val name = "selector"; override val encodeToType = Felt.name }
+        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree"; override val encodeToType = Felt.name }
+        data object StringV0 : BasicType(), V0 { override val name = "string" }
+        data object StringV1 : BasicType(), V1 { override val name = "string" }
+        data object Enum : BasicType(), V1 { override val name = "enum"; override val encodeToType = Felt.name }
+        data object I128 : BasicType(), V1 { override val name = "i128" }
+        data object U128 : BasicType(), V1 { override val name = "u128" }
+        data object ContractAddress : BasicType(), V1 { override val name = "ContractAddress" }
+        data object ClassHash : BasicType(), V1 { override val name = "ClassHash" }
+        data object Timestamp : BasicType(), V1 { override val name = "timestamp" }
+        data object ShortString : BasicType(), V1 { override val name = "shortstring" }
+
+        companion object {
+            fun values(revision: Revision): List<BasicType> {
+                val instances = BasicType::class.sealedSubclasses.mapNotNull { it.objectInstance }
+
+                return when (revision) {
+                    Revision.V0 -> instances.filterIsInstance<V0>()
+                    Revision.V1 -> instances.filterIsInstance<V1>()
+                }.map { it as BasicType }
+            }
+
+            fun fromName(name: String, revision: Revision): BasicType? {
+                return values(revision).find { it.name == name }
             }
         }
+    }
 
-        private fun getPresetTypes(revision: Revision): Map<String, List<Type>> {
-            return when (revision) {
-                Revision.V0 -> presetTypesV0
-                Revision.V1 -> presetTypesV1
-            }
-        }
+    private sealed class PresetType {
+        abstract val name: String
+        abstract val params: List<Type>
 
-        private val basicTypesV0: Set<String>
-            get() = setOf("felt", "bool", "string", "selector", "merkletree")
+        sealed interface V1
 
-        private val basicTypesV1: Set<String>
-            get() = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
-
-        private val presetTypesV0: Map<String, List<Type>>
-            get() = emptyMap()
-
-        private val presetTypesV1: Map<String, List<Type>>
-            get() = mapOf(
-                "u256" to listOf(
-                    StandardType("low", "u128"),
-                    StandardType("high", "u128"),
-                ),
-                "TokenAmount" to listOf(
-                    StandardType("token_address", "ContractAddress"),
-                    StandardType("amount", "u256"),
-                ),
-                "NftId" to listOf(
-                    StandardType("collection_address", "ContractAddress"),
-                    StandardType("token_id", "u256"),
-                ),
+        @Suppress("unused")
+        data object U256 : PresetType(), V1 {
+            override val name = "u256"
+            override val params = listOf(
+                StandardType("low", "u128"),
+                StandardType("high", "u128"),
             )
+        }
 
+        @Suppress("unused")
+        data object TokenAmount : PresetType(), V1 {
+            override val name = "TokenAmount"
+            override val params = listOf(
+                StandardType("token_address", "ContractAddress"),
+                StandardType("amount", "u256"),
+            )
+        }
+
+        @Suppress("unused")
+        data object NftId : PresetType(), V1 {
+            override val name = "NftId"
+            override val params = listOf(
+                StandardType("collection_address", "ContractAddress"),
+                StandardType("token_id", "u256"),
+            )
+        }
+
+        companion object {
+            fun values(revision: Revision): List<PresetType> {
+                return when (revision) {
+                    Revision.V0 -> emptyList()
+                    Revision.V1 -> PresetType::class.sealedSubclasses.mapNotNull { it.objectInstance }.filterIsInstance<V1>()
+                }.map { it as PresetType }
+            }
+        }
+    }
+
+    companion object {
         /**
          * Create TypedData from JSON string.
          *
