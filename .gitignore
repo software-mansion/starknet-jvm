@@ -47,6 +47,7 @@ venv
 
 # Exclude test and demo resources temp files
 lib/src/test/resources/contracts*/target
+lib/src/test/resources/contracts*/Scarb.lock
 javademo/src/main/resources/contracts*/target
 test_variables.env
 

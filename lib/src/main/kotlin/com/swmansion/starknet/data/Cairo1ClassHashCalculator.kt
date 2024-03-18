@@ -3,7 +3,9 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.starknetKeccak
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.toFelt
 import kotlinx.serialization.json.Json
+import java.math.BigInteger
 
 object Cairo1ClassHashCalculator {
     private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
@@ -30,9 +32,22 @@ object Cairo1ClassHashCalculator {
         val externalEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
         val l1HandlerEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
         val constructorEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
-        val bytecodeHash = Poseidon.poseidonHash(contractClass.bytecode)
+        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths) }
+            ?: Poseidon.poseidonHash(contractClass.bytecode)
 
         return (Poseidon.poseidonHash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
+    }
+
+    private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>): Felt {
+        val segmentStarts = bytecodeSegmentLengths.scan(0, Int::plus)
+
+        val hashLeaves = bytecodeSegmentLengths.flatMapIndexed { index, length ->
+            val segment = bytecode.slice(segmentStarts[index] until segmentStarts[index + 1])
+
+            listOf(length.toFelt) + Poseidon.poseidonHash(segment)
+        }
+
+        return (BigInteger.ONE + Poseidon.poseidonHash(hashLeaves).value).toFelt
     }
 
     private fun getSierraEntryPointsArray(arr: List<SierraEntryPoint>): List<Felt> {
