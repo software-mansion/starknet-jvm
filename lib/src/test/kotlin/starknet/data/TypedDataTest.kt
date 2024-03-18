@@ -279,7 +279,7 @@ internal class TypedDataTest {
     }
 
     @Nested
-    inner class EncodeBasicTypeTests {
+    inner class EncodeBasicTypeTest {
         @Test
         fun `encode selector`() {
             val selector = "transfer"
@@ -522,6 +522,7 @@ internal class TypedDataTest {
             assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
         }
     }
+
     @Nested
     inner class InvalidTypesTest {
         private val domainTypeV0 = "StarkNetDomain" to listOf(
@@ -602,12 +603,11 @@ internal class TypedDataTest {
         @Test
         fun `type with parentheses`() {
             val type = "(mytype)"
-                val exception = assertThrows<IllegalArgumentException> {
-                    makeTypedData(Revision.V1, type)
-                }
-                assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
+            val exception = assertThrows<IllegalArgumentException> {
+                makeTypedData(Revision.V1, type)
             }
-
+            assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
+        }
 
         @Test
         fun `type with commas`() {
