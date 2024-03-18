@@ -335,24 +335,20 @@ internal class TypedDataTest {
 
         @Test
         fun `encode bool`() {
-            val td = CasesRev1.TD_BASIC_TYPES
-
             val values = listOf(true, false, "true", "false", "0x1", "0x0", "1", "0", 1, 0)
             values.forEach {
-                val encodedValue = td.encodeValue("bool", encodeToJsonElement(it))
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("bool", encodeToJsonElement(it))
                 assertTrue(encodedValue.second in listOf(Felt.ONE, Felt.ZERO))
             }
         }
 
         @Test
         fun `encode bool - invalid values`() {
-            val td = CasesRev1.TD_BASIC_TYPES
-
             val invalidValues = listOf("0x2", "2", 2, 1000)
             invalidValues.forEach {
                 val value = encodeToJsonElement(it)
                 val exception = assertThrows<IllegalArgumentException> {
-                    td.encodeValue("bool", value)
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("bool", value)
                 }
                 assertEquals("Expected boolean value, got [$value].", exception.message)
             }
@@ -360,24 +356,22 @@ internal class TypedDataTest {
 
         @Test
         fun `encode u128`() {
-            val td = CasesRev1.TD_BASIC_TYPES
             val values = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(128) - BigInteger.ONE).toString())
 
             values.forEach {
-                val encodedValue = td.encodeValue("u128", encodeToJsonElement(it))
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("u128", encodeToJsonElement(it))
                 assertEquals(feltFromAny(it), encodedValue.second)
             }
         }
 
         @Test
         fun `encode u128 - underflow`() {
-            val td = CasesRev1.TD_BASIC_TYPES
             val values = listOf(-1, "-1")
 
             values.forEach {
                 val value = encodeToJsonElement(it)
                 val exception = assertThrows<IllegalArgumentException> {
-                    td.encodeValue("u128", value)
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("u128", value)
                 }
                 assertEquals("Default Felt constructor does not accept negative numbers, [-1] given.", exception.message)
             }
@@ -385,7 +379,6 @@ internal class TypedDataTest {
 
         @Test
         fun `encode u128 - overflow`() {
-            val td = CasesRev1.TD_BASIC_TYPES
             val values = listOf(
                 "0x" + (BigInteger.TWO.pow(128)).toString(16),
                 (BigInteger.TWO.pow(128) + BigInteger.ONE).toString(),
@@ -394,7 +387,7 @@ internal class TypedDataTest {
             values.forEach {
                 val value = Json.encodeToJsonElement(it)
                 val exception = assertThrows<IllegalArgumentException> {
-                    td.encodeValue("u128", value)
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("u128", value)
                 }
                 assertEquals("Value [$value] is out of range for 'u128'.", exception.message)
             }
@@ -402,19 +395,17 @@ internal class TypedDataTest {
 
         @Test
         fun `encode i128`() {
-            val td = CasesRev1.TD_BASIC_TYPES
             val positiveValues = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(127) - BigInteger.ONE).toString())
             val negativeValues = listOf(-1, -1000000, "-1", BigInteger.TWO.pow(127).negate().toString())
 
             (positiveValues + negativeValues).forEach {
-                val encodedValue = td.encodeValue("i128", encodeToJsonElement(it))
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("i128", encodeToJsonElement(it))
                 assertEquals(feltFromAny(it), encodedValue.second)
             }
         }
 
         @Test
         fun `encode i128 - out of range`() {
-            val td = CasesRev1.TD_BASIC_TYPES
             val values = listOf(
                 (-BigInteger.TWO.pow(127) - BigInteger.ONE).toString(),
                 (BigInteger.TWO.pow(127)).toString(),
@@ -423,7 +414,7 @@ internal class TypedDataTest {
             values.forEach {
                 val value = Json.encodeToJsonElement(it)
                 val exception = assertThrows<IllegalArgumentException> {
-                    td.encodeValue("i128", value)
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("i128", value)
                 }
                 assertEquals("Value [$value] is out of range for 'i128'.", exception.message)
             }
@@ -432,6 +423,7 @@ internal class TypedDataTest {
         @Test
         fun `unexpected values`() {
             val td = CasesRev1.TD_BASIC_TYPES
+
             val exception = assertThrows<IllegalArgumentException> {
                 td.encodeValue("u128", Json.encodeToJsonElement("hello"))
             }

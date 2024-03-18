@@ -321,7 +321,6 @@ data class TypedData private constructor(
                 Felt.fromHex(primitive.content)
             } catch (e: Exception) {
                 require(allowShortString) { "Unexpected string value: [$primitive]." }
-
                 Felt.fromShortString(primitive.content)
             }
         }
