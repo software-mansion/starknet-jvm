@@ -401,7 +401,7 @@ data class TypedData private constructor(
 
     private fun prepareEnum(value: JsonObject, context: Context): Felt {
         val (variantName, variantData) = value.entries.singleOrNull()?.let { it.key to it.value.jsonArray }
-            ?: throw IllegalArgumentException("'enum' value must contain a single variant.")
+            ?: throw IllegalArgumentException("'${BasicType.Enum.name}' value must contain a single variant.")
 
         val variants = getEnumVariants(context)
         val variantType = variants.singleOrNull { it.name == variantName }
