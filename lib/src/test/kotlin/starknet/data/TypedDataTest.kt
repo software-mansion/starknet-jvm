@@ -9,11 +9,9 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -22,6 +20,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
+import java.math.BigInteger
 
 internal fun loadTypedData(path: String): TypedData {
     val content = File("src/test/resources/typed_data/$path").readText()
@@ -279,25 +278,151 @@ internal class TypedDataTest {
         assertEquals(expectedResult, encodedType)
     }
 
-    @Test
-    fun `selector type`() {
-        val selector = "transfer"
-        val selectorHash = selectorFromName(selector)
+    @Nested
+    inner class EncodeBasicTypeTests {
+        @Test
+        fun `encode selector`() {
+            val selector = "transfer"
+            val selectorHash = selectorFromName(selector)
 
-        val rawSelectorValueHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-            typeName = "felt",
-            value = Json.encodeToJsonElement(selectorHash),
-        )
-        val selectorValueHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
-            typeName = "selector",
-            value = Json.encodeToJsonElement(selector),
-        )
+            val rawSelectorValueHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                typeName = "felt",
+                value = Json.encodeToJsonElement(selectorHash),
+            )
+            val selectorValueHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                typeName = "selector",
+                value = Json.encodeToJsonElement(selector),
+            )
 
-        assertEquals(rawSelectorValueHash, selectorValueHash)
-        assertEquals(
-            "felt" to Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
-            selectorValueHash,
-        )
+            assertEquals(rawSelectorValueHash, selectorValueHash)
+            assertEquals(
+                "felt" to Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
+                selectorValueHash,
+            )
+        }
+
+        @Test
+        fun `encode bool`() {
+            val values = listOf(true, false, "true", "false", "0x1", "0x0", "1", "0", 1, 0)
+            values.forEach {
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("bool", encodeToJsonElement(it))
+                assertTrue(encodedValue.second in listOf(Felt.ONE, Felt.ZERO))
+            }
+        }
+
+        @Test
+        fun `encode bool - invalid values`() {
+            val invalidValues = listOf("0x2", "2", 2, 1000)
+            invalidValues.forEach {
+                val value = encodeToJsonElement(it)
+                val exception = assertThrows<IllegalArgumentException> {
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("bool", value)
+                }
+                assertEquals("Expected boolean value, got [$value].", exception.message)
+            }
+        }
+
+        @Test
+        fun `encode u128`() {
+            val values = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(128) - BigInteger.ONE).toString())
+
+            values.forEach {
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("u128", encodeToJsonElement(it))
+                assertEquals(feltFromAny(it), encodedValue.second)
+            }
+        }
+
+        @Test
+        fun `encode u128 - underflow`() {
+            val values = listOf(-1, "-1")
+
+            values.forEach {
+                val value = encodeToJsonElement(it)
+                val exception = assertThrows<IllegalArgumentException> {
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("u128", value)
+                }
+                assertEquals("Default Felt constructor does not accept negative numbers, [-1] given.", exception.message)
+            }
+        }
+
+        @Test
+        fun `encode u128 - overflow`() {
+            val values = listOf(
+                "0x" + (BigInteger.TWO.pow(128)).toString(16),
+                (BigInteger.TWO.pow(128) + BigInteger.ONE).toString(),
+            )
+
+            values.forEach {
+                val value = Json.encodeToJsonElement(it)
+                val exception = assertThrows<IllegalArgumentException> {
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("u128", value)
+                }
+                assertEquals("Value [$value] is out of range for 'u128'.", exception.message)
+            }
+        }
+
+        @Test
+        fun `encode i128`() {
+            val positiveValues = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(127) - BigInteger.ONE).toString())
+            val negativeValues = listOf(-1, -1000000, "-1", BigInteger.TWO.pow(127).negate().toString())
+
+            (positiveValues + negativeValues).forEach {
+                val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("i128", encodeToJsonElement(it))
+                assertEquals(feltFromAny(it), encodedValue.second)
+            }
+        }
+
+        @Test
+        fun `encode i128 - out of range`() {
+            val values = listOf(
+                (-BigInteger.TWO.pow(127) - BigInteger.ONE).toString(),
+                (BigInteger.TWO.pow(127)).toString(),
+            )
+
+            values.forEach {
+                val value = Json.encodeToJsonElement(it)
+                val exception = assertThrows<IllegalArgumentException> {
+                    CasesRev1.TD_BASIC_TYPES.encodeValue("i128", value)
+                }
+                assertEquals("Value [$value] is out of range for 'i128'.", exception.message)
+            }
+        }
+
+        @Test
+        fun `unexpected values`() {
+            val td = CasesRev1.TD_BASIC_TYPES
+
+            val exception = assertThrows<IllegalArgumentException> {
+                td.encodeValue("u128", Json.encodeToJsonElement("hello"))
+            }
+            assertEquals("Unexpected string value: [\"hello\"].", exception.message)
+            val exception2 = assertThrows<IllegalArgumentException> {
+                td.encodeValue("u128", Json.encodeToJsonElement(true))
+            }
+            assertEquals("Unexpected boolean value: [true].", exception2.message)
+            val exception3 = assertThrows<IllegalArgumentException> {
+                td.encodeValue("u128", Json.encodeToJsonElement(21.37))
+            }
+            assertEquals("Unsupported primitive type: [21.37].", exception3.message)
+        }
+
+        private fun encodeToJsonElement(value: Any): JsonElement {
+            return when (value) {
+                is String -> Json.encodeToJsonElement(value)
+                is Int -> Json.encodeToJsonElement(value)
+                is Boolean -> Json.encodeToJsonElement(value)
+                else -> throw IllegalArgumentException("Invalid value type.")
+            }
+        }
+
+        private fun feltFromAny(value: Any): Felt {
+            return when (value) {
+                is Int -> Felt.fromSigned(value)
+                is String -> if (value.startsWith("0x")) Felt.fromHex(value) else Felt.fromSigned(value.toBigInteger())
+                is Boolean -> if (value) Felt.ONE else Felt.ZERO
+                else -> throw IllegalArgumentException("Invalid value type.")
+            }
+        }
     }
 
     @Nested
@@ -338,7 +463,7 @@ internal class TypedDataTest {
                     value = Json.encodeToJsonElement(leaf),
                 ).second
             }
-            val tree = MerkleTree(hashedLeaves)
+            val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
 
             val merkleTreeHash = CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
                 typeName = "merkletree",
@@ -387,15 +512,16 @@ internal class TypedDataTest {
             val invalidParentContext = Context(parent = "UndefinedParent", key = "root")
             val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
 
-            assertThrows<IllegalArgumentException>("Parent type '${invalidParentContext.parent}' is not defined in types.") {
+            val parentException = assertThrows<IllegalArgumentException> {
                 CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
             }
-            assertThrows<IllegalArgumentException>("Key '${invalidKeyContext.key}' is not defined in type '${invalidKeyContext.parent}'.") {
+            assertEquals("Parent [${invalidParentContext.parent}] is not defined in types.", parentException.message)
+            val keyException = assertThrows<IllegalArgumentException> {
                 CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
             }
+            assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
         }
     }
-
     @Nested
     inner class InvalidTypesTest {
         private val domainTypeV0 = "StarkNetDomain" to listOf(
@@ -469,20 +595,19 @@ internal class TypedDataTest {
                 val exception = assertThrows<IllegalArgumentException> {
                     makeTypedData(Revision.V1, type)
                 }
-                assertEquals("Types cannot end in *. [$type] was found.", exception.message)
+                assertEquals("Type names cannot end in *. [$type] was found.", exception.message)
             }
         }
 
         @Test
         fun `type with parentheses`() {
-            val types = listOf("(left", "right)", "(both)")
-            types.forEach { type ->
+            val type = "(mytype)"
                 val exception = assertThrows<IllegalArgumentException> {
                     makeTypedData(Revision.V1, type)
                 }
-                assertEquals("Types cannot be enclosed in parentheses. [$type] was found.", exception.message)
+                assertEquals("Type names cannot be enclosed in parentheses. [$type] was found.", exception.message)
             }
-        }
+
 
         @Test
         fun `type with commas`() {
@@ -491,7 +616,7 @@ internal class TypedDataTest {
                 val exception = assertThrows<IllegalArgumentException> {
                     makeTypedData(Revision.V1, type)
                 }
-                assertEquals("Types cannot contain commas. [$type] was found.", exception.message)
+                assertEquals("Type names cannot contain commas. [$type] was found.", exception.message)
             }
         }
 
@@ -499,7 +624,7 @@ internal class TypedDataTest {
         fun `dangling types`() {
             val exception = assertThrows<IllegalArgumentException> {
                 TypedData(
-                    customTypes = mapOf(
+                    types = mapOf(
                         domainTypeV1,
                         "dangling" to emptyList(),
                         "mytype" to emptyList(),
@@ -515,7 +640,7 @@ internal class TypedDataTest {
         @Test
         fun `missing dependency`() {
             val td = TypedData(
-                customTypes = mapOf(
+                types = mapOf(
                     domainTypeV1,
                     "house" to listOf(TypedData.StandardType("fridge", "ice cream")),
                 ),
@@ -539,7 +664,7 @@ internal class TypedDataTest {
             }
 
             TypedData(
-                customTypes = mapOf(
+                types = mapOf(
                     domainType,
                     includedType to emptyList(),
                 ),
