@@ -1,15 +1,19 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.HashMethod
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.serializers.TypedDataTypeBaseSerializer
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
+import com.swmansion.starknet.data.types.StarknetByteArray
+import com.swmansion.starknet.extensions.toFelt
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.*
+import java.math.BigInteger
 
 /**
- * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/argentlabs/argent-x/discussions/14).
+ * Sign message for off-chain usage. Follows standard proposed [here](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md).
  *
  * ```java
  * String typedDataString = """
@@ -81,52 +85,139 @@ import kotlinx.serialization.json.*
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class TypedData private constructor(
-    val types: Map<String, List<TypeBase>>,
+    val types: Map<String, List<Type>>,
     val primaryType: String,
-    val domain: JsonObject,
+    val domain: Domain,
     val message: JsonObject,
 ) {
-    init {
-        val reservedTypeNames = listOf("felt", "felt*", "string", "string*", "selector", "selector*", "merkletree", "merkletree*", "raw", "raw*")
-        reservedTypeNames.forEach {
-            require(!types.containsKey(it)) { "Types must not contain $it." }
-        }
-    }
-
     constructor(
-        types: Map<String, List<TypeBase>>,
+        types: Map<String, List<Type>>,
         primaryType: String,
         domain: String,
         message: String,
     ) : this(
         types = types,
         primaryType = primaryType,
-        domain = Json.parseToJsonElement(domain).jsonObject,
+        domain = Json.decodeFromString(domain),
         message = Json.parseToJsonElement(message).jsonObject,
     )
 
+    @Transient
+    private val revision = domain.revision ?: Revision.V0
+
+    @Transient
+    private val allTypes: Map<String, List<Type>> = types + PresetType.values(revision).associate { it.name to it.params }
+
+    private val hashMethod by lazy {
+        when (revision) {
+            Revision.V0 -> HashMethod.PEDERSEN
+            Revision.V1 -> HashMethod.POSEIDON
+        }
+    }
+
+    init {
+        verifyTypes()
+    }
+
+    private fun hashArray(values: List<Felt>) = hashMethod.hash(values)
+
+    private fun verifyTypes() {
+        require(domain.separatorName in types) { "Types must contain '${domain.separatorName}'." }
+
+        BasicType.values(revision).forEach { require(it.name !in types) { "Types must not contain basic types. [${it.name}] was found." } }
+        PresetType.values(revision).forEach { require(it.name !in types) { "Types must not contain preset types. [${it.name}] was found." } }
+
+        val referencedTypes = types.values.flatten().flatMap {
+            when (it) {
+                is EnumType -> {
+                    require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
+                    listOf(it.contains)
+                }
+                is MerkleTreeType -> listOf(it.contains)
+                is StandardType -> when {
+                    it.type.isEnum() -> {
+                        require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+                        extractEnumTypes(it.type)
+                    }
+                    else -> listOf(stripPointer(it.type))
+                }
+            }
+        }.distinct() + domain.separatorName + primaryType
+
+        types.keys.forEach {
+            require(it.isNotEmpty()) { "Type names cannot be empty." }
+            require(!it.isArray()) { "Type names cannot end in *. [$it] was found." }
+            require(!it.isEnum()) { "Type names cannot be enclosed in parentheses. [$it] was found." }
+            require(!it.contains(",")) { "Type names cannot contain commas. [$it] was found." }
+            require(it in referencedTypes) { "Dangling types are not allowed. Unreferenced type [$it] was found." }
+        }
+    }
+
+    /**
+     * TypedData revision.
+     *
+     * The revision of the specification to be used.
+     *
+     * [V0] - Legacy revision, represents the de facto spec before [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+     * [V1] - Initial and current revision, represents the spec after [SNIP-12](https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md) was published.
+     */
+    @Serializable
+    enum class Revision(val value: Int) {
+        @SerialName("0")
+        V0(0),
+
+        @SerialName("1")
+        V1(1),
+    }
+
+    @Serializable
+    data class Domain(
+        val name: JsonPrimitive,
+        val version: JsonPrimitive,
+        val chainId: JsonPrimitive,
+        val revision: Revision? = null,
+    ) {
+        internal val separatorName = when (revision ?: Revision.V0) {
+            Revision.V0 -> "StarkNetDomain"
+            Revision.V1 -> "StarknetDomain"
+        }
+    }
+
     @Serializable(with = TypedDataTypeBaseSerializer::class)
-    sealed class TypeBase {
+    sealed class Type {
         abstract val name: String
         abstract val type: String
     }
 
     @Serializable
-    data class Type(
+    data class StandardType(
         override val name: String,
         override val type: String,
-    ) : TypeBase()
+    ) : Type()
 
     @Serializable
     data class MerkleTreeType(
         override val name: String,
-        override val type: String = "merkletree",
+        override val type: String = BasicType.MerkleTree.name,
         val contains: String,
-    ) : TypeBase()
+    ) : Type() {
+        init {
+            require(!contains.isArray()) {
+                "Merkletree 'contains' field cannot be an array, got [$contains] in type [$name]."
+            }
+        }
+    }
+
+    @Serializable
+    data class EnumType(
+        override val name: String,
+        override val type: String = BasicType.Enum.name,
+        val contains: String,
+    ) : Type()
 
     data class Context(
-        val parent: String?,
-        val key: String?,
+        val parent: String,
+        val key: String,
     )
 
     private fun getDependencies(typeName: String): List<String> {
@@ -135,14 +226,26 @@ data class TypedData private constructor(
 
         while (toVisit.isNotEmpty()) {
             val type = toVisit.removeFirst()
-            val params = types[type] ?: emptyList()
+            val params = allTypes[type] ?: emptyList()
 
-            for (param in params) {
-                val typeStripped = stripPointer(param.type)
+            params.forEach { param ->
+                val extractedTypes = when {
+                    param is EnumType -> {
+                        require(revision == Revision.V1) { "'${BasicType.Enum.name}' basic type is not supported in revision ${revision.value}." }
+                        listOf(param.contains)
+                    }
+                    param.type.isEnum() -> {
+                        require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+                        extractEnumTypes(param.type)
+                    }
+                    else -> listOf(param.type)
+                }.map { stripPointer(it) }
 
-                if (types.containsKey(typeStripped) && !deps.contains(typeStripped)) {
-                    deps.add(typeStripped)
-                    toVisit.add(typeStripped)
+                extractedTypes.forEach {
+                    if (it in allTypes && it !in deps) {
+                        deps.add(it)
+                        toVisit.add(it)
+                    }
                 }
             }
         }
@@ -150,7 +253,7 @@ data class TypedData private constructor(
         return deps
     }
 
-    private fun encodeType(type: String): String {
+    internal fun encodeType(type: String): String {
         val deps = getDependencies(type)
 
         val sorted = deps.subList(1, deps.size).sorted()
@@ -160,34 +263,99 @@ data class TypedData private constructor(
     }
 
     private fun encodeDependency(dependency: String): String {
-        val fields =
-            types[dependency] ?: throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
-        val encodedFields = fields.joinToString(",") { "${it.name}:${it.type}" }
-        return "$dependency($encodedFields)"
+        fun escape(typeName: String) = when (revision) {
+            Revision.V0 -> typeName
+            Revision.V1 -> "\"$typeName\""
+        }
+
+        val fields = allTypes.getOrElse(dependency) {
+            throw IllegalArgumentException("Dependency [$dependency] is not defined in types.")
+        }
+        val encodedFields = fields.joinToString(",") {
+            val targetType = when {
+                it is EnumType && revision == Revision.V1 -> it.contains
+                else -> it.type
+            }
+            val typeString = when {
+                targetType.isEnum() -> {
+                    require(revision == Revision.V1) { "Enum types are not supported in revision ${revision.value}." }
+
+                    extractEnumTypes(targetType).joinToString(
+                        separator = ",",
+                        prefix = "(",
+                        postfix = ")",
+                        transform = ::escape,
+                    )
+                }
+                else -> escape(targetType)
+            }
+            "${escape(it.name)}:$typeString"
+        }
+
+        return "${escape(dependency)}($encodedFields)"
     }
 
-    private fun feltFromPrimitive(primitive: JsonPrimitive): Felt {
-        when (primitive.isString) {
-            true -> {
-                if (primitive.content == "") {
-                    return Felt.ZERO
-                }
+    private fun feltFromPrimitive(
+        primitive: JsonPrimitive,
+        allowSigned: Boolean = false,
+        allowBoolean: Boolean = false,
+        allowShortString: Boolean = true,
+    ): Felt {
+        val decimal = primitive.content.toBigIntegerOrNull()
+        decimal?.let {
+            return if (allowSigned) Felt.fromSigned(it) else Felt(it)
+        }
 
-                val decimal = primitive.content.toBigIntegerOrNull()
-                decimal?.let {
-                    return Felt(it)
-                }
+        val boolean = primitive.booleanOrNull
+        boolean?.let {
+            require(allowBoolean) { "Unexpected boolean value: [$primitive]." }
+            return if (it) Felt.ONE else Felt.ZERO
+        }
 
-                return try {
-                    Felt.fromHex(primitive.content)
-                } catch (e: Exception) {
-                    Felt.fromShortString(primitive.content)
-                }
+        if (primitive.isString) {
+            if (primitive.content == "") {
+                return Felt.ZERO
             }
-            false -> {
-                return Felt(primitive.long)
+
+            return try {
+                Felt.fromHex(primitive.content)
+            } catch (e: Exception) {
+                require(allowShortString) { "Unexpected string value: [$primitive]." }
+                Felt.fromShortString(primitive.content)
             }
         }
+
+        throw IllegalArgumentException("Unsupported primitive type: [$primitive].")
+    }
+
+    private fun boolFromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowBoolean = true, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO) { "Expected boolean value, got [$primitive]." }
+
+        return felt
+    }
+
+    private fun u128fromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO.pow(128)) { "Value [$primitive] is out of range for '${BasicType.U128.name}'." }
+
+        return felt
+    }
+
+    private fun i128fromPrimitive(primitive: JsonPrimitive): Felt {
+        val felt = feltFromPrimitive(primitive, allowSigned = true, allowShortString = false)
+
+        require(felt.value < BigInteger.TWO.pow(127) || felt.value >= Felt.PRIME - BigInteger.TWO.pow(127)) { "Value [$primitive] is out of range for '${BasicType.I128.name}'." }
+
+        return felt
+    }
+
+    private fun prepareLongString(string: String): Felt {
+        val byteArray = StarknetByteArray.fromString(string)
+
+        return hashArray(byteArray.toCalldata())
     }
 
     private fun prepareSelector(name: String): Felt {
@@ -198,67 +366,97 @@ data class TypedData private constructor(
         }
     }
 
-    private fun getMerkleTreeType(context: Context): String {
+    private inline fun <reified T : Type> resolveType(context: Context): T {
         val (parent, key) = context.parent to context.key
 
-        return if (parent != null && key != null) {
-            val parentType = types.getOrElse(parent) { throw IllegalArgumentException("Parent '$parent' is not defined in types.") }
-            val merkleType = parentType.find { it.name == key }
-                ?: throw IllegalArgumentException("Key '$key' is not defined in parent '$parent'.")
+        val parentType = allTypes.getOrElse(parent) { throw IllegalArgumentException("Parent [$parent] is not defined in types.") }
+        val targetType = parentType.singleOrNull { it.name == key }
+            ?: throw IllegalArgumentException("Key [$key] is not defined in type [$parent] or multiple definitions are present.")
 
-            require(merkleType is MerkleTreeType) { "Key '$key' in parent '$parent' is not a merkletree." }
-            require(!merkleType.contains.endsWith("*")) {
-                "Merkletree 'contains' field cannot be an array, got '${merkleType.contains}'."
-            }
-            merkleType.contains
-        } else {
-            "raw"
+        require(targetType is T) { "Key [$key] in type [$parent] is not a '${T::class.simpleName}'." }
+
+        return targetType
+    }
+
+    private fun getMerkleTreeLeavesType(context: Context): String {
+        val merkleType = resolveType<MerkleTreeType>(context)
+
+        return merkleType.contains
+    }
+
+    private fun prepareMerkletreeRoot(value: JsonArray, context: Context): Felt {
+        val merkleTreeType = getMerkleTreeLeavesType(context)
+        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct).second }
+
+        return MerkleTree(structHashes, hashMethod).rootHash
+    }
+
+    private fun getEnumVariants(context: Context): List<Type> {
+        val enumType = resolveType<EnumType>(context)
+
+        val variants = allTypes.getOrElse(enumType.contains) { throw IllegalArgumentException("Type [${enumType.contains}] is not defined in types") }
+
+        return variants
+    }
+
+    private fun prepareEnum(value: JsonObject, context: Context): Felt {
+        val (variantName, variantData) = value.entries.singleOrNull()?.let { it.key to it.value.jsonArray }
+            ?: throw IllegalArgumentException("'${BasicType.Enum.name}' value must contain a single variant.")
+
+        val variants = getEnumVariants(context)
+        val variantType = variants.singleOrNull { it.name == variantName }
+            ?: throw IllegalArgumentException("Variant [$variantName] is not defined in '${BasicType.Enum.name}' type [${context.key}] or multiple definitions are present.")
+        val variantIndex = variants.indexOf(variantType)
+
+        val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
+            val subtypeData = variantData[index]
+            encodeValue(subtype, subtypeData).second
         }
+
+        return hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
     }
 
     internal fun encodeValue(
         typeName: String,
         value: JsonElement,
-        context: Context = Context(null, null),
+        context: Context? = null,
     ): Pair<String, Felt> {
-        if (types.containsKey(typeName)) {
-            return typeName to getStructHash(typeName, value as JsonObject)
+        if (typeName in allTypes) {
+            return typeName to getStructHash(typeName, value.jsonObject)
         }
 
-        if (types.containsKey(stripPointer(typeName))) {
-            val array = value as JsonArray
-            val hashes = array.map { struct -> getStructHash(stripPointer(typeName), struct as JsonObject) }
-            val hash = StarknetCurve.pedersenOnElements(hashes)
-
-            return typeName to hash
+        if (typeName.isArray()) {
+            val hashes = value.jsonArray.map {
+                encodeValue(stripPointer(typeName), it).second
+            }
+            return typeName to hashArray(hashes)
         }
 
-        return when (typeName) {
-            "felt*" -> {
-                val array = value as JsonArray
-                val feltArray = array.map { feltFromPrimitive(it.jsonPrimitive) }
-                val hash = StarknetCurve.pedersenOnElements(feltArray)
-                typeName to hash
+        val basicType = BasicType.fromName(typeName, revision)
+            ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+
+        return basicType.encodeToType to when (basicType) {
+            BasicType.Enum -> {
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
+                prepareEnum(value.jsonObject, context)
             }
-            "felt" -> "felt" to feltFromPrimitive(value.jsonPrimitive)
-            "string" -> "string" to feltFromPrimitive(value.jsonPrimitive)
-            "raw" -> "raw" to feltFromPrimitive(value.jsonPrimitive)
-            "selector" -> "felt" to prepareSelector(value.jsonPrimitive.content)
-            "merkletree" -> {
-                val merkleTreeType = getMerkleTreeType(context)
-                val array = value as JsonArray
-                val structHashes = array.map { struct -> encodeValue(merkleTreeType, struct).second }
-                val root = MerkleTree(structHashes, HashMethod.PEDERSEN).rootHash
-                "merkletree" to root
+            BasicType.MerkleTree -> {
+                requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
+                prepareMerkletreeRoot(value.jsonArray, context)
             }
-            else -> throw IllegalArgumentException("Type [$typeName] is not defined in types.")
+            BasicType.Felt, BasicType.StringV0, BasicType.ShortString, BasicType.ContractAddress, BasicType.ClassHash -> feltFromPrimitive(value.jsonPrimitive)
+            BasicType.Bool -> boolFromPrimitive(value.jsonPrimitive)
+            BasicType.Selector -> prepareSelector(value.jsonPrimitive.content)
+            BasicType.StringV1 -> prepareLongString(value.jsonPrimitive.content)
+            BasicType.U128, BasicType.Timestamp -> u128fromPrimitive(value.jsonPrimitive)
+            BasicType.I128 -> i128fromPrimitive(value.jsonPrimitive)
         }
     }
 
     private fun encodeData(typeName: String, data: JsonObject): List<Felt> {
         val values = mutableListOf<Felt>()
 
-        for (param in types.getValue(typeName)) {
+        for (param in allTypes.getValue(typeName)) {
             val encodedValue = encodeValue(
                 typeName = param.type,
                 value = data.getValue(param.name),
@@ -277,26 +475,116 @@ data class TypedData private constructor(
     private fun getStructHash(typeName: String, data: JsonObject): Felt {
         val encodedData = encodeData(typeName, data)
 
-        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
+        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
-    private fun stripPointer(value: String): String {
-        return value.removeSuffix("*")
+    private fun stripPointer(type: String): String {
+        return type.removeSuffix("*")
+    }
+
+    private fun extractEnumTypes(type: String): List<String> {
+        require(type.isEnum()) { "Type [$type] is not an enum." }
+
+        return type.substring(1, type.length - 1).let {
+            if (it.isEmpty()) emptyList() else it.split(",")
+        }
     }
 
     fun getStructHash(typeName: String, data: String): Felt {
         val encodedData = encodeData(typeName, Json.parseToJsonElement(data).jsonObject)
 
-        return StarknetCurve.pedersenOnElements(getTypeHash(typeName), *encodedData.toTypedArray())
+        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
-        return StarknetCurve.pedersenOnElements(
-            Felt.fromShortString("StarkNet Message"),
-            getStructHash("StarkNetDomain", domain),
-            accountAddress,
-            getStructHash(primaryType, message),
+        return hashArray(
+            listOf(
+                Felt.fromShortString("StarkNet Message"),
+                getStructHash(domain.separatorName, Json.encodeToJsonElement(domain).jsonObject),
+                accountAddress,
+                getStructHash(primaryType, message),
+            ),
         )
+    }
+
+    private sealed class BasicType {
+        abstract val name: String
+        open val encodeToType get() = name
+
+        sealed interface V0
+        sealed interface V1
+
+        data object Felt : BasicType(), V0, V1 { override val name = "felt" }
+        data object Bool : BasicType(), V0, V1 { override val name = "bool" }
+        data object Selector : BasicType(), V0, V1 { override val name = "selector"; override val encodeToType = Felt.name }
+        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree"; override val encodeToType = Felt.name }
+        data object StringV0 : BasicType(), V0 { override val name = "string" }
+        data object StringV1 : BasicType(), V1 { override val name = "string" }
+        data object Enum : BasicType(), V1 { override val name = "enum"; override val encodeToType = Felt.name }
+        data object I128 : BasicType(), V1 { override val name = "i128" }
+        data object U128 : BasicType(), V1 { override val name = "u128" }
+        data object ContractAddress : BasicType(), V1 { override val name = "ContractAddress" }
+        data object ClassHash : BasicType(), V1 { override val name = "ClassHash" }
+        data object Timestamp : BasicType(), V1 { override val name = "timestamp" }
+        data object ShortString : BasicType(), V1 { override val name = "shortstring" }
+
+        companion object {
+            fun values(revision: Revision): List<BasicType> {
+                val instances = BasicType::class.sealedSubclasses.mapNotNull { it.objectInstance }
+
+                return when (revision) {
+                    Revision.V0 -> instances.filterIsInstance<V0>()
+                    Revision.V1 -> instances.filterIsInstance<V1>()
+                }.map { it as BasicType }
+            }
+
+            fun fromName(name: String, revision: Revision): BasicType? {
+                return values(revision).find { it.name == name }
+            }
+        }
+    }
+
+    private sealed class PresetType {
+        abstract val name: String
+        abstract val params: List<Type>
+
+        sealed interface V1
+
+        @Suppress("unused")
+        data object U256 : PresetType(), V1 {
+            override val name = "u256"
+            override val params = listOf(
+                StandardType("low", "u128"),
+                StandardType("high", "u128"),
+            )
+        }
+
+        @Suppress("unused")
+        data object TokenAmount : PresetType(), V1 {
+            override val name = "TokenAmount"
+            override val params = listOf(
+                StandardType("token_address", "ContractAddress"),
+                StandardType("amount", "u256"),
+            )
+        }
+
+        @Suppress("unused")
+        data object NftId : PresetType(), V1 {
+            override val name = "NftId"
+            override val params = listOf(
+                StandardType("collection_address", "ContractAddress"),
+                StandardType("token_id", "u256"),
+            )
+        }
+
+        companion object {
+            fun values(revision: Revision): List<PresetType> {
+                return when (revision) {
+                    Revision.V0 -> emptyList()
+                    Revision.V1 -> PresetType::class.sealedSubclasses.mapNotNull { it.objectInstance }.filterIsInstance<V1>()
+                }.map { it as PresetType }
+            }
+        }
     }
 
     companion object {
@@ -310,3 +598,7 @@ data class TypedData private constructor(
             Json.decodeFromString(serializer(), typedData)
     }
 }
+
+internal fun String.isArray() = endsWith("*")
+
+internal fun String.isEnum() = startsWith("(") && endsWith(")")

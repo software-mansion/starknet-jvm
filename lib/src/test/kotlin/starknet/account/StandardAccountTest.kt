@@ -463,48 +463,73 @@ class StandardAccountTest {
         }
     }
 
-    @Test
-    fun `sign TypedData`() {
-        val typedData = loadTypedData("typed_data_struct_array_example.json")
+    @Nested
+    inner class SignTypedDataTest {
+        private val tdRev0 by lazy { loadTypedData("rev_0/typed_data_struct_array_example.json") }
+        private val tdRev1 by lazy { loadTypedData("rev_1/typed_data_basic_types_example.json") }
 
-        // Sign typedData
-        val signature = account.signTypedData(typedData)
-        assertTrue(signature.isNotEmpty())
+        @Test
+        fun `sign TypedData revision 0`() {
+            val typedData = tdRev0
 
-        // Verify the signature
-        val request = account.verifyTypedDataSignature(typedData, signature)
-        val isValid = request.send()
-        assertTrue(isValid)
+            // Sign typedData
+            val signature = account.signTypedData(typedData)
+            assertTrue(signature.isNotEmpty())
 
-        // Verify invalid signature does not pass
-        val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
-        val isValid2 = request2.send()
-        assertFalse(isValid2)
-    }
+            // Verify the signature
+            val request = account.verifyTypedDataSignature(typedData, signature)
+            val isValid = request.send()
+            assertTrue(isValid)
 
-    @Test
-    fun `sign TypedData rethrows exceptions other than signature related`() {
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(
-                false,
-                500,
-                """
+            // Verify invalid signature does not pass
+            val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
+            val isValid2 = request2.send()
+            assertFalse(isValid2)
+        }
+
+        @Test
+        fun `sign TypedData revision 1`() {
+            val typedData = tdRev1
+
+            // Sign typedData
+            val signature = account.signTypedData(typedData)
+            assertTrue(signature.isNotEmpty())
+
+            // Verify the signature
+            val request = account.verifyTypedDataSignature(typedData, signature)
+            val isValid = request.send()
+            assertTrue(isValid)
+
+            // Verify invalid signature does not pass
+            val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
+            val isValid2 = request2.send()
+            assertFalse(isValid2)
+        }
+
+        @Test
+        fun `sign TypedData rethrows exceptions other than signature related`() {
+            val httpService = mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(
+                    false,
+                    500,
+                    """
                 {
                     "something": "broke"    
                 }
-                """.trimIndent(),
-            )
-        }
-        val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
-        val account = StandardAccount(Felt.ONE, Felt.ONE, provider, chainId)
+                    """.trimIndent(),
+                )
+            }
+            val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+            val account = StandardAccount(Felt.ONE, Felt.ONE, provider, chainId)
 
-        val typedData = loadTypedData("typed_data_struct_array_example.json")
-        val signature = account.signTypedData(typedData)
-        assertTrue(signature.isNotEmpty())
+            val typedData = tdRev0
+            val signature = account.signTypedData(typedData)
+            assertTrue(signature.isNotEmpty())
 
-        val request = account.verifyTypedDataSignature(typedData, signature)
-        assertThrows(RequestFailedException::class.java) {
-            request.send()
+            val request = account.verifyTypedDataSignature(typedData, signature)
+            assertThrows(RequestFailedException::class.java) {
+                request.send()
+            }
         }
     }
 
