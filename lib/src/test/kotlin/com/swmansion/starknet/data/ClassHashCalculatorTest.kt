@@ -27,7 +27,7 @@ internal class ClassHashCalculatorTest {
 
     @ParameterizedTest
     @MethodSource("computeCasmClassHashArguments")
-    fun `caculate compiled class hash cairo 2_6_0 casm 1_5_0`(sourcePath: String, expectedHash: Felt) {
+    fun `calculate compiled class hash cairo 2_6_0 casm 1_5_0`(sourcePath: String, expectedHash: Felt) {
         val casmCode = Path.of(sourcePath).readText()
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
