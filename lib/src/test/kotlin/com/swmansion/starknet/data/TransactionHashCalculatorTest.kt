@@ -146,7 +146,7 @@ internal class TransactionHashCalculatorTest {
         }
 
         @Test
-        fun `caculate deploy account v3 transaction hash`() {
+        fun `calculate deploy account v3 transaction hash`() {
             val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
                 constructorCalldata = listOf(
                     Felt.fromHex("0x5cd65f3d7daea6c63939d659b8473ea0c5cd81576035a4d34e52fb06840196c"),

@@ -221,20 +221,24 @@ data class CasmContractDefinition @JvmOverloads constructor(
     private val compilerVersion: JsonElement
     private val entryPointsByType: JsonElement
     private val bytecode: JsonElement
+    private val bytecodeSegmentLengths: JsonElement?
 
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
 
     init {
-        val (entryPointsByType, bytecode, prime, hints, compilerVersion) = parseContract(contract)
-        this.entryPointsByType = entryPointsByType
-        this.bytecode = bytecode
-        this.prime = prime
-        this.hints = hints
-        this.compilerVersion = compilerVersion
+        operator fun <T> Array<T>.component6(): T = get(5)
+
+        val (entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths) = parseContract(contract)
+        this.entryPointsByType = entryPointsByType!!
+        this.bytecode = bytecode!!
+        this.prime = prime!!
+        this.hints = hints!!
+        this.compilerVersion = compilerVersion!!
+        this.bytecodeSegmentLengths = bytecodeSegmentLengths
     }
 
-    private fun parseContract(contract: String): Array<JsonElement> {
+    private fun parseContract(contract: String): Array<JsonElement?> {
         val compiledContract = Json.parseToJsonElement(contract).jsonObject
         val entryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
@@ -242,7 +246,9 @@ data class CasmContractDefinition @JvmOverloads constructor(
         val prime = compiledContract["prime"] ?: throw InvalidContractException("prime")
         val hints = compiledContract["hints"] ?: throw InvalidContractException("hints")
         val compilerVersion = compiledContract["compiler_version"] ?: throw InvalidContractException("compiler_version")
-        return arrayOf(entryPointsByType, bytecode, prime, hints, compilerVersion)
+        val bytecodeSegmentLengths = compiledContract["bytecode_segment_lengths"]
+
+        return arrayOf(entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths)
     }
 
     fun toJson(): JsonObject {
@@ -253,6 +259,7 @@ data class CasmContractDefinition @JvmOverloads constructor(
             put("prime", prime)
             put("hints", buildJsonArray { hints.toString() })
             put("compiler_version", compilerVersion)
+            bytecodeSegmentLengths?.let { put("bytecode_segment_lengths", it) }
         }
     }
 }
@@ -299,6 +306,9 @@ data class CasmContractClass(
     val entryPointsByType: EntryPointsByType,
 
     val bytecode: List<Felt>,
+
+    @SerialName("bytecode_segment_lengths")
+    val bytecodeSegmentLengths: List<Int>? = null, // if compiler_version >= 2.6.0
 ) {
     @Serializable
     data class EntryPointsByType(
