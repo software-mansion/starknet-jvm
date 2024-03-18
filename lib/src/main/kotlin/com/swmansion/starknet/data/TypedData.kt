@@ -457,10 +457,10 @@ data class TypedData private constructor(
         }
     }
 
-    fun getStructHash(name: String, data: String): Felt {
-        val encodedData = encodeData(name, Json.parseToJsonElement(data).jsonObject)
+    fun getStructHash(typeName: String, data: String): Felt {
+        val encodedData = encodeData(typeName, Json.parseToJsonElement(data).jsonObject)
 
-        return hashArray(listOf(getTypeHash(name)) + encodedData)
+        return hashArray(listOf(getTypeHash(typeName)) + encodedData)
     }
 
     fun getMessageHash(accountAddress: Felt): Felt {
