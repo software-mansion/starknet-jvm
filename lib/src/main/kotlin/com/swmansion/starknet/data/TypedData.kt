@@ -299,7 +299,9 @@ data class TypedData private constructor(
         decimal?.let {
             return if (allowSigned) Felt.fromSigned(it) else Felt(it)
         }
-        primitive.booleanOrNull?.let {
+
+        val boolean = primitive.booleanOrNull
+        boolean?.let {
             return if (it) Felt.ONE else Felt.ZERO
         }
 
