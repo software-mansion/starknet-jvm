@@ -60,4 +60,5 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.9.23'
 }
