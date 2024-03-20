@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>starknet-jvm</title>
+    <link href="images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="scripts/sourceset_dependencies.js" async="async"></script>
+<link href="styles/style.css" rel="Stylesheet">
+<link href="styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="styles/main.css" rel="Stylesheet">
+<link href="styles/prism.css" rel="Stylesheet">
+<link href="styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="index.html">
+                    <span>starknet-jvm</span>
+            </a>
+    </div>
+    <div>
+0.11.1    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":lib:dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageIds="starknet-jvm::////PointingToDeclaration//1440829338">
+  <div class="breadcrumbs"></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>starknet-jvm</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lib:dokkaHtml/main"><p class="paragraph">Starknet-jvm is a library allowing for easy interaction with the Starknet JSON-RPC nodes, including querying starknet state, executing transactions and deploying contracts.</p><p class="paragraph">Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.</p><h2 class=""> Making synchronous requests</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.data.types.BlockTag;<br>import com.swmansion.starknet.data.types.Felt;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.provider.Request;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Create an account interface<br>        Felt accountAddress = Felt.fromHex(&quot;0x13241455&quot;);<br>        Felt privateKey = Felt.fromHex(&quot;0x425125&quot;);<br>        Account account = new StandardAccount(provider, accountAddress, privateKey);<br><br>        // Make a request<br>        Felt contractAddress = Felt.fromHex(&quot;0x42362362436&quot;);<br>        Felt storageKey = Felt.fromHex(&quot;0x13241253414&quot;);<br>        Request&lt;Felt&gt; request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);<br>        Felt response = request.send();<br><br>        System.out.println(response);<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">import com.swmansion.starknet.account.StandardAccount<br>import com.swmansion.starknet.data.types.BlockTag<br>import com.swmansion.starknet.data.types.Felt<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider<br><br>fun main() {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Create an account interface<br>    val accountAddress = Felt.fromHex(&quot;0x1052524524&quot;)<br>    val privateKey = Felt.fromHex(&quot;0x4232362662&quot;)<br>    val account = StandardAccount(provider, accountAddress, privateKey)<br><br>    // Make a request<br>    val contractAddress = Felt.fromHex(&quot;0x423623626&quot;)<br>    val storageKey = Felt.fromHex(&quot;0x132412414&quot;)<br>    val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)<br>    val response = request.send()<br><br>    println(response)<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Making asynchronous requests</h2><p class="paragraph">It is also possible to make asynchronous requests. <code class="lang-kotlin">Request.sendAsync()</code> returns a <code class="lang-kotlin">CompletableFuture</code> that can be than handled in preferred way.</p><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.data.types.BlockTag;<br>import com.swmansion.starknet.data.types.Felt;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.provider.Request;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>import java.util.concurrent.CompletableFuture;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Create an account interface<br>        Felt accountAddress = Felt.fromHex(&quot;0x13241455&quot;);<br>        Felt privateKey = Felt.fromHex(&quot;0x425125&quot;);<br>        Account account = new StandardAccount(provider, accountAddress, privateKey);<br><br>        // Make a request<br>        Felt contractAddress = Felt.fromHex(&quot;0x42362362436&quot;);<br>        Felt storageKey = Felt.fromHex(&quot;0x13241253414&quot;);<br>        Request&lt;Felt&gt; request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);<br>        CompletableFuture&lt;Felt&gt; response = request.sendAsync();<br><br>        response.thenAccept(System.out::println);<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">import com.swmansion.starknet.account.StandardAccount<br>import com.swmansion.starknet.data.types.BlockTag<br>import com.swmansion.starknet.data.types.Felt<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider<br><br>fun main() {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br>    // Create an account interface<br>    val accountAddress = Felt.fromHex(&quot;0x1052524524&quot;)<br>    val privateKey = Felt.fromHex(&quot;0x4232362662&quot;)<br>    val account = StandardAccount(provider, accountAddress, privateKey)<br><br>    // Make an asynchronous request<br>    val contractAddress = Felt.fromHex(&quot;0x423623626&quot;)<br>    val storageKey = Felt.fromHex(&quot;0x132412414&quot;)<br>    val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)<br>    val future = request.sendAsync()<br><br>    future.thenAccept { println(it) }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Deploying account</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.crypto.StarknetCurve;<br>import com.swmansion.starknet.data.ContractAddressCalculator;<br>import com.swmansion.starknet.data.types.*;<br>import com.swmansion.starknet.data.types.transactions.*;<br>import com.swmansion.starknet.data.types.transactions.TransactionReceipt;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>import java.math.BigInteger;<br>import java.util.List;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Create an account interface<br>        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);<br>        Felt publicKey = StarknetCurve.getPublicKey(privateKey);<br><br>        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)<br>        Felt classHash = Felt.fromHex(&quot;0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773&quot;);<br>        Felt salt = new Felt(789);<br>        List&lt;Felt&gt; calldata = List.of(publicKey);<br>        Felt address = ContractAddressCalculator.calculateAddressFromHash(<br>            classHash,<br>            calldata,<br>            salt<br>        );<br><br>        Account account = new StandardAccount(address, privateKey, provider, Felt.ZERO);<br>        <br>        Felt maxFee = Felt.fromHex(&quot;0x11fcc58c7f7000&quot;);  // should be 10*fee from estimate deploy account fee<br><br>        // Make sure to prefund the address with at least maxFee<br>        <br>        // Create and sign deploy account transaction<br>        DeployAccountTransactionPayload payload = account.signDeployAccount(<br>            classHash,<br>            calldata,<br>            salt,<br>            maxFee<br>        );<br><br>        DeployAccountResponse response = provider.deployAccount(payload).send();<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">fun main(args: Array&lt;String&gt;) {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Create an account interface<br>    val privateKey = Felt.fromHex(&quot;0x123&quot;)<br>    val publicKey = StarknetCurve.getPublicKey(privateKey)<br><br>    // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)<br>    val classHash = Felt.fromHex(&quot;0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773&quot;)<br>    val salt = Felt(789)<br>    val calldata = listOf(publicKey)<br>    val address = ContractAddressCalculator.calculateAddressFromHash(<br>        classHash = classHash,<br>        calldata = calldata,<br>        salt = salt,<br>    )<br><br>    val account = StandardAccount(<br>        address,<br>        privateKey,<br>        provider,<br>    )<br><br>    val payload = account.signDeployAccount(<br>        classHash = classHash,<br>        salt = salt,<br>        calldata = calldata,<br>        maxFee = Felt.fromHex(&quot;0x11fcc58c7f7000&quot;),  // should be 10*fee from estimate deploy account fee<br>    )<br>    <br>    // Create and sign deploy account transaction<br>    val response = provider.deployAccount(payload).send()<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Invoking contract: Transfering ETH</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.data.types.*;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br>import com.swmansion.starknet.provider.Request;<br><br>import java.math.BigInteger;<br>import java.util.List;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Set up an account<br>        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);<br>        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);<br>        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.<br>        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);<br><br>        Felt recipientAccountAddress = Felt.fromHex(&quot;0x987654321&quot;);<br>        Uint256 amount = new Uint256(new Felt(451));<br><br>        // Specify the contract address, in this example ETH ERC20 contract is used<br>        Felt contractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;);<br><br>        // Create a call<br>        List&lt;Felt&gt; calldata = List.of(recipientAccountAddress, amount.getLow(), amount.getHigh()); // amount is Uint256 and is represented by two Felt values<br>        Call call = new Call(contractAddress, &quot;transfer&quot;, calldata);<br><br>        // Estimate fee for the invoke transaction<br>        Felt estimateFee = account.estimateFee(List.of(call)).send().get(0).getOverallFee();<br>        // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred<br>        <br>        // Create and sign invoke transaction<br>        Request&lt;InvokeFunctionResponse&gt; request = account.execute(call);<br><br>        // Send the transaction<br>        InvokeFunctionResponse response = request.send();<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">fun main(args: Array&lt;String&gt;) {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Set up an account<br>    val privateKey = Felt.fromHex(&quot;0x123&quot;)<br>    val accountAddress = Felt.fromHex(&quot;0x1236789&quot;)<br>    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.<br>    val account = StandardAccount(accountAddress, privateKey, provider)<br><br>    val recipientAccountAddress = Felt.fromHex(&quot;0x987654321&quot;)<br>    // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred<br>    // account.execute(Call) estimates the fee automatically<br>    // If you want to estimate the fee manually, please refer to the &quot;Estimate Fee&quot; example<br>    val amount = Uint256(Felt(451))<br><br>    // Specify the contract address, in this example ETH ERC20 contract is used<br>    val contractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;)<br><br>    // Create a call<br>    val calldata = listOf(recipientAccountAddress, amount.low, amount.high) // amount is Uint256 and is represented by two Felt values<br>    val call = Call(<br>        contractAddress = contractAddress,<br>        entrypoint = &quot;transfer&quot;,<br>        calldata = calldata,<br>    )<br>    <br>    // Estimate fee for the invoke transaction<br>    val estimateFee = account.estimateFee(listOf(call)).send().first().overallFee<br>    // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred<br>    <br>    // Create and sign invoke transaction<br>    val request = account.execute(call)<br>     <br>    // Send the transaction<br>    val response = request.send()<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Calling contract: Fetching ETH balance</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.data.types.*;<br>import com.swmansion.starknet.provider.Request;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>import java.math.BigInteger;<br>import java.util.List;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Set up an account<br>        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);<br>        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);<br>        // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.<br>        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);<br><br>        // Specify the contract address, in this example ETH ERC20 contract is used<br>        Felt contractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;);<br><br>        // Create a call<br>        List&lt;Felt&gt; calldata = List.of(account.getAddress());<br>        Call call = new Call(contractAddress, &quot;balanceOf&quot;, calldata);<br>        Request&lt;List&lt;Felt&gt;&gt; request = provider.callContract(call);<br>        <br>        // Send the call request<br>        List&lt;Felt&gt; response = request.send();<br>        <br>        //Output value's type is Uint256 and is represented by two Felt values<br>        Uint256 balance = new Uint256(response.get(0), response.get(1));<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">fun main(args: Array&lt;String&gt;) {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Set up an account<br>    val privateKey = Felt.fromHex(&quot;0x123&quot;)<br>    val accountAddress = Felt.fromHex(&quot;0x1236789&quot;)<br>    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.<br>    val account = StandardAccount(accountAddress, privateKey, provider)<br><br>    // Specify the contract address, in this example ETH ERC20 contract is used<br>    val contractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;)<br><br>    // Create a call<br>    val calldata = listOf(account.address)<br>    val call = Call(<br>        contractAddress = contractAddress,<br>        entrypoint = &quot;balanceOf&quot;,<br>        calldata = calldata,<br>    )<br>    val request = provider.callContract(call)<br>    <br>    // Send the call request<br>    val response: List&lt;Felt&gt; = request.send()<br><br>    //Output value's type is Uint256 and is represented by two Felt values<br>    val balance = Uint256(<br>        low = response[0],<br>        high = response[1],<br>    )<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Declaring Cairo 0 contract</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.data.types.transactions.DeclareTransactionV1Payload;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.data.types.*;<br>import com.swmansion.starknet.provider.Request;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>import java.io.IOException;<br>import java.math.BigInteger;<br>import java.nio.file.Files;<br>import java.nio.file.Path;<br>import java.nio.file.Paths;<br>import java.util.List;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Set up an account<br>        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);<br>        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);<br>        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.<br>        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);<br><br>        // Import a compiled contract<br>        Path contractPath = Paths.get(&quot;contract.json&quot;);<br>        String contractCode = String.join(&quot;&quot;, Files.readAllLines(contractPath));<br>        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contractCode);<br>        // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)<br>        Felt classHash = Felt.fromHex(&quot;0x1a3b2c&quot;);<br>        Felt nonce = account.getNonce().send();<br><br>        // Estimate fee for declaring a contract<br>        DeclareTransactionV1Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);<br>        Request&lt;List&lt;EstimateFeeResponse&gt;&gt; feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));<br>        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();<br>        // Make sure to prefund the account with enough funds to cover the fee for declare transaction<br><br>        // Declare a contract<br>        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee<br>        ExecutionParams params = new ExecutionParams(nonce, maxFee);<br>        DeclareTransactionV1Payload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, params, false);<br><br>        Request&lt;DeclareResponse&gt; request = provider.declareContract(declareTransactionPayload);<br>        DeclareResponse response = request.send();<br>        Felt hash = response.getTransactionHash(); // Hash of the transaction that declares a contract<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">fun main(args: Array&lt;String&gt;) {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Set up an account<br>    val privateKey = Felt.fromHex(&quot;0x123&quot;)<br>    val accountAddress = Felt.fromHex(&quot;0x1236789&quot;)<br>    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.<br>    val account = StandardAccount(accountAddress, privateKey, provider)<br><br>    // Import a compiled contract<br>    val contractCode = Path.of(&quot;contract.json&quot;).readText()<br>    val contractDefinition = Cairo0ContractDefinition(contractCode)<br>    // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)<br>    val classHash = Felt.fromHex(&quot;0x1a3b2c&quot;)<br>    val nonce = account.getNonce().send()<br><br>    // Estimate fee for declaring a contract<br>    val declareTransactionPayloadForFeeEstimate = account.signDeclare(<br>        contractDefinition = contractDefinition,<br>        classHash = classHash,<br>        params = ExecutionParams(nonce, Felt(1000000000000000L)),<br>        forFeeEstimate = true,<br>    )<br>    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))<br>    val feeEstimate = feeEstimateRequest.send().first().overallFee<br>    // Make sure to prefund the account with enough funds to cover the fee for declare transaction<br><br>    // Declare a contract<br>    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee<br>    val params = ExecutionParams(<br>            nonce = nonce,<br>            maxFee = maxFee,<br>    )<br>    val declareTransactionPayload = account.signDeclare(<br>        contractDefinition = contractDefinition,<br>        classHash = classHash,<br>        params = params,<br>    )<br><br>    val request = provider.declareContract(declareTransactionPayload)<br>    val response = request.send()<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h2 class=""> Declaring Cairo 1/2 contract</h2><h3 class=""> In Java</h3><div class="sample-container"><pre><code class="block lang-java" theme="idea">import com.swmansion.starknet.account.Account;<br>import com.swmansion.starknet.account.StandardAccount;<br>import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload;<br>import com.swmansion.starknet.data.types.*;<br>import com.swmansion.starknet.provider.Provider;<br>import com.swmansion.starknet.provider.Request;<br>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;<br><br>import java.io.IOException;<br>import java.math.BigInteger;<br>import java.nio.file.Files;<br>import java.nio.file.Path;<br>import java.nio.file.Paths;<br>import java.util.List;<br><br>public class Main {<br>    public static void main(String[] args) {<br>        // Create a provider for interacting with Starknet<br>        Provider provider = new JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;);<br><br>        // Set up an account<br>        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);<br>        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);<br>        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.<br>        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);<br><br>        // Import a compiled contract<br>        Path contractPath = Paths.get(&quot;contract.json&quot;);<br>        Path casmPath = Paths.get(&quot;contract.casm&quot;);<br>        String contractCode = String.join(&quot;&quot;, Files.readAllLines(contractPath));<br>        String casmCode = String.join(&quot;&quot;, Files.readAllLines(casmPath));<br>        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);<br>        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);<br>        Felt nonce = account.getNonce().send();<br><br>        // Estimate fee for declaring a contract<br>        DeclareTransactionV2Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, casmContractDefinition, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);<br>        Request&lt;List&lt;EstimateFeeResponse&gt;&gt; feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));<br>        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();<br>        // Make sure to prefund the account with enough funds to cover the fee for declare transaction<br><br>        // Declare a contract<br>        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee<br>        ExecutionParams params = new ExecutionParams(nonce, maxFee);<br>        DeclareTransactionV2Payload declareTransactionPayload = account.signDeclare(contractDefinition, casmContractDefinition, params, false);<br><br>        Request&lt;DeclareResponse&gt; request = provider.declareContract(declareTransactionPayload);<br>        DeclareResponse response = request.send();<br>        Felt hash = response.getTransactionHash(); // Hash of the transaction that declares a contract<br>    }<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class=""> In Kotlin</h3><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">fun main(args: Array&lt;String&gt;) {<br>    // Create a provider for interacting with Starknet<br>    val provider = JsonRpcProvider(&quot;https://example-node-url.com/rpc&quot;)<br><br>    // Set up an account<br>    val privateKey = Felt.fromHex(&quot;0x1234&quot;)<br>    val accountAddress = Felt.fromHex(&quot;0x1236789&quot;)<br>    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.<br>    val account = StandardAccount(accountAddress, privateKey, provider)<br><br>    // Import a compiled contract<br>    val contractCode = Path.of(&quot;contract.json&quot;).readText()<br>    val casmCode = Path.of(&quot;contract.casm&quot;).readText()<br>    val contractDefinition = Cairo1ContractDefinition(contractCode)<br>    val casmContractDefinition = CasmContractDefinition(casmCode)<br>    val nonce = account.getNonce().send()<br><br>    // Estimate fee for declaring a contract<br>    val declareTransactionPayloadForFeeEstimate = account.signDeclare(<br>        sierraContractDefinition = contractDefinition,<br>        casmContractDefinition = casmContractDefinition,<br>        params = ExecutionParams(nonce, Felt(1000000000000000L)),<br>    )<br>    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))<br>    val feeEstimate = feeEstimateRequest.send().first().overallFee<br>    // Make sure to prefund the account with enough funds to cover the fee for declare transaction<br><br>    // Declare a contract<br>    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee<br>    val params = ExecutionParams(<br>            nonce = nonce,<br>            maxFee = maxFee,<br>    )<br>    val declareTransactionPayload = account.signDeclare(<br>        sierraContractDefinition = contractDefinition,<br>        casmContractDefinition = casmContractDefinition,<br>        params = params,<br>    )<br><br>    val request = provider.declareContract(declareTransactionPayload)<br>    val response = request.send()<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+  <h2 class="">Packages</h2>
+  <div class="table"><a data-name="-38899723%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.account" id="-38899723%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.account/index.html">com.swmansion.starknet.account</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-38899723%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-38899723%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.account" id="-38899723%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Account interface used to simplify preparing, signing Starknet transactions and automatic fee estimation.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1303162243%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.crypto" id="-1303162243%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.crypto/index.html">com.swmansion.starknet.crypto</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1303162243%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1303162243%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.crypto" id="-1303162243%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Cryptography and signature related classes. This is a low level module. Recommended way of using is through Signer and Account implementations.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="913919654%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data" id="913919654%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.data/index.html">com.swmansion.starknet.data</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="913919654%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="913919654%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data" id="913919654%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Data classes representing Starknet objects and utilities for handling them.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1187206927%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data.types" id="-1187206927%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.data.types/index.html">com.swmansion.starknet.data.types</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1187206927%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1187206927%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data.types" id="-1187206927%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Data classes representing Starknet objects.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1759579424%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data.types.conversions" id="-1759579424%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.data.types.conversions/index.html">com.swmansion.starknet.data.types.conversions</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1759579424%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="1740939254%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data.types.transactions" id="1740939254%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.data.types.transactions/index.html">com.swmansion.starknet.data.types.transactions</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1740939254%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1740939254%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.data.types.transactions" id="1740939254%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Data classes representing Starknet transactions.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="433508834%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.deployercontract" id="433508834%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.deployercontract/index.html">com.swmansion.starknet.deployercontract</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="433508834%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="433508834%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.deployercontract" id="433508834%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Classes for interacting with Universal Deployer Contract (UDC).</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1665540336%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.extensions" id="-1665540336%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.extensions/index.html">com.swmansion.starknet.extensions</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1665540336%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+<a data-name="1567730989%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider" id="1567730989%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.provider/index.html">com.swmansion.starknet.provider</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1567730989%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1567730989%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider" id="1567730989%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Provider interface and its implementations.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1276611095%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider.exceptions" id="-1276611095%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.provider.exceptions/index.html">com.swmansion.starknet.provider.exceptions</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1276611095%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1276611095%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider.exceptions" id="-1276611095%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Exceptions thrown by the Starknet providers.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="1297079268%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider.rpc" id="1297079268%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.provider.rpc/index.html">com.swmansion.starknet.provider.rpc</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1297079268%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1297079268%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.provider.rpc" id="1297079268%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Provider implementing the <a href="https://github.com/starkware-libs/starknet-specs">JSON RPC interface</a> to communicate with the network.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-386706851%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.service.http" id="-386706851%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.service.http/index.html">com.swmansion.starknet.service.http</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-386706851%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-386706851%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.service.http" id="-386706851%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Http service used to communicate with Starknet.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1441255514%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.signer" id="-1441255514%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+    <div class="table-row" data-filterable-current=":lib:dokkaHtml/main" data-filterable-set=":lib:dokkaHtml/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="starknet-jvm/com.swmansion.starknet.signer/index.html">com.swmansion.starknet.signer</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1441255514%2FPackages%2F1440829338"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1441255514%2FPackages%2F1440829338" anchor-label="com.swmansion.starknet.signer" id="-1441255514%2FPackages%2F1440829338" data-filterable-set=":lib:dokkaHtml/main"></a>
+            <p class="paragraph">Signer interface and its implementations.  Recommended way of using Signer is through an Account.</p>
+          </span></div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
