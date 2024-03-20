@@ -7,7 +7,7 @@ import java.util.*
 
 internal object NativeLoader {
     private val operatingSystem: SystemType by lazy {
-        val system = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
+        val system = System.getProperty("os.name", "generic")?.lowercase(Locale.ENGLISH) ?: throw UnknownOS()
         when {
             system.contains("mac") || system.contains("darwin") -> SystemType.MacOS
             system.contains("win") -> SystemType.Windows
@@ -56,6 +56,8 @@ internal object NativeLoader {
 
     class UnsupportedPlatform(system: String, architecture: String) :
         RuntimeException("Unsupported platfrom $system:$architecture")
+
+    class UnknownOS : RuntimeException("Failed to fetch OS name")
 
     private fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
