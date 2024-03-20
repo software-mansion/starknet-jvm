@@ -57,7 +57,7 @@ internal object NativeLoader {
     class UnsupportedPlatform(system: String, architecture: String) :
         RuntimeException("Unsupported platfrom $system:$architecture")
 
-    class UnknownOS : RuntimeException("Unknown OS")
+    class UnknownOS : RuntimeException("Failed to fetch OS name")
 
     private fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
