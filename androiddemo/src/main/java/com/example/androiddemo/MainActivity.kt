@@ -92,13 +92,13 @@ class MainActivity : AppCompatActivity() {
                     val accountAddress = Felt.fromHex(accountAddressInput.text.toString())
 
                     val signer = StarkCurveSigner(privateKey)
-                    val chainId = provider.getChainId().sendAsync().await();
+                    val chainId = provider.getChainId().sendAsync().await()
                     val account = StandardAccount(
                         address = accountAddress,
                         signer = signer,
                         provider = provider,
                         chainId = chainId,
-                        cairoVersion = Felt.ONE
+                        cairoVersion = Felt.ONE,
                     )
 
                     // Details of the transfer transaction
