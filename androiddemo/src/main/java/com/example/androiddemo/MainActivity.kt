@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
             entrypoint = "transfer",
             calldata = calldata,
         )
-        val request = account.executeV1(call)
+        val request = account.executeV3(call)
         val future = request.sendAsync()
         return future.await()
     }
