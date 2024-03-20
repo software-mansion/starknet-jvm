@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity() {
                         address = accountAddress,
                         signer = signer,
                         provider = provider,
+                        cairoVersion = Felt.ONE
                     )
 
                     // Details of the transfer transaction
