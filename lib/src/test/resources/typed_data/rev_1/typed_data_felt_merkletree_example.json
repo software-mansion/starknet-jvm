@@ -16,7 +16,7 @@
         "name": "StarkNet Mail",
         "version": "1",
         "chainId": "1",
-        "revision": "1"
+        "revision": 1
     },
     "message": {
         "value": "0x2137",
