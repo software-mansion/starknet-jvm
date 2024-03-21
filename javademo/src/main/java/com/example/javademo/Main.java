@@ -5,7 +5,7 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.crypto.StarknetCurveSignature;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload;
+import com.swmansion.starknet.data.types.transactions.DeclareTransactionV3Payload;
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.deployercontract.ContractDeployment;
 import com.swmansion.starknet.deployercontract.Deployer;
@@ -15,7 +15,6 @@ import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +37,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl, StarknetChainId.TESTNET);
+        Provider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl);
 
         // Set up an account
         // Please note the account must be deployed and have enough funds to paying the fees
@@ -46,7 +45,8 @@ public class Main {
         Felt address = Felt.fromHex(DemoConfig.accountAddress);
         Felt privateKey = Felt.fromHex(DemoConfig.accountPrivateKey);
         // Make sure to check Cairo version of account contract
-        Account account = new StandardAccount(address, privateKey, provider, Felt.ZERO);
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ONE);
 
         // Invoke a contract (Transfer ETH)
         Felt recipientAccountAddress = Felt.fromHex("0x987654321");
@@ -63,7 +63,7 @@ public class Main {
                 List.of(erc20ContractAddress, amount)
         );
 
-        Request<InvokeFunctionResponse> executeRequest = account.execute(invokeCall);
+        Request<InvokeFunctionResponse> executeRequest = account.executeV3(invokeCall);
         InvokeFunctionResponse executeResponse = executeRequest.send();
 
         if (DemoConfig.profile == DemoProfile.NETWORK) {
@@ -99,7 +99,7 @@ public class Main {
 
         Request<? extends TransactionReceipt> declareReceiptRequest = provider.getTransactionReceipt(declareResponse.getTransactionHash());
         TransactionReceipt declareReceipt = declareReceiptRequest.send();
-        System.out.println("Was declare v2 transaction accepted? " + declareReceipt.isAccepted() + ".");
+        System.out.println("Was declare v3 transaction accepted? " + declareReceipt.isAccepted() + ".");
 
         // Deploy a contract with Universal Deployer Contract (for both cairo 1 and cairo 0 contracts)
         Felt initialBalance = new Felt(500);
@@ -147,15 +147,15 @@ public class Main {
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
-        DeclareTransactionV2Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, casmContractDefinition, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
+        DeclareTransactionV3Payload declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
         Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().get(0);
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
-        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO));
-        ExecutionParams params = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionV2Payload declareTransactionPayload = account.signDeclare(contractDefinition, casmContractDefinition, params, false);
+        ResourceBounds l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).getL1Gas();
+        DeclareParamsV3 params = new DeclareParamsV3(nonce, l1ResourceBounds);
+        DeclareTransactionV3Payload declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false);
 
         Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
 
@@ -169,7 +169,7 @@ public class Main {
 
         // Deploy a contract
         Deployer contractDeployer = new StandardDeployer(udcAddress, provider, account);
-        Request<ContractDeployment> deployRequest = contractDeployer.deployContract(classHash, true, salt, constructorCalldata);
+        Request<ContractDeployment> deployRequest = contractDeployer.deployContractV3(classHash, true, salt, constructorCalldata);
         ContractDeployment deployResponse = deployRequest.send();
 
         // Find the address of deployed contract

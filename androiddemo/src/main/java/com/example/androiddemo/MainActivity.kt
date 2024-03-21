@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     // Create a provider for interacting with Starknet
     private val provider = JsonRpcProvider(
         url = BuildConfig.DEMO_RPC_URL,
-        chainId = StarknetChainId.TESTNET,
     )
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -93,10 +92,13 @@ class MainActivity : AppCompatActivity() {
                     val accountAddress = Felt.fromHex(accountAddressInput.text.toString())
 
                     val signer = StarkCurveSigner(privateKey)
+                    val chainId = provider.getChainId().sendAsync().await()
                     val account = StandardAccount(
                         address = accountAddress,
                         signer = signer,
                         provider = provider,
+                        chainId = chainId,
+                        cairoVersion = Felt.ONE,
                     )
 
                     // Details of the transfer transaction
@@ -179,7 +181,7 @@ class MainActivity : AppCompatActivity() {
             entrypoint = "transfer",
             calldata = calldata,
         )
-        val request = account.execute(call)
+        val request = account.executeV3(call)
         val future = request.sendAsync()
         return future.await()
     }
