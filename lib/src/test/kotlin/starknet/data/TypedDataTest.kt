@@ -548,7 +548,7 @@ internal class TypedDataTest {
                 "name": "DomainV1",
                 "version": "1",
                 "chainId": "2137",
-                "revision": "1"
+                "revision": 1
             }
         """.trimIndent()
 
