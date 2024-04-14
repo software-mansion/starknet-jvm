@@ -55,17 +55,6 @@ interface Provider {
     fun getClass(classHash: Felt): Request<ContractClassBase>
 
     /**
-     * Declare contract using version 1 transaction.
-     *
-     * Declare a contract on Starknet using version 1 transaction.
-     *
-     * @param payload declare transaction version 1 payload
-     *
-     * @throws RequestFailedException
-     */
-    fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse>
-
-    /**
      * Declare contract using version 2 transaction.
      *
      * Declare a contract on Starknet using version 2 transaction.
