@@ -45,13 +45,7 @@ class ProviderTest {
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x014f73658da451dec4d14de51e12ad79b737c6342814b5f05c39da83a9ec1f3c")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x62e87178d0bf221e453276d607420fd256d928349c620f08958eeb66f24d2d9")
         }
-        private val declareV1TransactionHash = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x417ec8ece9d2d2e68307069fdcde3c1fd8b0713b8a2687b56c19455c6ea85c1")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x6801a86a4a6873f62aaa478151ba03171691edde897c434ec8cf9db3bb77573")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x5e27aad6f9139f6eeb0ee886179c40b551e91ad8bcc80e16ff0fe6d5444d6f9")
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x012bc00eadd7f25a5523e5857da2073e2028070a5e616723931ac290aba3f22a")
-        }
-        private val declareV2TranasctionHash = when (network) {
+        private val declareV2TransactionHash = when (network) {
             Network.GOERLI_INTEGRATION -> Felt.fromHex("0x70fac6862a52000d2d63a1c845c26c9202c9030921b4607818a0820a46eab26")
             Network.GOERLI_TESTNET -> Felt.fromHex("0x747a364442ed4d72cd24d7e26f2c6ab0bc98c0a835f2276cd2bc07266331555")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x01556b67a22bc26dfc4827286997e3e3b53380e14ba1d879f1d67b7ffbd5a808")
@@ -269,30 +263,10 @@ class ProviderTest {
     }
 
     @Test
-    fun `get declare v1 transaction`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val transactionHash = declareV1TransactionHash
-        val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV1
-        assertNotEquals(Felt.ZERO, tx.classHash)
-        assertEquals(transactionHash, tx.hash)
-
-        val receiptRequest = provider.getTransactionReceipt(transactionHash)
-        val receipt = receiptRequest.send()
-
-        assertTrue(receipt is DeclareTransactionReceipt)
-        assertFalse(receipt.isPending)
-        assertTrue(receipt.isAccepted)
-        assertEquals(TransactionExecutionStatus.SUCCEEDED, receipt.executionStatus)
-        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
-        assertNull(receipt.revertReason)
-    }
-
-    @Test
     fun `get declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = declareV2TranasctionHash
+        val transactionHash = declareV2TransactionHash
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
         assertNotEquals(Felt.ZERO, tx.classHash)
         assertEquals(transactionHash, tx.hash)

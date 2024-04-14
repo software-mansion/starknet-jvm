@@ -54,7 +54,6 @@ internal object TransactionPolymorphicSerializer : JsonContentPolymorphicSeriali
         return when (version) {
             Felt(3) -> DeclareTransactionV3.serializer()
             Felt(2) -> DeclareTransactionV2.serializer()
-            Felt.ONE -> DeclareTransactionV1.serializer()
             Felt.ZERO -> DeclareTransactionV0.serializer()
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }

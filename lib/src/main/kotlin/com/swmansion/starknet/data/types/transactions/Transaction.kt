@@ -784,38 +784,6 @@ object TransactionFactory {
 
     @JvmStatic
     @JvmOverloads
-    fun makeDeclareV1Transaction(
-        classHash: Felt,
-        senderAddress: Felt,
-        contractDefinition: Cairo0ContractDefinition,
-        chainId: StarknetChainId,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        signature: Signature = emptyList(),
-    ): DeclareTransactionV1 {
-        val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
-            classHash = classHash,
-            chainId = chainId,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            version = version,
-            nonce = nonce,
-        )
-        return DeclareTransactionV1(
-            classHash = classHash,
-            senderAddress = senderAddress,
-            contractDefinition = contractDefinition,
-            hash = hash,
-            maxFee = maxFee,
-            version = version,
-            signature = signature,
-            nonce = nonce,
-        )
-    }
-
-    @JvmStatic
-    @JvmOverloads
     fun makeDeclareV2Transaction(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,
