@@ -47,7 +47,7 @@ class ProviderTest {
         }
         private val deployAccountV3TransactionHash by lazy {
             when (network) {
-                    Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x7c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x7c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
                 else -> throw NotImplementedError("Test is not yet supported for this network: $network")
             }
         }
