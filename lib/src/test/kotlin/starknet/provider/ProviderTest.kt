@@ -774,7 +774,7 @@ class ProviderTest {
         val request = provider.getChainId()
         val response = request.send()
 
-        assertEquals(StarknetChainId.GOERLI, response)
+        assertEquals(StarknetChainId.SEPOLIA, response)
     }
 
     @Test
