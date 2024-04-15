@@ -262,7 +262,7 @@ class AccountTest {
     @Test
     fun `sign and send declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val account = standardAccount
@@ -295,7 +295,7 @@ class AccountTest {
     @Test
     fun `sign and send declare v2 transaction (cairo compiler v2)`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val account = standardAccount
