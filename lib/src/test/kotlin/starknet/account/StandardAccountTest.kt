@@ -285,12 +285,13 @@ class StandardAccountTest {
         // Compiled contract format sometimes changes, this causes changes in the class hash.
         // If this test starts randomly falling, try recalculating class hash.
 
-        val l1l2ContractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_L1L2.sierra.json").readText()
-        val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_L1L2.casm.json").readText()
+        val l1l2ContractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_L1_L2.sierra.json").readText()
+        val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_L1_L2.casm.json").readText()
 
         val l1l2ContractDefinition = Cairo1ContractDefinition(l1l2ContractCode)
         val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
         val nonce = account.getNonce().send()
+
         val declareTransactionPayload = account.signDeclareV2(l1l2ContractDefinition, l1l2CasmContractDefinition, ExecutionParams(nonce, Felt(1000000000000000)))
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
