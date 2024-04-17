@@ -24,7 +24,7 @@ internal class TransactionHashCalculatorTest {
                 nonce = Felt(9876),
                 maxFee = maxFee,
             )
-            val expected = Felt.fromHex("0x119b1a69e0c35b9035be945d3a1d551f2f78473b10311734fafb1f5df3f61d9")
+            val expected = Felt.fromHex("0x1e57159ca4893d76362f4d2fb07510caa6712ef1c4f19d5b3556f6265b62adb")
             assertEquals(expected, hash)
         }
 
@@ -39,7 +39,7 @@ internal class TransactionHashCalculatorTest {
                 maxFee = maxFee,
                 nonce = Felt.ZERO,
             )
-            val expected = Felt.fromHex("0x68beaf15e356928a1850cf343be85032efad964324b0abca4a9a57ff2057ef7")
+            val expected = Felt.fromHex("0x3118aeee70090311382e52546b4297880aff009bb5c82e3ba5b5643e1c00326")
             assertEquals(expected, hash)
         }
 
@@ -53,7 +53,7 @@ internal class TransactionHashCalculatorTest {
                 nonce = Felt(9876),
                 maxFee = maxFee,
             )
-            val expected = Felt.fromHex("0x64584f4e821e8d3bcd08295cbd7675858ca9a5a882108e9a31df273e2fb320f")
+            val expected = Felt.fromHex("0x6174445e6087a101ddb477514eea248e6e1df1bb4855513236fac5bd8314d3b")
             assertEquals(expected, hash)
         }
 
@@ -68,7 +68,7 @@ internal class TransactionHashCalculatorTest {
                 nonce = Felt(9876),
                 maxFee = maxFee,
             )
-            val expected = Felt.fromHex("0x31e70aad6b93265e2bd1f619841115320a2a2899759a3af3b1d9582f23e7588")
+            val expected = Felt.fromHex("0x1c669fbd37afe113b48ca8c150f4199acd5956959197109be854ef8b15574b2")
             assertEquals(expected, hash)
         }
     }
@@ -141,7 +141,7 @@ internal class TransactionHashCalculatorTest {
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x41906f1c314cca5f43170ea75d3b1904196a10101190d2b12a41cc61cfd17c")
+            val expected = Felt.fromHex("0x6d0e3ff991d62a10189a0ea11685d26b7efdb5baa9fa0d0a4edd1711185f671")
             assertEquals(expected, hash)
         }
 
@@ -167,7 +167,7 @@ internal class TransactionHashCalculatorTest {
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x29fd7881f14380842414cdfdd8d6c0b1f2174f8916edcfeb1ede1eb26ac3ef0")
+            val expected = Felt.fromHex("0x3018236df5779c1f28caba0e64febcb78f5bc69aa3538be54f4e27def9de1b3")
             assertEquals(expected, hash)
         }
 
@@ -192,7 +192,7 @@ internal class TransactionHashCalculatorTest {
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x41d1f5206ef58a443e7d3d1ca073171ec25fa75313394318fc83a074a6631c3")
+            val expected = Felt.fromHex("0x61bfaf480ac824971ad1bdc316fa821f58afd6b47e037242ef265d0aaea7c78")
             assertEquals(expected, hash)
         }
     }
