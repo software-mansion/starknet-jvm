@@ -186,7 +186,7 @@ To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment va
   - `SEPOLIA_TESTNET`
   - `SEPOLIA_INTEGRATION`
 
-Note: `GOERLI` networks are not supported anymore. The number of tests working on `SEPOLIA` is temporarily limited.
+Note: Some tests are not available following the transition of network tests from `GOERLI` to `SEPOLIA` networks.
 To properly configure your network, ensure the following variables are set with the `NETWORK_NAME_` prefix:  
   - `RPC_URL` - url of your RPC node
   - `ACCOUNT_ADDRESS` and `PRIVATE_KEY` - address and private key of your account
