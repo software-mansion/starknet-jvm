@@ -47,7 +47,7 @@ Running the demo on a network other than devnet (Mainnet/Testen/Integration) req
 
 ### Prerequisites
 - URL of a Starknet RPC node.
-- Details (address and private key) of an account deployed on said network with some funds on it.
+- Details (address and private key) of an account deployed on said network with some funds on it. If you're using **Sepolia testnet**, you can obtain some funds from the [faucet](https://starknet-faucet.vercel.app/).
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager with [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 
 ### Steps

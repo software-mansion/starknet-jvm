@@ -43,7 +43,7 @@ import java.math.BigInteger
  *    "domain": {
  *        "name": "myDapp",
  *        "version": "1",
- *        "chainId": "SN_GOERLI"
+ *        "chainId": "SN_SEPOLIA"
  *    },
  *    "message": {
  *        "id": "0x0000004f000f",
