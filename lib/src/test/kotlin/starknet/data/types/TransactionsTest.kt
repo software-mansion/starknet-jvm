@@ -52,7 +52,7 @@ internal class TransactionsTest {
             version = TransactionVersion.V1,
         )
 
-        assertEquals(Felt.fromHex("0xff63c84949d3ab0ced753c227528493dea3dc4680c65c1facb7f86ae0472df"), tx2.hash)
+        assertEquals(Felt.fromHex("0x5b55ab7d322ac72c76ed1e97e3f37f53ba53f17ab7dcb7483c2661ab94ee192"), tx2.hash)
     }
 
     @Test
