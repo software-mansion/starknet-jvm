@@ -22,7 +22,7 @@ internal class TransactionsTest {
             version = TransactionVersion.V1,
         )
 
-        assertEquals(Felt.fromHex("0x22294fe217f962c39e4cb694a5db3f71e1132988451a9b2abc2d2ea8512088e"), tx1.hash)
+        assertEquals(Felt.fromHex("0x159e93c4dc8bed305599fa6b3f0025149bbc6b2a79e53235b5e2626dcd463d3"), tx1.hash)
 
         val tx2 = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = Felt(
