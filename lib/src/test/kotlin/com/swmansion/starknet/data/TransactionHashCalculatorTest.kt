@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@Disabled("Disabled until v3 transaction on Sepolia are ready (#384)")
+@Disabled("Disabled until v3 transaction tests on Sepolia are ready (#384)")
 internal class TransactionHashCalculatorTest {
-    // TODO: for every test change expected hash to be consistent with Sepolia (#384)
+    // TODO: enable for every test change expected hash to be consistent with Sepolia (#384)
     @Nested
     inner class DeprecatedTransactionHashTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
