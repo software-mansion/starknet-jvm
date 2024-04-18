@@ -14,6 +14,7 @@ import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -23,6 +24,7 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
+@Disabled("Disabled until v3 transaction on Sepolia are ready (#384)")
 class AccountTest {
     companion object {
         @JvmStatic
