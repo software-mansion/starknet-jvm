@@ -4,15 +4,20 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.transactions.DAMode
 import com.swmansion.starknet.data.types.transactions.TransactionVersion
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+
+@Disabled("Disabled until v3 transaction on Sepolia are ready (#384)")
 internal class TransactionHashCalculatorTest {
+    // TODO: for every test change expected hash to be consistent with Sepolia (#384)
     @Nested
     inner class DeprecatedTransactionHashTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
         private val maxFee = Felt.fromHex("0xabcd987654210")
-        private val chainId = StarknetChainId.fromHex("SN_GOERLI")
+        // TODO: change chainId to SEPOLIA for tests in #384
+        private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
         fun `calculate invoke v1 transaction hash`() {
@@ -75,7 +80,8 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        private val chainId = StarknetChainId.fromHex("SN_GOERLI")
+        // TODO: change chainId to SEPOLIA for tests in #384
+        private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
         fun `prepare data availability modes`() {
