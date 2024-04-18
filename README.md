@@ -158,11 +158,6 @@ Run
 ## Running tests
 
 ### Prerequisites
-- `cairo-lang`
-  - It is distributed as a python package. To install, run:
-    ```shell
-    pip install -r requirements.txt
-    ```
 - [`starknet-devnet-rs`](https://github.com/0xSpaceShard/starknet-devnet-rs) 
   - Since it has yet to be released, you will need to build it manually and set `DEVNET_PATH` environment variable that points to a binary:
     ```shell

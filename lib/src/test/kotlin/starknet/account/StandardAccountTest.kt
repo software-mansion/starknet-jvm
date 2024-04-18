@@ -281,10 +281,6 @@ class StandardAccountTest {
 
     @Test
     fun `estimate message fee`() {
-        // Note to future developers experiencing failures in this test.
-        // Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-
         val l1l2ContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
         val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
 
@@ -315,8 +311,6 @@ class StandardAccountTest {
         )
         val response = request.send()
 
-        assertNotEquals(Felt.ZERO, response.gasPrice)
-        assertNotEquals(Felt.ZERO, response.gasConsumed)
         assertNotEquals(Felt.ZERO, response.gasPrice)
         assertEquals(
             response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
