@@ -114,7 +114,7 @@ public class Main {
 ### Standard flow examples
 
 - [Deploying account](lib/starknet-jvm.md#deploying-account)
-- [Invoking contract: Transferring ETH](lib/starknet-jvm.md#invoking-contract-transfering-eth)
+- [Invoking contract: Transferring ETH](lib/starknet-jvm.md#invoking-contract-transferring-eth)
 - [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
 - [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
 
