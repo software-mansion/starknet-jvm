@@ -87,15 +87,6 @@ jobs:
         run: ./gradlew :lib:lintKotlin
 
       - name: Run tests and generate coverage report
-        env:
-          DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
-          NETWORK_TEST_MODE: "disabled"
-          NETWORK_TEST_NETWORK_NAME: "TESTNET"
-          SEPOLIA_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
-          SEPOLIA_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
-          SEPOLIA_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
-          SEPOLIA_TESTNET_CONST_NONCE_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_CONST_NONCE_ACCOUNT_ADDRESS }}
-          SEPOLIA_TESTNET_CONST_NONCE_PRIVATE_KEY: ${{ secrets.TESTNET_CONST_NONCE_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
