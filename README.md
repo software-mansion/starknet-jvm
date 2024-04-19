@@ -114,9 +114,8 @@ public class Main {
 ### Standard flow examples
 
 - [Deploying account](lib/starknet-jvm.md#deploying-account)
-- [Invoking contract: Transfering ETH](lib/starknet-jvm.md#invoking-contract-transfering-eth)
+- [Invoking contract: Transferring ETH](lib/starknet-jvm.md#invoking-contract-transferring-eth)
 - [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
-- [Declaring Cairo 0 contract](lib/starknet-jvm.md#declaring-cairo-0-contract)
 - [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
 
 ## Demo applications
@@ -159,11 +158,6 @@ Run
 ## Running tests
 
 ### Prerequisites
-- `cairo-lang`
-  - It is distributed as a python package. To install, run:
-    ```shell
-    pip install -r requirements.txt
-    ```
 - [`starknet-devnet-rs`](https://github.com/0xSpaceShard/starknet-devnet-rs) 
   - Since it has yet to be released, you will need to build it manually and set `DEVNET_PATH` environment variable that points to a binary:
     ```shell

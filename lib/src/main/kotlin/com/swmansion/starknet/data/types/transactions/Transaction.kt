@@ -349,23 +349,7 @@ data class DeclareTransactionV1(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
-    @Throws(ConvertingToPayloadFailedException::class)
-    internal fun toPayload(): DeclareTransactionV1Payload {
-        contractDefinition ?: throw ConvertingToPayloadFailedException()
-
-        return DeclareTransactionV1Payload(
-            contractDefinition = contractDefinition,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            nonce = nonce,
-            signature = signature,
-            version = version,
-        )
-    }
-
-    internal class ConvertingToPayloadFailedException : RuntimeException()
-}
+) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
 data class DeclareTransactionV2(
@@ -779,38 +763,6 @@ object TransactionFactory {
             paymasterData = paymasterData,
             nonceDataAvailabilityMode = nonceDataAvailabilityMode,
             feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun makeDeclareV1Transaction(
-        classHash: Felt,
-        senderAddress: Felt,
-        contractDefinition: Cairo0ContractDefinition,
-        chainId: StarknetChainId,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        signature: Signature = emptyList(),
-    ): DeclareTransactionV1 {
-        val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
-            classHash = classHash,
-            chainId = chainId,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            version = version,
-            nonce = nonce,
-        )
-        return DeclareTransactionV1(
-            classHash = classHash,
-            senderAddress = senderAddress,
-            contractDefinition = contractDefinition,
-            hash = hash,
-            maxFee = maxFee,
-            version = version,
-            signature = signature,
-            nonce = nonce,
         )
     }
 
