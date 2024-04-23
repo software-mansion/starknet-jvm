@@ -127,27 +127,6 @@ class StandardAccount @JvmOverloads constructor(
         return signedTransaction.toPayload()
     }
 
-    override fun signDeclareV1(
-        contractDefinition: Cairo0ContractDefinition,
-        classHash: Felt,
-        params: ExecutionParams,
-        forFeeEstimate: Boolean,
-    ): DeclareTransactionV1Payload {
-        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
-        val tx = TransactionFactory.makeDeclareV1Transaction(
-            contractDefinition = contractDefinition,
-            classHash = classHash,
-            senderAddress = address,
-            chainId = chainId,
-            nonce = params.nonce,
-            maxFee = params.maxFee,
-            version = signVersion,
-        )
-        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
-
-        return signedTransaction.toPayload()
-    }
-
     override fun signDeclareV2(
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,

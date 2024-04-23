@@ -45,20 +45,6 @@ internal class TransactionHashCalculatorTest {
         }
 
         @Test
-        fun `calculate declare v1 transaction hash`() {
-            val hash = TransactionHashCalculator.calculateDeclareV1TxHash(
-                classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
-                senderAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
-                version = TransactionVersion.V1,
-                chainId = chainId,
-                nonce = Felt(9876),
-                maxFee = maxFee,
-            )
-            val expected = Felt.fromHex("0x64584f4e821e8d3bcd08295cbd7675858ca9a5a882108e9a31df273e2fb320f")
-            assertEquals(expected, hash)
-        }
-
-        @Test
         fun `calculate declare v2 transaction hash`() {
             val hash = TransactionHashCalculator.calculateDeclareV2TxHash(
                 classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
