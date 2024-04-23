@@ -250,8 +250,6 @@ class AccountTest {
         // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
-        // TODO: (#384) Test v3 transactions on Sepolia
-
         val account = standardAccount
 
         ScarbClient.buildSaltedContract(
@@ -266,8 +264,8 @@ class AccountTest {
         val nonce = account.getNonce().send()
 
         val l1ResourceBounds = ResourceBounds(
-            maxAmount = Uint64(5000),
-            maxPricePerUnit = Uint128(200000000),
+                maxAmount = Uint64(100000),
+                maxPricePerUnit = Uint128(2500000000000),
         )
         val params = DeclareParamsV3(
             nonce = nonce,
@@ -592,6 +590,7 @@ class AccountTest {
         Thread.sleep(15000)
 
         val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+
         assertEquals(payload.classHash, tx.classHash)
         assertEquals(payload.salt, tx.contractAddressSalt)
         assertEquals(payload.constructorCalldata, tx.constructorCalldata)

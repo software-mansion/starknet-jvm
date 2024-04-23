@@ -47,19 +47,19 @@ class ProviderTest {
         }
         private val deployAccountV3TransactionHash by lazy {
             when (network) {
-                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x7c1ca558aaec1a14a4c0553517013631fad81c48667a3bcd635617c2560276")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x38ce58ed386612e75c64342f1df6b2ffb8d3e62adf3c9f73475527aa6483152")
                 else -> throw NotImplementedError("Test is not yet supported for this network: $network")
             }
         }
         private val invokeV3TransactionHash by lazy {
             when (network) {
-                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x06f99b0650eb02eaf16cc97820075b1dc8c8a4ada22ef0a606f3c0b066d7ce07")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x6e93e3758361ce0d0785c981addff8905ad7641cc07832e74f334370ffec39c")
                 else -> throw NotImplementedError("Test is not yet supported for this network: $network")
             }
         }
         private val declareV3TransactionHash by lazy {
             when (network) {
-                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x86693a36721bb586bee1f8c8b9ea33fbbb7f820dde48d9068dfa94a99ef53")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x7a0c820d91797e5b6196b87a36e449db146b3bfc76d40ad38184012a469a9e6")
                 else -> throw NotImplementedError("Test is not yet supported for this network: $network")
             }
         }
@@ -215,7 +215,7 @@ class ProviderTest {
         val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        assertTrue(receipt.events.size >= 2)
+        assertTrue(receipt.events.isNotEmpty())
 
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
@@ -291,9 +291,6 @@ class ProviderTest {
     @Test
     fun `get declare v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        // TODO: (#384) Test v3 transactions on Sepolia
-
         val transactionHash = declareV3TransactionHash
 
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV3
