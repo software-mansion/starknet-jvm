@@ -264,8 +264,8 @@ class AccountTest {
         val nonce = account.getNonce().send()
 
         val l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(2500000000000),
+            maxAmount = Uint64(100000),
+            maxPricePerUnit = Uint128(2500000000000),
         )
         val params = DeclareParamsV3(
             nonce = nonce,
