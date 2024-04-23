@@ -274,7 +274,7 @@ class ProviderTest {
     fun `get declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = declareV2TranasctionHash
+        val transactionHash = declareV2TransactionHash
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
         assertNotEquals(Felt.ZERO, tx.classHash)
         assertEquals(transactionHash, tx.hash)

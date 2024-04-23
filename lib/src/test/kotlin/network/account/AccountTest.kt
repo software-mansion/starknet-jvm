@@ -98,50 +98,6 @@ class AccountTest {
     }
 
     @Test
-    fun `estimate fee for declare v1 transaction`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val account = constNonceAccount
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test.
-        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-        // Chances are, the contract was compiled with a different compiler version.
-
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-
-        val signedTransaction = TransactionFactory.makeDeclareV1Transaction(
-            classHash = classHash,
-            senderAddress = declareTransactionPayload.senderAddress,
-            contractDefinition = declareTransactionPayload.contractDefinition,
-            chainId = chainId,
-            nonce = nonce,
-            maxFee = declareTransactionPayload.maxFee,
-            signature = declareTransactionPayload.signature,
-            version = declareTransactionPayload.version,
-        )
-
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
-
-        val feeEstimate = feeEstimateRequest.send().first()
-        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.gasPrice)
-        assertNotEquals(Felt(0), feeEstimate.overallFee)
-    }
-
-    @Test
     fun `estimate fee for declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
@@ -220,43 +176,6 @@ class AccountTest {
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
-    }
-
-    @Test
-    fun `sign and send declare v1 transaction`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-
-        val account = standardAccount
-        // Note to future developers experiencing failures in this test.
-        // Sometimes the test fails with "A transaction with the same hash already exists in the mempool"
-        // This error can be caused by RPC node not having access to pending transactions and therefore nonce not getting updated.
-
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce().send()
-
-        // Note to future developers experiencing failures in this test.
-        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-        // Chances are, the contract was compiled with a different compiler version.
-        // 3. This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
-
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(nonce, Felt(1000000000000000L)),
-        )
-
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
-
-        Thread.sleep(60000)
-
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-        assertTrue(receipt.isAccepted)
     }
 
     @Test
@@ -794,44 +713,6 @@ class AccountTest {
 
         assertEquals(1, simulationResult2.size)
         assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
-    }
-
-    @Test
-    fun `simulate declare v1 transaction`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
-        val account = constNonceAccount
-
-        val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-        val contractDefinition = Cairo0ContractDefinition(contractCode)
-        val nonce = account.getNonce(BlockTag.LATEST).send()
-
-        // Note to future developers experiencing failures in this test.
-        // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
-        // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-        // Chances are, the contract was compiled with a different compiler version.
-        val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-
-        val declareTransactionPayload = account.signDeclareV1(
-            contractDefinition,
-            classHash,
-            ExecutionParams(
-                nonce = nonce,
-                maxFee = Felt(1000000000000000L),
-            ),
-        )
-
-        // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
-        val simulationFlags = setOf(SimulationFlag.SKIP_FEE_CHARGE)
-        val simulationResult = provider.simulateTransactions(
-            transactions = listOf(declareTransactionPayload),
-            blockTag = BlockTag.LATEST,
-            simulationFlags = simulationFlags,
-        ).send()
-        assertEquals(1, simulationResult.size)
-        val trace = simulationResult.first().transactionTrace
-        assertTrue(trace is DeclareTransactionTrace)
     }
 
     @Test

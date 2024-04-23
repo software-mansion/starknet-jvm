@@ -132,28 +132,6 @@ object TransactionHashCalculator {
     }
 
     @JvmStatic
-    fun calculateDeclareV1TxHash(
-        classHash: Felt,
-        chainId: StarknetChainId,
-        senderAddress: Felt,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-    ): Felt {
-        val hash = StarknetCurve.pedersenOnElements(listOf(classHash))
-        return StarknetCurve.pedersenOnElements(
-            TransactionType.DECLARE.txPrefix,
-            version.value,
-            senderAddress,
-            Felt.ZERO,
-            hash,
-            maxFee,
-            chainId.value,
-            nonce,
-        )
-    }
-
-    @JvmStatic
     fun calculateDeclareV2TxHash(
         classHash: Felt,
         chainId: StarknetChainId,

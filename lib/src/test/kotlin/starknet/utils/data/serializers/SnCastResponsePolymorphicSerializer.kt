@@ -5,7 +5,7 @@ import kotlinx.serialization.json.*
 import starknet.utils.data.*
 
 internal object SnCastResponsePolymorphicSerializer : JsonContentPolymorphicSerializer<SnCastResponse>(SnCastResponse::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out SnCastResponse> {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<SnCastResponse> {
         val jsonObject = element.jsonObject
 
         val commandObject = jsonObject.getOrElse("command") { throw IllegalArgumentException("Missing command type in sncast response") }
@@ -22,7 +22,6 @@ internal object SnCastResponsePolymorphicSerializer : JsonContentPolymorphicSeri
             SnCastCommand.DECLARE -> DeclareSnCastResponse.serializer()
             SnCastCommand.DEPLOY -> DeploySnCastResponse.serializer()
             SnCastCommand.INVOKE -> InvokeSnCastResponse.serializer()
-            else -> throw IllegalArgumentException("Invalid command type")
         }
     }
 }
