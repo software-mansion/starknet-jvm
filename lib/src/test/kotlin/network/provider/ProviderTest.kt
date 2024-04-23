@@ -12,9 +12,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled("Disabled until v3 transaction tests on Sepolia are ready (#384)")
 class ProviderTest {
-    // TODO: enable and change transaction hashes to be consistent with Sepolia (#384)
     companion object {
         @JvmStatic
         private val config = NetworkConfig.config

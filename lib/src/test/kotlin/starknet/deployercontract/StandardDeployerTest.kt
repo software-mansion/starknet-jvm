@@ -8,7 +8,6 @@ import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -16,7 +15,6 @@ import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled
 object StandardDeployerTest {
     private val devnetClient = DevnetClient(
         port = 5053,

@@ -30,7 +30,6 @@ import java.nio.file.Paths
 import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled
 class StandardAccountTest {
     companion object {
         private val devnetClient = DevnetClient(
