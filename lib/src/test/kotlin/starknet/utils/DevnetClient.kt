@@ -367,8 +367,6 @@ class DevnetClient(
         val processBuilder = ProcessBuilder(
             "sncast",
             "--json",
-            "--path-to-scarb-toml",
-            scarbTomlPath.absolutePathString(),
             "--accounts-file",
             accountFilePath.absolutePathString(),
             "--url",
@@ -393,6 +391,16 @@ class DevnetClient(
         val index = result.indexOf('{')
         // Remove all characters before the first `{`
         result = if (index >= 0) result.substring(index) else throw IllegalArgumentException("Invalid response JSON")
+
+        // TODO: handle this more gracefully
+        // As of sncast 0.21.0, "account deploy" outputs three jsons
+        // first two of them represent transaction status and don't have "command" key
+        // For now we skip these jsons and retrieve only the one with "command" key
+        val jsonStringWithCommandKey = result.split("\n").find { it.contains("command") }
+        if (jsonStringWithCommandKey == null) {
+            throw IllegalArgumentException("There is not JSON with command key")
+        }
+        result = jsonStringWithCommandKey
 
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
