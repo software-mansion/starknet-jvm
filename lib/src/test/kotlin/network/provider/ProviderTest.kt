@@ -140,7 +140,6 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val transactionHash = deployAccountV3TransactionHash
 
@@ -203,7 +202,6 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val transactionHash = invokeV3TransactionHash
 
@@ -295,7 +293,6 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val transactionHash = declareV3TransactionHash
 

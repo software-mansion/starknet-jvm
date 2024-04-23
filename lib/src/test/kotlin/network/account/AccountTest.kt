@@ -332,7 +332,6 @@ class AccountTest {
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val account = standardAccount
 
@@ -402,7 +401,6 @@ class AccountTest {
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val account = standardAccount
 
@@ -602,7 +600,6 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.SEPOLIA_INTEGRATION)
 
         val account = standardAccount
 

@@ -13,7 +13,6 @@ internal class TransactionHashCalculatorTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
         private val maxFee = Felt.fromHex("0xabcd987654210")
 
-        // TODO: change chainId to SEPOLIA for tests in #384
         private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
@@ -77,7 +76,6 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        // TODO: change chainId to SEPOLIA for tests in #384
         private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
