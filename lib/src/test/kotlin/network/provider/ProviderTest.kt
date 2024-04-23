@@ -41,7 +41,7 @@ class ProviderTest {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x5e27aad6f9139f6eeb0ee886179c40b551e91ad8bcc80e16ff0fe6d5444d6f9")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x012bc00eadd7f25a5523e5857da2073e2028070a5e616723931ac290aba3f22a")
         }
-        private val declareV2TranasctionHash = when (network) {
+        private val declareV2TransactionHash = when (network) {
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x01556b67a22bc26dfc4827286997e3e3b53380e14ba1d879f1d67b7ffbd5a808")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x0683e900e4c0e27e164f0b7569f86edec6dec919e55d97728113b40fe6b731c7")
         }
@@ -274,7 +274,7 @@ class ProviderTest {
     fun `get declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = declareV2TranasctionHash
+        val transactionHash = declareV2TransactionHash
         val tx = provider.getTransaction(transactionHash).send() as DeclareTransactionV2
         assertNotEquals(Felt.ZERO, tx.classHash)
         assertEquals(transactionHash, tx.hash)

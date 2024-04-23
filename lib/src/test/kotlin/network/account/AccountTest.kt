@@ -880,7 +880,6 @@ class AccountTest {
         val classHash = when (network) {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
-            else -> throw NotImplementedError("Test is not yet supported for this network $network")
         }
 
         val account = standardAccount
@@ -907,7 +906,6 @@ class AccountTest {
         val classHash = when (network) {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-            else -> throw NotImplementedError("Test is not yet supported for this network $network")
         }
 
         val account = standardAccount
