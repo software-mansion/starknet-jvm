@@ -495,9 +495,7 @@ class AccountTest {
             entrypoint = "balanceOf",
             calldata = listOf(account.address),
         )
-        println(call.contractAddress)
-        println(call.entrypoint)
-        println(call.calldata)
+
         val request = provider.callContract(call)
         val response = request.send()
         val balance = Uint256(

@@ -314,6 +314,6 @@ class JsonRpcResponseTest {
         val response = request.send()
 
         // TODO: Currently when there is >= 1 error in the batch request, an exception is thrown
-        // Instead of this we want to proceed, and when user tries to access the response of the errored request, an exception should be thrown
+        // Instead of this we want to proceed, and when user tries to access specific call with an error, an exception should be thrown
     }
 }
