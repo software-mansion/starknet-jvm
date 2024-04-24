@@ -11,7 +11,7 @@ class JsonRpcRequestTest {
 
     companion object {
         private val devnetClient = DevnetClient(
-            port = 5052,
+            port = 5054,
             accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
