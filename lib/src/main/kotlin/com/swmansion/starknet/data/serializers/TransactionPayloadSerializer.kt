@@ -37,7 +37,6 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         val jsonObject = when (value) {
             is InvokeTransactionV1Payload -> Json.encodeToJsonElement(InvokeTransactionV1Payload.serializer(), value).jsonObject
             is InvokeTransactionV3Payload -> Json.encodeToJsonElement(InvokeTransactionV3Payload.serializer(), value).jsonObject
-            is DeclareTransactionV1Payload -> Json.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, value).jsonObject
             is DeclareTransactionV2Payload -> Json.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, value).jsonObject
             is DeclareTransactionV3Payload -> Json.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, value).jsonObject
             is DeployAccountTransactionV1Payload -> Json.encodeToJsonElement(DeployAccountTransactionV1Payload.serializer(), value).jsonObject
@@ -69,7 +68,6 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3Payload.serializer(), element)
             Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
-            Felt.ONE -> decoder.json.decodeFromJsonElement(DeclareTransactionV1Payload.serializer(), element)
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
@@ -83,30 +81,6 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
             Felt.ONE -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV1Payload.serializer(), element)
             else -> throw IllegalArgumentException("Invalid deploy account transaction version '${versionElement.jsonPrimitive.content}'")
         }
-    }
-}
-
-internal object DeclareTransactionV1PayloadSerializer : KSerializer<DeclareTransactionV1Payload> {
-    override val descriptor = PrimitiveSerialDescriptor("DeclareTransactionV1Payload", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: DeclareTransactionV1Payload) {
-        require(encoder is JsonEncoder)
-
-        val jsonObject = buildJsonObject {
-            put("contract_class", value.contractDefinition.toJson())
-            put("sender_address", value.senderAddress.hexString())
-            put("version", value.version.value.hexString())
-            put("max_fee", value.maxFee.hexString())
-            putJsonArray("signature") { value.signature.forEach { add(it) } }
-            put("nonce", value.nonce)
-            put("type", value.type.toString())
-        }
-
-        encoder.encodeJsonElement(jsonObject)
-    }
-
-    override fun deserialize(decoder: Decoder): DeclareTransactionV1Payload {
-        throw SerializationException("Class used for serialization only.")
     }
 }
 

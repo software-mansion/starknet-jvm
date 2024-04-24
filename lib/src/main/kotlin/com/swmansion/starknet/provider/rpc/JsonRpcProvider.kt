@@ -299,15 +299,6 @@ class JsonRpcProvider(
         return getClassHashAt(contractAddress, BlockTag.LATEST)
     }
 
-    override fun declareContract(payload: DeclareTransactionV1Payload): Request<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV1PayloadSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("declare_transaction", params)
-        }
-
-        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
-    }
-
     override fun declareContract(payload: DeclareTransactionV2Payload): Request<DeclareResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, payload)
         val jsonPayload = buildJsonObject {

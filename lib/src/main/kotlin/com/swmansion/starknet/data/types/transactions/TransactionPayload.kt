@@ -99,30 +99,6 @@ data class InvokeTransactionV3Payload private constructor(
 sealed class DeclareTransactionPayload() : TransactionPayload()
 
 @Serializable
-data class DeclareTransactionV1Payload(
-    @SerialName("contract_class")
-    val contractDefinition: Cairo0ContractDefinition,
-
-    @SerialName("max_fee")
-    val maxFee: Felt,
-
-    @SerialName("nonce")
-    val nonce: Felt,
-
-    @SerialName("signature")
-    val signature: Signature,
-
-    @SerialName("sender_address")
-    val senderAddress: Felt,
-
-    @SerialName("version")
-    val version: TransactionVersion,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
-) : DeclareTransactionPayload()
-
-@Serializable
 data class DeclareTransactionV2Payload(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition,

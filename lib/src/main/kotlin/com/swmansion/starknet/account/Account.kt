@@ -206,24 +206,6 @@ interface Account {
     }
 
     /**
-     * Sign a version 1 declare transaction.
-     *
-     * Prepare and sign a version 1 declare transaction to be executed on Starknet.
-     *
-     * @param contractDefinition a definition of the contract to be declared
-     * @param classHash a class hash of the contract to be declared
-     * @param params additional execution parameters for the transaction
-     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @return signed declare transaction payload
-     */
-    fun signDeclareV1(
-        contractDefinition: Cairo0ContractDefinition,
-        classHash: Felt,
-        params: ExecutionParams,
-        forFeeEstimate: Boolean = false,
-    ): DeclareTransactionV1Payload
-
-    /**
      * Sign a version 2 declare transaction.
      *
      * Prepare and sign a version 2 declare transaction to be executed on Starknet.
