@@ -66,7 +66,7 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer, deserializationJson), httpService)
     }
 
-    fun <T> sendBatchRpcRequest(
+    fun <T> sendBatchRequest(
         calls: List<Request<T>>,
     ): BatchHttpRequest<T> {
         val httpRequests = calls.map { it as HttpRequest<T> }

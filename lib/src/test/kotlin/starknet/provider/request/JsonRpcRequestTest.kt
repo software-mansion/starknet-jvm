@@ -46,7 +46,7 @@ class JsonRpcRequestTest {
             listOf(Felt.fromHex("0x07f6331182b9bcbf9c1a5943e309c05399a935d170f7f07494cdf7a174cd7527")),
         )
         val calls = listOf(provider.callContract(call), provider.callContract(call))
-        val request = provider.sendBatchRpcRequest(calls)
+        val request = provider.sendBatchRequest(calls)
         var response = emptyList<List<Felt>>()
 
         assertAll({ response = request.send() })
