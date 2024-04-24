@@ -1,9 +1,8 @@
 package starknet.provider.response
 
-import com.swmansion.starknet.data.types.BlockTag
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL1ToL2
-import com.swmansion.starknet.data.types.PriceUnit
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -11,6 +10,7 @@ import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.SerializationException
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
@@ -189,5 +189,131 @@ class JsonRpcResponseTest {
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
+    }
+
+    @Test
+    fun `rpc provider parses multiple batch call request`() {
+        val mockResponse = """
+           [
+              {
+                "jsonrpc": "2.0",
+                "result": [
+                  "0x1e2e22799540",
+                  "0x0"
+                ],
+                "id": "0"
+              },
+              {
+                "jsonrpc": "2.0",
+                "result": [
+                  "0x1e2e22799540",
+                  "0x0"
+                ],
+                "id": "1"
+              }
+            ]
+        """.trimIndent()
+
+        val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val call = Call(
+                ethContractAddress,
+                Felt.fromHex("0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e"),
+                listOf(Felt.fromHex("0x07f6331182b9bcbf9c1a5943e309c05399a935d170f7f07494cdf7a174cd7527")),
+        )
+        val calls = listOf(provider.callContract(call), provider.callContract(call))
+        val request = provider.sendBatchRpcRequest(calls)
+        val response = request.send()
+
+        assertEquals(response.size, calls.size)
+    }
+
+    @Test
+    fun `rpc provider parses batch getTransactionStatus request`() {
+        val mockResponse = """
+           [
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                },
+                "id": "0"
+              },
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                },
+                "id": "1"
+              }
+            ]
+        """.trimIndent()
+
+        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
+        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.sendBatchRpcRequest(
+                listOf(provider.getTransactionStatus(Felt.fromHex(txHash1)), provider.getTransactionStatus(Felt.fromHex(txHash2))),
+        )
+        val response = request.send()
+
+        assertEquals(response[0].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[0].executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
+    }
+
+    @Test
+    @Disabled
+    fun `rpc provider parses batch getTransactionStatus with error`() {
+        val mockResponse = """
+           [
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                },
+                "id": "0"
+              },
+              {
+                "jsonrpc": "2.0",
+                "error": {
+                  "code": 29,
+                  "message": "Transaction hash not found"
+                },
+                "id": "1"
+              }
+            ]
+        """.trimIndent()
+
+        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
+        val txHash2 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8e"
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.sendBatchRpcRequest(
+                listOf(provider.getTransactionStatus(Felt.fromHex(txHash1)), provider.getTransactionStatus(Felt.fromHex(txHash2))),
+        )
+        val response = request.send()
+
+        // TODO: Currently when there is >= 1 error in the batch request, an exception is thrown
+        // Instead of this we want to proceed, and when user tries to access the response of the errored request, an exception should be thrown
     }
 }
