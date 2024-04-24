@@ -8,11 +8,10 @@ import java.util.function.Function
 
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
-
 class HttpRequest<T>(
-        val payload: HttpService.Payload,
-        val deserializer: HttpResponseDeserializer<T>,
-        val service: HttpService,
+    val payload: HttpService.Payload,
+    val deserializer: HttpResponseDeserializer<T>,
+    val service: HttpService,
 ) : Request<T> {
 
     override fun send(): T {
@@ -25,11 +24,10 @@ class HttpRequest<T>(
     }
 }
 
-
 class BatchHttpRequest<T>(
-        val payload: HttpService.Payload,
-        val deserializer: HttpResponseDeserializer<T>,
-        val service: HttpService,
+    val payload: HttpService.Payload,
+    val deserializer: HttpResponseDeserializer<T>,
+    val service: HttpService,
 ) : Request<List<T>> {
     private fun parseResponse(response: HttpResponse): List<T> {
         val responseList = Json.parseToJsonElement(response.body).jsonArray

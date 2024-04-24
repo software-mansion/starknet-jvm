@@ -10,56 +10,56 @@ import java.util.function.Function
 
 @Serializable
 private data class JsonRpcResponse<T>(
-        @SerialName("id")
-        val id: Int,
+    @SerialName("id")
+    val id: Int,
 
-        @SerialName("jsonrpc")
-        val jsonRpc: String,
+    @SerialName("jsonrpc")
+    val jsonRpc: String,
 
-        @SerialName("result")
-        val result: T? = null,
+    @SerialName("result")
+    val result: T? = null,
 
-        @SerialName("error")
-        val error: JsonRpcError? = null,
+    @SerialName("error")
+    val error: JsonRpcError? = null,
 )
 
 @Serializable(with = JsonRpcErrorSerializer::class)
 internal data class JsonRpcError(
-        @SerialName("code")
-        val code: Int,
+    @SerialName("code")
+    val code: Int,
 
-        @SerialName("message")
-        val message: String,
+    @SerialName("message")
+    val message: String,
 
-        @SerialName("data")
-        val data: String? = null,
+    @SerialName("data")
+    val data: String? = null,
 )
 
 @JvmSynthetic
 internal fun <T> buildJsonHttpDeserializer(
-        deserializationStrategy: KSerializer<T>,
-        deserializationJson: Json,
+    deserializationStrategy: KSerializer<T>,
+    deserializationJson: Json,
 ): HttpResponseDeserializer<T> {
     return Function { response ->
         if (!response.isSuccessful) {
             throw RequestFailedException(
-                    payload = response.body,
+                payload = response.body,
             )
         }
 
         val jsonRpcResponse =
-                deserializationJson.decodeFromString(
-                        JsonRpcResponse.serializer(deserializationStrategy),
-                        response.body,
-                )
+            deserializationJson.decodeFromString(
+                JsonRpcResponse.serializer(deserializationStrategy),
+                response.body,
+            )
 
         // TODO: Don't throw an exception in case of request with multiple RPC calls
         if (jsonRpcResponse.error != null) {
             throw RpcRequestFailedException(
-                    code = jsonRpcResponse.error.code,
-                    message = jsonRpcResponse.error.message,
-                    data = jsonRpcResponse.error.data,
-                    payload = response.body,
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                data = jsonRpcResponse.error.data,
+                payload = response.body,
             )
         }
 
