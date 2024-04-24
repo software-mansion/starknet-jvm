@@ -1,5 +1,5 @@
 [package]
-name = "ContractsV2"
+name = "contracts_v2"
 version = "0.1.0"
 
 [dependencies]
