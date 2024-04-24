@@ -20,9 +20,9 @@ import java.nio.file.Paths
 class ProviderTest {
     companion object {
         private val devnetClient = DevnetClient(
-            port = 5052,
-            accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
-            contractsDirectory = Paths.get("src/test/resources/contracts"),
+                port = 5052,
+                accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
+                contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
         val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
@@ -44,14 +44,14 @@ class ProviderTest {
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
                 balanceContractAddress = devnetClient.deployContract(
-                    classHash = balanceClassHash,
-                    constructorCalldata = listOf(Felt(451)),
+                        classHash = balanceClassHash,
+                        constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
                 deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
-                    contractAddress = balanceContractAddress,
-                    function = "increase_balance",
-                    calldata = listOf(Felt(10)),
+                        contractAddress = balanceContractAddress,
+                        function = "increase_balance",
+                        calldata = listOf(Felt(10)),
                 ).transactionHash
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -91,13 +91,13 @@ class ProviderTest {
         val currentNumber = provider.getBlockNumber().send()
 
         val call = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "get_balance",
-            calldata = emptyList(),
+                contractAddress = balanceContractAddress,
+                entrypoint = "get_balance",
+                calldata = emptyList(),
         )
         val request = provider.callContract(
-            call = call,
-            blockNumber = currentNumber,
+                call = call,
+                blockNumber = currentNumber,
         )
         val response = request.send()
         val balance = response.first()
@@ -110,15 +110,15 @@ class ProviderTest {
     @Test
     fun `call contract with block hash`() {
         val call = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "get_balance",
-            calldata = emptyList(),
+                contractAddress = balanceContractAddress,
+                entrypoint = "get_balance",
+                calldata = emptyList(),
         )
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.callContract(
-            call = call,
-            blockHash = blockHash,
+                call = call,
+                blockHash = blockHash,
         )
         val response = request.send()
         val balance = response.first()
@@ -131,14 +131,14 @@ class ProviderTest {
     @Test
     fun `call contract with block tag`() {
         val call = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "get_balance",
-            calldata = emptyList(),
+                contractAddress = balanceContractAddress,
+                entrypoint = "get_balance",
+                calldata = emptyList(),
         )
 
         val request = provider.callContract(
-            call = call,
-            blockTag = BlockTag.LATEST,
+                call = call,
+                blockTag = BlockTag.LATEST,
         )
         val response = request.send()
         val balance = response.first()
@@ -151,9 +151,9 @@ class ProviderTest {
     @Test
     fun `get storage at`() {
         val request = provider.getStorageAt(
-            contractAddress = balanceContractAddress,
-            key = selectorFromName("balance"),
-            blockTag = BlockTag.LATEST,
+                contractAddress = balanceContractAddress,
+                key = selectorFromName("balance"),
+                blockTag = BlockTag.LATEST,
         )
 
         val response = request.send()
@@ -300,9 +300,9 @@ class ProviderTest {
     fun `get deploy transaction receipt rpc`() {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                     {
                         "id": 0,
                         "jsonrpc": "2.0",
@@ -377,7 +377,7 @@ class ProviderTest {
     @Test
     fun `get pending invoke transaction receipt rpc`() {
         val mockedResponse =
-            """
+                """
         {
             "id": 0,
             "jsonrpc": "2.0",
@@ -414,9 +414,9 @@ class ProviderTest {
 
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                isSuccessful = true,
-                code = 200,
-                body = mockedResponse,
+                    isSuccessful = true,
+                    code = 200,
+                    body = mockedResponse,
             )
         }
 
@@ -432,9 +432,9 @@ class ProviderTest {
     fun `get l1 handler transaction receipt rpc`() {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                     {
                         "id": 0,
                         "jsonrpc": "2.0",
@@ -521,9 +521,9 @@ class ProviderTest {
     fun `get deploy transaction rpc`() {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                     {
                         "id": 0,
                         "jsonrpc": "2.0",
@@ -588,9 +588,9 @@ class ProviderTest {
     fun `get l1 handler transaction rpc`() {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(
-                true,
-                200,
-                """
+                    true,
+                    200,
+                    """
                     {
                         "id": 0,
                         "jsonrpc": "2.0",
@@ -653,19 +653,19 @@ class ProviderTest {
 
         val key = listOf(Felt.fromHex("0x477e157efde59c5531277ede78acb3e03ef69508c6c35fde3495aa0671d227"))
         val invokeTransactionHash = devnetClient.invokeContract(
-            contractAddress = eventsContractAddress,
-            function = "emit_event",
-            calldata = listOf(Felt.ONE), //  0 - static event, 1 - incremental event
+                contractAddress = eventsContractAddress,
+                function = "emit_event",
+                calldata = listOf(Felt.ONE), //  0 - static event, 1 - incremental event
         ).transactionHash
 
         val request = provider.getEvents(
-            GetEventsPayload(
-                fromBlockId = BlockId.Number(0),
-                toBlockId = BlockId.Tag(BlockTag.LATEST),
-                address = eventsContractAddress,
-                keys = listOf(key),
-                chunkSize = 10,
-            ),
+                GetEventsPayload(
+                        fromBlockId = BlockId.Number(0),
+                        toBlockId = BlockId.Tag(BlockTag.LATEST),
+                        address = eventsContractAddress,
+                        keys = listOf(key),
+                        chunkSize = 10,
+                ),
         )
         val response = request.send()
         assertTrue(response.events.isNotEmpty())
@@ -1204,26 +1204,27 @@ class ProviderTest {
     @Test
     fun `batch call contract with block hash and block tag`() {
         val call1 = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "get_balance",
-            calldata = emptyList(),
+                contractAddress = balanceContractAddress,
+                entrypoint = "get_balance",
+                calldata = emptyList(),
         )
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
+
         val call2 = Call(
-            contractAddress = balanceContractAddress,
-            entrypoint = "get_balance",
-            calldata = emptyList(),
+                contractAddress = balanceContractAddress,
+                entrypoint = "get_balance",
+                calldata = emptyList(),
         )
 
         val providerCalls = listOf(
-            provider.callContract(
-                call = call1,
-                blockHash = blockHash,
-            ),
-            provider.callContract(
-                call = call2,
-                blockTag = BlockTag.LATEST,
-            ),
+                provider.callContract(
+                        call = call1,
+                        blockHash = blockHash,
+                ),
+                provider.callContract(
+                        call = call2,
+                        blockTag = BlockTag.LATEST,
+                ),
         )
         val request = provider.sendBatchRequest(providerCalls)
         org.junit.jupiter.api.assertAll({ request.send() })
@@ -1233,5 +1234,21 @@ class ProviderTest {
 
         assertEquals(response[0].first(), expectedBalance)
         assertEquals(response[1].first(), expectedBalance)
+    }
+
+    @Test
+    fun `batch get transactions by block number and index`() {
+        val blockNumber = provider.getBlockNumber().send()
+
+        val request = provider.sendBatchRequest(
+                listOf(
+                        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                        provider.getTransactionByBlockIdAndIndex(blockNumber, 1),
+                ),
+        )
+        val response = request.send()
+
+        assertNotNull(response[0])
+        assertNotNull(response[1])
     }
 }
