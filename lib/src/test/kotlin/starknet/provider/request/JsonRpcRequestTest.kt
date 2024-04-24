@@ -51,5 +51,8 @@ class JsonRpcRequestTest {
 
         assertAll({ response = request.send() })
         assertEquals(response.size, calls.size)
+
+        assert(response[0] is List<Felt>)
+        assert(response[1] is List<Felt>)
     }
 }
