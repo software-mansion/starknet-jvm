@@ -53,7 +53,8 @@ internal fun <T> buildJsonHttpDeserializer(
                 response.body,
             )
 
-        // TODO: Don't throw an exception in case of request with multiple RPC calls
+        // TODO: In case of batch request, exception should not be thrown while checking
+        // each single response. Instead, it should be thrown when accessing specific call with an error.
         if (jsonRpcResponse.error != null) {
             throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
