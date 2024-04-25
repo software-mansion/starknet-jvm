@@ -69,24 +69,24 @@ class JsonRpcProvider(
         calls: List<HttpRequest<T>>,
     ): BatchHttpRequest<T> {
         if (calls.isEmpty()) {
-            throw IllegalArgumentException("List of rpc call cannot be empty")
+            throw IllegalArgumentException("List of rpc calls cannot be empty")
         }
         val updatedJsonObjects = calls.mapIndexed { index, call ->
             val jsonMap = Json.parseToJsonElement(call.payload.body.toString()).jsonObject.toMutableMap()
             jsonMap["id"] = JsonPrimitive(index)
             JsonObject(jsonMap)
         }
-        val body = updatedJsonObjects.joinToString(prefix = "[", postfix = "]") { it.toString() }
 
-        val deserializer = calls.first().deserializer
+        val jsonArray = JsonArray(updatedJsonObjects)
+        val deserializers = calls.map { it.deserializer }
         val payload = HttpService.Payload(
             url,
             "POST",
             emptyList(),
-            body,
+            jsonArray.toString(),
         )
 
-        return BatchHttpRequest(payload, deserializer, httpService)
+        return BatchHttpRequest(payload, deserializers, httpService)
     }
 
     override fun getSpecVersion(): HttpRequest<String> {

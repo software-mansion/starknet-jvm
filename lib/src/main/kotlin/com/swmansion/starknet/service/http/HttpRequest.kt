@@ -26,12 +26,12 @@ class HttpRequest<T>(
 
 class BatchHttpRequest<T>(
     val payload: HttpService.Payload,
-    val deserializer: HttpResponseDeserializer<T>,
+    val deserializers: List<HttpResponseDeserializer<T>>,
     val service: HttpService,
 ) : Request<List<T>> {
     private fun parseResponse(response: HttpResponse): List<T> {
         val responseList = Json.parseToJsonElement(response.body).jsonArray
-        return responseList.map { responseJson ->
+        return responseList.zip(deserializers).map { (responseJson,deserializer) ->
             val deserializedValue = deserializer.apply(HttpResponse(response.isSuccessful, response.code, responseJson.toString()))
             deserializedValue
         }
