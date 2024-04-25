@@ -66,7 +66,7 @@ class JsonRpcProvider(
     }
 
     fun <T> combineBatchRequest(
-        calls: List<HttpRequest<T>>,
+        requests: List<HttpRequest<T>>,
     ): BatchHttpRequest<T> {
         if (calls.isEmpty()) {
             throw IllegalArgumentException("List of rpc calls cannot be empty")
