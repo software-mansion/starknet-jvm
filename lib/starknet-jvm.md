@@ -356,23 +356,6 @@ public class Main {
         
         // Output value's type is Uint256 and is represented by two Felt values
         Uint256 balance = new Uint256(response.get(0), response.get(1));
-        
-        // Create multiple calls
-        Call call1 = new Call(contractAddress, "balanceOf", calldata);
-        Call call2 = new Call(contractAddress, "balanceOf", calldata);
-        Request<List<List<<Felt>>> batchRequest = provider.batchRequests(
-                List.of(
-                        provider.callContract(call1),
-                        provider.callContract(call2)
-                )
-        );
-        
-        // Send the batch call request
-        List<List<Felt>> batchResponse = batchRequest.send();
-        
-        // Access output values from the batch response
-        Uint256 balance1 = new Uint256(batchResponse.get(0).get(0), batchResponse.get(0).get(1));
-        Uint256 balance2 = new Uint256(batchResponse.get(1).get(0), batchResponse.get(1).get(1));
     }
 }
 ```
@@ -410,25 +393,93 @@ fun main(args: Array<String>) {
         low = response[0],
         high = response[1],
     )
+}
+```
 
+## Calling multiple contracts: Fetching ETH balance
+
+### In Java
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.math.BigInteger;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex("0x123");
+        Felt accountAddress = Felt.fromHex("0x1236789");
+        // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
+        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
+
+        // Specify the contract addresses, in this example ETH ERC20 contracts are used
+        Felt contractAddress1 = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
+        Felt contractAddress2 = Felt.fromHex("0x05dcf20d87407f0f7a6bd081a2cee990b19c77ebf31c8b0ddd5a6f931af21e0c");
+        
+        // Create multiple calls
+        List<Felt> calldata = List.of(account.getAddress());
+
+        Call call1 = new Call(contractAddress1, "balanceOf", calldata);
+        Call call2 = new Call(contractAddress2, "balanceOf", calldata);
+        Request<List<List<<Felt>>> request = provider.batchRequests(
+                provider.callContract(call1),
+                provider.callContract(call2)
+        );
+        
+        // Send the batch call request
+        List<List<Felt>> response = request.send();
+        
+        // Access output values from the batch response
+        Uint256 balance1 = new Uint256(response.get(0).get(0), response.get(0).get(1));
+        Uint256 balance2 = new Uint256(response.get(1).get(0), response.get(1).get(1));
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+fun main(args: Array<String>) {
+    // Create a provider for interacting with Starknet
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Set up an account
+    val privateKey = Felt.fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x1236789")
+    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+    val account = StandardAccount(accountAddress, privateKey, provider)
+
+    // Specify the contract addresses, in this example ETH ERC20 contract is used
+    val contractAddress1 = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
+    val contractAddress2 = Felt.fromHex("0x05dcf20d87407f0f7a6bd081a2cee990b19c77ebf31c8b0ddd5a6f931af21e0c")
+    
     // Create multiple calls
+    val calldata = listOf(account.address)
     val call1 = Call(
-            contractAddress = contractAddress,
+            contractAddress = contractAddress1,
             entrypoint = "balanceOf",
             calldata = calldata,
     )
     val call2 = Call(
-            contractAddress = contractAddress,
+            contractAddress = contractAddress2,
             entrypoint = "balanceOf",
             calldata = calldata,
     )
     
     // Create a batch request
     val batchRequest = provider.batchRequests(
-            listOf(
-                    provider.callContract(call1),
-                    provider.callContract(call2),
-            ),
+            provider.callContract(call1),
+            provider.callContract(call2),
     )
     
     // Send the batch call request
