@@ -652,11 +652,6 @@ class JsonRpcProvider(
     }
 }
 
-sealed class JsonRpcRequestResult<T> {
-    data class Success<T>(val value: T) : JsonRpcRequestResult<T>()
-    data class Failure<T>(val error: Throwable) : JsonRpcRequestResult<T>()
-}
-
 private enum class JsonRpcMethod(val methodName: String) {
     GET_SPEC_VERSION("starknet_specVersion"),
     CALL("starknet_call"),
