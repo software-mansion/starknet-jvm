@@ -44,8 +44,8 @@ class ProviderTest {
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
                 balanceContractAddress = devnetClient.deployContract(
-                        classHash = balanceClassHash,
-                        constructorCalldata = listOf(Felt(451)),
+                    classHash = balanceClassHash,
+                    constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
 //                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
 //                invokeTransactionHash = devnetClient.invokeContract(
@@ -1240,10 +1240,10 @@ class ProviderTest {
     fun `batch get transactions by block number and index`() {
         val blockNumber = provider.getBlockNumber().send()
         val request = provider.combineBatchRequest(
-                listOf(
-                        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
-                        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
-                ),
+            listOf(
+                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+            ),
         )
 
         val response = request.send()
