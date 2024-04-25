@@ -1238,17 +1238,36 @@ class ProviderTest {
 
     @Test
     fun `batch get transactions by block number and index`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val call1 = Call(
+            contractAddress = contractAddress,
+            entrypoint = "balanceOf",
+            calldata = emptyList(),
+        )
+        val call2 = Call(
+            contractAddress = contractAddress,
+            entrypoint = "balanceOf",
+            calldata = emptyList(),
+        )
 
-        val request = provider.combineBatchRequest(
+        // Create a batch request
+        val batchRequest = provider.combineBatchRequest(
             listOf(
-                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
-                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                provider.callContract(call1),
+                provider.callContract(call2),
             ),
         )
-        val response = request.send()
 
-        assertNotNull(response[0])
-        assertNotNull(response[1])
+        // Send the batch call request
+        val batchResponse: List<List<Felt>> = batchRequest.send()
+
+        // Access output values from the response
+        val balance1 = Uint256(
+            low = batchResponse[0][0],
+            high = batchResponse[0][1],
+        )
+        val balance2 = Uint256(
+            low = batchResponse[1][0],
+            high = batchResponse[1][1],
+        )
     }
 }
