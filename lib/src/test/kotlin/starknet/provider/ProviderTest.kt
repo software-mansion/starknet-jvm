@@ -38,21 +38,21 @@ class ProviderTest {
         fun before() {
             try {
                 devnetClient.start()
-
-                // Prepare devnet address book
+//
+//                // Prepare devnet address book
                 val declareResult = devnetClient.declareContract("Balance")
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
                 balanceContractAddress = devnetClient.deployContract(
-                    classHash = balanceClassHash,
-                    constructorCalldata = listOf(Felt(451)),
+                        classHash = balanceClassHash,
+                        constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
-                invokeTransactionHash = devnetClient.invokeContract(
-                    contractAddress = balanceContractAddress,
-                    function = "increase_balance",
-                    calldata = listOf(Felt(10)),
-                ).transactionHash
+//                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
+//                invokeTransactionHash = devnetClient.invokeContract(
+//                        contractAddress = balanceContractAddress,
+//                        function = "increase_balance",
+//                        calldata = listOf(Felt(10)),
+//                ).transactionHash
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -1238,36 +1238,17 @@ class ProviderTest {
 
     @Test
     fun `batch get transactions by block number and index`() {
-        val call1 = Call(
-            contractAddress = contractAddress,
-            entrypoint = "balanceOf",
-            calldata = emptyList(),
-        )
-        val call2 = Call(
-            contractAddress = contractAddress,
-            entrypoint = "balanceOf",
-            calldata = emptyList(),
+        val blockNumber = provider.getBlockNumber().send()
+        val request = provider.combineBatchRequest(
+                listOf(
+                        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                ),
         )
 
-        // Create a batch request
-        val batchRequest = provider.combineBatchRequest(
-            listOf(
-                provider.callContract(call1),
-                provider.callContract(call2),
-            ),
-        )
+        val response = request.send()
 
-        // Send the batch call request
-        val batchResponse: List<List<Felt>> = batchRequest.send()
-
-        // Access output values from the response
-        val balance1 = Uint256(
-            low = batchResponse[0][0],
-            high = batchResponse[0][1],
-        )
-        val balance2 = Uint256(
-            low = batchResponse[1][0],
-            high = batchResponse[1][1],
-        )
+        assertNotNull(response[0])
+        assertNotNull(response[1])
     }
 }
