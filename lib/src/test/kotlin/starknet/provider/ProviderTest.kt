@@ -1226,7 +1226,7 @@ class ProviderTest {
                 blockTag = BlockTag.LATEST,
             ),
         )
-        val request = provider.sendBatchRequest(providerCalls)
+        val request = provider.combineBatchRequest(providerCalls)
         org.junit.jupiter.api.assertAll({ request.send() })
 
         val response = request.send()
@@ -1240,7 +1240,7 @@ class ProviderTest {
     fun `batch get transactions by block number and index`() {
         val blockNumber = provider.getBlockNumber().send()
 
-        val request = provider.sendBatchRequest(
+        val request = provider.combineBatchRequest(
             listOf(
                 provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
                 provider.getTransactionByBlockIdAndIndex(blockNumber, 0),

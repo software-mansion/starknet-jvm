@@ -66,7 +66,7 @@ class JsonRpcProvider(
         return HttpRequest(payload, buildJsonHttpDeserializer(responseSerializer, deserializationJson), httpService)
     }
 
-    fun <T> sendBatchRequest(
+    fun <T> combineBatchRequest(
         calls: List<Request<T>>,
     ): BatchHttpRequest<T> {
         val httpRequests = calls.map { it as HttpRequest<T> }
@@ -77,6 +77,7 @@ class JsonRpcProvider(
         }
 
         val jsonArray = JsonArray(updatedJsonObjects)
+        println(jsonArray)
         val deserializer = httpRequests.first().deserializer
         val payload = HttpService.Payload(
             url,
@@ -649,6 +650,11 @@ class JsonRpcProvider(
 
         return simulateTransactions(payload)
     }
+}
+
+sealed class JsonRpcRequestResult<T> {
+    data class Success<T>(val value: T) : JsonRpcRequestResult<T>()
+    data class Failure<T>(val error: Throwable) : JsonRpcRequestResult<T>()
 }
 
 private enum class JsonRpcMethod(val methodName: String) {
