@@ -40,19 +40,19 @@ class ProviderTest {
                 devnetClient.start()
 
                 // Prepare devnet address book
-                val declareResult = devnetClient.declareContract("Balance")
-                balanceClassHash = declareResult.classHash
-                declareTransactionHash = declareResult.transactionHash
-                balanceContractAddress = devnetClient.deployContract(
-                    classHash = balanceClassHash,
-                    constructorCalldata = listOf(Felt(451)),
-                ).contractAddress
-                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
-                invokeTransactionHash = devnetClient.invokeContract(
-                    contractAddress = balanceContractAddress,
-                    function = "increase_balance",
-                    calldata = listOf(Felt(10)),
-                ).transactionHash
+//                val declareResult = devnetClient.declareContract("Balance")
+//                balanceClassHash = declareResult.classHash
+//                declareTransactionHash = declareResult.transactionHash
+//                balanceContractAddress = devnetClient.deployContract(
+//                    classHash = balanceClassHash,
+//                    constructorCalldata = listOf(Felt(451)),
+//                ).contractAddress
+//                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
+//                invokeTransactionHash = devnetClient.invokeContract(
+//                    contractAddress = balanceContractAddress,
+//                    function = "increase_balance",
+//                    calldata = listOf(Felt(10)),
+//                ).transactionHash
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -1243,7 +1243,7 @@ class ProviderTest {
         val request = provider.sendBatchRequest(
             listOf(
                 provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
-                provider.getTransactionByBlockIdAndIndex(blockNumber, 1),
+                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
             ),
         )
         val response = request.send()
