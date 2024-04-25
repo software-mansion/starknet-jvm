@@ -354,8 +354,25 @@ public class Main {
         // Send the call request
         List<Felt> response = request.send();
         
-        //Output value's type is Uint256 and is represented by two Felt values
+        // Output value's type is Uint256 and is represented by two Felt values
         Uint256 balance = new Uint256(response.get(0), response.get(1));
+        
+        // Create multiple calls
+        Call call1 = new Call(contractAddress, "balanceOf", calldata);
+        Call call2 = new Call(contractAddress, "balanceOf", calldata);
+        Request<List<List<<Felt>>> batchRequest = provider.combineBatchRequest(
+                List.of(
+                        provider.callContract(call1),
+                        provider.callContract(call2)
+                )
+        );
+        
+        // Send the batch call request
+        List<List<Felt>> batchResponse = batchRequest.send();
+        
+        // Access output values from the batch response
+        Uint256 balance1 = new Uint256(batchResponse.get(0).get(0), batchResponse.get(0).get(1));
+        Uint256 balance2 = new Uint256(batchResponse.get(1).get(0), batchResponse.get(1).get(1));
     }
 }
 ```
@@ -363,6 +380,9 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
+
+import jdk.vm.ci.code.site.Call
+
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
@@ -392,6 +412,39 @@ fun main(args: Array<String>) {
     val balance = Uint256(
         low = response[0],
         high = response[1],
+    )
+
+    // Create multiple calls
+    val call1 = Call(
+            contractAddress = contractAddress,
+            entrypoint = "balanceOf",
+            calldata = calldata,
+    )
+    val call2 = Call(
+            contractAddress = contractAddress,
+            entrypoint = "balanceOf",
+            calldata = calldata,
+    )
+    
+    // Create a batch request
+    val batchRequest = provider.combineBatchRequest(
+            listOf(
+                    provider.callContract(call1),
+                    provider.callContract(call2),
+            ),
+    )
+    
+    // Send the batch call request
+    val batchResponse: List<List<Felt>> = batchRequest.send()
+    
+    // Access output values from batch the response
+    val balance1 = Uint256(
+            low = batchResponse[0][0],
+            high = batchResponse[0][1],
+    )
+    val balance2 = Uint256(
+            low = batchResponse[1][0],
+            high = batchResponse[1][1],
     )
 }
 ```
