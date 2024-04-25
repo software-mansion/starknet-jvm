@@ -192,7 +192,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses multiple batch call request`() {
+    fun `rpc provider parses batch callContract`() {
         val mockResponse = """
            [
               {
@@ -234,7 +234,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses batch getTransactionStatus request`() {
+    fun `rpc provider parses batch getTransactionStatus`() {
         val mockResponse = """
            [
               {
@@ -274,46 +274,5 @@ class JsonRpcResponseTest {
 
         assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
         assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
-    }
-
-    @Test
-    @Disabled
-    fun `rpc provider parses batch getTransactionStatus with error`() {
-        val mockResponse = """
-           [
-              {
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "SUCCEEDED"
-                },
-                "id": "0"
-              },
-              {
-                "jsonrpc": "2.0",
-                "error": {
-                  "code": 29,
-                  "message": "Transaction hash not found"
-                },
-                "id": "1"
-              }
-            ]
-        """.trimIndent()
-
-        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
-        val txHash2 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8e"
-
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
-        val provider = JsonRpcProvider("", httpServiceMock)
-
-        val request = provider.combineBatchRequest(
-            listOf(provider.getTransactionStatus(Felt.fromHex(txHash1)), provider.getTransactionStatus(Felt.fromHex(txHash2))),
-        )
-        val response = request.send()
-
-        // TODO: Currently when there is >= 1 error in the batch request, an exception is thrown
-        // Instead of this we want to proceed, and when user tries to access specific call with an error, an exception should be thrown
     }
 }
