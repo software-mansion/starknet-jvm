@@ -46,7 +46,6 @@ internal fun <T> buildJsonHttpDeserializer(
                 payload = response.body,
             )
         }
-
         val jsonRpcResponse =
             deserializationJson.decodeFromString(
                 JsonRpcResponse.serializer(deserializationStrategy),
