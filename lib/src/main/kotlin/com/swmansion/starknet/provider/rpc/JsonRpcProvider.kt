@@ -77,7 +77,6 @@ class JsonRpcProvider(
         }
 
         val jsonArray = JsonArray(updatedJsonObjects)
-        println(jsonArray)
         val deserializer = httpRequests.first().deserializer
         val payload = HttpService.Payload(
             url,
