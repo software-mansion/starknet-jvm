@@ -360,7 +360,7 @@ public class Main {
         // Create multiple calls
         Call call1 = new Call(contractAddress, "balanceOf", calldata);
         Call call2 = new Call(contractAddress, "balanceOf", calldata);
-        Request<List<List<<Felt>>> batchRequest = provider.combineBatchRequest(
+        Request<List<List<<Felt>>> batchRequest = provider.batchRequests(
                 List.of(
                         provider.callContract(call1),
                         provider.callContract(call2)
@@ -380,9 +380,6 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-
-import jdk.vm.ci.code.site.Call
-
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
@@ -427,7 +424,7 @@ fun main(args: Array<String>) {
     )
     
     // Create a batch request
-    val batchRequest = provider.combineBatchRequest(
+    val batchRequest = provider.batchRequests(
             listOf(
                     provider.callContract(call1),
                     provider.callContract(call2),
