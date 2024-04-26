@@ -12,20 +12,20 @@ import java.util.function.Function
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
 class HttpRequest<T>(
-        val url: String,
-        val jsonRpcRequest: JsonRpcRequest,
-        val serializer: KSerializer<T>,
-        val deserializationJson: Json,
-        val service: HttpService,
+    val url: String,
+    val jsonRpcRequest: JsonRpcRequest,
+    val serializer: KSerializer<T>,
+    val deserializationJson: Json,
+    val service: HttpService,
 ) : Request<T> {
 
     private fun getPayload(): HttpService.Payload {
         val body = Json.encodeToString(JsonRpcRequest.serializer(), jsonRpcRequest)
         val payload = HttpService.Payload(
-                url,
-                "POST",
-                emptyList(),
-                body,
+            url,
+            "POST",
+            emptyList(),
+            body,
         )
         return payload
     }
@@ -45,11 +45,11 @@ class HttpRequest<T>(
 }
 
 class BatchHttpRequest<T>(
-        val url: String,
-        val jsonRpcRequests: List<JsonRpcRequest>,
-        val responseSerializers: List<KSerializer<T>>,
-        val deserializationJson: Json,
-        val service: HttpService,
+    val url: String,
+    val jsonRpcRequests: List<JsonRpcRequest>,
+    val responseSerializers: List<KSerializer<T>>,
+    val deserializationJson: Json,
+    val service: HttpService,
 ) : Request<List<T>> {
     private fun parseResponse(response: HttpResponse): List<T> {
         val results = buildJsonBatchHttpDeserializer<T>(responseSerializers, deserializationJson).apply(response)
@@ -59,10 +59,10 @@ class BatchHttpRequest<T>(
     private fun getPayload(): HttpService.Payload {
         val body = jsonRpcRequests.map { Json.encodeToString(JsonRpcRequest.serializer(), it) }.toString()
         val payload = HttpService.Payload(
-                url,
-                "POST",
-                emptyList(),
-                body,
+            url,
+            "POST",
+            emptyList(),
+            body,
         )
 
         return payload
