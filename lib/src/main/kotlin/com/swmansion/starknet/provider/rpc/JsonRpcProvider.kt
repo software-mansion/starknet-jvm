@@ -74,9 +74,7 @@ class JsonRpcProvider(
     }
 
     fun <T> batchRequests(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
-        if (requests.isEmpty()) {
-            throw IllegalArgumentException("Please provide requests while creating a batching requests")
-        }
+        require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
 
         return buildBatchRequest(requests)
     }
