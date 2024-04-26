@@ -78,8 +78,8 @@ internal fun <T> buildJsonBatchHttpDeserializer(
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<T>> {
     // TODO: In case of batch request, exception should not be thrown.
-    // Instead, we want to gather results and provide them with a wrapper.
-    // This way could access the results of the successful/error requests.
+    // Instead, we want to return wrapped responses.
+    // This enables access to successful results or encountered errors.
 
     return Function { response ->
         if (!response.isSuccessful) {
