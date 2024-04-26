@@ -30,6 +30,8 @@ jobs:
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.18.1'
           
       # TODO: Replace with installing release when release is available
       - name: Clone starknet-devnet-rs
