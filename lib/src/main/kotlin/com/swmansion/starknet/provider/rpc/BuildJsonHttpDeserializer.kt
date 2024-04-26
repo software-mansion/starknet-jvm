@@ -96,8 +96,6 @@ internal fun <T> buildJsonBatchHttpDeserializer(
             )
         }
 
-        val results = jsonRpcResponses.sortedBy { it.id }.map { extractResult(it, response) }
-
-        results
+        jsonRpcResponses.sortedBy { it.id }.map { extractResult(it, response) }
     }
 }
