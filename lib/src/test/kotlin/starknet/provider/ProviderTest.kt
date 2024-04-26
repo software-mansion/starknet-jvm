@@ -1227,8 +1227,6 @@ class ProviderTest {
             ),
         )
         val request = provider.batchRequests(providerCalls)
-        org.junit.jupiter.api.assertAll({ request.send() })
-
         val response = request.send()
         val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 

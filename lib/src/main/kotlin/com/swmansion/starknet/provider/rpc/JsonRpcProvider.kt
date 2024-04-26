@@ -17,7 +17,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 @Serializable
-private data class JsonRpcRequest(
+data class JsonRpcRequest(
     @SerialName("id")
     val id: Int,
 
