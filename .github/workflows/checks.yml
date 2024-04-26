@@ -29,7 +29,7 @@ jobs:
           java-version: 11
 
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
         with:
           cmake-version: '3.18.1'
           
