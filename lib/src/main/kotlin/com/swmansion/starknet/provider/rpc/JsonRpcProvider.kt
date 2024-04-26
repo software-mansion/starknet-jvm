@@ -17,7 +17,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 
 @Serializable
-data class JsonRpcRequest(
+private data class JsonRpcRequest(
     @SerialName("id")
     val id: Int,
 
@@ -75,7 +75,7 @@ class JsonRpcProvider(
 
     fun <T> batchRequests(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
         if (requests.isEmpty()) {
-            throw IllegalArgumentException("Please provide requests while creating a batching requests")
+            throw IllegalArgumentException("Cannot create a batch request from an empty list of requests.")
         }
 
         return buildBatchRequest(requests)
@@ -83,14 +83,14 @@ class JsonRpcProvider(
 
     fun <T> batchRequests(vararg requests: HttpRequest<T>): BatchHttpRequest<T> {
         if (requests.isEmpty()) {
-            throw IllegalArgumentException("Please provide requests while creating a batching requests")
+            throw IllegalArgumentException("Cannot create a batch request from an empty list of requests.")
         }
 
         return buildBatchRequest(requests.toList())
     }
 
     private fun <T> buildBatchRequest(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
-        val updatedJsonRpcRequests = requests.mapIndexed { index, request ->
+        val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
                 id = index,
                 jsonRpc = "2.0",
@@ -99,7 +99,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return BatchHttpRequest(url, updatedJsonRpcRequests, responseSerializers, deserializationJson, httpService)
+        return BatchHttpRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     override fun getSpecVersion(): HttpRequest<String> {

@@ -41,7 +41,7 @@ private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, response: Htt
         val payload = if (isBatch) {
             Json.encodeToString(jsonRpcResponse)
         } else {
-            jsonRpcResponse.error.data ?: response.body
+            response.body
         }
         throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
