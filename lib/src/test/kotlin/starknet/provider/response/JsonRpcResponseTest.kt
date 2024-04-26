@@ -220,9 +220,9 @@ class JsonRpcResponseTest {
         val provider = JsonRpcProvider("", httpServiceMock)
 
         val call = Call(
-            DevnetClient.ethErc20ContractAddress,
-            Felt.fromHex("0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e"),
-            listOf(Felt.fromHex("0x07f6331182b9bcbf9c1a5943e309c05399a935d170f7f07494cdf7a174cd7527")),
+                DevnetClient.ethErc20ContractAddress,
+                Felt.fromHex("0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e"),
+                listOf(Felt.fromHex("0x07f6331182b9bcbf9c1a5943e309c05399a935d170f7f07494cdf7a174cd7527")),
         )
         val calls = listOf(provider.callContract(call), provider.callContract(call))
         val request = provider.batchRequests(calls)
@@ -263,8 +263,52 @@ class JsonRpcResponseTest {
         val provider = JsonRpcProvider("", httpServiceMock)
 
         val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt.fromHex(txHash1)),
-            provider.getTransactionStatus(Felt.fromHex(txHash2)),
+                provider.getTransactionStatus(Felt.fromHex(txHash1)),
+                provider.getTransactionStatus(Felt.fromHex(txHash2)),
+        )
+        val response = request.send()
+
+        assertEquals(response[0].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[0].executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
+    }
+
+    @Test
+    fun `rpc provider parses batch response with incorrect order`() {
+        val mockResponse = """
+           [
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                },
+                "id": "1"
+              },
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                },
+                "id": "0"
+              }
+            ]
+        """.trimIndent()
+
+        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
+        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequests(
+                provider.getTransactionStatus(Felt.fromHex(txHash1)),
+                provider.getTransactionStatus(Felt.fromHex(txHash2)),
         )
         val response = request.send()
 
