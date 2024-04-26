@@ -29,9 +29,7 @@ jobs:
           java-version: 11
 
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
-        with:
-          cmake-version: '3.16.x'
+        uses: jwlawson/actions-setup-cmake@v2.0.2
           
       # TODO: Replace with installing release when release is available
       - name: Clone starknet-devnet-rs
