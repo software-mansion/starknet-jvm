@@ -10,7 +10,7 @@ import kotlinx.serialization.json.*
 import java.util.function.Function
 
 @Serializable
-internal data class JsonRpcResponse<T>(
+private data class JsonRpcResponse<T>(
     @SerialName("id")
     val id: Int,
 
@@ -36,7 +36,7 @@ internal data class JsonRpcError(
     val data: String? = null,
 )
 
-internal fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, response: HttpResponse): T {
+private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, response: HttpResponse): T {
     if (jsonRpcResponse.error != null) {
         throw RpcRequestFailedException(
             code = jsonRpcResponse.error.code,
