@@ -20,7 +20,7 @@ class HttpRequest<T>(
 ) : Request<T> {
 
     private fun getPayload(): HttpService.Payload {
-        val body = Json.encodeToString(JsonRpcRequest.serializer(), jsonRpcRequest)
+        val body = Json.encodeToString(jsonRpcRequest)
         val payload = HttpService.Payload(
             url,
             "POST",
