@@ -431,6 +431,8 @@ public class Main {
 
         Call call1 = new Call(contractAddress1, "balanceOf", calldata);
         Call call2 = new Call(contractAddress2, "balanceOf", calldata);
+
+        // Create a batch request
         Request<List<List<<Felt>>> request = provider.batchRequests(
                 provider.callContract(call1),
                 provider.callContract(call2)
