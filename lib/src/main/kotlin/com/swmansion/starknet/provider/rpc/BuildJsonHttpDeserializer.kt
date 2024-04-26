@@ -12,7 +12,7 @@ import java.util.function.Function
 @Serializable
 internal data class JsonRpcResponse<T>(
     @SerialName("id")
-    val id: Int,
+    val id: Int = 0,
 
     @SerialName("jsonrpc")
     val jsonRpc: String,
