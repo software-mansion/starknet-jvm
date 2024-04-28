@@ -112,8 +112,6 @@ internal fun <T> buildJsonBatchHttpDeserializer(
             )
         }
 
-        // The Response objects being returned from a batch call may be returned in any order within the array, so
-        // we need to sort the responses by id to match the order of the requests.
         val results = jsonRpcResponses.sortedBy { it.id }.zip(jsonArray)
             .map { (jsonRpcResponse, json) ->
                 val payload = json.toString()
