@@ -12,56 +12,69 @@ import java.util.function.Function
 
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
-class HttpRequest<T>(
-    val url: String,
-    val jsonRpcRequest: JsonRpcRequest,
-    val serializer: KSerializer<T>,
-    val deserializationJson: Json,
-    val service: HttpService,
+class HttpRequest<T> private constructor(
+        private val payload: HttpService.Payload,
+        private val deserializer: HttpResponseDeserializer<T>,
+        private val service: HttpService,
 ) : Request<T> {
+    lateinit var jsonRpcRequest: JsonRpcRequest
+    lateinit var serializer: KSerializer<T>
 
-    private val payload: HttpService.Payload by lazy {
-        val body = Json.encodeToString(jsonRpcRequest)
-        val payload = HttpService.Payload(
-            url,
-            "POST",
-            emptyList(),
-            body,
-        )
-        payload
+    constructor(
+            url: String,
+            jsonRpcRequest: JsonRpcRequest,
+            serializer: KSerializer<T>,
+            deserializationJson: Json,
+            service: HttpService,
+    ) : this(
+            payload = HttpService.Payload(
+                    url,
+                    "POST",
+                    emptyList(),
+                    Json.encodeToString(jsonRpcRequest),
+            ),
+            deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
+            service = service,
+    ) {
+        this.jsonRpcRequest = jsonRpcRequest
+        this.serializer = serializer
     }
 
     override fun send(): T {
-        val deserializer = buildJsonHttpDeserializer(serializer, deserializationJson)
         val response = service.send(payload)
         return deserializer.apply(response)
     }
 
     override fun sendAsync(): CompletableFuture<T> {
-        val deserializer = buildJsonHttpDeserializer(serializer, deserializationJson)
         return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 }
 
-class BatchHttpRequest<T>(
-    val url: String,
-    val jsonRpcRequests: List<JsonRpcRequest>,
-    val responseDeserializers: List<KSerializer<T>>,
-    val deserializationJson: Json,
-    val service: HttpService,
+class BatchHttpRequest<T> private constructor(
+        private val payload: HttpService.Payload,
+        private val deserializer: HttpResponseDeserializer<List<T>>,
+        private val service: HttpService,
 ) : Request<List<T>> {
-    private fun parseResponse(response: HttpResponse): List<T> {
-        val results = buildJsonBatchHttpDeserializer<T>(responseDeserializers, deserializationJson).apply(response)
-        return results
-    }
 
-    private val payload: HttpService.Payload by lazy {
-        HttpService.Payload(
-            url = url,
-            method = "POST",
-            params = emptyList(),
-            body = Json.encodeToString(jsonRpcRequests),
-        )
+    constructor(
+            url: String,
+            jsonRpcRequests: List<JsonRpcRequest>,
+            responseDeserializers: List<KSerializer<T>>,
+            deserializationJson: Json,
+            service: HttpService,
+    ) : this(
+            payload = HttpService.Payload(
+                    url = url,
+                    method = "POST",
+                    params = emptyList(),
+                    body = Json.encodeToString(jsonRpcRequests),
+            ),
+            deserializer = buildJsonBatchHttpDeserializer(responseDeserializers, deserializationJson),
+            service = service,
+    )
+
+    private fun parseResponse(response: HttpResponse): List<T> {
+        return deserializer.apply(response)
     }
 
     override fun send(): List<T> {
