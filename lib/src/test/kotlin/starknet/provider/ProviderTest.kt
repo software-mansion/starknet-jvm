@@ -1240,11 +1240,15 @@ class ProviderTest {
         val request = provider.batchRequests(
             provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
             provider.getTransaction(invokeTransactionHash),
+            provider.getTransaction(declareTransactionHash),
+            provider.getTransaction(deployAccountTransactionHash),
         )
 
         val response = request.send()
 
         assertEquals(response[0].hash, invokeTransactionHash)
         assertEquals(response[1].hash, invokeTransactionHash)
+        assertEquals(response[2].hash, declareTransactionHash)
+        assertEquals(response[3].hash, deployAccountTransactionHash)
     }
 }
