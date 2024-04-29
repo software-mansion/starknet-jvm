@@ -56,15 +56,12 @@ class BatchHttpRequest<T>(
     }
 
     private val payload: HttpService.Payload by lazy {
-        val body = Json.encodeToString(jsonRpcRequests)
-        val payload = HttpService.Payload(
-            url,
-            "POST",
-            emptyList(),
-            body,
+        HttpService.Payload(
+            url = url,
+            method = "POST",
+            params = emptyList(),
+            body = Json.encodeToString(jsonRpcRequest),
         )
-
-        payload
     }
 
     override fun send(): List<T> {
