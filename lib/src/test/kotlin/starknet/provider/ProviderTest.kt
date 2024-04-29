@@ -1249,7 +1249,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `batch get transactions with polymorphic serializers`() {
+    fun `batch get transactions`() {
         val blockNumber = provider.getBlockNumber().send()
         val request = provider.batchRequests(
             provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
