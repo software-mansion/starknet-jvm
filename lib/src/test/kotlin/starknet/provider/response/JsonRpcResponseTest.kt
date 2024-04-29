@@ -221,8 +221,8 @@ class JsonRpcResponseTest {
 
         val call = Call(
             DevnetClient.ethErc20ContractAddress,
-            Felt.fromHex("0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e"),
-            listOf(Felt.fromHex("0x07f6331182b9bcbf9c1a5943e309c05399a935d170f7f07494cdf7a174cd7527")),
+            Felt.ZERO,
+            listOf(Felt.ZERO),
         )
         val calls = listOf(provider.callContract(call), provider.callContract(call))
         val request = provider.batchRequests(calls)

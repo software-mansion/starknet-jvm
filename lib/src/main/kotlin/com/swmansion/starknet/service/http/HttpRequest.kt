@@ -60,7 +60,7 @@ class BatchHttpRequest<T>(
             url = url,
             method = "POST",
             params = emptyList(),
-            body = Json.encodeToString(jsonRpcRequest),
+            body = Json.encodeToString(jsonRpcRequests),
         )
     }
 
