@@ -88,11 +88,11 @@ internal fun <T> buildJsonBatchHttpDeserializer(
         }
 
         val jsonArray = Json.parseToJsonElement(response.body).jsonArray
-        val jsonRpcResponses = deserializationStrategies.mapIndexed { index, strategy ->
-            deserializationJson.decodeFromString(
-                JsonRpcResponse.serializer(strategy),
-                jsonArray[index].toString(),
+        val responses = jsonArray.map {
+            deserializationJson.decodeFromJsonElement(
+                JsonRpcResponse.serializer(deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]), it,
             )
+        }
         }
 
         val results = jsonRpcResponses.sortedBy { it.id }.zip(jsonArray)
