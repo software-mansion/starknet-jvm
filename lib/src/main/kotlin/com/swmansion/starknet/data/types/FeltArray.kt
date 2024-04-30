@@ -8,7 +8,7 @@ data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldat
     constructor() : this(emptyList())
 
     override fun toCalldata(): List<Felt> {
-        val arraySize = Felt(list.size.toBigInteger())
-        return listOf(arraySize) + list
+        val arrayLength = Felt(list.size.toBigInteger())
+        return listOf(arrayLength) + list
     }
 }
