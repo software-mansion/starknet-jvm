@@ -52,24 +52,24 @@ internal class NumAsHexBaseTests {
     @Test
     fun `numbers to string`() {
         assertEquals(
-                "Felt(0xabcdef01234567890)",
-                Felt.fromHex("0xabcdef01234567890").toString(),
+            "Felt(0xabcdef01234567890)",
+            Felt.fromHex("0xabcdef01234567890").toString(),
         )
         assertEquals(
-                "NumAsHex(0xabcdef01234567890)",
-                NumAsHex.fromHex("0xabcdef01234567890").toString(),
+            "NumAsHex(0xabcdef01234567890)",
+            NumAsHex.fromHex("0xabcdef01234567890").toString(),
         )
         assertEquals(
-                "Uint64(0x1234567890abcdef)",
-                Uint64.fromHex("0x1234567890abcdef").toString(),
+            "Uint64(0x1234567890abcdef)",
+            Uint64.fromHex("0x1234567890abcdef").toString(),
         )
         assertEquals(
-                "Uint128(0xabcdef01234567890)",
-                Uint128.fromHex("0xabcdef01234567890").toString(),
+            "Uint128(0xabcdef01234567890)",
+            Uint128.fromHex("0xabcdef01234567890").toString(),
         )
         assertEquals(
-                "Uint256(58462017464642449753835857636044240746640)",
-                Uint256.fromHex("0xabcdef01234567890abcdef01234567890").toString(),
+            "Uint256(58462017464642449753835857636044240746640)",
+            Uint256.fromHex("0xabcdef01234567890abcdef01234567890").toString(),
         )
     }
 
@@ -132,20 +132,20 @@ internal class NumAsHexBaseTests {
         @Test
         fun `from signed integer`() {
             assertEquals(
-                    Felt.MAX.toFelt,
-                    Felt.fromSigned(-1),
+                Felt.MAX.toFelt,
+                Felt.fromSigned(-1),
             )
             assertEquals(
-                    Felt.ONE,
-                    Felt.fromSigned(-Felt.MAX),
+                Felt.ONE,
+                Felt.fromSigned(-Felt.MAX),
             )
             assertEquals(
-                    (Felt.PRIME - Int.MAX_VALUE.toBigInteger()).toFelt,
-                    Felt.fromSigned(-Int.MAX_VALUE),
+                (Felt.PRIME - Int.MAX_VALUE.toBigInteger()).toFelt,
+                Felt.fromSigned(-Int.MAX_VALUE),
             )
             assertEquals(
-                    (Felt.PRIME - Long.MAX_VALUE.toBigInteger()).toFelt,
-                    Felt.fromSigned(-Long.MAX_VALUE),
+                (Felt.PRIME - Long.MAX_VALUE.toBigInteger()).toFelt,
+                Felt.fromSigned(-Long.MAX_VALUE),
             )
 
             assertEquals(Felt.ZERO, Felt.fromSigned(0))
