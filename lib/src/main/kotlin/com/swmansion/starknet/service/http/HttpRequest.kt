@@ -13,33 +13,33 @@ import java.util.function.Function
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
 class HttpRequest<T> private constructor(
-        val jsonRpcRequest: JsonRpcRequest,
-        val serializer: KSerializer<T>,
-        private val payload: Lazy<HttpService.Payload>,
-        private val deserializer: HttpResponseDeserializer<T>,
-        private val service: HttpService,
+    val jsonRpcRequest: JsonRpcRequest,
+    val serializer: KSerializer<T>,
+    private val payload: Lazy<HttpService.Payload>,
+    private val deserializer: HttpResponseDeserializer<T>,
+    private val service: HttpService,
 ) : Request<T> {
 
     constructor(
-            url: String,
-            jsonRpcRequest: JsonRpcRequest,
-            serializer: KSerializer<T>,
-            deserializationJson: Json,
-            service: HttpService,
+        url: String,
+        jsonRpcRequest: JsonRpcRequest,
+        serializer: KSerializer<T>,
+        deserializationJson: Json,
+        service: HttpService,
     ) : this(
-            jsonRpcRequest = jsonRpcRequest,
-            serializer = serializer,
-            payload = lazy {
-                HttpService.Payload(
-                        url,
-                        "POST",
-                        emptyList(),
-                        Json.encodeToString(jsonRpcRequest),
-                )
-            },
+        jsonRpcRequest = jsonRpcRequest,
+        serializer = serializer,
+        payload = lazy {
+            HttpService.Payload(
+                url,
+                "POST",
+                emptyList(),
+                Json.encodeToString(jsonRpcRequest),
+            )
+        },
 
-            deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
-            service = service,
+        deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
+        service = service,
     )
 
     override fun send(): T {
@@ -53,26 +53,26 @@ class HttpRequest<T> private constructor(
 }
 
 class BatchHttpRequest<T> private constructor(
-        private val payload: HttpService.Payload,
-        private val deserializer: HttpResponseDeserializer<List<T>>,
-        private val service: HttpService,
+    private val payload: HttpService.Payload,
+    private val deserializer: HttpResponseDeserializer<List<T>>,
+    private val service: HttpService,
 ) : Request<List<T>> {
 
     constructor(
-            url: String,
-            jsonRpcRequests: List<JsonRpcRequest>,
-            responseDeserializers: List<KSerializer<T>>,
-            deserializationJson: Json,
-            service: HttpService,
+        url: String,
+        jsonRpcRequests: List<JsonRpcRequest>,
+        responseDeserializers: List<KSerializer<T>>,
+        deserializationJson: Json,
+        service: HttpService,
     ) : this(
-            HttpService.Payload(
-                    url = url,
-                    method = "POST",
-                    params = emptyList(),
-                    body = Json.encodeToString(jsonRpcRequests),
-            ),
-            deserializer = buildJsonBatchHttpDeserializer(responseDeserializers, deserializationJson),
-            service = service,
+        HttpService.Payload(
+            url = url,
+            method = "POST",
+            params = emptyList(),
+            body = Json.encodeToString(jsonRpcRequests),
+        ),
+        deserializer = buildJsonBatchHttpDeserializer(responseDeserializers, deserializationJson),
+        service = service,
     )
 
     override fun send(): List<T> {
