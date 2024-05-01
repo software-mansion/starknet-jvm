@@ -54,9 +54,9 @@ class HttpRequest<T> private constructor(
 
 class BatchHttpRequest<T> private constructor(
     private val payload: HttpService.Payload,
-    private val deserializer: HttpResponseDeserializer<List<T>>,
+    private val deserializer: HttpResponseDeserializer<List<Result<T>>>,
     private val service: HttpService,
-) : Request<List<T>> {
+) : Request<List<Result<T>>> {
 
     constructor(
         url: String,
@@ -75,12 +75,12 @@ class BatchHttpRequest<T> private constructor(
         service = service,
     )
 
-    override fun send(): List<T> {
+    override fun send(): List<Result<T>> {
         val response = service.send(payload)
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<List<T>> {
+    override fun sendAsync(): CompletableFuture<List<Result<T>>> {
         return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 }

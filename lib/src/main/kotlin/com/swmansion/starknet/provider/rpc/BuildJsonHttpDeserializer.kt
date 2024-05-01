@@ -35,20 +35,22 @@ internal data class JsonRpcError(
     val data: String? = null,
 )
 
-private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload: String, payload: String = totalPayload): T {
+private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload: String, payload: String): Result<T> {
     if (jsonRpcResponse.error != null) {
-        throw RpcRequestFailedException(
-            code = jsonRpcResponse.error.code,
-            message = jsonRpcResponse.error.message,
-            data = jsonRpcResponse.error.data,
-            payload = payload,
+        return Result.failure(
+            RpcRequestFailedException(
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                data = jsonRpcResponse.error.data,
+                payload = payload,
+            ),
         )
     }
 
     if (jsonRpcResponse.result == null) {
-        throw RequestFailedException(message = "Response did not contain a result", payload = totalPayload)
+        return Result.failure(RequestFailedException(message = "Response did not contain a result", payload = totalPayload))
     }
-    return jsonRpcResponse.result
+    return Result.success(jsonRpcResponse.result)
 }
 
 @JvmSynthetic
@@ -68,18 +70,26 @@ internal fun <T> buildJsonHttpDeserializer(
                 response.body,
             )
 
-        extractResult(jsonRpcResponse, response.body)
+        if (jsonRpcResponse.error != null) {
+            throw RpcRequestFailedException(
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                data = jsonRpcResponse.error.data,
+                payload = response.body,
+            )
+        }
+
+        if (jsonRpcResponse.result == null) {
+            throw RequestFailedException(message = "Response did not contain a result", payload = response.body)
+        }
+        jsonRpcResponse.result
     }
 }
 
 internal fun <T> buildJsonBatchHttpDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<T>> {
-    // TODO: In case of batch request, exception should not be thrown.
-    // Instead, we want to return wrapped responses.
-    // This enables access to successful results or encountered errors.
-
+): HttpResponseDeserializer<List<Result<T>>> {
     return Function { response ->
         if (!response.isSuccessful) {
             throw RequestFailedException(
