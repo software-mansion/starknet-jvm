@@ -1230,8 +1230,8 @@ class ProviderTest {
         val response = request.send()
         val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
-        assertEquals(response[0].first(), expectedBalance)
-        assertEquals(response[1].first(), expectedBalance)
+        assertEquals(response[0].getOrThrow().first(), expectedBalance)
+        assertEquals(response[1].getOrThrow().first(), expectedBalance)
     }
 
     @Test
@@ -1242,13 +1242,14 @@ class ProviderTest {
             provider.getTransaction(invokeTransactionHash),
             provider.getTransaction(declareTransactionHash),
             provider.getTransaction(deployAccountTransactionHash),
+
         )
 
         val response = request.send()
 
-        assertEquals(response[0].hash, invokeTransactionHash)
-        assertEquals(response[1].hash, invokeTransactionHash)
-        assertEquals(response[2].hash, declareTransactionHash)
-        assertEquals(response[3].hash, deployAccountTransactionHash)
+        assertEquals(response[0].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[1].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[2].getOrThrow().hash, declareTransactionHash)
+        assertEquals(response[3].getOrThrow().hash, deployAccountTransactionHash)
     }
 }

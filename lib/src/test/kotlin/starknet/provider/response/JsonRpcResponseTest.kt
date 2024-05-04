@@ -236,20 +236,20 @@ class JsonRpcResponseTest {
         val mockResponse = """
            [
               {
+                "id": "0",
                 "jsonrpc": "2.0",
                 "result": {
                   "finality_status": "ACCEPTED_ON_L2",
                   "execution_status": "SUCCEEDED"
-                },
-                "id": "0"
+                }
               },
               {
+                "id": "1",
                 "jsonrpc": "2.0",
                 "result": {
                   "finality_status": "ACCEPTED_ON_L2",
                   "execution_status": "REVERTED"
-                },
-                "id": "1"
+                }
               }
             ]
         """.trimIndent()
@@ -268,11 +268,11 @@ class JsonRpcResponseTest {
         )
         val response = request.send()
 
-        assertEquals(response[0].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[0].executionStatus, TransactionExecutionStatus.SUCCEEDED)
+        assertEquals(response[0].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[0].getOrThrow().executionStatus, TransactionExecutionStatus.SUCCEEDED)
 
-        assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
+        assertEquals(response[1].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[1].getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
     }
 
     @Test
@@ -280,20 +280,20 @@ class JsonRpcResponseTest {
         val mockResponse = """
            [
               {
+                "id": "1",
                 "jsonrpc": "2.0",
                 "result": {
                   "finality_status": "ACCEPTED_ON_L2",
                   "execution_status": "REVERTED"
-                },
-                "id": "1"
+                }
               },
               {
+                "id": "0",
                 "jsonrpc": "2.0",
                 "result": {
                   "finality_status": "ACCEPTED_ON_L2",
                   "execution_status": "SUCCEEDED"
-                },
-                "id": "0"
+                }
               }
             ]
         """.trimIndent()
@@ -312,10 +312,10 @@ class JsonRpcResponseTest {
         )
         val response = request.send()
 
-        assertEquals(response[0].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[0].executionStatus, TransactionExecutionStatus.SUCCEEDED)
+        assertEquals(response[0].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[0].getOrThrow().executionStatus, TransactionExecutionStatus.SUCCEEDED)
 
-        assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
+        assertEquals(response[1].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[1].getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
     }
 }
