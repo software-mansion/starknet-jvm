@@ -1,8 +1,6 @@
 package starknet.provider.response
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -225,7 +223,7 @@ class JsonRpcResponseTest {
             listOf(Felt.ZERO),
         )
         val calls = listOf(provider.callContract(call), provider.callContract(call))
-        val request = provider.batchRequests(calls)
+        val request = provider.batchRequestsWithMultipleTypes(calls)
         val response = request.send()
 
         assertEquals(response.size, calls.size)
@@ -262,17 +260,19 @@ class JsonRpcResponseTest {
         }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequests(
+        val request = provider.batchRequestsWithMultipleTypes(
             provider.getTransactionStatus(Felt.fromHex(txHash1)),
             provider.getTransactionStatus(Felt.fromHex(txHash2)),
         )
         val response = request.send()
+        val txStatusResponse1 = response[0].getOrThrow() as GetTransactionStatusResponse
+        val txStatusResponse2 = response[1].getOrThrow() as GetTransactionStatusResponse
 
-        assertEquals(response[0].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[0].getOrThrow().executionStatus, TransactionExecutionStatus.SUCCEEDED)
+        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
 
-        assertEquals(response[1].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[1].getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
+        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
     }
 
     @Test
@@ -306,16 +306,66 @@ class JsonRpcResponseTest {
         }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequests(
+        val request = provider.batchRequestsWithMultipleTypes(
             provider.getTransactionStatus(Felt.fromHex(txHash1)),
             provider.getTransactionStatus(Felt.fromHex(txHash2)),
         )
         val response = request.send()
 
-        assertEquals(response[0].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[0].getOrThrow().executionStatus, TransactionExecutionStatus.SUCCEEDED)
+        val txStatusResponse1 = response[0].getOrThrow() as GetTransactionStatusResponse
+        val txStatusResponse2 = response[1].getOrThrow() as GetTransactionStatusResponse
 
-        assertEquals(response[1].getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(response[1].getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
+        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
+    }
+
+    @Test
+    fun `rpc provider parses batch response with multiple request types`() {
+        val mockResponse = """
+           [
+              {
+                "id": "0",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                }
+              },
+              {
+                "id": "1",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                }
+              }
+            ]
+        """.trimIndent()
+
+        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
+        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequestsWithMultipleTypes(
+            provider.getTransactionStatus(Felt.fromHex(txHash1)),
+            provider.getTransactionStatus(Felt.fromHex(txHash2)),
+        )
+        val response = request.send()
+
+        val txStatusResponse1 = response[0].getOrThrow() as GetTransactionStatusResponse
+        val txStatusResponse2 = response[1].getOrThrow() as GetTransactionStatusResponse
+
+        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
     }
 }

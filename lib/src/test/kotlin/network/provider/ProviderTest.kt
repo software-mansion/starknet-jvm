@@ -1,7 +1,6 @@
 package network.provider
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
@@ -93,9 +92,9 @@ class ProviderTest {
         val request = provider.getSpecVersion()
         val specVersion = request.send()
 
-        assertNotEquals(0, specVersion.length)
+        assertNotEquals(0, specVersion.value.length)
         val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
-        assertTrue(validPattern.containsMatchIn(specVersion))
+        assertTrue(validPattern.containsMatchIn(specVersion.value))
     }
 
     @Test
