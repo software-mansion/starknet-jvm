@@ -1,12 +1,7 @@
 package com.swmansion.starknet.data.types.transactions
 
 import com.swmansion.starknet.data.serializers.TransactionTracePolymorphicSerializer
-import com.swmansion.starknet.data.types.Calldata
-import com.swmansion.starknet.data.types.EstimateFeeResponse
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.OrderedEvent
-import com.swmansion.starknet.data.types.OrderedMessageL2ToL1
-import com.swmansion.starknet.data.types.StateDiff
+import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -175,13 +170,13 @@ data class DeployAccountTransactionTrace(
 
 @Serializable
 data class L1HandlerTransactionTrace(
-    @SerialName("function_invocation")
+        @SerialName("function_invocation")
     val functionInvocation: FunctionInvocation,
 
-    @SerialName("state_diff")
+        @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
 
-    @SerialName("type")
+        @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : TransactionTrace()
 
