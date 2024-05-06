@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
 @Serializable(with = FeltSerializer::class)
-data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata {
+data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata, HttpBatchRequestType {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 

@@ -1,8 +1,6 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -19,7 +17,7 @@ data class CallContractResponse(
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt,
-)
+) : HttpBatchRequestType
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -29,7 +27,7 @@ data class DeclareResponse(
 
     @JsonNames("class_hash")
     val classHash: Felt,
-)
+) : HttpBatchRequestType
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -40,7 +38,7 @@ data class DeployAccountResponse(
     // TODO: (#344) deviation from the spec, make this non-nullable once Juno is updated
     @JsonNames("address", "contract_address")
     val address: Felt? = null,
-)
+) : HttpBatchRequestType
 
 @Serializable
 data class EstimateFeeResponse(
@@ -62,7 +60,7 @@ data class EstimateFeeResponse(
     // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
-) {
+) : HttpBatchRequestType {
     /**
      * Convert estimated fee to max fee with applied multiplier.
      *
@@ -118,19 +116,19 @@ data class GetBlockHashAndNumberResponse(
 
     @JsonNames("block_number")
     val blockNumber: Int,
-)
+) : HttpBatchRequestType
 
 @Serializable
 data class GetTransactionStatusResponse(
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     val finalityStatus: TransactionStatus,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
-)
+) : HttpBatchRequestType
 
 @Serializable
-sealed class Syncing {
+sealed class Syncing : HttpBatchRequestType {
     abstract val status: Boolean
 
     abstract val startingBlockHash: Felt
@@ -266,7 +264,7 @@ data class ReplacedClassItem(
 )
 
 @Serializable
-sealed class StateUpdate {
+sealed class StateUpdate : HttpBatchRequestType {
     abstract val oldRoot: Felt
     abstract val stateDiff: StateDiff
 }

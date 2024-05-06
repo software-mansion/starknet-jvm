@@ -4,7 +4,7 @@ import com.swmansion.starknet.data.serializers.StarknetChainIdSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = StarknetChainIdSerializer::class)
-data class StarknetChainId(val value: Felt) {
+data class StarknetChainId(val value: Felt) : HttpBatchRequestType {
     companion object {
         @field:JvmField
         val MAIN = StarknetChainId(Felt.fromHex("0x534e5f4d41494e")) // encodeShortString('SN_MAIN'),

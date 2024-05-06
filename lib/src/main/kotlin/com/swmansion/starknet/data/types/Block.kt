@@ -3,8 +3,6 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
-import com.swmansion.starknet.data.types.transactions.Transaction
-import com.swmansion.starknet.data.types.transactions.TransactionReceipt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -33,7 +31,7 @@ sealed class BlockId {
 
     data class Number(
         val blockNumber: Int,
-    ) : BlockId()
+    )  : BlockId()
 
     data class Tag(
         val blockTag: BlockTag,
@@ -43,8 +41,7 @@ sealed class BlockId {
         }
     }
 }
-
-sealed interface Block {
+sealed interface Block : HttpBatchRequestType {
     val timestamp: Int
     val sequencerAddress: Felt
     val parentHash: Felt
@@ -152,11 +149,11 @@ data class PendingBlockWithTransactions(
 
 @Serializable
 data class TransactionWithReceipt(
-    @Serializable(with = TransactionPolymorphicSerializer::class)
+        @Serializable(with = TransactionPolymorphicSerializer::class)
     @SerialName("transaction")
     val transaction: Transaction,
 
-    @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
+        @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
     @SerialName("receipt")
     val receipt: TransactionReceipt,
 )

@@ -264,7 +264,7 @@ data class CasmContractDefinition @JvmOverloads constructor(
     }
 }
 
-sealed class ContractClassBase
+sealed class ContractClassBase : HttpBatchRequestType
 
 @Serializable
 data class DeprecatedContractClass(
