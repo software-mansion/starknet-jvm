@@ -101,7 +101,7 @@ public class Main {
         TransactionReceipt declareReceipt = declareReceiptRequest.send();
         System.out.println("Was declare v3 transaction accepted? " + declareReceipt.isAccepted() + ".");
 
-        // Deploy a contract with Universal Deployer Contract (for both cairo 1 and cairo 0 contracts)
+        // Deploy a contract with Universal Deployer Contract
         Felt initialBalance = new Felt(500);
         List<Felt> constructorCalldata = List.of(initialBalance);
         DeployContractResult deployContractResult = deployContract(account, provider, contractClassHash, constructorCalldata);

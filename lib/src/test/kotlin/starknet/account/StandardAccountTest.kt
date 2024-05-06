@@ -222,35 +222,6 @@ class StandardAccountTest {
     @Nested
     inner class DeclareEstimateTest {
         @Test
-        fun `estimate fee for declare v1 transaction`() {
-            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-            val contractDefinition = Cairo0ContractDefinition(contractCode)
-            val nonce = account.getNonce().send()
-
-            // Note to future developers experiencing failures in this test. Compiled contract format sometimes
-            // changes, this causes changes in the class hash.
-            // If this test starts randomly falling, try recalculating class hash.
-            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-            val declareTransactionPayload = account.signDeclareV1(
-                contractDefinition = contractDefinition,
-                classHash = classHash,
-                params = ExecutionParams(nonce, Felt.ZERO),
-                forFeeEstimate = true,
-            )
-
-            assertEquals(TransactionVersion.V1_QUERY, declareTransactionPayload.version)
-
-            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
-            val feeEstimate = request.send().first()
-
-            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value,
-            )
-        }
-
-        @Test
         fun `estimate fee for declare v2 transaction`() {
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
@@ -310,22 +281,19 @@ class StandardAccountTest {
 
     @Test
     fun `estimate message fee`() {
-        // Note to future developers experiencing failures in this test.
-        // Compiled contract format sometimes changes, this causes changes in the class hash.
-        // If this test starts randomly falling, try recalculating class hash.
+        val l1l2ContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
+        val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
 
-        // TODO: Migrate l1l2 contract to Cairo 1.
-        val l1l2ContractCode = Path.of("src/test/resources/contracts_v0/target/release/l1l2.json").readText()
-        val l1l2ContractDefinition = Cairo0ContractDefinition(l1l2ContractCode)
-        val classHash = Felt.fromHex("0x310b77cf1190f2555fca715a990f9ff9f5c42e1b30b42cc3fdb573b8ab95fc1")
+        val l1l2ContractDefinition = Cairo2ContractDefinition(l1l2ContractCode)
+        val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
         val nonce = account.getNonce().send()
-        val declareTransactionPayload = account.signDeclareV1(l1l2ContractDefinition, classHash, ExecutionParams(nonce, Felt(1000000000000000)))
+
+        val declareTransactionPayload = account.signDeclareV2(l1l2ContractDefinition, l1l2CasmContractDefinition, ExecutionParams(nonce, Felt(10000000000000000)))
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
             classHash = l2ContractClassHash,
             constructorCalldata = listOf(),
         ).contractAddress
-
         val l1Address = Felt.fromHex("0x8359E4B0152ed5A731162D3c7B0D8D56edB165A0")
         val user = Felt.ONE
         val amount = Felt(1000)
@@ -352,33 +320,6 @@ class StandardAccountTest {
 
     @Nested
     inner class DeclareTest {
-        @Test
-        fun `sign and send declare v1 transaction`() {
-            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-            val contractDefinition = Cairo0ContractDefinition(contractCode)
-            val nonce = account.getNonce().send()
-
-            // Note to future developers experiencing failures in this test.
-            // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-            // If this test starts randomly falling, try recalculating class hash.
-            // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-            // Chances are, the contract was compiled with a different compiler version.
-
-            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-            val declareTransactionPayload = account.signDeclareV1(
-                contractDefinition,
-                classHash,
-                ExecutionParams(nonce, Felt(1000000000000000L)),
-            )
-
-            val request = provider.declareContract(declareTransactionPayload)
-            val result = request.send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
         @Test
         fun `sign and send declare v2 transaction`() {
             devnetClient.prefundAccountEth(accountAddress)
@@ -1221,38 +1162,6 @@ class StandardAccountTest {
             assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
             assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
             assertTrue(simulationResult[1].transactionTrace is DeployAccountTransactionTrace)
-        }
-
-        @Test
-        fun `simulate declare v1 transaction`() {
-            val contractCode = Path.of("src/test/resources/contracts_v0/target/release/balance.json").readText()
-            val contractDefinition = Cairo0ContractDefinition(contractCode)
-            val nonce = account.getNonce().send()
-
-            // Note to future developers experiencing failures in this test.
-            // 1. Compiled contract format sometimes changes, this causes changes in the class hash.
-            // If this test starts randomly falling, try recalculating class hash.
-            // 2. If it fails on CI, make sure to delete the compiled contracts before running this test.
-            // Chances are, the contract was compiled with a different compiler version.
-
-            val classHash = Felt.fromHex("0x6d5c6e633015a1cb4637233f181a9bb9599be26ff16a8ce335822b41f98f70b")
-            val declareTransactionPayload = account.signDeclareV1(
-                contractDefinition,
-                classHash,
-                ExecutionParams(
-                    nonce = nonce,
-                    maxFee = Felt(1000000000000000L),
-                ),
-            )
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = provider.simulateTransactions(
-                transactions = listOf(declareTransactionPayload),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-            assertEquals(1, simulationResult.size)
-            val trace = simulationResult.first().transactionTrace
-            assertTrue(trace is DeclareTransactionTrace)
         }
 
         @Test

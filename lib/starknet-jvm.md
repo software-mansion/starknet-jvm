@@ -226,7 +226,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Invoking contract: Transfering ETH
+## Invoking contract: Transferring ETH
 
 ### In Java
 
@@ -393,111 +393,6 @@ fun main(args: Array<String>) {
         low = response[0],
         high = response[1],
     )
-}
-```
-
-## Declaring Cairo 0 contract
-
-### In Java
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV1Payload;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
-
-        // Import a compiled contract
-        Path contractPath = Paths.get("contract.json");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        Cairo0ContractDefinition contractDefinition = new Cairo0ContractDefinition(contractCode);
-        // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-        Felt classHash = Felt.fromHex("0x1a3b2c");
-        Felt nonce = account.getNonce().send();
-
-        // Estimate fee for declaring a contract
-        DeclareTransactionV1Payload declareTransactionPayloadForFeeEstimate = account.signDeclare(contractDefinition, classHash, new ExecutionParams(nonce, new Felt(1000000000000000L)), false);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        Felt feeEstimate = feeEstimateRequest.send().get(0).getOverallFee();
-        // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-        // Declare a contract
-        Felt maxFee = new Felt(feeEstimate.getValue().multiply(BigInteger.TWO)); // Sometimes the actual fee may be higher than value from estimateFee
-        ExecutionParams params = new ExecutionParams(nonce, maxFee);
-        DeclareTransactionV1Payload declareTransactionPayload = account.signDeclare(contractDefinition, classHash, params, false);
-
-        Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
-        DeclareResponse response = request.send();
-        Felt hash = response.getTransactionHash(); // Hash of the transaction that declares a contract
-    }
-}
-```
-
-### In Kotlin
-
-```kotlin
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-
-    // Set up an account
-    val privateKey = Felt.fromHex("0x123")
-    val accountAddress = Felt.fromHex("0x1236789")
-    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
-
-    // Import a compiled contract
-    val contractCode = Path.of("contract.json").readText()
-    val contractDefinition = Cairo0ContractDefinition(contractCode)
-    // Class hash is calculated using the tools you used for compilation (only for Cairo v0 contracts)
-    val classHash = Felt.fromHex("0x1a3b2c")
-    val nonce = account.getNonce().send()
-
-    // Estimate fee for declaring a contract
-    val declareTransactionPayloadForFeeEstimate = account.signDeclare(
-        contractDefinition = contractDefinition,
-        classHash = classHash,
-        params = ExecutionParams(nonce, Felt(1000000000000000L)),
-        forFeeEstimate = true,
-    )
-    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
-    val feeEstimate = feeEstimateRequest.send().first().overallFee
-    // Make sure to prefund the account with enough funds to cover the fee for declare transaction
-
-    // Declare a contract
-    val maxFee = Felt(feeEstimate.value.multiply(BigInteger.TWO)) // Sometimes the actual fee may be higher than value from estimateFee
-    val params = ExecutionParams(
-            nonce = nonce,
-            maxFee = maxFee,
-    )
-    val declareTransactionPayload = account.signDeclare(
-        contractDefinition = contractDefinition,
-        classHash = classHash,
-        params = params,
-    )
-
-    val request = provider.declareContract(declareTransactionPayload)
-    val response = request.send()
 }
 ```
 
