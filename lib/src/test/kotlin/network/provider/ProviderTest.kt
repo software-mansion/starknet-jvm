@@ -90,11 +90,11 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val request = provider.getSpecVersion()
-        val specVersion = request.send()
+        val specVersion = request.send().value
 
-        assertNotEquals(0, specVersion.value.length)
+        assertNotEquals(0, specVersion.length)
         val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
-        assertTrue(validPattern.containsMatchIn(specVersion.value))
+        assertTrue(validPattern.containsMatchIn(specVersion))
     }
 
     @Test
