@@ -179,17 +179,12 @@ data class TypedData private constructor(
     ) {
         @Transient
         val resolvedRevision = revision?.let {
-            // Allow both string and integer values for revision
-            lenientJson.decodeFromJsonElement<Revision>(it)
+            Json.decodeFromJsonElement<Revision>(it)
         } ?: Revision.V0
 
         internal val separatorName = when (resolvedRevision) {
             Revision.V0 -> "StarkNetDomain"
             Revision.V1 -> "StarknetDomain"
-        }
-
-        companion object {
-            private val lenientJson = Json { isLenient = true }
         }
     }
 
