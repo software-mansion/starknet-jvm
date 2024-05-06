@@ -169,11 +169,8 @@ internal class NumAsHexBaseTests {
             val emptyFeltArray = FeltArray()
 
             convertibleToCalldata.add(Felt(15))
-            convertibleToCalldata.add(feltArray1.size.toFelt)
             convertibleToCalldata.add(feltArray1)
-            convertibleToCalldata.add(feltArray2.size.toFelt)
             convertibleToCalldata.add(feltArray2)
-            convertibleToCalldata.add(emptyFeltArray.size.toFelt)
             convertibleToCalldata.add(emptyFeltArray)
 
             val calldata = convertibleToCalldata.toCalldata()
