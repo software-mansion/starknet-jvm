@@ -1,6 +1,6 @@
 package com.swmansion.starknet.service.http.requests
 
-import com.swmansion.starknet.data.types.BatchResult
+import com.swmansion.starknet.data.types.HttpBatchRequestType
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializerWithMultipleTypes
@@ -12,14 +12,14 @@ import java.util.concurrent.CompletableFuture
 
 class HttpBatchRequestWithMultipleTypes private constructor(
     private val payload: HttpService.Payload,
-    private val deserializer: HttpResponseDeserializer<List<Result<BatchResult>>>,
+    private val deserializer: HttpResponseDeserializer<List<Result<HttpBatchRequestType>>>,
     private val service: HttpService,
-) : Request<List<Result<BatchResult>>> {
+) : Request<List<Result<HttpBatchRequestType>>> {
 
     constructor(
         url: String,
         jsonRpcRequests: List<JsonRpcRequest>,
-        responseDeserializers: List<KSerializer<out BatchResult>>,
+        responseDeserializers: List<KSerializer<out HttpBatchRequestType>>,
         deserializationJson: Json,
         service: HttpService,
     ) : this(
@@ -33,12 +33,12 @@ class HttpBatchRequestWithMultipleTypes private constructor(
         service = service,
     )
 
-    override fun send(): List<Result<BatchResult>> {
+    override fun send(): List<Result<HttpBatchRequestType>> {
         val response = service.send(payload)
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<List<Result<BatchResult>>> {
+    override fun sendAsync(): CompletableFuture<List<Result<HttpBatchRequestType>>> {
         return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 }
