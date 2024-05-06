@@ -3,9 +3,9 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.DAMode
-import com.swmansion.starknet.data.types.transactions.TransactionType
-import com.swmansion.starknet.data.types.transactions.TransactionVersion
+import com.swmansion.starknet.data.types.DAMode
+import com.swmansion.starknet.data.types.TransactionType
+import com.swmansion.starknet.data.types.TransactionVersion
 import com.swmansion.starknet.extensions.toFelt
 
 /**
@@ -17,12 +17,12 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateInvokeTxV1Hash(
-        contractAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        maxFee: Felt,
+            contractAddress: Felt,
+            calldata: Calldata,
+            chainId: StarknetChainId,
+            version: TransactionVersion,
+            nonce: Felt,
+            maxFee: Felt,
     ): Felt = transactionHashCommon(
         txType = TransactionType.INVOKE,
         version = version,
@@ -36,17 +36,17 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateInvokeTxV3Hash(
-        senderAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        tip: Uint64,
-        resourceBounds: ResourceBoundsMapping,
-        paymasterData: PaymasterData,
-        accountDeploymentData: AccountDeploymentData,
-        feeDataAvailabilityMode: DAMode,
-        nonceDataAvailabilityMode: DAMode,
+            senderAddress: Felt,
+            calldata: Calldata,
+            chainId: StarknetChainId,
+            version: TransactionVersion,
+            nonce: Felt,
+            tip: Uint64,
+            resourceBounds: ResourceBoundsMapping,
+            paymasterData: PaymasterData,
+            accountDeploymentData: AccountDeploymentData,
+            feeDataAvailabilityMode: DAMode,
+            nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return Poseidon.poseidonHash(
             *prepareCommonTransanctionV3Fields(
@@ -68,13 +68,13 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateDeployAccountV1TxHash(
-        classHash: Felt,
-        calldata: Calldata,
-        salt: Felt,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        maxFee: Felt,
-        nonce: Felt,
+            classHash: Felt,
+            calldata: Calldata,
+            salt: Felt,
+            chainId: StarknetChainId,
+            version: TransactionVersion,
+            maxFee: Felt,
+            nonce: Felt,
     ): Felt {
         val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
@@ -95,17 +95,17 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateDeployAccountV3TxHash(
-        classHash: Felt,
-        constructorCalldata: Calldata,
-        salt: Felt,
-        paymasterData: PaymasterData,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        tip: Uint64,
-        resourceBounds: ResourceBoundsMapping,
-        feeDataAvailabilityMode: DAMode,
-        nonceDataAvailabilityMode: DAMode,
+            classHash: Felt,
+            constructorCalldata: Calldata,
+            salt: Felt,
+            paymasterData: PaymasterData,
+            chainId: StarknetChainId,
+            version: TransactionVersion,
+            nonce: Felt,
+            tip: Uint64,
+            resourceBounds: ResourceBoundsMapping,
+            feeDataAvailabilityMode: DAMode,
+            nonceDataAvailabilityMode: DAMode,
     ): Felt {
         val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
             classHash = classHash,
@@ -133,13 +133,13 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateDeclareV2TxHash(
-        classHash: Felt,
-        chainId: StarknetChainId,
-        senderAddress: Felt,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        compiledClassHash: Felt,
+            classHash: Felt,
+            chainId: StarknetChainId,
+            senderAddress: Felt,
+            maxFee: Felt,
+            version: TransactionVersion,
+            nonce: Felt,
+            compiledClassHash: Felt,
     ): Felt {
         val calldataHash = StarknetCurve.pedersenOnElements(listOf(classHash))
         return StarknetCurve.pedersenOnElements(
@@ -157,18 +157,18 @@ object TransactionHashCalculator {
 
     @JvmStatic
     fun calculateDeclareV3TxHash(
-        classHash: Felt,
-        chainId: StarknetChainId,
-        senderAddress: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        compiledClassHash: Felt,
-        tip: Uint64,
-        resourceBounds: ResourceBoundsMapping,
-        paymasterData: PaymasterData,
-        accountDeploymentData: AccountDeploymentData,
-        feeDataAvailabilityMode: DAMode,
-        nonceDataAvailabilityMode: DAMode,
+            classHash: Felt,
+            chainId: StarknetChainId,
+            senderAddress: Felt,
+            version: TransactionVersion,
+            nonce: Felt,
+            compiledClassHash: Felt,
+            tip: Uint64,
+            resourceBounds: ResourceBoundsMapping,
+            paymasterData: PaymasterData,
+            accountDeploymentData: AccountDeploymentData,
+            feeDataAvailabilityMode: DAMode,
+            nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return Poseidon.poseidonHash(
             *prepareCommonTransanctionV3Fields(
@@ -190,14 +190,14 @@ object TransactionHashCalculator {
     }
 
     private fun transactionHashCommon(
-        txType: TransactionType,
-        version: TransactionVersion,
-        contractAddress: Felt,
-        entryPointSelector: Felt,
-        calldata: Calldata,
-        maxFee: Felt,
-        chainId: StarknetChainId,
-        nonce: Felt,
+            txType: TransactionType,
+            version: TransactionVersion,
+            contractAddress: Felt,
+            entryPointSelector: Felt,
+            calldata: Calldata,
+            maxFee: Felt,
+            chainId: StarknetChainId,
+            nonce: Felt,
     ): Felt {
         return StarknetCurve.pedersenOnElements(
             txType.txPrefix,
@@ -212,16 +212,16 @@ object TransactionHashCalculator {
     }
 
     private fun prepareCommonTransanctionV3Fields(
-        txType: TransactionType,
-        version: TransactionVersion,
-        address: Felt,
-        tip: Uint64,
-        resourceBounds: ResourceBoundsMapping,
-        paymasterData: PaymasterData,
-        chainId: StarknetChainId,
-        nonce: Felt,
-        nonceDataAvailabilityMode: DAMode,
-        feeDataAvailabilityMode: DAMode,
+            txType: TransactionType,
+            version: TransactionVersion,
+            address: Felt,
+            tip: Uint64,
+            resourceBounds: ResourceBoundsMapping,
+            paymasterData: PaymasterData,
+            chainId: StarknetChainId,
+            nonce: Felt,
+            nonceDataAvailabilityMode: DAMode,
+            feeDataAvailabilityMode: DAMode,
     ): List<Felt> {
         return listOf(
             txType.txPrefix,
@@ -255,8 +255,8 @@ object TransactionHashCalculator {
     }
 
     internal fun prepareDataAvailabilityModes(
-        feeDataAvailabilityMode: DAMode,
-        nonceDataAvailabilityMode: DAMode,
+            feeDataAvailabilityMode: DAMode,
+            nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return nonceDataAvailabilityMode.value.toBigInteger().shiftLeft(32)
             .add(feeDataAvailabilityMode.value.toBigInteger())

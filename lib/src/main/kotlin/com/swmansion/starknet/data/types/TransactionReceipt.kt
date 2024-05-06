@@ -1,6 +1,6 @@
-package com.swmansion.starknet.data.types.transactions
+package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.ExecutionResources
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -60,7 +60,7 @@ enum class TransactionFinalityStatus {
 }
 
 @Serializable
-sealed class TransactionReceipt {
+sealed class TransactionReceipt : HttpBatchRequestType {
     abstract val hash: Felt
     abstract val type: TransactionType
     abstract val actualFee: FeePayment
@@ -95,188 +95,188 @@ sealed class TransactionReceipt {
 
 @Serializable
 data class InvokeTransactionReceipt(
-    @SerialName("transaction_hash")
+        @SerialName("transaction_hash")
     override val hash: Felt,
 
-    @SerialName("actual_fee")
+        @SerialName("actual_fee")
     override val actualFee: FeePayment,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
+        @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
-    @SerialName("block_number")
+        @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    @SerialName("type")
+        @SerialName("type")
     override val type: TransactionType = TransactionType.INVOKE,
 
-    @SerialName("messages_sent")
+        @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @SerialName("revert_reason")
+        @SerialName("revert_reason")
     override val revertReason: String? = null,
 
-    @SerialName("events")
+        @SerialName("events")
     override val events: List<Event>,
 
-    @SerialName("execution_resources")
+        @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 ) : TransactionReceipt()
 
 @Serializable
 data class DeclareTransactionReceipt(
-    @SerialName("transaction_hash")
+        @SerialName("transaction_hash")
     override val hash: Felt,
 
-    @SerialName("actual_fee")
+        @SerialName("actual_fee")
     override val actualFee: FeePayment,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
+        @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
-    @SerialName("block_number")
+        @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    override val type: TransactionType = TransactionType.DECLARE,
+        override val type: TransactionType = TransactionType.DECLARE,
 
-    @SerialName("messages_sent")
+        @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @SerialName("revert_reason")
+        @SerialName("revert_reason")
     override val revertReason: String? = null,
 
-    @SerialName("events")
+        @SerialName("events")
     override val events: List<Event>,
 
-    @SerialName("execution_resources")
+        @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 ) : TransactionReceipt()
 
 @Serializable
 data class DeployAccountTransactionReceipt(
-    @SerialName("transaction_hash")
+        @SerialName("transaction_hash")
     override val hash: Felt,
 
-    @SerialName("actual_fee")
+        @SerialName("actual_fee")
     override val actualFee: FeePayment,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
+        @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
-    @SerialName("block_number")
+        @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    @SerialName("type")
+        @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 
-    @SerialName("messages_sent")
+        @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @SerialName("revert_reason")
+        @SerialName("revert_reason")
     override val revertReason: String? = null,
 
-    @SerialName("events")
+        @SerialName("events")
     override val events: List<Event>,
 
-    @SerialName("execution_resources")
+        @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 
-    @SerialName("contract_address")
+        @SerialName("contract_address")
     val contractAddress: Felt,
 ) : TransactionReceipt()
 
 @Serializable
 data class DeployTransactionReceipt(
-    @SerialName("transaction_hash")
+        @SerialName("transaction_hash")
     override val hash: Felt,
 
-    @SerialName("actual_fee")
+        @SerialName("actual_fee")
     override val actualFee: FeePayment,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
+        @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
-    @SerialName("block_number")
+        @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    @SerialName("type")
+        @SerialName("type")
     override val type: TransactionType,
 
-    @SerialName("messages_sent")
+        @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @SerialName("revert_reason")
+        @SerialName("revert_reason")
     override val revertReason: String? = null,
 
-    @SerialName("events")
+        @SerialName("events")
     override val events: List<Event>,
 
-    @SerialName("execution_resources")
+        @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 
-    @SerialName("contract_address")
+        @SerialName("contract_address")
     val contractAddress: Felt,
 ) : TransactionReceipt()
 
 @Serializable
 data class L1HandlerTransactionReceipt(
-    @SerialName("transaction_hash")
+        @SerialName("transaction_hash")
     override val hash: Felt,
 
-    @SerialName("actual_fee")
+        @SerialName("actual_fee")
     override val actualFee: FeePayment,
 
-    @SerialName("execution_status")
+        @SerialName("execution_status")
     override val executionStatus: TransactionExecutionStatus,
 
-    @SerialName("finality_status")
+        @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
-    @SerialName("block_hash")
+        @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
-    @SerialName("block_number")
+        @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    @SerialName("type")
+        @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
 
-    @SerialName("messages_sent")
+        @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
 
-    @SerialName("revert_reason")
+        @SerialName("revert_reason")
     override val revertReason: String? = null,
 
-    @SerialName("events")
+        @SerialName("events")
     override val events: List<Event>,
 
-    @SerialName("execution_resources")
+        @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 
-    @SerialName("message_hash")
+        @SerialName("message_hash")
     val messageHash: NumAsHex,
 ) : TransactionReceipt()

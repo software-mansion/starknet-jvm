@@ -3,7 +3,6 @@ package com.swmansion.starknet.deployercontract
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
@@ -101,8 +100,8 @@ class StandardDeployer(
     }
 
     private fun getDeploymentEvent(
-        transactionReceipt: TransactionReceipt,
-        contractDeployment: ContractDeployment,
+            transactionReceipt: TransactionReceipt,
+            contractDeployment: ContractDeployment,
     ): Event? {
         val events = when (transactionReceipt) {
             is InvokeTransactionReceipt -> transactionReceipt.events
