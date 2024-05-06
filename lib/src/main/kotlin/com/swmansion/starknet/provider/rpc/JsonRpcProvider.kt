@@ -10,11 +10,10 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
-import com.swmansion.starknet.service.http.requests.HttpRequest
 import com.swmansion.starknet.service.http.requests.HttpBatchRequestWithMultipleTypes
+import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
-
 
 /**
  * A provider for interacting with Starknet using JSON-RPC. You should reuse it in your application to share the

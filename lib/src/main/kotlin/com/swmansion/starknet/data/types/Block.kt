@@ -31,7 +31,7 @@ sealed class BlockId {
 
     data class Number(
         val blockNumber: Int,
-    )  : BlockId()
+    ) : BlockId()
 
     data class Tag(
         val blockTag: BlockTag,
@@ -149,11 +149,11 @@ data class PendingBlockWithTransactions(
 
 @Serializable
 data class TransactionWithReceipt(
-        @Serializable(with = TransactionPolymorphicSerializer::class)
+    @Serializable(with = TransactionPolymorphicSerializer::class)
     @SerialName("transaction")
     val transaction: Transaction,
 
-        @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
+    @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
     @SerialName("receipt")
     val receipt: TransactionReceipt,
 )

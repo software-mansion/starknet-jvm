@@ -170,13 +170,13 @@ data class DeployAccountTransactionTrace(
 
 @Serializable
 data class L1HandlerTransactionTrace(
-        @SerialName("function_invocation")
+    @SerialName("function_invocation")
     val functionInvocation: FunctionInvocation,
 
-        @SerialName("state_diff")
+    @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
 
-        @SerialName("type")
+    @SerialName("type")
     override val type: TransactionType = TransactionType.L1_HANDLER,
 ) : TransactionTrace()
 

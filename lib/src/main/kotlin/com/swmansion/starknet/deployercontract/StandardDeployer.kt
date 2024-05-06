@@ -100,8 +100,8 @@ class StandardDeployer(
     }
 
     private fun getDeploymentEvent(
-            transactionReceipt: TransactionReceipt,
-            contractDeployment: ContractDeployment,
+        transactionReceipt: TransactionReceipt,
+        contractDeployment: ContractDeployment,
     ): Event? {
         val events = when (transactionReceipt) {
             is InvokeTransactionReceipt -> transactionReceipt.events

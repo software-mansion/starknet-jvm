@@ -120,10 +120,10 @@ data class GetBlockHashAndNumberResponse(
 
 @Serializable
 data class GetTransactionStatusResponse(
-        @SerialName("finality_status")
+    @SerialName("finality_status")
     val finalityStatus: TransactionStatus,
 
-        @SerialName("execution_status")
+    @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
 ) : HttpBatchRequestType
 

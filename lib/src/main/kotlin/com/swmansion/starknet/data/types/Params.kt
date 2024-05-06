@@ -31,13 +31,13 @@ sealed class ParamsV3 : ParamsBase() {
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class InvokeParamsV3 private constructor(
-        override val nonce: Felt,
-        override val resourceBounds: ResourceBoundsMapping,
-        override val tip: Uint64,
-        override val paymasterData: PaymasterData,
-        val accountDeploymentData: AccountDeploymentData,
-        override val nonceDataAvailabilityMode: DAMode,
-        override val feeDataAvailabilityMode: DAMode,
+    override val nonce: Felt,
+    override val resourceBounds: ResourceBoundsMapping,
+    override val tip: Uint64,
+    override val paymasterData: PaymasterData,
+    val accountDeploymentData: AccountDeploymentData,
+    override val nonceDataAvailabilityMode: DAMode,
+    override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
     constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
         nonce = nonce,
@@ -58,13 +58,13 @@ data class InvokeParamsV3 private constructor(
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeclareParamsV3 private constructor(
-        override val nonce: Felt,
-        override val resourceBounds: ResourceBoundsMapping,
-        override val tip: Uint64,
-        override val paymasterData: PaymasterData,
-        val accountDeploymentData: AccountDeploymentData,
-        override val nonceDataAvailabilityMode: DAMode,
-        override val feeDataAvailabilityMode: DAMode,
+    override val nonce: Felt,
+    override val resourceBounds: ResourceBoundsMapping,
+    override val tip: Uint64,
+    override val paymasterData: PaymasterData,
+    val accountDeploymentData: AccountDeploymentData,
+    override val nonceDataAvailabilityMode: DAMode,
+    override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
     constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
         nonce = nonce,
@@ -85,12 +85,12 @@ data class DeclareParamsV3 private constructor(
 // TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeployAccountParamsV3 private constructor(
-        override val nonce: Felt,
-        override val resourceBounds: ResourceBoundsMapping,
-        override val tip: Uint64,
-        override val paymasterData: PaymasterData,
-        override val nonceDataAvailabilityMode: DAMode,
-        override val feeDataAvailabilityMode: DAMode,
+    override val nonce: Felt,
+    override val resourceBounds: ResourceBoundsMapping,
+    override val tip: Uint64,
+    override val paymasterData: PaymasterData,
+    override val nonceDataAvailabilityMode: DAMode,
+    override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
     @JvmOverloads
     constructor(
