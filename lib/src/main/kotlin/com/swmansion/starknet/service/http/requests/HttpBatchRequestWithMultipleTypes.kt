@@ -3,14 +3,14 @@ package com.swmansion.starknet.service.http.requests
 import com.swmansion.starknet.data.types.HttpBatchRequestType
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
-import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializerWithMultipleTypes
+import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializerWithDifferentTypes
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
 
-class HttpBatchRequestWithMultipleTypes private constructor(
+class HttpBatchRequestWithDifferentTypes private constructor(
     private val payload: HttpService.Payload,
     private val deserializer: HttpResponseDeserializer<List<Result<HttpBatchRequestType>>>,
     private val service: HttpService,
@@ -29,7 +29,7 @@ class HttpBatchRequestWithMultipleTypes private constructor(
             params = emptyList(),
             body = Json.encodeToString(jsonRpcRequests),
         ),
-        deserializer = buildJsonHttpBatchDeserializerWithMultipleTypes(responseDeserializers, deserializationJson),
+        deserializer = buildJsonHttpBatchDeserializerWithDifferentTypes(responseDeserializers, deserializationJson),
         service = service,
     )
 
