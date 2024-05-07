@@ -1247,10 +1247,10 @@ class ProviderTest {
 
         val response = request.send()
 
-        assertEquals(response[0].getOrThrow(), invokeTransactionHash)
-        assertEquals(response[1].getOrThrow(), invokeTransactionHash)
-        assertEquals(response[2].getOrThrow(), declareTransactionHash)
-        assertEquals(response[3].getOrThrow(), deployAccountTransactionHash)
+        assertEquals(response[0].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[1].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[2].getOrThrow().hash, declareTransactionHash)
+        assertEquals(response[3].getOrThrow().hash, deployAccountTransactionHash)
     }
 
     @Test
