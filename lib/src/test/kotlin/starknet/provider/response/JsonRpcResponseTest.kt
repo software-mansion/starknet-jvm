@@ -252,21 +252,18 @@ class JsonRpcResponseTest {
             ]
         """.trimIndent()
 
-        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
-        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
-
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
         }
         val provider = JsonRpcProvider("", httpServiceMock)
 
         val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt.fromHex(txHash1)),
-            provider.getTransactionStatus(Felt.fromHex(txHash2)),
+            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(1)),
         )
         val response = request.send()
-        val txStatusResponse1 = response[0].getOrThrow() as GetTransactionStatusResponse
-        val txStatusResponse2 = response[1].getOrThrow() as GetTransactionStatusResponse
+        val txStatusResponse1 = response[0].getOrThrow()
+        val txStatusResponse2 = response[1].getOrThrow()
 
         assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
         assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
@@ -298,8 +295,50 @@ class JsonRpcResponseTest {
             ]
         """.trimIndent()
 
-        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
-        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequests(
+            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(1)),
+        )
+        val response = request.send()
+
+        val txStatusResponse1 = response[0].getOrThrow()
+        val txStatusResponse2 = response[1].getOrThrow()
+
+        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
+    }
+
+    @Test
+    fun `rpc provider parses batch response error with data primitive and incorrect order`() {
+        val mockResponse = """
+           [
+              {
+                "id": "1",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                }
+              },
+              {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": "Internal error",
+                    "data": "Invalid message selector"
+                }
+              }
+            ]
+        """.trimIndent()
 
         val httpServiceMock = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
@@ -307,18 +346,24 @@ class JsonRpcResponseTest {
         val provider = JsonRpcProvider("", httpServiceMock)
 
         val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt.fromHex(txHash1)),
-            provider.getTransactionStatus(Felt.fromHex(txHash2)),
+            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(1)),
         )
         val response = request.send()
 
-        val txStatusResponse1 = response[0].getOrThrow() as GetTransactionStatusResponse
-        val txStatusResponse2 = response[1].getOrThrow() as GetTransactionStatusResponse
+        val txStatusResponse1 = response[0]
+        val txStatusResponse2 = response[1]
 
-        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
+        txStatusResponse1.getOrElse {
+            it as RpcRequestFailedException
+            assertEquals(-32603, it.code)
+            assertEquals("Internal error", it.message)
+            assertEquals("Invalid message selector", it.data)
+        }
 
-        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
+        assertEquals(txStatusResponse2.getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
+
+
     }
 }
