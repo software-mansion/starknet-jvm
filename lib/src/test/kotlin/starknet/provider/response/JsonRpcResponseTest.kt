@@ -223,7 +223,7 @@ class JsonRpcResponseTest {
             listOf(Felt.ZERO),
         )
         val calls = listOf(provider.callContract(call), provider.callContract(call))
-        val request = provider.batchRequestsOfDifferentTypes(calls)
+        val request = provider.batchRequests(calls)
         val response = request.send()
 
         assertEquals(response.size, calls.size)
@@ -260,7 +260,7 @@ class JsonRpcResponseTest {
         }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequestsOfDifferentTypes(
+        val request = provider.batchRequests(
             provider.getTransactionStatus(Felt.fromHex(txHash1)),
             provider.getTransactionStatus(Felt.fromHex(txHash2)),
         )
@@ -306,7 +306,7 @@ class JsonRpcResponseTest {
         }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequestsOfDifferentTypes(
+        val request = provider.batchRequests(
             provider.getTransactionStatus(Felt.fromHex(txHash1)),
             provider.getTransactionStatus(Felt.fromHex(txHash2)),
         )
