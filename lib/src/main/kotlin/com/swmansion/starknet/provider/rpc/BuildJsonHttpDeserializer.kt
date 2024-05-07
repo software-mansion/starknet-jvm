@@ -88,7 +88,7 @@ internal fun <T>buildJsonHttpBatchDeserializer(
     }
 }
 
-internal fun buildJsonHttpBatchDeserializerWithDifferentTypes(
+internal fun buildJsonHttpBatchDeserializerOfDifferentTypes(
     deserializationStrategies: List<KSerializer<out HttpBatchRequestType>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<HttpBatchRequestType>>> {

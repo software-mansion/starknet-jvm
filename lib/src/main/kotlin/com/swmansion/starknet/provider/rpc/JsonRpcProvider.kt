@@ -10,7 +10,7 @@ import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
-import com.swmansion.starknet.service.http.requests.HttpBatchRequestWithDifferentTypes
+import com.swmansion.starknet.service.http.requests.HttpBatchRequestOfDifferentTypes
 import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
@@ -57,16 +57,16 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
-    fun batchRequestsWithDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequestWithDifferentTypes {
+    fun batchRequestsOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequestOfDifferentTypes {
         require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
 
-        return buildBatchRequestWithDifferentTypes(requests)
+        return buildBatchRequestOfDifferentTypes(requests)
     }
 
-    fun batchRequestsWithDifferentTypes(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequestWithDifferentTypes {
+    fun batchRequestsOfDifferentTypes(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequestOfDifferentTypes {
         require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
 
-        return buildBatchRequestWithDifferentTypes(requests.toList())
+        return buildBatchRequestOfDifferentTypes(requests.toList())
     }
 
     fun <T>batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
@@ -94,7 +94,7 @@ class JsonRpcProvider(
         return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    private fun buildBatchRequestWithDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequestWithDifferentTypes {
+    private fun buildBatchRequestOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequestOfDifferentTypes {
         val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
                 id = index,
@@ -104,7 +104,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequestWithDifferentTypes(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+        return HttpBatchRequestOfDifferentTypes(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     override fun getSpecVersion(): HttpRequest<StringWrapper> {
