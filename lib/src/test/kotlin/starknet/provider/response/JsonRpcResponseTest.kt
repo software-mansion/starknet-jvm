@@ -363,7 +363,5 @@ class JsonRpcResponseTest {
 
         assertEquals(txStatusResponse2.getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
         assertEquals(txStatusResponse2.getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
-
-
     }
 }
