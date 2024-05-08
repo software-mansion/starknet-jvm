@@ -35,7 +35,7 @@ internal data class JsonRpcError(
     val data: String? = null,
 )
 
-private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload: String, payload: String = totalPayload): T {
+private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: String, payload: String = fullPayload): T {
     if (jsonRpcResponse.error != null) {
         throw RpcRequestFailedException(
             code = jsonRpcResponse.error.code,
@@ -46,7 +46,7 @@ private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload:
     }
 
     if (jsonRpcResponse.result == null) {
-        throw RequestFailedException(message = "Response did not contain a result", payload = totalPayload)
+        throw RequestFailedException(message = "Response did not contain a result", payload = fullPayload)
     }
     return jsonRpcResponse.result
 }
@@ -89,8 +89,9 @@ internal fun <T> buildJsonBatchHttpDeserializer(
 
         val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
         val responses = jsonResponses.map {
+            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
             deserializationJson.decodeFromJsonElement(
-                JsonRpcResponse.serializer(deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]),
+                JsonRpcResponse.serializer(deserializationStrategy),
                 it,
             )
         }
