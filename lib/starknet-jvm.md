@@ -335,7 +335,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -414,7 +414,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -432,14 +432,11 @@ public class Main {
         Call call1 = new Call(contractAddress1, "balanceOf", calldata);
         Call call2 = new Call(contractAddress2, "balanceOf", calldata);
 
-        // Create a batch request
-        Request<List<List<<Felt>>> request = provider.batchRequests(
+        // Create a batch request and send it
+        List<List<Felt>> response = provider.batchRequests(
                 provider.callContract(call1),
                 provider.callContract(call2)
-        );
-        
-        // Send the batch call request
-        List<List<Felt>> response = request.send();
+        ).send();
         
         // Access output values from the batch response
         Uint256 balance1 = new Uint256(response.get(0).get(0), response.get(0).get(1));
@@ -485,7 +482,7 @@ fun main(args: Array<String>) {
     )
     
     // Send the batch call request
-    val batchResponse: List<List<Felt>> = batchRequest.send()
+    val batchResponse = batchRequest.send()
     
     // Access output values from batch the response
     val balance1 = Uint256(
