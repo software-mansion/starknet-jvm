@@ -80,9 +80,7 @@ class JsonRpcProvider(
     }
 
     fun <T> batchRequests(vararg requests: HttpRequest<T>): BatchHttpRequest<T> {
-        require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
-
-        return buildBatchRequest(requests.toList())
+        return batchRequests(requests.toList())
     }
 
     private fun <T> buildBatchRequest(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
