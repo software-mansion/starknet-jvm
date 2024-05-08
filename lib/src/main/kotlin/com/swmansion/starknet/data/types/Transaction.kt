@@ -382,7 +382,7 @@ data class DeclareTransactionV2(
     val contractDefinition: Cairo1ContractDefinition? = null,
 ) : DeclareTransaction(), DeprecatedTransaction {
     @Throws(ConvertingToPayloadFailedException::class)
-    fun toPayload(): DeclareTransactionV2Payload {
+    internal fun toPayload(): DeclareTransactionV2Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
         return DeclareTransactionV2Payload(
             contractDefinition = contractDefinition,
