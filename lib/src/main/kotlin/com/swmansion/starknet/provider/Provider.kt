@@ -83,7 +83,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockNumber(): Request<IntWrapper>
+    fun getBlockNumber(): Request<StarknetInt>
 
     /**
      * Get the hash and number of the block.
@@ -102,7 +102,7 @@ interface Provider {
      * @param blockTag The tag of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockTag: BlockTag): Request<IntWrapper>
+    fun getBlockTransactionCount(blockTag: BlockTag): Request<StarknetInt>
 
     /**
      * Get the block transaction count.
@@ -112,7 +112,7 @@ interface Provider {
      * @param blockHash The hash of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockHash: Felt): Request<IntWrapper>
+    fun getBlockTransactionCount(blockHash: Felt): Request<StarknetInt>
 
     /**
      * Get the block transaction count.
@@ -122,7 +122,7 @@ interface Provider {
      * @param blockNumber The number of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockNumber: Int): Request<IntWrapper>
+    fun getBlockTransactionCount(blockNumber: Int): Request<StarknetInt>
 
     /**
      * Deploy an account contract using version 1 transaction.
@@ -164,7 +164,7 @@ interface Provider {
      * @throws RequestFailedException
      *
      */
-    fun getSpecVersion(): Request<StringWrapper>
+    fun getSpecVersion(): Request<StarknetString>
 
     /**
      * Calls a contract deployed on Starknet.

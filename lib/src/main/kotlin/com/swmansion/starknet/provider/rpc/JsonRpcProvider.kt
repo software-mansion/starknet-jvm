@@ -107,10 +107,10 @@ class JsonRpcProvider(
         return HttpBatchRequestOfDifferentTypes(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    override fun getSpecVersion(): HttpRequest<StringWrapper> {
+    override fun getSpecVersion(): HttpRequest<StarknetString> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
-        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StringWrapperSerializer)
+        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StarknetStringSerializer)
     }
 
     private fun callContract(payload: CallContractPayload): HttpRequest<FeltArray> {
@@ -336,13 +336,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
-    override fun getBlockNumber(): HttpRequest<IntWrapper> {
+    override fun getBlockNumber(): HttpRequest<StarknetInt> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_NUMBER,
             params,
-            IntWrapperSerializer,
+            StarknetIntSerializer,
         )
     }
 
@@ -356,29 +356,29 @@ class JsonRpcProvider(
         )
     }
 
-    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): HttpRequest<IntWrapper> {
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): HttpRequest<StarknetInt> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
             params,
-            IntWrapperSerializer,
+            StarknetIntSerializer,
         )
     }
 
-    override fun getBlockTransactionCount(blockTag: BlockTag): HttpRequest<IntWrapper> {
+    override fun getBlockTransactionCount(blockTag: BlockTag): HttpRequest<StarknetInt> {
         val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
 
         return getBlockTransactionCount(payload)
     }
 
-    override fun getBlockTransactionCount(blockHash: Felt): HttpRequest<IntWrapper> {
+    override fun getBlockTransactionCount(blockHash: Felt): HttpRequest<StarknetInt> {
         val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
 
         return getBlockTransactionCount(payload)
     }
 
-    override fun getBlockTransactionCount(blockNumber: Int): HttpRequest<IntWrapper> {
+    override fun getBlockTransactionCount(blockNumber: Int): HttpRequest<StarknetInt> {
         val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
 
         return getBlockTransactionCount(payload)
