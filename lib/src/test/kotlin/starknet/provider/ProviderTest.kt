@@ -1216,7 +1216,7 @@ class ProviderTest {
             calldata = emptyList(),
         )
 
-        val providerCalls = listOf(
+        val callRequests = listOf(
             provider.callContract(
                 call = call1,
                 blockHash = blockHash,
@@ -1226,7 +1226,7 @@ class ProviderTest {
                 blockTag = BlockTag.LATEST,
             ),
         )
-        val request = provider.batchRequests(providerCalls)
+        val request = provider.batchRequests(callRequests)
         val response = request.send()
         val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
