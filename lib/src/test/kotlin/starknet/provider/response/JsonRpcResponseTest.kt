@@ -192,7 +192,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses batch callContract`() {
+    fun `rpc provider parses batch callContract response`() {
         val mockResponse = """
            [
               {
