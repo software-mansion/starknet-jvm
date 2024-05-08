@@ -37,7 +37,6 @@ class HttpRequest<T> private constructor(
                 Json.encodeToString(jsonRpcRequest),
             )
         },
-
         deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
         service = service,
     )
