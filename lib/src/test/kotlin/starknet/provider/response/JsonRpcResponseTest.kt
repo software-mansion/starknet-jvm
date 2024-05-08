@@ -15,7 +15,6 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import starknet.utils.DevnetClient
 
 class JsonRpcResponseTest {
     @Test
