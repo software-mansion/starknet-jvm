@@ -72,18 +72,9 @@ class JsonRpcProvider(
 
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
-
     fun <T> batchRequests(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
-        return buildBatchRequest(requests)
-    }
-
-    fun <T> batchRequests(vararg requests: HttpRequest<T>): BatchHttpRequest<T> {
-        return batchRequests(requests.toList())
-    }
-
-    private fun <T> buildBatchRequest(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
         val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
                 id = index,
@@ -94,6 +85,10 @@ class JsonRpcProvider(
         }
         val responseSerializers = requests.map { it.serializer }
         return BatchHttpRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+    }
+
+    fun <T> batchRequests(vararg requests: HttpRequest<T>): BatchHttpRequest<T> {
+        return batchRequests(requests.toList())
     }
 
     override fun getSpecVersion(): HttpRequest<String> {
