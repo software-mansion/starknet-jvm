@@ -335,7 +335,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
