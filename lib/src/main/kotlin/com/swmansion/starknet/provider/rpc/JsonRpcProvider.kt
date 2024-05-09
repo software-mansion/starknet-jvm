@@ -69,19 +69,17 @@ class JsonRpcProvider(
         return buildBatchRequestOfDifferentTypes(requests.toList())
     }
 
-    fun <T>batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
-        require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
+    fun <T> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
+        require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         return buildBatchRequest(requests)
     }
 
-    fun <T>batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
-        require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
-
-        return buildBatchRequest(requests.toList())
+    fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
+        return batchRequests(requests.toList())
     }
 
-    private fun <T>buildBatchRequest(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
+    private fun <T> buildBatchRequest(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
                 id = index,
@@ -573,11 +571,7 @@ class JsonRpcProvider(
     private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): HttpRequest<BlockWithTransactionHashes> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(
-            JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES,
-            jsonPayload,
-            BlockWithTransactionHashesPolymorphicSerializer,
-        )
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, BlockWithTransactionHashesPolymorphicSerializer)
     }
 
     override fun getBlockWithReceipts(blockTag: BlockTag): HttpRequest<BlockWithReceipts> {
@@ -631,11 +625,7 @@ class JsonRpcProvider(
     private fun getTransactionByBlockIdAndIndex(payload: GetTransactionByBlockIdAndIndexPayload): HttpRequest<Transaction> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(
-            JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX,
-            jsonPayload,
-            TransactionPolymorphicSerializer,
-        )
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionPolymorphicSerializer)
     }
 
     override fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): HttpRequest<Transaction> {

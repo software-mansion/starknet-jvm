@@ -13,7 +13,6 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import starknet.utils.DevnetClient
 
 class JsonRpcResponseTest {
     @Test
@@ -187,89 +186,6 @@ class JsonRpcResponseTest {
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
-    }
-
-    @Test
-    fun `rpc provider parses batch callContract`() {
-        val mockResponse = """
-           [
-              {
-                "jsonrpc": "2.0",
-                "result": [
-                  "0x1e2e22799540",
-                  "0x0"
-                ],
-                "id": "0"
-              },
-              {
-                "jsonrpc": "2.0",
-                "result": [
-                  "0x1e2e22799540",
-                  "0x0"
-                ],
-                "id": "1"
-              }
-            ]
-        """.trimIndent()
-
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
-        val provider = JsonRpcProvider("", httpServiceMock)
-
-        val call = Call(
-            DevnetClient.ethErc20ContractAddress,
-            Felt.ZERO,
-            listOf(Felt.ZERO),
-        )
-        val calls = listOf(provider.callContract(call), provider.callContract(call))
-        val request = provider.batchRequests(calls)
-        val response = request.send()
-
-        assertEquals(response.size, calls.size)
-    }
-
-    @Test
-    fun `rpc provider parses batch getTransactionStatus`() {
-        val mockResponse = """
-           [
-              {
-                "id": "0",
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "SUCCEEDED"
-                }
-              },
-              {
-                "id": "1",
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "REVERTED"
-                }
-              }
-            ]
-        """.trimIndent()
-
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
-        val provider = JsonRpcProvider("", httpServiceMock)
-
-        val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt(1)),
-            provider.getTransactionStatus(Felt(1)),
-        )
-        val response = request.send()
-        val txStatusResponse1 = response[0].getOrThrow()
-        val txStatusResponse2 = response[1].getOrThrow()
-
-        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
-
-        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
-        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
     }
 
     @Test

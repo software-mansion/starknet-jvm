@@ -9,7 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
-private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload: String, payload: String): Result<T> {
+private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: String, payload: String): Result<T> {
     if (jsonRpcResponse.error != null) {
         return Result.failure(
             RpcRequestFailedException(
@@ -22,7 +22,7 @@ private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, totalPayload:
     }
 
     if (jsonRpcResponse.result == null) {
-        return Result.failure(RequestFailedException(message = "Response did not contain a result", payload = totalPayload))
+        return Result.failure(RequestFailedException(message = "Response did not contain a result", payload = fullPayload))
     }
     return Result.success(jsonRpcResponse.result)
 }
@@ -74,8 +74,9 @@ internal fun <T>buildJsonHttpBatchDeserializer(
 
         val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
         val responses = jsonResponses.map {
+            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
             deserializationJson.decodeFromJsonElement(
-                JsonRpcResponse.serializer(deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]),
+                JsonRpcResponse.serializer(deserializationStrategy),
                 it,
             )
         }
@@ -97,8 +98,9 @@ internal fun buildJsonHttpBatchDeserializerOfDifferentTypes(
 
         val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
         val responses = jsonResponses.map {
+            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
             deserializationJson.decodeFromJsonElement(
-                JsonRpcResponse.serializer(deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]),
+                JsonRpcResponse.serializer(deserializationStrategy),
                 it,
             )
         }

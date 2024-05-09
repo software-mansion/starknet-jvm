@@ -14,8 +14,8 @@ import java.util.function.Function
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
 class HttpRequest<T> private constructor(
-    val jsonRpcRequest: JsonRpcRequest,
-    val serializer: KSerializer<T>,
+    internal val jsonRpcRequest: JsonRpcRequest,
+    internal val serializer: KSerializer<T>,
     private val payload: Lazy<HttpService.Payload>,
     private val deserializer: HttpResponseDeserializer<T>,
     private val service: HttpService,
@@ -38,7 +38,6 @@ class HttpRequest<T> private constructor(
                 Json.encodeToString(jsonRpcRequest),
             )
         },
-
         deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
         service = service,
     )
