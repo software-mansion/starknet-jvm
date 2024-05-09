@@ -109,7 +109,7 @@ internal fun <T> buildJsonHttpBatchDeserializerOfDifferentTypes(
             )
         }
 
-        val results = responses.sortedBy { it.id }.zip(jsonResponses)
+        val results = responses.zip(jsonResponses)
             .map { (jsonRpcResponse, jsonResponse) ->
                 extractResult(jsonRpcResponse, response.body, jsonResponse.toString())
             }
