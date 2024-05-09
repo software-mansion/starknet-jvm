@@ -72,6 +72,7 @@ class JsonRpcProvider(
 
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
+
     fun <T> batchRequests(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
