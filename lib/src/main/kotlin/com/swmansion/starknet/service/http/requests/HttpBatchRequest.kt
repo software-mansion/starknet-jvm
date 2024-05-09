@@ -3,6 +3,7 @@ package com.swmansion.starknet.service.http.requests
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializer
+import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializerOfDifferentTypes
 import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
@@ -29,6 +30,27 @@ class HttpBatchRequest<T> private constructor(
             body = Json.encodeToString(jsonRpcRequests),
         ),
         deserializer = buildJsonHttpBatchDeserializer(responseDeserializers, deserializationJson),
+        service = service,
+    )
+
+    constructor(
+        url: String,
+        jsonRpcRequests: List<JsonRpcRequest>,
+        responseDeserializers: List<KSerializer<out T>>,
+        deserializationJson: Json,
+        service: HttpService,
+        //  The `containsDifferentRequestTypes` parameter is added to overcome a type erasure problem in JVM
+        //  avoiding a clash between similar constructor signatures with generic types.
+        //  Its value doesn't affect the logic.
+        containsDifferentRequestTypes: Boolean,
+    ) : this(
+        HttpService.Payload(
+            url = url,
+            method = "POST",
+            params = emptyList(),
+            body = Json.encodeToString(jsonRpcRequests),
+        ),
+        deserializer = buildJsonHttpBatchDeserializerOfDifferentTypes(responseDeserializers, deserializationJson),
         service = service,
     )
 

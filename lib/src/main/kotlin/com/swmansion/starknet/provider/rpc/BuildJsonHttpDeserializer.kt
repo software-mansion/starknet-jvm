@@ -1,6 +1,5 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.types.HttpBatchRequestType
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpResponse
@@ -22,7 +21,12 @@ private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: 
     }
 
     if (jsonRpcResponse.result == null) {
-        return Result.failure(RequestFailedException(message = "Response did not contain a result", payload = fullPayload))
+        return Result.failure(
+            RequestFailedException(
+                message = "Response did not contain a result",
+                payload = fullPayload,
+            ),
+        )
     }
     return Result.success(jsonRpcResponse.result)
 }
@@ -65,7 +69,7 @@ internal fun <T> buildJsonHttpDeserializer(
     }
 }
 
-internal fun <T>buildJsonHttpBatchDeserializer(
+internal fun <T> buildJsonHttpBatchDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<T>>> {
@@ -89,10 +93,10 @@ internal fun <T>buildJsonHttpBatchDeserializer(
     }
 }
 
-internal fun buildJsonHttpBatchDeserializerOfDifferentTypes(
-    deserializationStrategies: List<KSerializer<out HttpBatchRequestType>>,
+internal fun <T> buildJsonHttpBatchDeserializerOfDifferentTypes(
+    deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<Result<HttpBatchRequestType>>> {
+): HttpResponseDeserializer<List<Result<T>>> {
     return Function { response ->
         validateResponseSuccess(response)
 
