@@ -59,24 +59,25 @@ class JsonRpcProvider(
     fun batchRequestsOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
         require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
 
-        return buildBatchRequestOfDifferentTypes(requests)
+        val orderedRequests = requests.mapIndexed { index, request ->
+            JsonRpcRequest(
+                id = index,
+                jsonRpc = "2.0",
+                method = request.jsonRpcRequest.method,
+                params = request.jsonRpcRequest.params,
+            )
+        }
+        val responseSerializers = requests.map { it.serializer }
+        return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
     }
 
     fun batchRequestsOfDifferentTypes(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequest<HttpBatchRequestType> {
-        return buildBatchRequestOfDifferentTypes(requests.toList())
+        return batchRequestsOfDifferentTypes(requests.toList())
     }
 
     fun <T> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
-        return buildBatchRequest(requests)
-    }
-
-    fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
-        return batchRequests(requests.toList())
-    }
-
-    private fun <T> buildBatchRequest(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
                 id = index,
@@ -89,17 +90,8 @@ class JsonRpcProvider(
         return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    private fun buildBatchRequestOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
-        val orderedRequests = requests.mapIndexed { index, request ->
-            JsonRpcRequest(
-                id = index,
-                jsonRpc = "2.0",
-                method = request.jsonRpcRequest.method,
-                params = request.jsonRpcRequest.params,
-            )
-        }
-        val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
+    fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
+        return batchRequests(requests.toList())
     }
 
     override fun getSpecVersion(): HttpRequest<StarknetString> {
