@@ -99,7 +99,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest( url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
+        return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
     }
 
     override fun getSpecVersion(): HttpRequest<StarknetString> {
