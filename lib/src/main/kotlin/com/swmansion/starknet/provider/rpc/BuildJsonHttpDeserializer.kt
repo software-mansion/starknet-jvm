@@ -35,7 +35,11 @@ internal data class JsonRpcError(
     val data: String? = null,
 )
 
-private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: String, payload: String = fullPayload): T {
+private fun <T> extractResult(
+    jsonRpcResponse: JsonRpcResponse<T>,
+    fullPayload: String,
+    payload: String = fullPayload,
+): T {
     if (jsonRpcResponse.error != null) {
         throw RpcRequestFailedException(
             code = jsonRpcResponse.error.code,
@@ -88,18 +92,18 @@ internal fun <T> buildJsonBatchHttpDeserializer(
         }
 
         val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
-        val responses = jsonResponses.map {
-            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
-            deserializationJson.decodeFromJsonElement(
+        val orderedResults = MutableList<T?>(jsonResponses.size) { null }
+
+        jsonResponses.forEach { jsonElement ->
+            val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.int
+            val deserializationStrategy = deserializationStrategies[id]
+            val jsonRpcResponse = deserializationJson.decodeFromJsonElement(
                 JsonRpcResponse.serializer(deserializationStrategy),
-                it,
+                jsonElement,
             )
+            orderedResults[id] = extractResult(jsonRpcResponse, response.body, jsonElement.toString())
         }
 
-        val results = responses.sortedBy { it.id }.zip(jsonResponses)
-            .map { (jsonRpcResponse, jsonResponse) ->
-                extractResult(jsonRpcResponse, response.body, jsonResponse.toString())
-            }
-        results
+        orderedResults.filterNotNull()
     }
 }
