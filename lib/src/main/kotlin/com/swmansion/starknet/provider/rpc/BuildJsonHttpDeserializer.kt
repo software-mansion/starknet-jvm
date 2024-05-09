@@ -69,50 +69,39 @@ internal fun <T> buildJsonHttpDeserializer(
     }
 }
 
+internal fun <T> processJsonRpcResponses(
+    response: HttpResponse,
+    deserializationStrategies: List<KSerializer<out T>>,
+    deserializationJson: Json,
+): List<Result<T>> {
+    validateResponseSuccess(response)
+
+    val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
+    val orderedResults = MutableList<Result<T>?>(jsonResponses.size) { null }
+
+    jsonResponses.forEach { jsonElement ->
+        val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.int
+        val deserializationStrategy = deserializationStrategies[id]
+        val jsonRpcResponse = deserializationJson.decodeFromJsonElement(
+            JsonRpcResponse.serializer(deserializationStrategy),
+            jsonElement,
+        )
+        orderedResults[id] = extractResult(jsonRpcResponse, response.body, jsonElement.toString())
+    }
+
+    return orderedResults.filterNotNull()
+}
+
 internal fun <T> buildJsonHttpBatchDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<Result<T>>> {
-    return Function { response ->
-        validateResponseSuccess(response)
-
-        val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
-        val responses = jsonResponses.map {
-            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
-            deserializationJson.decodeFromJsonElement(
-                JsonRpcResponse.serializer(deserializationStrategy),
-                it,
-            )
-        }
-
-        val results = responses.zip(jsonResponses)
-            .map { (jsonRpcResponse, jsonResponse) ->
-                extractResult(jsonRpcResponse, response.body, jsonResponse.toString())
-            }
-        results
-    }
+): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
+    processJsonRpcResponses(response, deserializationStrategies, deserializationJson)
 }
 
 internal fun <T> buildJsonHttpBatchDeserializerOfDifferentTypes(
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<Result<T>>> {
-    return Function { response ->
-        validateResponseSuccess(response)
-
-        val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
-        val responses = jsonResponses.map {
-            val deserializationStrategy = deserializationStrategies[it.jsonObject["id"]!!.jsonPrimitive.int]
-            deserializationJson.decodeFromJsonElement(
-                JsonRpcResponse.serializer(deserializationStrategy),
-                it,
-            )
-        }
-
-        val results = responses.zip(jsonResponses)
-            .map { (jsonRpcResponse, jsonResponse) ->
-                extractResult(jsonRpcResponse, response.body, jsonResponse.toString())
-            }
-        results
-    }
+): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
+    processJsonRpcResponses(response, deserializationStrategies, deserializationJson)
 }
