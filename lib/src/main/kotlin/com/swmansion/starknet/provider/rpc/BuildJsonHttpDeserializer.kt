@@ -31,7 +31,7 @@ private fun <T> extractResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: 
     return Result.success(jsonRpcResponse.result)
 }
 
-private fun validateResponseSuccess(response: HttpResponse) {
+private fun assertResponseSuccess(response: HttpResponse) {
     if (!response.isSuccessful) {
         throw RequestFailedException(
             payload = response.body,
