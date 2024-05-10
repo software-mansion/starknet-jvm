@@ -414,7 +414,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -517,7 +517,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Create requests
         Request<Transaction> txRequest1 = provider.getTransaction(Felt.fromHex("0x0123"));
@@ -525,16 +525,13 @@ public class Main {
         Request<GetTransactionStatusResponse> txStatusRequest = provider.getTransactionStatus(Felt.fromHex("0x0789"));
         Request<BlockWithTransactionHashes> blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"));
         
-        // Create a batch request of different types
-        HttpBatchRequestOfDifferentTypes batchRequest = provider.batchRequestsOfDifferentTypes(
+        // Create a batch request of different types and send it
+        List<Object> response = provider.batchRequestsOfDifferentTypes(
                 txRequest1,
                 txRequest2,
                 txStatusRequest,
                 blockWithTxHashesRequest
-        );
-        
-        // Send the batch request
-        List<Object> response = batchRequest.send();
+        ).send();
         
         // Access output values from the response
         Transaction tx1 = (Transaction) response.get(0);
