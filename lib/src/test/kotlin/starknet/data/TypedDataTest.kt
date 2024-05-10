@@ -715,16 +715,16 @@ internal class TypedDataTest {
 
         @Test
         fun `domain v1 object with string revision`() {
-            val resolvedRevision = TypedData(
+            val td = TypedData(
                 types = mapOf(
                     domainTypeV1,
                 ),
                 primaryType = "StarknetDomain",
                 domain = domainObjectV1WithStringRevision,
                 message = "{\"StarknetDomain\": 1}",
-            ).domain.resolvedRevision
+            )
 
-            assertEquals(Revision.V1, resolvedRevision)
+            assertEquals(Revision.V1, resolvedRevision.domain.resolvedRevision)
         }
     }
 
