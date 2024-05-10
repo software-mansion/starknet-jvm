@@ -499,7 +499,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Making multiple request calls of different types
+## Making multiple calls of different types in one request
 
 ### In Java
 
