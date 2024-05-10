@@ -56,6 +56,12 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
+    /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
+     *
+     * @param requests list of HTTP requests to be batched together
+     * @require list of requests
+     * @return batch HTTP request
+     */
     fun batchRequestsOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
         require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
 
@@ -71,10 +77,22 @@ class JsonRpcProvider(
         return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
     }
 
+    /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
+     *
+     * @param requests one or more HTTP requests to be batched together
+     * @require list of requests
+     * @return batch HTTP request
+     */
     fun batchRequestsOfDifferentTypes(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequest<HttpBatchRequestType> {
         return batchRequestsOfDifferentTypes(requests.toList())
     }
 
+    /** Batch multiple HTTP requests together into a single HTTP request
+     *
+     * @param requests list of HTTP requests to be batched together
+     * @require list of requests
+     * @return batch HTTP request
+     */
     fun <T> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
@@ -90,6 +108,12 @@ class JsonRpcProvider(
         return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
+    /** Batch multiple HTTP requests together into a single HTTP request
+     *
+     * @param requests one or more HTTP requests to be batched together
+     * @require list of requests
+     * @return batch HTTP request
+     */
     fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
         return batchRequests(requests.toList())
     }
