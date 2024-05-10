@@ -524,7 +524,7 @@ internal class TypedDataTest {
     }
 
     @Nested
-    inner class TypesTest {
+    inner class InvalidTypesTest {
         private val domainTypeV0 = "StarkNetDomain" to listOf(
             TypedData.StandardType("name", "felt"),
             TypedData.StandardType("version", "felt"),
@@ -549,14 +549,6 @@ internal class TypedDataTest {
                 "version": "1",
                 "chainId": "2137",
                 "revision": 1
-            }
-        """.trimIndent()
-        val domainObjectV1WithStringRevision = """
-            {
-                "name": "DomainV1",
-                "version": "1",
-                "chainId": "2137",
-                "revision": "1"
             }
         """.trimIndent()
 
@@ -711,21 +703,6 @@ internal class TypedDataTest {
                 message = "{\"$includedType\": 1}",
             )
         }
-
-
-        @Test
-        fun `domain v1 object with string revision`() {
-            val td = TypedData(
-                types = mapOf(
-                    domainTypeV1,
-                ),
-                primaryType = "StarknetDomain",
-                domain = domainObjectV1WithStringRevision,
-                message = "{\"StarknetDomain\": 1}",
-            )
-
-            assertEquals(Revision.V1, resolvedRevision.domain.resolvedRevision)
-        }
     }
 
     @ParameterizedTest
@@ -756,5 +733,33 @@ internal class TypedDataTest {
         val hash = data.getMessageHash(Felt.fromHex(address))
 
         assertEquals(Felt.fromHex(expectedResult), hash)
+    }
+
+    @Test
+    fun `domain v1 object with string revision`() {
+        val domainObjectV1WithStringRevision = """
+            {
+                "name": "DomainV1",
+                "version": "1",
+                "chainId": "2137",
+                "revision": "1"
+            }
+        """.trimIndent()
+        val domainTypeV1 = "StarknetDomain" to listOf(
+            TypedData.StandardType("name", "shortstring"),
+            TypedData.StandardType("version", "shortstring"),
+            TypedData.StandardType("chainId", "shortstring"),
+            TypedData.StandardType("revision", "shortstring"),
+        )
+        val td = TypedData(
+            types = mapOf(
+                domainTypeV1,
+            ),
+            primaryType = "StarknetDomain",
+            domain = domainObjectV1WithStringRevision,
+            message = "{\"StarknetDomain\": 1}",
+        )
+
+        assertEquals(Revision.V1, td.domain.resolvedRevision)
     }
 }
