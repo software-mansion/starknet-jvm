@@ -524,7 +524,7 @@ internal class TypedDataTest {
     }
 
     @Nested
-    inner class InvalidTypesTest {
+    inner class TypesTest {
         private val domainTypeV0 = "StarkNetDomain" to listOf(
             TypedData.StandardType("name", "felt"),
             TypedData.StandardType("version", "felt"),
@@ -549,6 +549,14 @@ internal class TypedDataTest {
                 "version": "1",
                 "chainId": "2137",
                 "revision": 1
+            }
+        """.trimIndent()
+        val domainObjectV1WithStringRevision = """
+            {
+                "name": "DomainV1",
+                "version": "1",
+                "chainId": "2137",
+                "revision": "1"
             }
         """.trimIndent()
 
@@ -702,6 +710,34 @@ internal class TypedDataTest {
                 domain = domainObject,
                 message = "{\"$includedType\": 1}",
             )
+        }
+
+        @Test
+        fun `parse domain v1 object with integer revision`() {
+            val resolvedRevision = TypedData(
+                types = mapOf(
+                    domainTypeV1,
+                ),
+                primaryType = "StarknetDomain",
+                domain = domainObjectV1,
+                message = "{\"StarknetDomain\": 1}",
+            ).domain.resolvedRevision
+
+            assertEquals(Revision.V1, resolvedRevision)
+        }
+
+        @Test
+        fun `parse domain v1 object with string revision`() {
+            val resolvedRevision = TypedData(
+                types = mapOf(
+                    domainTypeV1,
+                ),
+                primaryType = "StarknetDomain",
+                domain = domainObjectV1WithStringRevision,
+                message = "{\"StarknetDomain\": 1}",
+            ).domain.resolvedRevision
+
+            assertEquals(Revision.V1, resolvedRevision)
         }
     }
 
