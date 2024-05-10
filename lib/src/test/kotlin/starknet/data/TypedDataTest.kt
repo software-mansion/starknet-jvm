@@ -713,7 +713,7 @@ internal class TypedDataTest {
         }
 
         @Test
-        fun `parse domain v1 object with integer revision`() {
+        fun `domain v1 object with integer revision`() {
             val resolvedRevision = TypedData(
                 types = mapOf(
                     domainTypeV1,
@@ -727,7 +727,7 @@ internal class TypedDataTest {
         }
 
         @Test
-        fun `parse domain v1 object with string revision`() {
+        fun `domain v1 object with string revision`() {
             val resolvedRevision = TypedData(
                 types = mapOf(
                     domainTypeV1,
