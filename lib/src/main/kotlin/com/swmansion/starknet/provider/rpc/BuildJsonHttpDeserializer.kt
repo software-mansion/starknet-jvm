@@ -39,7 +39,7 @@ private fun assertResponseSuccess(response: HttpResponse) {
     }
 }
 
-private fun <T> getOrderedResults(
+private fun <T> getOrderedRpcResults(
     response: HttpResponse,
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
@@ -96,12 +96,12 @@ internal fun <T> buildJsonHttpBatchDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
-    getOrderedResults(response, deserializationStrategies, deserializationJson)
+    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
 }
 
 internal fun <T> buildJsonHttpBatchDeserializerOfDifferentTypes(
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
-    getOrderedResults(response, deserializationStrategies, deserializationJson)
+    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
 }
