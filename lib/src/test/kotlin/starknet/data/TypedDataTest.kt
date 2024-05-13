@@ -29,7 +29,6 @@ internal fun loadTypedData(path: String): TypedData {
 }
 
 internal class TypedDataTest {
-
     companion object {
         internal class CasesRev0 {
             companion object {
@@ -736,30 +735,29 @@ internal class TypedDataTest {
     }
 
     @Test
-    fun `domain v1 object with string revision`() {
-        val domainObjectV1WithStringRevision = """
+    fun `domain v0 object with string revision`() {
+        val domainObjectV0WithStringRevision = """
             {
-                "name": "DomainV1",
+                "name": "DomainV0",
                 "version": "1",
                 "chainId": "2137",
-                "revision": "1"
+                "revision": "0"
             }
         """.trimIndent()
-        val domainTypeV1 = "StarknetDomain" to listOf(
-            TypedData.StandardType("name", "shortstring"),
-            TypedData.StandardType("version", "shortstring"),
-            TypedData.StandardType("chainId", "shortstring"),
-            TypedData.StandardType("revision", "shortstring"),
+        val domainTypeV0 = "StarkNetDomain" to listOf(
+            TypedData.StandardType("name", "felt"),
+            TypedData.StandardType("version", "felt"),
+            TypedData.StandardType("chainId", "felt"),
+            TypedData.StandardType("revision", "felt"),
         )
         val td = TypedData(
             types = mapOf(
-                domainTypeV1,
+                domainTypeV0,
             ),
             primaryType = "StarknetDomain",
-            domain = domainObjectV1WithStringRevision,
+            domain = domainObjectV0WithStringRevision,
             message = "{\"StarknetDomain\": 1}",
         )
-
-        assertEquals(Revision.V1, td.domain.resolvedRevision)
+        assertEquals(Revision.V0, td.domain.resolvedRevision)
     }
 }
