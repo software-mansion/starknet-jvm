@@ -756,7 +756,7 @@ internal class TypedDataTest {
             ),
             primaryType = "StarknetDomain",
             domain = domainObjectV0WithStringRevision,
-            message = "{\"StarknetDomain\": 1}",
+            message = "{\"StarkNetDomain\": 0}",
         )
         assertEquals(Revision.V0, td.domain.resolvedRevision)
     }
