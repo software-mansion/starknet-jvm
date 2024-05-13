@@ -311,7 +311,7 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x5753d979e05f7c079b04c8fdafe2b6f4951492b6509f66f1d86e7c061882ee3")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x2c678e2dda58eb4bffd1f2c45cca6a883e6f388e91aa5e153ff09e3f52a0dc5")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x785c2ada3f53fbc66078d47715c27718f92e6e48b96372b36e5197de69b82b5")
         }
         val tx = provider.getTransaction(transactionHash).send()
@@ -327,7 +327,7 @@ class ProviderTest {
         assertNull(receipt.revertReason)
 
         val expectedMessageHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> NumAsHex.fromHex("0xf6359249ccef7caea9158c76133893d8bcbc09701df4caf111e7e2fc1283eb08")
+            Network.SEPOLIA_INTEGRATION -> NumAsHex.fromHex("0x62aadcf51c6b5d9169523f4f62baae7a50c7fb4915b3789c044545af6e6b039c")
             Network.SEPOLIA_TESTNET -> NumAsHex.fromHex("0x42e76df4e3d5255262929c27132bd0d295a8d3db2cfe63d2fcd061c7a7a7ab34")
         }
 
@@ -339,8 +339,8 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val transactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x9ce93eba4c0201940e229cb899fc8822a447ad48ed5e61c929b4e7c9f6ace9")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
         }
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
