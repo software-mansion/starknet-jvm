@@ -62,7 +62,7 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
+        private val chainId = StarknetChainId.fromNetworkName("SN_SEPOLIA")
 
         @Test
         fun `prepare data availability modes`() {

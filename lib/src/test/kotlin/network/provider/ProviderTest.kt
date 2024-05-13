@@ -335,7 +335,7 @@ class ProviderTest {
 
         val transactionHash = when (network) {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x9ce93eba4c0201940e229cb899fc8822a447ad48ed5e61c929b4e7c9f6ace9")
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x157438780a13f8cdfa5c291d666361c112ac0082751fac480e520a7bd78af6d")
+            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x26cda254979ce4e9705b83a886e175f5194b89339ce7de4bbae9ea6c9966c6d")
         }
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
