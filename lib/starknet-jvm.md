@@ -436,7 +436,6 @@ fun main(args: Array<String>) {
 ```java
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV2Payload;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
