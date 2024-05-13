@@ -104,10 +104,8 @@ class ProviderTest {
         val transactionHash = invokeV1TransactionHash
         val transactionHash2 = revertedInvokeV1TransactionHash
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
-        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.SEPOLIA_INTEGRATION) {
-            assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
-        }
+
+        assertEquals(TransactionStatus.ACCEPTED_ON_L1, transactionStatus.finalityStatus)
         assertNotNull(transactionStatus.executionStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
 
@@ -238,10 +236,7 @@ class ProviderTest {
         val receipt = receiptRequest.send()
 
         assertTrue(receipt.isAccepted)
-        // TODO: Re-enable this assertion for integration once transaction appear as accepted on L1 again
-        if (network != Network.SEPOLIA_INTEGRATION) {
-            assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
-        }
+        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L1, receipt.finalityStatus)
         assertNull(receipt.revertReason)
 
         receipt is DeclareTransactionReceipt
