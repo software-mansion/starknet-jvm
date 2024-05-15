@@ -31,7 +31,7 @@ public class Main {
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        Request<Felt> request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
         Felt response = request.send();
 
         System.out.println(response);
@@ -97,7 +97,7 @@ public class Main {
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
         Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        Request<Felt> request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
         CompletableFuture<Felt> response = request.sendAsync();
 
         response.thenAccept(System.out::println);
@@ -237,7 +237,7 @@ fun main(args: Array<String>) {
         l1ResourceBounds = l1ResourceBounds,
     )
 
-    val payload = newAccount.signDeployAccountV3(
+    val payload = account.signDeployAccountV3(
         classHash = classHash,
         salt = salt,
         calldata = calldata,
@@ -530,7 +530,7 @@ fun main(args: Array<String>) {
     // Declare a contract
     val l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).l1Gas
     val params = DeclareParamsV3(nonce, l1ResourceBounds)
-    val declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false)
+    val declareTransactionPayload:DeclareTransactionV3Payload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false)
 
     val request = provider.declareContract(declareTransactionPayload)
     val response = request.send()
@@ -558,6 +558,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        
         // Adjust chain Id to desired network
         StarknetChainId chainId = StarknetChainId.MAIN;
         Felt address = new Felt(0x1234);
@@ -657,7 +658,7 @@ fun main(args: Array<String>) {
     )
 
     val signedTransaction = account.signV3(otherCall, params)
-    val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
+    val signedInvokeResponse: InvokeTransactionV3Payload = provider.invokeFunction(signedTransaction).send()
 
     // Sign transaction for fee estimation only
     val transactionForFeeEstimation = account.signV3(call, params, true)
@@ -696,7 +697,7 @@ Classes for interacting with Universal Deployer Contract (UDC).
 // Create a deployer instance
 Deployer deployer = new StandardDeployer(address, provider, account);
 
-// Create a deploment request and send it
+// Create a deployment request and send it
 Request<ContractDeployment> request = deployer.deployContractV3(
         classHash,
         unique,
@@ -715,7 +716,7 @@ or in Kotlin
 // Create a deployer instance
 val deployer = StandardDeployer(address, provider, account);
 
-// Create a deploment request and send it
+// Create a deployment request and send it
 val request = deployer.deployContractV3(
     classHash = classHash,
     unique = unique,
