@@ -157,7 +157,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         params: DeployAccountParamsV3,
-        forFeeEstimate: Boolean = false,
+        forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload
 
     /**
@@ -196,7 +196,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         l1ResourceBounds: ResourceBounds,
-        forFeeEstimate: Boolean = false,
+        forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
@@ -220,7 +220,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
-        forFeeEstimate: Boolean = false,
+        forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload
 
     /**
@@ -238,7 +238,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
-        forFeeEstimate: Boolean = false,
+        forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload
 
     /**
