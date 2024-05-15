@@ -160,7 +160,6 @@ class DevnetClient(
         }
     }
 
-    @JvmOverloads
     fun createAccount(
         name: String,
         classHash: Felt = accountContractClassHash,
@@ -189,7 +188,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun deployAccount(
         name: String,
         classHash: Felt = accountContractClassHash,
@@ -225,7 +223,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun createDeployAccount(
         name: String? = null,
         classHash: Felt = accountContractClassHash,
@@ -246,7 +243,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun declareContract(
         contractName: String,
         maxFee: Felt = Felt(5000000000000000),
@@ -272,7 +268,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun deployContract(
         classHash: Felt,
         constructorCalldata: List<Felt> = emptyList(),
@@ -312,7 +307,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun declareDeployContract(
         contractName: String,
         constructorCalldata: List<Felt> = emptyList(),
@@ -333,7 +327,6 @@ class DevnetClient(
         )
     }
 
-    @JvmOverloads
     fun invokeContract(
         contractAddress: Felt,
         function: String,
