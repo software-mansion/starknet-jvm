@@ -59,10 +59,7 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
-                balanceContractAddress = devnetClient.declareDeployContract(
-                    "Balance",
-                    constructorCalldata = listOf(Felt(451)),
-                ).contractAddress
+                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
@@ -226,11 +223,8 @@ class StandardAccountTest {
     inner class DeclareEstimateTest {
         @Test
         fun `estimate fee for declare v2 transaction`() {
-            val contractCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
             val contractDefinition = Cairo1ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -245,8 +239,7 @@ class StandardAccountTest {
 
             assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
 
-            val request =
-                provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
@@ -258,11 +251,8 @@ class StandardAccountTest {
 
         @Test
         fun `estimate fee for declare v3 transaction`() {
-            val contractCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
             val contractDefinition = Cairo1ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -278,8 +268,7 @@ class StandardAccountTest {
 
             assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
 
-            val request =
-                provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
@@ -292,10 +281,8 @@ class StandardAccountTest {
 
     @Test
     fun `estimate message fee`() {
-        val l1l2ContractCode =
-            Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
-        val l1l2CasmContractCode =
-            Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
+        val l1l2ContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
+        val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
 
         val l1l2ContractDefinition = Cairo2ContractDefinition(l1l2ContractCode)
         val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
@@ -342,11 +329,8 @@ class StandardAccountTest {
         fun `sign and send declare v2 transaction`() {
             devnetClient.prefundAccountEth(accountAddress)
 
-            val contractCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
+            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
             val contractDefinition = Cairo1ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -370,12 +354,8 @@ class StandardAccountTest {
         fun `sign and send declare v2 transaction (cairo compiler v2)`() {
             devnetClient.prefundAccountEth(accountAddress)
 
-            val contractCode =
-                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json")
-                    .readText()
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
 
             val contractDefinition = Cairo2ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
@@ -403,12 +383,8 @@ class StandardAccountTest {
                 placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
             )
-            val contractCode =
-                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json")
-                    .readText()
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
             val contractDefinition = Cairo2ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
