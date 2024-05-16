@@ -218,7 +218,7 @@ class JsonRpcResponseTest {
 
         val request = provider.batchRequests(
             provider.getTransactionStatus(Felt(1)),
-            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(2)),
         )
         val response = request.send()
 
