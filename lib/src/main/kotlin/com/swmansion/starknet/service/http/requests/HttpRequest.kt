@@ -21,7 +21,7 @@ class HttpRequest<T> private constructor(
     private val service: HttpService,
 ) : Request<T> {
 
-    constructor(
+    internal constructor(
         url: String,
         jsonRpcRequest: JsonRpcRequest,
         serializer: KSerializer<T>,

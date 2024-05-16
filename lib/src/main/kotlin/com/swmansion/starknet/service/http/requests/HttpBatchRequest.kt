@@ -16,7 +16,7 @@ class HttpBatchRequest<T> private constructor(
     private val service: HttpService,
 ) : Request<List<Result<T>>> {
 
-    constructor(
+    internal constructor(
         url: String,
         jsonRpcRequests: List<JsonRpcRequest>,
         responseDeserializers: List<KSerializer<T>>,
@@ -33,7 +33,7 @@ class HttpBatchRequest<T> private constructor(
         service = service,
     )
 
-    constructor(
+    internal constructor(
         url: String,
         jsonRpcRequests: List<JsonRpcRequest>,
         responseDeserializers: List<KSerializer<out T>>,
