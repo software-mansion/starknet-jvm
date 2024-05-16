@@ -1255,7 +1255,7 @@ class ProviderTest {
 
     @Test
     fun `batch requests of different types`() {
-        val request = provider.batchRequestsOfDifferentTypes(
+        val request = provider.batchRequestsAny(
             provider.getTransaction(invokeTransactionHash),
             provider.getBlockNumber(),
             provider.getTransactionStatus(invokeTransactionHash),
@@ -1272,7 +1272,6 @@ class ProviderTest {
         assertNotEquals(0, blockNumber)
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
-        assertNotNull(txStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
     }
 }

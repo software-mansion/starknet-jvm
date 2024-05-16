@@ -62,8 +62,8 @@ class JsonRpcProvider(
      * @require list of requests
      * @return batch HTTP request
      */
-    fun batchRequestsOfDifferentTypes(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
-        require(requests.isNotEmpty()) { "Please provide requests while creating a batching requests" }
+    fun batchRequestsAny(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
+        require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         val orderedRequests = requests.mapIndexed { index, request ->
             JsonRpcRequest(
@@ -83,8 +83,8 @@ class JsonRpcProvider(
      * @require list of requests
      * @return batch HTTP request
      */
-    fun batchRequestsOfDifferentTypes(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequest<HttpBatchRequestType> {
-        return batchRequestsOfDifferentTypes(requests.toList())
+    fun batchRequestsAny(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequest<HttpBatchRequestType> {
+        return batchRequestsAny(requests.toList())
     }
 
     /** Batch multiple HTTP requests together into a single HTTP request

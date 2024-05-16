@@ -526,7 +526,7 @@ public class Main {
         Request<BlockWithTransactionHashes> blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"));
         
         // Create a batch request of different types and send it
-        List<Object> response = provider.batchRequestsOfDifferentTypes(
+        List<Object> response = provider.batchRequestsAny(
                 txRequest1,
                 txRequest2,
                 txStatusRequest,
@@ -555,7 +555,7 @@ fun main(args: Array<String>) {
     val txStatusRequest = provider.getTransactionStatus(Felt.fromHex("0x0789"))
     val blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"))
 
-    val batchRequest = provider.batchRequestsOfDifferentTypes(
+    val batchRequest = provider.batchRequestsAny(
         txRequest1,
         txRequest2,
         txStatusRequest,
