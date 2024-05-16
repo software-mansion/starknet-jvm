@@ -59,7 +59,7 @@ class JsonRpcProvider(
     /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
      *
      * @param requests list of HTTP requests to be batched together
-     * @require list of requests
+     *
      * @return batch HTTP request
      */
     fun batchRequestsAny(requests: List<HttpRequest<out HttpBatchRequestType>>): HttpBatchRequest<HttpBatchRequestType> {
@@ -80,7 +80,7 @@ class JsonRpcProvider(
     /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
      *
      * @param requests one or more HTTP requests to be batched together
-     * @require list of requests
+     *
      * @return batch HTTP request
      */
     fun batchRequestsAny(vararg requests: HttpRequest<out HttpBatchRequestType>): HttpBatchRequest<HttpBatchRequestType> {
@@ -90,7 +90,7 @@ class JsonRpcProvider(
     /** Batch multiple HTTP requests together into a single HTTP request
      *
      * @param requests list of HTTP requests to be batched together
-     * @require list of requests
+     *
      * @return batch HTTP request
      */
     fun <T> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
@@ -111,7 +111,7 @@ class JsonRpcProvider(
     /** Batch multiple HTTP requests together into a single HTTP request
      *
      * @param requests one or more HTTP requests to be batched together
-     * @require list of requests
+     *
      * @return batch HTTP request
      */
     fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {

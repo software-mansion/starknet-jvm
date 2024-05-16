@@ -547,7 +547,7 @@ public class Main {
 ```kotlin
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
-    val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
     
     // Create requests
     val txRequest1 = provider.getTransaction(Felt.fromHex("0x0123"))
