@@ -56,7 +56,7 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
-    /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
+    /** Batch multiple HTTP requests with JSON-RPC calls (of different result type) together into a single HTTP request
      *
      * @param requests list of HTTP requests to be batched together
      *
@@ -77,7 +77,7 @@ class JsonRpcProvider(
         return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
     }
 
-    /** Batch multiple HTTP requests (of different result type) together into a single HTTP request
+    /** Batch multiple HTTP requests with JSON-RPC calls (of different result type) together into a single HTTP request
      *
      * @param requests one or more HTTP requests to be batched together
      *
