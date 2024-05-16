@@ -233,7 +233,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses batch response error with data primitive and incorrect order`() {
+    fun `rpc provider parses batch response with error`() {
         val mockResponse = """
            [
               {
