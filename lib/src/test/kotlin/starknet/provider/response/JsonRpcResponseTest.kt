@@ -218,7 +218,7 @@ class JsonRpcResponseTest {
 
         val request = provider.batchRequests(
             provider.getTransactionStatus(Felt(1)),
-            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(2)),
         )
         val response = request.send()
 
@@ -233,7 +233,7 @@ class JsonRpcResponseTest {
     }
 
     @Test
-    fun `rpc provider parses batch response error with data primitive and incorrect order`() {
+    fun `rpc provider parses batch response with error`() {
         val mockResponse = """
            [
               {
