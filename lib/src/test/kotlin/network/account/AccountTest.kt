@@ -775,6 +775,7 @@ class AccountTest {
         Thread.sleep(120000)
 
         val address = deployer.findContractAddress(deployment).send()
+        println(address)
         assertNotEquals(Felt.ZERO, address)
     }
 
