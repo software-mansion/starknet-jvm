@@ -164,7 +164,7 @@ public class Main {
         List<Felt> calldata = List.of(publicKey);
 
         // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.MAIN;
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
 
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash,
@@ -183,6 +183,8 @@ public class Main {
                 l1ResourceBounds
         );
 
+        // Make sure to prefund the address with at least maxFee
+        
         // Create and sign deploy account transaction
         DeployAccountTransactionV3Payload payload = account.signDeployAccountV3(
                 classHash,
@@ -219,7 +221,7 @@ fun main(args: Array<String>) {
     )
     
     // Adjust chain Id to desired network
-    val chainId = StarknetChainId.MAIN
+    val chainId = StarknetChainId.SEPOLIA
     
     val account = StandardAccount(
         address,
@@ -271,7 +273,7 @@ public class Main {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.MAIN;
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -287,11 +289,11 @@ public class Main {
         Felt contractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
 
         // Create a call
-        List<Felt> calldata = List.of(recipientAccountAddress, amount.getLow(), amount.getHigh());
+        List<Felt> calldata = List.of(recipientAccountAddress, amount.getLow(), amount.getHigh()); // amount is Uint256 and is represented by two Felt values
         Call call = new Call(contractAddress, "transfer", calldata);
 
         // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
-
+        
         // Create and sign invoke transaction
         Request<InvokeFunctionResponse> request = account.executeV3(call);
 
@@ -309,7 +311,7 @@ fun main(args: Array<String>) {
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
-    val chainId = StarknetChainId.MAIN
+    val chainId = StarknetChainId.SEPOLIA
     
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -333,12 +335,12 @@ fun main(args: Array<String>) {
         entrypoint = "transfer",
         calldata = calldata,
     )
-
+    
     // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
 
     // Create and sign invoke transaction
     val request = account.executeV3(call)
-
+     
     // Send the transaction
     val response = request.send()
 }
@@ -365,7 +367,7 @@ public class Main {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.MAIN;
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
         
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -398,7 +400,7 @@ fun main(args: Array<String>) {
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
-    val chainId = StarknetChainId.MAIN
+    val chainId = StarknetChainId.SEPOLIA
     
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -454,7 +456,7 @@ public class Main {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
         // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.MAIN;
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -497,7 +499,7 @@ fun main(args: Array<String>) {
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
-    val chainId = StarknetChainId.MAIN
+    val chainId = StarknetChainId.SEPOLIA
 
     // Set up an account
     val privateKey = fromHex("0x1234")
@@ -560,7 +562,7 @@ public class Main {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
         
         // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.MAIN;
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
         Account account = new StandardAccount(address, privateKey, provider, chainId);
@@ -619,7 +621,7 @@ fun main(args: Array<String>) {
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
-    val chainId = StarknetChainId.MAIN
+    val chainId = StarknetChainId.SEPOLIA
     val address = Felt(0x1234)
     val privateKey = Felt(0x1)
     val account: Account = StandardAccount(address, privateKey, provider, chainId)
