@@ -7,7 +7,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldata, MutableList<Felt> by list, HttpBatchRequestType {
+data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldata, MutableList<Felt> by list, HttpRequestType {
     constructor(vararg elements: Felt) : this(elements.toMutableList())
     constructor(collection: Collection<Felt>) : this(collection.toMutableList())
     constructor() : this(emptyList())

@@ -60,7 +60,7 @@ enum class TransactionFinalityStatus {
 }
 
 @Serializable
-sealed class TransactionReceipt : HttpBatchRequestType {
+sealed class TransactionReceipt : HttpRequestType {
     abstract val hash: Felt
     abstract val type: TransactionType
     abstract val actualFee: FeePayment

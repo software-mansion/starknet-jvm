@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = StarknetStringSerializer::class)
-value class StarknetString(val value: String) : HttpBatchRequestType
+value class StarknetString(val value: String) : HttpRequestType

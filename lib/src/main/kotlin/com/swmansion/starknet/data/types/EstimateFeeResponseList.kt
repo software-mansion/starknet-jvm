@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = EstimateFeeResponseListSerializer::class)
-value class EstimateFeeResponseList(val values: List<EstimateFeeResponse>) : HttpBatchRequestType
+value class EstimateFeeResponseList(val values: List<EstimateFeeResponse>) : HttpRequestType
