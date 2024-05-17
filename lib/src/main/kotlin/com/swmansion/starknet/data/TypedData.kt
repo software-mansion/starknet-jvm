@@ -103,7 +103,7 @@ data class TypedData private constructor(
     )
 
     @Transient
-    private val revision = domain.revision ?: Revision.V0
+    private val revision = domain.resolvedRevision
 
     @Transient
     private val allTypes: Map<String, List<Type>> = types + PresetType.values(revision).associate { it.name to it.params }
@@ -175,9 +175,14 @@ data class TypedData private constructor(
         val name: JsonPrimitive,
         val version: JsonPrimitive,
         val chainId: JsonPrimitive,
-        val revision: Revision? = null,
+        val revision: JsonPrimitive? = null,
     ) {
-        internal val separatorName = when (revision ?: Revision.V0) {
+        @Transient
+        val resolvedRevision = revision?.let {
+            Json.decodeFromJsonElement<Revision>(it)
+        } ?: Revision.V0
+
+        internal val separatorName = when (resolvedRevision) {
             Revision.V0 -> "StarkNetDomain"
             Revision.V1 -> "StarknetDomain"
         }
