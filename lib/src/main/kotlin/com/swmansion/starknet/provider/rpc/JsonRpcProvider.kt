@@ -74,7 +74,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService, true)
+        return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     /** Batch multiple HTTP requests with JSON-RPC calls (of different result type) together into a single HTTP request
@@ -105,7 +105,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+        return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     /** Batch multiple HTTP requests together into a single HTTP request

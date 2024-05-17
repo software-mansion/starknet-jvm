@@ -15,45 +15,6 @@ class HttpBatchRequest<T> private constructor(
     private val deserializer: HttpResponseDeserializer<List<Result<T>>>,
     private val service: HttpService,
 ) : Request<List<Result<T>>> {
-
-    internal constructor(
-        url: String,
-        jsonRpcRequests: List<JsonRpcRequest>,
-        responseDeserializers: List<KSerializer<T>>,
-        deserializationJson: Json,
-        service: HttpService,
-    ) : this(
-        HttpService.Payload(
-            url = url,
-            method = "POST",
-            params = emptyList(),
-            body = Json.encodeToString(jsonRpcRequests),
-        ),
-        deserializer = buildJsonHttpBatchDeserializer(responseDeserializers, deserializationJson),
-        service = service,
-    )
-
-    internal constructor(
-        url: String,
-        jsonRpcRequests: List<JsonRpcRequest>,
-        responseDeserializers: List<KSerializer<out T>>,
-        deserializationJson: Json,
-        service: HttpService,
-        //  The `containsDifferentRequestTypes` parameter is added to overcome a type erasure problem in JVM
-        //  avoiding a clash between similar constructor signatures with generic types.
-        //  Its value doesn't affect the logic.
-        containsDifferentRequestTypes: Boolean,
-    ) : this(
-        HttpService.Payload(
-            url = url,
-            method = "POST",
-            params = emptyList(),
-            body = Json.encodeToString(jsonRpcRequests),
-        ),
-        deserializer = buildJsonHttpBatchDeserializerOfDifferentTypes(responseDeserializers, deserializationJson),
-        service = service,
-    )
-
     override fun send(): List<Result<T>> {
         val response = service.send(payload)
         return deserializer.apply(response)
@@ -61,5 +22,47 @@ class HttpBatchRequest<T> private constructor(
 
     override fun sendAsync(): CompletableFuture<List<Result<T>>> {
         return service.sendAsync(payload).thenApplyAsync(deserializer)
+    }
+
+    companion object {
+        @JvmStatic
+        fun <T>fromRequests(
+            url: String,
+            jsonRpcRequests: List<JsonRpcRequest>,
+            responseDeserializers: List<KSerializer<T>>,
+            deserializationJson: Json,
+            service: HttpService,
+        ): HttpBatchRequest<T> {
+            return HttpBatchRequest(
+                HttpService.Payload(
+                    url = url,
+                    method = "POST",
+                    params = emptyList(),
+                    body = Json.encodeToString(jsonRpcRequests),
+                ),
+                deserializer = buildJsonHttpBatchDeserializer(responseDeserializers, deserializationJson),
+                service = service,
+            )
+        }
+
+        @JvmStatic
+        fun <T>fromRequestsAny(
+            url: String,
+            jsonRpcRequests: List<JsonRpcRequest>,
+            responseDeserializers: List<KSerializer<out T>>,
+            deserializationJson: Json,
+            service: HttpService,
+        ): HttpBatchRequest<T> {
+            return HttpBatchRequest(
+                HttpService.Payload(
+                    url = url,
+                    method = "POST",
+                    params = emptyList(),
+                    body = Json.encodeToString(jsonRpcRequests),
+                ),
+                deserializer = buildJsonHttpBatchDeserializerOfDifferentTypes(responseDeserializers, deserializationJson),
+                service = service,
+            )
+        }
     }
 }
