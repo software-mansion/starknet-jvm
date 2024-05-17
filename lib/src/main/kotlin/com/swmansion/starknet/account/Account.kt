@@ -206,6 +206,29 @@ interface Account {
     }
 
     /**
+     * Sign version 3 deploy account transaction.
+     *
+     * Sign a deploy account transaction that requires prefunding deployed address.
+     *
+     * @param classHash hash of the contract that will be deployed. Has to be declared first!
+     * @param calldata constructor calldata for the contract deployment
+     * @param salt salt used to calculate address of the new contract
+     * @return signed deploy account payload
+     */
+    fun signDeployAccountV3(
+        classHash: Felt,
+        calldata: Calldata,
+        salt: Felt,
+        l1ResourceBounds: ResourceBounds,
+    ): DeployAccountTransactionV3Payload {
+        val params = DeployAccountParamsV3(
+            nonce = Felt.ZERO,
+            l1ResourceBounds = l1ResourceBounds,
+        )
+        return signDeployAccountV3(classHash, calldata, salt, params, false)
+    }
+
+    /**
      * Sign a version 2 declare transaction.
      *
      * Prepare and sign a version 2 declare transaction to be executed on Starknet.
@@ -224,6 +247,24 @@ interface Account {
     ): DeclareTransactionV2Payload
 
     /**
+     * Sign a version 2 declare transaction.
+     *
+     * Prepare and sign a version 2 declare transaction to be executed on Starknet.
+     *
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
+     * @param params additional execution parameters for the transaction
+     * @return signed declare transaction payload
+     */
+    fun signDeclareV2(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: ExecutionParams,
+    ): DeclareTransactionV2Payload {
+        return signDeclareV2(sierraContractDefinition, casmContractDefinition, params, false)
+    }
+
+    /**
      * Sign a version 3 declare transaction.
      *
      * Prepare and sign a version 3 declare transaction to be executed on Starknet.
@@ -240,6 +281,25 @@ interface Account {
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload
+
+    /**
+     * Sign a version 3 declare transaction.
+     *
+     * Prepare and sign a version 3 declare transaction to be executed on Starknet.
+     *
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
+     * @param params additional parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @return signed declare transaction payload
+     */
+    fun signDeclareV3(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: DeclareParamsV3,
+    ): DeclareTransactionV3Payload {
+        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false)
+    }
 
     /**
      * Sign TypedData for off-chain usage with this account privateKey
