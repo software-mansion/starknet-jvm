@@ -41,7 +41,7 @@ class JsonRpcProvider(
         }
     }
 
-    private fun <T> buildRequest(
+    private fun <T : HttpBatchRequestType> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
         responseSerializer: KSerializer<T>,
@@ -93,7 +93,7 @@ class JsonRpcProvider(
      *
      * @return batch HTTP request
      */
-    fun <T> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
+    fun <T : HttpBatchRequestType> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         val orderedRequests = requests.mapIndexed { index, request ->
@@ -114,7 +114,7 @@ class JsonRpcProvider(
      *
      * @return batch HTTP request
      */
-    fun <T> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
+    fun <T : HttpBatchRequestType> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
         return batchRequests(requests.toList())
     }
 

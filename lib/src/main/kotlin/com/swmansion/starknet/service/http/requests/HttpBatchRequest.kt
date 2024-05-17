@@ -1,5 +1,6 @@
 package com.swmansion.starknet.service.http.requests
 
+import com.swmansion.starknet.data.types.HttpBatchRequestType
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.provider.rpc.buildJsonHttpBatchDeserializer
@@ -10,7 +11,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
 
-class HttpBatchRequest<T> private constructor(
+class HttpBatchRequest<T : HttpBatchRequestType> private constructor(
     private val payload: HttpService.Payload,
     private val deserializer: HttpResponseDeserializer<List<Result<T>>>,
     private val service: HttpService,
@@ -26,7 +27,7 @@ class HttpBatchRequest<T> private constructor(
 
     companion object {
         @JvmStatic
-        fun <T>fromRequests(
+        fun <T : HttpBatchRequestType>fromRequests(
             url: String,
             jsonRpcRequests: List<JsonRpcRequest>,
             responseDeserializers: List<KSerializer<T>>,
@@ -46,7 +47,7 @@ class HttpBatchRequest<T> private constructor(
         }
 
         @JvmStatic
-        fun <T>fromRequestsAny(
+        fun <T : HttpBatchRequestType>fromRequestsAny(
             url: String,
             jsonRpcRequests: List<JsonRpcRequest>,
             responseDeserializers: List<KSerializer<out T>>,
