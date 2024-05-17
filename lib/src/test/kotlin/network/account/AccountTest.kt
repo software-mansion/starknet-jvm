@@ -127,7 +127,6 @@ class AccountTest {
                 nonce = nonce,
                 maxFee = Felt(1000000000000000L),
             ),
-            false,
         )
 
         val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
@@ -208,7 +207,6 @@ class AccountTest {
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000L)),
-            false,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
@@ -242,7 +240,6 @@ class AccountTest {
             contractDefinition,
             contractCasmDefinition,
             ExecutionParams(nonce, Felt(1000000000000000L)),
-            false,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
@@ -287,7 +284,6 @@ class AccountTest {
             contractDefinition,
             contractCasmDefinition,
             params,
-            false,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
@@ -752,7 +748,6 @@ class AccountTest {
                 nonce = nonce,
                 maxFee = Felt(1000000000000000L),
             ),
-            false,
         )
 
         // Use SKIP_FEE_CHARGE flag to avoid failure due to insufficient funds
