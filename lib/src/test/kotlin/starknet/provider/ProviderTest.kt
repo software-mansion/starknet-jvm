@@ -1254,7 +1254,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `batch requests of different types`() {
+    fun `batch requests any`() {
         val request = provider.batchRequestsAny(
             provider.getTransaction(invokeTransactionHash),
             provider.getBlockNumber(),
