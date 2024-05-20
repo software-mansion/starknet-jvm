@@ -131,7 +131,7 @@ fun main() {
 }
 ```
 
-## Deploying account
+## Deploying account V3
 
 ### In Java
 
@@ -142,7 +142,6 @@ import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.*;
-import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
@@ -202,6 +201,11 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
@@ -219,10 +223,10 @@ fun main(args: Array<String>) {
         calldata = calldata,
         salt = salt,
     )
-    
+
     // Adjust chain Id to desired network
     val chainId = StarknetChainId.SEPOLIA
-    
+
     val account = StandardAccount(
         address,
         privateKey,
@@ -246,7 +250,115 @@ fun main(args: Array<String>) {
         params = params,
         forFeeEstimate = false,
     )
-    
+
+    // Create and sign deploy account transaction
+    val response = provider.deployAccount(payload).send()
+}
+```
+
+## Deploying account V1
+
+### In Java
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.ContractAddressCalculator;
+import com.swmansion.starknet.data.types.DeployAccountResponse;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.data.types.StarknetChainId;
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Create an account interface
+        Felt privateKey = Felt.fromHex("0x123");
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
+        Felt salt = new Felt(789);
+        List<Felt> calldata = List.of(publicKey);
+
+        // Adjust chain Id to desired network
+        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+
+        Felt address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash,
+                calldata,
+                salt
+        );
+
+        Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ZERO);
+
+        // Make sure to prefund the address with at least maxFee
+
+        // Create and sign deploy account transaction
+        DeployAccountTransactionV1Payload payload = account.signDeployAccountV1(
+                classHash,
+                calldata,
+                salt,
+                // 10*fee from estimate deploy account fee
+                Felt.fromHex("0x11fcc58c7f7000")
+        );
+
+        DeployAccountResponse response = provider.deployAccount(payload).send();
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main(args: Array<String>) {
+    // Create a provider for interacting with Starknet
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Create an account interface
+    val privateKey = Felt.fromHex("0x123")
+    val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+    // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)
+    val classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773")
+    val salt = Felt(789)
+    val calldata = listOf(publicKey)
+    val address = ContractAddressCalculator.calculateAddressFromHash(
+        classHash = classHash,
+        calldata = calldata,
+        salt = salt,
+    )
+
+    // Adjust chain Id to desired network
+    val chainId = StarknetChainId.SEPOLIA
+
+    val account = StandardAccount(
+        address,
+        privateKey,
+        provider,
+        chainId,
+    )
+
+    val payload = account.signDeployAccountV1(
+        classHash = classHash,
+        salt = salt,
+        calldata = calldata,
+        maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+    )
+
     // Create and sign deploy account transaction
     val response = provider.deployAccount(payload).send()
 }
