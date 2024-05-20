@@ -143,9 +143,9 @@ import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.data.types.transactions.*;
 import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class Main {
@@ -173,25 +173,22 @@ public class Main {
 
         Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ZERO);
 
-        ResourceBounds l1ResourceBounds = new ResourceBounds(
-                new Uint64(20000),
-                new Uint128(1200000000)
-        );
-        DeployAccountParamsV3 params = new DeployAccountParamsV3(
-                Felt.ZERO,
-                l1ResourceBounds
-        );
-
-        // Make sure to prefund the address with at least maxFee
-        
-        // Create and sign deploy account transaction
-        DeployAccountTransactionV3Payload payload = account.signDeployAccountV3(
+        // Estimate fee for declaring a contract
+        DeployAccountParamsV3 paramsForFeeEstimate = new DeployAccountParamsV3(Felt.ZERO, ResourceBounds.ZERO);
+        DeployAccountTransactionV3Payload payloadForFeeEstimate = account.signDeployAccountV3(
                 classHash,
                 calldata,
                 salt,
-                params,
-                false
+                paramsForFeeEstimate,
+                true
         );
+        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(payloadForFeeEstimate));
+
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().get(0);
+        ResourceBounds l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).getL1Gas();
+
+        DeployAccountParamsV3 params = new DeployAccountParamsV3(Felt.ZERO, l1ResourceBounds);
+        DeployAccountTransactionV3Payload payload = account.signDeployAccountV3(classHash, calldata, salt, params, false);
 
         DeployAccountResponse response = provider.deployAccount(payload).send();
     }
@@ -203,10 +200,11 @@ public class Main {
 ```kotlin
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
-fun main(args: Array<String>) {
+fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
@@ -234,21 +232,30 @@ fun main(args: Array<String>) {
         chainId,
     )
 
-    val l1ResourceBounds = ResourceBounds(
-        maxAmount = Uint64(20000),
-        maxPricePerUnit = Uint128(120000000000),
+    val payloadForFeeEstimate = account.signDeployAccountV3(
+        classHash = classHash,
+        salt = salt,
+        calldata = calldata,
+        params = DeployAccountParamsV3(
+            nonce = Felt.ZERO,
+            l1ResourceBounds = ResourceBounds.ZERO,
+        ),
+        forFeeEstimate = true,
     )
+    val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
+
+    val feeEstimate = feeEstimateRequest.send().first()
+    val resourceBounds = feeEstimate.toResourceBounds()
+
     val params = DeployAccountParamsV3(
         nonce = Felt.ZERO,
-        l1ResourceBounds = l1ResourceBounds,
+        l1ResourceBounds = resourceBounds.l1Gas,
     )
-
     val payload = account.signDeployAccountV3(
         classHash = classHash,
         salt = salt,
         calldata = calldata,
         params = params,
-        forFeeEstimate = false,
     )
 
     // Create and sign deploy account transaction
@@ -320,11 +327,12 @@ public class Main {
 ```kotlin
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
-fun main(args: Array<String>) {
+fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
@@ -418,13 +426,20 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-fun main(args: Array<String>) {
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
     val chainId = StarknetChainId.SEPOLIA
-    
+
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
@@ -447,12 +462,12 @@ fun main(args: Array<String>) {
         entrypoint = "transfer",
         calldata = calldata,
     )
-    
+
     // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
 
     // Create and sign invoke transaction
     val request = account.executeV3(call)
-     
+
     // Send the transaction
     val response = request.send()
 }
@@ -470,7 +485,6 @@ import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class Main {
@@ -507,13 +521,20 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-fun main(args: Array<String>) {
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
     val chainId = StarknetChainId.SEPOLIA
-    
+
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
@@ -531,7 +552,7 @@ fun main(args: Array<String>) {
         calldata = calldata,
     )
     val request = provider.callContract(call)
-    
+
     // Send the call request
     val response: List<Felt> = request.send()
 
@@ -543,7 +564,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Declaring Cairo 1/2 contract
+## Declaring Cairo 1/2 contract V3
 
 ### In Java
 
@@ -551,15 +572,12 @@ fun main(args: Array<String>) {
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.transactions.DeclareTransactionV3Payload;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
@@ -577,10 +595,8 @@ public class Main {
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
         // Import a compiled contract
-        Path contractPath = Paths.get("contract.json");
-        Path casmPath = Paths.get("contract.casm");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        String casmCode = String.join("", Files.readAllLines(casmPath));
+        String contractCode = Path.of("contract.sierra.json").toString();
+        String casmCode = Path.of("contract.casm.json").toString();
         Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
         CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
         Felt nonce = account.getNonce().send();
@@ -606,7 +622,16 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-fun main(args: Array<String>) {
+import com.swmansion.starknet.account.Account
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.Felt.Companion.fromHex
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import java.nio.file.Path
+
+
+fun main() {
     // Create a provider for interacting with Starknet
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
@@ -616,15 +641,12 @@ fun main(args: Array<String>) {
     // Set up an account
     val privateKey = fromHex("0x1234")
     val accountAddress = fromHex("0x1236789")
-
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
     val account: Account = StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO)
 
     // Import a compiled contract
-    val contractPath = Paths.get("contract.json")
-    val casmPath = Paths.get("contract.casm")
-    val contractCode = String.join("", Files.readAllLines(contractPath))
-    val casmCode = String.join("", Files.readAllLines(casmPath))
+    val contractCode = Path.of("contract.sierra.json").toString()
+    val casmCode = Path.of("contract.casm.json").toString()
     val contractDefinition = Cairo1ContractDefinition(contractCode)
     val casmContractDefinition = CasmContractDefinition(casmCode)
     val nonce = account.getNonce().send()
@@ -636,7 +658,7 @@ fun main(args: Array<String>) {
         DeclareParamsV3(nonce, ResourceBounds.ZERO),
         true,
     )
-    val feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate))
+    val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
     val feeEstimate = feeEstimateRequest.send()[0]
 
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
@@ -644,7 +666,7 @@ fun main(args: Array<String>) {
     // Declare a contract
     val l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).l1Gas
     val params = DeclareParamsV3(nonce, l1ResourceBounds)
-    val declareTransactionPayload:DeclareTransactionV3Payload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false)
+    val declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false)
 
     val request = provider.declareContract(declareTransactionPayload)
     val response = request.send()
@@ -661,8 +683,9 @@ Account interface used to simplify preparing, signing Starknet transactions and 
 ```java
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.TypedData;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.InvokeFunctionPayload;
+import com.swmansion.starknet.data.types.transactions.InvokeTransactionV3Payload;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
@@ -672,7 +695,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-        
+
         // Adjust chain Id to desired network
         StarknetChainId chainId = StarknetChainId.SEPOLIA;
         Felt address = new Felt(0x1234);
@@ -729,8 +752,14 @@ public class Main {
 or in Kotlin
 
 ```kotlin
-fun main(args: Array<String>) {
-    val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
+import com.swmansion.starknet.account.Account
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.TypedData.Companion.fromJsonString
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Adjust chain Id to desired network
     val chainId = StarknetChainId.SEPOLIA
@@ -744,14 +773,14 @@ fun main(args: Array<String>) {
         Uint128(10000000L),
     )
     val contractAddress = Felt(0x1111)
-    val call = Call(contractAddress, "increase_balance", List.of(Felt(100)))
+    val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
     val request = account.executeV3(call, resourceBounds)
     val response = request.send()
 
     // Execute multiple calls
-    val call1 = Call(contractAddress, "increase_balance", List.of(Felt(100)))
-    val call2 = Call(contractAddress, "increase_balance", List.of(Felt(200)))
-    account.executeV3(List.of(call1, call2), resourceBounds).send()
+    val call1 = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+    val call2 = Call(contractAddress, "increase_balance", listOf(Felt(200)))
+    account.executeV3(listOf(call1, call2), resourceBounds).send()
 
     // Use automatic maxFee estimation
     account.executeV3(call).send()
@@ -760,7 +789,7 @@ fun main(args: Array<String>) {
     account.executeV3(call, resourceBounds).send()
 
     // Construct transaction step by step
-    val otherCall = Call(contractAddress, "increase_balance", List.of(Felt(100)))
+    val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
 
     val nonce = account.getNonce().send()
     val params = InvokeParamsV3(
@@ -771,8 +800,8 @@ fun main(args: Array<String>) {
         ),
     )
 
-    val signedTransaction = account.signV3(otherCall, params)
-    val signedInvokeResponse: InvokeTransactionV3Payload = provider.invokeFunction(signedTransaction).send()
+    val signedTransaction= account.signV3(otherCall, params)
+    val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
 
     // Sign transaction for fee estimation only
     val transactionForFeeEstimation = account.signV3(call, params, true)
