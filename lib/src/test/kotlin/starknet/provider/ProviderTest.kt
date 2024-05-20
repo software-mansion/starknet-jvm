@@ -720,7 +720,7 @@ class ProviderTest {
 
     @Test
     fun `get block transaction count with block number`() {
-        val request = provider.getBlockTransactionCount(0)
+        val request = provider.getBlockTransactionCount(1)
         val response = request.send()
 
         assertNotEquals(0, response)
@@ -771,7 +771,7 @@ class ProviderTest {
         val request = provider.getChainId()
         val response = request.send()
 
-        assertEquals(StarknetChainId.GOERLI, response)
+        assertEquals(StarknetChainId.SEPOLIA, response)
     }
 
     @Test
