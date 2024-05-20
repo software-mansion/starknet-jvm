@@ -642,7 +642,7 @@ fun main() {
     val privateKey = fromHex("0x1234")
     val accountAddress = fromHex("0x1236789")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-    val account: Account = StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO)
+    val account = StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO)
 
     // Import a compiled contract
     val contractCode = Path.of("contract.sierra.json").toString()
@@ -659,7 +659,7 @@ fun main() {
         true,
     )
     val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
-    val feeEstimate = feeEstimateRequest.send()[0]
+    val feeEstimate = feeEstimateRequest.send().first()
 
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
@@ -857,7 +857,7 @@ or in Kotlin
 
 ```kotlin
 // Create a deployer instance
-val deployer = StandardDeployer(address, provider, account);
+val deployer = StandardDeployer(address, provider, account)
 
 // Create a deployment request and send it
 val request = deployer.deployContractV3(
@@ -869,12 +869,12 @@ val request = deployer.deployContractV3(
         maxAmount = ...,
         maxPricePerUnit = ...,
     ),
-);
-val result = request.send();
+)
+val result = request.send()
 
 // Get an address of the deployed contract
-val addressRequest = deployer.findContractAddress(result);
-val address = addressRequest.send();
+val addressRequest = deployer.findContractAddress(result)
+val (value) = addressRequest.send()
 ```
 
 # Package com.swmansion.starknet.provider
