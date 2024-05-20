@@ -10,7 +10,7 @@ import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object SimulatedTransactionListSerializer : KSerializer<SimulatedTransactionList> {
+internal object SimulatedTransactionListSerializer : KSerializer<SimulatedTransactionList> {
     private val listSerializer = ListSerializer(SimulatedTransaction.serializer())
 
     @OptIn(ExperimentalSerializationApi::class)

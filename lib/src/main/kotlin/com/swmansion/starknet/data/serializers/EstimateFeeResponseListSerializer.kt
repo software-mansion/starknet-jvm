@@ -10,7 +10,7 @@ import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object EstimateFeeResponseListSerializer : KSerializer<EstimateFeeResponseList> {
+internal object EstimateFeeResponseListSerializer : KSerializer<EstimateFeeResponseList> {
     private val listSerializer = ListSerializer(EstimateFeeResponse.serializer())
 
     @OptIn(ExperimentalSerializationApi::class)

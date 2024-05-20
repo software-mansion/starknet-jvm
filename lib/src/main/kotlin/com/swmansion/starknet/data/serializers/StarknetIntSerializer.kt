@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object IntResponseSerializer : KSerializer<IntResponse> {
+internal object IntResponseSerializer : KSerializer<IntResponse> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IntResponse", PrimitiveKind.INT)
 
     override fun serialize(encoder: Encoder, value: IntResponse) {
