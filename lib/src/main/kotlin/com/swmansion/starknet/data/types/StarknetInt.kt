@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data.types
 
-import com.swmansion.starknet.data.serializers.StarknetIntSerializer
+import com.swmansion.starknet.data.serializers.IntResponseSerializer
 import kotlinx.serialization.Serializable
 
 @JvmInline
-@Serializable(with = StarknetIntSerializer::class)
-value class StarknetInt(val value: Int) : HttpRequestType
+@Serializable(with = IntResponseSerializer::class)
+value class IntResponse(val value: Int) : HttpRequestType

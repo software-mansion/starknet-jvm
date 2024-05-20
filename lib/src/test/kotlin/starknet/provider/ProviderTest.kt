@@ -1261,7 +1261,7 @@ class ProviderTest {
         val response = request.send()
 
         val transaction = response[0].getOrThrow() as Transaction
-        val blockNumber = (response[1].getOrThrow() as StarknetInt).value
+        val blockNumber = (response[1].getOrThrow() as IntResponse).value
         val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
 
         assertEquals(transaction.hash, invokeTransactionHash)

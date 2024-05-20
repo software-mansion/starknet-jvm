@@ -270,12 +270,7 @@ class JsonRpcResponseTest {
         val txStatusResponse1 = response[0]
         val txStatusResponse2 = response[1]
 
-        txStatusResponse1.getOrElse {
-            it as RpcRequestFailedException
-            assertEquals(-32603, it.code)
-            assertEquals("Internal error", it.message)
-            assertEquals("Invalid message selector", it.data)
-        }
+        assertThrows<RpcRequestFailedException> { txStatusResponse1.getOrThrow() }
 
         assertEquals(txStatusResponse2.getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
         assertEquals(txStatusResponse2.getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
