@@ -7,9 +7,6 @@ readonly V2_6_CONTRACT_PATH="contracts_v2_6"
 readonly V1_SCARB_VERSION="0.4.0"
 readonly V2_SCARB_VERSION="0.7.0"
 readonly V2_6_SCARB_VERSION="2.6.0"
-readonly STARKNET_FOUNDRY_VERSION="0.6.0"
-
-asdf global starknet-foundry $STARKNET_FOUNDRY_VERSION || exit 1
 
 echo "Compiling v1 contracts.."
 pushd "$(dirname "$0")" || exit 1
