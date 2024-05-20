@@ -403,12 +403,9 @@ fun main(args: Array<String>) {
 ```java
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class Main {
@@ -416,31 +413,31 @@ public class Main {
         // Create a provider for interacting with Starknet
         JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
+        // Get the chain ID
+        StarknetChainId chainId = provider.getChainId().send();
+
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
         // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, Felt.ZERO);
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
         // Specify the contract addresses, in this example ETH ERC20 contracts are used
         Felt contractAddress1 = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
         Felt contractAddress2 = Felt.fromHex("0x05dcf20d87407f0f7a6bd081a2cee990b19c77ebf31c8b0ddd5a6f931af21e0c");
-        
+
         // Create multiple calls
         List<Felt> calldata = List.of(account.getAddress());
 
         Call call1 = new Call(contractAddress1, "balanceOf", calldata);
         Call call2 = new Call(contractAddress2, "balanceOf", calldata);
 
-        // Create a batch request
-        Request<List<List<<Felt>>> request = provider.batchRequests(
+        // Create a batch request and send it
+        List<List<Felt>> response = provider.batchRequests(
                 provider.callContract(call1),
                 provider.callContract(call2)
-        );
-        
-        // Send the batch call request
-        List<List<Felt>> response = request.send();
-        
+        ).send();
+
         // Access output values from the batch response
         Uint256 balance1 = new Uint256(response.get(0).get(0), response.get(0).get(1));
         Uint256 balance2 = new Uint256(response.get(1).get(0), response.get(1).get(1));
@@ -451,50 +448,58 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    val chainId = provider.getChainId().send()
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
     // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
-    val account = StandardAccount(accountAddress, privateKey, provider)
+    val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
     // Specify the contract addresses, in this example ETH ERC20 contract is used
     val contractAddress1 = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
     val contractAddress2 = Felt.fromHex("0x05dcf20d87407f0f7a6bd081a2cee990b19c77ebf31c8b0ddd5a6f931af21e0c")
-    
+
     // Create multiple calls
     val calldata = listOf(account.address)
     val call1 = Call(
-            contractAddress = contractAddress1,
-            entrypoint = "balanceOf",
-            calldata = calldata,
+        contractAddress = contractAddress1,
+        entrypoint = "balanceOf",
+        calldata = calldata,
     )
     val call2 = Call(
-            contractAddress = contractAddress2,
-            entrypoint = "balanceOf",
-            calldata = calldata,
+        contractAddress = contractAddress2,
+        entrypoint = "balanceOf",
+        calldata = calldata,
     )
-    
+
     // Create a batch request
     val batchRequest = provider.batchRequests(
-            provider.callContract(call1),
-            provider.callContract(call2),
+        provider.callContract(call1),
+        provider.callContract(call2),
     )
-    
+
     // Send the batch call request
-    val batchResponse: List<List<Felt>> = batchRequest.send()
-    
+    val batchResponse = batchRequest.send()
+
     // Access output values from batch the response
     val balance1 = Uint256(
-            low = batchResponse[0][0],
-            high = batchResponse[0][1],
+        low = batchResponse[0][0],
+        high = batchResponse[0][1],
     )
     val balance2 = Uint256(
-            low = batchResponse[1][0],
-            high = batchResponse[1][1],
+        low = batchResponse[1][0],
+        high = batchResponse[1][1],
     )
 }
 ```
@@ -504,14 +509,11 @@ fun main(args: Array<String>) {
 ### In Java
 
 ```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.data.types.transactions.Transaction;
 import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class Main {
@@ -524,7 +526,7 @@ public class Main {
         Request<Transaction> txRequest2 = provider.getTransaction(Felt.fromHex("0x0456"));
         Request<GetTransactionStatusResponse> txStatusRequest = provider.getTransactionStatus(Felt.fromHex("0x0789"));
         Request<BlockWithTransactionHashes> blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"));
-        
+
         // Create a batch request of different types and send it
         List<Object> response = provider.batchRequestsAny(
                 txRequest1,
@@ -532,7 +534,7 @@ public class Main {
                 txStatusRequest,
                 blockWithTxHashesRequest
         ).send();
-        
+
         // Access output values from the response
         Transaction tx1 = (Transaction) response.get(0);
         Transaction tx2 = (Transaction) response.get(1);
@@ -545,10 +547,16 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
+import com.swmansion.starknet.data.types.BlockWithTransactionHashes
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.GetTransactionStatusResponse
+import com.swmansion.starknet.data.types.Transaction
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
 fun main(args: Array<String>) {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-    
+
     // Create requests
     val txRequest1 = provider.getTransaction(Felt.fromHex("0x0123"))
     val txRequest2 = provider.getTransaction(Felt.fromHex("0x0456"))

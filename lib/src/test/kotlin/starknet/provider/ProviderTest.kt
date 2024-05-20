@@ -11,7 +11,6 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
@@ -574,8 +573,6 @@ class ProviderTest {
         assertFalse(receipt.isPending)
     }
 
-    // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.
-    @Disabled("Pending declare fix on devnet")
     @Test
     fun `get declare transaction`() {
         val request = provider.getTransaction(declareTransactionHash)
