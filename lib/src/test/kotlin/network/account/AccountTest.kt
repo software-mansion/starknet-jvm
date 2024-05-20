@@ -253,7 +253,7 @@ class AccountTest {
     @Test
     fun `sign and send declare v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         // TODO: (#384) Test v3 transactions on Sepolia

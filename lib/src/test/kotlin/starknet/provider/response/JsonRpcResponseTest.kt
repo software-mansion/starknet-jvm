@@ -1,9 +1,8 @@
 package starknet.provider.response
 
-import com.swmansion.starknet.data.types.BlockTag
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL1ToL2
-import com.swmansion.starknet.data.types.PriceUnit
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -189,5 +188,49 @@ class JsonRpcResponseTest {
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
+    }
+
+    @Test
+    fun `rpc provider parses batch response with incorrect order`() {
+        val mockResponse = """
+           [
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                },
+                "id": "1"
+              },
+              {
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                },
+                "id": "0"
+              }
+            ]
+        """.trimIndent()
+
+        val txHash1 = "0x06376162aed112c9ded4fad481d514decdc0cb766c765b892e368e11891eff8d"
+        val txHash2 = "0x04a092caa24beca481307c1d7e4bc2fa0156e495701c4e0250367eea23352bc5"
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequests(
+            provider.getTransactionStatus(Felt.fromHex(txHash1)),
+            provider.getTransactionStatus(Felt.fromHex(txHash2)),
+        )
+        val response = request.send()
+
+        assertEquals(response[0].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[0].executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(response[1].finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(response[1].executionStatus, TransactionExecutionStatus.REVERTED)
     }
 }
