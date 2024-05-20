@@ -1,11 +1,12 @@
 package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.serializers.JsonRpcErrorSerializer
+import com.swmansion.starknet.data.types.Response
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class JsonRpcResponse<T>(
+internal data class JsonRpcResponse<T : Response>(
     @SerialName("id")
     val id: Int,
 

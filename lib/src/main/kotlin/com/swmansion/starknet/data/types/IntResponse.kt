@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = IntResponseSerializer::class)
-value class IntResponse(val value: Int) : HttpRequestType
+value class IntResponse(val value: Int) : Response

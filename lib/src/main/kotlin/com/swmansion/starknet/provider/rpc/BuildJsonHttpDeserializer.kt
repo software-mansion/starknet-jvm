@@ -1,5 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.types.Response
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.service.http.HttpResponse
@@ -8,7 +9,11 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.util.function.Function
 
-private fun <T> getResult(jsonRpcResponse: JsonRpcResponse<T>, fullPayload: String, payload: String): Result<T> {
+private fun <T : Response> getResult(
+    jsonRpcResponse: JsonRpcResponse<T>,
+    fullPayload: String,
+    payload: String,
+): Result<T> {
     if (jsonRpcResponse.error != null) {
         return Result.failure(
             RpcRequestFailedException(
@@ -39,7 +44,7 @@ private fun assertResponseSuccess(response: HttpResponse) {
     }
 }
 
-private fun <T> getOrderedRpcResults(
+private fun <T : Response> getOrderedRpcResults(
     response: HttpResponse,
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
@@ -63,7 +68,7 @@ private fun <T> getOrderedRpcResults(
 }
 
 @JvmSynthetic
-internal fun <T> buildJsonHttpDeserializer(
+internal fun <T : Response> buildJsonHttpDeserializer(
     deserializationStrategy: KSerializer<T>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<T> {
@@ -92,14 +97,14 @@ internal fun <T> buildJsonHttpDeserializer(
     }
 }
 
-internal fun <T> buildJsonHttpBatchDeserializer(
+internal fun <T : Response> buildJsonHttpBatchDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
     getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
 }
 
-internal fun <T> buildJsonHttpBatchDeserializerOfDifferentTypes(
+internal fun <T : Response> buildJsonHttpBatchDeserializerOfDifferentTypes(
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<List<Result<T>>> = Function { response ->

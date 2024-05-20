@@ -73,7 +73,7 @@ enum class DAMode(val value: Int) {
 }
 
 @Serializable
-sealed class Transaction : HttpRequestType {
+sealed class Transaction : Response {
     abstract val hash: Felt?
     abstract val version: TransactionVersion
     abstract val signature: Signature

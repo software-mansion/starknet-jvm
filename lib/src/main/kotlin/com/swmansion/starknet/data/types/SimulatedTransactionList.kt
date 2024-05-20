@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = SimulatedTransactionListSerializer::class)
-value class SimulatedTransactionList(val values: List<SimulatedTransaction>) : HttpRequestType
+value class SimulatedTransactionList(val values: List<SimulatedTransaction>) : Response

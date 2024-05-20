@@ -41,7 +41,7 @@ sealed class BlockId {
         }
     }
 }
-sealed interface Block : HttpRequestType {
+sealed interface Block : Response {
     val timestamp: Int
     val sequencerAddress: Felt
     val parentHash: Felt
