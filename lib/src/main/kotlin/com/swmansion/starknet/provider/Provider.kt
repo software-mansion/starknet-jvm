@@ -164,7 +164,7 @@ interface Provider {
      * @throws RequestFailedException
      *
      */
-    fun getSpecVersion(): Request<StarknetString>
+    fun getSpecVersion(): Request<StringResponse>
 
     /**
      * Calls a contract deployed on Starknet.

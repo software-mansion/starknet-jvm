@@ -56,7 +56,7 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
-    /** Batch multiple HTTP requests with any JSON-RPC calls together into a single HTTP request
+    /** Group multiple HTTP requests with any JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
      *
      * @param requests list of HTTP requests to be batched together
      *
@@ -77,7 +77,7 @@ class JsonRpcProvider(
         return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    /** Batch multiple HTTP requests with any JSON-RPC calls together into a single HTTP request
+    /** Group multiple HTTP requests with any JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
      *
      * @param requests one or more HTTP requests to be batched together
      *
@@ -87,7 +87,7 @@ class JsonRpcProvider(
         return batchRequestsAny(requests.toList())
     }
 
-    /** Batch multiple HTTP requests with JSON-RPC calls together into a single HTTP request
+    /** Group multiple HTTP requests with JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
      *
      * @param requests list of HTTP requests to be batched together
      *
@@ -108,7 +108,7 @@ class JsonRpcProvider(
         return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    /** Batch multiple HTTP requests with JSON-RPC calls together into a single HTTP request
+    /** Group multiple HTTP requests with JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
      *
      * @param requests one or more HTTP requests to be batched together
      *
@@ -118,10 +118,10 @@ class JsonRpcProvider(
         return batchRequests(requests.toList())
     }
 
-    override fun getSpecVersion(): HttpRequest<StarknetString> {
+    override fun getSpecVersion(): HttpRequest<StringResponse> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
-        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StarknetStringSerializer)
+        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StringResponseSerializer)
     }
 
     private fun callContract(payload: CallContractPayload): HttpRequest<FeltArray> {
