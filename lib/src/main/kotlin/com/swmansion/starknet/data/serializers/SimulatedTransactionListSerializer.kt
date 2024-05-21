@@ -1,7 +1,7 @@
 package com.swmansion.starknet.data.serializers
 
+import com.swmansion.starknet.data.types.SimulatedTransaction
 import com.swmansion.starknet.data.types.SimulatedTransactionList
-import com.swmansion.starknet.data.types.transactions.SimulatedTransaction
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer

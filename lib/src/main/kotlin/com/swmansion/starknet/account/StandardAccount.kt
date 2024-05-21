@@ -2,8 +2,7 @@ package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
-import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload
+import com.swmansion.starknet.data.types.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
