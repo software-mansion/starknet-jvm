@@ -2,7 +2,6 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
-import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName

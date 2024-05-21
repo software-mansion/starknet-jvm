@@ -141,7 +141,6 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.*;
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
