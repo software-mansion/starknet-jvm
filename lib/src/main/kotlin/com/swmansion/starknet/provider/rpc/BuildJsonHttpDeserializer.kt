@@ -36,20 +36,12 @@ private fun <T : Response> getResult(
     return Result.success(jsonRpcResponse.result)
 }
 
-private fun assertResponseSuccess(response: HttpResponse) {
-    if (!response.isSuccessful) {
-        throw RequestFailedException(
-            payload = response.body,
-        )
-    }
-}
-
 private fun <T : Response> getOrderedRpcResults(
     response: HttpResponse,
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
 ): List<Result<T>> {
-    assertResponseSuccess(response)
+    if (!response.isSuccessful) throw RequestFailedException(payload = response.body)
 
     val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
     val orderedResults = MutableList<Result<T>?>(jsonResponses.size) { null }
@@ -73,7 +65,7 @@ internal fun <T : Response> buildJsonHttpDeserializer(
     deserializationJson: Json,
 ): HttpResponseDeserializer<T> {
     return Function { response ->
-        assertResponseSuccess(response)
+        if (!response.isSuccessful) throw RequestFailedException(payload = response.body)
 
         val jsonRpcResponse =
             deserializationJson.decodeFromString(
