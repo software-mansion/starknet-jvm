@@ -15,7 +15,7 @@ data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldat
     override fun toCalldata(): List<Felt> = listOf(size.toFelt) + list
 }
 
-object FeltArraySerializer : KSerializer<FeltArray> {
+internal object FeltArraySerializer : KSerializer<FeltArray> {
     private val delegate = ListSerializer(Felt.serializer())
 
     override val descriptor = delegate.descriptor
