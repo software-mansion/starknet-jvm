@@ -12,7 +12,6 @@ internal class StarknetChainIdTest {
         fun getChainIdData(): List<ChainIdData> {
             return listOf(
                 ChainIdData(StarknetChainId.MAIN, "SN_MAIN", "0x534e5f4d41494e"),
-                ChainIdData(StarknetChainId.GOERLI, "SN_GOERLI", "0x534e5f474f45524c49"),
                 ChainIdData(StarknetChainId.SEPOLIA, "SN_SEPOLIA", "0x534e5f5345504f4c4941"),
                 ChainIdData(
                     StarknetChainId.INTEGRATION_SEPOLIA,

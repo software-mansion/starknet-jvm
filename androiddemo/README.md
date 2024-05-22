@@ -44,7 +44,7 @@ Running the demo on a network other than devnet (Mainnet/Testen/Integration) req
 ### Prerequisites
 - Android emulator (Android Studio, IntelliJ IDEA, etc.)
 - URL of a Starknet RPC node.
-- Account deployed on said network with some funds on it. If you're using **Goerli testnet**, you can obtain some funds from the [faucet](https://faucet.goerli.starknet.io/).
+- Account deployed on said network with some funds on it. If you're using **Sepolia testnet**, you can obtain some funds from the [faucet](https://starknet-faucet.vercel.app/).
 - A valid configuration that consists of the data above:
   - `DEMO_RPC_URL` - RPC node URL
   - `DEMO_ACCOUNT_ADDRESS` - account address
