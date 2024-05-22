@@ -11,7 +11,6 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
@@ -574,8 +573,6 @@ class ProviderTest {
         assertFalse(receipt.isPending)
     }
 
-    // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.
-    @Disabled("Pending declare fix on devnet")
     @Test
     fun `get declare transaction`() {
         val request = provider.getTransaction(declareTransactionHash)
@@ -723,7 +720,7 @@ class ProviderTest {
 
     @Test
     fun `get block transaction count with block number`() {
-        val request = provider.getBlockTransactionCount(0)
+        val request = provider.getBlockTransactionCount(1)
         val response = request.send()
 
         assertNotEquals(0, response)
@@ -774,7 +771,7 @@ class ProviderTest {
         val request = provider.getChainId()
         val response = request.send()
 
-        assertEquals(StarknetChainId.GOERLI, response)
+        assertEquals(StarknetChainId.SEPOLIA, response)
     }
 
     @Test
@@ -1199,5 +1196,56 @@ class ProviderTest {
         val response = request.send()
 
         assertNotNull(response)
+    }
+
+    @Test
+    fun `batch call contract with block hash and block tag`() {
+        val call1 = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "get_balance",
+            calldata = emptyList(),
+        )
+        val blockHash = provider.getBlockHashAndNumber().send().blockHash
+
+        val call2 = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "get_balance",
+            calldata = emptyList(),
+        )
+
+        val callRequests = listOf(
+            provider.callContract(
+                call = call1,
+                blockHash = blockHash,
+            ),
+            provider.callContract(
+                call = call2,
+                blockTag = BlockTag.LATEST,
+            ),
+        )
+        val request = provider.batchRequests(callRequests)
+        val response = request.send()
+        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+
+        assertEquals(response[0].first(), expectedBalance)
+        assertEquals(response[1].first(), expectedBalance)
+    }
+
+    @Test
+    fun `batch get transactions`() {
+        val blockNumber = provider.getBlockNumber().send()
+        val request = provider.batchRequests(
+            provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+            provider.getTransaction(invokeTransactionHash),
+            provider.getTransaction(declareTransactionHash),
+            provider.getTransaction(deployAccountTransactionHash),
+        )
+
+        val response = request.send()
+
+        assertEquals(response[0].hash, invokeTransactionHash)
+        assertEquals(response[1].hash, invokeTransactionHash)
+        assertEquals(response[2].hash, declareTransactionHash)
+        assertEquals(response[3].hash, deployAccountTransactionHash)
     }
 }

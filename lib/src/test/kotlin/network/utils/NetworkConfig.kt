@@ -14,8 +14,6 @@ class NetworkConfig {
     )
 
     enum class Network(val value: String) {
-        GOERLI_INTEGRATION("GOERLI_INTEGRATION"),
-        GOERLI_TESTNET("GOERLI_TESTNET"),
         SEPOLIA_INTEGRATION("SEPOLIA_INTEGRATION"),
         SEPOLIA_TESTNET("SEPOLIA_TESTNET"),
     }
@@ -51,7 +49,7 @@ class NetworkConfig {
         private fun makeConfigFromEnv(): Config {
             if (testMode == NetworkTestMode.DISABLED) {
                 return Config(
-                    network = Network.GOERLI_INTEGRATION,
+                    network = Network.SEPOLIA_INTEGRATION,
                     rpcUrl = "",
                     accountAddress = Felt.ZERO,
                     privateKey = Felt.ZERO,

@@ -48,9 +48,11 @@ class DevnetClient(
     val provider: Provider by lazy { JsonRpcProvider(rpcUrl) }
 
     private enum class TransactionVerificiationMode { RECEIPT, STATUS, DISABLED }
+
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
 
     private enum class StateArchiveCapacity(val value: String) { FULL("full"), NONE("none") }
+
     private val stateArchiveCapacity = StateArchiveCapacity.FULL
 
     companion object {
@@ -76,6 +78,7 @@ class DevnetClient(
             salt = Felt(20),
         )
     }
+
     fun start() {
         if (isDevnetRunning) {
             throw DevnetSetupFailedException("Devnet is already running")
@@ -135,6 +138,7 @@ class DevnetClient(
     fun prefundAccountEth(accountAddress: Felt) {
         prefundAccount(accountAddress, PriceUnit.WEI)
     }
+
     fun prefundAccountStrk(accountAddress: Felt) {
         prefundAccount(accountAddress, PriceUnit.FRI)
     }

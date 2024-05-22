@@ -179,10 +179,9 @@ Refer to the example config found in [test_variables.env.example](test_variables
 To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are:
   - `SEPOLIA_TESTNET`
   - `SEPOLIA_INTEGRATION`
-  - `GOERLI_TESTNET`
-  - `GOERLI_INTEGRATION`
 
-Please note that `GOERLI` networks are deprecated, and won't be supported in the future. The number of tests working on `SEPOLIA` is, however, temporarily limited.
+[comment]: <> (TODO: #384 Test v3 transactions on Sepolia)
+Note: The transition of network tests from `GOERLI` to `SEPOLIA` networks results in a current limitation of v3 tests.
 To properly configure your network, ensure the following variables are set with the `NETWORK_NAME_` prefix:  
   - `RPC_URL` - url of your RPC node
   - `ACCOUNT_ADDRESS` and `PRIVATE_KEY` - address and private key of your account

@@ -8,7 +8,6 @@ readonly V1_SCARB_VERSION="0.4.0"
 readonly V2_SCARB_VERSION="0.7.0"
 readonly V2_6_SCARB_VERSION="2.6.0"
 
-# TODO: (#365) Use asdf action to install scarb instead
 echo "Installing scarb..."
 asdf plugin add scarb || true
 echo "Done!"
