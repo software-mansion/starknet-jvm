@@ -162,8 +162,7 @@ public class Main {
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
 
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash,
@@ -222,8 +221,7 @@ fun main() {
         salt = salt,
     )
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
 
     val account = StandardAccount(
         address,
@@ -295,8 +293,7 @@ public class Main {
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
 
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash,
@@ -350,8 +347,7 @@ fun main() {
         salt = salt,
     )
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
 
     val account = StandardAccount(
         address,
@@ -392,8 +388,7 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -437,8 +432,7 @@ fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -492,8 +486,7 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
         
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -532,8 +525,7 @@ fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
@@ -577,16 +569,18 @@ import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -595,8 +589,10 @@ public class Main {
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
         // Import a compiled contract
-        String contractCode = Path.of("contract.sierra.json").toString();
-        String casmCode = Path.of("contract.casm.json").toString();
+        Path contractPath = Paths.get("contract.sierra.json");
+        Path casmPath = Paths.get("contract.casm.json");
+        String contractCode = String.join("", Files.readAllLines(contractPath));
+        String casmCode = String.join("", Files.readAllLines(casmPath));
         Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
         CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
         Felt nonce = account.getNonce().send();
@@ -629,14 +625,14 @@ import com.swmansion.starknet.data.types.Felt.Companion.fromHex
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import java.nio.file.Path
+import kotlin.io.path.readText
 
 
 fun main() {
     // Create a provider for interacting with Starknet
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
 
     // Set up an account
     val privateKey = fromHex("0x1234")
@@ -645,8 +641,8 @@ fun main() {
     val account = StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO)
 
     // Import a compiled contract
-    val contractCode = Path.of("contract.sierra.json").toString()
-    val casmCode = Path.of("contract.casm.json").toString()
+    val contractCode = Path.of("contract.sierra.json").readText()
+    val casmCode = Path.of("contract.casm.json").readText()
     val contractDefinition = Cairo1ContractDefinition(contractCode)
     val casmContractDefinition = CasmContractDefinition(casmCode)
     val nonce = account.getNonce().send()
@@ -696,8 +692,7 @@ public class Main {
     public static void main(String[] args) {
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-        // Adjust chain Id to desired network
-        StarknetChainId chainId = StarknetChainId.SEPOLIA;
+            StarknetChainId chainId = provider.getChainId().send();
         Felt address = new Felt(0x1234);
         Felt privateKey = new Felt(0x1);
         Account account = new StandardAccount(address, privateKey, provider, chainId);
@@ -726,13 +721,7 @@ public class Main {
         Call otherCall = new Call(contractAddress, "increase_balance", List.of(new Felt(100)));
 
         Felt nonce = account.getNonce().send();
-        InvokeParamsV3 params = new InvokeParamsV3(
-                nonce,
-                new ResourceBounds(
-                        new Uint64(20000),
-                        new Uint128(1200000000)
-                )
-        );
+        InvokeParamsV3 params = new InvokeParamsV3(nonce, new ResourceBounds(new Uint64(20000), new Uint128(1200000000)));
 
         InvokeTransactionV3Payload signedTransaction = account.signV3(otherCall, params);
         InvokeFunctionResponse signedInvokeResponse = provider.invokeFunction(signedTransaction).send();
@@ -761,8 +750,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 fun main() {
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Adjust chain Id to desired network
-    val chainId = StarknetChainId.SEPOLIA
+    val chainId = provider.getChainId().send()
     val address = Felt(0x1234)
     val privateKey = Felt(0x1)
     val account: Account = StandardAccount(address, privateKey, provider, chainId)
