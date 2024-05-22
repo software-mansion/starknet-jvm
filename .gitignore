@@ -57,5 +57,3 @@ crypto/poseidon/poseidon
 crypto/poseidon/*.dylib
 crypto/poseidon/*.so
 
-# Exlclude .tool-versions files in subdirectories
-**/.tool-versions

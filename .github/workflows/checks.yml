@@ -58,11 +58,21 @@ jobs:
             echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
 
-      - name: Setup asdf and install tools
-        uses: asdf-vm/actions/install@v3
+      - name: Setup asdf
+        uses: asdf-vm/actions/setup@v2
 
-      - name: Setup starknet-foundry
-      - uses: foundry-rs/setup-snfoundry@v3
+      - name: Install sncast 0.6.0
+        run: |
+          asdf plugin add starknet-foundry
+          asdf install starknet-foundry 0.6.0
+          asdf global starknet-foundry 0.6.0
+
+      - name: Install scarb
+        run: |
+          asdf plugin add scarb
+          asdf install scarb 0.4.0
+          asdf install scarb 0.7.0
+          asdf install scarb 2.6.0
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
