@@ -6,12 +6,30 @@ import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.service.http.*
-import com.swmansion.starknet.service.http.requests.HttpBatchRequest
-import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
+
+@Serializable
+internal data class JsonRpcRequest(
+    @SerialName("id")
+    val id: Int,
+
+    @SerialName("jsonrpc")
+    val jsonRpc: String,
+
+    @SerialName("method")
+    val method: String,
+
+    @SerialName("params")
+    val params: JsonElement,
+)
 
 /**
  * A provider for interacting with Starknet using JSON-RPC. You should reuse it in your application to share the
@@ -40,7 +58,7 @@ class JsonRpcProvider(
         }
     }
 
-    private fun <T : StarknetResponse> buildRequest(
+    private fun <T> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
         responseSerializer: KSerializer<T>,
@@ -55,13 +73,7 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
-    /** Batch multiple various calls into a single RPC request
-     *
-     * @param requests list of requests to be batched together
-     *
-     * @return batch request
-     */
-    fun batchRequestsAny(requests: List<HttpRequest<out StarknetResponse>>): HttpBatchRequest<StarknetResponse> {
+    fun <T> batchRequests(requests: List<HttpRequest<T>>): BatchHttpRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         val orderedRequests = requests.mapIndexed { index, request ->
@@ -73,81 +85,44 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+        return BatchHttpRequest(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    /** Batch multiple various calls into a single RPC request
-     *
-     * @param requests requests to be batched together
-     *
-     * @return batch request
-     */
-    fun batchRequestsAny(vararg requests: HttpRequest<out StarknetResponse>): HttpBatchRequest<StarknetResponse> {
-        return batchRequestsAny(requests.toList())
-    }
-
-    /** Batch multiple calls into a single RPC request
-     *
-     * @param requests list of requests to be batched together
-     *
-     * @return batch request
-     */
-    fun <T : StarknetResponse> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
-        require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
-
-        val orderedRequests = requests.mapIndexed { index, request ->
-            JsonRpcRequest(
-                id = index,
-                jsonRpc = "2.0",
-                method = request.jsonRpcRequest.method,
-                params = request.jsonRpcRequest.params,
-            )
-        }
-        val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
-    }
-
-    /** Batch multiple calls into a single RPC request
-     *
-     * @param requests requests to be batched together
-     *
-     * @return batch request
-     */
-    fun <T : StarknetResponse> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
+    fun <T> batchRequests(vararg requests: HttpRequest<T>): BatchHttpRequest<T> {
         return batchRequests(requests.toList())
     }
 
-    override fun getSpecVersion(): HttpRequest<StringResponse> {
+    override fun getSpecVersion(): HttpRequest<String> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
-        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StringResponseSerializer)
+        return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, String.serializer())
     }
 
-    private fun callContract(payload: CallContractPayload): HttpRequest<FeltArray> {
+    private fun callContract(payload: CallContractPayload): HttpRequest<List<Felt>> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.CALL, params, FeltArraySerializer)
+        return buildRequest(JsonRpcMethod.CALL, params, ListSerializer(Felt.serializer()))
     }
 
-    override fun callContract(call: Call, blockTag: BlockTag): HttpRequest<FeltArray> {
+    override fun callContract(call: Call, blockTag: BlockTag): HttpRequest<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockHash: Felt): HttpRequest<FeltArray> {
+    override fun callContract(call: Call, blockHash: Felt): HttpRequest<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call, blockNumber: Int): HttpRequest<FeltArray> {
+    override fun callContract(call: Call, blockNumber: Int): HttpRequest<List<Felt>> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call): HttpRequest<FeltArray> {
+    override fun callContract(call: Call): HttpRequest<List<Felt>> {
         return callContract(call, BlockTag.LATEST)
     }
 
@@ -346,13 +321,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
-    override fun getBlockNumber(): HttpRequest<IntResponse> {
+    override fun getBlockNumber(): HttpRequest<Int> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_NUMBER,
             params,
-            IntResponseSerializer,
+            Int.serializer(),
         )
     }
 
@@ -366,29 +341,29 @@ class JsonRpcProvider(
         )
     }
 
-    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): HttpRequest<IntResponse> {
+    private fun getBlockTransactionCount(payload: GetBlockTransactionCountPayload): HttpRequest<Int> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(
             JsonRpcMethod.GET_BLOCK_TRANSACTION_COUNT,
             params,
-            IntResponseSerializer,
+            Int.serializer(),
         )
     }
 
-    override fun getBlockTransactionCount(blockTag: BlockTag): HttpRequest<IntResponse> {
+    override fun getBlockTransactionCount(blockTag: BlockTag): HttpRequest<Int> {
         val payload = GetBlockTransactionCountPayload(BlockId.Tag(blockTag))
 
         return getBlockTransactionCount(payload)
     }
 
-    override fun getBlockTransactionCount(blockHash: Felt): HttpRequest<IntResponse> {
+    override fun getBlockTransactionCount(blockHash: Felt): HttpRequest<Int> {
         val payload = GetBlockTransactionCountPayload(BlockId.Hash(blockHash))
 
         return getBlockTransactionCount(payload)
     }
 
-    override fun getBlockTransactionCount(blockNumber: Int): HttpRequest<IntResponse> {
+    override fun getBlockTransactionCount(blockNumber: Int): HttpRequest<Int> {
         val payload = GetBlockTransactionCountPayload(BlockId.Number(blockNumber))
 
         return getBlockTransactionCount(payload)
@@ -403,17 +378,17 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_EVENTS, jsonPayload, GetEventsResult.serializer())
     }
 
-    private fun getEstimateFee(payload: EstimateTransactionFeePayload): HttpRequest<EstimateFeeResponseList> {
+    private fun getEstimateFee(payload: EstimateTransactionFeePayload): HttpRequest<List<EstimateFeeResponse>> {
         val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, EstimateFeeResponseListSerializer)
+        return buildRequest(JsonRpcMethod.ESTIMATE_FEE, jsonPayload, ListSerializer(EstimateFeeResponse.serializer()))
     }
 
     override fun getEstimateFee(
         payload: List<TransactionPayload>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Hash(blockHash))
 
         return getEstimateFee(estimatePayload)
@@ -422,7 +397,7 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<TransactionPayload>,
         blockHash: Felt,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, blockHash, defaultFeeEstimateSimulationFlags)
     }
 
@@ -430,7 +405,7 @@ class JsonRpcProvider(
         payload: List<TransactionPayload>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Number(blockNumber))
 
         return getEstimateFee(estimatePayload)
@@ -439,7 +414,7 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<TransactionPayload>,
         blockNumber: Int,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, blockNumber, defaultFeeEstimateSimulationFlags)
     }
 
@@ -447,7 +422,7 @@ class JsonRpcProvider(
         payload: List<TransactionPayload>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         val estimatePayload = EstimateTransactionFeePayload(payload, simulationFlags, BlockId.Tag(blockTag))
 
         return getEstimateFee(estimatePayload)
@@ -456,18 +431,15 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<TransactionPayload>,
         blockTag: BlockTag,
-    ): HttpRequest<EstimateFeeResponseList> {
+    ): HttpRequest<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, blockTag, defaultFeeEstimateSimulationFlags)
     }
 
-    override fun getEstimateFee(
-        payload: List<TransactionPayload>,
-        simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): HttpRequest<EstimateFeeResponseList> {
+    override fun getEstimateFee(payload: List<TransactionPayload>, simulationFlags: Set<SimulationFlagForEstimateFee>): HttpRequest<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockTag.PENDING, simulationFlags)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>): HttpRequest<EstimateFeeResponseList> {
+    override fun getEstimateFee(payload: List<TransactionPayload>): HttpRequest<List<EstimateFeeResponse>> {
         return getEstimateFee(payload, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
     }
 
@@ -658,37 +630,25 @@ class JsonRpcProvider(
         return getTransactionByBlockIdAndIndex(payload)
     }
 
-    private fun simulateTransactions(payload: SimulateTransactionsPayload): HttpRequest<SimulatedTransactionList> {
+    private fun simulateTransactions(payload: SimulateTransactionsPayload): HttpRequest<List<SimulatedTransaction>> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.SIMULATE_TRANSACTIONS, params, SimulatedTransactionListSerializer)
+        return buildRequest(JsonRpcMethod.SIMULATE_TRANSACTIONS, params, ListSerializer(SimulatedTransaction.serializer()))
     }
 
-    override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
-        blockTag: BlockTag,
-        simulationFlags: Set<SimulationFlag>,
-    ): HttpRequest<SimulatedTransactionList> {
+    override fun simulateTransactions(transactions: List<TransactionPayload>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): HttpRequest<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Tag(blockTag), simulationFlags)
 
         return simulateTransactions(payload)
     }
 
-    override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
-        blockNumber: Int,
-        simulationFlags: Set<SimulationFlag>,
-    ): HttpRequest<SimulatedTransactionList> {
+    override fun simulateTransactions(transactions: List<TransactionPayload>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): HttpRequest<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Number(blockNumber), simulationFlags)
 
         return simulateTransactions(payload)
     }
 
-    override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
-        blockHash: Felt,
-        simulationFlags: Set<SimulationFlag>,
-    ): HttpRequest<SimulatedTransactionList> {
+    override fun simulateTransactions(transactions: List<TransactionPayload>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): HttpRequest<List<SimulatedTransaction>> {
         val payload = SimulateTransactionsPayload(transactions, BlockId.Hash(blockHash), simulationFlags)
 
         return simulateTransactions(payload)

@@ -2,6 +2,7 @@ package com.swmansion.starknet.signer
 
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 
 /**
  * Transaction signer.

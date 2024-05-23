@@ -2,7 +2,8 @@ package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.DeployAccountTransactionV1Payload
+import com.swmansion.starknet.data.types.transactions.*
+import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
@@ -240,7 +241,7 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun executeV1(calls: List<Call>, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
         return estimateFeeV1(calls).compose { estimateFee ->
-            val maxFee = estimateFee.values.first().toMaxFee(estimateFeeMultiplier)
+            val maxFee = estimateFee.first().toMaxFee(estimateFeeMultiplier)
             executeV1(calls, maxFee)
         }
     }
@@ -251,7 +252,7 @@ class StandardAccount @JvmOverloads constructor(
         estimateUnitPriceMultiplier: Double,
     ): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
-            val resourceBounds = estimateFee.values.first().toResourceBounds(
+            val resourceBounds = estimateFee.first().toResourceBounds(
                 amountMultiplier = estimateAmountMultiplier,
                 unitPriceMultiplier = estimateUnitPriceMultiplier,
             )
@@ -261,14 +262,14 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV1(calls).compose { estimateFee ->
-            val maxFee = estimateFee.values.first().toMaxFee()
+            val maxFee = estimateFee.first().toMaxFee()
             executeV1(calls, maxFee)
         }
     }
 
     override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
-            val resourceBounds = estimateFee.values.first().toResourceBounds()
+            val resourceBounds = estimateFee.first().toResourceBounds()
             executeV3(calls, resourceBounds.l1Gas)
         }
     }
@@ -313,27 +314,27 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
 
-    override fun estimateFeeV1(call: Call): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(call: Call): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call))
     }
 
-    override fun estimateFeeV3(call: Call): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(call: Call): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(listOf(call))
     }
 
-    override fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call), skipValidate)
     }
 
-    override fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(listOf(call), skipValidate)
     }
 
-    override fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call), blockTag)
     }
 
-    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(listOf(call), blockTag)
     }
 
@@ -341,7 +342,7 @@ class StandardAccount @JvmOverloads constructor(
         call: Call,
         blockTag: BlockTag,
         skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
+    ): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(listOf(call), blockTag, skipValidate)
     }
 
@@ -349,31 +350,31 @@ class StandardAccount @JvmOverloads constructor(
         call: Call,
         blockTag: BlockTag,
         skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
+    ): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(listOf(call), blockTag, skipValidate)
     }
 
-    override fun estimateFeeV1(calls: List<Call>): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, BlockTag.PENDING, false)
     }
 
-    override fun estimateFeeV3(calls: List<Call>): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(calls: List<Call>): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(calls, BlockTag.PENDING, false)
     }
 
-    override fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, BlockTag.PENDING, skipValidate)
     }
 
-    override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
     }
 
-    override fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV1(calls, blockTag, false)
     }
 
-    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {
+    override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<List<EstimateFeeResponse>> {
         return estimateFeeV3(calls, blockTag, false)
     }
 
@@ -381,7 +382,7 @@ class StandardAccount @JvmOverloads constructor(
         calls: List<Call>,
         blockTag: BlockTag,
         skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
+    ): Request<List<EstimateFeeResponse>> {
         return getNonce(blockTag).compose { nonce ->
             val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)
             val payload = buildEstimateFeeV1Payload(calls, nonce)
@@ -393,7 +394,7 @@ class StandardAccount @JvmOverloads constructor(
         calls: List<Call>,
         blockTag: BlockTag,
         skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
+    ): Request<List<EstimateFeeResponse>> {
         return getNonce(blockTag).compose { nonce ->
             val payload = buildEstimateFeeV3Payload(calls, nonce)
             val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)

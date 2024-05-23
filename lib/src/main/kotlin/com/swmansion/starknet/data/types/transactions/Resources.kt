@@ -1,6 +1,6 @@
 @file:JvmName("Resources")
 
-package com.swmansion.starknet.data.types
+package com.swmansion.starknet.data.types.transactions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

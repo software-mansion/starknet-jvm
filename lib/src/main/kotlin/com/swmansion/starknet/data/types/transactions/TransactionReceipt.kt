@@ -1,5 +1,6 @@
-package com.swmansion.starknet.data.types
+package com.swmansion.starknet.data.types.transactions
 
+import com.swmansion.starknet.data.types.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -59,7 +60,7 @@ enum class TransactionFinalityStatus {
 }
 
 @Serializable
-sealed class TransactionReceipt : StarknetResponse {
+sealed class TransactionReceipt {
     abstract val hash: Felt
     abstract val type: TransactionType
     abstract val actualFee: FeePayment

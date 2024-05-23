@@ -1,6 +1,7 @@
 package com.swmansion.starknet.provider
 
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
 /**
@@ -82,7 +83,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockNumber(): Request<IntResponse>
+    fun getBlockNumber(): Request<Int>
 
     /**
      * Get the hash and number of the block.
@@ -101,7 +102,7 @@ interface Provider {
      * @param blockTag The tag of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockTag: BlockTag): Request<IntResponse>
+    fun getBlockTransactionCount(blockTag: BlockTag): Request<Int>
 
     /**
      * Get the block transaction count.
@@ -111,7 +112,7 @@ interface Provider {
      * @param blockHash The hash of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockHash: Felt): Request<IntResponse>
+    fun getBlockTransactionCount(blockHash: Felt): Request<Int>
 
     /**
      * Get the block transaction count.
@@ -121,7 +122,7 @@ interface Provider {
      * @param blockNumber The number of the block.
      * @throws RequestFailedException
      */
-    fun getBlockTransactionCount(blockNumber: Int): Request<IntResponse>
+    fun getBlockTransactionCount(blockNumber: Int): Request<Int>
 
     /**
      * Deploy an account contract using version 1 transaction.
@@ -153,7 +154,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockTag: BlockTag): Request<FeltArray>
+    fun callContract(call: Call, blockTag: BlockTag): Request<List<Felt>>
 
     /**
      * Get the version of the spec.
@@ -163,7 +164,7 @@ interface Provider {
      * @throws RequestFailedException
      *
      */
-    fun getSpecVersion(): Request<StringResponse>
+    fun getSpecVersion(): Request<String>
 
     /**
      * Calls a contract deployed on Starknet.
@@ -173,7 +174,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockHash: Felt): Request<FeltArray>
+    fun callContract(call: Call, blockHash: Felt): Request<List<Felt>>
 
     /**
      * Calls a contract deployed on Starknet.
@@ -183,7 +184,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockNumber: Int): Request<FeltArray>
+    fun callContract(call: Call, blockNumber: Int): Request<List<Felt>>
 
     /**
      * Calls a contract deployed on Starknet.
@@ -194,7 +195,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call): Request<FeltArray>
+    fun callContract(call: Call): Request<List<Felt>>
 
     /**
      * Get a value of storage var.
@@ -420,7 +421,7 @@ interface Provider {
         payload: List<TransactionPayload>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): Request<EstimateFeeResponseList>
+    ): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -432,7 +433,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockHash: Felt): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -449,7 +450,7 @@ interface Provider {
         payload: List<TransactionPayload>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): Request<EstimateFeeResponseList>
+    ): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -461,7 +462,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockNumber: Int): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -478,7 +479,7 @@ interface Provider {
         payload: List<TransactionPayload>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): Request<EstimateFeeResponseList>
+    ): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -490,7 +491,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<TransactionPayload>, blockTag: BlockTag): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -503,7 +504,7 @@ interface Provider {
      * @throws RequestFailedException
      */
 
-    fun getEstimateFee(payload: List<TransactionPayload>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<TransactionPayload>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a fee.
@@ -515,7 +516,7 @@ interface Provider {
      * @throws RequestFailedException
      */
 
-    fun getEstimateFee(payload: List<TransactionPayload>): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<TransactionPayload>): Request<List<EstimateFeeResponse>>
 
     /**
      * Estimate a message fee.
@@ -790,7 +791,7 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<TransactionPayload>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<TransactionPayload>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>>
 
     /** Simulate executing a list of transactions
      *
@@ -799,7 +800,7 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<TransactionPayload>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<TransactionPayload>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>>
 
     /** Simulate executing a list of transactions
      *
@@ -808,5 +809,5 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<TransactionPayload>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<TransactionPayload>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<List<SimulatedTransaction>>
 }
