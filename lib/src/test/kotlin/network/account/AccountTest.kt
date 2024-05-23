@@ -36,8 +36,6 @@ class AccountTest {
         private val cairoVersion = config.cairoVersion.toFelt
 
         val chainId = when (network) {
-            Network.GOERLI_INTEGRATION -> StarknetChainId.GOERLI
-            Network.GOERLI_TESTNET -> StarknetChainId.GOERLI
             Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
             Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
         }
@@ -62,14 +60,10 @@ class AccountTest {
         )
 
         private val predeclaredAccount = when (network) {
-            Network.GOERLI_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x5a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8"), Felt.ZERO)
-            Network.GOERLI_TESTNET -> DeclaredAccount(Felt.fromHex("0x5a9941d0cc16b8619a3325055472da709a66113afcc6a8ab86055da7d29c5f8"), Felt.ZERO)
             Network.SEPOLIA_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x2338634f11772ea342365abd5be9d9dc8a6f44f159ad782fdebd3db5d969738"), Felt.ONE)
             Network.SEPOLIA_TESTNET -> DeclaredAccount(Felt.fromHex("0x4c6d6cf894f8bc96bb9c525e6853e5483177841f7388f74a46cfda6f028c755"), Felt.ONE)
         }
         private val predeployedMapContractAddress = when (network) {
-            Network.GOERLI_INTEGRATION -> Felt.fromHex("0x05cd21d6b3952a869fda11fa9a5bd2657bd68080d3da255655ded47a81c8bd53")
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x2BAe9749940E7b89613C1a21D9C832242447caA065D5A2b8AB08c0c469b3462")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x06b248bde9ce00d69099304a527640bc9515a08f0b49e5168e2096656f207e1d")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x061bbcfc1e11d8de0efcb502f9e1163b4033c74c7977cbb2b8c545164236a88c")
         }
@@ -186,7 +180,7 @@ class AccountTest {
     @Test
     fun `sign and send declare v2 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val account = standardAccount
@@ -219,7 +213,7 @@ class AccountTest {
     @Test
     fun `sign and send declare v2 transaction (cairo compiler v2)`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val account = standardAccount
@@ -255,9 +249,6 @@ class AccountTest {
         // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
-        // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.GOERLI_INTEGRATION)
-
         val account = standardAccount
 
         ScarbClient.buildSaltedContract(
@@ -272,8 +263,8 @@ class AccountTest {
         val nonce = account.getNonce().send()
 
         val l1ResourceBounds = ResourceBounds(
-            maxAmount = Uint64(5000),
-            maxPricePerUnit = Uint128(200000000),
+            maxAmount = Uint64(100000),
+            maxPricePerUnit = Uint128(2500000000000),
         )
         val params = DeclareParamsV3(
             nonce = nonce,
@@ -296,7 +287,7 @@ class AccountTest {
     @Test
     fun `sign and send invoke v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
 
         val account = standardAccount
@@ -322,11 +313,10 @@ class AccountTest {
     @Test
     fun `sign and send invoke v3 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing experiencing failures in this test.
+        // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addInvokeTransaction expects
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.GOERLI_INTEGRATION)
 
         val account = standardAccount
 
@@ -526,7 +516,6 @@ class AccountTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         // TODO: (#384) Test v3 transactions on Sepolia
-        assumeTrue(network == Network.GOERLI_INTEGRATION)
 
         val account = standardAccount
 
@@ -600,6 +589,7 @@ class AccountTest {
         Thread.sleep(15000)
 
         val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+
         assertEquals(payload.classHash, tx.classHash)
         assertEquals(payload.salt, tx.contractAddressSalt)
         assertEquals(payload.constructorCalldata, tx.constructorCalldata)
@@ -765,12 +755,10 @@ class AccountTest {
     fun `test udc deploy with parameters`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
-        assumeFalse(network == Network.GOERLI_INTEGRATION)
+        assumeFalse(network == Network.SEPOLIA_INTEGRATION)
         val classHash = when (network) {
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x40971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x040971cb2233ff5680dc329121e03ae4af48082cf02d1082bcd07179610af39e")
-            else -> throw NotImplementedError("Test is not yet supported for this network $network")
         }
 
         val account = standardAccount
@@ -793,12 +781,10 @@ class AccountTest {
     fun `test udc deploy with constructor`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
-        assumeFalse(network == Network.GOERLI_INTEGRATION)
+        assumeFalse(network == Network.SEPOLIA_INTEGRATION)
         val classHash = when (network) {
-            Network.GOERLI_TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-            else -> throw NotImplementedError("Test is not yet supported for this network $network")
         }
 
         val account = standardAccount
