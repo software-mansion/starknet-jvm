@@ -41,7 +41,7 @@ sealed class BlockId {
         }
     }
 }
-sealed interface Block : Response {
+sealed interface Block : StarknetResponse {
     val timestamp: Int
     val sequencerAddress: Felt
     val parentHash: Felt

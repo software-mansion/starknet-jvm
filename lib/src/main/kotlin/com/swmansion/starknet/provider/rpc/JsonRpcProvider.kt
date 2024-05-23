@@ -40,7 +40,7 @@ class JsonRpcProvider(
         }
     }
 
-    private fun <T : Response> buildRequest(
+    private fun <T : StarknetResponse> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
         responseSerializer: KSerializer<T>,
@@ -55,13 +55,13 @@ class JsonRpcProvider(
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
 
-    /** Group multiple HTTP requests with any JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
+    /** Batch multiple various calls into a single RPC request
      *
-     * @param requests list of HTTP requests to be batched together
+     * @param requests list of requests to be batched together
      *
-     * @return batch HTTP request
+     * @return batch request
      */
-    fun batchRequestsAny(requests: List<HttpRequest<out Response>>): HttpBatchRequest<Response> {
+    fun batchRequestsAny(requests: List<HttpRequest<out StarknetResponse>>): HttpBatchRequest<StarknetResponse> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         val orderedRequests = requests.mapIndexed { index, request ->
@@ -76,23 +76,23 @@ class JsonRpcProvider(
         return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    /** Group multiple HTTP requests with any JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
+    /** Batch multiple various calls into a single RPC request
      *
-     * @param requests one or more HTTP requests to be batched together
+     * @param requests requests to be batched together
      *
-     * @return batch HTTP request
+     * @return batch request
      */
-    fun batchRequestsAny(vararg requests: HttpRequest<out Response>): HttpBatchRequest<Response> {
+    fun batchRequestsAny(vararg requests: HttpRequest<out StarknetResponse>): HttpBatchRequest<StarknetResponse> {
         return batchRequestsAny(requests.toList())
     }
 
-    /** Group multiple HTTP requests with JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
+    /** Batch multiple calls into a single RPC request
      *
-     * @param requests list of HTTP requests to be batched together
+     * @param requests list of requests to be batched together
      *
-     * @return batch HTTP request
+     * @return batch request
      */
-    fun <T : Response> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
+    fun <T : StarknetResponse> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
         val orderedRequests = requests.mapIndexed { index, request ->
@@ -107,13 +107,13 @@ class JsonRpcProvider(
         return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
-    /** Group multiple HTTP requests with JSON-RPC calls together into a HTTP request with batched JSON-RPC calls
+    /** Batch multiple calls into a single RPC request
      *
-     * @param requests one or more HTTP requests to be batched together
+     * @param requests requests to be batched together
      *
-     * @return batch HTTP request
+     * @return batch request
      */
-    fun <T : Response> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
+    fun <T : StarknetResponse> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
         return batchRequests(requests.toList())
     }
 

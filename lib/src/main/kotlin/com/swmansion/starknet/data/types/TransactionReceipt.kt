@@ -59,7 +59,7 @@ enum class TransactionFinalityStatus {
 }
 
 @Serializable
-sealed class TransactionReceipt : Response {
+sealed class TransactionReceipt : StarknetResponse {
     abstract val hash: Felt
     abstract val type: TransactionType
     abstract val actualFee: FeePayment

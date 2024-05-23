@@ -264,7 +264,7 @@ data class CasmContractDefinition @JvmOverloads constructor(
     }
 }
 
-sealed class ContractClassBase : Response
+sealed class ContractClassBase : StarknetResponse
 
 @Serializable
 data class DeprecatedContractClass(

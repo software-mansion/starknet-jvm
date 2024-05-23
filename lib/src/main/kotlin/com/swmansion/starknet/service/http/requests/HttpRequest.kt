@@ -1,6 +1,6 @@
 package com.swmansion.starknet.service.http.requests
 
-import com.swmansion.starknet.data.types.Response
+import com.swmansion.starknet.data.types.StarknetResponse
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.provider.rpc.buildJsonHttpDeserializer
@@ -14,7 +14,7 @@ import java.util.function.Function
 
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
-class HttpRequest<T : Response> private constructor(
+class HttpRequest<T : StarknetResponse> private constructor(
     internal val jsonRpcRequest: JsonRpcRequest,
     internal val serializer: KSerializer<T>,
     private val payload: Lazy<HttpService.Payload>,

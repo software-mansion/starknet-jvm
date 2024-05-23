@@ -17,7 +17,7 @@ data class CallContractResponse(
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt,
-) : Response
+) : StarknetResponse
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -27,7 +27,7 @@ data class DeclareResponse(
 
     @JsonNames("class_hash")
     val classHash: Felt,
-) : Response
+) : StarknetResponse
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -38,7 +38,7 @@ data class DeployAccountResponse(
     // TODO: (#344) deviation from the spec, make this non-nullable once Juno is updated
     @JsonNames("address", "contract_address")
     val address: Felt? = null,
-) : Response
+) : StarknetResponse
 
 @Serializable
 data class EstimateFeeResponse(
@@ -60,7 +60,7 @@ data class EstimateFeeResponse(
     // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
-) : Response {
+) : StarknetResponse {
     /**
      * Convert estimated fee to max fee with applied multiplier.
      *
@@ -116,7 +116,7 @@ data class GetBlockHashAndNumberResponse(
 
     @JsonNames("block_number")
     val blockNumber: Int,
-) : Response
+) : StarknetResponse
 
 @Serializable
 data class GetTransactionStatusResponse(
@@ -125,10 +125,10 @@ data class GetTransactionStatusResponse(
 
     @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
-) : Response
+) : StarknetResponse
 
 @Serializable
-sealed class Syncing : Response {
+sealed class Syncing : StarknetResponse {
     abstract val status: Boolean
 
     abstract val startingBlockHash: Felt
@@ -264,7 +264,7 @@ data class ReplacedClassItem(
 )
 
 @Serializable
-sealed class StateUpdate : Response {
+sealed class StateUpdate : StarknetResponse {
     abstract val oldRoot: Felt
     abstract val stateDiff: StateDiff
 }

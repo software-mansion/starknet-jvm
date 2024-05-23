@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = IntResponseSerializer::class)
-value class IntResponse(val value: Int) : Response
+value class IntResponse(val value: Int) : StarknetResponse
