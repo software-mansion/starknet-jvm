@@ -1,9 +1,11 @@
-package com.swmansion.starknet.service.http
+package com.swmansion.starknet.service.http.requests
 
+import com.swmansion.starknet.data.types.StarknetResponse
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
-import com.swmansion.starknet.provider.rpc.buildJsonBatchHttpDeserializer
 import com.swmansion.starknet.provider.rpc.buildJsonHttpDeserializer
+import com.swmansion.starknet.service.http.HttpResponse
+import com.swmansion.starknet.service.http.HttpService
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,7 +14,7 @@ import java.util.function.Function
 
 typealias HttpResponseDeserializer<T> = Function<HttpResponse, T>
 
-class HttpRequest<T> private constructor(
+class HttpRequest<T : StarknetResponse> private constructor(
     internal val jsonRpcRequest: JsonRpcRequest,
     internal val serializer: KSerializer<T>,
     private val payload: Lazy<HttpService.Payload>,
@@ -48,38 +50,5 @@ class HttpRequest<T> private constructor(
 
     override fun sendAsync(): CompletableFuture<T> {
         return service.sendAsync(payload.value).thenApplyAsync(deserializer)
-    }
-}
-
-class BatchHttpRequest<T> private constructor(
-    private val payload: HttpService.Payload,
-    private val deserializer: HttpResponseDeserializer<List<T>>,
-    private val service: HttpService,
-) : Request<List<T>> {
-
-    internal constructor(
-        url: String,
-        jsonRpcRequests: List<JsonRpcRequest>,
-        responseDeserializers: List<KSerializer<T>>,
-        deserializationJson: Json,
-        service: HttpService,
-    ) : this(
-        HttpService.Payload(
-            url = url,
-            method = "POST",
-            params = emptyList(),
-            body = Json.encodeToString(jsonRpcRequests),
-        ),
-        deserializer = buildJsonBatchHttpDeserializer(responseDeserializers, deserializationJson),
-        service = service,
-    )
-
-    override fun send(): List<T> {
-        val response = service.send(payload)
-        return deserializer.apply(response)
-    }
-
-    override fun sendAsync(): CompletableFuture<List<T>> {
-        return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 }
