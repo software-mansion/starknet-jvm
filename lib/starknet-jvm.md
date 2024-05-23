@@ -141,6 +141,7 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.transactions.*;
 import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
@@ -500,83 +501,6 @@ fun main(args: Array<String>) {
         low = batchResponse[1][0],
         high = batchResponse[1][1],
     )
-}
-```
-
-## Making multiple calls of different types in one request
-
-### In Java
-
-```java
-import com.swmansion.starknet.data.types.transactions.Transaction;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        // Create requests
-        Request<Transaction> txRequest1 = provider.getTransaction(Felt.fromHex("0x0123"));
-        Request<Transaction> txRequest2 = provider.getTransaction(Felt.fromHex("0x0456"));
-        Request<GetTransactionStatusResponse> txStatusRequest = provider.getTransactionStatus(Felt.fromHex("0x0789"));
-        Request<BlockWithTransactionHashes> blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"));
-
-        // Create a batch request of different types and send it
-        List<Object> response = provider.batchRequestsAny(
-                txRequest1,
-                txRequest2,
-                txStatusRequest,
-                blockWithTxHashesRequest
-        ).send();
-
-        // Access output values from the response
-        Transaction tx1 = (Transaction) response.get(0);
-        Transaction tx2 = (Transaction) response.get(1);
-        GetTransactionStatusResponse txStatus = (GetTransactionStatusResponse) response.get(2);
-        BlockWithTransactionHashes blockWithTxHashes = (BlockWithTransactionHashes) response.get(3);
-    }
-}
-```
-
-### In Kotlin
-
-```kotlin
-import com.swmansion.starknet.data.types.BlockWithTransactionHashes
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.GetTransactionStatusResponse
-import com.swmansion.starknet.data.types.Transaction
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider
-
-fun main(args: Array<String>) {
-    // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-
-    // Create requests
-    val txRequest1 = provider.getTransaction(Felt.fromHex("0x0123"))
-    val txRequest2 = provider.getTransaction(Felt.fromHex("0x0456"))
-    val txStatusRequest = provider.getTransactionStatus(Felt.fromHex("0x0789"))
-    val blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"))
-
-    val batchRequest = provider.batchRequestsAny(
-        txRequest1,
-        txRequest2,
-        txStatusRequest,
-        blockWithTxHashesRequest
-    )
-
-    // Send the batch request
-    val response = batchRequest.send()
-
-    // Access output values from the response
-    val tx1 = response[0] as Transaction
-    val tx2 = response[1] as Transaction
-    val txStatus = response[2] as GetTransactionStatusResponse
-    val blockWithTxHashes = response[3] as BlockWithTransactionHashes
 }
 ```
 

@@ -3,9 +3,9 @@ package com.swmansion.starknet.data
 import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.DAMode
-import com.swmansion.starknet.data.types.TransactionType
-import com.swmansion.starknet.data.types.TransactionVersion
+import com.swmansion.starknet.data.types.transactions.DAMode
+import com.swmansion.starknet.data.types.transactions.TransactionType
+import com.swmansion.starknet.data.types.transactions.TransactionVersion
 import com.swmansion.starknet.extensions.toFelt
 
 /**

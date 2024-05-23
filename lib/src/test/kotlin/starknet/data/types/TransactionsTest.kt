@@ -2,6 +2,7 @@ package starknet.data.types
 
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

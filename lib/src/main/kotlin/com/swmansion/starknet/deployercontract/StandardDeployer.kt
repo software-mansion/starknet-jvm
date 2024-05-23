@@ -3,6 +3,7 @@ package com.swmansion.starknet.deployercontract
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider

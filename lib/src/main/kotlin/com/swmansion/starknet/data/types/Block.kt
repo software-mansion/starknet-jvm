@@ -3,6 +3,8 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
+import com.swmansion.starknet.data.types.transactions.Transaction
+import com.swmansion.starknet.data.types.transactions.TransactionReceipt
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -41,7 +43,8 @@ sealed class BlockId {
         }
     }
 }
-sealed interface Block : StarknetResponse {
+
+sealed interface Block {
     val timestamp: Int
     val sequencerAddress: Felt
     val parentHash: Felt

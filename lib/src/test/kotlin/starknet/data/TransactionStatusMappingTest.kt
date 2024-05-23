@@ -1,6 +1,6 @@
 package starknet.data
 
-import com.swmansion.starknet.data.types.TransactionStatus
+import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
