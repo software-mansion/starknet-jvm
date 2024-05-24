@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.DAMode
-import com.swmansion.starknet.data.types.transactions.TransactionVersion
+import com.swmansion.starknet.data.types.DAMode
+import com.swmansion.starknet.data.types.TransactionVersion
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

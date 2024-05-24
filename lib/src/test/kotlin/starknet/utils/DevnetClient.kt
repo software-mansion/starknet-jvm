@@ -2,8 +2,8 @@ package starknet.utils
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.PriceUnit
-import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
+import com.swmansion.starknet.data.types.TransactionExecutionStatus
+import com.swmansion.starknet.data.types.TransactionStatus
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService

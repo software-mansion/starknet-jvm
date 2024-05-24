@@ -4,7 +4,6 @@ import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.deployercontract.StandardDeployer
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.extensions.toUint256
@@ -93,7 +92,7 @@ class AccountTest {
             listOf(call),
             skipValidate = false,
         )
-        val estimateFeeResponse = estimateFeeRequest.send().first().overallFee
+        val estimateFeeResponse = estimateFeeRequest.send().values.first().overallFee
         assertTrue(estimateFeeResponse.value > Felt.ONE.value)
     }
 
@@ -136,7 +135,7 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
 
-        val feeEstimate = feeEstimateRequest.send().first()
+        val feeEstimate = feeEstimateRequest.send().values.first()
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
@@ -172,7 +171,7 @@ class AccountTest {
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
 
-        val feeEstimate = feeEstimateRequest.send().first()
+        val feeEstimate = feeEstimateRequest.send().values.first()
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
         assertNotEquals(Felt(0), feeEstimate.gasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
@@ -391,7 +390,7 @@ class AccountTest {
         assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
         val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-        assertTrue(feePayload.first().overallFee.value > Felt.ONE.value)
+        assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
     }
 
     @Test
@@ -551,7 +550,7 @@ class AccountTest {
         )
         val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
 
-        val feeEstimate = feeEstimateRequest.send().first()
+        val feeEstimate = feeEstimateRequest.send().values.first()
         val resourceBounds = feeEstimate.toResourceBounds()
 
         val call = Call(
@@ -646,12 +645,12 @@ class AccountTest {
             blockTag = BlockTag.LATEST,
             simulationFlags = simulationFlags,
         ).send()
-        assertEquals(2, simulationResult.size)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[1].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[1].transactionTrace is RevertedInvokeTransactionTrace)
-        assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
+        assertEquals(2, simulationResult.values.size)
+        assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult.values[1].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult.values[1].transactionTrace is RevertedInvokeTransactionTrace)
+        assertNotNull((simulationResult.values[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
 
         val invokeTxWithoutSignature = InvokeTransactionV1Payload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
         val invokeTxWihtoutSignature2 = InvokeTransactionV1Payload(invokeTx2.senderAddress, invokeTx2.calldata, emptyList(), invokeTx2.maxFee, invokeTx2.version, invokeTx2.nonce)
@@ -662,12 +661,12 @@ class AccountTest {
             simulationFlags = simulationFlags2,
         ).send()
 
-        assertEquals(2, simulationResult2.size)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[0].transactionTrace is InvokeTransactionTrace)
-        assertTrue(simulationResult[1].transactionTrace is InvokeTransactionTraceBase)
-        assertTrue(simulationResult[1].transactionTrace is RevertedInvokeTransactionTrace)
-        assertNotNull((simulationResult[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
+        assertEquals(2, simulationResult2.values.size)
+        assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
+        assertTrue(simulationResult.values[1].transactionTrace is InvokeTransactionTraceBase)
+        assertTrue(simulationResult.values[1].transactionTrace is RevertedInvokeTransactionTrace)
+        assertNotNull((simulationResult.values[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
     }
 
     @Test
@@ -698,8 +697,8 @@ class AccountTest {
             blockTag = BlockTag.LATEST,
             simulationFlags = simulationFlags,
         ).send()
-        assertEquals(1, simulationResult.size)
-        assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
+        assertEquals(1, simulationResult.values.size)
+        assertTrue(simulationResult.values[0].transactionTrace is DeployAccountTransactionTrace)
 
         val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
 
@@ -710,8 +709,8 @@ class AccountTest {
             simulationFlags = simulationFlags2,
         ).send()
 
-        assertEquals(1, simulationResult2.size)
-        assertTrue(simulationResult[0].transactionTrace is DeployAccountTransactionTrace)
+        assertEquals(1, simulationResult2.values.size)
+        assertTrue(simulationResult.values[0].transactionTrace is DeployAccountTransactionTrace)
     }
 
     @Test
@@ -747,8 +746,8 @@ class AccountTest {
             blockTag = BlockTag.LATEST,
             simulationFlags = simulationFlags,
         ).send()
-        assertEquals(1, simulationResult.size)
-        val trace = simulationResult.first().transactionTrace
+        assertEquals(1, simulationResult.values.size)
+        val trace = simulationResult.values.first().transactionTrace
         assertTrue(trace is DeclareTransactionTrace)
     }
 
