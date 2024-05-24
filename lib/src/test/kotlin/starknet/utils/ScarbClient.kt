@@ -15,7 +15,6 @@ class ScarbClient {
         private val json = Json { ignoreUnknownKeys = true }
 
         @JvmStatic
-        @JvmOverloads
         fun buildContracts(contractsDirectory: Path, profileName: String = "release"): ScarbBuildResponse {
             val output = runScarb(
                 command = "build",
