@@ -4,13 +4,10 @@ import com.swmansion.starknet.data.serializers.StarknetChainIdSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = StarknetChainIdSerializer::class)
-data class StarknetChainId(val value: Felt) {
+data class StarknetChainId(val value: Felt) : StarknetResponse {
     companion object {
         @field:JvmField
         val MAIN = StarknetChainId(Felt.fromHex("0x534e5f4d41494e")) // encodeShortString('SN_MAIN'),
-
-        @field:JvmField
-        val GOERLI = StarknetChainId(Felt.fromHex("0x534e5f474f45524c49")) // encodeShortString('SN_GOERLI'),
 
         @field:JvmField
         val SEPOLIA = StarknetChainId(Felt.fromHex("0x534e5f5345504f4c4941")) // encodeShortString('SN_SEPOLIA'),

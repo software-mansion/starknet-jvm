@@ -1,12 +1,6 @@
-package com.swmansion.starknet.data.types.transactions
+package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.TransactionTracePolymorphicSerializer
-import com.swmansion.starknet.data.types.Calldata
-import com.swmansion.starknet.data.types.EstimateFeeResponse
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.OrderedEvent
-import com.swmansion.starknet.data.types.OrderedMessageL2ToL1
-import com.swmansion.starknet.data.types.StateDiff
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

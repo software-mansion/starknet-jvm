@@ -2,7 +2,6 @@ package starknet.provider
 
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -11,7 +10,6 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
@@ -69,7 +67,7 @@ class ProviderTest {
     @Test
     fun `get spec version`() {
         val request = provider.getSpecVersion()
-        val specVersion = request.send()
+        val specVersion = request.send().value
 
         assertNotEquals(0, specVersion.length)
         val validPattern = "\\d+\\.\\d+\\.\\d+".toRegex()
@@ -88,7 +86,7 @@ class ProviderTest {
 
     @Test
     fun `call contract with block number`() {
-        val currentNumber = provider.getBlockNumber().send()
+        val currentNumber = provider.getBlockNumber().send().value
 
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -183,7 +181,7 @@ class ProviderTest {
 
     @Test
     fun `get class definition at class hash (block number)`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getClass(balanceClassHash, blockNumber)
         val response = request.send()
@@ -225,7 +223,7 @@ class ProviderTest {
 
     @Test
     fun `get class definition at contract address (block number)`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getClassAt(balanceContractAddress, blockNumber)
         val response = request.send()
@@ -288,7 +286,7 @@ class ProviderTest {
 
     @Test
     fun `get class hash at block number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getClassHashAt(balanceContractAddress, blockNumber)
         val response = request.send()
@@ -574,8 +572,6 @@ class ProviderTest {
         assertFalse(receipt.isPending)
     }
 
-    // TODO (#364): Enable this test once declare transaction conforms to the spec on devnet side.
-    @Disabled("Pending declare fix on devnet")
     @Test
     fun `get declare transaction`() {
         val request = provider.getTransaction(declareTransactionHash)
@@ -723,7 +719,7 @@ class ProviderTest {
 
     @Test
     fun `get block transaction count with block number`() {
-        val request = provider.getBlockTransactionCount(0)
+        val request = provider.getBlockTransactionCount(1)
         val response = request.send()
 
         assertNotEquals(0, response)
@@ -774,7 +770,7 @@ class ProviderTest {
         val request = provider.getChainId()
         val response = request.send()
 
-        assertEquals(StarknetChainId.GOERLI, response)
+        assertEquals(StarknetChainId.SEPOLIA, response)
     }
 
     @Test
@@ -787,7 +783,7 @@ class ProviderTest {
 
     @Test
     fun `get nonce with block number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getNonce(balanceContractAddress, blockNumber)
         val response = request.send()
@@ -887,7 +883,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transactions with block number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithTxs(blockNumber)
         val response = request.send()
@@ -1034,7 +1030,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction receipts with block number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithReceipts(blockNumber)
         val response = request.send()
@@ -1105,7 +1101,7 @@ class ProviderTest {
 
     @Test
     fun `get block with transaction hashes with block number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithTxHashes(blockNumber)
         val response = request.send()
@@ -1164,7 +1160,7 @@ class ProviderTest {
 
     @Test
     fun `get state of block with number`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getStateUpdate(blockNumber)
         val response = request.send()
@@ -1193,11 +1189,85 @@ class ProviderTest {
 
     @Test
     fun `get transactions by block number and index`() {
-        val blockNumber = provider.getBlockNumber().send()
+        val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getTransactionByBlockIdAndIndex(blockNumber, 0)
         val response = request.send()
 
         assertNotNull(response)
+    }
+
+    @Test
+    fun `batch call contract with block hash and block tag`() {
+        val call1 = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "get_balance",
+            calldata = emptyList(),
+        )
+        val blockHash = provider.getBlockHashAndNumber().send().blockHash
+
+        val call2 = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "get_balance",
+            calldata = emptyList(),
+        )
+
+        val callRequests = listOf(
+            provider.callContract(
+                call = call1,
+                blockHash = blockHash,
+            ),
+            provider.callContract(
+                call = call2,
+                blockTag = BlockTag.LATEST,
+            ),
+        )
+        val request = provider.batchRequests(callRequests)
+        val response = request.send()
+        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+
+        assertEquals(response[0].getOrThrow().first(), expectedBalance)
+        assertEquals(response[1].getOrThrow().first(), expectedBalance)
+    }
+
+    @Test
+    fun `batch get transactions`() {
+        val blockNumber = provider.getBlockNumber().send().value
+        val request = provider.batchRequests(
+            provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+            provider.getTransaction(invokeTransactionHash),
+            provider.getTransaction(declareTransactionHash),
+            provider.getTransaction(deployAccountTransactionHash),
+
+        )
+
+        val response = request.send()
+
+        assertEquals(response[0].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[1].getOrThrow().hash, invokeTransactionHash)
+        assertEquals(response[2].getOrThrow().hash, declareTransactionHash)
+        assertEquals(response[3].getOrThrow().hash, deployAccountTransactionHash)
+    }
+
+    @Test
+    fun `batch requests any`() {
+        val request = provider.batchRequestsAny(
+            provider.getTransaction(invokeTransactionHash),
+            provider.getBlockNumber(),
+            provider.getTransactionStatus(invokeTransactionHash),
+        )
+
+        val response = request.send()
+
+        val transaction = response[0].getOrThrow() as Transaction
+        val blockNumber = (response[1].getOrThrow() as IntResponse).value
+        val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
+
+        assertEquals(transaction.hash, invokeTransactionHash)
+
+        assertNotEquals(0, blockNumber)
+
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
+        assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
     }
 }

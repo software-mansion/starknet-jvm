@@ -1,9 +1,6 @@
 package starknet.provider.response
 
-import com.swmansion.starknet.data.types.BlockTag
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.MessageL1ToL2
-import com.swmansion.starknet.data.types.PriceUnit
+import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -189,5 +186,93 @@ class JsonRpcResponseTest {
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
+    }
+
+    @Test
+    fun `rpc provider parses batch response with incorrect order`() {
+        val mockResponse = """
+           [
+              {
+                "id": "1",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                }
+              },
+              {
+                "id": "0",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "SUCCEEDED"
+                }
+              }
+            ]
+        """.trimIndent()
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequests(
+            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(2)),
+        )
+        val response = request.send()
+
+        val txStatusResponse1 = response[0].getOrThrow()
+        val txStatusResponse2 = response[1].getOrThrow()
+
+        assertEquals(txStatusResponse1.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse1.executionStatus, TransactionExecutionStatus.SUCCEEDED)
+
+        assertEquals(txStatusResponse2.finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.executionStatus, TransactionExecutionStatus.REVERTED)
+    }
+
+    @Test
+    fun `rpc provider parses batch response with error`() {
+        val mockResponse = """
+           [
+              {
+                "id": "1",
+                "jsonrpc": "2.0",
+                "result": {
+                  "finality_status": "ACCEPTED_ON_L2",
+                  "execution_status": "REVERTED"
+                }
+              },
+              {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": "Internal error",
+                    "data": "Invalid message selector"
+                }
+              }
+            ]
+        """.trimIndent()
+
+        val httpServiceMock = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+        }
+        val provider = JsonRpcProvider("", httpServiceMock)
+
+        val request = provider.batchRequests(
+            provider.getTransactionStatus(Felt(1)),
+            provider.getTransactionStatus(Felt(1)),
+        )
+        val response = request.send()
+
+        val txStatusResponse1 = response[0]
+        val txStatusResponse2 = response[1]
+
+        assertThrows<RpcRequestFailedException> { txStatusResponse1.getOrThrow() }
+
+        assertEquals(txStatusResponse2.getOrThrow().finalityStatus, TransactionStatus.ACCEPTED_ON_L2)
+        assertEquals(txStatusResponse2.getOrThrow().executionStatus, TransactionExecutionStatus.REVERTED)
     }
 }
