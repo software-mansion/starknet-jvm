@@ -170,7 +170,7 @@ sealed class InvokeTransaction : Transaction() {
 }
 
 @Serializable
-data class InvokeTransactionV1(
+data class InvokeTransactionV1 @JvmOverloads constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -398,7 +398,7 @@ data class DeclareTransactionV2(
 }
 
 @Serializable
-data class DeclareTransactionV3(
+data class DeclareTransactionV3 @JvmOverloads constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
