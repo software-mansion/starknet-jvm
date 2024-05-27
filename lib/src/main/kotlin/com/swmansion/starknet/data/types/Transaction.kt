@@ -130,7 +130,7 @@ sealed interface TransactionV3 {
 
 @Serializable
 @SerialName("DEPLOY")
-data class DeployTransaction(
+data class DeployTransaction @JvmOverloads internal constructor(
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
@@ -142,7 +142,7 @@ data class DeployTransaction(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     // not in RPC spec
     @SerialName("max_fee")
@@ -179,7 +179,7 @@ data class InvokeTransactionV1 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -242,7 +242,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("version")
     override val version: TransactionVersion,
@@ -326,7 +326,7 @@ data class InvokeTransactionV0 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     val maxFee: Felt,
@@ -366,7 +366,7 @@ data class DeclareTransactionV0 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -385,7 +385,7 @@ data class DeclareTransactionV0 @JvmOverloads internal constructor(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV1(
+data class DeclareTransactionV1 @JvmOverloads internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -394,7 +394,7 @@ data class DeclareTransactionV1(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -413,7 +413,7 @@ data class DeclareTransactionV1(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV2(
+data class DeclareTransactionV2 @JvmOverloads internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -422,13 +422,13 @@ data class DeclareTransactionV2(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V2,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -498,7 +498,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 
     // not in RPC spec
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("version")
     override val version: TransactionVersion,
@@ -657,7 +657,7 @@ data class DeployAccountTransactionV1(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -716,7 +716,7 @@ data class DeployAccountTransactionV1(
 }
 
 @Serializable
-data class DeployAccountTransactionV3(
+data class DeployAccountTransactionV3 @JvmOverloads internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -732,7 +732,7 @@ data class DeployAccountTransactionV3(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("version")
     override val version: TransactionVersion,
