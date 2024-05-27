@@ -18,7 +18,6 @@ internal class TransactionsTest {
             chainId = StarknetChainId.fromNetworkName("SN_GOERLI"),
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
-            version = TransactionVersion.V1,
         )
 
         assertEquals(Felt.fromHex("0x22294fe217f962c39e4cb694a5db3f71e1132988451a9b2abc2d2ea8512088e"), tx1.hash)
@@ -48,7 +47,6 @@ internal class TransactionsTest {
             chainId = StarknetChainId.fromNetworkName("SN_GOERLI"),
             nonce = Felt.ZERO,
             maxFee = Felt(BigInteger("100000000")),
-            version = TransactionVersion.V1,
         )
 
         assertEquals(Felt.fromHex("0xff63c84949d3ab0ced753c227528493dea3dc4680c65c1facb7f86ae0472df"), tx2.hash)

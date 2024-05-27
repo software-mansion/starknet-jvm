@@ -170,7 +170,7 @@ sealed class InvokeTransaction : Transaction() {
 }
 
 @Serializable
-data class InvokeTransactionV1 @JvmOverloads constructor(
+data class InvokeTransactionV1 @JvmOverloads internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -185,7 +185,7 @@ data class InvokeTransactionV1 @JvmOverloads constructor(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V1,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -193,7 +193,7 @@ data class InvokeTransactionV1 @JvmOverloads constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction(), DeprecatedTransaction {
+    ) : InvokeTransaction(), DeprecatedTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -233,7 +233,7 @@ data class InvokeTransactionV1 @JvmOverloads constructor(
 }
 
 @Serializable
-data class InvokeTransactionV3(
+data class InvokeTransactionV3 @JvmOverloads internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -245,7 +245,7 @@ data class InvokeTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -320,7 +320,7 @@ data class InvokeTransactionV3(
 }
 
 @Serializable
-data class InvokeTransactionV0(
+data class InvokeTransactionV0 @JvmOverloads internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -332,7 +332,7 @@ data class InvokeTransactionV0(
     val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V0,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -357,7 +357,7 @@ sealed class DeclareTransaction : Transaction() {
 }
 
 @Serializable
-data class DeclareTransactionV0(
+data class DeclareTransactionV0 @JvmOverloads internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -448,7 +448,6 @@ data class DeclareTransactionV2(
         contractDefinition: Cairo1ContractDefinition,
         chainId: StarknetChainId,
         maxFee: Felt,
-        forFeeEstimate: Boolean = false,
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
         signature: Signature = emptyList(),
@@ -458,7 +457,7 @@ data class DeclareTransactionV2(
             chainId = chainId,
             senderAddress = senderAddress,
             maxFee = maxFee,
-            version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
+            version = TransactionVersion.V2,
             nonce = nonce,
             compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
         ),
@@ -466,7 +465,7 @@ data class DeclareTransactionV2(
         senderAddress = senderAddress,
         contractDefinition = contractDefinition,
         maxFee = maxFee,
-        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
+        version = TransactionVersion.V2,
         signature = signature,
         nonce = nonce,
         compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
@@ -502,7 +501,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -664,7 +663,7 @@ data class DeployAccountTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V1,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -736,7 +735,7 @@ data class DeployAccountTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,

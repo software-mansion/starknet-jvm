@@ -130,7 +130,6 @@ class AccountTest {
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
-            forFeeEstimate = true,
         )
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
