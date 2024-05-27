@@ -47,14 +47,13 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
-        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = InvokeTransactionV1(
             senderAddress = address,
             calldata = calldata,
             chainId = chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
-            version = signVersion,
+            forFeeEstimate = forFeeEstimate,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -64,13 +63,12 @@ class StandardAccount @JvmOverloads constructor(
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
-        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = InvokeTransactionV3(
             senderAddress = address,
             calldata = calldata,
             chainId = chainId,
             nonce = params.nonce,
-            version = signVersion,
+            forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
         )
 
@@ -87,7 +85,6 @@ class StandardAccount @JvmOverloads constructor(
         nonce: Felt,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV1Payload {
-        val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = DeployAccountTransactionV1(
             classHash = classHash,
             contractAddress = address,
@@ -95,7 +92,7 @@ class StandardAccount @JvmOverloads constructor(
             calldata = calldata,
             chainId = chainId,
             maxFee = maxFee,
-            version = signVersion,
+            forFeeEstimate = forFeeEstimate,
             nonce = nonce,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -110,14 +107,13 @@ class StandardAccount @JvmOverloads constructor(
         params: DeployAccountParamsV3,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
-        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = DeployAccountTransactionV3(
             classHash = classHash,
             senderAddress = address,
             salt = salt,
             calldata = calldata,
             chainId = chainId,
-            version = signVersion,
+            forFeeEstimate,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
         )
@@ -132,14 +128,13 @@ class StandardAccount @JvmOverloads constructor(
         params: ExecutionParams,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
-        val signVersion = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2
         val tx = DeclareTransactionV2(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
             chainId = chainId,
             nonce = params.nonce,
             maxFee = params.maxFee,
-            version = signVersion,
+            forFeeEstimate = forFeeEstimate,
             casmContractDefinition = casmContractDefinition,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -153,13 +148,12 @@ class StandardAccount @JvmOverloads constructor(
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload {
-        val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = DeclareTransactionV3(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
             chainId = chainId,
             nonce = params.nonce,
-            version = signVersion,
+            forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
             casmContractDefinition = casmContractDefinition,
         )
@@ -412,7 +406,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = nonce,
             maxFee = payload.maxFee,
             signature = payload.signature,
-            version = payload.version,
+            forFeeEstimate = true,
         )
         return listOf(signedTransaction.toPayload())
     }
@@ -430,8 +424,8 @@ class StandardAccount @JvmOverloads constructor(
             chainId = chainId,
             nonce = nonce,
             signature = payload.signature,
-            version = payload.version,
             resourceBounds = payload.resourceBounds,
+            forFeeEstimate = true
         )
         return listOf(signedTransaction.toPayload())
     }
