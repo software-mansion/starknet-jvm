@@ -122,7 +122,7 @@ class AccountTest {
             ),
         )
 
-        val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
+        val signedTransaction = DeclareTransactionV2(
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
             casmContractDefinition = casmContractDefinition,

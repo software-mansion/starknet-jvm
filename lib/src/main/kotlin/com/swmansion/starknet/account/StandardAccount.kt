@@ -48,7 +48,7 @@ class StandardAccount @JvmOverloads constructor(
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
-        val tx = TransactionFactory.makeInvokeV1Transaction(
+        val tx = InvokeTransactionV1(
             senderAddress = address,
             calldata = calldata,
             chainId = chainId,
@@ -65,7 +65,7 @@ class StandardAccount @JvmOverloads constructor(
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
-        val tx = TransactionFactory.makeInvokeV3Transaction(
+        val tx = InvokeTransactionV3(
             senderAddress = address,
             calldata = calldata,
             chainId = chainId,
@@ -88,7 +88,7 @@ class StandardAccount @JvmOverloads constructor(
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV1Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
-        val tx = TransactionFactory.makeDeployAccountV1Transaction(
+        val tx = DeployAccountTransactionV1(
             classHash = classHash,
             contractAddress = address,
             salt = salt,
@@ -111,7 +111,7 @@ class StandardAccount @JvmOverloads constructor(
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
-        val tx = TransactionFactory.makeDeployAccountV3Transaction(
+        val tx = DeployAccountTransactionV3(
             classHash = classHash,
             senderAddress = address,
             salt = salt,
@@ -133,7 +133,7 @@ class StandardAccount @JvmOverloads constructor(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2
-        val tx = TransactionFactory.makeDeclareV2Transaction(
+        val tx = DeclareTransactionV2(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
             chainId = chainId,
@@ -154,7 +154,7 @@ class StandardAccount @JvmOverloads constructor(
         forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
-        val tx = TransactionFactory.makeDeclareV3Transaction(
+        val tx = DeclareTransactionV3(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
             chainId = chainId,
@@ -405,7 +405,7 @@ class StandardAccount @JvmOverloads constructor(
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = signV1(calls, executionParams, true)
 
-        val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
+        val signedTransaction = InvokeTransactionV1(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
             chainId = chainId,
@@ -424,7 +424,7 @@ class StandardAccount @JvmOverloads constructor(
         )
         val payload = signV3(calls, executionParams, true)
 
-        val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
+        val signedTransaction = InvokeTransactionV3(
             senderAddress = payload.senderAddress,
             calldata = payload.calldata,
             chainId = chainId,
