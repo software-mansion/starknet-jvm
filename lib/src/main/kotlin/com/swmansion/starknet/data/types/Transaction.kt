@@ -142,7 +142,7 @@ data class DeployTransaction @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     // not in RPC spec
     @SerialName("max_fee")
@@ -170,7 +170,7 @@ sealed class InvokeTransaction : Transaction() {
 }
 
 @Serializable
-data class InvokeTransactionV1 @JvmOverloads internal constructor(
+data class InvokeTransactionV1 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -179,7 +179,7 @@ data class InvokeTransactionV1 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -233,7 +233,7 @@ data class InvokeTransactionV1 @JvmOverloads internal constructor(
 }
 
 @Serializable
-data class InvokeTransactionV3 @JvmOverloads internal constructor(
+data class InvokeTransactionV3 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -242,7 +242,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("version")
     override val version: TransactionVersion,
@@ -326,7 +326,7 @@ data class InvokeTransactionV0 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     val maxFee: Felt,
@@ -366,7 +366,7 @@ data class DeclareTransactionV0 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -394,7 +394,7 @@ data class DeclareTransactionV1 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -422,7 +422,7 @@ data class DeclareTransactionV2 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -451,13 +451,14 @@ data class DeclareTransactionV2 @JvmOverloads internal constructor(
         nonce: Felt,
         casmContractDefinition: CasmContractDefinition,
         signature: Signature = emptyList(),
+        forFeeEstimate: Boolean = false,
     ) : this(
         hash = TransactionHashCalculator.calculateDeclareV2TxHash(
             classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
             chainId = chainId,
             senderAddress = senderAddress,
             maxFee = maxFee,
-            version = TransactionVersion.V2,
+            version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
             nonce = nonce,
             compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
         ),
@@ -465,8 +466,7 @@ data class DeclareTransactionV2 @JvmOverloads internal constructor(
         senderAddress = senderAddress,
         contractDefinition = contractDefinition,
         maxFee = maxFee,
-        version = TransactionVersion.V2,
-        signature = signature,
+        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2, signature = signature,
         nonce = nonce,
         compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
     )
@@ -657,7 +657,7 @@ data class DeployAccountTransactionV1(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("max_fee")
     override val maxFee: Felt,
@@ -732,7 +732,7 @@ data class DeployAccountTransactionV3 @JvmOverloads internal constructor(
 
     // not in RPC spec, but returned alongside the transaction
     @SerialName("transaction_hash")
-    override val hash: Felt,
+    override val hash: Felt? = null,
 
     @SerialName("version")
     override val version: TransactionVersion,

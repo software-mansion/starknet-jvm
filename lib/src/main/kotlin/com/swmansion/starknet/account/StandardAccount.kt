@@ -135,6 +135,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = params.nonce,
             maxFee = params.maxFee,
             casmContractDefinition = casmContractDefinition,
+
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
