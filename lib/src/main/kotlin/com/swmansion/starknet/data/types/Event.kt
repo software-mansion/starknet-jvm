@@ -90,4 +90,4 @@ data class GetEventsResult(
 
     @JsonNames("continuation_token")
     val continuationToken: String? = "0",
-)
+) : StarknetResponse

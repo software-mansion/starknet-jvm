@@ -1,8 +1,6 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.types.transactions.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.transactions.TransactionStatus
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -19,7 +17,7 @@ data class CallContractResponse(
 @Serializable
 data class InvokeFunctionResponse(
     @SerialName("transaction_hash") val transactionHash: Felt,
-)
+) : StarknetResponse
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -29,7 +27,7 @@ data class DeclareResponse(
 
     @JsonNames("class_hash")
     val classHash: Felt,
-)
+) : StarknetResponse
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -40,7 +38,7 @@ data class DeployAccountResponse(
     // TODO: (#344) deviation from the spec, make this non-nullable once Juno is updated
     @JsonNames("address", "contract_address")
     val address: Felt? = null,
-)
+) : StarknetResponse
 
 @Serializable
 data class EstimateFeeResponse(
@@ -62,7 +60,7 @@ data class EstimateFeeResponse(
     // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
     val feeUnit: PriceUnit? = null,
-) {
+) : StarknetResponse {
     /**
      * Convert estimated fee to max fee with applied multiplier.
      *
@@ -118,7 +116,7 @@ data class GetBlockHashAndNumberResponse(
 
     @JsonNames("block_number")
     val blockNumber: Int,
-)
+) : StarknetResponse
 
 @Serializable
 data class GetTransactionStatusResponse(
@@ -127,10 +125,10 @@ data class GetTransactionStatusResponse(
 
     @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
-)
+) : StarknetResponse
 
 @Serializable
-sealed class Syncing {
+sealed class Syncing : StarknetResponse {
     abstract val status: Boolean
 
     abstract val startingBlockHash: Felt
@@ -266,7 +264,7 @@ data class ReplacedClassItem(
 )
 
 @Serializable
-sealed class StateUpdate {
+sealed class StateUpdate : StarknetResponse {
     abstract val oldRoot: Felt
     abstract val stateDiff: StateDiff
 }

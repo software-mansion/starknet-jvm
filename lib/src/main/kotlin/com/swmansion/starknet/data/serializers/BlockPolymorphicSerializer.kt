@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

@@ -26,9 +26,9 @@ jobs:
         with:
           submodules: recursive
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@4f73d30c2fc44a9466a3ed890fb8db7a7b554302
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
         with:
-          cmake-version: '3.16.x'
+          cmake-version: '3.18.1'
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
