@@ -466,7 +466,8 @@ data class DeclareTransactionV2 @JvmOverloads internal constructor(
         senderAddress = senderAddress,
         contractDefinition = contractDefinition,
         maxFee = maxFee,
-        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2, signature = signature,
+        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
+        signature = signature,
         nonce = nonce,
         compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
     )
