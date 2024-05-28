@@ -288,7 +288,6 @@ class StandardAccountTest {
             l1l2ContractDefinition,
             l1l2CasmContractDefinition,
             ExecutionParams(nonce, Felt(10000000000000000)),
-            false,
         )
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
@@ -336,7 +335,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 ExecutionParams(nonce, Felt(5000000000000000L)),
-                false,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -361,7 +359,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 ExecutionParams(nonce, Felt(10000000000000000)),
-                false,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -397,7 +394,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 params,
-                false,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -1154,7 +1150,6 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                forFeeEstimate = false,
             )
 
             val simulationFlags = setOf<SimulationFlag>()
@@ -1195,7 +1190,6 @@ class StandardAccountTest {
                     nonce = nonce,
                     maxFee = Felt(3000000000000000),
                 ),
-                false,
             )
 
             val simulationFlags = setOf<SimulationFlag>()
@@ -1238,7 +1232,6 @@ class StandardAccountTest {
                         maxPricePerUnit = Uint128(1000000000000),
                     ),
                 ),
-                false,
             )
 
             val simulationFlags = setOf<SimulationFlag>()
