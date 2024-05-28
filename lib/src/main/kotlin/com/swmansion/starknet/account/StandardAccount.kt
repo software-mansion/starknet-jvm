@@ -424,7 +424,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = nonce,
             signature = payload.signature,
             resourceBounds = payload.resourceBounds,
-            forFeeEstimate = true
+            forFeeEstimate = true,
         )
         return listOf(signedTransaction.toPayload())
     }

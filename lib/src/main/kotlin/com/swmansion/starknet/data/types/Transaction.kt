@@ -193,7 +193,7 @@ data class InvokeTransactionV1 @JvmOverloads internal constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-    ) : InvokeTransaction(), DeprecatedTransaction {
+) : InvokeTransaction(), DeprecatedTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
