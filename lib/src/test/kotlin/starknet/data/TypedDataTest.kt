@@ -54,7 +54,11 @@ internal class TypedDataTest {
 
         @JvmStatic
         fun encodeTypeArguments() = listOf(
-            Arguments.of(CasesRev0.TD, "Mail", "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)"),
+            Arguments.of(
+                CasesRev0.TD,
+                "Mail",
+                "Mail(from:Person,to:Person,contents:felt)Person(name:felt,wallet:felt)",
+            ),
             Arguments.of(
                 CasesRev0.TD_STRUCT_ARR,
                 "Mail",
@@ -111,25 +115,85 @@ internal class TypedDataTest {
 
         @JvmStatic
         fun getTypeHashArguments() = listOf(
-            Arguments.of(CasesRev0.TD, "StarkNetDomain", "0x1bfc207425a47a5dfa1a50a4f5241203f50624ca5fdf5e18755765416b8e288"),
+            Arguments.of(
+                CasesRev0.TD,
+                "StarkNetDomain",
+                "0x1bfc207425a47a5dfa1a50a4f5241203f50624ca5fdf5e18755765416b8e288",
+            ),
             Arguments.of(CasesRev0.TD, "Person", "0x2896dbe4b96a67110f454c01e5336edc5bbc3635537efd690f122f4809cc855"),
             Arguments.of(CasesRev0.TD, "Mail", "0x13d89452df9512bf750f539ba3001b945576243288137ddb6c788457d4b2f79"),
-            Arguments.of(CasesRev0.TD_STRING, "String", "0x1933fe9de7e181d64298eecb44fc43b4cec344faa26968646761b7278df4ae2"),
-            Arguments.of(CasesRev0.TD_STRING, "Mail", "0x1ac6f84a5d41cee97febb378ddabbe1390d4e8036df8f89dee194e613411b09"),
-            Arguments.of(CasesRev0.TD_FELT_ARR, "Mail", "0x5b03497592c0d1fe2f3667b63099761714a895c7df96ec90a85d17bfc7a7a0"),
-            Arguments.of(CasesRev0.TD_STRUCT_ARR, "Post", "0x1d71e69bf476486b43cdcfaf5a85c00bb2d954c042b281040e513080388356d"),
-            Arguments.of(CasesRev0.TD_STRUCT_ARR, "Mail", "0x873b878e35e258fc99e3085d5aaad3a81a0c821f189c08b30def2cde55ff27"),
-            Arguments.of(CasesRev0.TD_STRUCT_MERKLETREE, "Session", "0x1aa0e1c56b45cf06a54534fa1707c54e520b842feb21d03b7deddb6f1e340c"),
-            Arguments.of(CasesRev0.TD_STRUCT_MERKLETREE, "Policy", "0x2f0026e78543f036f33e26a8f5891b88c58dc1e20cbbfaf0bb53274da6fa568"),
-            Arguments.of(CasesRev0.TD_VALIDATE, "Validate", "0x1fc17ee4903c000b1c8c6c1424136d4efc4759d1e83915e981b18bc1074a72d"),
-            Arguments.of(CasesRev0.TD_VALIDATE, "Airdrop", "0x37dcb14df3270824843bbbf50c72a724bcb303179dfcce56b653262cbb6957c"),
-            Arguments.of(CasesRev1.TD, "StarknetDomain", "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210"),
+            Arguments.of(
+                CasesRev0.TD_STRING,
+                "String",
+                "0x1933fe9de7e181d64298eecb44fc43b4cec344faa26968646761b7278df4ae2",
+            ),
+            Arguments.of(
+                CasesRev0.TD_STRING,
+                "Mail",
+                "0x1ac6f84a5d41cee97febb378ddabbe1390d4e8036df8f89dee194e613411b09",
+            ),
+            Arguments.of(
+                CasesRev0.TD_FELT_ARR,
+                "Mail",
+                "0x5b03497592c0d1fe2f3667b63099761714a895c7df96ec90a85d17bfc7a7a0",
+            ),
+            Arguments.of(
+                CasesRev0.TD_STRUCT_ARR,
+                "Post",
+                "0x1d71e69bf476486b43cdcfaf5a85c00bb2d954c042b281040e513080388356d",
+            ),
+            Arguments.of(
+                CasesRev0.TD_STRUCT_ARR,
+                "Mail",
+                "0x873b878e35e258fc99e3085d5aaad3a81a0c821f189c08b30def2cde55ff27",
+            ),
+            Arguments.of(
+                CasesRev0.TD_STRUCT_MERKLETREE,
+                "Session",
+                "0x1aa0e1c56b45cf06a54534fa1707c54e520b842feb21d03b7deddb6f1e340c",
+            ),
+            Arguments.of(
+                CasesRev0.TD_STRUCT_MERKLETREE,
+                "Policy",
+                "0x2f0026e78543f036f33e26a8f5891b88c58dc1e20cbbfaf0bb53274da6fa568",
+            ),
+            Arguments.of(
+                CasesRev0.TD_VALIDATE,
+                "Validate",
+                "0x1fc17ee4903c000b1c8c6c1424136d4efc4759d1e83915e981b18bc1074a72d",
+            ),
+            Arguments.of(
+                CasesRev0.TD_VALIDATE,
+                "Airdrop",
+                "0x37dcb14df3270824843bbbf50c72a724bcb303179dfcce56b653262cbb6957c",
+            ),
+            Arguments.of(
+                CasesRev1.TD,
+                "StarknetDomain",
+                "0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210",
+            ),
             Arguments.of(CasesRev1.TD, "Person", "0x30f7aa21b8d67cb04c30f962dd29b95ab320cb929c07d1605f5ace304dadf34"),
             Arguments.of(CasesRev1.TD, "Mail", "0x560430bf7a02939edd1a5c104e7b7a55bbab9f35928b1cf5c7c97de3a907bd"),
-            Arguments.of(CasesRev1.TD_BASIC_TYPES, "Example", "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111"),
-            Arguments.of(CasesRev1.TD_PRESET_TYPES, "Example", "0x1a25a8bb84b761090b1fadaebe762c4b679b0d8883d2bedda695ea340839a55"),
-            Arguments.of(CasesRev1.TD_ENUM_TYPE, "Example", "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8"),
-            Arguments.of(CasesRev1.TD_FELT_MERKLETREE, "Example", "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be"),
+            Arguments.of(
+                CasesRev1.TD_BASIC_TYPES,
+                "Example",
+                "0x1f94cd0be8b4097a41486170fdf09a4cd23aefbc74bb2344718562994c2c111",
+            ),
+            Arguments.of(
+                CasesRev1.TD_PRESET_TYPES,
+                "Example",
+                "0x1a25a8bb84b761090b1fadaebe762c4b679b0d8883d2bedda695ea340839a55",
+            ),
+            Arguments.of(
+                CasesRev1.TD_ENUM_TYPE,
+                "Example",
+                "0x380a54d417fb58913b904675d94a8a62e2abc3467f4b5439de0fd65fafdd1a8",
+            ),
+            Arguments.of(
+                CasesRev1.TD_FELT_MERKLETREE,
+                "Example",
+                "0x160b9c0e8a7c561f9c5d9e3cc2990a1b4d26e94aa319e9eb53e163cd06c71be",
+            ),
         )
 
         @JvmStatic
@@ -140,7 +204,12 @@ internal class TypedDataTest {
                 "domain",
                 "0x54833b121883a3e3aebff48ec08a962f5742e5f7b973469c1f8f4f55d470b07",
             ),
-            Arguments.of(CasesRev0.TD, "Mail", "message", "0x4758f1ed5e7503120c228cbcaba626f61514559e9ef5ed653b0b885e0f38aec"),
+            Arguments.of(
+                CasesRev0.TD,
+                "Mail",
+                "message",
+                "0x4758f1ed5e7503120c228cbcaba626f61514559e9ef5ed653b0b885e0f38aec",
+            ),
             Arguments.of(
                 CasesRev0.TD_STRING,
                 "Mail",
@@ -323,7 +392,8 @@ internal class TypedDataTest {
 
         @Test
         fun `encode u128`() {
-            val values = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(128) - BigInteger.ONE).toString())
+            val values =
+                listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(128) - BigInteger.ONE).toString())
 
             values.forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("u128", encodeToJsonElement(it))
@@ -340,7 +410,10 @@ internal class TypedDataTest {
                 val exception = assertThrows<IllegalArgumentException> {
                     CasesRev1.TD_BASIC_TYPES.encodeValue("u128", value)
                 }
-                assertEquals("Default Felt constructor does not accept negative numbers, [-1] given.", exception.message)
+                assertEquals(
+                    "Default Felt constructor does not accept negative numbers, [-1] given.",
+                    exception.message,
+                )
             }
         }
 
@@ -362,7 +435,8 @@ internal class TypedDataTest {
 
         @Test
         fun `encode i128`() {
-            val positiveValues = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(127) - BigInteger.ONE).toString())
+            val positiveValues =
+                listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(127) - BigInteger.ONE).toString())
             val negativeValues = listOf(-1, -1000000, "-1", BigInteger.TWO.pow(127).negate().toString())
 
             (positiveValues + negativeValues).forEach {
@@ -445,7 +519,10 @@ internal class TypedDataTest {
             ).second
 
             assertEquals(tree.rootHash, merkleTreeHash)
-            assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
+            assertEquals(
+                Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"),
+                merkleTreeHash,
+            )
         }
 
         @Test
@@ -497,7 +574,10 @@ internal class TypedDataTest {
                     contains = "felt*",
                 )
             }
-            assertEquals("Merkletree 'contains' field cannot be an array, got [felt*] in type [root].", exception.message)
+            assertEquals(
+                "Merkletree 'contains' field cannot be an array, got [felt*] in type [root].",
+                exception.message,
+            )
         }
 
         @Test
@@ -512,13 +592,24 @@ internal class TypedDataTest {
             val invalidKeyContext = Context(parent = "Session", key = "undefinedKey")
 
             val parentException = assertThrows<IllegalArgumentException> {
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidParentContext)
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                    "merkletree",
+                    Json.encodeToJsonElement(leaves),
+                    invalidParentContext,
+                )
             }
             assertEquals("Parent [${invalidParentContext.parent}] is not defined in types.", parentException.message)
             val keyException = assertThrows<IllegalArgumentException> {
-                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue("merkletree", Json.encodeToJsonElement(leaves), invalidKeyContext)
+                CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
+                    "merkletree",
+                    Json.encodeToJsonElement(leaves),
+                    invalidKeyContext,
+                )
             }
-            assertEquals("Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.", keyException.message)
+            assertEquals(
+                "Key [${invalidKeyContext.key}] is not defined in type [${invalidKeyContext.parent}] or multiple definitions are present.",
+                keyException.message,
+            )
         }
     }
 
@@ -552,7 +643,8 @@ internal class TypedDataTest {
         """.trimIndent()
 
         private val basicTypesV0 = setOf("felt", "bool", "string", "selector", "merkletree")
-        private val basicTypesV1 = basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
+        private val basicTypesV1 =
+            basicTypesV0 + setOf("enum", "u128", "i128", "ContractAddress", "ClassHash", "timestamp", "shortstring")
         private val presetTypesV0 = emptySet<String>()
         private val presetTypesV1 = setOf("u256", "TokenAmount", "NftId")
 
@@ -726,7 +818,6 @@ internal class TypedDataTest {
                 TypedData.StandardType("n9", "shortstring"),
             ),
         )
-
         private val domainObject = """
             {
                 "name": "StarkNet Mail",
@@ -735,7 +826,6 @@ internal class TypedDataTest {
                 "revision": 1
             }
         """.trimIndent()
-
         private val messageObject = """
             {
                 "n0": "0x3e8",
@@ -756,19 +846,18 @@ internal class TypedDataTest {
             domain = domainObject,
             message = messageObject,
         )
+        private val tdJsonString by lazy { File("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText() }
 
         @Test
         fun `typed data toJsonString`() {
-            val jsonString = File("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText()
             // Extra encode and parse to remove indentations
-            val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(jsonString))
+            val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(tdJsonString))
             assertEquals(expectedJsonString, td.toJsonString())
         }
 
         @Test
         fun `typed data fromJsonString`() {
-            val jsonString = File("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText()
-            val tdFromJsonString = TypedData.fromJsonString(jsonString)
+            val tdFromJsonString = TypedData.fromJsonString(tdJsonString)
             assertEquals(td, tdFromJsonString)
         }
     }
