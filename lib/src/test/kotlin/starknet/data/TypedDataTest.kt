@@ -25,9 +25,12 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 
 internal fun loadTypedData(path: String): TypedData {
-    val content = File("src/test/resources/typed_data/$path").readText()
-
+    val content = loadTypedDataJsonString(path)
     return TypedData.fromJsonString(content)
+}
+
+internal fun loadTypedDataJsonString(path: String): String {
+    return File("src/test/resources/typed_data/$path").readText()
 }
 
 internal class TypedDataTest {
@@ -51,6 +54,9 @@ internal class TypedDataTest {
                 val TD by lazy { loadTypedData("rev_1/typed_data_example.json") }
                 val TD_STRUCT_ARR by lazy { loadTypedData("rev_1/typed_data_struct_array_example.json") }
                 val TD_FELT_MERKLETREE by lazy { loadTypedData("rev_1/typed_data_felt_merkletree_example.json") }
+
+                val TD_BASIC_TYPES_JSON_STRING by lazy { loadTypedDataJsonString("rev_0/typed_data_example.json") }
+
             }
         }
 
@@ -854,7 +860,7 @@ internal class TypedDataTest {
         @Test
         fun `typed data toJsonString`() {
             val jsonString = Path.of("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText()
-            // Extra encode and parse to remove formatting
+            // Extra encode and parse to remove indentation
             val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(jsonString))
             assertEquals(expectedJsonString, td.toJsonString())
         }
@@ -922,6 +928,5 @@ internal class TypedDataTest {
             message = "{\"StarkNetDomain\": 0}",
         )
         assertEquals(Revision.V0, td.domain.resolvedRevision)
-        println(td.toJsonString())
     }
 }
