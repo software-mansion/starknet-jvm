@@ -54,9 +54,6 @@ internal class TypedDataTest {
                 val TD by lazy { loadTypedData("rev_1/typed_data_example.json") }
                 val TD_STRUCT_ARR by lazy { loadTypedData("rev_1/typed_data_struct_array_example.json") }
                 val TD_FELT_MERKLETREE by lazy { loadTypedData("rev_1/typed_data_felt_merkletree_example.json") }
-
-                val TD_BASIC_TYPES_JSON_STRING by lazy { loadTypedDataJsonString("rev_0/typed_data_example.json") }
-
             }
         }
 
