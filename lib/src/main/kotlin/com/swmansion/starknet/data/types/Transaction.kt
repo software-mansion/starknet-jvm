@@ -1,8 +1,7 @@
-package com.swmansion.starknet.data.types.transactions
+package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
-import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -73,7 +72,7 @@ enum class DAMode(val value: Int) {
 }
 
 @Serializable
-sealed class Transaction {
+sealed class Transaction : StarknetResponse {
     abstract val hash: Felt?
     abstract val version: TransactionVersion
     abstract val signature: Signature
