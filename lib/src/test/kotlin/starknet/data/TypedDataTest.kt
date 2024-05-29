@@ -22,8 +22,9 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.math.BigInteger
 
+private const val TYPE_DATA_DIR_PATH = "src/test/resources/typed_data"
 internal fun loadTypedData(path: String): TypedData {
-    val content = File("src/test/resources/typed_data/$path").readText()
+    val content = File("$TYPE_DATA_DIR_PATH/$path").readText()
 
     return TypedData.fromJsonString(content)
 }
@@ -846,7 +847,7 @@ internal class TypedDataTest {
             domain = domainObject,
             message = messageObject,
         )
-        private val tdJsonString by lazy { File("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText() }
+        private val tdJsonString by lazy { File("$TYPE_DATA_DIR_PATH/rev_1/typed_data_basic_types_example.json").readText() }
 
         @Test
         fun `typed data toJsonString`() {
