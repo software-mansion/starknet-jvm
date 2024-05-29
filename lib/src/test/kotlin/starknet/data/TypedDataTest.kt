@@ -762,7 +762,7 @@ internal class TypedDataTest {
         @Test
         fun `typed data toJsonString`() {
             val jsonString = Path.of("src/test/resources/typed_data/rev_1/typed_data_basic_types_example.json").readText()
-            // Extra encode and parse to remove indentation
+            // Extra encode and parse to remove indentations
             val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(jsonString))
             assertEquals(expectedJsonString, td.toJsonString())
         }
