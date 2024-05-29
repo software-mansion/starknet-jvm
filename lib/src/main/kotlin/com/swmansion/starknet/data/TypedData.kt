@@ -612,7 +612,7 @@ data class TypedData private constructor(
      *
      * @param typedData typed data instance
      */
-    fun toJsonString(): String =
+    internal fun toJsonString(): String =
         Json.encodeToString(serializer(), this)
 }
 
