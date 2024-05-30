@@ -55,7 +55,9 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(InvokeTransactionV3Payload.serializer(), element)
-            Felt.ONE -> decoder.json.decodeFromJsonElement(InvokeTransactionV1Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000003") -> decoder.json.decodeFromJsonElement(InvokeTransactionV3Payload.serializer(), element)
+            Felt(1) -> decoder.json.decodeFromJsonElement(InvokeTransactionV1Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000001") -> decoder.json.decodeFromJsonElement(InvokeTransactionV1Payload.serializer(), element)
             else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
@@ -66,7 +68,9 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000003") -> decoder.json.decodeFromJsonElement(DeclareTransactionV3Payload.serializer(), element)
             Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000002") -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
@@ -77,7 +81,9 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV3Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000003") -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV3Payload.serializer(), element)
             Felt.ONE -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV1Payload.serializer(), element)
+            Felt.fromHex("0x100000000000000000000000000000001") -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV1Payload.serializer(), element)
             else -> throw IllegalArgumentException("Invalid deploy account transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
