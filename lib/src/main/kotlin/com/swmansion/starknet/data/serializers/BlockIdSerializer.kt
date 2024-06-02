@@ -19,8 +19,7 @@ internal object BlockIdSerializer : KSerializer<BlockId> {
         val value = decoder.decodeString()
 
         if (BlockTag.entries.map { it.tag }.contains(value)) {
-            val tag = BlockTag.entries.firstOrNull() { it.tag == value } ?: throw IllegalArgumentException("Unknown block tag: $value")
-            return BlockId.Tag(tag)
+            return BlockId.Tag(BlockTag.fromValue(value))
         }
         if (value.toIntOrNull() != null) {
             return BlockId.Number(value.toInt())
