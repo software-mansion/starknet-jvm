@@ -138,8 +138,7 @@ data class Cairo0ContractDefinition(private val contract: String) {
 
         val sourceEntryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
-        val deserializedEntryPointsByType =
-            Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
+        val deserializedEntryPointsByType = Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
         val entryPointsByType = Json.encodeToJsonElement(deserializedEntryPointsByType)
 
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
@@ -232,9 +231,7 @@ data class CasmContractDefinition @JvmOverloads constructor(
     init {
         operator fun <T> Array<T>.component6(): T = get(5)
 
-        val (entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths) = parseContract(
-            contract,
-        )
+        val (entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths) = parseContract(contract)
         this.entryPointsByType = entryPointsByType!!
         this.bytecode = bytecode!!
         this.prime = prime!!
