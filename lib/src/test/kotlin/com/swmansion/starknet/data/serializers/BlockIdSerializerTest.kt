@@ -28,10 +28,14 @@ class BlockIdSerializerTest {
 
     @Test
     fun `deserialize Block Tag`() {
-        val inputJson = "\"latest\""
-        val result = Json.decodeFromString(BlockIdSerializer, inputJson)
-        assertTrue(result is BlockId.Tag)
-        assertEquals(BlockTag.LATEST, (result as BlockId.Tag).blockTag)
+        val inputJson1 = "\"latest\""
+        val inputJson2 = "\"pending\""
+        val result1 = Json.decodeFromString(BlockIdSerializer, inputJson1)
+        val result2 = Json.decodeFromString(BlockIdSerializer, inputJson2)
+        assertTrue(result1 is BlockId.Tag)
+        assertTrue(result2 is BlockId.Tag)
+        assertEquals(BlockTag.LATEST, (result1 as BlockId.Tag).blockTag)
+        assertEquals(BlockTag.PENDING, (result2 as BlockId.Tag).blockTag)
     }
 
     @Test
