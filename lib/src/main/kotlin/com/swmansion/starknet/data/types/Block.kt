@@ -11,8 +11,8 @@ enum class BlockTag(val tag: String) {
     LATEST("latest"), PENDING("pending");
 
     companion object {
-        fun valueOf(value: String): BlockTag {
-            return BlockTag.entries.firstOrNull() { it.tag == value } ?: throw IllegalArgumentException("Unknown block tag: $value")
+        fun fromTag(tag: String): BlockTag {
+            return BlockTag.entries.firstOrNull() { it.tag == tag } ?: throw IllegalArgumentException("Unknown block tag: $tag")
         }
     }
 }
