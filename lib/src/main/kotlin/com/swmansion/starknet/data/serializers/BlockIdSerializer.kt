@@ -19,7 +19,8 @@ internal object BlockIdSerializer : KSerializer<BlockId> {
         val value = decoder.decodeString()
 
         if (BlockTag.entries.map { it.tag }.contains(value)) {
-            return BlockId.Tag(BlockTag.fromValue(value))
+            val tag = BlockTag.fromValue(value)
+            return BlockId.Tag(tag)
         }
 
         if (value.toIntOrNull() != null) {
