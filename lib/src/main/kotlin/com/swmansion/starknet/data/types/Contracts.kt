@@ -138,7 +138,8 @@ data class Cairo0ContractDefinition(private val contract: String) {
 
         val sourceEntryPointsByType =
             compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
-        val deserializedEntryPointsByType = Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
+        val deserializedEntryPointsByType =
+            Json.decodeFromJsonElement(DeprecatedEntryPointsByType.serializer(), sourceEntryPointsByType)
         val entryPointsByType = Json.encodeToJsonElement(deserializedEntryPointsByType)
 
         val abi = compiledContract["abi"] ?: JsonArray(emptyList())
@@ -172,10 +173,27 @@ data class Cairo1ContractDefinition(
     @SerialName("abi")
     private val abi: JsonElement?,
 ) {
+    constructor(
+        contract: String,
+        ignoreUnknownJsonKeys: Boolean = false,
+    ) : this(
+        sierraProgram = Json.parseToJsonElement(contract).jsonObject["sierra_program"]
+            ?: throw InvalidContractException("sierra_program"),
+        entryPointsByType = Json.parseToJsonElement(contract).jsonObject["entry_points_by_type"]
+            ?: throw InvalidContractException("entry_points_by_type"),
+        contractClassVersion = Json.parseToJsonElement(contract).jsonObject["contract_class_version"]
+            ?: throw InvalidContractException("contract_class_version"),
+        abi = Json.parseToJsonElement(contract).jsonObject["abi"],
+
+    )
 
     companion object {
         private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
     }
+
+    class InvalidContractException(missingKey: String) :
+        RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
+
     fun toJson(): JsonObject {
         return buildJsonObject {
             put("sierra_program", sierraProgram)
@@ -200,25 +218,12 @@ data class CasmContractDefinition @JvmOverloads constructor(
     @Transient
     internal val ignoreUnknownJsonKeys: Boolean = false,
 ) {
-    @SerialName("casm_class_version")
     private val casmClassVersion: JsonElement = JsonPrimitive("COMPILED_CLASS_V1")
-
-    @SerialName("prime")
     private val prime: JsonElement
-
-    @SerialName("hints")
     private val hints: JsonElement
-
-    @SerialName("compiler_version")
     private val compilerVersion: JsonElement
-
-    @SerialName("entry_points_by_type")
     private val entryPointsByType: JsonElement
-
-    @SerialName("bytecode")
     private val bytecode: JsonElement
-
-    @SerialName("bytecode_segment_lengths")
     private val bytecodeSegmentLengths: JsonElement?
 
     class InvalidContractException(missingKey: String) :
@@ -227,7 +232,9 @@ data class CasmContractDefinition @JvmOverloads constructor(
     init {
         operator fun <T> Array<T>.component6(): T = get(5)
 
-        val (entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths) = parseContract(contract)
+        val (entryPointsByType, bytecode, prime, hints, compilerVersion, bytecodeSegmentLengths) = parseContract(
+            contract,
+        )
         this.entryPointsByType = entryPointsByType!!
         this.bytecode = bytecode!!
         this.prime = prime!!
