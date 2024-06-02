@@ -9,6 +9,7 @@ import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.extensions.toUint256
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner
+import kotlinx.serialization.json.Json
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
 import org.junit.jupiter.api.Assertions.*
@@ -34,6 +35,8 @@ class AccountTest {
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
         private val provider = JsonRpcProvider(rpcUrl)
         private val cairoVersion = config.cairoVersion.toFelt
+
+        private val jsonWithIgnoreUnknownKeys by lazy { Json { ignoreUnknownKeys = true } }
 
         val chainId = when (network) {
             Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
@@ -109,7 +112,7 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractDefinition = jsonWithIgnoreUnknownKeys.decodeFromString<Cairo1ContractDefinition>(contractCode)
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce().send()
@@ -154,7 +157,7 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractDefinition = jsonWithIgnoreUnknownKeys.decodeFromString<Cairo1ContractDefinition>(contractCode)
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce().send()
@@ -192,7 +195,7 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractDefinition = Json.decodeFromString<Cairo1ContractDefinition>(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
@@ -225,7 +228,7 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractDefinition = Json.decodeFromString<Cairo1ContractDefinition>(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
@@ -258,8 +261,8 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
+        val contractDefinition = Json.decodeFromString<Cairo1ContractDefinition>(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(contractCode)
         val nonce = account.getNonce().send()
 
         val l1ResourceBounds = ResourceBounds(
@@ -726,8 +729,8 @@ class AccountTest {
         val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json").readText()
 
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val casmContractDefinition = CasmContractDefinition(casmCode)
+        val contractDefinition = Json.decodeFromString<Cairo1ContractDefinition>(contractCode)
+        val casmContractDefinition = CasmContractDefinition(contractCode)
 
         val nonce = account.getNonce(BlockTag.LATEST).send()
         val declareTransactionPayload = account.signDeclareV2(

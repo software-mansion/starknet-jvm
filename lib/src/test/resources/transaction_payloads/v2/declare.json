@@ -310,11 +310,11 @@
     "entry_points_by_type": {
       "EXTERNAL": [
         {
-          "selector": "0x9a7bfac637bfe3596e166ac4da171adc99c2cf193d1cc35e24d950b4085cef",
+          "selector": "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
           "function_idx": 0
         },
         {
-          "selector": "0x2ba23a85a3231551368d246a8c586ae4cc829c820a10be3260156d3a933510b",
+          "selector": "0x39e11d48192e4333233c7eb19d10ad67c362bb28580c604d67884c85da39695",
           "function_idx": 1
         }
       ],
@@ -322,16 +322,16 @@
       "CONSTRUCTOR": []
     },
     "contract_class_version": "0.1.0",
-    "abi": "[{\"type\": \"function\", \"name\": \"t1717000085187_increase_balance\", \"inputs\": [{\"name\": \"amount\", \"type\": \"core::felt252\"}], \"outputs\": [], \"state_mutability\": \"external\"}, {\"type\": \"function\", \"name\": \"t1717000085187_get_balance\", \"inputs\": [], \"outputs\": [{\"type\": \"core::felt252\"}], \"state_mutability\": \"view\"}]"
+    "abi": "[{\"type\": \"function\", \"name\": \"increase_balance\", \"inputs\": [{\"name\": \"amount\", \"type\": \"core::felt252\"}], \"outputs\": [], \"state_mutability\": \"external\"}, {\"type\": \"function\", \"name\": \"get_balance\", \"inputs\": [], \"outputs\": [{\"type\": \"core::felt252\"}], \"state_mutability\": \"view\"}]"
   },
   "sender_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
-  "version": "0x2",
-  "max_fee": "0xaa87bee538000",
+  "version": "0x100000000000000000000000000000002",
+  "max_fee": "0x0",
   "signature": [
-    "0x22e347b37671ab7e50b061b7b1c542e26053a5761bd845a395fdd6478030eff",
-    "0x521cc06adea4b7505b9276e595386313b3c33a1210ee43284e802e34b9e38fd"
+    "0x395deee626fa94c02fb3e59d661f676b9651beec4a222332655d16e842d1b5c",
+    "0x10c9fafe491e8afece6844ad93d1cdf6c715364bf92dcd75da156858a72331e"
   ],
   "nonce": "0x1",
   "type": "DECLARE",
-  "compiled_class_hash": "0x2e194c4a0cdde86a3f215f20fadaf28c85fa2caaf514dc46d138844fb03cbd4"
+  "compiled_class_hash": "0x2c895e2f0aed646e6dec493287b9eaf4cadce8983ad3d60164e15a7b1c35f54"
 }
