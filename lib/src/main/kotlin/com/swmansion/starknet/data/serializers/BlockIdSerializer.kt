@@ -21,9 +21,11 @@ internal object BlockIdSerializer : KSerializer<BlockId> {
         if (BlockTag.entries.map { it.tag }.contains(value)) {
             return BlockId.Tag(BlockTag.fromValue(value))
         }
+
         if (value.toIntOrNull() != null) {
             return BlockId.Number(value.toInt())
         }
+
         return BlockId.Hash(Felt.fromHex(value))
     }
 
