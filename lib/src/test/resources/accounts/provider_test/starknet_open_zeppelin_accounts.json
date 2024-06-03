@@ -1,20 +1,13 @@
 {
-  "SN_SEPOLIA": {
+  "alpha-sepolia": {
     "__default__": {
-      "address": "0x10231652fd06fed78bb30d3353b87712d2eede34202d2ba851952e6d5c4574d",
+      "address": "0x55e5f5bd8796b18b93f87dbbd8dba72f5b075bd1acbbe787b5b22f766278da6",
       "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
       "deployed": true,
-      "private_key": "0xa2a170a20957bdc94beede6c8c7071fbe31b0d98ad4e74408927e3daf461ca",
-      "public_key": "0xcddf5b2c1aba5d3c095c4899e964318c8db2d391577d0ecef24cdcd4154031",
-      "salt": "0xe2a1ff6a5be76915"
-    },
-    "provider_test": {
-      "address": "0x312713c69e79facabef2c621a2d25eed2d750a5f78e4fd713508f01a322e96f",
-      "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
-      "deployed": true,
-      "private_key": "0x1447c0a3a423daf43887fdfe1bfb981ef126214628bafaedce7cc73870860ad",
-      "public_key": "0x54049f964ef7bf61ebaa96316d93f15c38ec8511cbba085b5f22894ff6436f7",
-      "salt": "0xf7a8ad9230f702be"
+      "legacy": true,
+      "private_key": "0x7906b3fb3c7085d7e417a09d73cbdd831d61affeedf711f26f3a9879161c930",
+      "public_key": "0x4cb42e55f21e21bcb2ce241e675d5f8172d2411caf2210c73a581d1fbb482e0",
+      "salt": "0x656eb7b4f2f202d0"
     }
   }
 }

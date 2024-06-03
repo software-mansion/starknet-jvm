@@ -27,7 +27,7 @@ enum class SnCastCommand {
 
 @Serializable(with = SnCastResponsePolymorphicSerializer::class)
 sealed class SnCastResponse {
-    abstract val command: SnCastCommand
+    abstract val command: SnCastCommand?
     abstract val error: String?
 }
 
@@ -57,14 +57,14 @@ data class AccountCreateSnCastResponse(
     val accountAddress: Felt,
 
     @JsonNames("max_fee")
-    val maxFee: Felt,
+    val maxFee: Long,
 ) : SnCastResponse()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DeclareSnCastResponse(
     @JsonNames("command")
-    override val command: SnCastCommand = SnCastCommand.DECLARE,
+    override val command: SnCastCommand? = SnCastCommand.DECLARE,
 
     @JsonNames("error")
     override val error: String? = null,
