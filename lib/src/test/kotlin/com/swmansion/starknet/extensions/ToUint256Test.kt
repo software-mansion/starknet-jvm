@@ -11,14 +11,14 @@ class ToUint256Test {
     fun `test BigInteger toUint256`() {
         val uint256Number = BigInteger("a", 16).toUint256
         val expected = Uint256(BigInteger("a", 16))
-        assertEquals(uint256Number, expected)
+        assertEquals(expected, uint256Number)
     }
 
     @Test
     fun `test String toUint256`() {
         val uint256Number = "0xa".toUint256
         val expected = Uint256(BigInteger("a", 16))
-        assertEquals(uint256Number, expected)
+        assertEquals(expected, uint256Number)
     }
 
     @Test
@@ -30,7 +30,7 @@ class ToUint256Test {
     fun `test Int toUint256`() {
         val uint256Number = 10.toUint256
         val expected = Uint256(BigInteger("a", 16))
-        assertEquals(uint256Number, expected)
+        assertEquals(expected, uint256Number)
     }
 
     @Test
@@ -42,7 +42,7 @@ class ToUint256Test {
     fun `test Long toUint256`() {
         val uint256Number = 10L.toUint256
         val expected = Uint256(BigInteger("a", 16))
-        assertEquals(uint256Number, expected)
+        assertEquals(expected, uint256Number)
     }
 
     @Test

@@ -11,7 +11,7 @@ class ToUint128Test {
     fun `test String toUint128`() {
         val uint128Number = "0xa".toUint128
         val expected = Uint128(BigInteger("a", 16))
-        assertEquals(uint128Number, expected)
+        assertEquals(expected, uint128Number)
     }
 
     @Test
@@ -23,7 +23,7 @@ class ToUint128Test {
     fun `test Int toUint128`() {
         val uint128Number = 10.toUint128
         val expected = Uint128(BigInteger("a", 16))
-        assertEquals(uint128Number, expected)
+        assertEquals(expected, uint128Number)
     }
 
     @Test
@@ -35,7 +35,7 @@ class ToUint128Test {
     fun `test Long toUint128`() {
         val uint128Number = 10L.toUint128
         val expected = Uint128(BigInteger("a", 16))
-        assertEquals(uint128Number, expected)
+        assertEquals(expected, uint128Number)
     }
 
     @Test
