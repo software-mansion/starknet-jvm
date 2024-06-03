@@ -799,13 +799,13 @@ data class DeployAccountTransactionV3 @JvmOverloads internal constructor(
     )
 
     internal fun toPayload() = DeployAccountTransactionV3Payload(
-            classHash = classHash,
-            salt = contractAddressSalt,
-            constructorCalldata = constructorCalldata,
-            version = version,
-            nonce = nonce,
-            signature = signature,
-            resourceBounds = resourceBounds,
-        )
-    }
+        classHash = classHash,
+        salt = contractAddressSalt,
+        constructorCalldata = constructorCalldata,
+        version = version,
+        nonce = nonce,
+        signature = signature,
+        resourceBounds = resourceBounds,
+
+    )
 }
