@@ -130,7 +130,7 @@ sealed interface TransactionV3 {
 
 @Serializable
 @SerialName("DEPLOY")
-data class DeployTransaction @JvmOverloads internal constructor(
+data class DeployTransaction internal constructor(
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
@@ -320,7 +320,7 @@ data class InvokeTransactionV3 internal constructor(
 }
 
 @Serializable
-data class InvokeTransactionV0 @JvmOverloads internal constructor(
+data class InvokeTransactionV0 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -357,7 +357,7 @@ sealed class DeclareTransaction : Transaction() {
 }
 
 @Serializable
-data class DeclareTransactionV0 @JvmOverloads internal constructor(
+data class DeclareTransactionV0 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -385,7 +385,7 @@ data class DeclareTransactionV0 @JvmOverloads internal constructor(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV1 @JvmOverloads internal constructor(
+data class DeclareTransactionV1 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -413,7 +413,7 @@ data class DeclareTransactionV1 @JvmOverloads internal constructor(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV2 @JvmOverloads internal constructor(
+data class DeclareTransactionV2 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -717,7 +717,7 @@ data class DeployAccountTransactionV1(
 }
 
 @Serializable
-data class DeployAccountTransactionV3 @JvmOverloads internal constructor(
+data class DeployAccountTransactionV3 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
