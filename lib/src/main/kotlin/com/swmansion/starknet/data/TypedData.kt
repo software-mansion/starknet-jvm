@@ -391,7 +391,7 @@ data class TypedData private constructor(
 
     private fun prepareMerkletreeRoot(value: JsonArray, context: Context): Felt {
         val merkleTreeType = getMerkleTreeLeavesType(context)
-        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct).second }
+        val structHashes = value.map { struct -> encodeValue(merkleTreeType, struct) }
 
         return MerkleTree(structHashes, hashMethod).rootHash
     }
@@ -415,7 +415,7 @@ data class TypedData private constructor(
 
         val encodedSubtypes = extractEnumTypes(variantType.type).mapIndexed { index, subtype ->
             val subtypeData = variantData[index]
-            encodeValue(subtype, subtypeData).second
+            encodeValue(subtype, subtypeData)
         }
 
         return hashArray(listOf(variantIndex.toFelt) + encodedSubtypes)
@@ -425,22 +425,22 @@ data class TypedData private constructor(
         typeName: String,
         value: JsonElement,
         context: Context? = null,
-    ): Pair<String, Felt> {
+    ): Felt {
         if (typeName in allTypes) {
-            return typeName to getStructHash(typeName, value.jsonObject)
+            return getStructHash(typeName, value.jsonObject)
         }
 
         if (typeName.isArray()) {
             val hashes = value.jsonArray.map {
-                encodeValue(stripPointer(typeName), it).second
+                encodeValue(stripPointer(typeName), it)
             }
-            return typeName to hashArray(hashes)
+            return hashArray(hashes)
         }
 
         val basicType = BasicType.fromName(typeName, revision)
             ?: throw IllegalArgumentException("Type [$typeName] is not defined in types.")
 
-        return basicType.encodeToType to when (basicType) {
+        return when (basicType) {
             BasicType.Enum -> {
                 requireNotNull(context) { "Context is not provided for '${basicType.name}' type." }
                 prepareEnum(value.jsonObject, context)
@@ -467,7 +467,7 @@ data class TypedData private constructor(
                 value = data.getValue(param.name),
                 Context(typeName, param.name),
             )
-            values.add(encodedValue.second)
+            values.add(encodedValue)
         }
 
         return values
@@ -514,18 +514,17 @@ data class TypedData private constructor(
 
     private sealed class BasicType {
         abstract val name: String
-        open val encodeToType get() = name
 
         sealed interface V0
         sealed interface V1
 
         data object Felt : BasicType(), V0, V1 { override val name = "felt" }
         data object Bool : BasicType(), V0, V1 { override val name = "bool" }
-        data object Selector : BasicType(), V0, V1 { override val name = "selector"; override val encodeToType = Felt.name }
-        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree"; override val encodeToType = Felt.name }
+        data object Selector : BasicType(), V0, V1 { override val name = "selector"; }
+        data object MerkleTree : BasicType(), V0, V1 { override val name = "merkletree" }
         data object StringV0 : BasicType(), V0 { override val name = "string" }
         data object StringV1 : BasicType(), V1 { override val name = "string" }
-        data object Enum : BasicType(), V1 { override val name = "enum"; override val encodeToType = Felt.name }
+        data object Enum : BasicType(), V1 { override val name = "enum"; }
         data object I128 : BasicType(), V1 { override val name = "i128" }
         data object U128 : BasicType(), V1 { override val name = "u128" }
         data object ContractAddress : BasicType(), V1 { override val name = "ContractAddress" }
