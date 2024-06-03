@@ -332,7 +332,7 @@ data class InvokeTransactionV0 @JvmOverloads internal constructor(
     val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion,
+    override val version: TransactionVersion = TransactionVersion.V0,
 
     @SerialName("signature")
     override val signature: Signature,
