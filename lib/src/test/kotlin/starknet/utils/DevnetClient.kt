@@ -116,11 +116,11 @@ class DevnetClient(
         isDevnetRunning = true
 
         // TODO: Use the previous approach once sncast is updated to RPC 0.6.0
-         if (accountDirectory.exists()) {
+        if (accountDirectory.exists()) {
             accountDirectory.toFile().walkTopDown().forEach { it.delete() }
-         }
+        }
 
-         defaultAccountDetails = createDeployAccount("__default__").details
+        defaultAccountDetails = createDeployAccount("__default__").details
 
 //        defaultAccountDetails = deployAccount("__default__", prefund = true).details
     }
