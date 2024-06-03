@@ -9,7 +9,7 @@ class IntResponseSerializerTest {
     @Test
     fun `serialize response`() {
         val expected = "123"
-        val encoded = Json.encodeToString(IntResponse.serializer(), IntResponse(123))
+        val encoded = Json.encodeToString(IntResponseSerializer, IntResponse(123))
         assertEquals(expected, encoded)
     }
 }
