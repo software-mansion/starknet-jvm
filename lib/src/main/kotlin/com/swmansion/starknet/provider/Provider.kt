@@ -1,5 +1,6 @@
 package com.swmansion.starknet.provider
 
+import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
@@ -246,6 +247,65 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt>
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockTag The tag of the requested block.
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockTag)
+    }
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockHash)
+    }
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockNumber)
+    }
+
+    /**
+     * Get a value of storage var.
+     *
+     * Get a value of a storage variable of contract at the provided address and in the latest block.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAt(contractAddress: Felt, key: String): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key))
+    }
 
     /**
      * Get transaction receipt
