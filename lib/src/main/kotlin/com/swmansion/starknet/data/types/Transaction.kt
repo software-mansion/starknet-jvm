@@ -798,8 +798,7 @@ data class DeployAccountTransactionV3 @JvmOverloads internal constructor(
         feeDataAvailabilityMode = DAMode.L1,
     )
 
-    internal fun toPayload(): DeployAccountTransactionV3Payload {
-        return DeployAccountTransactionV3Payload(
+    internal fun toPayload() = DeployAccountTransactionV3Payload(
             classHash = classHash,
             salt = contractAddressSalt,
             constructorCalldata = constructorCalldata,
