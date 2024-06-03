@@ -760,7 +760,7 @@ internal class TypedDataTest {
 
         @Test
         fun `typed data toJsonString`() {
-            // tdJsonString is a JSON string in pretty-printed format, so we need to remove all indentations etc.
+            // tdJsonString is a JSON string in pretty-printed format, so we need to convert it to minified format
             val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(tdJsonString))
             assertEquals(expectedJsonString, td.toJsonString())
         }
