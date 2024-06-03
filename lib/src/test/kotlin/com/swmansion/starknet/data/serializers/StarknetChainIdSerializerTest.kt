@@ -15,7 +15,7 @@ class StarknetChainIdSerializerTest {
         )
         for (chainId in chainIds) {
             val expected = "\"${chainId.value.hexString()}\""
-            val encoded = Json.encodeToString(StarknetChainId.serializer(), chainId)
+            val encoded = Json.encodeToString(StarknetChainIdSerializer, chainId)
             assertEquals(expected, encoded)
         }
     }
