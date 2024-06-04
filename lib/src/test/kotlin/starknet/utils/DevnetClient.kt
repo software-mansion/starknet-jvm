@@ -119,10 +119,6 @@ class DevnetClient(
         if (accountDirectory.exists()) {
             accountDirectory.toFile().walkTopDown().forEach { it.delete() }
         }
-
-        defaultAccountDetails = createDeployAccount("__default__").details
-
-//        defaultAccountDetails = deployAccount("__default__", prefund = true).details
     }
 
     override fun close() {
@@ -389,7 +385,8 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
-        val result = String(process.inputStream.readAllBytes())
+        val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
+        val result = lines.last() + "\n"
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
@@ -399,7 +396,7 @@ class DevnetClient(
         }
     }
 
-    private fun readAccountDetails(accountName: String): AccountDetails {
+    internal fun readAccountDetails(accountName: String = "__default__"): AccountDetails {
         val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }

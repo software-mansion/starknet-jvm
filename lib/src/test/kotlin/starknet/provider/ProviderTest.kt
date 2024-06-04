@@ -38,6 +38,7 @@ class ProviderTest {
                 devnetClient.start()
 
                 // Prepare devnet address book
+                val deployAccountResult = devnetClient.createDeployAccount("__default__")
                 val declareResult = devnetClient.declareContract("Balance")
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
@@ -45,7 +46,7 @@ class ProviderTest {
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
+                deployAccountTransactionHash = deployAccountResult.transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",
