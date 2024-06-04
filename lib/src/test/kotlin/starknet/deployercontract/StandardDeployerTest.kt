@@ -21,6 +21,7 @@ object StandardDeployerTest {
         accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
         contractsDirectory = Paths.get("src/test/resources/contracts"),
     )
+    private val accountName = "standard_deployer_test"
     private val provider = JsonRpcProvider(devnetClient.rpcUrl)
 
     private lateinit var signer: Signer
@@ -37,8 +38,8 @@ object StandardDeployerTest {
             devnetClient.start()
 
             // Prepare devnet address book
-            val accountDetails = devnetClient.createDeployAccount("__default__").details
-            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
+            val accountDetails = devnetClient.createDeployAccount(accountName).details
+            balanceContractClassHash = devnetClient.declareContract("Balance", accountName = accountName).classHash
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()
