@@ -399,7 +399,7 @@ class DevnetClient(
         }
     }
 
-    internal fun readAccountDetails(accountName: String = "__default__"): AccountDetails {
+    private fun readAccountDetails(accountName: String = "__default__"): AccountDetails {
         val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
