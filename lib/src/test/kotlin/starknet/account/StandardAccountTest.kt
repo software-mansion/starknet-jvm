@@ -28,6 +28,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
 
+private const val ACCOUNT_NAME = "standard_account_test"
+
 @Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
     companion object {
@@ -36,7 +38,7 @@ class StandardAccountTest {
             accountDirectory = Paths.get("src/test/resources/accounts/standard_account_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
-        private val accountName = "standard_account_test"
+
         private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
@@ -55,8 +57,8 @@ class StandardAccountTest {
             try {
                 devnetClient.start()
 
-                val accountDetails = devnetClient.createDeployAccount(accountName).details
-                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451)), accountName = accountName).contractAddress
+                val accountDetails = devnetClient.createDeployAccount(ACCOUNT_NAME).details
+                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451)), accountName = ACCOUNT_NAME).contractAddress
                 accountAddress = accountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
@@ -290,7 +292,7 @@ class StandardAccountTest {
         val l2ContractAddress = devnetClient.deployContract(
             classHash = l2ContractClassHash,
             constructorCalldata = listOf(),
-            accountName = accountName,
+            accountName = ACCOUNT_NAME,
         ).contractAddress
         val l1Address = Felt.fromHex("0x8359E4B0152ed5A731162D3c7B0D8D56edB165A0")
         val user = Felt.ONE

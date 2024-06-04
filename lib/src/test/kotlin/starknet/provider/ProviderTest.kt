@@ -15,6 +15,8 @@ import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
+private const val ACCOUNT_NAME = "provider_test"
+
 class ProviderTest {
     companion object {
         private val devnetClient = DevnetClient(
@@ -22,7 +24,7 @@ class ProviderTest {
             accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
-        private val accountName = "provider_test"
+
         val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
@@ -39,21 +41,21 @@ class ProviderTest {
                 devnetClient.start()
 
                 // Prepare devnet address book
-                val deployAccountResult = devnetClient.createDeployAccount(accountName)
-                val declareResult = devnetClient.declareContract("Balance", accountName = accountName)
+                val deployAccountResult = devnetClient.createDeployAccount(ACCOUNT_NAME)
+                val declareResult = devnetClient.declareContract("Balance", accountName = ACCOUNT_NAME)
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
                 balanceContractAddress = devnetClient.deployContract(
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
-                    accountName = accountName,
+                    accountName = ACCOUNT_NAME,
                 ).contractAddress
                 deployAccountTransactionHash = deployAccountResult.transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",
                     calldata = listOf(Felt(10)),
-                    accountName = accountName,
+                    accountName = ACCOUNT_NAME,
                 ).transactionHash
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -649,14 +651,14 @@ class ProviderTest {
 
     @Test
     fun `get event`() {
-        val eventsContractAddress = devnetClient.declareDeployContract("Events", accountName = accountName).contractAddress
+        val eventsContractAddress = devnetClient.declareDeployContract("Events", accountName = ACCOUNT_NAME).contractAddress
 
         val key = listOf(Felt.fromHex("0x477e157efde59c5531277ede78acb3e03ef69508c6c35fde3495aa0671d227"))
         val invokeTransactionHash = devnetClient.invokeContract(
             contractAddress = eventsContractAddress,
             function = "emit_event",
             calldata = listOf(Felt.ONE), //  0 - static event, 1 - incremental event
-            accountName = accountName,
+            accountName = ACCOUNT_NAME,
         ).transactionHash
 
         val request = provider.getEvents(
