@@ -385,8 +385,9 @@ class DevnetClient(
         requireNoErrors(command, error)
 
         // As of sncast 0.24.0, declare command returns three response objects
-        // They have status 'compiling' and second 'finished' respectively and don't have 'command' key
+        // First two have 'status' field - 'compiling' and 'finished' respectively, and they don't have 'command' field
         // Last object is the actual one we want to return
+        // It doesn't affect a situation when there is only one response object
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
         val result = lines.last()
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
