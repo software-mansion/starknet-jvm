@@ -1077,6 +1077,22 @@ class ProviderTest {
         val response = request.send()
 
         assertTrue(response is PendingBlockWithTransactionHashes)
+        assertEquals(Felt.fromHex("0x123"), response.parentHash)
+        assertEquals(7312, response.timestamp)
+        assertEquals(Felt.fromHex("0x1234"), response.sequencerAddress)
+        assertEquals(Felt.fromHex("0x2137"), response.l1GasPrice.priceInWei)
+        assertEquals(Felt.fromHex("0x1234"), response.l1GasPrice.priceInFri)
+        assertEquals(Felt.fromHex("0x789"), response.l1DataGasPrice.priceInWei)
+        assertEquals(Felt.fromHex("0x123"), response.l1DataGasPrice.priceInFri)
+        assertEquals(L1DAMode.BLOB, response.l1DataAvailabilityMode)
+        assertEquals("0.13.1", response.starknetVersion)
+        assertEquals(
+            listOf(
+                Felt.fromHex("0x01"),
+                Felt.fromHex("0x02"),
+            ),
+            response.transactionHashes,
+        )
     }
 
     @Test
