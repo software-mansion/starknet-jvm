@@ -61,11 +61,11 @@ jobs:
       - name: Setup asdf
         uses: asdf-vm/actions/setup@v2
 
-      - name: Install sncast 0.21.0
+      - name: Install sncast 0.24.0
         run: |
           asdf plugin add starknet-foundry
-          asdf install starknet-foundry 0.21.0
-          asdf global starknet-foundry 0.21.0
+          asdf install starknet-foundry 0.24.0
+          asdf global starknet-foundry 0.24.0
 
       - name: Install scarb
         run: |
