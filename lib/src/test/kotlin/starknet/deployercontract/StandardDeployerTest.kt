@@ -23,7 +23,6 @@ object StandardDeployerTest {
         accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
         contractsDirectory = Paths.get("src/test/resources/contracts"),
     )
-
     private val provider = JsonRpcProvider(devnetClient.rpcUrl)
 
     private lateinit var signer: Signer

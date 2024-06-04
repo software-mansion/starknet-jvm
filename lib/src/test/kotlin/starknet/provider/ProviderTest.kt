@@ -25,7 +25,7 @@ class ProviderTest {
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
 
-        val rpcUrl = devnetClient.rpcUrl
+        private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
         private lateinit var balanceContractAddress: Felt
