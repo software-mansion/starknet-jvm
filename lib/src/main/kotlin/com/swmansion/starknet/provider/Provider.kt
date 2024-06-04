@@ -1,6 +1,5 @@
 package com.swmansion.starknet.provider
 
-import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
@@ -259,9 +258,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockTag)
-    }
+    fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -274,9 +271,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockHash)
-    }
+    fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -289,9 +284,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockNumber)
-    }
+    fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -303,9 +296,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key))
-    }
+    fun getStorageAt(contractAddress: Felt, key: String): Request<Felt>
 
     /**
      * Get transaction receipt
