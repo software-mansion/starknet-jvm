@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.math.BigInteger
 
-private const val TYPE_DATA_DIR_PATH = "src/test/resources/typed_data"
+private const val TYPED_DATA_DIR_PATH = "src/test/resources/typed_data"
 
 internal fun loadTypedData(path: String): TypedData {
     val content = File("$TYPE_DATA_DIR_PATH/$path").readText()
