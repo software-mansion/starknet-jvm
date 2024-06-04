@@ -295,7 +295,7 @@ internal class TypedDataTest {
 
             assertEquals(rawSelectorValueHash, selectorValueHash)
             assertEquals(
-                "felt" to Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
+                Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
                 selectorValueHash,
             )
         }
@@ -305,7 +305,7 @@ internal class TypedDataTest {
             val values = listOf(true, false, "true", "false", "0x1", "0x0", "1", "0", 1, 0)
             values.forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("bool", encodeToJsonElement(it))
-                assertTrue(encodedValue.second in listOf(Felt.ONE, Felt.ZERO))
+                assertTrue(encodedValue in listOf(Felt.ONE, Felt.ZERO))
             }
         }
 
@@ -327,7 +327,7 @@ internal class TypedDataTest {
 
             values.forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("u128", encodeToJsonElement(it))
-                assertEquals(feltFromAny(it), encodedValue.second)
+                assertEquals(feltFromAny(it), encodedValue)
             }
         }
 
@@ -367,7 +367,7 @@ internal class TypedDataTest {
 
             (positiveValues + negativeValues).forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("i128", encodeToJsonElement(it))
-                assertEquals(feltFromAny(it), encodedValue.second)
+                assertEquals(feltFromAny(it), encodedValue)
             }
         }
 
@@ -442,7 +442,7 @@ internal class TypedDataTest {
                 typeName = "merkletree",
                 value = Json.encodeToJsonElement(tree.leafHashes),
                 context = Context(parent = "Example", key = "root"),
-            ).second
+            )
 
             assertEquals(tree.rootHash, merkleTreeHash)
             assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
@@ -460,7 +460,7 @@ internal class TypedDataTest {
                 CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
                     typeName = "Policy",
                     value = Json.encodeToJsonElement(leaf),
-                ).second
+                )
             }
             val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
 
@@ -468,7 +468,7 @@ internal class TypedDataTest {
                 typeName = "merkletree",
                 value = Json.encodeToJsonElement(leaves),
                 context = Context(parent = "Session", key = "root"),
-            ).second
+            )
 
             assertEquals(tree.rootHash, merkleTreeHash)
             assertEquals(
