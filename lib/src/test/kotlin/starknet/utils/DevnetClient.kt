@@ -384,8 +384,11 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
+        // As of sncast 0.24.0, declare command returns three response objects
+        // They have status 'compiling' and second 'finished' respectively and don't have 'command' key
+        // Last object is the actual one we want to return
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
-        val result = lines.last() + "\n"
+        val result = lines.last()
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
