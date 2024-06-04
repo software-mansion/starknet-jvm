@@ -749,7 +749,7 @@ internal class TypedDataTest {
                 "n8": 1000,
                 "n9": "transfer"
             }
-        """
+        """.trimIndent()
         private val td = TypedData(
             types = types,
             primaryType = "Example",
