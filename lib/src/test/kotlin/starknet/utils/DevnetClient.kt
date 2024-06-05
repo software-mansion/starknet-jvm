@@ -160,14 +160,14 @@ class DevnetClient(
     }
 
     fun createAccount(
-        name: String,
+        accountName: String,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
     ): CreateAccountResult {
         val params = mutableListOf(
             "create",
             "--name",
-            name,
+            accountName,
             "--class-hash",
             classHash.hexString(),
         )
@@ -182,27 +182,26 @@ class DevnetClient(
         ) as AccountCreateSnCastResponse
 
         return CreateAccountResult(
-            details = readAccountDetails(name),
+            details = readAccountDetails(accountName),
             maxFee = response.maxFee,
         )
     }
 
     fun deployAccount(
-        name: String,
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
         prefund: Boolean = false,
         accountName: String = "__default__",
     ): DeployAccountResult {
         if (prefund) {
-            prefundAccountEth(readAccountDetails(name).address)
-            prefundAccountStrk(readAccountDetails(name).address)
+            prefundAccountEth(readAccountDetails(accountName).address)
+            prefundAccountStrk(readAccountDetails(accountName).address)
         }
 
         val params = listOf(
             "deploy",
             "--name",
-            name,
+            accountName,
             "--max-fee",
             maxFee.hexString(),
             "--class-hash",
@@ -217,7 +216,7 @@ class DevnetClient(
         requireTransactionSuccessful(response.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
-            details = readAccountDetails(name),
+            details = readAccountDetails(accountName),
             transactionHash = response.transactionHash,
         )
     }
@@ -230,7 +229,7 @@ class DevnetClient(
     ): DeployAccountResult {
         val createResult = createAccount(accountName, classHash, salt)
         val details = createResult.details
-        val deployResult = deployAccount(accountName, classHash, maxFee, prefund = true, accountName)
+        val deployResult = deployAccount(classHash, maxFee, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
