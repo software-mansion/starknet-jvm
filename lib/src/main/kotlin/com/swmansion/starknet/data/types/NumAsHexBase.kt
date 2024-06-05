@@ -13,6 +13,11 @@ sealed class NumAsHexBase(open val value: BigInteger) : Comparable<NumAsHexBase>
     abstract fun hexString(): String
 
     /**
+     * Encode as padded hexadecimal string, including "0x" prefix.
+     */
+    abstract fun hexStringPadded(): String
+
+    /**
      * Encode as decimal string.
      */
     abstract fun decString(): String

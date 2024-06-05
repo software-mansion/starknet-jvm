@@ -5,6 +5,7 @@ import com.swmansion.starknet.data.serializers.Uint64Serializer
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.extensions.toHex
+import com.swmansion.starknet.extensions.toHexPadded
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
@@ -27,6 +28,8 @@ data class Uint64(override val value: BigInteger) : NumAsHexBase(value), Convert
     override fun toString() = "Uint64(${value.toHex()})"
 
     override fun hexString() = value.toHex()
+
+    override fun hexStringPadded() = value.toHexPadded()
 
     override fun decString(): String = value.toString(10)
 

@@ -9,5 +9,10 @@ internal fun parseHex(value: String): BigInteger {
     if (!value.startsWith("0x")) {
         throw IllegalArgumentException("Hex must start with 0x")
     }
-    return BigInteger(value.removePrefix("0x"), 16)
+    val result = value.removePrefix("0x").trimStart('0')
+
+    if (result.isEmpty()) {
+        return BigInteger.ZERO
+    }
+    return BigInteger(result, 16)
 }

@@ -3,6 +3,7 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.serializers.NumAsHexSerializer
 import com.swmansion.starknet.extensions.toHex
+import com.swmansion.starknet.extensions.toHexPadded
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
@@ -20,6 +21,8 @@ data class NumAsHex(override val value: BigInteger) : NumAsHexBase(value) {
     override fun toString() = "NumAsHex(${value.toHex()})"
 
     override fun hexString() = value.toHex()
+
+    override fun hexStringPadded() = value.toHexPadded()
 
     override fun decString(): String = value.toString(10)
 

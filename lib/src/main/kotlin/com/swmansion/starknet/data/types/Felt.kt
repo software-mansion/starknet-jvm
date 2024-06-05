@@ -4,6 +4,7 @@ import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.serializers.FeltSerializer
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
+import com.swmansion.starknet.extensions.toHexPadded
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
@@ -26,6 +27,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
     override fun toString() = "Felt(${value.toHex()})"
 
     override fun hexString() = value.toHex()
+
+    override fun hexStringPadded() = value.toHexPadded()
 
     override fun decString(): String = value.toString(10)
 

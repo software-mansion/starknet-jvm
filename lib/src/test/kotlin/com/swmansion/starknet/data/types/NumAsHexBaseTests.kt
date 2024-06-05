@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toCalldata
 import com.swmansion.starknet.extensions.toFelt
@@ -210,5 +211,26 @@ internal class NumAsHexBaseTests {
             assertEquals(Felt.fromHex("0x3e8"), smallUint256.low)
             assertEquals(Felt.fromHex("0x0"), smallUint256.high)
         }
+    }
+
+    @Test
+    fun `Felt to hexString`() {
+        val hexString = Felt(100).hexString()
+        assertEquals("0x64", hexString)
+    }
+
+    @Test
+    fun `Felt to hexStringPadded`() {
+        val hexStringPadded = Felt(100).hexStringPadded()
+        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded)
+    }
+
+    @Test
+    fun `parseHex normal and padded`() {
+        val hexString = Felt(100).hexString()
+        val hexStringPadded = Felt(100).hexStringPadded()
+
+        assertEquals((100).toBigInteger(), parseHex(hexString))
+        assertEquals((100).toBigInteger(), parseHex(hexStringPadded))
     }
 }
