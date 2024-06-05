@@ -385,7 +385,7 @@ class DevnetClient(
         requireNoErrors(command, error)
 
         // As of sncast 0.24.0, declare command returns three response objects
-        // First two have 'status' field - 'compiling' and 'finished' respectively, and they don't have 'command' field
+        // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // It doesn't affect a situation when there is only one response object
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
