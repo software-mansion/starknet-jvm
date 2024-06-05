@@ -1,5 +1,6 @@
 package com.swmansion.starknet.provider.rpc
 
+import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
@@ -7,6 +8,7 @@ import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
 import com.swmansion.starknet.service.http.requests.HttpRequest
@@ -195,6 +197,22 @@ class JsonRpcProvider(
 
     override fun getStorageAt(contractAddress: Felt, key: Felt): HttpRequest<Felt> {
         return getStorageAt(contractAddress, key, BlockTag.LATEST)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockTag)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockHash)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key), blockNumber)
+    }
+
+    override fun getStorageAt(contractAddress: Felt, key: String): Request<Felt> {
+        return getStorageAt(contractAddress, selectorFromName(key))
     }
 
     override fun getTransaction(transactionHash: Felt): HttpRequest<Transaction> {

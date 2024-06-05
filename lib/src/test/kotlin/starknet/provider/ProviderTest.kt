@@ -165,6 +165,18 @@ class ProviderTest {
     }
 
     @Test
+    fun `get storage at with key as string`() {
+        val request = provider.getStorageAt(
+            contractAddress = balanceContractAddress,
+            key = "balance",
+            blockTag = BlockTag.LATEST,
+        )
+
+        val response = request.send()
+        assertTrue(response >= Felt(10))
+    }
+
+    @Test
     fun `get class definition at class hash`() {
         val request = provider.getClass(balanceClassHash)
         val response = request.send()
