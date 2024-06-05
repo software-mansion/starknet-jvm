@@ -184,6 +184,26 @@ internal class NumAsHexBaseTests {
             )
             assertEquals(expectedCalldata, calldata)
         }
+
+        @Test
+        fun `hexString`() {
+            val hexString1 = Felt.ZERO.hexString()
+            val hexString2 = Felt.ONE.hexString()
+            val hexString3 = Felt(100).hexString()
+            assertEquals("0x0", hexString1)
+            assertEquals("0x1", hexString2)
+            assertEquals("0x64", hexString3)
+        }
+
+        @Test
+        fun `hexStringPadded`() {
+            val hexStringPadded1 = Felt.ZERO.hexStringPadded()
+            val hexStringPadded2 = Felt.ONE.hexStringPadded()
+            val hexStringPadded3 = Felt(100).hexStringPadded()
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", hexStringPadded1)
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000001", hexStringPadded2)
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded3)
+        }
     }
 
     @Nested
@@ -211,26 +231,6 @@ internal class NumAsHexBaseTests {
             assertEquals(Felt.fromHex("0x3e8"), smallUint256.low)
             assertEquals(Felt.fromHex("0x0"), smallUint256.high)
         }
-    }
-
-    @Test
-    fun `Felt to hexString`() {
-        val hexString1 = Felt.ZERO.hexString()
-        val hexString2 = Felt.ONE.hexString()
-        val hexString3 = Felt(100).hexString()
-        assertEquals("0x0", hexString1)
-        assertEquals("0x1", hexString2)
-        assertEquals("0x64", hexString3)
-    }
-
-    @Test
-    fun `Felt to hexStringPadded`() {
-        val hexStringPadded1 = Felt.ZERO.hexStringPadded()
-        val hexStringPadded2 = Felt.ONE.hexStringPadded()
-        val hexStringPadded3 = Felt(100).hexStringPadded()
-        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", hexStringPadded1)
-        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000001", hexStringPadded2)
-        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded3)
     }
 
     @Test
