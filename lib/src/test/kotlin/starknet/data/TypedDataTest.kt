@@ -22,8 +22,10 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.math.BigInteger
 
+private const val TYPED_DATA_DIR_PATH = "src/test/resources/typed_data"
+
 internal fun loadTypedData(path: String): TypedData {
-    val content = File("src/test/resources/typed_data/$path").readText()
+    val content = File("$TYPED_DATA_DIR_PATH/$path").readText()
 
     return TypedData.fromJsonString(content)
 }
@@ -701,6 +703,72 @@ internal class TypedDataTest {
                 domain = domainObject,
                 message = "{\"$includedType\": 1}",
             )
+        }
+    }
+
+    @Nested
+    inner class JsonConversionTest {
+        private val types = mapOf(
+            "StarknetDomain" to listOf(
+                TypedData.StandardType("name", "shortstring"),
+                TypedData.StandardType("version", "shortstring"),
+                TypedData.StandardType("chainId", "shortstring"),
+                TypedData.StandardType("revision", "shortstring"),
+            ),
+            "Example" to listOf(
+                TypedData.StandardType("n0", "felt"),
+                TypedData.StandardType("n1", "bool"),
+                TypedData.StandardType("n2", "string"),
+                TypedData.StandardType("n3", "selector"),
+                TypedData.StandardType("n4", "u128"),
+                TypedData.StandardType("n5", "i128"),
+                TypedData.StandardType("n6", "ContractAddress"),
+                TypedData.StandardType("n7", "ClassHash"),
+                TypedData.StandardType("n8", "timestamp"),
+                TypedData.StandardType("n9", "shortstring"),
+            ),
+        )
+        private val domainObject = """
+            {
+                "name": "StarkNet Mail",
+                "version": "1",
+                "chainId": "1",
+                "revision": 1
+            }
+        """.trimIndent()
+        private val messageObject = """
+            {
+                "n0": "0x3e8",
+                "n1": true,
+                "n2": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                "n3": "transfer",
+                "n4": "0x3e8",
+                "n5": "-170141183460469231731687303715884105727",
+                "n6": "0x3e8",
+                "n7": "0x3e8",
+                "n8": 1000,
+                "n9": "transfer"
+            }
+        """.trimIndent()
+        private val td = TypedData(
+            types = types,
+            primaryType = "Example",
+            domain = domainObject,
+            message = messageObject,
+        )
+        private val tdJsonString by lazy { File("$TYPED_DATA_DIR_PATH/rev_1/typed_data_basic_types_example.json").readText() }
+
+        @Test
+        fun `typed data toJsonString`() {
+            // tdJsonString is a JSON string in pretty-printed format, so we need to convert it to minified format
+            val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(tdJsonString))
+            assertEquals(expectedJsonString, td.toJsonString())
+        }
+
+        @Test
+        fun `typed data fromJsonString`() {
+            val tdFromJsonString = TypedData.fromJsonString(tdJsonString)
+            assertEquals(td, tdFromJsonString)
         }
     }
 
