@@ -387,7 +387,7 @@ class DevnetClient(
         // As of sncast 0.24.0, declare command returns three response objects
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
-        // It doesn't affect a situation when there is only one response object
+        // Retrieving the last object works in both cases - with one and with few response objects
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
         val result = lines.last()
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
