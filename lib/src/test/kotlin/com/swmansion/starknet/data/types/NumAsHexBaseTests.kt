@@ -215,22 +215,43 @@ internal class NumAsHexBaseTests {
 
     @Test
     fun `Felt to hexString`() {
-        val hexString = Felt(100).hexString()
-        assertEquals("0x64", hexString)
+        val hexString1 = Felt.ZERO.hexString()
+        val hexString2 = Felt.ONE.hexString()
+        val hexString3 = Felt(1000).hexString()
+        assertEquals("0x0", hexString1)
+        assertEquals("0x1", hexString2)
+        assertEquals("0x64", hexString3)
     }
 
     @Test
     fun `Felt to hexStringPadded`() {
-        val hexStringPadded = Felt(100).hexStringPadded()
-        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded)
+        val hexStringPadded1 = Felt.ZERO.hexStringPadded()
+        val hexStringPadded2 = Felt.ONE.hexStringPadded()
+        val hexStringPadded3 = Felt(100).hexStringPadded()
+        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", hexStringPadded1)
+        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000001", hexStringPadded2)
+        assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded3)
     }
 
     @Test
-    fun `parseHex normal and padded`() {
-        val hexString = Felt(100).hexString()
-        val hexStringPadded = Felt(100).hexStringPadded()
+    fun `parseHex`() {
+        val hexString1 = Felt.ZERO.hexString()
+        val hexString2 = Felt.ONE.hexString()
+        val hexString3 = Felt(100).hexString()
 
-        assertEquals((100).toBigInteger(), parseHex(hexString))
-        assertEquals((100).toBigInteger(), parseHex(hexStringPadded))
+        assertEquals((0).toBigInteger(), parseHex(hexString1))
+        assertEquals((1).toBigInteger(), parseHex(hexString2))
+        assertEquals((100).toBigInteger(), parseHex(hexString3))
+    }
+
+    @Test
+    fun `parseHex padded`() {
+        val hexStringPadded1 = Felt.ZERO.hexStringPadded()
+        val hexStringPadded2 = Felt.ONE.hexStringPadded()
+        val hexStringPadded3 = Felt(100).hexStringPadded()
+
+        assertEquals((0).toBigInteger(), parseHex(hexStringPadded1))
+        assertEquals((1).toBigInteger(), parseHex(hexStringPadded2))
+        assertEquals((100).toBigInteger(), parseHex(hexStringPadded3))
     }
 }
