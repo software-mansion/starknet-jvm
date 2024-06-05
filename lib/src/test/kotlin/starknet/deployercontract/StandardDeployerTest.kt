@@ -14,8 +14,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
-private const val ACCOUNT_NAME = "standard_deployer_test"
-
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
     private val devnetClient = DevnetClient(
@@ -39,8 +37,8 @@ object StandardDeployerTest {
             devnetClient.start()
 
             // Prepare devnet address book
-            val accountDetails = devnetClient.createDeployAccount(ACCOUNT_NAME).details
-            balanceContractClassHash = devnetClient.declareContract("Balance", accountName = ACCOUNT_NAME).classHash
+            val accountDetails = devnetClient.createDeployAccount().details
+            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()

@@ -223,16 +223,14 @@ class DevnetClient(
     }
 
     fun createDeployAccount(
-        name: String? = null,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
         maxFee: Felt = Felt(1000000000000000),
         accountName: String = "__default__",
     ): DeployAccountResult {
-        val newAccountName = name ?: UUID.randomUUID().toString()
-        val createResult = createAccount(newAccountName, classHash, salt)
+        val createResult = createAccount(accountName, classHash, salt)
         val details = createResult.details
-        val deployResult = deployAccount(newAccountName, classHash, maxFee, prefund = true, accountName)
+        val deployResult = deployAccount(accountName, classHash, maxFee, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
