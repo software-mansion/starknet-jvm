@@ -217,7 +217,7 @@ internal class NumAsHexBaseTests {
     fun `Felt to hexString`() {
         val hexString1 = Felt.ZERO.hexString()
         val hexString2 = Felt.ONE.hexString()
-        val hexString3 = Felt(1000).hexString()
+        val hexString3 = Felt(100).hexString()
         assertEquals("0x0", hexString1)
         assertEquals("0x1", hexString2)
         assertEquals("0x64", hexString3)
