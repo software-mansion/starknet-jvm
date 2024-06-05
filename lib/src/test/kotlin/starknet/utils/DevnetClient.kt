@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.PriceUnit
 import com.swmansion.starknet.data.types.TransactionExecutionStatus
 import com.swmansion.starknet.data.types.TransactionStatus
-import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
@@ -184,7 +183,7 @@ class DevnetClient(
 
         return CreateAccountResult(
             details = readAccountDetails(name),
-            maxFee = response.maxFee.toFelt,
+            maxFee = response.maxFee,
         )
     }
 
@@ -366,6 +365,7 @@ class DevnetClient(
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
+            "--hex-format",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),

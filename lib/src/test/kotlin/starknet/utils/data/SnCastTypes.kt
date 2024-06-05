@@ -57,7 +57,7 @@ data class AccountCreateSnCastResponse(
     val accountAddress: Felt,
 
     @JsonNames("max_fee")
-    val maxFee: Long,
+    val maxFee: Felt,
 ) : SnCastResponse()
 
 @OptIn(ExperimentalSerializationApi::class)
