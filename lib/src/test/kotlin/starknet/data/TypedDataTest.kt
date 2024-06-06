@@ -22,8 +22,10 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.math.BigInteger
 
+private const val TYPED_DATA_DIR_PATH = "src/test/resources/typed_data"
+
 internal fun loadTypedData(path: String): TypedData {
-    val content = File("src/test/resources/typed_data/$path").readText()
+    val content = File("$TYPED_DATA_DIR_PATH/$path").readText()
 
     return TypedData.fromJsonString(content)
 }
@@ -239,7 +241,7 @@ internal class TypedDataTest {
             Arguments.of(
                 CasesRev0.TD_VALIDATE,
                 "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
-                "0x6038f35de58f40a6afa9d359859b2f930e5eb987580ba6875324cc4dbfcee",
+                "0x3b3fbdb1961ae09cb5b2716b07142e63930fb2eddc4842641ca1df7352766a1",
             ),
             Arguments.of(
                 CasesRev1.TD,
@@ -295,7 +297,7 @@ internal class TypedDataTest {
 
             assertEquals(rawSelectorValueHash, selectorValueHash)
             assertEquals(
-                "felt" to Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
+                Felt.fromHex("0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e"),
                 selectorValueHash,
             )
         }
@@ -305,7 +307,7 @@ internal class TypedDataTest {
             val values = listOf(true, false, "true", "false", "0x1", "0x0", "1", "0", 1, 0)
             values.forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("bool", encodeToJsonElement(it))
-                assertTrue(encodedValue.second in listOf(Felt.ONE, Felt.ZERO))
+                assertTrue(encodedValue in listOf(Felt.ONE, Felt.ZERO))
             }
         }
 
@@ -327,7 +329,7 @@ internal class TypedDataTest {
 
             values.forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("u128", encodeToJsonElement(it))
-                assertEquals(feltFromAny(it), encodedValue.second)
+                assertEquals(feltFromAny(it), encodedValue)
             }
         }
 
@@ -367,7 +369,7 @@ internal class TypedDataTest {
 
             (positiveValues + negativeValues).forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("i128", encodeToJsonElement(it))
-                assertEquals(feltFromAny(it), encodedValue.second)
+                assertEquals(feltFromAny(it), encodedValue)
             }
         }
 
@@ -442,7 +444,7 @@ internal class TypedDataTest {
                 typeName = "merkletree",
                 value = Json.encodeToJsonElement(tree.leafHashes),
                 context = Context(parent = "Example", key = "root"),
-            ).second
+            )
 
             assertEquals(tree.rootHash, merkleTreeHash)
             assertEquals(Felt.fromHex("0x48924a3b2a7a7b7cc1c9371357e95e322899880a6534bdfe24e96a828b9d780"), merkleTreeHash)
@@ -460,7 +462,7 @@ internal class TypedDataTest {
                 CasesRev0.TD_STRUCT_MERKLETREE.encodeValue(
                     typeName = "Policy",
                     value = Json.encodeToJsonElement(leaf),
-                ).second
+                )
             }
             val tree = MerkleTree(hashedLeaves, HashMethod.PEDERSEN)
 
@@ -468,7 +470,7 @@ internal class TypedDataTest {
                 typeName = "merkletree",
                 value = Json.encodeToJsonElement(leaves),
                 context = Context(parent = "Session", key = "root"),
-            ).second
+            )
 
             assertEquals(tree.rootHash, merkleTreeHash)
             assertEquals(
@@ -701,6 +703,72 @@ internal class TypedDataTest {
                 domain = domainObject,
                 message = "{\"$includedType\": 1}",
             )
+        }
+    }
+
+    @Nested
+    inner class JsonConversionTest {
+        private val types = mapOf(
+            "StarknetDomain" to listOf(
+                TypedData.StandardType("name", "shortstring"),
+                TypedData.StandardType("version", "shortstring"),
+                TypedData.StandardType("chainId", "shortstring"),
+                TypedData.StandardType("revision", "shortstring"),
+            ),
+            "Example" to listOf(
+                TypedData.StandardType("n0", "felt"),
+                TypedData.StandardType("n1", "bool"),
+                TypedData.StandardType("n2", "string"),
+                TypedData.StandardType("n3", "selector"),
+                TypedData.StandardType("n4", "u128"),
+                TypedData.StandardType("n5", "i128"),
+                TypedData.StandardType("n6", "ContractAddress"),
+                TypedData.StandardType("n7", "ClassHash"),
+                TypedData.StandardType("n8", "timestamp"),
+                TypedData.StandardType("n9", "shortstring"),
+            ),
+        )
+        private val domainObject = """
+            {
+                "name": "StarkNet Mail",
+                "version": "1",
+                "chainId": "1",
+                "revision": 1
+            }
+        """.trimIndent()
+        private val messageObject = """
+            {
+                "n0": "0x3e8",
+                "n1": true,
+                "n2": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                "n3": "transfer",
+                "n4": "0x3e8",
+                "n5": "-170141183460469231731687303715884105727",
+                "n6": "0x3e8",
+                "n7": "0x3e8",
+                "n8": 1000,
+                "n9": "transfer"
+            }
+        """.trimIndent()
+        private val td = TypedData(
+            types = types,
+            primaryType = "Example",
+            domain = domainObject,
+            message = messageObject,
+        )
+        private val tdJsonString by lazy { File("$TYPED_DATA_DIR_PATH/rev_1/typed_data_basic_types_example.json").readText() }
+
+        @Test
+        fun `typed data toJsonString`() {
+            // tdJsonString is a JSON string in pretty-printed format, so we need to convert it to minified format
+            val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(tdJsonString))
+            assertEquals(expectedJsonString, td.toJsonString())
+        }
+
+        @Test
+        fun `typed data fromJsonString`() {
+            val tdFromJsonString = TypedData.fromJsonString(tdJsonString)
+            assertEquals(td, tdFromJsonString)
         }
     }
 

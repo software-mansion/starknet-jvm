@@ -2,7 +2,6 @@ package starknet.data.types
 
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -16,7 +15,7 @@ internal class TransactionsTest {
         val tx1 = TransactionFactory.makeInvokeV1Transaction(
             senderAddress = Felt.fromHex("0x2a"),
             calldata = listOf(),
-            chainId = StarknetChainId.GOERLI,
+            chainId = StarknetChainId.fromNetworkName("SN_GOERLI"),
             nonce = Felt.ZERO,
             maxFee = Felt.ZERO,
             version = TransactionVersion.V1,
@@ -46,7 +45,7 @@ internal class TransactionsTest {
                     BigInteger("2"),
                 ),
             ),
-            chainId = StarknetChainId.GOERLI,
+            chainId = StarknetChainId.fromNetworkName("SN_GOERLI"),
             nonce = Felt.ZERO,
             maxFee = Felt(BigInteger("100000000")),
             version = TransactionVersion.V1,

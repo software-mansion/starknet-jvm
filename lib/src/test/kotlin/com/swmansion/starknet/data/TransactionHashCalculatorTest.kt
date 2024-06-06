@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.DAMode
-import com.swmansion.starknet.data.types.transactions.TransactionVersion
+import com.swmansion.starknet.data.types.DAMode
+import com.swmansion.starknet.data.types.TransactionVersion
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -12,7 +12,8 @@ internal class TransactionHashCalculatorTest {
     inner class DeprecatedTransactionHashTest {
         private val calldata = listOf(Felt(999), Felt(888), Felt(777))
         private val maxFee = Felt.fromHex("0xabcd987654210")
-        private val chainId = StarknetChainId.GOERLI
+
+        private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
         fun `calculate invoke v1 transaction hash`() {
@@ -61,7 +62,7 @@ internal class TransactionHashCalculatorTest {
 
     @Nested
     inner class TransactionHashV3Test {
-        private val chainId = StarknetChainId.GOERLI
+        private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
 
         @Test
         fun `prepare data availability modes`() {

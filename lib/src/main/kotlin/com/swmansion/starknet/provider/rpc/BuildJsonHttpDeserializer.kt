@@ -1,51 +1,72 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.serializers.JsonRpcErrorSerializer
+import com.swmansion.starknet.data.types.StarknetResponse
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
-import com.swmansion.starknet.service.http.HttpResponseDeserializer
+import com.swmansion.starknet.service.http.HttpResponse
+import com.swmansion.starknet.service.http.requests.HttpResponseDeserializer
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import java.util.function.Function
 
-@Serializable
-private data class JsonRpcResponse<T>(
-    @SerialName("id")
-    val id: Int,
+private fun <T : StarknetResponse> getResult(
+    jsonRpcResponse: JsonRpcResponse<T>,
+    fullPayload: String,
+    payload: String,
+): Result<T> {
+    if (jsonRpcResponse.error != null) {
+        return Result.failure(
+            RpcRequestFailedException(
+                code = jsonRpcResponse.error.code,
+                message = jsonRpcResponse.error.message,
+                data = jsonRpcResponse.error.data,
+                payload = payload,
+            ),
+        )
+    }
 
-    @SerialName("jsonrpc")
-    val jsonRpc: String,
+    if (jsonRpcResponse.result == null) {
+        return Result.failure(
+            RequestFailedException(
+                message = "Response did not contain a result",
+                payload = fullPayload,
+            ),
+        )
+    }
+    return Result.success(jsonRpcResponse.result)
+}
 
-    @SerialName("result")
-    val result: T? = null,
+private fun <T : StarknetResponse> getOrderedRpcResults(
+    response: HttpResponse,
+    deserializationStrategies: List<KSerializer<out T>>,
+    deserializationJson: Json,
+): List<Result<T>> {
+    if (!response.isSuccessful) throw RequestFailedException(payload = response.body)
 
-    @SerialName("error")
-    val error: JsonRpcError? = null,
-)
+    val jsonResponses = Json.parseToJsonElement(response.body).jsonArray
+    val orderedResults = MutableList<Result<T>?>(jsonResponses.size) { null }
 
-@Serializable(with = JsonRpcErrorSerializer::class)
-internal data class JsonRpcError(
-    @SerialName("code")
-    val code: Int,
+    jsonResponses.forEach { jsonElement ->
+        val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.int
+        val deserializationStrategy = deserializationStrategies[id]
+        val jsonRpcResponse = deserializationJson.decodeFromJsonElement(
+            JsonRpcResponse.serializer(deserializationStrategy),
+            jsonElement,
+        )
+        orderedResults[id] = getResult(jsonRpcResponse, response.body, jsonElement.toString())
+    }
 
-    @SerialName("message")
-    val message: String,
-
-    @SerialName("data")
-    val data: String? = null,
-)
+    return orderedResults.filterNotNull()
+}
 
 @JvmSynthetic
-internal fun <T> buildJsonHttpDeserializer(
+internal fun <T : StarknetResponse> buildJsonHttpDeserializer(
     deserializationStrategy: KSerializer<T>,
     deserializationJson: Json,
 ): HttpResponseDeserializer<T> {
     return Function { response ->
-        if (!response.isSuccessful) {
-            throw RequestFailedException(
-                payload = response.body,
-            )
-        }
+        if (!response.isSuccessful) throw RequestFailedException(payload = response.body)
+
         val jsonRpcResponse =
             deserializationJson.decodeFromString(
                 JsonRpcResponse.serializer(deserializationStrategy),
@@ -64,7 +85,20 @@ internal fun <T> buildJsonHttpDeserializer(
         if (jsonRpcResponse.result == null) {
             throw RequestFailedException(message = "Response did not contain a result", payload = response.body)
         }
-
         jsonRpcResponse.result
     }
+}
+
+internal fun <T : StarknetResponse> buildJsonHttpBatchDeserializer(
+    deserializationStrategies: List<KSerializer<T>>,
+    deserializationJson: Json,
+): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
+    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
+}
+
+internal fun <T : StarknetResponse> buildJsonHttpBatchDeserializerOfDifferentTypes(
+    deserializationStrategies: List<KSerializer<out T>>,
+    deserializationJson: Json,
+): HttpResponseDeserializer<List<Result<T>>> = Function { response ->
+    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
 }
