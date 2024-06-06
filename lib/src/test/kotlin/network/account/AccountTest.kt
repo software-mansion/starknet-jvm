@@ -790,10 +790,9 @@ class AccountTest {
         val account = standardAccount
         val deployer = StandardDeployer(udcAddress, provider, account)
 
-        val initialBalance = Felt(1000)
         val deployment = deployer.deployContractV1(
             classHash = classHash,
-            constructorCalldata = listOf(initialBalance),
+            constructorCalldata = listOf(),
             maxFee = Felt(1000000000000000L),
         ).send()
         Thread.sleep(120000)
