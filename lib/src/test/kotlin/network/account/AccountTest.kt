@@ -33,7 +33,7 @@ class AccountTest {
         private val constNonceAccountAddress = config.constNonceAccountAddress ?: config.accountAddress
         private val constNonceSigner = StarkCurveSigner(config.constNoncePrivateKey ?: config.privateKey)
         private val provider = JsonRpcProvider(rpcUrl)
-        private val cairoVersion = config.cairoVersion.toFelt
+        private val cairoVersion = config.cairoVersion
 
         val chainId = when (network) {
             Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
@@ -60,8 +60,8 @@ class AccountTest {
         )
 
         private val predeclaredAccount = when (network) {
-            Network.SEPOLIA_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x2338634f11772ea342365abd5be9d9dc8a6f44f159ad782fdebd3db5d969738"), Felt.ONE)
-            Network.SEPOLIA_TESTNET -> DeclaredAccount(Felt.fromHex("0x4c6d6cf894f8bc96bb9c525e6853e5483177841f7388f74a46cfda6f028c755"), Felt.ONE)
+            Network.SEPOLIA_INTEGRATION -> DeclaredAccount(Felt.fromHex("0x2338634f11772ea342365abd5be9d9dc8a6f44f159ad782fdebd3db5d969738"), CairoVersion.ONE)
+            Network.SEPOLIA_TESTNET -> DeclaredAccount(Felt.fromHex("0x4c6d6cf894f8bc96bb9c525e6853e5483177841f7388f74a46cfda6f028c755"), CairoVersion.ONE)
         }
         private val predeployedMapContractAddress = when (network) {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x06b248bde9ce00d69099304a527640bc9515a08f0b49e5168e2096656f207e1d")
@@ -73,7 +73,7 @@ class AccountTest {
 
         data class DeclaredAccount(
             val classHash: Felt,
-            val cairoVersion: Felt,
+            val cairoVersion: CairoVersion,
         )
     }
 

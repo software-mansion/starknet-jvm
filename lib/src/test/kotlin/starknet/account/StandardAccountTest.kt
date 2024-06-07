@@ -65,7 +65,7 @@ class StandardAccountTest {
                     signer = signer,
                     provider = provider,
                     chainId = chainId,
-                    cairoVersion = Felt.ZERO,
+                    cairoVersion = CairoVersion.ZERO,
                 )
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -786,7 +786,7 @@ class StandardAccountTest {
                 signer = signer,
                 provider = provider,
                 chainId = chainId,
-                cairoVersion = Felt.ONE,
+                cairoVersion = CairoVersion.ONE,
             )
             val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
             val signedTx = account.signV1(listOf(call1, call2, call3), params)
