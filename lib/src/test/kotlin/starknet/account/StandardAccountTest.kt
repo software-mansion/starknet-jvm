@@ -65,7 +65,6 @@ class StandardAccountTest {
                     signer = signer,
                     provider = provider,
                     chainId = chainId,
-                    cairoVersion = CairoVersion.ZERO,
                 )
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -786,7 +785,6 @@ class StandardAccountTest {
                 signer = signer,
                 provider = provider,
                 chainId = chainId,
-                cairoVersion = CairoVersion.ONE,
             )
             val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
             val signedTx = account.signV1(listOf(call1, call2, call3), params)
@@ -795,16 +793,20 @@ class StandardAccountTest {
                 Felt(3),
                 balanceContractAddress,
                 selectorFromName("increase_balance"),
+                Felt(0),
                 Felt(3),
-                Felt(10),
-                Felt(20),
-                Felt(30),
                 Felt(999),
                 selectorFromName("empty_calldata"),
+                Felt(3),
                 Felt(0),
                 Felt(123),
                 selectorFromName("another_method"),
+                Felt(3),
                 Felt(2),
+                Felt(5),
+                Felt(10),
+                Felt(20),
+                Felt(30),
                 Felt(100),
                 Felt(200),
             )
@@ -813,7 +815,7 @@ class StandardAccountTest {
 
             val signedEmptyTx = account.signV1(listOf(), params)
 
-            assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
+            assertEquals(listOf(Felt.ZERO, Felt.ZERO), signedEmptyTx.calldata)
         }
     }
 
