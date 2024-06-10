@@ -41,14 +41,14 @@ class StandardAccount(
     )
     private lateinit var cairoVersion: CairoVersion
 
-    private fun determineCairoVersion() {
+    private fun ensureCairoVersion() {
         if (::cairoVersion.isInitialized) return
         val contract = provider.getClassAt(address).send()
         cairoVersion = if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
     }
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
-        determineCairoVersion()
+        ensureCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeInvokeV1Transaction(
@@ -66,7 +66,7 @@ class StandardAccount(
     }
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
-        determineCairoVersion()
+        ensureCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeInvokeV3Transaction(
