@@ -20,32 +20,35 @@ import java.util.concurrent.CompletableFuture
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  * @param chainId the chain id of the Starknet network
- * @param cairoVersion the version of Cairo language in which account contract is written
  */
-class StandardAccount @JvmOverloads constructor(
+class StandardAccount (
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: CairoVersion = CairoVersion.ZERO,
 ) : Account {
     /**
      * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
      * @param chainId the chain id of the Starknet network
-     * @param cairoVersion the version of Cairo language in which account contract is written
      */
-    @JvmOverloads
-    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: CairoVersion = CairoVersion.ZERO) : this(
+    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId) : this(
         address = address,
         signer = StarkCurveSigner(privateKey),
         provider = provider,
         chainId = chainId,
-        cairoVersion = cairoVersion,
     )
+    private lateinit var cairoVersion: CairoVersion
+
+    private fun determineCairoVersion() {
+        if(::cairoVersion.isInitialized) return
+        val contract = provider.getClassAt(address).send()
+        cairoVersion = if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
+    }
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
+        determineCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeInvokeV1Transaction(
@@ -63,6 +66,7 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+        determineCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeInvokeV3Transaction(
