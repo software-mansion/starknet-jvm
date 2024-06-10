@@ -13,7 +13,7 @@ sealed class NumAsHexBase(open val value: BigInteger) : Comparable<NumAsHexBase>
     abstract fun hexString(): String
 
     /**
-     * Encode as padded hexadecimal string, including "0x" prefix.
+     * Encode as padded hexadecimal string, including "0x" prefix. Its length is always 66 (including the 0x prefix).
      */
     abstract fun hexStringPadded(): String
 
