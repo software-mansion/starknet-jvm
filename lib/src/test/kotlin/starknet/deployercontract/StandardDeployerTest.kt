@@ -35,10 +35,10 @@ object StandardDeployerTest {
     fun before() {
         try {
             devnetClient.start()
-            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
 
             // Prepare devnet address book
-            val accountDetails = devnetClient.deployAccount("standard_deployer_test", prefund = true).details
+            val accountDetails = devnetClient.createDeployAccount().details
+            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()

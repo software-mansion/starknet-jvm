@@ -22,7 +22,8 @@ class ProviderTest {
             accountDirectory = Paths.get("src/test/resources/accounts/provider_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
-        val rpcUrl = devnetClient.rpcUrl
+
+        private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
         private lateinit var balanceContractAddress: Felt
@@ -38,6 +39,7 @@ class ProviderTest {
                 devnetClient.start()
 
                 // Prepare devnet address book
+                val deployAccountResult = devnetClient.createDeployAccount()
                 val declareResult = devnetClient.declareContract("Balance")
                 balanceClassHash = declareResult.classHash
                 declareTransactionHash = declareResult.transactionHash
@@ -45,7 +47,7 @@ class ProviderTest {
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
                 ).contractAddress
-                deployAccountTransactionHash = devnetClient.deployAccount("provider_test", prefund = true).transactionHash
+                deployAccountTransactionHash = deployAccountResult.transactionHash
                 invokeTransactionHash = devnetClient.invokeContract(
                     contractAddress = balanceContractAddress,
                     function = "increase_balance",
