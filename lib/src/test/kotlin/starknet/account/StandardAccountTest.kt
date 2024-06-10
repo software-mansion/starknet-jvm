@@ -761,7 +761,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `cairo1 account calldata`() {
+        fun `cairo0 account calldata`() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
