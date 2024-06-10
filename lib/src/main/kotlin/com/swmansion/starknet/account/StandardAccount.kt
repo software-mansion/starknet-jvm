@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture
  * @param signer a signer instance used to sign transactions
  * @param chainId the chain id of the Starknet network
  */
-class StandardAccount (
+class StandardAccount(
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
@@ -42,7 +42,7 @@ class StandardAccount (
     private lateinit var cairoVersion: CairoVersion
 
     private fun determineCairoVersion() {
-        if(::cairoVersion.isInitialized) return
+        if (::cairoVersion.isInitialized) return
         val contract = provider.getClassAt(address).send()
         cairoVersion = if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
     }
