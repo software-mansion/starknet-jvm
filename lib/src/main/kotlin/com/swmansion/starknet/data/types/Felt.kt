@@ -30,6 +30,15 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
     override fun decString(): String = value.toString(10)
 
     /**
+     * Encode as padded hexadecimal string, including "0x" prefix. Its length is always 66 (including the 0x prefix).
+     */
+    fun hexStringPadded(): String {
+        val hexString = value.toString(16)
+        val zeros = "0".repeat(64 - hexString.length)
+        return "0x" + zeros + hexString
+    }
+
+    /**
      * Encode as ASCII string, with up to 31 characters.
      * Example: 0x68656c6c6f -> "hello".
      */
