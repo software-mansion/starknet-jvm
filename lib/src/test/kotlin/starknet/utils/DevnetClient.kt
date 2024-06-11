@@ -13,12 +13,12 @@ import starknet.utils.data.*
 import starknet.utils.data.serializers.AccountDetailsSerializer
 import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class DevnetClient(
@@ -114,14 +114,9 @@ class DevnetClient(
         }
         isDevnetRunning = true
 
-        // TODO: Use the previous approach once sncast is updated to RPC 0.6.0
-        // if (accountDirectory.exists()) {
-        //    accountDirectory.toFile().walkTopDown().forEach { it.delete() }
-        // }
-
-        // defaultAccountDetails = createDeployAccount("__default__").details
-
-        defaultAccountDetails = deployAccount("__default__", prefund = true).details
+        if (accountDirectory.exists()) {
+            accountDirectory.toFile().walkTopDown().forEach { it.delete() }
+        }
     }
 
     override fun close() {
@@ -165,14 +160,14 @@ class DevnetClient(
     }
 
     fun createAccount(
-        name: String,
+        accountName: String,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
     ): CreateAccountResult {
         val params = mutableListOf(
             "create",
             "--name",
-            name,
+            accountName,
             "--class-hash",
             classHash.hexString(),
         )
@@ -187,27 +182,26 @@ class DevnetClient(
         ) as AccountCreateSnCastResponse
 
         return CreateAccountResult(
-            details = readAccountDetails(name),
+            details = readAccountDetails(accountName),
             maxFee = response.maxFee,
         )
     }
 
     fun deployAccount(
-        name: String,
         classHash: Felt = accountContractClassHash,
         maxFee: Felt = Felt(1000000000000000),
         prefund: Boolean = false,
         accountName: String = "__default__",
     ): DeployAccountResult {
         if (prefund) {
-            prefundAccountEth(readAccountDetails(name).address)
-            prefundAccountStrk(readAccountDetails(name).address)
+            prefundAccountEth(readAccountDetails(accountName).address)
+            prefundAccountStrk(readAccountDetails(accountName).address)
         }
 
         val params = listOf(
             "deploy",
             "--name",
-            name,
+            accountName,
             "--max-fee",
             maxFee.hexString(),
             "--class-hash",
@@ -222,22 +216,20 @@ class DevnetClient(
         requireTransactionSuccessful(response.transactionHash, "Deploy Account")
 
         return DeployAccountResult(
-            details = readAccountDetails(name),
+            details = readAccountDetails(accountName),
             transactionHash = response.transactionHash,
         )
     }
 
     fun createDeployAccount(
-        name: String? = null,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
         maxFee: Felt = Felt(1000000000000000),
         accountName: String = "__default__",
     ): DeployAccountResult {
-        val newAccountName = name ?: UUID.randomUUID().toString()
-        val createResult = createAccount(newAccountName, classHash, salt)
+        val createResult = createAccount(accountName, classHash, salt)
         val details = createResult.details
-        val deployResult = deployAccount(newAccountName, classHash, maxFee, prefund = true, accountName)
+        val deployResult = deployAccount(classHash, maxFee, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
@@ -370,9 +362,8 @@ class DevnetClient(
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
+            "--hex-format",
             "--json",
-            "--path-to-scarb-toml",
-            scarbTomlPath.absolutePathString(),
             "--accounts-file",
             accountFilePath.absolutePathString(),
             "--url",
@@ -390,14 +381,12 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
-        var result = String(process.inputStream.readAllBytes())
-
-        // TODO: remove this - pending sncast update
-        // As of sncast 0.6.0, "account create" outputs non-json data in the beggining of the response
-        val index = result.indexOf('{')
-        // Remove all characters before the first `{`
-        result = if (index >= 0) result.substring(index) else throw IllegalArgumentException("Invalid response JSON")
-
+        // As of sncast 0.24.0, declare command returns three response objects
+        // First two of them come from "scarb build" output, and don't have "command" field
+        // Last object is the actual one we want to return
+        // Retrieving the last object works in both cases - with one and with few response objects
+        val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
+        val result = lines.last()
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
@@ -407,7 +396,7 @@ class DevnetClient(
         }
     }
 
-    private fun readAccountDetails(accountName: String): AccountDetails {
+    private fun readAccountDetails(accountName: String = "__default__"): AccountDetails {
         val contents = accountFilePath.readText()
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
