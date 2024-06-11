@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.serializers.FeltSerializer
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
-import com.swmansion.starknet.extensions.toHexPadded
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
@@ -28,9 +27,16 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
     override fun hexString() = value.toHex()
 
-    override fun hexStringPadded() = value.toHexPadded()
-
     override fun decString(): String = value.toString(10)
+
+    /**
+     * Encode as padded hexadecimal string, including "0x" prefix. Its length is always 66 (including the 0x prefix).
+     */
+    fun hexStringPadded(): String {
+        val hexString = value.toString(16)
+        val zeros = "0".repeat(64 - hexString.length)
+        return "0x" + zeros + hexString
+    }
 
     /**
      * Encode as ASCII string, with up to 31 characters.

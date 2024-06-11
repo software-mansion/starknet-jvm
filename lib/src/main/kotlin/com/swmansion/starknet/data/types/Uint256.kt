@@ -3,7 +3,6 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
-import com.swmansion.starknet.extensions.toHexPadded
 import java.math.BigInteger
 
 private const val SHIFT = 128
@@ -42,8 +41,6 @@ data class Uint256(override val value: BigInteger) : NumAsHexBase(value), Conver
     override fun toString() = "Uint256($value)"
 
     override fun hexString() = value.toHex()
-
-    override fun hexStringPadded() = value.toHexPadded()
 
     override fun decString(): String = value.toString(10)
 
