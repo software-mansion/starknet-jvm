@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toCalldata
 import com.swmansion.starknet.extensions.toFelt
@@ -183,6 +184,26 @@ internal class NumAsHexBaseTests {
             )
             assertEquals(expectedCalldata, calldata)
         }
+
+        @Test
+        fun `hexString`() {
+            val hexString1 = Felt.ZERO.hexString()
+            val hexString2 = Felt.ONE.hexString()
+            val hexString3 = Felt(100).hexString()
+            assertEquals("0x0", hexString1)
+            assertEquals("0x1", hexString2)
+            assertEquals("0x64", hexString3)
+        }
+
+        @Test
+        fun `hexStringPadded`() {
+            val hexStringPadded1 = Felt.ZERO.hexStringPadded()
+            val hexStringPadded2 = Felt.ONE.hexStringPadded()
+            val hexStringPadded3 = Felt(100).hexStringPadded()
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", hexStringPadded1)
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000001", hexStringPadded2)
+            assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded3)
+        }
     }
 
     @Nested
@@ -210,5 +231,27 @@ internal class NumAsHexBaseTests {
             assertEquals(Felt.fromHex("0x3e8"), smallUint256.low)
             assertEquals(Felt.fromHex("0x0"), smallUint256.high)
         }
+    }
+
+    @Test
+    fun `parseHex`() {
+        val hexString1 = Felt.ZERO.hexString()
+        val hexString2 = Felt.ONE.hexString()
+        val hexString3 = Felt(100).hexString()
+
+        assertEquals((0).toBigInteger(), parseHex(hexString1))
+        assertEquals((1).toBigInteger(), parseHex(hexString2))
+        assertEquals((100).toBigInteger(), parseHex(hexString3))
+    }
+
+    @Test
+    fun `parseHex padded`() {
+        val hexStringPadded1 = Felt.ZERO.hexStringPadded()
+        val hexStringPadded2 = Felt.ONE.hexStringPadded()
+        val hexStringPadded3 = Felt(100).hexStringPadded()
+
+        assertEquals((0).toBigInteger(), parseHex(hexStringPadded1))
+        assertEquals((1).toBigInteger(), parseHex(hexStringPadded2))
+        assertEquals((100).toBigInteger(), parseHex(hexStringPadded3))
     }
 }

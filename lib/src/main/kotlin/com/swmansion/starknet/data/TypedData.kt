@@ -78,6 +78,10 @@ import java.math.BigInteger
  * // Create a TypedData instance from string
  * TypedData typedData = TypedData.fromJsonString(typedDataString);
  *
+ * // Create a string from TypedData instance
+ * TypedData typedData = new TypedData(...);
+ * String typedDataString = typedData.toJsonString();
+ *
  * // Get a message hash
  * Felt messageHash = typedData.getMessageHash(accountAddress);
  * ```
@@ -601,6 +605,12 @@ data class TypedData private constructor(
         fun fromJsonString(typedData: String): TypedData =
             Json.decodeFromString(serializer(), typedData)
     }
+
+    /**
+     * Create a JSON string from TypedData.
+     */
+    fun toJsonString(): String =
+        Json.encodeToString(serializer(), this)
 }
 
 internal fun String.isArray() = endsWith("*")
