@@ -4,7 +4,7 @@ data class RequestResult<out T>(val result: Result<T>) {
     companion object {
         fun <T> success(value: T) = RequestResult(Result.success(value))
 
-        fun <T> failure(throwable: Throwable) = RequestResult(Result.failure(throwable))
+        fun <T> failure(throwable: Throwable): RequestResult<T> = RequestResult(Result.failure(throwable))
     }
 
     val isSuccess: Boolean
@@ -13,9 +13,9 @@ data class RequestResult<out T>(val result: Result<T>) {
     val isFailure: Boolean
         get() = result.isFailure
 
-    fun getOrNull(): T? = result.getOrNull()
+    fun getOrNull() = result.getOrNull()
 
-    fun exceptionOrNull(): Throwable? = result.exceptionOrNull()
+    fun exceptionOrNull() = result.exceptionOrNull()
 
-    fun getOrThrow(): T = result.getOrThrow()
+    fun getOrThrow() = result.getOrThrow()
 }
