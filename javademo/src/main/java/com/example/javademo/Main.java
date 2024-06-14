@@ -86,9 +86,8 @@ public class Main {
 
         // Declare Cairo 1 contract
         // You need to provide both sierra and casm codes of compiled contracts
-        System.out.println(Paths.get("javademo/src/main/resources/contracts").toAbsolutePath());
-        Path sierraPath = Paths.get("javademo/src/main/resources/contracts/target/dev/demo_Balance.sierra.json");
-        Path casmPath = Paths.get("javademo/src/main/resources/contracts/target/dev/demo_Balance.casm.json");
+        Path sierraPath = Paths.get("src/main/resources/contracts/target/release/demo_Balance.sierra.json");
+        Path casmPath = Paths.get("src/main/resources/contracts/target/release/demo_Balance.casm.json");
 
         DeclareResponse declareResponse = declareCairo1Contract(account, provider, sierraPath, casmPath);
         Felt contractClassHash = declareResponse.getClassHash();
