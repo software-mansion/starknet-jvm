@@ -136,18 +136,18 @@ public class Main {
 
         // Batch RPC requests
         // Get transactions data
-        HttpBatchRequest<Transaction> transactionsRequest = provider.batchRequests(
-                provider.getTransaction(declareResponse.getTransactionHash()),
-                provider.getTransaction(deployContractResult.transactionHash)
+        HttpBatchRequest<GetTransactionStatusResponse> statusesRequest = provider.batchRequests(
+                provider.getTransactionStatus(declareResponse.getTransactionHash()),
+                provider.getTransactionStatus(deployContractResult.transactionHash)
         );
 
-        List<RequestResult<Transaction>> transactionsResponse = transactionsRequest.send();
+        List<RequestResult<GetTransactionStatusResponse>> statusesResponse = statusesRequest.send();
 
-        Transaction declareTransaction = transactionsResponse.get(0).getOrNull();
-        Transaction deployContractTransaction = transactionsResponse.get(1).getOrNull();
+        GetTransactionStatusResponse declareTransactionStatus = statusesResponse.get(0).getOrNull();
+        GetTransactionStatusResponse deployContractTransactionStatus = statusesResponse.get(1).getOrNull();
 
-        System.out.println("Declare transaction: " + declareTransaction);
-        System.out.println("Deploy contract transaction: " + deployContractTransaction);
+        System.out.println("Declare transaction execution status: " + declareTransactionStatus.getExecutionStatus());
+        System.out.println("Deploy transaction contract execution status: " + deployContractTransactionStatus.getExecutionStatus());
 
         // Batch any RPC requests
         // Get block hash and number + Check the initial value of `balance` in deployed contract
