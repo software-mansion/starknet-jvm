@@ -136,30 +136,30 @@ public class Main {
 
         // Batch RPC requests
         // Get transactions data
-        HttpBatchRequest<Transaction> batchRequest = provider.batchRequests(
+        HttpBatchRequest<Transaction> transactionsRequest = provider.batchRequests(
                 provider.getTransaction(declareResponse.getTransactionHash()),
                 provider.getTransaction(deployContractResult.transactionHash)
         );
 
-        List<RequestResult<Transaction>> batchResponse = batchRequest.send();
+        List<RequestResult<Transaction>> transactionsResponse = transactionsRequest.send();
 
-        Transaction declareTransaction = batchResponse.get(0).getOrNull();
-        Transaction deployContractTransaction = batchResponse.get(1).getOrNull();
+        Transaction declareTransaction = transactionsResponse.get(0).getOrNull();
+        Transaction deployContractTransaction = transactionsResponse.get(1).getOrNull();
 
         System.out.println("Declare transaction: " + declareTransaction);
         System.out.println("Deploy contract transaction: " + deployContractTransaction);
 
         // Batch any RPC requests
         // Get block hash and number + Check the initial value of `balance` in deployed contract
-        HttpBatchRequest batchRequest2 = provider.batchRequestsAny(
+        HttpBatchRequest mixedRequest = provider.batchRequestsAny(
                 provider.getBlockHashAndNumber(),
                 provider.getStorageAt(deployedContractAddress, selectorFromName("balance"))
         );
 
-        List<RequestResult> batchResponse2 = batchRequest2.send();
+        List<RequestResult> mixedResponse = mixedRequest.send();
 
-        GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) batchResponse2.get(0).getOrNull();
-        Felt initialContractBalance2 = (Felt) batchResponse2.get(1).getOrNull();
+        GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) mixedResponse.get(0).getOrNull();
+        Felt initialContractBalance2 = (Felt) mixedResponse.get(1).getOrNull();
 
         System.out.println("Block hash: " + blockHashAndNumber.getBlockHash() + ".");
         System.out.println("Initial contract balance: " + initialContractBalance2.getValue() + ".");
