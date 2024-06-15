@@ -135,7 +135,7 @@ public class Main {
         System.out.println("Is signature correct? " + isCorrect + ".");
 
         // Batch RPC requests
-        // Get transactions data
+        // Get transaction statuses
         HttpBatchRequest<GetTransactionStatusResponse> statusesRequest = provider.batchRequests(
                 provider.getTransactionStatus(declareResponse.getTransactionHash()),
                 provider.getTransactionStatus(deployContractResult.transactionHash)
