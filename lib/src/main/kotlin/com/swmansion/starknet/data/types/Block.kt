@@ -8,7 +8,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"), PENDING("pending")
+    LATEST("latest"), PENDING("pending");
+
+    companion object {
+        fun fromTag(tag: String): BlockTag {
+            return BlockTag.entries.firstOrNull() { it.tag == tag } ?: throw IllegalArgumentException("Unknown block tag: $tag")
+        }
+    }
 }
 
 @Serializable

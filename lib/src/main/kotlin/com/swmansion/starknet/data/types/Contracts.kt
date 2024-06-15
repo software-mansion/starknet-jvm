@@ -156,15 +156,35 @@ data class Cairo0ContractDefinition(private val contract: String) {
 }
 
 @Serializable
-data class Cairo1ContractDefinition @JvmOverloads constructor(
-    private val contract: String,
+data class Cairo1ContractDefinition(
     @Transient
     internal val ignoreUnknownJsonKeys: Boolean = false,
+
+    @SerialName("sierra_program")
+    private val sierraProgram: JsonElement,
+
+    @SerialName("entry_points_by_type")
+    private val entryPointsByType: JsonElement,
+
+    @SerialName("contract_class_version")
+    private val contractClassVersion: JsonElement,
+
+    @SerialName("abi")
+    private val abi: JsonElement?,
 ) {
-    private val sierraProgram: JsonElement
-    private val entryPointsByType: JsonElement
-    private val contractClassVersion: JsonElement
-    private val abi: JsonElement?
+    constructor(
+        contract: String,
+        ignoreUnknownJsonKeys: Boolean = false,
+    ) : this(
+        sierraProgram = Json.parseToJsonElement(contract).jsonObject["sierra_program"]
+            ?: throw InvalidContractException("sierra_program"),
+        entryPointsByType = Json.parseToJsonElement(contract).jsonObject["entry_points_by_type"]
+            ?: throw InvalidContractException("entry_points_by_type"),
+        contractClassVersion = Json.parseToJsonElement(contract).jsonObject["contract_class_version"]
+            ?: throw InvalidContractException("contract_class_version"),
+        abi = Json.parseToJsonElement(contract).jsonObject["abi"],
+
+    )
 
     companion object {
         private val jsonWithPrettyPrint by lazy { Json { prettyPrint = true } }
@@ -172,24 +192,6 @@ data class Cairo1ContractDefinition @JvmOverloads constructor(
 
     class InvalidContractException(missingKey: String) :
         RuntimeException("Attempted to parse an invalid contract. Missing key: $missingKey")
-
-    init {
-        val (sierraProgram, entryPointsByType, contractClassVersion, abi) = parseContract(contract)
-        this.sierraProgram = sierraProgram
-        this.entryPointsByType = entryPointsByType
-        this.contractClassVersion = contractClassVersion
-        this.abi = abi
-    }
-
-    private fun parseContract(contract: String): Array<JsonElement> {
-        val compiledContract = Json.parseToJsonElement(contract).jsonObject
-        val sierraProgram = compiledContract["sierra_program"] ?: throw InvalidContractException("sierra_program")
-        val entryPointsByType =
-            compiledContract["entry_points_by_type"] ?: throw InvalidContractException("entry_points_by_type")
-        val contractClassVersion = compiledContract["contract_class_version"] ?: throw InvalidContractException("contract_class_version")
-        val abi = compiledContract["abi"] ?: JsonPrimitive("")
-        return arrayOf(sierraProgram, entryPointsByType, contractClassVersion, abi)
-    }
 
     fun toJson(): JsonObject {
         return buildJsonObject {

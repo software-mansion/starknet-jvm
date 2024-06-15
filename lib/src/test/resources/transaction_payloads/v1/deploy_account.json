@@ -1,0 +1,15 @@
+{
+  "class_hash": "0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f",
+  "contract_address_salt": "0x1",
+  "constructor_calldata": [
+    "0x6ab9e9e75f5a5d90796f155d58671a6a038e47e15643383e3205e806410050e"
+  ],
+  "version": "0x1",
+  "nonce": "0x0",
+  "max_fee": "0x11fcc58c7f7000",
+  "signature": [
+    "0x33922f3c08770a128359b3a21aba4529812a80780869bfbfff86f239a504946",
+    "0x3b5ffb6a953e876de2a82c74356cdfa814be7fafe999de0c110c545418e3c72"
+  ],
+  "type": "DEPLOY_ACCOUNT"
+}

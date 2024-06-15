@@ -1,0 +1,30 @@
+{
+  "sender_address": "0x4428a52af4b56b60eafba3bfe8d45f06b3ba6567db259e1f815f818632fd18f",
+  "calldata": [
+    "0x3",
+    "0x7b0530d9e2c88054d65656364be74049dc4ae086e3173f08c695895cee88aaf",
+    "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
+    "0x0",
+    "0x1",
+    "0x7b0530d9e2c88054d65656364be74049dc4ae086e3173f08c695895cee88aaf",
+    "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
+    "0x1",
+    "0x1",
+    "0x7b0530d9e2c88054d65656364be74049dc4ae086e3173f08c695895cee88aaf",
+    "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
+    "0x2",
+    "0x1",
+    "0x3",
+    "0xa",
+    "0xa",
+    "0xa"
+  ],
+  "signature": [
+    "0x59d8a6aa7d3183e9185a196d6d43dd9344a64e4ff82444429f17c92dbce2818",
+    "0x5cd09b9c4cc5880e1843db130d77f6e29be34d86ae30f34d3d58a54656550e2"
+  ],
+  "max_fee": "0x38d7ea4c68000",
+  "version": "0x1",
+  "nonce": "0x1",
+  "type": "INVOKE"
+}

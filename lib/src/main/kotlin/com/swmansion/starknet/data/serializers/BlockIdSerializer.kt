@@ -19,8 +19,12 @@ internal object BlockIdSerializer : KSerializer<BlockId> {
         val value = decoder.decodeString()
 
         if (BlockTag.entries.map { it.tag }.contains(value)) {
-            val tag = BlockTag.valueOf(value)
+            val tag = BlockTag.fromTag(value)
             return BlockId.Tag(tag)
+        }
+
+        if (value.toIntOrNull() != null) {
+            return BlockId.Number(value.toInt())
         }
 
         return BlockId.Hash(Felt.fromHex(value))
