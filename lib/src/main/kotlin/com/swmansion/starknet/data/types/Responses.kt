@@ -68,6 +68,7 @@ data class EstimateFeeResponse(
      *
      * @param multiplier Multiplier for max fee, defaults to 1.5.
      */
+    @JvmOverloads
     fun toMaxFee(multiplier: Double = 1.5): Felt {
         require(multiplier >= 0)
 
@@ -86,6 +87,7 @@ data class EstimateFeeResponse(
      *
      * @return Resource bounds with applied multipliers.
      */
+    @JvmOverloads
     fun toResourceBounds(
         amountMultiplier: Double = 1.5,
         unitPriceMultiplier: Double = 1.5,

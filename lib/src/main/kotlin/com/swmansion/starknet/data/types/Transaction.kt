@@ -130,7 +130,7 @@ sealed interface TransactionV3 {
 
 @Serializable
 @SerialName("DEPLOY")
-data class DeployTransaction(
+data class DeployTransaction internal constructor(
     @SerialName("contract_address_salt")
     val contractAddressSalt: Felt,
 
@@ -170,7 +170,7 @@ sealed class InvokeTransaction : Transaction() {
 }
 
 @Serializable
-data class InvokeTransactionV1(
+data class InvokeTransactionV1 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -185,7 +185,7 @@ data class InvokeTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V1,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -194,6 +194,32 @@ data class InvokeTransactionV1(
     override val nonce: Felt,
 
 ) : InvokeTransaction(), DeprecatedTransaction {
+    @JvmOverloads
+    constructor(
+        senderAddress: Felt,
+        calldata: Calldata,
+        chainId: StarknetChainId,
+        nonce: Felt,
+        maxFee: Felt,
+        signature: Signature = emptyList(),
+        forFeeEstimate: Boolean = false,
+    ) : this(
+        hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
+            contractAddress = senderAddress,
+            calldata = calldata,
+            chainId = chainId,
+            version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
+            nonce = nonce,
+            maxFee = maxFee,
+        ),
+        senderAddress = senderAddress,
+        calldata = calldata,
+        maxFee = maxFee,
+        version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
+        signature = signature,
+        nonce = nonce,
+    )
+
     fun toPayload(): InvokeTransactionV1Payload {
         return InvokeTransactionV1Payload(
             calldata = calldata,
@@ -207,7 +233,7 @@ data class InvokeTransactionV1(
 }
 
 @Serializable
-data class InvokeTransactionV3(
+data class InvokeTransactionV3 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -219,7 +245,7 @@ data class InvokeTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -245,6 +271,42 @@ data class InvokeTransactionV3(
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
 ) : InvokeTransaction(), TransactionV3 {
+    @JvmOverloads
+    constructor(
+        senderAddress: Felt,
+        calldata: Calldata,
+        chainId: StarknetChainId,
+        nonce: Felt,
+        signature: Signature = emptyList(),
+        forFeeEstimate: Boolean = false,
+        resourceBounds: ResourceBoundsMapping,
+    ) : this(
+        hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
+            senderAddress = senderAddress,
+            calldata = calldata,
+            chainId = chainId,
+            version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
+            nonce = nonce,
+            resourceBounds = resourceBounds,
+            tip = Uint64.ZERO,
+            paymasterData = emptyList(),
+            accountDeploymentData = emptyList(),
+            nonceDataAvailabilityMode = DAMode.L1,
+            feeDataAvailabilityMode = DAMode.L1,
+        ),
+        senderAddress = senderAddress,
+        calldata = calldata,
+        version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
+        signature = signature,
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+
     fun toPayload(): InvokeTransactionV3Payload {
         return InvokeTransactionV3Payload(
             calldata = calldata,
@@ -258,7 +320,7 @@ data class InvokeTransactionV3(
 }
 
 @Serializable
-data class InvokeTransactionV0(
+data class InvokeTransactionV0 internal constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -295,7 +357,7 @@ sealed class DeclareTransaction : Transaction() {
 }
 
 @Serializable
-data class DeclareTransactionV0(
+data class DeclareTransactionV0 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -323,7 +385,7 @@ data class DeclareTransactionV0(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV1(
+data class DeclareTransactionV1 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -351,7 +413,7 @@ data class DeclareTransactionV1(
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV2(
+data class DeclareTransactionV2 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -366,7 +428,7 @@ data class DeclareTransactionV2(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V2,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -380,6 +442,36 @@ data class DeclareTransactionV2(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
 ) : DeclareTransaction(), DeprecatedTransaction {
+    @JvmOverloads
+    constructor(
+        senderAddress: Felt,
+        contractDefinition: Cairo1ContractDefinition,
+        chainId: StarknetChainId,
+        maxFee: Felt,
+        nonce: Felt,
+        casmContractDefinition: CasmContractDefinition,
+        signature: Signature = emptyList(),
+        forFeeEstimate: Boolean = false,
+    ) : this(
+        hash = TransactionHashCalculator.calculateDeclareV2TxHash(
+            classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
+            chainId = chainId,
+            senderAddress = senderAddress,
+            maxFee = maxFee,
+            version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
+            nonce = nonce,
+            compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+        ),
+        classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
+        senderAddress = senderAddress,
+        contractDefinition = contractDefinition,
+        maxFee = maxFee,
+        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
+        signature = signature,
+        nonce = nonce,
+        compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+    )
+
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV2Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
@@ -398,7 +490,7 @@ data class DeclareTransactionV2(
 }
 
 @Serializable
-data class DeclareTransactionV3(
+data class DeclareTransactionV3 @JvmOverloads constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -407,10 +499,10 @@ data class DeclareTransactionV3(
 
     // not in RPC spec
     @SerialName("transaction_hash")
-    override val hash: Felt? = null,
+    override val hash: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -442,6 +534,45 @@ data class DeclareTransactionV3(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
 ) : DeclareTransaction(), TransactionV3 {
+    constructor(
+        senderAddress: Felt,
+        contractDefinition: Cairo1ContractDefinition,
+        chainId: StarknetChainId,
+        forFeeEstimate: Boolean = false,
+        nonce: Felt,
+        casmContractDefinition: CasmContractDefinition,
+        signature: Signature = emptyList(),
+        resourceBounds: ResourceBoundsMapping,
+    ) : this(
+        hash = TransactionHashCalculator.calculateDeclareV3TxHash(
+            classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
+            chainId = chainId,
+            senderAddress = senderAddress,
+            version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
+            nonce = nonce,
+            compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+            resourceBounds = resourceBounds,
+            tip = Uint64.ZERO,
+            paymasterData = emptyList(),
+            accountDeploymentData = emptyList(),
+            nonceDataAvailabilityMode = DAMode.L1,
+            feeDataAvailabilityMode = DAMode.L1,
+        ),
+        classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
+        senderAddress = senderAddress,
+        contractDefinition = contractDefinition,
+        version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
+        signature = signature,
+        nonce = nonce,
+        compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+
     @Throws(ConvertingToPayloadFailedException::class)
     internal fun toPayload(): DeclareTransactionV3Payload {
         contractDefinition ?: throw ConvertingToPayloadFailedException()
@@ -533,7 +664,7 @@ data class DeployAccountTransactionV1(
     override val maxFee: Felt,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V1,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -541,6 +672,37 @@ data class DeployAccountTransactionV1(
     @SerialName("nonce")
     override val nonce: Felt,
 ) : DeployAccountTransaction(), DeprecatedTransaction {
+    @JvmOverloads
+    constructor(
+        classHash: Felt,
+        contractAddress: Felt,
+        salt: Felt,
+        calldata: Calldata,
+        chainId: StarknetChainId,
+        forFeeEstimate: Boolean = false,
+        maxFee: Felt,
+        signature: Signature = emptyList(),
+        nonce: Felt = Felt.ZERO,
+    ) : this(
+        classHash = classHash,
+        contractAddress = contractAddress,
+        contractAddressSalt = salt,
+        constructorCalldata = calldata,
+        version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
+        nonce = nonce,
+        maxFee = maxFee,
+        hash = TransactionHashCalculator.calculateDeployAccountV1TxHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+            chainId = chainId,
+            version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
+            maxFee = maxFee,
+            nonce = nonce,
+        ),
+        signature = signature,
+    )
+
     internal fun toPayload(): DeployAccountTransactionV1Payload {
         return DeployAccountTransactionV1Payload(
             classHash = classHash,
@@ -555,7 +717,7 @@ data class DeployAccountTransactionV1(
 }
 
 @Serializable
-data class DeployAccountTransactionV3(
+data class DeployAccountTransactionV3 internal constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -574,7 +736,7 @@ data class DeployAccountTransactionV3(
     override val hash: Felt? = null,
 
     @SerialName("version")
-    override val version: TransactionVersion = TransactionVersion.V3,
+    override val version: TransactionVersion,
 
     @SerialName("signature")
     override val signature: Signature,
@@ -597,253 +759,53 @@ data class DeployAccountTransactionV3(
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
 ) : DeployAccountTransaction(), TransactionV3 {
-    internal fun toPayload(): DeployAccountTransactionV3Payload {
-        return DeployAccountTransactionV3Payload(
-            classHash = classHash,
-            salt = contractAddressSalt,
-            constructorCalldata = constructorCalldata,
-            version = version,
-            nonce = nonce,
-            signature = signature,
-            resourceBounds = resourceBounds,
-        )
-    }
-}
-
-object TransactionFactory {
-    private val tip = Uint64.ZERO
-    private val paymasterData: PaymasterData = emptyList()
-    private val accountDeploymentData: AccountDeploymentData = emptyList()
-    private val nonceDataAvailabilityMode = DAMode.L1
-    private val feeDataAvailabilityMode = DAMode.L1
-
-    @JvmStatic
     @JvmOverloads
-    fun makeInvokeV1Transaction(
-        senderAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        nonce: Felt,
-        maxFee: Felt,
-        signature: Signature = emptyList(),
-        version: TransactionVersion,
-    ): InvokeTransactionV1 {
-        val hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
-            contractAddress = senderAddress,
-            calldata = calldata,
-            chainId = chainId,
-            version = version,
-            nonce = nonce,
-            maxFee = maxFee,
-        )
-        return InvokeTransactionV1(
-            hash = hash,
-            senderAddress = senderAddress,
-            calldata = calldata,
-            maxFee = maxFee,
-            version = version,
-            signature = signature,
-            nonce = nonce,
-        )
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun makeInvokeV3Transaction(
-        senderAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        nonce: Felt,
-        signature: Signature = emptyList(),
-        version: TransactionVersion,
-        resourceBounds: ResourceBoundsMapping,
-    ): InvokeTransactionV3 {
-        val hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
-            senderAddress = senderAddress,
-            calldata = calldata,
-            chainId = chainId,
-            version = version,
-            nonce = nonce,
-            resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-        return InvokeTransactionV3(
-            hash = hash,
-            senderAddress = senderAddress,
-            calldata = calldata,
-            version = version,
-            signature = signature,
-            nonce = nonce,
-            resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun makeDeployAccountV1Transaction(
-        classHash: Felt,
-        contractAddress: Felt,
-        salt: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        maxFee: Felt,
-        signature: Signature = emptyList(),
-        nonce: Felt = Felt.ZERO,
-    ): DeployAccountTransactionV1 {
-        val hash = TransactionHashCalculator.calculateDeployAccountV1TxHash(
-            classHash = classHash,
-            calldata = calldata,
-            salt = salt,
-            chainId = chainId,
-            version = version,
-            maxFee = maxFee,
-            nonce = nonce,
-        )
-        return DeployAccountTransactionV1(
-            classHash = classHash,
-            contractAddress = contractAddress,
-            contractAddressSalt = salt,
-            constructorCalldata = calldata,
-            version = version,
-            nonce = nonce,
-            maxFee = maxFee,
-            hash = hash,
-            signature = signature,
-        )
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun makeDeployAccountV3Transaction(
+    constructor(
         classHash: Felt,
         senderAddress: Felt,
         salt: Felt,
         calldata: Calldata,
         chainId: StarknetChainId,
-        version: TransactionVersion,
+        forFeeEstimate: Boolean = false,
         signature: Signature = emptyList(),
         nonce: Felt = Felt.ZERO,
         resourceBounds: ResourceBoundsMapping,
-    ): DeployAccountTransactionV3 {
-        val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
+    ) : this(
+        classHash = classHash,
+        contractAddress = senderAddress,
+        contractAddressSalt = salt,
+        constructorCalldata = calldata,
+        version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
+        nonce = nonce,
+        hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
             classHash = classHash,
             salt = salt,
             constructorCalldata = calldata,
             chainId = chainId,
-            version = version,
+            version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
             nonce = nonce,
             resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-        return DeployAccountTransactionV3(
-            classHash = classHash,
-            contractAddress = senderAddress,
-            contractAddressSalt = salt,
-            constructorCalldata = calldata,
-            version = version,
-            nonce = nonce,
-            hash = hash,
-            signature = signature,
-            resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-    }
+            tip = Uint64.ZERO,
+            paymasterData = emptyList(),
+            nonceDataAvailabilityMode = DAMode.L1,
+            feeDataAvailabilityMode = DAMode.L1,
+        ),
+        signature = signature,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
 
-    @JvmStatic
-    @JvmOverloads
-    fun makeDeclareV2Transaction(
-        senderAddress: Felt,
-        contractDefinition: Cairo1ContractDefinition,
-        chainId: StarknetChainId,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        casmContractDefinition: CasmContractDefinition,
-        signature: Signature = emptyList(),
-    ): DeclareTransactionV2 {
-        val classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
-        val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition)
-        val hash = TransactionHashCalculator.calculateDeclareV2TxHash(
-            classHash = classHash,
-            chainId = chainId,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            version = version,
-            nonce = nonce,
-            compiledClassHash = compiledClassHash,
-        )
-        return DeclareTransactionV2(
-            hash = hash,
-            classHash = classHash,
-            senderAddress = senderAddress,
-            contractDefinition = contractDefinition,
-            maxFee = maxFee,
-            version = version,
-            signature = signature,
-            nonce = nonce,
-            compiledClassHash = compiledClassHash,
-        )
-    }
+    internal fun toPayload() = DeployAccountTransactionV3Payload(
+        classHash = classHash,
+        salt = contractAddressSalt,
+        constructorCalldata = constructorCalldata,
+        version = version,
+        nonce = nonce,
+        signature = signature,
+        resourceBounds = resourceBounds,
 
-    @JvmStatic
-    @JvmOverloads
-    fun makeDeclareV3Transaction(
-        senderAddress: Felt,
-        contractDefinition: Cairo1ContractDefinition,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        casmContractDefinition: CasmContractDefinition,
-        signature: Signature = emptyList(),
-        resourceBounds: ResourceBoundsMapping,
-    ): DeclareTransactionV3 {
-        val classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition)
-        val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition)
-        val hash = TransactionHashCalculator.calculateDeclareV3TxHash(
-            classHash = classHash,
-            chainId = chainId,
-            senderAddress = senderAddress,
-            version = version,
-            nonce = nonce,
-            compiledClassHash = compiledClassHash,
-            resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-        return DeclareTransactionV3(
-            hash = hash,
-            classHash = classHash,
-            senderAddress = senderAddress,
-            contractDefinition = contractDefinition,
-            version = version,
-            signature = signature,
-            nonce = nonce,
-            compiledClassHash = compiledClassHash,
-            resourceBounds = resourceBounds,
-            tip = tip,
-            paymasterData = paymasterData,
-            accountDeploymentData = accountDeploymentData,
-            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-            feeDataAvailabilityMode = feeDataAvailabilityMode,
-        )
-    }
+    )
 }

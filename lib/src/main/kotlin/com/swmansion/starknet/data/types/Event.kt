@@ -41,7 +41,7 @@ data class OrderedEvent(
 )
 
 @Serializable
-data class EmittedEvent(
+data class EmittedEvent @JvmOverloads constructor(
     @SerialName("from_address")
     val address: Felt,
 

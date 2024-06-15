@@ -9,8 +9,9 @@ import kotlinx.serialization.encoding.Encoder
 
 data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldata, MutableList<Felt> by list, StarknetResponse {
     constructor(vararg elements: Felt) : this(elements.toMutableList())
-    constructor(collection: Collection<Felt>) : this(collection.toMutableList())
-    constructor() : this(emptyList())
+
+    @JvmOverloads
+    constructor(collection: Collection<Felt> = emptyList()) : this(collection.toMutableList())
 
     override fun toCalldata(): List<Felt> = listOf(size.toFelt) + list
 }

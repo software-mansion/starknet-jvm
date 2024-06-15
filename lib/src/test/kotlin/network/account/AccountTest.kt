@@ -122,7 +122,7 @@ class AccountTest {
             ),
         )
 
-        val signedTransaction = TransactionFactory.makeDeclareV2Transaction(
+        val signedTransaction = DeclareTransactionV2(
             senderAddress = declareTransactionPayload.senderAddress,
             contractDefinition = declareTransactionPayload.contractDefinition,
             casmContractDefinition = casmContractDefinition,
@@ -130,7 +130,6 @@ class AccountTest {
             nonce = nonce,
             maxFee = declareTransactionPayload.maxFee,
             signature = declareTransactionPayload.signature,
-            version = declareTransactionPayload.version,
         )
 
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
