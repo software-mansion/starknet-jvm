@@ -133,8 +133,8 @@ object AccountCalldataTransformer {
     }
 
     @JvmStatic
-    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
-        if (cairoVersion == Felt.ONE) {
+    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: CairoVersion = CairoVersion.ZERO): List<Felt> {
+        if (cairoVersion == CairoVersion.ONE) {
             return callsToExecuteCalldataCairo1(calls)
         }
 

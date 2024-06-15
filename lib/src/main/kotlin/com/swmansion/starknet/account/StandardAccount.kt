@@ -27,7 +27,7 @@ class StandardAccount @JvmOverloads constructor(
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: Felt = Felt.ZERO,
+    private val cairoVersion: CairoVersion = CairoVersion.ZERO,
 ) : Account {
     /**
      * @param provider a provider used to interact with Starknet
@@ -37,7 +37,7 @@ class StandardAccount @JvmOverloads constructor(
      * @param cairoVersion the version of Cairo language in which account contract is written
      */
     @JvmOverloads
-    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: Felt = Felt.ZERO) : this(
+    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: CairoVersion = CairoVersion.ZERO) : this(
         address = address,
         signer = StarkCurveSigner(privateKey),
         provider = provider,
