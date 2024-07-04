@@ -62,7 +62,7 @@ data class EmittedEvent @JvmOverloads constructor(
 )
 
 @Serializable
-data class GetEventsPayload(
+data class GetEventsPayload @JvmOverloads constructor(
     @SerialName("from_block")
     val fromBlockId: BlockId,
 
@@ -84,7 +84,7 @@ data class GetEventsPayload(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GetEventsResult(
+data class GetEventsResult @JvmOverloads constructor(
     @JsonNames("events")
     val events: List<EmittedEvent>,
 
