@@ -145,16 +145,16 @@ data class InvokeTransactionReceipt private constructor(
         finalityStatus = finalityStatus,
         blockHash = blockHash,
         blockNumber = blockNumber,
+        type = TransactionType.INVOKE,
         messagesSent = messagesSent,
         revertReason = revertReason,
         events = events,
         executionResources = executionResources,
-        type = TransactionType.INVOKE,
     )
 }
 
 @Serializable
-data class DeclareTransactionReceipt(
+data class DeclareTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -173,7 +173,7 @@ data class DeclareTransactionReceipt(
     @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    override val type: TransactionType = TransactionType.DECLARE,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -186,7 +186,32 @@ data class DeclareTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DECLARE,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+    )
+}
 
 @Serializable
 data class DeployAccountTransactionReceipt(
@@ -209,7 +234,7 @@ data class DeployAccountTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -225,7 +250,34 @@ data class DeployAccountTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        contractAddress: Felt,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DEPLOY_ACCOUNT,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        contractAddress = contractAddress,
+    )
+}
 
 @Serializable
 data class DeployTransactionReceipt(
@@ -287,7 +339,7 @@ data class L1HandlerTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.L1_HANDLER,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -303,4 +355,31 @@ data class L1HandlerTransactionReceipt(
 
     @SerialName("message_hash")
     val messageHash: NumAsHex,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        messageHash: NumAsHex,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.L1_HANDLER,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        messageHash = messageHash,
+    )
+}
