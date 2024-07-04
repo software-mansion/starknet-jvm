@@ -59,7 +59,7 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
 
         @field:JvmField
-        val MAX = PRIME.minus(BigInteger.ONE)
+       val MAX = PRIME - BigInteger.ONE
 
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
@@ -118,7 +118,7 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         fun fromSigned(value: BigInteger): Felt {
             require(value.abs() < PRIME) { "Values outside the range (-Felt.PRIME, Felt.PRIME) are not allowed, [$value] given." }
 
-            return Felt(value.mod(PRIME))
+            return Felt(value % PRIME)
         }
 
         /**

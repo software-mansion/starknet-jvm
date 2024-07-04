@@ -445,8 +445,6 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     private fun estimateVersion(version: Felt): Felt {
-        return BigInteger.valueOf(2).pow(128)
-            .add(version.value)
-            .toFelt
-    }
+           return (BigInteger.valueOf(2).pow(128) + version.value).toFelt()
+       }
 }

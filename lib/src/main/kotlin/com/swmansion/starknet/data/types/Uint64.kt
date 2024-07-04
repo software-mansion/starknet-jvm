@@ -32,7 +32,7 @@ data class Uint64(override val value: BigInteger) : NumAsHexBase(value), Convert
 
     companion object {
         @field:JvmField
-        val MAX = BigInteger.valueOf(2).pow(64).minus(BigInteger.ONE)
+        val MAX = (BigInteger.valueOf(2).pow(64) - BigInteger.ONE)
 
         @field:JvmField
         val ZERO = Uint64(BigInteger.ZERO)

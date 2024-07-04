@@ -365,7 +365,7 @@ internal class TypedDataTest {
         @Test
         fun `encode i128`() {
             val positiveValues = listOf(0, 1, 1000000, "0x0", "0x1", "0x64", (BigInteger.TWO.pow(127) - BigInteger.ONE).toString())
-            val negativeValues = listOf(-1, -1000000, "-1", BigInteger.TWO.pow(127).negate().toString())
+            val negativeValues = listOf(-1, -1000000, "-1", (-BigInteger.TWO.pow(127)).toString())
 
             (positiveValues + negativeValues).forEach {
                 val encodedValue = CasesRev1.TD_BASIC_TYPES.encodeValue("i128", encodeToJsonElement(it))

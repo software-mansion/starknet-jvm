@@ -32,7 +32,7 @@ data class Uint128(override val value: BigInteger) : NumAsHexBase(value), Conver
 
     companion object {
         @field:JvmField
-        val MAX = BigInteger.valueOf(2).pow(128).minus(BigInteger.ONE)
+        val MAX = (BigInteger.valueOf(2).pow(128) - BigInteger.ONE)
 
         @field:JvmField
         val ZERO = Uint128(BigInteger.ZERO)
