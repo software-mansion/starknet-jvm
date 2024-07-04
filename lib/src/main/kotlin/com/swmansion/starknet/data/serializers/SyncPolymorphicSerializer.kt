@@ -27,7 +27,7 @@ internal object NotSyncingResponseSerializer : KSerializer<NotSyncingResponse> {
     override fun deserialize(decoder: Decoder): NotSyncingResponse {
         require(decoder is JsonDecoder)
         val status = decoder.decodeJsonElement().jsonPrimitive.booleanOrNull
-            ?: throw SerializationException("Incorrect 'status'.")
+            ?: throw SerializationException("Invalid NotSyncingResponse value [${decoder.decodeJsonElement().jsonPrimitive}], boolean expected.")
         return NotSyncingResponse(status)
     }
 
