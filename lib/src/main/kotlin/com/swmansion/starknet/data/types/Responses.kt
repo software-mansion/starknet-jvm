@@ -149,7 +149,7 @@ sealed class Syncing : StarknetResponse {
 }
 
 @Serializable(with = NotSyncingResponseSerializer::class)
-data class NotSyncingResponse(
+data class NotSyncingResponse private constructor(
     override val status: Boolean,
 
     override val startingBlockHash: Felt,

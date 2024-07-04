@@ -93,7 +93,7 @@ sealed class TransactionReceipt : StarknetResponse {
 }
 
 @Serializable
-data class InvokeTransactionReceipt(
+data class InvokeTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -113,7 +113,7 @@ data class InvokeTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -126,7 +126,32 @@ data class InvokeTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        type = TransactionType.INVOKE
+    )
+}
 
 @Serializable
 data class DeclareTransactionReceipt(
