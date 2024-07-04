@@ -195,7 +195,6 @@ data class DeployAccountTransactionTrace private constructor(
     )
 }
 
-
 @Serializable
 data class L1HandlerTransactionTrace private constructor(
     @SerialName("function_invocation")
