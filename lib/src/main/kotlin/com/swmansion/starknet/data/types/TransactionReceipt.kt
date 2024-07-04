@@ -137,7 +137,7 @@ data class InvokeTransactionReceipt private constructor(
         messagesSent: List<MessageL2ToL1>,
         revertReason: String? = null,
         events: List<Event>,
-        executionResources: ExecutionResources
+        executionResources: ExecutionResources,
     ) : this(
         hash = hash,
         actualFee = actualFee,
@@ -149,7 +149,7 @@ data class InvokeTransactionReceipt private constructor(
         revertReason = revertReason,
         events = events,
         executionResources = executionResources,
-        type = TransactionType.INVOKE
+        type = TransactionType.INVOKE,
     )
 }
 
