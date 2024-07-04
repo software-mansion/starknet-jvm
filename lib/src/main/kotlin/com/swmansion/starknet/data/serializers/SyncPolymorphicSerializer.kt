@@ -33,16 +33,6 @@ internal object NotSyncingResponseSerializer : KSerializer<NotSyncingResponse> {
 
     override fun serialize(encoder: Encoder, value: NotSyncingResponse) {
         require(encoder is JsonEncoder)
-        val jsonObject = buildJsonObject {
-            put("status", value.status)
-            put("startingBlockHash", value.startingBlockHash)
-            put("startingBlockNumber", value.startingBlockNumber)
-            put("currentBlockHash", value.currentBlockHash)
-            put("currentBlockNumber", value.currentBlockNumber)
-            put("highestBlockHash", value.highestBlockHash)
-            put("highestBlockNumber", value.highestBlockNumber)
-        }
-
-        encoder.encodeJsonElement(jsonObject)
+        encoder.encodeJsonElement(JsonPrimitive(value.status))
     }
 }
