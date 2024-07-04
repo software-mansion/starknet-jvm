@@ -3,7 +3,6 @@ package com.swmansion.starknet.data.serializers
 import com.swmansion.starknet.data.types.NotSyncingResponse
 import com.swmansion.starknet.data.types.Syncing
 import com.swmansion.starknet.data.types.SyncingResponse
-import com.swmansion.starknet.extensions.put
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
