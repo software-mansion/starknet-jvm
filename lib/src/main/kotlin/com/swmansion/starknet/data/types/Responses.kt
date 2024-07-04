@@ -1,6 +1,7 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
+import com.swmansion.starknet.data.serializers.NotSyncingResponseSerializer
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -105,6 +106,7 @@ data class EstimateFeeResponse(
             l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
         )
     }
+
     private fun BigInteger.applyMultiplier(multiplier: Double): BigInteger {
         return (this * (multiplier * 100).roundToInt().toBigInteger()) / BigInteger.valueOf(100)
     }
@@ -146,22 +148,26 @@ sealed class Syncing : StarknetResponse {
     abstract val highestBlockNumber: Int
 }
 
-@Serializable
+@Serializable(with = NotSyncingResponseSerializer::class)
 data class NotSyncingResponse(
     override val status: Boolean,
-
-    override val startingBlockHash: Felt = Felt.ZERO,
-
-    override val startingBlockNumber: Int = 0,
-
-    override val currentBlockHash: Felt = Felt.ZERO,
-
-    override val currentBlockNumber: Int = 0,
-
-    override val highestBlockHash: Felt = Felt.ZERO,
-
-    override val highestBlockNumber: Int = 0,
-) : Syncing()
+    override val startingBlockHash: Felt,
+    override val startingBlockNumber: Int,
+    override val currentBlockHash: Felt,
+    override val currentBlockNumber: Int,
+    override val highestBlockHash: Felt,
+    override val highestBlockNumber: Int,
+) : Syncing() {
+    constructor(status: Boolean) : this(
+        status,
+        Felt.ZERO,
+        0,
+        Felt.ZERO,
+        0,
+        Felt.ZERO,
+        0,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
