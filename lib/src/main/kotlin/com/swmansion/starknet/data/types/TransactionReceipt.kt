@@ -92,6 +92,7 @@ sealed class TransactionReceipt : StarknetResponse {
         get() = listOf(blockHash, blockNumber).all { it != null }
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class InvokeTransactionReceipt private constructor(
     @SerialName("transaction_hash")
@@ -153,6 +154,7 @@ data class InvokeTransactionReceipt private constructor(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class DeclareTransactionReceipt private constructor(
     @SerialName("transaction_hash")

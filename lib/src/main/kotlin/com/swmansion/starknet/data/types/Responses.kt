@@ -148,6 +148,7 @@ sealed class Syncing : StarknetResponse {
     abstract val highestBlockNumber: Int
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable(with = NotSyncingResponseSerializer::class)
 data class NotSyncingResponse private constructor(
     override val status: Boolean,

@@ -128,6 +128,7 @@ data class RevertedInvokeTransactionTrace(
     val executionResources: ExecutionResources,
 ) : InvokeTransactionTraceBase()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class DeclareTransactionTrace private constructor(
     @SerialName("validate_invocation")
@@ -159,6 +160,7 @@ data class DeclareTransactionTrace private constructor(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class DeployAccountTransactionTrace private constructor(
     @SerialName("validate_invocation")
@@ -195,6 +197,7 @@ data class DeployAccountTransactionTrace private constructor(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
 data class L1HandlerTransactionTrace private constructor(
     @SerialName("function_invocation")
