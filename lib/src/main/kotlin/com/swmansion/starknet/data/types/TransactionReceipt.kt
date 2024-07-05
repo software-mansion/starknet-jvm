@@ -128,7 +128,7 @@ data class InvokeTransactionReceipt private constructor(
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 ) : TransactionReceipt() {
-    constructor(
+    @JvmOverloads constructor(
         hash: Felt,
         actualFee: FeePayment,
         executionStatus: TransactionExecutionStatus,
@@ -189,7 +189,7 @@ data class DeclareTransactionReceipt private constructor(
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
 ) : TransactionReceipt() {
-    constructor(
+    @JvmOverloads constructor(
         hash: Felt,
         actualFee: FeePayment,
         executionStatus: TransactionExecutionStatus,
@@ -215,8 +215,9 @@ data class DeclareTransactionReceipt private constructor(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionReceipt(
+data class DeployAccountTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -253,7 +254,7 @@ data class DeployAccountTransactionReceipt(
     @SerialName("contract_address")
     val contractAddress: Felt,
 ) : TransactionReceipt() {
-    constructor(
+    @JvmOverloads constructor(
         hash: Felt,
         actualFee: FeePayment,
         executionStatus: TransactionExecutionStatus,
@@ -281,8 +282,9 @@ data class DeployAccountTransactionReceipt(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployTransactionReceipt(
+data class DeployTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -318,7 +320,34 @@ data class DeployTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    @JvmOverloads constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        contractAddress: Felt,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DEPLOY,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        contractAddress = contractAddress,
+    )
+}
 
 @Serializable
 data class L1HandlerTransactionReceipt(
