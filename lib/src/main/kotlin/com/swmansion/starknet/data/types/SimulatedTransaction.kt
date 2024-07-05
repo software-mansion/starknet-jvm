@@ -153,11 +153,11 @@ data class DeclareTransactionTrace private constructor(
         stateDiff: StateDiff? = null,
         executionResources: ExecutionResources,
     ) : this(
-        validateInvocation,
-        feeTransferInvocation,
-        stateDiff,
-        executionResources,
-        TransactionType.DECLARE,
+        validateInvocation = validateInvocation,
+        feeTransferInvocation = feeTransferInvocation,
+        stateDiff = stateDiff,
+        executionResources = executionResources,
+        type = TransactionType.DECLARE,
     )
 }
 
@@ -190,12 +190,12 @@ data class DeployAccountTransactionTrace private constructor(
         stateDiff: StateDiff? = null,
         executionResources: ExecutionResources,
     ) : this(
-        validateInvocation,
-        constructorInvocation,
-        feeTransferInvocation,
-        stateDiff,
-        executionResources,
-        TransactionType.DEPLOY_ACCOUNT,
+        validateInvocation = validateInvocation,
+        constructorInvocation = constructorInvocation,
+        feeTransferInvocation = feeTransferInvocation,
+        stateDiff = stateDiff,
+        executionResources = executionResources,
+        type = TransactionType.DEPLOY_ACCOUNT,
     )
 }
 
@@ -216,9 +216,9 @@ data class L1HandlerTransactionTrace private constructor(
         functionInvocation: FunctionInvocation,
         stateDiff: StateDiff? = null,
     ) : this(
-        functionInvocation,
-        stateDiff,
-        TransactionType.L1_HANDLER,
+        functionInvocation = functionInvocation,
+        stateDiff = stateDiff,
+        type = TransactionType.L1_HANDLER,
     )
 }
 

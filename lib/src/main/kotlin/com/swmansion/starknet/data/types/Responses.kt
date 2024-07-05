@@ -166,13 +166,13 @@ data class NotSyncingResponse private constructor(
     override val highestBlockNumber: Int,
 ) : Syncing() {
     constructor(status: Boolean) : this(
-        status,
-        Felt.ZERO,
-        0,
-        Felt.ZERO,
-        0,
-        Felt.ZERO,
-        0,
+        status = status,
+        startingBlockHash = Felt.ZERO,
+        startingBlockNumber = 0,
+        currentBlockHash = Felt.ZERO,
+        currentBlockNumber = 0,
+        highestBlockHash = Felt.ZERO,
+        highestBlockNumber = 0,
     )
 }
 
