@@ -160,7 +160,7 @@ data class DeployTransaction private constructor(
     override val nonce: Felt = Felt.ZERO,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY,
+    override val type: TransactionType,
 ) : Transaction(), DeprecatedTransaction {
     @JvmOverloads
     constructor(
