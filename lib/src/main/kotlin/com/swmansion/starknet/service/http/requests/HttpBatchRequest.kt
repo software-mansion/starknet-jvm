@@ -1,5 +1,6 @@
 package com.swmansion.starknet.service.http.requests
 
+import com.swmansion.starknet.data.types.RequestResult
 import com.swmansion.starknet.data.types.StarknetResponse
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.rpc.JsonRpcRequest
@@ -13,15 +14,15 @@ import java.util.concurrent.CompletableFuture
 
 class HttpBatchRequest<T : StarknetResponse> private constructor(
     private val payload: HttpService.Payload,
-    private val deserializer: HttpResponseDeserializer<List<Result<T>>>,
+    private val deserializer: HttpResponseDeserializer<List<RequestResult<T>>>,
     private val service: HttpService,
-) : Request<List<Result<T>>> {
-    override fun send(): List<Result<T>> {
+) : Request<List<RequestResult<T>>> {
+    override fun send(): List<RequestResult<T>> {
         val response = service.send(payload)
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<List<Result<T>>> {
+    override fun sendAsync(): CompletableFuture<List<RequestResult<T>>> {
         return service.sendAsync(payload).thenApplyAsync(deserializer)
     }
 

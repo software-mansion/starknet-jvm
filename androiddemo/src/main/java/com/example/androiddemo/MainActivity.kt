@@ -12,7 +12,6 @@ import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.crypto.starknetKeccak
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.transactions.TransactionReceipt
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.signer.StarkCurveSigner

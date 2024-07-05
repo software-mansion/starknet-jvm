@@ -5,14 +5,13 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.crypto.StarknetCurveSignature;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV3Payload;
-import com.swmansion.starknet.data.types.transactions.TransactionReceipt;
 import com.swmansion.starknet.deployercontract.ContractDeployment;
 import com.swmansion.starknet.deployercontract.Deployer;
 import com.swmansion.starknet.deployercontract.StandardDeployer;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import com.swmansion.starknet.service.http.requests.HttpBatchRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +36,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl);
+        JsonRpcProvider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl);
 
         // Set up an account
         // Please note the account must be deployed and have enough funds to paying the fees
@@ -79,7 +78,7 @@ public class Main {
         // Call contract (Get ETH balance)
         Call call = new Call(erc20ContractAddress, "balanceOf", List.of(account.getAddress()));
 
-        Request<List<Felt>> callRequest = provider.callContract(call);
+        Request<FeltArray> callRequest = provider.callContract(call);
         List<Felt> callResponse = callRequest.send();
         // Output value's type is UInt256 and is represented by two Felt values
         Uint256 balance = new Uint256(callResponse.get(0), callResponse.get(1));
@@ -134,6 +133,37 @@ public class Main {
         // Verify a signature
         boolean isCorrect = StarknetCurve.verify(publicKey, hash, r, s);
         System.out.println("Is signature correct? " + isCorrect + ".");
+
+        // Batch RPC requests
+        // Get transaction statuses
+        HttpBatchRequest<GetTransactionStatusResponse> statusesRequest = provider.batchRequests(
+                provider.getTransactionStatus(declareResponse.getTransactionHash()),
+                provider.getTransactionStatus(deployContractResult.transactionHash)
+        );
+
+        List<RequestResult<GetTransactionStatusResponse>> statusesResponse = statusesRequest.send();
+
+        GetTransactionStatusResponse declareTransactionStatus = statusesResponse.get(0).getOrNull();
+        GetTransactionStatusResponse deployContractTransactionStatus = statusesResponse.get(1).getOrNull();
+
+        System.out.println("Declare transaction execution status: " + declareTransactionStatus.getExecutionStatus());
+        System.out.println("Deploy transaction contract execution status: " + deployContractTransactionStatus.getExecutionStatus());
+
+        // Batch any RPC requests
+        // Get block hash and number + Check the initial value of `balance` in deployed contract
+        HttpBatchRequest mixedRequest = provider.batchRequestsAny(
+                provider.getBlockHashAndNumber(),
+                provider.getStorageAt(deployedContractAddress, selectorFromName("balance"))
+        );
+
+        List<RequestResult> mixedResponse = mixedRequest.send();
+
+        GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) mixedResponse.get(0).getOrNull();
+        Felt initialContractBalance2 = (Felt) mixedResponse.get(1).getOrNull();
+
+        System.out.println("Block hash: " + blockHashAndNumber.getBlockHash() + ".");
+        System.out.println("Initial contract balance: " + initialContractBalance2.getValue() + ".");
+
     }
 
     private static DeclareResponse declareCairo1Contract(Account account, Provider provider, Path contractPath, Path casmPath) throws IOException {
@@ -148,8 +178,8 @@ public class Main {
 
         // Estimate fee for declaring a contract
         DeclareTransactionV3Payload declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().get(0);
+        Request<EstimateFeeResponseList> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
