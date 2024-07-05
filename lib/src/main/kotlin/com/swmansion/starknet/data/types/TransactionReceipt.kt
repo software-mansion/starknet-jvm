@@ -349,8 +349,9 @@ data class DeployTransactionReceipt private constructor(
     )
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class L1HandlerTransactionReceipt(
+data class L1HandlerTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
