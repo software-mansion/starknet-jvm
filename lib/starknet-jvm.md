@@ -10,8 +10,6 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 ### In Java
 
 ```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
@@ -22,11 +20,6 @@ public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
@@ -42,7 +35,6 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -51,15 +43,10 @@ fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Create an account interface
-    val accountAddress = Felt.fromHex("0x1052524524")
-    val privateKey = Felt.fromHex("0x4232362662")
-    val account = StandardAccount(provider, accountAddress, privateKey)
-
     // Make a request
     val contractAddress = Felt.fromHex("0x423623626")
     val storageKey = Felt.fromHex("0x132412414")
-    val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
+    val request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
     val response = request.send()
 
     println(response)
@@ -74,8 +61,6 @@ that can be than handled in preferred way.
 ### In Java
 
 ```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.BlockTag;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.provider.Provider;
@@ -88,11 +73,6 @@ public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
@@ -108,7 +88,6 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.BlockTag
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -116,15 +95,11 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-    // Create an account interface
-    val accountAddress = Felt.fromHex("0x1052524524")
-    val privateKey = Felt.fromHex("0x4232362662")
-    val account = StandardAccount(provider, accountAddress, privateKey)
 
     // Make an asynchronous request
     val contractAddress = Felt.fromHex("0x423623626")
     val storageKey = Felt.fromHex("0x132412414")
-    val request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
+    val request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST)
     val future = request.sendAsync()
 
     future.thenAccept { println(it) }
