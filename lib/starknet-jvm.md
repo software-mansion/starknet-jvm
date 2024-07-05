@@ -141,7 +141,6 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.*;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
@@ -161,14 +160,14 @@ public class Main {
         Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
-
-            StarknetChainId chainId = provider.getChainId().send();
-
+        
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash,
                 calldata,
                 salt
         );
+
+        StarknetChainId chainId = provider.getChainId().send();
 
         Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ZERO);
 
@@ -181,9 +180,9 @@ public class Main {
                 paramsForFeeEstimate,
                 true
         );
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(payloadForFeeEstimate));
+        Request<EstimateFeeResponseList> feeEstimateRequest = provider.getEstimateFee(List.of(payloadForFeeEstimate));
 
-        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().get(0);
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
         ResourceBounds l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).getL1Gas();
 
         DeployAccountParamsV3 params = new DeployAccountParamsV3(Felt.ZERO, l1ResourceBounds);
@@ -242,7 +241,7 @@ fun main() {
     )
     val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
 
-    val feeEstimate = feeEstimateRequest.send().first()
+    val feeEstimate = feeEstimateRequest.send().values.first()
     val resourceBounds = feeEstimate.toResourceBounds()
 
     val params = DeployAccountParamsV3(
@@ -271,9 +270,9 @@ import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
 import com.swmansion.starknet.data.ContractAddressCalculator;
 import com.swmansion.starknet.data.types.DeployAccountResponse;
+import com.swmansion.starknet.data.types.DeployAccountTransactionV1Payload;
 import com.swmansion.starknet.data.types.Felt;
 import com.swmansion.starknet.data.types.StarknetChainId;
-import com.swmansion.starknet.data.types.transactions.DeployAccountTransactionV1Payload;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
@@ -293,13 +292,13 @@ public class Main {
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
 
-            StarknetChainId chainId = provider.getChainId().send();
-
         Felt address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash,
                 calldata,
                 salt
         );
+
+        StarknetChainId chainId = provider.getChainId().send();
 
         Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ZERO);
 
@@ -326,7 +325,6 @@ import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
@@ -380,7 +378,6 @@ import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 import com.swmansion.starknet.provider.Request;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public class Main {
@@ -388,12 +385,12 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-            StarknetChainId chainId = provider.getChainId().send();
+        StarknetChainId chainId = provider.getChainId().send();
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
-        
+
         // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
@@ -408,7 +405,7 @@ public class Main {
         Call call = new Call(contractAddress, "transfer", calldata);
 
         // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
-        
+
         // Create and sign invoke transaction
         Request<InvokeFunctionResponse> request = account.executeV3(call);
 
@@ -424,7 +421,6 @@ public class Main {
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.Uint256
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
@@ -486,8 +482,8 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-            StarknetChainId chainId = provider.getChainId().send();
-        
+        StarknetChainId chainId = provider.getChainId().send();
+
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
@@ -500,11 +496,11 @@ public class Main {
         // Create a call
         List<Felt> calldata = List.of(account.getAddress());
         Call call = new Call(contractAddress, "balanceOf", calldata);
-        Request<List<Felt>> request = provider.callContract(call);
-        
+        Request<FeltArray> request = provider.callContract(call);
+
         // Send the call request
         List<Felt> response = request.send();
-        
+
         // Output value's type is Uint256 and is represented by two Felt values
         Uint256 balance = new Uint256(response.get(0), response.get(1));
     }
@@ -517,7 +513,6 @@ public class Main {
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.Call
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.StarknetChainId
 import com.swmansion.starknet.data.types.Uint256
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
@@ -556,7 +551,6 @@ fun main() {
 }
 ```
 
-## Declaring Cairo 1/2 contract V3
 ## Calling multiple contracts: Fetching ETH balance
 
 ### In Java
@@ -565,6 +559,7 @@ fun main() {
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.RequestResult;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
 import java.util.List;
@@ -594,14 +589,14 @@ public class Main {
         Call call2 = new Call(contractAddress2, "balanceOf", calldata);
 
         // Create a batch request and send it
-        List<List<Felt>> response = provider.batchRequests(
+        List<RequestResult<FeltArray>> response = provider.batchRequests(
                 provider.callContract(call1),
                 provider.callContract(call2)
         ).send();
 
         // Access output values from the batch response
-        Uint256 balance1 = new Uint256(response.get(0).get(0), response.get(0).get(1));
-        Uint256 balance2 = new Uint256(response.get(1).get(0), response.get(1).get(1));
+        Uint256 balance1 = new Uint256(response.get(0).getOrThrow().get(0), response.get(0).getOrThrow().get(1));
+        Uint256 balance2 = new Uint256(response.get(1).getOrThrow().get(0), response.get(1).getOrThrow().get(1));
     }
 }
 ```
@@ -670,10 +665,11 @@ fun main(args: Array<String>) {
 ### In Java
 
 ```java
-import com.swmansion.starknet.data.types.transactions.Transaction;
 import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.RequestResult;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import com.swmansion.starknet.service.http.requests.HttpRequest;
 
 import java.util.List;
 
@@ -689,18 +685,18 @@ public class Main {
         Request<BlockWithTransactionHashes> blockWithTxHashesRequest = provider.getBlockWithTxHashes(Felt.fromHex("0x0abc"));
 
         // Create a batch request of different types and send it
-        List<Object> response = provider.batchRequestsAny(
-                txRequest1,
-                txRequest2,
-                txStatusRequest,
-                blockWithTxHashesRequest
+        List<RequestResult<StarknetResponse>> response = provider.batchRequestsAny(
+                (HttpRequest<? extends StarknetResponse>) txRequest1,
+                (HttpRequest<? extends StarknetResponse>) txRequest2,
+                (HttpRequest<? extends StarknetResponse>) txStatusRequest,
+                (HttpRequest<? extends StarknetResponse>) blockWithTxHashesRequest
         ).send();
 
         // Access output values from the response
-        Transaction tx1 = (Transaction) response.get(0);
-        Transaction tx2 = (Transaction) response.get(1);
-        GetTransactionStatusResponse txStatus = (GetTransactionStatusResponse) response.get(2);
-        BlockWithTransactionHashes blockWithTxHashes = (BlockWithTransactionHashes) response.get(3);
+        Transaction tx1 = (Transaction) response.get(0).getOrThrow();
+        Transaction tx2 = (Transaction) response.get(1).getOrThrow();
+        GetTransactionStatusResponse txStatus = (GetTransactionStatusResponse) response.get(2).getOrThrow();
+        BlockWithTransactionHashes blockWithTxHashes = (BlockWithTransactionHashes) response.get(3).getOrThrow();
     }
 }
 ```
@@ -742,7 +738,7 @@ fun main(args: Array<String>) {
 }
 ```
 
-## Declaring Cairo 1/2 contract
+## Declaring Cairo 1/2 contract V3
 
 ### In Java
 
@@ -750,7 +746,6 @@ fun main(args: Array<String>) {
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.data.types.transactions.DeclareTransactionV3Payload;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
@@ -766,7 +761,7 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-            StarknetChainId chainId = provider.getChainId().send();
+        StarknetChainId chainId = provider.getChainId().send();
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -785,8 +780,8 @@ public class Main {
 
         // Estimate fee for declaring a contract
         DeclareTransactionV3Payload declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
-        Request<List<EstimateFeeResponse>> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
-        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().get(0);
+        Request<EstimateFeeResponseList> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
@@ -804,7 +799,6 @@ public class Main {
 ### In Kotlin
 
 ```kotlin
-import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.Felt.Companion.fromHex
@@ -841,7 +835,7 @@ fun main() {
         true,
     )
     val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayloadForFeeEstimate))
-    val feeEstimate = feeEstimateRequest.send().first()
+    val feeEstimate = feeEstimateRequest.send().values.first()
 
     // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
