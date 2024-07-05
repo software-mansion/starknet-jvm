@@ -130,7 +130,7 @@ public class Main {
         // Create an account interface
         Felt privateKey = Felt.fromHex("0x123");
         Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-
+        
         // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
         Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
         Felt salt = new Felt(789);
@@ -261,7 +261,7 @@ public class Main {
         // Create an account interface
         Felt privateKey = Felt.fromHex("0x123");
         Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-
+        
         // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
         Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
         Felt salt = new Felt(789);
@@ -365,7 +365,7 @@ public class Main {
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
-
+        
         // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
@@ -378,7 +378,7 @@ public class Main {
         // Create a call
         List<Felt> calldata = List.of(recipientAccountAddress, amount.getLow(), amount.getHigh()); // amount is Uint256 and is represented by two Felt values
         Call call = new Call(contractAddress, "transfer", calldata);
-
+        
         // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
 
         // Create and sign invoke transaction
@@ -412,6 +412,7 @@ fun main() {
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
     val recipientAccountAddress = Felt.fromHex("0x987654321")
+    
     // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
     // account.execute(Call) estimates the fee automatically
     // If you want to estimate the fee manually, please refer to the "Estimate Fee" example
@@ -427,7 +428,7 @@ fun main() {
         entrypoint = "transfer",
         calldata = calldata,
     )
-
+    
     // Make sure to prefund the account with enough funds to cover the transaction fee and the amount to be transferred
 
     // Create and sign invoke transaction
@@ -500,6 +501,7 @@ fun main() {
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
+    
     // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
@@ -593,7 +595,7 @@ fun main(args: Array<String>) {
 
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
-    val accountAddress = Felt.fromHex("0x1236789")
+    val accountAddress = Felt.fromHex("0x1236789") 
     // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
