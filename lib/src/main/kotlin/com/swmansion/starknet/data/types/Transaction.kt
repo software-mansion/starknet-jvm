@@ -162,6 +162,7 @@ data class DeployTransaction private constructor(
     @SerialName("type")
     override val type: TransactionType = TransactionType.DEPLOY,
 ) : Transaction(), DeprecatedTransaction {
+    @JvmOverloads
     constructor(
         contractAddressSalt: Felt,
         constructorCalldata: Calldata = emptyList(),
@@ -620,6 +621,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
 ) : DeclareTransaction(), TransactionV3 {
+    @JvmOverloads
     constructor(
         senderAddress: Felt,
         contractDefinition: Cairo1ContractDefinition,

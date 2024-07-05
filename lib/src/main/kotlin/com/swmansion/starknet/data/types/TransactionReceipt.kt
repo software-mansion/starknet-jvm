@@ -388,6 +388,7 @@ data class L1HandlerTransactionReceipt private constructor(
     @SerialName("message_hash")
     val messageHash: NumAsHex,
 ) : TransactionReceipt() {
+    @JvmOverloads
     constructor(
         hash: Felt,
         actualFee: FeePayment,

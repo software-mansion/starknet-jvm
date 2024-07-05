@@ -146,6 +146,7 @@ data class DeclareTransactionTrace private constructor(
     @SerialName("type")
     override val type: TransactionType,
 ) : TransactionTrace() {
+    @JvmOverloads
     constructor(
         validateInvocation: FunctionInvocation? = null,
         feeTransferInvocation: FunctionInvocation? = null,
@@ -181,6 +182,7 @@ data class DeployAccountTransactionTrace private constructor(
     @SerialName("type")
     override val type: TransactionType,
 ) : TransactionTrace() {
+    @JvmOverloads
     constructor(
         validateInvocation: FunctionInvocation? = null,
         constructorInvocation: FunctionInvocation,
@@ -209,6 +211,7 @@ data class L1HandlerTransactionTrace private constructor(
     @SerialName("type")
     override val type: TransactionType,
 ) : TransactionTrace() {
+    @JvmOverloads
     constructor(
         functionInvocation: FunctionInvocation,
         stateDiff: StateDiff? = null,
