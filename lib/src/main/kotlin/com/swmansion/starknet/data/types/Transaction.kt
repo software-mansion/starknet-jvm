@@ -826,8 +826,9 @@ data class DeployAccountTransactionV1 private constructor(
     }
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionV3 internal constructor(
+data class DeployAccountTransactionV3 private constructor(
     @SerialName("class_hash")
     override val classHash: Felt,
 
