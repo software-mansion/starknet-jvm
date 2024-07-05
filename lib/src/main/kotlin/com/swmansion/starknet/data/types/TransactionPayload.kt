@@ -124,8 +124,9 @@ data class DeclareTransactionV2Payload(
     val version: TransactionVersion,
 ) : DeclareTransactionPayload()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionV3Payload(
+data class DeclareTransactionV3Payload private constructor(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition,
 
