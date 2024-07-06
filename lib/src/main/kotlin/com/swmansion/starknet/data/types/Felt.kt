@@ -30,7 +30,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
     override fun decString(): String = value.toString(10)
 
     /**
-     * Encode as padded hexadecimal string, including "0x" prefix. Its length is always 66 (including the 0x prefix).
+     * Encode as padded hexadecimal string, including "0x" prefix. Its length
+     * is always 66 (including the 0x prefix).
      */
     fun hexStringPadded(): String {
         val hexString = value.toString(16)
@@ -39,8 +40,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
     }
 
     /**
-     * Encode as ASCII string, with up to 31 characters.
-     * Example: 0x68656c6c6f -> "hello".
+     * Encode as ASCII string, with up to 31 characters. Example: 0x68656c6c6f
+     * -> "hello".
      */
     fun toShortString(): String {
         var hexString = this.value.toString(16)
@@ -59,7 +60,7 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         val PRIME = BigInteger("800000000000011000000000000000000000000000000000000000000000001", 16)
 
         @field:JvmField
-       val MAX = PRIME - BigInteger.ONE
+        val MAX = PRIME - BigInteger.ONE
 
         @field:JvmField
         val ZERO = Felt(BigInteger.ZERO)
@@ -78,8 +79,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         }
 
         /**
-         * Create Felt from ASCII string. It must be shorter than 32 characters and only contain ASCII encoding.
-         * Example: "hello" -> 0x68656c6c6f.
+         * Create Felt from ASCII string. It must be shorter than 32 characters and
+         * only contain ASCII encoding. Example: "hello" -> 0x68656c6c6f.
          *
          * @param value string transformed to felt.
          */
@@ -110,7 +111,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         }
 
         /**
-         * Create Felt from signed [BigInteger] value. It must be in range (-[Felt.PRIME], [Felt.PRIME]).
+         * Create Felt from signed [BigInteger] value. It must be in range
+         * (-[Felt.PRIME], [Felt.PRIME]).
          *
          * Calculated as [value] mod [Felt.PRIME].
          */

@@ -20,41 +20,43 @@ import java.util.concurrent.CompletableFuture
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  * @param chainId the chain id of the Starknet network
- * @param cairoVersion the version of Cairo language in which account contract is written
+ * @param cairoVersion the version of Cairo language in which account
+ *     contract is written
  */
 class StandardAccount @JvmOverloads constructor(
-    override val address: Felt,
-    private val signer: Signer,
-    private val provider: Provider,
-    override val chainId: StarknetChainId,
-    private val cairoVersion: Felt = Felt.ZERO,
+        override val address: Felt,
+        private val signer: Signer,
+        private val provider: Provider,
+        override val chainId: StarknetChainId,
+        private val cairoVersion: Felt = Felt.ZERO,
 ) : Account {
     /**
-     * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
+     * @param provider a provider used to interact with Starknet
      * @param chainId the chain id of the Starknet network
-     * @param cairoVersion the version of Cairo language in which account contract is written
+     * @param cairoVersion the version of Cairo language in which account
+     *     contract is written
      */
     @JvmOverloads
     constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: Felt = Felt.ZERO) : this(
-        address = address,
-        signer = StarkCurveSigner(privateKey),
-        provider = provider,
-        chainId = chainId,
-        cairoVersion = cairoVersion,
+            address = address,
+            signer = StarkCurveSigner(privateKey),
+            provider = provider,
+            chainId = chainId,
+            cairoVersion = cairoVersion,
     )
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeInvokeV1Transaction(
-            senderAddress = address,
-            calldata = calldata,
-            chainId = chainId,
-            nonce = params.nonce,
-            maxFee = params.maxFee,
-            version = signVersion,
+                senderAddress = address,
+                calldata = calldata,
+                chainId = chainId,
+                nonce = params.nonce,
+                maxFee = params.maxFee,
+                version = signVersion,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -66,12 +68,12 @@ class StandardAccount @JvmOverloads constructor(
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeInvokeV3Transaction(
-            senderAddress = address,
-            calldata = calldata,
-            chainId = chainId,
-            nonce = params.nonce,
-            version = signVersion,
-            resourceBounds = params.resourceBounds,
+                senderAddress = address,
+                calldata = calldata,
+                chainId = chainId,
+                nonce = params.nonce,
+                version = signVersion,
+                resourceBounds = params.resourceBounds,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -80,23 +82,23 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signDeployAccountV1(
-        classHash: Felt,
-        calldata: Calldata,
-        salt: Felt,
-        maxFee: Felt,
-        nonce: Felt,
-        forFeeEstimate: Boolean,
+            classHash: Felt,
+            calldata: Calldata,
+            salt: Felt,
+            maxFee: Felt,
+            nonce: Felt,
+            forFeeEstimate: Boolean,
     ): DeployAccountTransactionV1Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1
         val tx = TransactionFactory.makeDeployAccountV1Transaction(
-            classHash = classHash,
-            contractAddress = address,
-            salt = salt,
-            calldata = calldata,
-            chainId = chainId,
-            maxFee = maxFee,
-            version = signVersion,
-            nonce = nonce,
+                classHash = classHash,
+                contractAddress = address,
+                salt = salt,
+                calldata = calldata,
+                chainId = chainId,
+                maxFee = maxFee,
+                version = signVersion,
+                nonce = nonce,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -104,22 +106,22 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signDeployAccountV3(
-        classHash: Felt,
-        calldata: Calldata,
-        salt: Felt,
-        params: DeployAccountParamsV3,
-        forFeeEstimate: Boolean,
+            classHash: Felt,
+            calldata: Calldata,
+            salt: Felt,
+            params: DeployAccountParamsV3,
+            forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeDeployAccountV3Transaction(
-            classHash = classHash,
-            senderAddress = address,
-            salt = salt,
-            calldata = calldata,
-            chainId = chainId,
-            version = signVersion,
-            nonce = params.nonce,
-            resourceBounds = params.resourceBounds,
+                classHash = classHash,
+                senderAddress = address,
+                salt = salt,
+                calldata = calldata,
+                chainId = chainId,
+                version = signVersion,
+                nonce = params.nonce,
+                resourceBounds = params.resourceBounds,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -127,20 +129,20 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signDeclareV2(
-        sierraContractDefinition: Cairo1ContractDefinition,
-        casmContractDefinition: CasmContractDefinition,
-        params: ExecutionParams,
-        forFeeEstimate: Boolean,
+            sierraContractDefinition: Cairo1ContractDefinition,
+            casmContractDefinition: CasmContractDefinition,
+            params: ExecutionParams,
+            forFeeEstimate: Boolean,
     ): DeclareTransactionV2Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2
         val tx = TransactionFactory.makeDeclareV2Transaction(
-            contractDefinition = sierraContractDefinition,
-            senderAddress = address,
-            chainId = chainId,
-            nonce = params.nonce,
-            maxFee = params.maxFee,
-            version = signVersion,
-            casmContractDefinition = casmContractDefinition,
+                contractDefinition = sierraContractDefinition,
+                senderAddress = address,
+                chainId = chainId,
+                nonce = params.nonce,
+                maxFee = params.maxFee,
+                version = signVersion,
+                casmContractDefinition = casmContractDefinition,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -148,20 +150,20 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signDeclareV3(
-        sierraContractDefinition: Cairo1ContractDefinition,
-        casmContractDefinition: CasmContractDefinition,
-        params: DeclareParamsV3,
-        forFeeEstimate: Boolean,
+            sierraContractDefinition: Cairo1ContractDefinition,
+            casmContractDefinition: CasmContractDefinition,
+            params: DeclareParamsV3,
+            forFeeEstimate: Boolean,
     ): DeclareTransactionV3Payload {
         val signVersion = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3
         val tx = TransactionFactory.makeDeclareV3Transaction(
-            contractDefinition = sierraContractDefinition,
-            senderAddress = address,
-            chainId = chainId,
-            nonce = params.nonce,
-            version = signVersion,
-            resourceBounds = params.resourceBounds,
-            casmContractDefinition = casmContractDefinition,
+                contractDefinition = sierraContractDefinition,
+                senderAddress = address,
+                chainId = chainId,
+                nonce = params.nonce,
+                version = signVersion,
+                resourceBounds = params.resourceBounds,
+                casmContractDefinition = casmContractDefinition,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -200,11 +202,12 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     /**
-     * Check if the error message contains part like `Signature ..., is invalid`
+     * Check if the error message contains part like `Signature ..., is
+     * invalid`
      *
      * Account contract `isValidSignature` signature raises an error instead of
-     * returning `0` on invalid signature. We have to check the call error to verify
-     * if it was caused by invalid signature or some other problem.
+     * returning `0` on invalid signature. We have to check the call error to
+     * verify if it was caused by invalid signature or some other problem.
      */
     private fun handleValidationError(e: RequestFailedException): Boolean {
         val regex = """Signature\s.+,\sis\sinvalid""".toRegex()
@@ -229,8 +232,8 @@ class StandardAccount @JvmOverloads constructor(
     override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
-                nonce = nonce,
-                l1ResourceBounds = l1ResourceBounds,
+                    nonce = nonce,
+                    l1ResourceBounds = l1ResourceBounds,
             )
             val payload = signV3(calls, signParams, false)
 
@@ -246,14 +249,14 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun executeV3(
-        calls: List<Call>,
-        estimateAmountMultiplier: Double,
-        estimateUnitPriceMultiplier: Double,
+            calls: List<Call>,
+            estimateAmountMultiplier: Double,
+            estimateUnitPriceMultiplier: Double,
     ): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
             val resourceBounds = estimateFee.values.first().toResourceBounds(
-                amountMultiplier = estimateAmountMultiplier,
-                unitPriceMultiplier = estimateUnitPriceMultiplier,
+                    amountMultiplier = estimateAmountMultiplier,
+                    unitPriceMultiplier = estimateUnitPriceMultiplier,
             )
             executeV3(calls, resourceBounds.l1Gas)
         }
@@ -286,14 +289,14 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun executeV3(
-        call: Call,
-        estimateAmountMultiplier: Double,
-        estimateUnitPriceMultiplier: Double,
+            call: Call,
+            estimateAmountMultiplier: Double,
+            estimateUnitPriceMultiplier: Double,
     ): Request<InvokeFunctionResponse> {
         return executeV3(
-            calls = listOf(call),
-            estimateAmountMultiplier = estimateAmountMultiplier,
-            estimateUnitPriceMultiplier = estimateUnitPriceMultiplier,
+                calls = listOf(call),
+                estimateAmountMultiplier = estimateAmountMultiplier,
+                estimateUnitPriceMultiplier = estimateUnitPriceMultiplier,
         )
     }
 
@@ -338,17 +341,17 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun estimateFeeV1(
-        call: Call,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
+            call: Call,
+            blockTag: BlockTag,
+            skipValidate: Boolean,
     ): Request<EstimateFeeResponseList> {
         return estimateFeeV1(listOf(call), blockTag, skipValidate)
     }
 
     override fun estimateFeeV3(
-        call: Call,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
+            call: Call,
+            blockTag: BlockTag,
+            skipValidate: Boolean,
     ): Request<EstimateFeeResponseList> {
         return estimateFeeV3(listOf(call), blockTag, skipValidate)
     }
@@ -378,9 +381,9 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun estimateFeeV1(
-        calls: List<Call>,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
+            calls: List<Call>,
+            blockTag: BlockTag,
+            skipValidate: Boolean,
     ): Request<EstimateFeeResponseList> {
         return getNonce(blockTag).compose { nonce ->
             val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)
@@ -390,9 +393,9 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun estimateFeeV3(
-        calls: List<Call>,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
+            calls: List<Call>,
+            blockTag: BlockTag,
+            skipValidate: Boolean,
     ): Request<EstimateFeeResponseList> {
         return getNonce(blockTag).compose { nonce ->
             val payload = buildEstimateFeeV3Payload(calls, nonce)
@@ -406,32 +409,32 @@ class StandardAccount @JvmOverloads constructor(
         val payload = signV1(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeV1Transaction(
-            senderAddress = payload.senderAddress,
-            calldata = payload.calldata,
-            chainId = chainId,
-            nonce = nonce,
-            maxFee = payload.maxFee,
-            signature = payload.signature,
-            version = payload.version,
+                senderAddress = payload.senderAddress,
+                calldata = payload.calldata,
+                chainId = chainId,
+                nonce = nonce,
+                maxFee = payload.maxFee,
+                signature = payload.signature,
+                version = payload.version,
         )
         return listOf(signedTransaction.toPayload())
     }
 
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
         val executionParams = InvokeParamsV3(
-            nonce = nonce,
-            l1ResourceBounds = ResourceBounds.ZERO,
+                nonce = nonce,
+                l1ResourceBounds = ResourceBounds.ZERO,
         )
         val payload = signV3(calls, executionParams, true)
 
         val signedTransaction = TransactionFactory.makeInvokeV3Transaction(
-            senderAddress = payload.senderAddress,
-            calldata = payload.calldata,
-            chainId = chainId,
-            nonce = nonce,
-            signature = payload.signature,
-            version = payload.version,
-            resourceBounds = payload.resourceBounds,
+                senderAddress = payload.senderAddress,
+                calldata = payload.calldata,
+                chainId = chainId,
+                nonce = nonce,
+                signature = payload.signature,
+                version = payload.version,
+                resourceBounds = payload.resourceBounds,
         )
         return listOf(signedTransaction.toPayload())
     }
@@ -445,6 +448,6 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     private fun estimateVersion(version: Felt): Felt {
-           return (BigInteger.valueOf(2).pow(128) + version.value).toFelt()
-       }
+        return (BigInteger.valueOf(2).pow(128) + version.value).toFelt()
+    }
 }
