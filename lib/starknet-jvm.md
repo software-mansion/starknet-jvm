@@ -126,9 +126,10 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("http://127.0.0.1:5050/rpc");
 
-        // Create an account interface
+        // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
 
         // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
         Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
@@ -178,14 +179,16 @@ fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Create an account interface
+    // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val publicKey = StarknetCurve.getPublicKey(privateKey)
+    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
 
     // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)
-    val classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773")
+    val classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
     val salt = Felt(789)
     val calldata = listOf(publicKey)
+    
     val address = ContractAddressCalculator.calculateAddressFromHash(
         classHash = classHash,
         calldata = calldata,
@@ -251,12 +254,13 @@ public class Main {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
 
-        // Create an account interface
+        // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
 
         // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
-        Felt classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773");
+        Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
         Felt salt = new Felt(789);
         List<Felt> calldata = List.of(publicKey);
 
@@ -307,10 +311,10 @@ fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
-    // Create an account interface
+    // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val publicKey = StarknetCurve.getPublicKey(privateKey)
-
+    // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
     // Use the class hash of desired account contract (i.e. the class hash of OpenZeppelin account contract)
     val classHash = Felt.fromHex("0x058d97f7d76e78f44905cc30cb65b91ea49a4b908a76703c54197bca90f81773")
     val salt = Felt(789)
@@ -350,6 +354,90 @@ fun main() {
 }
 ```
 
+## Estimating fee for invoke V3 transaction
+
+### In Java
+
+```java
+package org.example;
+
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.io.IOException;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex("0x1234");
+        Felt accountAddress = Felt.fromHex("0x1236789");
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
+
+        Felt contractAddress = Felt.fromHex("0x123456789");
+
+        // In this example we want to increase the balance by 10
+        Call call = new Call(contractAddress, "increase_balance", List.of(Felt.fromHex("0xa")));
+
+        Request<EstimateFeeResponseList> request = account.estimateFeeV3(
+                call,
+                false
+        );
+
+        EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
+        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee() + ".");
+
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.Felt.Companion.fromHex
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+
+fun main() {
+    // Create a provider for interacting with Starknet
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Set up an account
+    val privateKey = fromHex("0x123")
+    val accountAddress = fromHex("0x123")
+    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
+    val account = StandardAccount(accountAddress, privateKey, provider, chainId)
+
+    val contractAddress = Felt.fromHex("0x123")
+
+    // In this example we want to increase the balance by 10
+    val call = Call(contractAddress, "increase_balance", listOf(Felt(10)))
+
+    val request = account.estimateFeeV3(
+        call,
+        skipValidate = false,
+    )
+    val feeEstimate = request.send().values.first()
+
+    println("The estimated fee is: ${feeEstimate.overallFee}")
+}
+```
+
 ## Invoking contract: Transferring ETH
 
 ### In Java
@@ -369,19 +457,17 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        StarknetChainId chainId = provider.getChainId().send();
-
+        
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
-
         // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+        StarknetChainId chainId = provider.getChainId().send();
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
-        // Invoke a contract (Transfer ETH)
         Felt recipientAccountAddress = Felt.fromHex("0x987654321");
         Uint256 amount = new Uint256(new Felt(451));
+        
         // Specify the contract address, in this example ERC-20 ETH contract is used
         Felt erc20ContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7");
         
@@ -393,6 +479,11 @@ public class Main {
 
         // Create and sign invoke transaction
         Request<InvokeFunctionResponse> executeRequest = account.executeV3(invokeCall);
+
+        // account.executeV3(call) estimates the fee automatically
+        // If you want to estimate the fee manually, please refer to the "Estimate Fee" example
+        
+        // Send the transaction
         InvokeFunctionResponse executeResponse = executeRequest.send();
 
         Thread.sleep(20000); // wait for invoke tx to complete
@@ -428,9 +519,6 @@ fun main() {
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
     val recipientAccountAddress = Felt.fromHex("0x987654321")
-
-    // account.executeV3(call) estimates the fee automatically
-    // If you want to estimate the fee manually, please refer to the "Estimate Fee" example
     val amount = Uint256(Felt(451))
 
     // Specify the contract address, in this example ETH ERC20 contract is used
@@ -447,10 +535,13 @@ fun main() {
     // Create and sign invoke transaction
     val request = account.executeV3(call)
 
+    // account.executeV3(call) estimates the fee automatically
+    // If you want to estimate the fee manually, please refer to the "Estimate Fee" example
+
     // Send the transaction
     val response = request.send()
 
-    Thread.sleep(20000); // wait for invoke tx to complete
+    Thread.sleep(20000) // wait for invoke tx to complete
 
     // Make sure that the transaction succeeded
     val invokeTransactionReceipt = provider.getTransactionReceipt(response.transactionHash).send()
@@ -477,13 +568,13 @@ public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        StarknetChainId chainId = provider.getChainId().send();
-
+        
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
         // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
         // Specify the contract address, in this example ETH ERC20 contract is used
@@ -517,14 +608,13 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-
-    val chainId = provider.getChainId().send()
-
+    
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
-    
     // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
     // Specify the contract address, in this example ETH ERC20 contract is used
@@ -547,6 +637,8 @@ fun main() {
         low = response[0],
         high = response[1],
     )
+    
+    println("Balance: $balance.")
 }
 ```
 
@@ -567,14 +659,13 @@ public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
         JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-
-        // Get the chain ID
-        StarknetChainId chainId = provider.getChainId().send();
-
+        
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
         Felt accountAddress = Felt.fromHex("0x1236789");
         // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
         Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
 
         // Specify the contract addresses, in this example ETH ERC20 contracts are used
@@ -615,13 +706,13 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 fun main() {
     // Create a provider for interacting with Starknet
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-
-    val chainId = provider.getChainId().send()
-
+    
     // Set up an account
     val privateKey = Felt.fromHex("0x123")
     val accountAddress = Felt.fromHex("0x1236789")
     // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
     // Specify the contract addresses, in this example ETH ERC20 contract is used
@@ -691,6 +782,7 @@ public class Main {
                 provider.getStorageAt(Felt.fromHex("0x123"), selectorFromName("balance"))
         );
 
+        // Create and send the batch request
         List<RequestResult> mixedResponse = mixedRequest.send();
 
         GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) mixedResponse.get(0).getOrNull();
@@ -722,6 +814,7 @@ fun main() {
         provider.getStorageAt(Felt.fromHex("0x123"), selectorFromName("balance"))
     )
 
+    // Create and send the batch request
     val mixedResponse = mixedRequest.send()
 
     val blockHashAndNumber = mixedResponse[0].getOrNull() as GetBlockHashAndNumberResponse?
@@ -809,7 +902,7 @@ import kotlin.io.path.readText
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     val chainId = provider.getChainId().send()
 
