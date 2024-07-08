@@ -236,8 +236,6 @@ fun main() {
 ### In Java
 
 ```java
-package org.example;
-
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.crypto.StarknetCurve;
@@ -920,6 +918,118 @@ fun main() {
 
     println("Block hash: " + blockHashAndNumber!!.blockHash + ".")
     println("Initial contract balance: " + contractBalance!!.value + ".")
+}
+```
+
+## Estimating fee for declare V3 transaction
+
+### In Java
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex("0x1234");
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        Felt accountAddress = Felt.fromHex("0x1236789");
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
+
+        // Import a compiled contract
+        Path contractPath = Paths.get("contract.sierra.json");
+        Path casmPath = Paths.get("contract.casm.json");
+        String contractCode = String.join("", Files.readAllLines(contractPath));
+        String casmCode = String.join("", Files.readAllLines(casmPath));
+        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
+        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
+        Felt nonce = account.getNonce().send();
+
+        DeclareParamsV3 params = new DeclareParamsV3(
+                nonce,
+                ResourceBounds.ZERO
+        );
+
+        DeclareTransactionV3Payload payload = account.signDeclareV3(
+                contractDefinition,
+                casmContractDefinition,
+                params,
+                true
+        );
+
+        Request<EstimateFeeResponseList> request = provider.getEstimateFee(List.of(payload), Collections.emptySet());
+        EstimateFeeResponse response = request.send().getValues().get(0);
+
+        System.out.println("The estimated fee is: " + response.getOverallFee().getValue() + ".");
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.Felt.Companion.fromHex
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import java.nio.file.Path
+import kotlin.io.path.readText
+
+
+fun main() {
+    // Create a provider for interacting with Starknet
+    val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Set up an account
+    val privateKey = fromHex("0x123")
+    val publicKey = StarknetCurve.getPublicKey(privateKey)
+    val accountAddress = fromHex("0x123")
+    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
+    val account = StandardAccount(accountAddress, privateKey, provider, chainId)
+
+    val contractCode = Path.of("contract.sierra.json").readText()
+    val casmCode = Path.of("contract.casm.json").readText()
+
+    val contractDefinition = Cairo1ContractDefinition(contractCode)
+    val contractCasmDefinition = CasmContractDefinition(casmCode)
+    val nonce = account.getNonce().send()
+
+    val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+    val declareTransactionPayload = account.signDeclareV3(
+        contractDefinition,
+        contractCasmDefinition,
+        params,
+        true,
+    )
+
+    val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+    val feeEstimate = request.send().values.first()
+
+    println("Estimated fee: ${feeEstimate.overallFee.value}.")
 }
 ```
 
