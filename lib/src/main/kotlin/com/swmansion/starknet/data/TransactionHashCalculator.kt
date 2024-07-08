@@ -259,7 +259,7 @@ object TransactionHashCalculator {
         nonceDataAvailabilityMode: DAMode,
     ): Felt {
         return nonceDataAvailabilityMode.value.toBigInteger().shiftLeft(32)
-            .add(feeDataAvailabilityMode.value.toBigInteger())
+            + (feeDataAvailabilityMode.value.toBigInteger())
             .toFelt
     }
 }

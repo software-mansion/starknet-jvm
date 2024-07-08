@@ -12,7 +12,7 @@ data class Uint256(override val value: BigInteger) : NumAsHexBase(value), Conver
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
     constructor(value: Felt) : this(value.value)
-    constructor(low: BigInteger, high: BigInteger) : this(low.add(high.shiftLeft(SHIFT)))
+    constructor(low: BigInteger, high: BigInteger) : this(low + (high.shiftLeft(SHIFT)))
     constructor(low: Felt, high: Felt) : this(low.value, high.value)
 
     init {
@@ -28,7 +28,7 @@ data class Uint256(override val value: BigInteger) : NumAsHexBase(value), Conver
      * Get low 128 bits of Uint256
      */
     val low: Felt
-        get() = Felt(value.mod(SHIFT_MOD))
+        get() = Felt(value % SHIFT_MOD)
 
     /**
      * Get high 128 bits of Uint256
@@ -46,7 +46,7 @@ data class Uint256(override val value: BigInteger) : NumAsHexBase(value), Conver
 
     companion object {
         @field:JvmField
-        val MAX = BigInteger.valueOf(2).pow(256).minus(BigInteger.ONE)
+        val MAX = BigInteger.valueOf(2).pow(256) - (BigInteger.ONE)
 
         @field:JvmField
         val ZERO = Uint256(BigInteger.ZERO)

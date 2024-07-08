@@ -18,7 +18,7 @@ private fun splitBigInteger(bigInt: BigInteger): LongArray {
         return result
     }
     // mask has all bits set to 1 except the least significant one
-    val mask = BigInteger.valueOf(2).pow(64).subtract(BigInteger.ONE)
+    val mask = BigInteger.valueOf(2).pow(64) - (BigInteger.ONE)
 
     // loop through the 64-bit chunks of the BigInteger, shift them and store in the LongArray
     for (i in 0 until 4) {
