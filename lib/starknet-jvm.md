@@ -231,6 +231,108 @@ fun main() {
 }
 ```
 
+## Estimating fee for deploy account V3 transaction
+
+### In Java
+
+```java
+package org.example;
+
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex("0x1234");
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        Felt accountAddress = Felt.fromHex("0x1236789");
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
+
+        DeployAccountParamsV3 params = new DeployAccountParamsV3(
+                Felt.ZERO,
+                ResourceBounds.ZERO
+        );
+        
+        Felt salt = new Felt(2);
+        List<Felt> calldata = List.of(publicKey);
+        Felt classHash = Felt.fromHex("0x123");
+        DeployAccountTransactionV3Payload payloadForFeeEstimation = account.signDeployAccountV3(
+                classHash,
+                calldata,
+                salt,
+                params,
+                true
+        );
+        
+        Request<EstimateFeeResponseList> request = provider.getEstimateFee(List.of(payloadForFeeEstimation));
+        EstimateFeeResponse response = request.send().getValues().get(0);
+
+        System.out.println("The estimated fee is: " + response.getOverallFee().getValue() + ".");
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.Felt.Companion.fromHex
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+
+fun main() {
+    // Create a provider for interacting with Starknet
+    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Set up an account
+    val privateKey = fromHex("0x123")
+    val publicKey = StarknetCurve.getPublicKey(privateKey)
+    val accountAddress = fromHex("0x123")
+    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
+    val account = StandardAccount(accountAddress, privateKey, provider, chainId)
+    
+    val params = DeployAccountParamsV3(
+        nonce = Felt.ZERO,
+        l1ResourceBounds = ResourceBounds.ZERO,
+    )
+
+    val salt = Felt(2)
+    val calldata = listOf(publicKey)
+    val classHash = Felt.fromHex("0x123")
+    val payloadForFeeEstimation = account.signDeployAccountV3(
+        classHash = classHash,
+        salt = salt,
+        calldata = calldata,
+        params = params,
+        forFeeEstimate = true,
+    )
+    
+    val request = provider.getEstimateFee(listOf(payloadForFeeEstimation))
+    val feeEstimate = request.send().values.first()
+    println("The estimated fee is: ${feeEstimate.overallFee.value}.")
+}
+```
+
 ## Deploying account V1
 
 ### In Java
@@ -359,8 +461,6 @@ fun main() {
 ### In Java
 
 ```java
-package org.example;
-
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
 import com.swmansion.starknet.data.types.*;
@@ -368,7 +468,6 @@ import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-import java.io.IOException;
 import java.util.List;
 
 public class Main {
@@ -387,7 +486,7 @@ public class Main {
         Felt contractAddress = Felt.fromHex("0x123456789");
 
         // In this example we want to increase the balance by 10
-        Call call = new Call(contractAddress, "increase_balance", List.of(Felt.fromHex("0xa")));
+        Call call = new Call(contractAddress, "increase_balance", List.of(new Felt(10)));
 
         Request<EstimateFeeResponseList> request = account.estimateFeeV3(
                 call,
@@ -395,8 +494,7 @@ public class Main {
         );
 
         EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
-        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee() + ".");
-
+        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee().getValue() + ".");
     }
 }
 ```
@@ -434,7 +532,7 @@ fun main() {
     )
     val feeEstimate = request.send().values.first()
 
-    println("The estimated fee is: ${feeEstimate.overallFee}")
+    println("The estimated fee is: ${feeEstimate.overallFee.value}.")
 }
 ```
 
