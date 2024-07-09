@@ -783,7 +783,7 @@ class AccountTest {
 
         assumeFalse(network == Network.SEPOLIA_INTEGRATION)
         val classHash = when (network) {
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a")
+            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
         }
 
