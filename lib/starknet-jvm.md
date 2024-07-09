@@ -268,7 +268,8 @@ public class Main {
         
         Felt salt = new Felt(2);
         List<Felt> calldata = List.of(publicKey);
-        Felt classHash = Felt.fromHex("0x123");
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
         DeployAccountTransactionV3Payload payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash,
                 calldata,
@@ -301,9 +302,9 @@ fun main() {
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
-    val privateKey = fromHex("0x123")
+    val privateKey = Felt.fromHex("0x123")
     val publicKey = StarknetCurve.getPublicKey(privateKey)
-    val accountAddress = fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x123")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
 
     val chainId = provider.getChainId().send()
@@ -451,6 +452,113 @@ fun main() {
     println("Calculated address: $address")
     println("Deployed address: ${response.address}")
     println("Are addresses equal: ${address == response.address}")
+}
+```
+
+## Estimating fee for deploy account V1 transaction
+
+### In Java
+
+```java
+package org.example;
+
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.ContractAddressCalculator;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex("0x1234");
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
+        Felt salt = Felt.ONE;
+        List<Felt> calldata = List.of(publicKey);
+        Felt accountAddress = ContractAddressCalculator.calculateAddressFromHash(
+                classHash,
+                calldata,
+                salt
+        );
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, Felt.ZERO);
+
+        DeployAccountTransactionV1Payload payloadForFeeEstimation = account.signDeployAccountV1(
+                classHash,
+                calldata,
+                salt,
+                Felt.ZERO,
+                Felt.ZERO,
+                true
+        );
+
+        Request<EstimateFeeResponseList> request = provider.getEstimateFee(List.of(payloadForFeeEstimation));
+        EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
+
+        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee().getValue() + ".");
+    }
+}
+```
+
+### In Kotlin
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.ContractAddressCalculator
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+
+fun main() {
+    // Create a provider for interacting with Starknet
+    val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
+
+    // Set up an account
+    val privateKey = Felt.fromHex("0x123")
+    val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+    val classHash = Felt.fromHex("0x456")
+    val salt = Felt.ONE
+    val calldata = listOf(publicKey)
+    val address = ContractAddressCalculator.calculateAddressFromHash(
+        classHash = classHash,
+        calldata = calldata,
+        salt = salt,
+    )
+    // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+    val chainId = provider.getChainId().send()
+    val account = StandardAccount(address, privateKey, provider, chainId)
+
+    val payloadForFeeEstimation = account.signDeployAccountV1(
+        classHash = classHash,
+        salt = salt,
+        calldata = calldata,
+        maxFee = Felt.ZERO,
+        nonce = Felt.ZERO,
+        forFeeEstimate = true,
+    )
+
+    val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+    val feeEstimate = feePayload.values.first()
+
+    println("The estimated fee is: ${feeEstimate.overallFee.value}.")
 }
 ```
 
@@ -624,8 +732,8 @@ fun main() {
     val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
-    val privateKey = fromHex("0x123")
-    val accountAddress = fromHex("0x123")
+    val privateKey = Felt.fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x123")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
 
     val chainId = provider.getChainId().send()
@@ -1003,8 +1111,8 @@ fun main() {
     val chainId = provider.getChainId().send()
 
     // Set up an account
-    val privateKey = fromHex("0x1234")
-    val accountAddress = fromHex("0x1236789")
+    val privateKey = Felt.fromHex("0x1234")
+    val accountAddress = Felt.fromHex("0x1236789")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
     val account = StandardAccount(accountAddress, privateKey, provider, chainId)
 
@@ -1125,9 +1233,9 @@ fun main() {
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
-    val privateKey = fromHex("0x123")
+    val privateKey = Felt.fromHex("0x123")
     val publicKey = StarknetCurve.getPublicKey(privateKey)
-    val accountAddress = fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x123")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
 
     val chainId = provider.getChainId().send()
@@ -1234,8 +1342,8 @@ fun main() {
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
-    val privateKey = fromHex("0x123")
-    val accountAddress = fromHex("0x123")
+    val privateKey = Felt.fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x123")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
 
     val chainId = provider.getChainId().send()
@@ -1342,8 +1450,8 @@ fun main() {
     val provider: Provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
     // Set up an account
-    val privateKey = fromHex("0x123")
-    val accountAddress = fromHex("0x123")
+    val privateKey = Felt.fromHex("0x123")
+    val accountAddress = Felt.fromHex("0x123")
     // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
 
     val chainId = provider.getChainId().send()
