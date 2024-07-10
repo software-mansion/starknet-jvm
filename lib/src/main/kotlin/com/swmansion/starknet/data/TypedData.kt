@@ -186,6 +186,7 @@ data class TypedData private constructor(
             Json.decodeFromJsonElement<Revision>(it)
         } ?: Revision.V0
 
+        @Transient
         internal val separatorName = when (resolvedRevision) {
             Revision.V0 -> "StarkNetDomain"
             Revision.V1 -> "StarknetDomain"
