@@ -95,7 +95,10 @@ data class InvokeTransactionV3Payload private constructor(
 }
 
 @Serializable
-sealed class DeclareTransactionPayload() : TransactionPayload()
+sealed class DeclareTransactionPayload : TransactionPayload() {
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DECLARE
+}
 
 @Serializable
 data class DeclareTransactionV2Payload(
@@ -119,9 +122,6 @@ data class DeclareTransactionV2Payload(
 
     @SerialName("version")
     val version: TransactionVersion,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransactionPayload()
 
 @Suppress("DataClassPrivateConstructor")
@@ -162,9 +162,6 @@ data class DeclareTransactionV3Payload private constructor(
 
     @SerialName("version")
     val version: TransactionVersion,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
 ) : DeclareTransactionPayload() {
     constructor(
         contractDefinition: Cairo1ContractDefinition,
@@ -191,7 +188,10 @@ data class DeclareTransactionV3Payload private constructor(
 }
 
 @Serializable
-sealed class DeployAccountTransactionPayload() : TransactionPayload()
+sealed class DeployAccountTransactionPayload : TransactionPayload() {
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
+}
 
 @Serializable
 data class DeployAccountTransactionV1Payload(
@@ -215,9 +215,6 @@ data class DeployAccountTransactionV1Payload(
 
     @SerialName("signature")
     val signature: Signature,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : DeployAccountTransactionPayload()
 
 @Suppress("DataClassPrivateConstructor")
@@ -255,9 +252,6 @@ data class DeployAccountTransactionV3Payload private constructor(
 
     @SerialName("fee_data_availability_mode")
     val feeDataAvailabilityMode: DAMode,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
 ) : DeployAccountTransactionPayload() {
     constructor(
         classHash: Felt,

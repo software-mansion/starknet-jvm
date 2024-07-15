@@ -1,6 +1,7 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
+import com.swmansion.starknet.data.serializers.NotSyncingResponseSerializer
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -68,6 +69,7 @@ data class EstimateFeeResponse(
      *
      * @param multiplier Multiplier for max fee, defaults to 1.5.
      */
+    @JvmOverloads
     fun toMaxFee(multiplier: Double = 1.5): Felt {
         require(multiplier >= 0)
 
@@ -86,6 +88,7 @@ data class EstimateFeeResponse(
      *
      * @return Resource bounds with applied multipliers.
      */
+    @JvmOverloads
     fun toResourceBounds(
         amountMultiplier: Double = 1.5,
         unitPriceMultiplier: Double = 1.5,
@@ -103,6 +106,7 @@ data class EstimateFeeResponse(
             l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
         )
     }
+
     private fun BigInteger.applyMultiplier(multiplier: Double): BigInteger {
         return (this * (multiplier * 100).roundToInt().toBigInteger()) / BigInteger.valueOf(100)
     }
@@ -144,22 +148,33 @@ sealed class Syncing : StarknetResponse {
     abstract val highestBlockNumber: Int
 }
 
-@Serializable
-data class NotSyncingResponse(
+@Suppress("DataClassPrivateConstructor")
+@Serializable(with = NotSyncingResponseSerializer::class)
+data class NotSyncingResponse private constructor(
     override val status: Boolean,
 
-    override val startingBlockHash: Felt = Felt.ZERO,
+    override val startingBlockHash: Felt,
 
-    override val startingBlockNumber: Int = 0,
+    override val startingBlockNumber: Int,
 
-    override val currentBlockHash: Felt = Felt.ZERO,
+    override val currentBlockHash: Felt,
 
-    override val currentBlockNumber: Int = 0,
+    override val currentBlockNumber: Int,
 
-    override val highestBlockHash: Felt = Felt.ZERO,
+    override val highestBlockHash: Felt,
 
-    override val highestBlockNumber: Int = 0,
-) : Syncing()
+    override val highestBlockNumber: Int,
+) : Syncing() {
+    constructor(status: Boolean) : this(
+        status = status,
+        startingBlockHash = Felt.ZERO,
+        startingBlockNumber = 0,
+        currentBlockHash = Felt.ZERO,
+        currentBlockNumber = 0,
+        highestBlockHash = Felt.ZERO,
+        highestBlockNumber = 0,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

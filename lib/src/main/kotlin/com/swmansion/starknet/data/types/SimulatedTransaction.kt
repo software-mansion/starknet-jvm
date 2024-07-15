@@ -128,8 +128,9 @@ data class RevertedInvokeTransactionTrace(
     val executionResources: ExecutionResources,
 ) : InvokeTransactionTraceBase()
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionTrace(
+data class DeclareTransactionTrace private constructor(
     @SerialName("validate_invocation")
     val validateInvocation: FunctionInvocation? = null,
 
@@ -143,11 +144,26 @@ data class DeclareTransactionTrace(
     val executionResources: ExecutionResources,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.DECLARE,
-) : TransactionTrace()
+    override val type: TransactionType,
+) : TransactionTrace() {
+    @JvmOverloads
+    constructor(
+        validateInvocation: FunctionInvocation? = null,
+        feeTransferInvocation: FunctionInvocation? = null,
+        stateDiff: StateDiff? = null,
+        executionResources: ExecutionResources,
+    ) : this(
+        validateInvocation = validateInvocation,
+        feeTransferInvocation = feeTransferInvocation,
+        stateDiff = stateDiff,
+        executionResources = executionResources,
+        type = TransactionType.DECLARE,
+    )
+}
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionTrace(
+data class DeployAccountTransactionTrace private constructor(
     @SerialName("validate_invocation")
     val validateInvocation: FunctionInvocation? = null,
 
@@ -165,10 +181,27 @@ data class DeployAccountTransactionTrace(
 
     @SerialName("type")
     override val type: TransactionType,
-) : TransactionTrace()
+) : TransactionTrace() {
+    @JvmOverloads
+    constructor(
+        validateInvocation: FunctionInvocation? = null,
+        constructorInvocation: FunctionInvocation,
+        feeTransferInvocation: FunctionInvocation? = null,
+        stateDiff: StateDiff? = null,
+        executionResources: ExecutionResources,
+    ) : this(
+        validateInvocation = validateInvocation,
+        constructorInvocation = constructorInvocation,
+        feeTransferInvocation = feeTransferInvocation,
+        stateDiff = stateDiff,
+        executionResources = executionResources,
+        type = TransactionType.DEPLOY_ACCOUNT,
+    )
+}
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class L1HandlerTransactionTrace(
+data class L1HandlerTransactionTrace private constructor(
     @SerialName("function_invocation")
     val functionInvocation: FunctionInvocation,
 
@@ -176,8 +209,18 @@ data class L1HandlerTransactionTrace(
     override val stateDiff: StateDiff? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.L1_HANDLER,
-) : TransactionTrace()
+    override val type: TransactionType,
+) : TransactionTrace() {
+    @JvmOverloads
+    constructor(
+        functionInvocation: FunctionInvocation,
+        stateDiff: StateDiff? = null,
+    ) : this(
+        functionInvocation = functionInvocation,
+        stateDiff = stateDiff,
+        type = TransactionType.L1_HANDLER,
+    )
+}
 
 @Serializable
 data class SimulatedTransaction(

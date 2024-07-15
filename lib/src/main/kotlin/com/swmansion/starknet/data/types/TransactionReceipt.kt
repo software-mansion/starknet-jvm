@@ -92,8 +92,9 @@ sealed class TransactionReceipt : StarknetResponse {
         get() = listOf(blockHash, blockNumber).all { it != null }
 }
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeTransactionReceipt(
+data class InvokeTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -113,7 +114,7 @@ data class InvokeTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.INVOKE,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -126,10 +127,36 @@ data class InvokeTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    @JvmOverloads constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.INVOKE,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+    )
+}
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionReceipt(
+data class DeclareTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -148,7 +175,7 @@ data class DeclareTransactionReceipt(
     @SerialName("block_number")
     override val blockNumber: Int? = null,
 
-    override val type: TransactionType = TransactionType.DECLARE,
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -161,49 +188,36 @@ data class DeclareTransactionReceipt(
 
     @SerialName("execution_resources")
     override val executionResources: ExecutionResources,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    @JvmOverloads constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DECLARE,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+    )
+}
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionReceipt(
-    @SerialName("transaction_hash")
-    override val hash: Felt,
-
-    @SerialName("actual_fee")
-    override val actualFee: FeePayment,
-
-    @SerialName("execution_status")
-    override val executionStatus: TransactionExecutionStatus,
-
-    @SerialName("finality_status")
-    override val finalityStatus: TransactionFinalityStatus,
-
-    @SerialName("block_hash")
-    override val blockHash: Felt? = null,
-
-    @SerialName("block_number")
-    override val blockNumber: Int? = null,
-
-    @SerialName("type")
-    override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT,
-
-    @SerialName("messages_sent")
-    override val messagesSent: List<MessageL2ToL1>,
-
-    @SerialName("revert_reason")
-    override val revertReason: String? = null,
-
-    @SerialName("events")
-    override val events: List<Event>,
-
-    @SerialName("execution_resources")
-    override val executionResources: ExecutionResources,
-
-    @SerialName("contract_address")
-    val contractAddress: Felt,
-) : TransactionReceipt()
-
-@Serializable
-data class DeployTransactionReceipt(
+data class DeployAccountTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -239,10 +253,38 @@ data class DeployTransactionReceipt(
 
     @SerialName("contract_address")
     val contractAddress: Felt,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    @JvmOverloads constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        contractAddress: Felt,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DEPLOY_ACCOUNT,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        contractAddress = contractAddress,
+    )
+}
 
+@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class L1HandlerTransactionReceipt(
+data class DeployTransactionReceipt private constructor(
     @SerialName("transaction_hash")
     override val hash: Felt,
 
@@ -262,7 +304,74 @@ data class L1HandlerTransactionReceipt(
     override val blockNumber: Int? = null,
 
     @SerialName("type")
-    override val type: TransactionType = TransactionType.L1_HANDLER,
+    override val type: TransactionType,
+
+    @SerialName("messages_sent")
+    override val messagesSent: List<MessageL2ToL1>,
+
+    @SerialName("revert_reason")
+    override val revertReason: String? = null,
+
+    @SerialName("events")
+    override val events: List<Event>,
+
+    @SerialName("execution_resources")
+    override val executionResources: ExecutionResources,
+
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+) : TransactionReceipt() {
+    @JvmOverloads constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        contractAddress: Felt,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.DEPLOY,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        contractAddress = contractAddress,
+    )
+}
+
+@Suppress("DataClassPrivateConstructor")
+@Serializable
+data class L1HandlerTransactionReceipt private constructor(
+    @SerialName("transaction_hash")
+    override val hash: Felt,
+
+    @SerialName("actual_fee")
+    override val actualFee: FeePayment,
+
+    @SerialName("execution_status")
+    override val executionStatus: TransactionExecutionStatus,
+
+    @SerialName("finality_status")
+    override val finalityStatus: TransactionFinalityStatus,
+
+    @SerialName("block_hash")
+    override val blockHash: Felt? = null,
+
+    @SerialName("block_number")
+    override val blockNumber: Int? = null,
+
+    @SerialName("type")
+    override val type: TransactionType,
 
     @SerialName("messages_sent")
     override val messagesSent: List<MessageL2ToL1>,
@@ -278,4 +387,32 @@ data class L1HandlerTransactionReceipt(
 
     @SerialName("message_hash")
     val messageHash: NumAsHex,
-) : TransactionReceipt()
+) : TransactionReceipt() {
+    @JvmOverloads
+    constructor(
+        hash: Felt,
+        actualFee: FeePayment,
+        executionStatus: TransactionExecutionStatus,
+        finalityStatus: TransactionFinalityStatus,
+        blockHash: Felt? = null,
+        blockNumber: Int? = null,
+        messagesSent: List<MessageL2ToL1>,
+        revertReason: String? = null,
+        events: List<Event>,
+        executionResources: ExecutionResources,
+        messageHash: NumAsHex,
+    ) : this(
+        hash = hash,
+        actualFee = actualFee,
+        executionStatus = executionStatus,
+        finalityStatus = finalityStatus,
+        blockHash = blockHash,
+        blockNumber = blockNumber,
+        type = TransactionType.L1_HANDLER,
+        messagesSent = messagesSent,
+        revertReason = revertReason,
+        events = events,
+        executionResources = executionResources,
+        messageHash = messageHash,
+    )
+}
