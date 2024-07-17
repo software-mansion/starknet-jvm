@@ -14,7 +14,8 @@ enum class CairoVersion(val version: Felt) {
     /**
      * Corresponds to any contract compiled with Cairo >= 1.
      */
-    ONE(Felt.ONE);
+    ONE(Felt.ONE),
+    ;
 
     companion object {
         fun fromValue(value: Int): CairoVersion {
