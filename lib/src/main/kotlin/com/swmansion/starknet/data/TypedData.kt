@@ -186,6 +186,7 @@ data class TypedData private constructor(
             Json.decodeFromJsonElement<Revision>(it)
         } ?: Revision.V0
 
+        @Transient
         internal val separatorName = when (resolvedRevision) {
             Revision.V0 -> "StarkNetDomain"
             Revision.V1 -> "StarknetDomain"
@@ -610,7 +611,7 @@ data class TypedData private constructor(
      * Create a JSON string from TypedData.
      */
     fun toJsonString(): String =
-        Json.encodeToString(serializer(), this)
+        Json { encodeDefaults = true }.encodeToString(serializer(), this)
 }
 
 internal fun String.isArray() = endsWith("*")

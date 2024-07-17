@@ -25,19 +25,14 @@ data class Call(
     @SerialName("calldata")
     val calldata: Calldata,
 ) {
-    constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata) : this(
+    @JvmOverloads
+    constructor(contractAddress: Felt, entrypoint: String, calldata: Calldata = emptyList()) : this(
         contractAddress,
         selectorFromName(entrypoint),
         calldata,
     )
 
     constructor(contractAddress: Felt, entrypoint: Felt) : this(
-        contractAddress,
-        entrypoint,
-        emptyList(),
-    )
-
-    constructor(contractAddress: Felt, entrypoint: String) : this(
         contractAddress,
         entrypoint,
         emptyList(),
@@ -133,8 +128,9 @@ object AccountCalldataTransformer {
     }
 
     @JvmStatic
-    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: CairoVersion = CairoVersion.ZERO): List<Felt> {
-        if (cairoVersion == CairoVersion.ONE) {
+    @JvmOverloads
+    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
+        if (cairoVersion == Felt.ONE) {
             return callsToExecuteCalldataCairo1(calls)
         }
 
