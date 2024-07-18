@@ -54,7 +54,7 @@ class StandardAccountTest {
             try {
                 devnetClient.start()
 
-                val accountDetails = devnetClient.deployAccount("standard_account_test", prefund = true).details
+                val accountDetails = devnetClient.createDeployAccount().details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
 
@@ -283,7 +283,11 @@ class StandardAccountTest {
         val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
         val nonce = account.getNonce().send()
 
-        val declareTransactionPayload = account.signDeclareV2(l1l2ContractDefinition, l1l2CasmContractDefinition, ExecutionParams(nonce, Felt(10000000000000000)))
+        val declareTransactionPayload = account.signDeclareV2(
+            l1l2ContractDefinition,
+            l1l2CasmContractDefinition,
+            ExecutionParams(nonce, Felt(10000000000000000)),
+        )
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
             classHash = l2ContractClassHash,

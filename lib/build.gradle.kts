@@ -8,7 +8,7 @@
 
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.12.0"
+version = "0.12.2"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -121,7 +121,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0")
 
     // Use the Kotlin reflection library.
     implementation(kotlin("reflect"))
@@ -135,11 +135,11 @@ dependencies {
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
-    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 
 java {
