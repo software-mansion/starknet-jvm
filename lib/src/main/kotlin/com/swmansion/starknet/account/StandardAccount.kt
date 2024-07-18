@@ -27,7 +27,7 @@ class StandardAccount @JvmOverloads constructor(
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: Felt = Felt.ZERO,
+    private val cairoVersion: CairoVersion = CairoVersion.ZERO,
 ) : Account {
     /**
      * @param provider a provider used to interact with Starknet
@@ -37,7 +37,7 @@ class StandardAccount @JvmOverloads constructor(
      * @param cairoVersion the version of Cairo language in which account contract is written
      */
     @JvmOverloads
-    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: Felt = Felt.ZERO) : this(
+    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId, cairoVersion: CairoVersion = CairoVersion.ZERO) : this(
         address = address,
         signer = StarkCurveSigner(privateKey),
         provider = provider,
@@ -46,7 +46,7 @@ class StandardAccount @JvmOverloads constructor(
     )
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
-        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
+        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV1(
             senderAddress = address,
             calldata = calldata,
@@ -62,7 +62,7 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
-        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion)
+        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV3(
             senderAddress = address,
             calldata = calldata,
