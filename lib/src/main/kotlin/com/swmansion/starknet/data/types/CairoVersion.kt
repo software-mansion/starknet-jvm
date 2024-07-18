@@ -2,8 +2,20 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.extensions.toFelt
 
+/**
+ * The version of Cairo language in which contract is written.
+ */
 enum class CairoVersion(val version: Felt) {
-    ZERO(Felt.ZERO), ONE(Felt.ONE);
+    /**
+     * Corresponds to the legacy Version of Cairo.
+     */
+    ZERO(Felt.ZERO),
+
+    /**
+     * Corresponds to any contract compiled with Cairo >= 1.
+     */
+    ONE(Felt.ONE),
+    ;
 
     companion object {
         fun fromValue(value: Int): CairoVersion {
