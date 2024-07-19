@@ -485,7 +485,7 @@ class StandardAccountTest {
                 {
                     "something": "broke"    
                 }
-                    """.trimIndent(),
+                        """.trimIndent(),
                     )
                 }
                 val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
@@ -1305,7 +1305,7 @@ class StandardAccountTest {
                     }
                 ]
             }
-            """.trimIndent()
+                """.trimIndent()
                 val httpService = mock<HttpService> {
                     on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
                 }
@@ -1429,7 +1429,7 @@ class StandardAccountTest {
                     }
                 ]
             }
-            """.trimIndent()
+                """.trimIndent()
                 val httpService = mock<HttpService> {
                     on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
                 }
