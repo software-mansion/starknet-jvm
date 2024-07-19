@@ -36,7 +36,6 @@ class StandardAccountTest {
             accountDirectory = Paths.get("src/test/resources/accounts/standard_account_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
-
         private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
