@@ -48,20 +48,9 @@ data class FunctionAbiEntry(
     val name: String,
     val inputs: List<AbiEntry>,
     val outputs: List<AbiEntry>,
+    val type: AbiEntryType,
     val stateMutability: StateMutabilityType? = null,
-) : AbiElement() {
-    val type: AbiEntryType = AbiEntryType.FUNCTION
-}
-
-@SerialName("constructor")
-@Serializable
-data class ConstructorAbiEntry(
-    val name: String,
-    val inputs: List<AbiEntry>,
-    val outputs: List<AbiEntry>,
-) : AbiElement() {
-    val type: AbiEntryType = AbiEntryType.CONSTRUCTOR
-}
+) : AbiElement()
 
 @SerialName("event")
 @Serializable
