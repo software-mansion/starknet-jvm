@@ -41,6 +41,7 @@ class StandardAccountTest {
 
         private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
+        private val devnetAccountAddress = Felt.fromHex("0x1f463e2903521e6ec52ee9d3bf6f2af8cccd27becd8ef1172621e5a2200c580")
         private lateinit var balanceContractAddress: Felt
 
         private lateinit var signer: Signer
@@ -765,7 +766,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `cairo0 account calldata`() {
+        fun `cairo1 account calldata`() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -785,7 +786,7 @@ class StandardAccountTest {
             )
 
             val account = StandardAccount(
-                address = accountAddress,
+                address = devnetAccountAddress,
                 signer = signer,
                 provider = provider,
                 chainId = chainId,
@@ -797,20 +798,16 @@ class StandardAccountTest {
                 Felt(3),
                 balanceContractAddress,
                 selectorFromName("increase_balance"),
-                Felt(0),
                 Felt(3),
-                Felt(999),
-                selectorFromName("empty_calldata"),
-                Felt(3),
-                Felt(0),
-                Felt(123),
-                selectorFromName("another_method"),
-                Felt(3),
-                Felt(2),
-                Felt(5),
                 Felt(10),
                 Felt(20),
                 Felt(30),
+                Felt(999),
+                selectorFromName("empty_calldata"),
+                Felt(0),
+                Felt(123),
+                selectorFromName("another_method"),
+                Felt(2),
                 Felt(100),
                 Felt(200),
             )
@@ -819,7 +816,7 @@ class StandardAccountTest {
 
             val signedEmptyTx = account.signV1(listOf(), params)
 
-            assertEquals(listOf(Felt.ZERO, Felt.ZERO), signedEmptyTx.calldata)
+            assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
         }
     }
 
