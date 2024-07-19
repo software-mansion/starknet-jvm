@@ -36,12 +36,12 @@ class StandardAccountTest {
             accountDirectory = Paths.get("src/test/resources/accounts/standard_account_test"),
             contractsDirectory = Paths.get("src/test/resources/contracts"),
         )
+
         private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
         private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
-        private val devnetAccountAddress = Felt.fromHex("0x1f463e2903521e6ec52ee9d3bf6f2af8cccd27becd8ef1172621e5a2200c580")
         private lateinit var balanceContractAddress: Felt
 
         private lateinit var signer: Signer
@@ -56,7 +56,10 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 val accountDetails = devnetClient.createDeployAccount().details
-                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
+                balanceContractAddress = devnetClient.declareDeployContract(
+                    "Balance",
+                    constructorCalldata = listOf(Felt(451)),
+                ).contractAddress
                 accountAddress = accountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
@@ -192,639 +195,851 @@ class StandardAccountTest {
 
             val feeEstimates = request.send()
             feeEstimates.values.forEach {
-                assertNotEquals(Felt.ZERO, it.overallFee)
+                feeEstimates.values.forEach {
+                    assertNotEquals(Felt.ZERO, it.overallFee)
+                    assertEquals(
+                        it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
+                        it.overallFee.value,
+                    )
+                }
+            }
+
+            @Test
+            fun `estimate fee for invoke v1 transaction at latest block tag`() {
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+
+                val request = account.estimateFeeV1(call, BlockTag.LATEST)
+                val feeEstimate = request.send().values.first()
+
+                assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
                 assertEquals(
-                    it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
-                    it.overallFee.value,
+                    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                    feeEstimate.overallFee.value,
+                )
+            }
+        }
+
+        @Nested
+        inner class DeclareEstimateTest {
+            @Test
+            fun `estimate fee for declare v2 transaction`() {
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo1ContractDefinition(contractCode)
+                val contractCasmDefinition = CasmContractDefinition(casmCode)
+                val nonce = account.getNonce().send()
+
+                val declareTransactionPayload = account.signDeclareV2(
+                    sierraContractDefinition = contractDefinition,
+                    casmContractDefinition = contractCasmDefinition,
+                    params = ExecutionParams(nonce, Felt.ZERO),
+                    forFeeEstimate = true,
+                )
+
+                assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
+
+                val request =
+                    provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+                val feeEstimate = request.send().values.first()
+
+                assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+                assertEquals(
+                    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                    feeEstimate.overallFee.value,
+                )
+            }
+
+            @Test
+            fun `estimate fee for declare v3 transaction`() {
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo1ContractDefinition(contractCode)
+                val contractCasmDefinition = CasmContractDefinition(casmCode)
+                val nonce = account.getNonce().send()
+
+                val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+                val declareTransactionPayload = account.signDeclareV3(
+                    contractDefinition,
+                    contractCasmDefinition,
+                    params,
+                    true,
+                )
+
+                assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
+
+                val request =
+                    provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+                val feeEstimate = request.send().values.first()
+
+                assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+                assertEquals(
+                    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                    feeEstimate.overallFee.value,
                 )
             }
         }
 
         @Test
-        fun `estimate fee for invoke v1 transaction at latest block tag`() {
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+        fun `estimate message fee`() {
+            val l1l2ContractCode =
+                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
+            val l1l2CasmContractCode =
+                Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
 
-            val request = account.estimateFeeV1(call, BlockTag.LATEST)
-            val feeEstimate = request.send().values.first()
-
-            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value,
-            )
-        }
-    }
-
-    @Nested
-    inner class DeclareEstimateTest {
-        @Test
-        fun `estimate fee for declare v2 transaction`() {
-            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
-
-            val contractDefinition = Cairo1ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val l1l2ContractDefinition = Cairo2ContractDefinition(l1l2ContractCode)
+            val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
             val nonce = account.getNonce().send()
 
             val declareTransactionPayload = account.signDeclareV2(
-                sierraContractDefinition = contractDefinition,
-                casmContractDefinition = contractCasmDefinition,
-                params = ExecutionParams(nonce, Felt.ZERO),
-                forFeeEstimate = true,
-            )
-
-            assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
-
-            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
-            val feeEstimate = request.send().values.first()
-
-            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value,
-            )
-        }
-
-        @Test
-        fun `estimate fee for declare v3 transaction`() {
-            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
-
-            val contractDefinition = Cairo1ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
-            val nonce = account.getNonce().send()
-
-            val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
-            val declareTransactionPayload = account.signDeclareV3(
-                contractDefinition,
-                contractCasmDefinition,
-                params,
-                true,
-            )
-
-            assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
-
-            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
-            val feeEstimate = request.send().values.first()
-
-            assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-                feeEstimate.overallFee.value,
-            )
-        }
-    }
-
-    @Test
-    fun `estimate message fee`() {
-        val l1l2ContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
-        val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
-
-        val l1l2ContractDefinition = Cairo2ContractDefinition(l1l2ContractCode)
-        val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
-        val nonce = account.getNonce().send()
-
-        val declareTransactionPayload = account.signDeclareV2(
-            l1l2ContractDefinition,
-            l1l2CasmContractDefinition,
-            ExecutionParams(nonce, Felt(10000000000000000)),
-        )
-        val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
-        val l2ContractAddress = devnetClient.deployContract(
-            classHash = l2ContractClassHash,
-            constructorCalldata = listOf(),
-        ).contractAddress
-        val l1Address = Felt.fromHex("0x8359E4B0152ed5A731162D3c7B0D8D56edB165A0")
-        val user = Felt.ONE
-        val amount = Felt(1000)
-
-        val message = MessageL1ToL2(
-            fromAddress = l1Address,
-            toAddress = l2ContractAddress,
-            selector = selectorFromName("deposit"),
-            payload = listOf(user, amount),
-        )
-
-        val request = provider.getEstimateMessageFee(
-            message = message,
-            blockTag = BlockTag.LATEST,
-        )
-        val response = request.send()
-
-        assertNotEquals(Felt.ZERO, response.gasPrice)
-        assertEquals(
-            response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
-            response.overallFee.value,
-        )
-    }
-
-    @Nested
-    inner class DeclareTest {
-        @Test
-        fun `sign and send declare v2 transaction`() {
-            devnetClient.prefundAccountEth(accountAddress)
-
-            val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
-
-            val contractDefinition = Cairo1ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
-            val nonce = account.getNonce().send()
-
-            val declareTransactionPayload = account.signDeclareV2(
-                contractDefinition,
-                contractCasmDefinition,
-                ExecutionParams(nonce, Felt(5000000000000000L)),
-            )
-            val request = provider.declareContract(declareTransactionPayload)
-            val result = request.send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `sign and send declare v2 transaction (cairo compiler v2)`() {
-            devnetClient.prefundAccountEth(accountAddress)
-
-            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json").readText()
-
-            val contractDefinition = Cairo2ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
-            val nonce = account.getNonce().send()
-
-            val declareTransactionPayload = account.signDeclareV2(
-                contractDefinition,
-                contractCasmDefinition,
+                l1l2ContractDefinition,
+                l1l2CasmContractDefinition,
                 ExecutionParams(nonce, Felt(10000000000000000)),
             )
-            val request = provider.declareContract(declareTransactionPayload)
-            val result = request.send()
+            val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
+            val l2ContractAddress = devnetClient.deployContract(
+                classHash = l2ContractClassHash,
+                constructorCalldata = listOf(),
+            ).contractAddress
+            val l1Address = Felt.fromHex("0x8359E4B0152ed5A731162D3c7B0D8D56edB165A0")
+            val user = Felt.ONE
+            val amount = Felt(1000)
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `sign and send declare v3 transaction`() {
-            devnetClient.prefundAccountStrk(accountAddress)
-
-            ScarbClient.buildSaltedContract(
-                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            val message = MessageL1ToL2(
+                fromAddress = l1Address,
+                toAddress = l2ContractAddress,
+                selector = selectorFromName("deposit"),
+                payload = listOf(user, amount),
             )
-            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
-            val contractDefinition = Cairo2ContractDefinition(contractCode)
-            val contractCasmDefinition = CasmContractDefinition(casmCode)
-            val nonce = account.getNonce().send()
-
-            val params = DeclareParamsV3(
-                nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(100000),
-                    maxPricePerUnit = Uint128(1000000000000),
-                ),
+            val request = provider.getEstimateMessageFee(
+                message = message,
+                blockTag = BlockTag.LATEST,
             )
-            val declareTransactionPayload = account.signDeclareV3(
-                contractDefinition,
-                contractCasmDefinition,
-                params,
+            val response = request.send()
+
+            assertNotEquals(Felt.ZERO, response.gasPrice)
+            assertEquals(
+                response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
+                response.overallFee.value,
             )
-            val request = provider.declareContract(declareTransactionPayload)
-            val result = request.send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-    }
-
-    @Nested
-    inner class SignTypedDataTest {
-        private val tdRev0 by lazy { loadTypedData("rev_0/typed_data_struct_array_example.json") }
-        private val tdRev1 by lazy { loadTypedData("rev_1/typed_data_basic_types_example.json") }
-
-        @Test
-        fun `sign TypedData revision 0`() {
-            val typedData = tdRev0
-
-            // Sign typedData
-            val signature = account.signTypedData(typedData)
-            assertTrue(signature.isNotEmpty())
-
-            // Verify the signature
-            val request = account.verifyTypedDataSignature(typedData, signature)
-            val isValid = request.send()
-            assertTrue(isValid)
-
-            // Verify invalid signature does not pass
-            val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
-            val isValid2 = request2.send()
-            assertFalse(isValid2)
         }
 
-        @Test
-        fun `sign TypedData revision 1`() {
-            val typedData = tdRev1
+        @Nested
+        inner class DeclareTest {
+            @Test
+            fun `sign and send declare v2 transaction`() {
+                devnetClient.prefundAccountEth(accountAddress)
 
-            // Sign typedData
-            val signature = account.signTypedData(typedData)
-            assertTrue(signature.isNotEmpty())
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json")
+                        .readText()
 
-            // Verify the signature
-            val request = account.verifyTypedDataSignature(typedData, signature)
-            val isValid = request.send()
-            assertTrue(isValid)
+                val contractDefinition = Cairo1ContractDefinition(contractCode)
+                val contractCasmDefinition = CasmContractDefinition(casmCode)
+                val nonce = account.getNonce().send()
 
-            // Verify invalid signature does not pass
-            val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
-            val isValid2 = request2.send()
-            assertFalse(isValid2)
+                val declareTransactionPayload = account.signDeclareV2(
+                    contractDefinition,
+                    contractCasmDefinition,
+                    ExecutionParams(nonce, Felt(5000000000000000L)),
+                )
+                val request = provider.declareContract(declareTransactionPayload)
+                val result = request.send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `sign and send declare v2 transaction (cairo compiler v2)`() {
+                devnetClient.prefundAccountEth(accountAddress)
+
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_CounterContract.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo2ContractDefinition(contractCode)
+                val contractCasmDefinition = CasmContractDefinition(casmCode)
+                val nonce = account.getNonce().send()
+
+                val declareTransactionPayload = account.signDeclareV2(
+                    contractDefinition,
+                    contractCasmDefinition,
+                    ExecutionParams(nonce, Felt(10000000000000000)),
+                )
+                val request = provider.declareContract(declareTransactionPayload)
+                val result = request.send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `sign and send declare v3 transaction`() {
+                devnetClient.prefundAccountStrk(accountAddress)
+
+                ScarbClient.buildSaltedContract(
+                    placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                    saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+                )
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo2ContractDefinition(contractCode)
+                val contractCasmDefinition = CasmContractDefinition(casmCode)
+                val nonce = account.getNonce().send()
+
+                val params = DeclareParamsV3(
+                    nonce = nonce,
+                    l1ResourceBounds = ResourceBounds(
+                        maxAmount = Uint64(100000),
+                        maxPricePerUnit = Uint128(1000000000000),
+                    ),
+                )
+                val declareTransactionPayload = account.signDeclareV3(
+                    contractDefinition,
+                    contractCasmDefinition,
+                    params,
+                )
+                val request = provider.declareContract(declareTransactionPayload)
+                val result = request.send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
         }
 
-        @Test
-        fun `sign TypedData rethrows exceptions other than signature related`() {
-            val httpService = mock<HttpService> {
-                on { send(any()) } doReturn HttpResponse(
-                    false,
-                    500,
-                    """
+        @Nested
+        inner class SignTypedDataTest {
+            private val tdRev0 by lazy { loadTypedData("rev_0/typed_data_struct_array_example.json") }
+            private val tdRev1 by lazy { loadTypedData("rev_1/typed_data_basic_types_example.json") }
+
+            @Test
+            fun `sign TypedData revision 0`() {
+                val typedData = tdRev0
+
+                // Sign typedData
+                val signature = account.signTypedData(typedData)
+                assertTrue(signature.isNotEmpty())
+
+                // Verify the signature
+                val request = account.verifyTypedDataSignature(typedData, signature)
+                val isValid = request.send()
+                assertTrue(isValid)
+
+                // Verify invalid signature does not pass
+                val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
+                val isValid2 = request2.send()
+                assertFalse(isValid2)
+            }
+
+            @Test
+            fun `sign TypedData revision 1`() {
+                val typedData = tdRev1
+
+                // Sign typedData
+                val signature = account.signTypedData(typedData)
+                assertTrue(signature.isNotEmpty())
+
+                // Verify the signature
+                val request = account.verifyTypedDataSignature(typedData, signature)
+                val isValid = request.send()
+                assertTrue(isValid)
+
+                // Verify invalid signature does not pass
+                val request2 = account.verifyTypedDataSignature(typedData, listOf(Felt.ONE, Felt.ONE))
+                val isValid2 = request2.send()
+                assertFalse(isValid2)
+            }
+
+            @Test
+            fun `sign TypedData rethrows exceptions other than signature related`() {
+                val httpService = mock<HttpService> {
+                    on { send(any()) } doReturn HttpResponse(
+                        false,
+                        500,
+                        """
                 {
                     "something": "broke"    
                 }
                     """.trimIndent(),
+                    )
+                }
+                val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+                val account = StandardAccount(Felt.ONE, Felt.ONE, provider, chainId)
+
+                val typedData = tdRev0
+                val signature = account.signTypedData(typedData)
+                assertTrue(signature.isNotEmpty())
+
+                val request = account.verifyTypedDataSignature(typedData, signature)
+                assertThrows(RequestFailedException::class.java) {
+                    request.send()
+                }
+            }
+        }
+
+        @Nested
+        inner class InvokeTest {
+            @Test
+            fun `sign v1 single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    calldata = listOf(Felt(10)),
+                    entrypoint = "increase_balance",
                 )
+
+                val params = ExecutionParams(
+                    maxFee = Felt(1000000000000000),
+                    nonce = account.getNonce().send(),
+                )
+
+                val payload = account.signV1(call, params)
+                val request = provider.invokeFunction(payload)
+                val response = request.send()
+
+                val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
             }
-            val provider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
-            val account = StandardAccount(Felt.ONE, Felt.ONE, provider, chainId)
 
-            val typedData = tdRev0
-            val signature = account.signTypedData(typedData)
-            assertTrue(signature.isNotEmpty())
+            @Test
+            fun `sign v3 single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    calldata = listOf(Felt(10)),
+                    entrypoint = "increase_balance",
+                )
 
-            val request = account.verifyTypedDataSignature(typedData, signature)
-            assertThrows(RequestFailedException::class.java) {
-                request.send()
+                val params = InvokeParamsV3(
+                    nonce = account.getNonce().send(),
+                    l1ResourceBounds = ResourceBounds(
+                        maxAmount = Uint64(20000),
+                        maxPricePerUnit = Uint128(120000000000),
+                    ),
+                )
+
+                val payload = account.signV3(call, params)
+                val request = provider.invokeFunction(payload)
+                val response = request.send()
+
+                val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
             }
-        }
-    }
 
-    @Nested
-    inner class InvokeTest {
-        @Test
-        fun `sign v1 single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                calldata = listOf(Felt(10)),
-                entrypoint = "increase_balance",
-            )
+            @Test
+            fun `execute v1 single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
 
-            val params = ExecutionParams(
-                maxFee = Felt(1000000000000000),
-                nonce = account.getNonce().send(),
-            )
+                val result = account.executeV1(call).send()
 
-            val payload = account.signV1(call, params)
-            val request = provider.invokeFunction(payload)
-            val response = request.send()
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-            val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+                assertTrue(receipt.isAccepted)
+            }
 
-            assertTrue(receipt.isAccepted)
-        }
+            @Test
+            fun `execute v3 single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
 
-        @Test
-        fun `sign v3 single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                calldata = listOf(Felt(10)),
-                entrypoint = "increase_balance",
-            )
+                val result = account.executeV3(call).send()
 
-            val params = InvokeParamsV3(
-                nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `execute v1 single call with specific fee estimate multiplier`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV1(call, estimateFeeMultiplier = 1.59).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `execute v3 single call with specific fee estimate multiplier`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV3(
+                    call,
+                    estimateAmountMultiplier = 1.59,
+                    estimateUnitPriceMultiplier = 1.39,
+                ).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `execute v1 single call with specific fee`() {
+                // Note to future developers experiencing failures in this test:
+                // This transaction may fail if the fee is too low.
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val maxFee = Felt(10000000000000000L)
+                val result = account.executeV1(call, maxFee).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+                assertNotEquals(Felt.ZERO, receipt.actualFee)
+            }
+
+            @Test
+            fun `execute v3 single call with specific resource bounds`() {
+                // Note to future developers experiencing failures in this test:
+                // This transaction may fail if resource bounds are too low.
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
-                ),
-            )
+                )
+                val result = account.executeV3(call, l1ResourceBounds).send()
 
-            val payload = account.signV3(call, params)
-            val request = provider.invokeFunction(payload)
-            val response = request.send()
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-            val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+                assertTrue(receipt.isAccepted)
+                assertNotEquals(Felt.ZERO, receipt.actualFee)
+            }
 
-            assertTrue(receipt.isAccepted)
+            @Test
+            fun `sign v1 multiple calls test`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val params = ExecutionParams(
+                    maxFee = Felt(1000000000000000),
+                    nonce = account.getNonce().send(),
+                )
+
+                val payload = account.signV1(listOf(call, call, call), params)
+                val response = provider.invokeFunction(payload).send()
+
+                val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `sign v3 multiple calls test`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val params = InvokeParamsV3(
+                    nonce = account.getNonce().send(),
+                    l1ResourceBounds = ResourceBounds(
+                        maxAmount = Uint64(20000),
+                        maxPricePerUnit = Uint128(120000000000),
+                    ),
+                )
+
+                val payload = account.signV3(listOf(call, call, call), params)
+                val response = provider.invokeFunction(payload).send()
+
+                val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `execute v1 multiple calls`() {
+                val call1 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val call2 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV1(listOf(call1, call2)).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `execute v3 multiple calls`() {
+                val call1 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val call2 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV3(listOf(call1, call2)).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
+
+            @Test
+            fun `two executes v1 with single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV1(call).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                assertTrue(receipt.isAccepted)
+
+                val call2 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(20)),
+                )
+
+                val result2 = account.executeV1(call2).send()
+
+                val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
+                assertTrue(receipt2.isAccepted)
+            }
+
+            @Test
+            fun `two executes v3 with single call`() {
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10)),
+                )
+
+                val result = account.executeV3(call).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                assertTrue(receipt.isAccepted)
+
+                val call2 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(20)),
+                )
+
+                val result2 = account.executeV3(call2).send()
+
+                val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
+                assertTrue(receipt2.isAccepted)
+            }
+
+            @Test
+            fun `cairo1 account calldata`() {
+                val call1 = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(10), Felt(20), Felt(30)),
+                )
+
+                val call2 = Call(
+                    contractAddress = Felt(999),
+                    entrypoint = "empty_calldata",
+                    calldata = listOf(),
+                )
+
+                val call3 = Call(
+                    contractAddress = Felt(123),
+                    entrypoint = "another_method",
+                    calldata = listOf(Felt(100), Felt(200)),
+                )
+
+                val account = StandardAccount(
+                    address = accountAddress,
+                    signer = signer,
+                    provider = provider,
+                    chainId = chainId,
+                )
+                val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
+                val signedTx = account.signV1(listOf(call1, call2, call3), params)
+
+                val expectedCalldata = listOf(
+                    Felt(3),
+                    balanceContractAddress,
+                    selectorFromName("increase_balance"),
+                    Felt(3),
+                    Felt(10),
+                    Felt(20),
+                    Felt(30),
+                    Felt(999),
+                    selectorFromName("empty_calldata"),
+                    Felt(0),
+                    Felt(123),
+                    selectorFromName("another_method"),
+                    Felt(2),
+                    Felt(100),
+                    Felt(200),
+                )
+
+                assertEquals(expectedCalldata, signedTx.calldata)
+
+                val signedEmptyTx = account.signV1(listOf(), params)
+
+                assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
+            }
         }
 
-        @Test
-        fun `execute v1 single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+        @Nested
+        inner class DeployAccountEstimateTest {
+            @Test
+            fun `estimate fee for deploy account v1 transaction`() {
+                val privateKey = Felt(11112)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-            val result = account.executeV1(call).send()
+                val salt = Felt.ONE
+                val calldata = listOf(publicKey)
+                val address = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                val account = StandardAccount(
+                    address,
+                    privateKey,
+                    provider,
+                    chainId,
+                )
+                val payloadForFeeEstimation = account.signDeployAccountV1(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    maxFee = Felt.ZERO,
+                    nonce = Felt.ZERO,
+                    forFeeEstimate = true,
+                )
+                assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
-            assertTrue(receipt.isAccepted)
+                val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+                assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
+            }
+
+            @Test
+            fun `estimate fee for deploy account v3 transaction`() {
+                val privateKey = Felt(22223)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+                val salt = Felt(2)
+                val calldata = listOf(publicKey)
+                val address = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
+                val account = StandardAccount(
+                    address,
+                    privateKey,
+                    provider,
+                    chainId,
+                )
+                val params = DeployAccountParamsV3(
+                    nonce = Felt.ZERO,
+                    l1ResourceBounds = ResourceBounds.ZERO,
+                )
+                val payloadForFeeEstimation = account.signDeployAccountV3(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    params = params,
+                    forFeeEstimate = true,
+                )
+
+                assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
+
+                val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+                assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
+            }
         }
 
-        @Test
-        fun `execute v3 single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+        @Nested
+        inner class DeployAccountTest {
+            @Test
+            fun `sign and send deploy account v1 transaction`() {
+                val privateKey = Felt(11111)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-            val result = account.executeV3(call).send()
+                val salt = Felt.ONE
+                val calldata = listOf(publicKey)
+                val address = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
+                devnetClient.prefundAccountEth(address)
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                val account = StandardAccount(
+                    address,
+                    privateKey,
+                    provider,
+                    chainId,
+                )
+                val payload = account.signDeployAccountV1(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    // 10*fee from estimate deploy account fee
+                    maxFee = Felt.fromHex("0x11fcc58c7f7000"),
+                )
 
-            assertTrue(receipt.isAccepted)
-        }
+                val response = provider.deployAccount(payload).send()
 
-        @Test
-        fun `execute v1 single call with specific fee estimate multiplier`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+                // Make sure the address matches the calculated one
+                assertEquals(address, response.address)
 
-            val result = account.executeV1(call, estimateFeeMultiplier = 1.59).send()
+                // Make sure tx matches what we sent
+                val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
+                assertEquals(payload.classHash, tx.classHash)
+                assertEquals(payload.salt, tx.contractAddressSalt)
+                assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+                assertEquals(payload.version, tx.version)
+                assertEquals(payload.nonce, tx.nonce)
+                assertEquals(payload.maxFee, tx.maxFee)
+                assertEquals(payload.signature, tx.signature)
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                // Invoke function to make sure the account was deployed properly
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+                val result = account.executeV1(call).send()
 
-            assertTrue(receipt.isAccepted)
-        }
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
-        @Test
-        fun `execute v3 single call with specific fee estimate multiplier`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
+                assertTrue(receipt.isAccepted)
+            }
 
-            val result = account.executeV3(
-                call,
-                estimateAmountMultiplier = 1.59,
-                estimateUnitPriceMultiplier = 1.39,
-            ).send()
+            @Test
+            fun `sign and send deploy account v3 transaction`() {
+                val privateKey = Felt(22222)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+                val salt = Felt(2)
+                val calldata = listOf(publicKey)
+                val address = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
 
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `execute v1 single call with specific fee`() {
-            // Note to future developers experiencing failures in this test:
-            // This transaction may fail if the fee is too low.
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val maxFee = Felt(10000000000000000L)
-            val result = account.executeV1(call, maxFee).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-            assertNotEquals(Felt.ZERO, receipt.actualFee)
-        }
-
-        @Test
-        fun `execute v3 single call with specific resource bounds`() {
-            // Note to future developers experiencing failures in this test:
-            // This transaction may fail if resource bounds are too low.
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
-            )
-            val result = account.executeV3(call, l1ResourceBounds).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-            assertNotEquals(Felt.ZERO, receipt.actualFee)
-        }
-
-        @Test
-        fun `sign v1 multiple calls test`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val params = ExecutionParams(
-                maxFee = Felt(1000000000000000),
-                nonce = account.getNonce().send(),
-            )
-
-            val payload = account.signV1(listOf(call, call, call), params)
-            val response = provider.invokeFunction(payload).send()
-
-            val receipt = provider.getTransactionReceipt(response.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `sign v3 multiple calls test`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val params = InvokeParamsV3(
-                nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
+                val newAccount = StandardAccount(
+                    address,
+                    privateKey,
+                    provider,
+                    chainId,
+                )
+                val l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
-                ),
-            )
+                )
+                val params = DeployAccountParamsV3(
+                    nonce = Felt.ZERO,
+                    l1ResourceBounds = l1ResourceBounds,
+                )
 
-            val payload = account.signV3(listOf(call, call, call), params)
-            val response = provider.invokeFunction(payload).send()
+                // Prefund the new account address with STRK
+                devnetClient.prefundAccountStrk(address)
 
-            val receipt = provider.getTransactionReceipt(response.transactionHash).send()
+                val payload = newAccount.signDeployAccountV3(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    params = params,
+                    forFeeEstimate = false,
+                )
 
-            assertTrue(receipt.isAccepted)
+                val response = provider.deployAccount(payload).send()
+
+                // Make sure the address matches the calculated one
+                assertEquals(address, response.address)
+
+                // Make sure tx matches what we sent
+                val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+                assertEquals(payload.classHash, tx.classHash)
+                assertEquals(payload.salt, tx.contractAddressSalt)
+                assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+                assertEquals(payload.version, tx.version)
+                assertEquals(payload.nonce, tx.nonce)
+                assertEquals(payload.signature, tx.signature)
+
+                // Invoke function to make sure the account was deployed properly
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+                val result = newAccount.executeV3(call).send()
+
+                val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+                assertTrue(receipt.isAccepted)
+            }
         }
 
         @Test
-        fun `execute v1 multiple calls`() {
-            val call1 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val call2 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val result = account.executeV1(listOf(call1, call2)).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `execute v3 multiple calls`() {
-            val call1 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val call2 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val result = account.executeV3(listOf(call1, call2)).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `two executes v1 with single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val result = account.executeV1(call).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-            assertTrue(receipt.isAccepted)
-
-            val call2 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(20)),
-            )
-
-            val result2 = account.executeV1(call2).send()
-
-            val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
-            assertTrue(receipt2.isAccepted)
-        }
-
-        @Test
-        fun `two executes v3 with single call`() {
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10)),
-            )
-
-            val result = account.executeV3(call).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-            assertTrue(receipt.isAccepted)
-
-            val call2 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(20)),
-            )
-
-            val result2 = account.executeV3(call2).send()
-
-            val receipt2 = provider.getTransactionReceipt(result2.transactionHash).send()
-            assertTrue(receipt2.isAccepted)
-        }
-
-        @Test
-        fun `cairo1 account calldata`() {
-            val call1 = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(10), Felt(20), Felt(30)),
-            )
-
-            val call2 = Call(
-                contractAddress = Felt(999),
-                entrypoint = "empty_calldata",
-                calldata = listOf(),
-            )
-
-            val call3 = Call(
-                contractAddress = Felt(123),
-                entrypoint = "another_method",
-                calldata = listOf(Felt(100), Felt(200)),
-            )
-
-            val account = StandardAccount(
-                address = devnetAccountAddress,
-                signer = signer,
-                provider = provider,
-                chainId = chainId,
-            )
-            val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
-            val signedTx = account.signV1(listOf(call1, call2, call3), params)
-
-            val expectedCalldata = listOf(
-                Felt(3),
-                balanceContractAddress,
-                selectorFromName("increase_balance"),
-                Felt(3),
-                Felt(10),
-                Felt(20),
-                Felt(30),
-                Felt(999),
-                selectorFromName("empty_calldata"),
-                Felt(0),
-                Felt(123),
-                selectorFromName("another_method"),
-                Felt(2),
-                Felt(100),
-                Felt(200),
-            )
-
-            assertEquals(expectedCalldata, signedTx.calldata)
-
-            val signedEmptyTx = account.signV1(listOf(), params)
-
-            assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
-        }
-    }
-
-    @Nested
-    inner class DeployAccountEstimateTest {
-        @Test
-        fun `estimate fee for deploy account v1 transaction`() {
-            val privateKey = Felt(11112)
+        fun `send transaction signed for fee estimation`() {
+            val privateKey = Felt(11111)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
             val salt = Felt.ONE
@@ -846,409 +1061,222 @@ class StandardAccountTest {
                 salt = salt,
                 calldata = calldata,
                 maxFee = Felt.ZERO,
-                nonce = Felt.ZERO,
+                nonce = Felt.ONE,
                 forFeeEstimate = true,
             )
             assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
-            val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-            assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
+            assertThrows(RequestFailedException::class.java) {
+                provider.deployAccount(payloadForFeeEstimation).send()
+            }
         }
 
-        @Test
-        fun `estimate fee for deploy account v3 transaction`() {
-            val privateKey = Felt(22223)
-            val publicKey = StarknetCurve.getPublicKey(privateKey)
+        @Nested
+        inner class SimulateTransactionsTest {
+            @Test
+            fun `simulate invoke v1 and deploy account v1 transactions`() {
+                val account = StandardAccount(accountAddress, signer, provider, chainId)
+                devnetClient.prefundAccountEth(accountAddress)
 
-            val salt = Felt(2)
-            val calldata = listOf(publicKey)
-            val address = ContractAddressCalculator.calculateAddressFromHash(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-            )
-            val account = StandardAccount(
-                address,
-                privateKey,
-                provider,
-                chainId,
-            )
-            val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
-                l1ResourceBounds = ResourceBounds.ZERO,
-            )
-            val payloadForFeeEstimation = account.signDeployAccountV3(
-                classHash = accountContractClassHash,
-                salt = salt,
-                calldata = calldata,
-                params = params,
-                forFeeEstimate = true,
-            )
+                val nonce = account.getNonce().send()
+                val call = Call(
+                    contractAddress = balanceContractAddress,
+                    entrypoint = "increase_balance",
+                    calldata = listOf(Felt(1000)),
+                )
+                val params = ExecutionParams(nonce, Felt(5_482_000_000_000_00))
 
-            assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
+                val invokeTx = account.signV1(call, params)
 
-            val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-            assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
-        }
-    }
+                val privateKey = Felt(22222)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
+                val salt = Felt.ONE
+                val calldata = listOf(publicKey)
 
-    @Nested
-    inner class DeployAccountTest {
-        @Test
-        fun `sign and send deploy account v1 transaction`() {
-            val privateKey = Felt(11111)
-            val publicKey = StarknetCurve.getPublicKey(privateKey)
+                val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
+                val newAccount = StandardAccount(
+                    newAccountAddress,
+                    privateKey,
+                    provider,
+                    chainId,
+                )
+                devnetClient.prefundAccountEth(newAccountAddress)
+                val deployAccountTx = newAccount.signDeployAccountV1(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    maxFee = Felt(4_482_000_000_000_00),
+                )
 
-            val salt = Felt.ONE
-            val calldata = listOf(publicKey)
-            val address = ContractAddressCalculator.calculateAddressFromHash(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-            )
-            devnetClient.prefundAccountEth(address)
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = provider.simulateTransactions(
+                    transactions = listOf(invokeTx, deployAccountTx),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+                assertEquals(2, simulationResult.values.size)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
+                assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
 
-            val account = StandardAccount(
-                address,
-                privateKey,
-                provider,
-                chainId,
-            )
-            val payload = account.signDeployAccountV1(
-                classHash = accountContractClassHash,
-                salt = salt,
-                calldata = calldata,
-                // 10*fee from estimate deploy account fee
-                maxFee = Felt.fromHex("0x11fcc58c7f7000"),
-            )
+                val invokeTxWithoutSignature = invokeTx.copy(signature = emptyList())
+                val deployAccountTxWithoutSignature = deployAccountTx.copy(signature = emptyList())
 
-            val response = provider.deployAccount(payload).send()
+                val simulationFlags2 = setOf(SimulationFlag.SKIP_VALIDATE)
+                val simulationResult2 = provider.simulateTransactions(
+                    transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags2,
+                ).send()
 
-            // Make sure the address matches the calculated one
-            assertEquals(address, response.address)
+                assertEquals(2, simulationResult2.values.size)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
+                assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
+            }
 
-            // Make sure tx matches what we sent
-            val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
-            assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
-            assertEquals(payload.constructorCalldata, tx.constructorCalldata)
-            assertEquals(payload.version, tx.version)
-            assertEquals(payload.nonce, tx.nonce)
-            assertEquals(payload.maxFee, tx.maxFee)
-            assertEquals(payload.signature, tx.signature)
+            @Test
+            fun `simulate invoke v3 and deploy account v3 transactions`() {
+                val account = StandardAccount(accountAddress, signer, provider, chainId)
+                devnetClient.prefundAccountStrk(accountAddress)
 
-            // Invoke function to make sure the account was deployed properly
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-            val result = account.executeV1(call).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-
-        @Test
-        fun `sign and send deploy account v3 transaction`() {
-            val privateKey = Felt(22222)
-            val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-            val salt = Felt(2)
-            val calldata = listOf(publicKey)
-            val address = ContractAddressCalculator.calculateAddressFromHash(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-            )
-
-            val newAccount = StandardAccount(
-                address,
-                privateKey,
-                provider,
-                chainId,
-            )
-            val l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
-            )
-            val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
-                l1ResourceBounds = l1ResourceBounds,
-            )
-
-            // Prefund the new account address with STRK
-            devnetClient.prefundAccountStrk(address)
-
-            val payload = newAccount.signDeployAccountV3(
-                classHash = accountContractClassHash,
-                salt = salt,
-                calldata = calldata,
-                params = params,
-                forFeeEstimate = false,
-            )
-
-            val response = provider.deployAccount(payload).send()
-
-            // Make sure the address matches the calculated one
-            assertEquals(address, response.address)
-
-            // Make sure tx matches what we sent
-            val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
-            assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
-            assertEquals(payload.constructorCalldata, tx.constructorCalldata)
-            assertEquals(payload.version, tx.version)
-            assertEquals(payload.nonce, tx.nonce)
-            assertEquals(payload.signature, tx.signature)
-
-            // Invoke function to make sure the account was deployed properly
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-            val result = newAccount.executeV3(call).send()
-
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-            assertTrue(receipt.isAccepted)
-        }
-    }
-
-    @Test
-    fun `send transaction signed for fee estimation`() {
-        val privateKey = Felt(11111)
-        val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-        val salt = Felt.ONE
-        val calldata = listOf(publicKey)
-        val address = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = accountContractClassHash,
-            calldata = calldata,
-            salt = salt,
-        )
-
-        val account = StandardAccount(
-            address,
-            privateKey,
-            provider,
-            chainId,
-        )
-        val payloadForFeeEstimation = account.signDeployAccountV1(
-            classHash = accountContractClassHash,
-            salt = salt,
-            calldata = calldata,
-            maxFee = Felt.ZERO,
-            nonce = Felt.ONE,
-            forFeeEstimate = true,
-        )
-        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
-
-        assertThrows(RequestFailedException::class.java) {
-            provider.deployAccount(payloadForFeeEstimation).send()
-        }
-    }
-
-    @Nested
-    inner class SimulateTransactionsTest {
-        @Test
-        fun `simulate invoke v1 and deploy account v1 transactions`() {
-            val account = StandardAccount(accountAddress, signer, provider, chainId)
-            devnetClient.prefundAccountEth(accountAddress)
-
-            val nonce = account.getNonce().send()
-            val call = Call(
-                contractAddress = balanceContractAddress,
-                entrypoint = "increase_balance",
-                calldata = listOf(Felt(1000)),
-            )
-            val params = ExecutionParams(nonce, Felt(5_482_000_000_000_00))
-
-            val invokeTx = account.signV1(call, params)
-
-            val privateKey = Felt(22222)
-            val publicKey = StarknetCurve.getPublicKey(privateKey)
-            val salt = Felt.ONE
-            val calldata = listOf(publicKey)
-
-            val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-            )
-            val newAccount = StandardAccount(
-                newAccountAddress,
-                privateKey,
-                provider,
-                chainId,
-            )
-            devnetClient.prefundAccountEth(newAccountAddress)
-            val deployAccountTx = newAccount.signDeployAccountV1(
-                classHash = accountContractClassHash,
-                salt = salt,
-                calldata = calldata,
-                maxFee = Felt(4_482_000_000_000_00),
-            )
-
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = provider.simulateTransactions(
-                transactions = listOf(invokeTx, deployAccountTx),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-            assertEquals(2, simulationResult.values.size)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
-            assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
-
-            val invokeTxWithoutSignature = invokeTx.copy(signature = emptyList())
-            val deployAccountTxWithoutSignature = deployAccountTx.copy(signature = emptyList())
-
-            val simulationFlags2 = setOf(SimulationFlag.SKIP_VALIDATE)
-            val simulationResult2 = provider.simulateTransactions(
-                transactions = listOf(invokeTxWithoutSignature, deployAccountTxWithoutSignature),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags2,
-            ).send()
-
-            assertEquals(2, simulationResult2.values.size)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
-            assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
-        }
-
-        @Test
-        fun `simulate invoke v3 and deploy account v3 transactions`() {
-            val account = StandardAccount(accountAddress, signer, provider, chainId)
-            devnetClient.prefundAccountStrk(accountAddress)
-
-            val nonce = account.getNonce().send()
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-            val params = InvokeParamsV3(
-                nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-            )
-
-            val invokeTx = account.signV3(call, params)
-
-            val privateKey = Felt(22222)
-            val publicKey = StarknetCurve.getPublicKey(privateKey)
-            val salt = Felt.ONE
-            val calldata = listOf(publicKey)
-
-            val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-            )
-            val newAccount = StandardAccount(newAccountAddress, privateKey, provider, chainId)
-
-            devnetClient.prefundAccountStrk(newAccountAddress)
-            val deployAccountTx = newAccount.signDeployAccountV3(
-                classHash = accountContractClassHash,
-                salt = salt,
-                calldata = calldata,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-            )
-
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = provider.simulateTransactions(
-                transactions = listOf(invokeTx, deployAccountTx),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-            assertEquals(2, simulationResult.values.size)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
-            assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
-            assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
-        }
-
-        @Test
-        fun `simulate declare v2 transaction`() {
-            devnetClient.prefundAccountEth(accountAddress)
-
-            ScarbClient.buildSaltedContract(
-                placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
-                saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
-            )
-            val contractCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
-                    .readText()
-
-            val contractDefinition = Cairo1ContractDefinition(contractCode)
-            val casmContractDefinition = CasmContractDefinition(casmCode)
-
-            val nonce = account.getNonce().send()
-            val declareTransactionPayload = account.signDeclareV2(
-                contractDefinition,
-                casmContractDefinition,
-                ExecutionParams(
-                    nonce = nonce,
-                    maxFee = Felt(3000000000000000),
-                ),
-            )
-
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = provider.simulateTransactions(
-                transactions = listOf(declareTransactionPayload),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-            assertEquals(1, simulationResult.values.size)
-            val trace = simulationResult.values.first().transactionTrace
-            assertTrue(trace is DeclareTransactionTrace)
-        }
-
-        @Test
-        fun `simulate declare v3 transaction`() {
-            devnetClient.prefundAccountStrk(accountAddress)
-
-            ScarbClient.buildSaltedContract(
-                placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
-                saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
-            )
-            val contractCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
-                    .readText()
-            val casmCode =
-                Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
-                    .readText()
-
-            val contractDefinition = Cairo1ContractDefinition(contractCode)
-            val casmContractDefinition = CasmContractDefinition(casmCode)
-
-            val nonce = account.getNonce().send()
-            val declareTransactionPayload = account.signDeclareV3(
-                contractDefinition,
-                casmContractDefinition,
-                DeclareParamsV3(
+                val nonce = account.getNonce().send()
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+                val params = InvokeParamsV3(
                     nonce = nonce,
                     l1ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(100000),
-                        maxPricePerUnit = Uint128(1000000000000),
+                        maxAmount = Uint64(20000),
+                        maxPricePerUnit = Uint128(120000000000),
                     ),
-                ),
-            )
+                )
 
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = provider.simulateTransactions(
-                transactions = listOf(declareTransactionPayload),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-            assertEquals(1, simulationResult.values.size)
-            val trace = simulationResult.values.first().transactionTrace
-            assertTrue(trace is DeclareTransactionTrace)
-        }
+                val invokeTx = account.signV3(call, params)
 
-        // TODO: replace this with a proper devnet test
-        // Legacy devnet never returns invoke transaction trace that has revert_reason field in execution_invocation.
-        @Test
-        fun `simulate reverted invoke transaction`() {
-            val mockedResponse = """
+                val privateKey = Felt(22222)
+                val publicKey = StarknetCurve.getPublicKey(privateKey)
+                val salt = Felt.ONE
+                val calldata = listOf(publicKey)
+
+                val newAccountAddress = ContractAddressCalculator.calculateAddressFromHash(
+                    classHash = accountContractClassHash,
+                    calldata = calldata,
+                    salt = salt,
+                )
+                val newAccount = StandardAccount(newAccountAddress, privateKey, provider, chainId)
+
+                devnetClient.prefundAccountStrk(newAccountAddress)
+                val deployAccountTx = newAccount.signDeployAccountV3(
+                    classHash = accountContractClassHash,
+                    salt = salt,
+                    calldata = calldata,
+                    l1ResourceBounds = ResourceBounds(
+                        maxAmount = Uint64(20000),
+                        maxPricePerUnit = Uint128(120000000000),
+                    ),
+                )
+
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = provider.simulateTransactions(
+                    transactions = listOf(invokeTx, deployAccountTx),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+                assertEquals(2, simulationResult.values.size)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTraceBase)
+                assertTrue(simulationResult.values[0].transactionTrace is InvokeTransactionTrace)
+                assertTrue(simulationResult.values[1].transactionTrace is DeployAccountTransactionTrace)
+            }
+
+            @Test
+            fun `simulate declare v2 transaction`() {
+                devnetClient.prefundAccountEth(accountAddress)
+
+                ScarbClient.buildSaltedContract(
+                    placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+                    saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+                )
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo1ContractDefinition(contractCode)
+                val casmContractDefinition = CasmContractDefinition(casmCode)
+
+                val nonce = account.getNonce().send()
+                val declareTransactionPayload = account.signDeclareV2(
+                    contractDefinition,
+                    casmContractDefinition,
+                    ExecutionParams(
+                        nonce = nonce,
+                        maxFee = Felt(3000000000000000),
+                    ),
+                )
+
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = provider.simulateTransactions(
+                    transactions = listOf(declareTransactionPayload),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+                assertEquals(1, simulationResult.values.size)
+                val trace = simulationResult.values.first().transactionTrace
+                assertTrue(trace is DeclareTransactionTrace)
+            }
+
+            @Test
+            fun `simulate declare v3 transaction`() {
+                devnetClient.prefundAccountStrk(accountAddress)
+
+                ScarbClient.buildSaltedContract(
+                    placeholderContractPath = Path.of("src/test/resources/contracts_v1/src/placeholder_hello_starknet.cairo"),
+                    saltedContractPath = Path.of("src/test/resources/contracts_v1/src/salted_hello_starknet.cairo"),
+                )
+                val contractCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.sierra.json")
+                        .readText()
+                val casmCode =
+                    Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_SaltedHelloStarknet.casm.json")
+                        .readText()
+
+                val contractDefinition = Cairo1ContractDefinition(contractCode)
+                val casmContractDefinition = CasmContractDefinition(casmCode)
+
+                val nonce = account.getNonce().send()
+                val declareTransactionPayload = account.signDeclareV3(
+                    contractDefinition,
+                    casmContractDefinition,
+                    DeclareParamsV3(
+                        nonce = nonce,
+                        l1ResourceBounds = ResourceBounds(
+                            maxAmount = Uint64(100000),
+                            maxPricePerUnit = Uint128(1000000000000),
+                        ),
+                    ),
+                )
+
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = provider.simulateTransactions(
+                    transactions = listOf(declareTransactionPayload),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+                assertEquals(1, simulationResult.values.size)
+                val trace = simulationResult.values.first().transactionTrace
+                assertTrue(trace is DeclareTransactionTrace)
+            }
+
+            // TODO: replace this with a proper devnet test
+            // Legacy devnet never returns invoke transaction trace that has revert_reason field in execution_invocation.
+            @Test
+            fun `simulate reverted invoke transaction`() {
+                val mockedResponse = """
             {
                 "jsonrpc": "2.0",
                 "id": 0,
@@ -1278,35 +1306,35 @@ class StandardAccountTest {
                 ]
             }
             """.trimIndent()
-            val httpService = mock<HttpService> {
-                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+                val httpService = mock<HttpService> {
+                    on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+                }
+                val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+
+                val nonce = account.getNonce().send()
+                val maxFee = Felt(1)
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+                val params = ExecutionParams(nonce, maxFee)
+                val invokeTx = account.signV1(call, params)
+
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = mockProvider.simulateTransactions(
+                    transactions = listOf(invokeTx),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+
+                val trace = simulationResult.values.first().transactionTrace
+                assertTrue(trace is InvokeTransactionTraceBase)
+                assertTrue(trace is RevertedInvokeTransactionTrace)
+                val revertedTrace = trace as RevertedInvokeTransactionTrace
+                assertNotNull(revertedTrace.executeInvocation)
+                assertNotNull(revertedTrace.executeInvocation.revertReason)
             }
-            val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
 
-            val nonce = account.getNonce().send()
-            val maxFee = Felt(1)
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-            val params = ExecutionParams(nonce, maxFee)
-            val invokeTx = account.signV1(call, params)
-
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = mockProvider.simulateTransactions(
-                transactions = listOf(invokeTx),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-
-            val trace = simulationResult.values.first().transactionTrace
-            assertTrue(trace is InvokeTransactionTraceBase)
-            assertTrue(trace is RevertedInvokeTransactionTrace)
-            val revertedTrace = trace as RevertedInvokeTransactionTrace
-            assertNotNull(revertedTrace.executeInvocation)
-            assertNotNull(revertedTrace.executeInvocation.revertReason)
-        }
-
-        @Test
-        fun `simulate transaction with messages`() {
-            val mockedResponse = """
+            @Test
+            fun `simulate transaction with messages`() {
+                val mockedResponse = """
             {
                 "jsonrpc": "2.0",
                 "id": 0,
@@ -1402,31 +1430,32 @@ class StandardAccountTest {
                 ]
             }
             """.trimIndent()
-            val httpService = mock<HttpService> {
-                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+                val httpService = mock<HttpService> {
+                    on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+                }
+                val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
+
+                val nonce = account.getNonce().send()
+                val maxFee = Felt(1)
+                val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+                val params = ExecutionParams(nonce, maxFee)
+                val invokeTx = account.signV1(call, params)
+
+                val simulationFlags = setOf<SimulationFlag>()
+                val simulationResult = mockProvider.simulateTransactions(
+                    transactions = listOf(invokeTx),
+                    blockTag = BlockTag.PENDING,
+                    simulationFlags = simulationFlags,
+                ).send()
+
+                val trace = simulationResult.values.first().transactionTrace
+                assertTrue(trace is InvokeTransactionTrace)
+                val invokeTrace = trace as InvokeTransactionTrace
+                val messages = invokeTrace.executeInvocation.messages
+                assertEquals(2, messages.size)
+                assertEquals(0, messages[0].order)
+                assertEquals(1, messages[1].order)
             }
-            val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
-
-            val nonce = account.getNonce().send()
-            val maxFee = Felt(1)
-            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-            val params = ExecutionParams(nonce, maxFee)
-            val invokeTx = account.signV1(call, params)
-
-            val simulationFlags = setOf<SimulationFlag>()
-            val simulationResult = mockProvider.simulateTransactions(
-                transactions = listOf(invokeTx),
-                blockTag = BlockTag.PENDING,
-                simulationFlags = simulationFlags,
-            ).send()
-
-            val trace = simulationResult.values.first().transactionTrace
-            assertTrue(trace is InvokeTransactionTrace)
-            val invokeTrace = trace as InvokeTransactionTrace
-            val messages = invokeTrace.executeInvocation.messages
-            assertEquals(2, messages.size)
-            assertEquals(0, messages[0].order)
-            assertEquals(1, messages[1].order)
         }
     }
 }
