@@ -15,7 +15,6 @@ import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
@@ -56,8 +55,8 @@ class DevnetClient(
     private val stateArchiveCapacity = StateArchiveCapacity.FULL
 
     companion object {
-        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/85495efb71a37ad3921c8986474b7e78a9a9f5fc/crates/starknet/src/constants.rs
-        val accountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
+        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/47ee2a73c227ee356f344ce94e5f61871299be80/crates/starknet-devnet-core/src/constants.rs
+        val accountContractClassHash = Felt.fromHex("0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f")
         val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
         val strkErc20ContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
