@@ -27,32 +27,32 @@ class StandardAccount(
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: CairoVersion
+    private val cairoVersion: CairoVersion,
 ) : Account {
     constructor(
         address: Felt,
         signer: Signer,
         provider: Provider,
-        chainId: StarknetChainId
+        chainId: StarknetChainId,
     ) : this(
         address = address,
         signer = signer,
         provider = provider,
         chainId = chainId,
-        cairoVersion = determineCairoVersion(provider, address)
+        cairoVersion = determineCairoVersion(provider, address),
     )
 
     constructor(
         address: Felt,
         privateKey: Felt,
         provider: Provider,
-        chainId: StarknetChainId
+        chainId: StarknetChainId,
     ) : this(
         address = address,
         signer = StarkCurveSigner(privateKey),
         provider = provider,
         chainId = chainId,
-        cairoVersion = determineCairoVersion(provider, address)
+        cairoVersion = determineCairoVersion(provider, address),
     )
 
     companion object {
