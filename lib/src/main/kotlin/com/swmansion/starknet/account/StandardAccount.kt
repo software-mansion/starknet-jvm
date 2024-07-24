@@ -66,7 +66,7 @@ class StandardAccount @JvmOverloads constructor(
             address: Felt,
             signer: Signer,
             provider: Provider,
-            chainId: StarknetChainId
+            chainId: StarknetChainId,
         ): StandardAccount {
             val cairoVersion = determineCairoVersion(provider, address)
             return StandardAccount(address, signer, provider, chainId, cairoVersion)
@@ -86,7 +86,7 @@ class StandardAccount @JvmOverloads constructor(
             address: Felt,
             privateKey: Felt,
             provider: Provider,
-            chainId: StarknetChainId
+            chainId: StarknetChainId,
         ): StandardAccount {
             val signer = StarkCurveSigner(privateKey)
             val cairoVersion = determineCairoVersion(provider, address)
