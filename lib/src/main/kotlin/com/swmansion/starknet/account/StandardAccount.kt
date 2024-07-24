@@ -29,6 +29,12 @@ class StandardAccount(
     override val chainId: StarknetChainId,
     private val cairoVersion: CairoVersion,
 ) : Account {
+    /**
+     * @param address the address of the account contract
+     * @param signer a signer instance used to sign transactions
+     * @param provider a provider used to interact with Starknet
+     * @param chainId the chain id of the Starknet network
+     */
     constructor(
         address: Felt,
         signer: Signer,
@@ -42,6 +48,13 @@ class StandardAccount(
         cairoVersion = determineCairoVersion(provider, address),
     )
 
+    /**
+     * @param address the address of the account contract
+     * @param privateKey a private key used to create a signer
+     * @param provider a provider used to interact with Starknet
+     * @param chainId the chain id of the Starknet network
+     * @param cairoVersion the version of Cairo language in which account contract is written
+     */
     constructor(
         address: Felt,
         privateKey: Felt,
@@ -56,6 +69,12 @@ class StandardAccount(
         cairoVersion = cairoVersion,
     )
 
+    /**
+     * @param address the address of the account contract
+     * @param privateKey a private key used to create a signer
+     * @param provider a provider used to interact with Starknet
+     * @param chainId the chain id of the Starknet network
+     */
     constructor(
         address: Felt,
         privateKey: Felt,
