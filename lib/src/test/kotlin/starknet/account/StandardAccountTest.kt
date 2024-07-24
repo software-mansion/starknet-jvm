@@ -790,7 +790,7 @@ class StandardAccountTest {
                 signer = signer,
                 provider = provider,
                 chainId = chainId,
-                cairoVersion = CairoVersion.ZERO,
+                cairoVersion = CairoVersion.ONE,
             )
             val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
             val signedTx = account.signV1(listOf(call1, call2, call3), params)
