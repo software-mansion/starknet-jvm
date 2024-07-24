@@ -65,7 +65,7 @@ class StandardAccountTest {
                     signer = signer,
                     provider = provider,
                     chainId = chainId,
-                    cairoVersion = CairoVersion.ZERO,
+                    cairoVersion = CairoVersion.ONE,
                 )
             } catch (ex: Exception) {
                 devnetClient.close()
