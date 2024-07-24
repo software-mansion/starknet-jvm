@@ -39,7 +39,21 @@ class StandardAccount(
         signer = signer,
         provider = provider,
         chainId = chainId,
-        cairoVersion = determineCairoVersion(provider, address),
+        cairoVersion = determineCairoVersion(provider, address)
+    )
+
+    constructor(
+        address: Felt,
+        privateKey: Felt,
+        provider: Provider,
+        chainId: StarknetChainId,
+        cairoVersion: CairoVersion
+    ) : this(
+        address = address,
+        signer = StarkCurveSigner(privateKey),
+        provider = provider,
+        chainId = chainId,
+        cairoVersion = cairoVersion,
     )
 
     constructor(
