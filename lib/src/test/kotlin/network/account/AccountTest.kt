@@ -45,7 +45,6 @@ class AccountTest {
             signer,
             provider,
             chainId,
-            cairoVersion,
         )
 
         // Note to future developers:
@@ -56,7 +55,6 @@ class AccountTest {
             constNonceSigner,
             provider,
             chainId,
-            cairoVersion,
         )
 
         private val predeclaredAccount = when (network) {
@@ -375,7 +373,6 @@ class AccountTest {
             privateKey,
             provider,
             chainId,
-            cairoVersion,
         )
 
         val payloadForFeeEstimation = account.signDeployAccountV1(
@@ -459,7 +456,6 @@ class AccountTest {
             privateKey,
             provider,
             chainId,
-            cairoVersion,
         )
 
         val deployMaxFee = Uint256(5523000060522)
@@ -535,7 +531,6 @@ class AccountTest {
             privateKey,
             provider,
             chainId,
-            cairoVersion,
         )
         val payloadForFeeEstimate = deployedAccount.signDeployAccountV3(
             classHash = classHash,
@@ -680,7 +675,7 @@ class AccountTest {
         val calldata = listOf(publicKey)
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
 
-        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, chainId, cairoVersion)
+        val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, chainId)
         val deployAccountTx = deployedAccount.signDeployAccountV1(
             classHash = classHash,
             salt = salt,
