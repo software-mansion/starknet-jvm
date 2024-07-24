@@ -86,6 +86,16 @@ class StandardAccountTest {
         StandardAccount(Felt.ZERO, privateKey, provider, chainId)
     }
 
+    @Test
+    fun `creating account with automatic Cairo version determination`() {
+        StandardAccount.create(
+            address = accountAddress,
+            privateKey = Felt(1234),
+            provider = provider,
+            chainId = chainId,
+        )
+    }
+
     @Nested
     inner class NonceTest {
         @Test
