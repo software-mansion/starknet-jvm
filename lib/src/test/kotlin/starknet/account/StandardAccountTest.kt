@@ -48,7 +48,6 @@ class StandardAccountTest {
 
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
-        private lateinit var legacyAccount: Account
 
         @JvmStatic
         @BeforeAll
@@ -69,13 +68,6 @@ class StandardAccountTest {
                     signer = signer,
                     provider = provider,
                     chainId = chainId,
-                )
-                legacyAccount = StandardAccount(
-                    address = legacyAccountAddress,
-                    signer = signer,
-                    provider = provider,
-                    chainId = chainId,
-                    cairoVersion = CairoVersion.ZERO,
                 )
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -103,10 +95,15 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
             calldata = listOf(Felt(10), Felt(20), Felt(30)),
         )
-
+        val account = StandardAccount.create(
+            address = legacyAccountAddress,
+            signer = signer,
+            provider = provider,
+            chainId = chainId,
+        )
         val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
 
-        val signedTx = legacyAccount.signV1(call, params)
+        val signedTx = account.signV1(call, params)
 
         val expectedCalldata = listOf(
             Felt(1),
@@ -121,7 +118,7 @@ class StandardAccountTest {
         )
         assertEquals(expectedCalldata, signedTx.calldata)
 
-        val signedEmptyTx = legacyAccount.signV1(listOf(), params)
+        val signedEmptyTx = account.signV1(listOf(), params)
         assertEquals(listOf(Felt.ZERO, Felt.ZERO), signedEmptyTx.calldata)
     }
 
