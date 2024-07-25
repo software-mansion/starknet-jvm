@@ -99,11 +99,7 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun signV1(
-        calls: List<Call>,
-        params: ExecutionParams,
-        forFeeEstimate: Boolean,
-    ): InvokeTransactionV1Payload {
+    override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV1(
             senderAddress = address,
