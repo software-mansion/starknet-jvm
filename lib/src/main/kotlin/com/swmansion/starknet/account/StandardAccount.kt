@@ -59,7 +59,7 @@ class StandardAccount @JvmOverloads constructor(
          * @param signer a signer instance used to sign transactions
          * @param provider a provider used to interact with Starknet
          * @param chainId the chain id of the Starknet network
-         * @return a StandardAccount instance with determined Cairo version
+         * @return a StandardAccount instance with detected Cairo version
          */
         @JvmStatic
         fun create(
@@ -68,7 +68,7 @@ class StandardAccount @JvmOverloads constructor(
             provider: Provider,
             chainId: StarknetChainId,
         ): StandardAccount {
-            val cairoVersion = determineCairoVersion(provider, address)
+            val cairoVersion = detectCairoVersion(provider, address)
             return StandardAccount(address, signer, provider, chainId, cairoVersion)
         }
 
@@ -79,7 +79,7 @@ class StandardAccount @JvmOverloads constructor(
          * @param privateKey a private key used to create a signer
          * @param provider a provider used to interact with Starknet
          * @param chainId the chain id of the Starknet network
-         * @return a StandardAccount instance with determined Cairo version
+         * @return a StandardAccount instance with detected Cairo version
          */
         @JvmStatic
         fun create(
@@ -89,11 +89,11 @@ class StandardAccount @JvmOverloads constructor(
             chainId: StarknetChainId,
         ): StandardAccount {
             val signer = StarkCurveSigner(privateKey)
-            val cairoVersion = determineCairoVersion(provider, address)
+            val cairoVersion = detectCairoVersion(provider, address)
             return StandardAccount(address, signer, provider, chainId, cairoVersion)
         }
 
-        private fun determineCairoVersion(provider: Provider, address: Felt): CairoVersion {
+        private fun detectCairoVersion(provider: Provider, address: Felt): CairoVersion {
             val contract = provider.getClassAt(address).send()
             return if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
         }
