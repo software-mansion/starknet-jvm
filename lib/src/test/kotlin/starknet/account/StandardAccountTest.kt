@@ -39,14 +39,16 @@ class StandardAccountTest {
         private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
 
-        private val accountContractClassHash = DevnetClient.accountContractClassHashCairo1
+        private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
+        private lateinit var legacyAccountAddress: Felt
         private lateinit var balanceContractAddress: Felt
 
         private lateinit var signer: Signer
 
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
+        private lateinit var legacyAccount: Account
 
         @JvmStatic
         @BeforeAll
@@ -55,8 +57,10 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 val accountDetails = devnetClient.createDeployAccount().details
+                val legacyAccountDetails = devnetClient.createDeployAccount(classHash = DevnetClient.legacyAccountContractClassHash, accountName = "legacy_account").details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
+                legacyAccountAddress = legacyAccountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
                 chainId = provider.getChainId().send()
@@ -65,6 +69,13 @@ class StandardAccountTest {
                     signer = signer,
                     provider = provider,
                     chainId = chainId,
+                )
+                legacyAccount = StandardAccount(
+                    address = legacyAccountAddress,
+                    signer = signer,
+                    provider = provider,
+                    chainId = chainId,
+                    cairoVersion = CairoVersion.ZERO,
                 )
             } catch (ex: Exception) {
                 devnetClient.close()
@@ -92,19 +103,10 @@ class StandardAccountTest {
             entrypoint = "increase_balance",
             calldata = listOf(Felt(10), Felt(20), Felt(30)),
         )
-        val accountDetailsCairo0 = devnetClient.createDeployAccount(classHash = DevnetClient.accountContractClassHashCairo0, accountName = "cairo0_account").details
-        val accountAddressCairo0 = accountDetailsCairo0.address
-        val signerCairo0 = StarkCurveSigner(accountDetailsCairo0.privateKey)
 
-        val accountCairo0 = StandardAccount.create(
-            address = accountAddressCairo0,
-            signer = signerCairo0,
-            provider = provider,
-            chainId = chainId,
-        )
         val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
 
-        val signedTx = accountCairo0.signV1(call, params)
+        val signedTx = legacyAccount.signV1(call, params)
 
         val expectedCalldata = listOf(
             Felt(1),
@@ -119,7 +121,7 @@ class StandardAccountTest {
         )
         assertEquals(expectedCalldata, signedTx.calldata)
 
-        val signedEmptyTx = accountCairo0.signV1(listOf(), params)
+        val signedEmptyTx = legacyAccount.signV1(listOf(), params)
         assertEquals(listOf(Felt.ZERO, Felt.ZERO), signedEmptyTx.calldata)
     }
 
