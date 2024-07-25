@@ -86,7 +86,7 @@ class StandardAccountTest {
     }
 
     @Test
-    fun `creating cairo 0 account with automatic version determination`() {
+    fun `cairo 0 account with automatic version detection`() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "increase_balance",
