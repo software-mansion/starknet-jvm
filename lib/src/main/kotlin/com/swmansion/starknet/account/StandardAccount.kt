@@ -20,35 +20,86 @@ import java.util.concurrent.CompletableFuture
  * @param address the address of the account contract
  * @param signer a signer instance used to sign transactions
  * @param chainId the chain id of the Starknet network
+ * @param cairoVersion the version of Cairo language in which account contract is written
  */
-class StandardAccount(
+class StandardAccount @JvmOverloads constructor(
     override val address: Felt,
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
+    private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
     /**
-     * @param provider a provider used to interact with Starknet
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
+     * @param provider a provider used to interact with Starknet
      * @param chainId the chain id of the Starknet network
+     * @param cairoVersion the version of Cairo language in which account contract is written
      */
-    constructor(address: Felt, privateKey: Felt, provider: Provider, chainId: StarknetChainId) : this(
+    @JvmOverloads
+    constructor(
+        address: Felt,
+        privateKey: Felt,
+        provider: Provider,
+        chainId: StarknetChainId,
+        cairoVersion: CairoVersion = CairoVersion.ONE,
+    ) : this(
         address = address,
         signer = StarkCurveSigner(privateKey),
         provider = provider,
         chainId = chainId,
+        cairoVersion = cairoVersion,
     )
-    private lateinit var cairoVersion: CairoVersion
 
-    private fun ensureCairoVersion() {
-        if (::cairoVersion.isInitialized) return
-        val contract = provider.getClassAt(address).send()
-        cairoVersion = if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
+    companion object {
+        /**
+         * Factory method to create a StandardAccount instance with automatic Cairo version determination.
+         *
+         * @param address the address of the account contract
+         * @param signer a signer instance used to sign transactions
+         * @param provider a provider used to interact with Starknet
+         * @param chainId the chain id of the Starknet network
+         * @return a StandardAccount instance with detected Cairo version
+         */
+        @JvmStatic
+        fun create(
+            address: Felt,
+            signer: Signer,
+            provider: Provider,
+            chainId: StarknetChainId,
+        ): StandardAccount {
+            val cairoVersion = detectCairoVersion(provider, address)
+            return StandardAccount(address, signer, provider, chainId, cairoVersion)
+        }
+
+        /**
+         * Factory method to create a StandardAccount instance with a private key and automatic Cairo version determination.
+         *
+         * @param address the address of the account contract
+         * @param privateKey a private key used to create a signer
+         * @param provider a provider used to interact with Starknet
+         * @param chainId the chain id of the Starknet network
+         * @return a StandardAccount instance with detected Cairo version
+         */
+        @JvmStatic
+        fun create(
+            address: Felt,
+            privateKey: Felt,
+            provider: Provider,
+            chainId: StarknetChainId,
+        ): StandardAccount {
+            val signer = StarkCurveSigner(privateKey)
+            val cairoVersion = detectCairoVersion(provider, address)
+            return StandardAccount(address, signer, provider, chainId, cairoVersion)
+        }
+
+        private fun detectCairoVersion(provider: Provider, address: Felt): CairoVersion {
+            val contract = provider.getClassAt(address).send()
+            return if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
+        }
     }
 
     override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
-        ensureCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV1(
             senderAddress = address,
@@ -65,7 +116,6 @@ class StandardAccount(
     }
 
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
-        ensureCairoVersion()
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV3(
             senderAddress = address,

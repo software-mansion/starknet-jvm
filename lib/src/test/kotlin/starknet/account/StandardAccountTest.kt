@@ -41,6 +41,7 @@ class StandardAccountTest {
 
         private val accountContractClassHash = DevnetClient.accountContractClassHash
         private lateinit var accountAddress: Felt
+        private lateinit var legacyAccountAddress: Felt
         private lateinit var balanceContractAddress: Felt
 
         private lateinit var signer: Signer
@@ -55,8 +56,10 @@ class StandardAccountTest {
                 devnetClient.start()
 
                 val accountDetails = devnetClient.createDeployAccount().details
+                val legacyAccountDetails = devnetClient.createDeployAccount(classHash = DevnetClient.legacyAccountContractClassHash, accountName = "legacy_account").details
                 balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
                 accountAddress = accountDetails.address
+                legacyAccountAddress = legacyAccountDetails.address
 
                 signer = StarkCurveSigner(accountDetails.privateKey)
                 chainId = provider.getChainId().send()
@@ -83,6 +86,72 @@ class StandardAccountTest {
     fun `creating account with private key`() {
         val privateKey = Felt(1234)
         StandardAccount(Felt.ZERO, privateKey, provider, chainId)
+    }
+
+    @Test
+    fun `cairo 0 account with automatic version detection`() {
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "increase_balance",
+            calldata = listOf(Felt(10), Felt(20), Felt(30)),
+        )
+        val account = StandardAccount.create(
+            address = legacyAccountAddress,
+            signer = signer,
+            provider = provider,
+            chainId = chainId,
+        )
+        val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
+
+        val signedTx = account.signV1(call, params)
+
+        val expectedCalldata = listOf(
+            Felt(1),
+            balanceContractAddress,
+            selectorFromName("increase_balance"),
+            Felt(0),
+            Felt(3),
+            Felt(3),
+            Felt(10),
+            Felt(20),
+            Felt(30),
+        )
+        assertEquals(expectedCalldata, signedTx.calldata)
+
+        val signedEmptyTx = account.signV1(listOf(), params)
+        assertEquals(listOf(Felt.ZERO, Felt.ZERO), signedEmptyTx.calldata)
+    }
+
+    @Test
+    fun `cairo 1 account with automatic version detection`() {
+        val call = Call(
+            contractAddress = balanceContractAddress,
+            entrypoint = "increase_balance",
+            calldata = listOf(Felt(10), Felt(20), Felt(30)),
+        )
+
+        val account = StandardAccount.create(
+            address = accountAddress,
+            signer = signer,
+            provider = provider,
+            chainId = chainId,
+        )
+        val params = ExecutionParams(Felt.ZERO, Felt.ZERO)
+        val signedTx = account.signV1(call, params)
+
+        val expectedCalldata = listOf(
+            Felt(1),
+            balanceContractAddress,
+            selectorFromName("increase_balance"),
+            Felt(3),
+            Felt(10),
+            Felt(20),
+            Felt(30),
+        )
+        assertEquals(expectedCalldata, signedTx.calldata)
+
+        val signedEmptyTx = account.signV1(listOf(), params)
+        assertEquals(listOf(Felt.ZERO), signedEmptyTx.calldata)
     }
 
     @Nested
