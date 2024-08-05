@@ -7,6 +7,8 @@ import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.extensions.toHex
+import com.swmansion.starknet.extensions.toUint256
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
@@ -86,6 +88,13 @@ class StandardAccountTest {
     fun `creating account with private key`() {
         val privateKey = Felt(1234)
         StandardAccount(Felt.ZERO, privateKey, provider, chainId)
+    }
+
+    @Test
+    fun `generate random private key`() {
+        val randomPrivateKey = StandardAccount.generatePrivateKey()
+        assertTrue(randomPrivateKey.value < Felt.PRIME)
+        assertTrue(randomPrivateKey.hexStringPadded().length == 66)
     }
 
     @Test
