@@ -35,11 +35,22 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     }
 }
 
-tasks.withType<DokkaTask>().configureEach {
+tasks.dokkaHtml {
     moduleName.set("starknet-jvm")
+    outputDirectory.set(file("build/dokka/html"))
     dokkaSourceSets {
         configureEach {
-            includes.from("starknet-jvm.md")
+            includes.from("kotlin-guide.md")
+        }
+    }
+}
+
+tasks.dokkaJavadoc {
+    moduleName.set("starknet-jvm")
+    outputDirectory.set(file("build/dokka/javadoc"))
+    dokkaSourceSets {
+        configureEach {
+            includes.from("java-guide.md")
         }
     }
 }
@@ -61,14 +72,9 @@ tasks.register("generateGuides") {
         println(project.rootDir)
         val kotlinSamplesDir = "${project.projectDir}/src/test/kotlin"
         val javaSamplesDir = "${project.rootDir}/javademo/src/main/java/com/example/javademo"
-        val sourceFile = file("starknet-jvm.md")
-        val kotlinOutputDir = file("build/guides")
-        val javaOutputDir = file("build/guides")
-        val kotlinOutputFile = kotlinOutputDir.resolve("kotlin-guide.md")
-        val javaOutputFile = javaOutputDir.resolve("java-guide.md")
-
-        kotlinOutputDir.mkdirs()
-        javaOutputDir.mkdirs()
+        val sourceFile = file("guide.md")
+        val kotlinOutputFile = project.projectDir.resolve("kotlin-guide.md")
+        val javaOutputFile = project.projectDir.resolve("java-guide.md")
 
         val sourceContent = sourceFile.readText()
 
