@@ -30,6 +30,8 @@ interface Deployer {
      * @param maxFee maximum fee that account will use for the deployment
      *
      * @throws RequestFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV1WithSpecificFee
      */
     fun deployContractV1(
         classHash: Felt,
@@ -49,6 +51,8 @@ interface Deployer {
      * @param l1ResourceBounds L1 resource bounds for the transaction
      *
      * @throws RequestFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithSpecificResourceBounds
      */
     fun deployContractV3(
         classHash: Felt,
@@ -67,6 +71,8 @@ interface Deployer {
      * @param constructorCalldata constructor calldata
      *
      * @throws RequestFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV1
      */
     fun deployContractV1(
         classHash: Felt,
@@ -84,6 +90,8 @@ interface Deployer {
      * @param constructorCalldata constructor calldata
      *
      * @throws RequestFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3
      */
     fun deployContractV3(
         classHash: Felt,
@@ -102,6 +110,8 @@ interface Deployer {
      *
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV1WithSpecificFeeAndDefaultParameters
      */
     fun deployContractV1(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment>
 
@@ -115,6 +125,8 @@ interface Deployer {
      *
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithSpecificFeeAndDefaultParameters
      */
     fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, l1ResourceBounds: ResourceBounds): Request<ContractDeployment>
 
@@ -126,6 +138,8 @@ interface Deployer {
      * @param constructorCalldata constructor calldata
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV1WithDefaultParameters
      */
     fun deployContractV1(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
 
@@ -137,6 +151,8 @@ interface Deployer {
      * @param constructorCalldata constructor calldata
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithDefaultParameters
      */
     fun deployContractV3(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
 
@@ -147,6 +163,8 @@ interface Deployer {
      *
      * @throws RequestFailedException
      * @throws AddressRetrievalFailedException
+     *
+     * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV1
      */
     fun findContractAddress(contractDeployment: ContractDeployment): Request<Felt>
 }
