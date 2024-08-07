@@ -60,6 +60,7 @@ class StandardAccount @JvmOverloads constructor(
          * @param provider a provider used to interact with Starknet
          * @param chainId the chain id of the Starknet network
          * @return a StandardAccount instance with detected Cairo version
+         * @sample starknet.account.StandardAccountTest.createCairo1AccountWithAutomaticVersionDetection
          */
         @JvmStatic
         fun create(

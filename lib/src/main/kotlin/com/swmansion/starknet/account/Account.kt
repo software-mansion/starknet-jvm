@@ -22,6 +22,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 1 payload
+     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeWithSkipValidateFlag
      */
     fun signV1(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
         return signV1(listOf(call), params, forFeeEstimate)
@@ -36,6 +37,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
+     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeWithSkipValidateFlag
      */
     fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
         return signV3(listOf(call), params, forFeeEstimate)
@@ -49,6 +51,7 @@ interface Account {
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
+     * @sample starknet.account.StandardAccountTest.InvokeTest.signV1SingleCall
      */
     fun signV1(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
         return signV1(listOf(call), params, false)
@@ -62,6 +65,7 @@ interface Account {
      * @param call a call to be signed
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
+     * @sample starknet.account.StandardAccountTest.InvokeTest.signV3SingleCall
      */
     fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3Payload {
         return signV3(listOf(call), params, false)
@@ -99,6 +103,7 @@ interface Account {
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
+     * @sample starknet.account.StandardAccountTest.InvokeTest.signV1MultipleCalls
      */
     fun signV1(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
         return signV1(calls, params, false)
@@ -112,6 +117,7 @@ interface Account {
      * @param calls a list of calls to be signed
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
+     * @sample starknet.account.StandardAccountTest.InvokeTest.signV3MultipleCalls
      */
     fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3Payload {
         return signV3(calls, params, false)
@@ -129,6 +135,7 @@ interface Account {
      * @param nonce nonce
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
+     * @sample starknet.account.StandardAccountTest.DeployAccountEstimateTest.estimateFeeForDeployAccountV1Transaction
      */
     fun signDeployAccountV1(
         classHash: Felt,
@@ -150,6 +157,7 @@ interface Account {
      * @param params additional params for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed deploy account payload
+     * @sample starknet.account.StandardAccountTest.DeployAccountEstimateTest.estimateFeeForDeployAccountV3Transaction
      */
     fun signDeployAccountV3(
         classHash: Felt,
@@ -169,6 +177,7 @@ interface Account {
      * @param salt salt used to calculate address of the new contract
      * @param maxFee max fee to be consumed by this transaction
      * @return signed deploy account payload
+     * @sample starknet.account.StandardAccountTest.DeployAccountTest.signAndSendDeployAccountV1Transaction
      */
     fun signDeployAccountV1(
         classHash: Felt,
@@ -213,6 +222,7 @@ interface Account {
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
      * @return signed deploy account payload
+     * @sample starknet.account.StandardAccountTest.SimulateTransactionsTest.simulateInvokeV3AndDeployAccountV3Transactions
      */
     fun signDeployAccountV3(
         classHash: Felt,
@@ -237,6 +247,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
+     * @sample starknet.account.StandardAccountTest.DeclareEstimateTest.estimateFeeForDeclareV2Transaction
      */
     fun signDeclareV2(
         sierraContractDefinition: Cairo1ContractDefinition,
@@ -254,6 +265,7 @@ interface Account {
      * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional execution parameters for the transaction
      * @return signed declare transaction payload
+     * @sample starknet.account.StandardAccountTest.DeclareTest.signAndSendDeclareV2Transaction
      */
     fun signDeclareV2(
         sierraContractDefinition: Cairo1ContractDefinition,
@@ -273,6 +285,7 @@ interface Account {
      * @param params additional parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed declare transaction payload
+     * @sample starknet.account.StandardAccountTest.DeclareEstimateTest.estimateFeeForDeclareV3Transaction
      */
     fun signDeclareV3(
         sierraContractDefinition: Cairo1ContractDefinition,
@@ -290,6 +303,7 @@ interface Account {
      * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional parameters for the transaction
      * @return signed declare transaction payload
+     * @sample starknet.account.StandardAccountTest.DeclareTest.signAndSendDeclareV3Transaction
      */
     fun signDeclareV3(
         sierraContractDefinition: Cairo1ContractDefinition,
@@ -304,6 +318,7 @@ interface Account {
      *
      * @param typedData a TypedData instance to sign
      * @return a signature of typedData provided
+     * @sample starknet.account.StandardAccountTest.SignTypedDataTest.signTypedDataRevision1
      */
     fun signTypedData(typedData: TypedData): Signature
 
@@ -313,6 +328,7 @@ interface Account {
      * @param typedData a TypedData instance which signature will be verified
      * @param signature a signature of typedData
      * @return `true` if signature is valid, `false` otherwise
+     * @sample starknet.account.StandardAccountTest.SignTypedDataTest.signTypedDataRevision1
      */
     fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean>
 
@@ -346,6 +362,7 @@ interface Account {
      * @param call a call to be executed.
      * @param maxFee a max fee to pay for the transaction.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1SingleCallWithSpecificFee
      */
     fun executeV1(call: Call, maxFee: Felt): Request<InvokeFunctionResponse>
 
@@ -357,6 +374,7 @@ interface Account {
      * @param call a call to be executed.
      * @param l1ResourceBounds L1 resource bounds for the transaction.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV3SingleCallWithSpecificResourceBounds
      */
     fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
 
@@ -397,6 +415,7 @@ interface Account {
      * @param estimateFeeMultiplier how big multiplier should be used for the estimated fee.
      *
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1SingleCallWithSpecificFeeEstimateMultiplier
      */
     fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse>
 
@@ -411,6 +430,7 @@ interface Account {
      * @param estimateUnitPriceMultiplier how big multiplier should be used for the estimated unit price.
      *
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV3SingleCallWithSpecificFeeEstimateMultiplier
      */
     fun executeV3(call: Call, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
 
@@ -419,6 +439,7 @@ interface Account {
      *
      * @param calls a list of calls to be executed.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1MultipleCalls
      */
     fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse>
 
@@ -427,6 +448,7 @@ interface Account {
      *
      * @param calls a list of calls to be executed.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV3MultipleCalls
      */
     fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse>
 
@@ -435,6 +457,7 @@ interface Account {
      *
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1SingleCall
      */
     fun executeV1(call: Call): Request<InvokeFunctionResponse>
 
@@ -443,6 +466,7 @@ interface Account {
      *
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
+     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV3SingleCall
      */
     fun executeV3(call: Call): Request<InvokeFunctionResponse>
 
@@ -453,6 +477,7 @@ interface Account {
      *
      * @param call a call used to estimate a fee.
      * @return Field value representing estimated fee.
+     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV1Transaction
      */
     fun estimateFeeV1(call: Call): Request<EstimateFeeResponseList>
 
@@ -496,6 +521,7 @@ interface Account {
      * @param call a call used to estimate a fee.
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return Field value representing estimated fee.
+     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV1TransactionAtLatestBlockTag
      */
     fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList>
 
@@ -573,6 +599,7 @@ interface Account {
      * @param calls a list of calls used to estimate a fee.
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
+     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV3Transaction
      */
     fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList>
 
@@ -636,6 +663,7 @@ interface Account {
      * Get account nonce for pending block.
      *
      * @return nonce as field value.
+     * @sample starknet.account.StandardAccountTest.NonceTest.getNonce
      */
     fun getNonce(): Request<Felt>
 
@@ -646,6 +674,7 @@ interface Account {
      *
      * @param blockTag block tag used for returning this value.
      * @return nonce as field value.
+     * @sample starknet.account.StandardAccountTest.NonceTest.getNonceAtLatestBlockTag
      */
     fun getNonce(blockTag: BlockTag): Request<Felt>
 
@@ -656,6 +685,7 @@ interface Account {
      *
      * @param blockHash block hash used for returning this value.
      * @return nonce as field value.
+     * @sample starknet.account.StandardAccountTest.NonceTest.getNonceAtBlockHash
      */
     fun getNonce(blockHash: Felt): Request<Felt>
 
@@ -666,6 +696,7 @@ interface Account {
      *
      * @param blockNumber block number used for returning this value.
      * @return nonce as field value.
+     * @sample starknet.account.StandardAccountTest.NonceTest.getNonceAtBlockNumber
      */
     fun getNonce(blockNumber: Int): Request<Felt>
 }
