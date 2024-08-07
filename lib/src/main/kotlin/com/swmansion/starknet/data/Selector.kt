@@ -15,6 +15,7 @@ const val EXECUTE_ENTRY_POINT_NAME = "__execute__"
  *
  * @param name a name of the entrypoint
  * @return Felt value of the entrypoint selector
+ * @sample starknet.data.SelectorTest.selectorFromName
  */
 fun selectorFromName(name: String): Felt {
     if (name == DEFAULT_ENTRY_POINT_NAME || name == DEFAULT_L1_ENTRY_POINT_NAME) {
