@@ -55,6 +55,81 @@ tasks.dokkaJavadoc {
     }
 }
 
+
+tasks.register("generateGuides") {
+    doLast {
+        println(project.rootDir)
+        val kotlinSamplesDir = "${project.projectDir}/src/test/kotlin"
+        val javaSamplesDir = "${project.rootDir}/javademo/src/main/java/com/example/javademo"
+        val sourceFile = file("starknet-jvm.md")
+        val kotlinOutputDir = file("build/guides")
+        val javaOutputDir = file("build/guides")
+        val kotlinOutputFile = kotlinOutputDir.resolve("kotlin-guide.md")
+        val javaOutputFile = javaOutputDir.resolve("java-guide.md")
+
+        kotlinOutputDir.mkdirs()
+        javaOutputDir.mkdirs()
+
+        val sourceContent = sourceFile.readText()
+
+        val kotlinPlaceholderPattern = Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="Kotlin"\) -->""")
+        val javaPlaceholderPattern = Regex("""<!-- codeSection\(path=\"([\w/]+\.java)\", function=\"([\w]+)\", language=\"Java\"\) -->""")
+
+        fun extractCodeSection(path: String, functionName: String, language: String): String {
+            println("path: $path, functionName: $functionName, language: $language")
+            val file = file(path)
+            if (!file.exists()) {
+                return ""
+            }
+
+            val content = file.readText()
+            val functionRegex = when (language) {
+                "Kotlin" -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
+                "Java" -> Regex("""(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""", RegexOption.MULTILINE)
+                else -> throw IllegalArgumentException("Unsupported language: $language")
+            }
+
+            val matchResult = functionRegex.find(content) ?: return ""
+            val codeSection = matchResult.groupValues[1].lines()
+            val minIndent = codeSection.filter { it.isNotBlank() }
+                .map { it.indexOfFirst { char -> !char.isWhitespace() } }
+                .minOrNull() ?: 0
+
+            return codeSection.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
+        }
+
+
+        var kotlinContent = kotlinPlaceholderPattern.replace(sourceContent) { matchResult ->
+            val path = matchResult.groupValues[1]
+            val functionName = matchResult.groupValues[2]
+            val codeSection = extractCodeSection("$kotlinSamplesDir/$path", functionName, "Kotlin")
+            if (codeSection.isBlank()) "" else "```kotlin\n$codeSection\n```"
+        }
+
+        var javaContent = javaPlaceholderPattern.replace(sourceContent) { matchResult ->
+            val path = matchResult.groupValues[1]
+            val functionName = matchResult.groupValues[2]
+            val codeSection = extractCodeSection("$javaSamplesDir/$path", functionName, "Java")
+            if (codeSection.isBlank()) "" else "```java\n$codeSection\n```"
+        }
+
+        kotlinContent = kotlinContent
+            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.kt", function="[^"]+", language="Kotlin"\) -->"""), "")
+            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.java", function="[^"]+", language="Java"\) -->"""), "")
+
+        javaContent = javaContent
+            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.kt", function="[^"]+", language="Kotlin"\) -->"""), "")
+            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.java", function="[^"]+", language="Java"\) -->"""), "")
+
+
+        kotlinOutputFile.writeText(kotlinContent)
+        javaOutputFile.writeText(javaContent)
+    }
+}
+
+
+
+
 tasks.jar {
     manifest {
         attributes(
