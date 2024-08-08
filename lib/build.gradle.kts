@@ -80,7 +80,10 @@ tasks.register("generateGuides") {
         val sourceContent = sourceFile.readText()
 
         val kotlinPlaceholderPattern = Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="Kotlin"\) -->""")
-        val javaPlaceholderPattern = Regex("""<!-- codeSection\(path=\"([\w/]+\.java)\", function=\"([\w]+)\", language=\"Java\"\) -->""")
+        val javaPlaceholderPattern = Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="Java"\) -->""")
+
+        val kotlinCodeBlockPattern = Regex("""```kotlin[\s\S]*?```""")
+        val javaCodeBlockPattern = Regex("""```java[\s\S]*?```""")
 
         fun extractCodeSection(path: String, functionName: String, language: String): String {
             println("path: $path, functionName: $functionName, language: $language")
@@ -105,7 +108,6 @@ tasks.register("generateGuides") {
             return codeSection.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
-
         var kotlinContent = kotlinPlaceholderPattern.replace(sourceContent) { matchResult ->
             val path = matchResult.groupValues[1]
             val functionName = matchResult.groupValues[2]
@@ -121,18 +123,21 @@ tasks.register("generateGuides") {
         }
 
         kotlinContent = kotlinContent
-            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.kt", function="[^"]+", language="Kotlin"\) -->"""), "")
-            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.java", function="[^"]+", language="Java"\) -->"""), "")
+            .replace(kotlinPlaceholderPattern, "")
+            .replace(javaPlaceholderPattern, "")
 
         javaContent = javaContent
-            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.kt", function="[^"]+", language="Kotlin"\) -->"""), "")
-            .replace(Regex("""<!-- codeSection\(path="[\w/]+\.java", function="[^"]+", language="Java"\) -->"""), "")
+            .replace(kotlinPlaceholderPattern, "")
+            .replace(javaPlaceholderPattern, "")
 
+        kotlinContent = kotlinContent.replace(javaCodeBlockPattern, "")
+        javaContent = javaContent.replace(kotlinCodeBlockPattern, "")
 
         kotlinOutputFile.writeText(kotlinContent)
         javaOutputFile.writeText(javaContent)
     }
 }
+
 
 
 
