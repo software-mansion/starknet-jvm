@@ -658,7 +658,7 @@ class ProviderTest {
     }
 
     @Test
-    fun getEvents(){
+    fun getEvents() {
         val eventsContractAddress = devnetClient.declareDeployContract("Events").contractAddress
 
         val key = listOf(Felt.fromHex("0x477e157efde59c5531277ede78acb3e03ef69508c6c35fde3495aa0671d227"))
@@ -780,7 +780,7 @@ class ProviderTest {
     }
 
     @Test
-    fun getChainId(){
+    fun getChainId() {
         val request = provider.getChainId()
         val response = request.send()
 

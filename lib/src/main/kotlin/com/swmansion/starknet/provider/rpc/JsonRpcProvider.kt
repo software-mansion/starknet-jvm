@@ -124,8 +124,8 @@ class JsonRpcProvider(
     }
 
     /**
-    * @sample starknet.provider.ProviderTest.getSpecVersion
-    */
+     * @sample starknet.provider.ProviderTest.getSpecVersion
+     */
     override fun getSpecVersion(): HttpRequest<StringResponse> {
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
@@ -832,7 +832,6 @@ class JsonRpcProvider(
 
         return getTransactionByBlockIdAndIndex(payload)
     }
-
 
     private fun simulateTransactions(payload: SimulateTransactionsPayload): HttpRequest<SimulatedTransactionList> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
