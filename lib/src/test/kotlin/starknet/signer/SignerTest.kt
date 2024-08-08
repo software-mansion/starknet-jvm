@@ -1,6 +1,5 @@
 package starknet.signer
 
-import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
@@ -42,7 +41,7 @@ internal class SignerTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-            )
+            ),
         )
 
         // Get signature
