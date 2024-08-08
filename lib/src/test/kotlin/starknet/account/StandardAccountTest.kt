@@ -1015,7 +1015,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign and send deploy account v3 transaction`() {
+        fun signAndSendDeployAccountV3Transaction() {
             val privateKey = Felt(22222)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
