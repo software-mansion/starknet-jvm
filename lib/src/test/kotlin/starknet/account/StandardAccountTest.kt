@@ -314,7 +314,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun estimateFeeForDeclareV3Transaction() {
+        fun `estimate fee for declare v3 transaction`() {
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -637,7 +637,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun executeV3SingleCallWithSpecificFeeEstimateMultiplier() {
+        fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -656,7 +656,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun executeV1SingleCallWithSpecificFee() {
+        fun `execute v1 single call with specific fee`() {
             // Note to future developers experiencing failures in this test:
             // This transaction may fail if the fee is too low.
             val call = Call(
@@ -675,7 +675,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun executeV3SingleCallWithSpecificResourceBounds() {
+        fun `execute v3 single call with specific resource bounds`() {
             // Note to future developers experiencing failures in this test:
             // This transaction may fail if resource bounds are too low.
             val call = Call(
@@ -891,7 +891,7 @@ class StandardAccountTest {
     @Nested
     inner class DeployAccountEstimateTest {
         @Test
-        fun estimateFeeForDeployAccountV1Transaction() {
+        fun `estimate fee for deploy account v1 transaction`() {
             val privateKey = Felt(11112)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
