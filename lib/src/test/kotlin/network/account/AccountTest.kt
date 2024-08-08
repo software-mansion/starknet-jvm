@@ -97,7 +97,7 @@ class AccountTest {
     }
 
     @Test
-    fun `estimate fee for declare v2 transaction`() {
+    fun estimateFeeForDeclareV2Transaction() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val account = constNonceAccount

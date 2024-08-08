@@ -67,7 +67,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get spec version`() {
+    fun getSpecVersion() {
         val request = provider.getSpecVersion()
         val specVersion = request.send().value
 
@@ -77,7 +77,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get transaction status`() {
+    fun getTransactionStatus() {
         val transactionHash = invokeTransactionHash
         val transactionStatus = provider.getTransactionStatus(transactionHash).send()
 
@@ -87,7 +87,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `call contract with block number`() {
+    fun callContractWithBlockNumber() {
         val currentNumber = provider.getBlockNumber().send().value
 
         val call = Call(
@@ -108,7 +108,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `call contract with block hash`() {
+    fun callContractWithBlockHash() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "get_balance",
@@ -129,7 +129,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `call contract with block tag`() {
+    fun callContractWithBlockTag() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "get_balance",
@@ -149,7 +149,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get storage at`() {
+    fun getStorageAt() {
         val request = provider.getStorageAt(
             contractAddress = balanceContractAddress,
             key = selectorFromName("balance"),
@@ -161,7 +161,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get storage at with key as string`() {
+    fun getStorageAtWithKeyAsString() {
         val request = provider.getStorageAt(
             contractAddress = balanceContractAddress,
             key = "balance",
@@ -173,7 +173,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at class hash`() {
+    fun getClassDefinitionAtClassHash() {
         val request = provider.getClass(balanceClassHash)
         val response = request.send()
 
@@ -183,7 +183,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at class hash (latest block)`() {
+    fun getClassDefinitionAtClassHashWithLatestBlock() {
         // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
         // After it's fixed add tests with 1) block hash 2) block number
         val request = provider.getClass(balanceClassHash, BlockTag.LATEST)
@@ -194,7 +194,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at class hash (block number)`() {
+    fun getClassDefinitionAtClassHashWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getClass(balanceClassHash, blockNumber)
@@ -205,7 +205,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at class hash (block hash)`() {
+    fun getClassDefinitionAtClassHashWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getClass(balanceClassHash, blockHash)
@@ -216,7 +216,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at contract address`() {
+    fun getClassDefinitionAtContractAddress() {
         val request = provider.getClassAt(balanceContractAddress)
         val response = request.send()
 
@@ -225,7 +225,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at contract address (block hash)`() {
+    fun getClassDefinitionAtContractAddressWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getClassAt(balanceContractAddress, blockHash)
@@ -236,7 +236,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at contract address (block number)`() {
+    fun getClassDefinitionAtContractAddressWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getClassAt(balanceContractAddress, blockNumber)
@@ -247,7 +247,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at contract address (latest block tag)`() {
+    fun getClassDefinitionAtContractAddressWithLatestBlock() {
         val request = provider.getClassAt(balanceContractAddress, BlockTag.LATEST)
         val response = request.send()
 
@@ -265,7 +265,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class hash`() {
+    fun getClassHash() {
         val request = provider.getClassHashAt(balanceContractAddress)
         val response = request.send()
 
@@ -273,7 +273,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class hash at pending block`() {
+    fun getClassHashAtPendingBlock() {
         val request = provider.getClassHashAt(balanceContractAddress, BlockTag.PENDING)
         val response = request.send()
 
@@ -377,7 +377,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get invoke transaction receipt`() {
+    fun getInvokeTransactionReceipt() {
         val request = provider.getTransactionReceipt(invokeTransactionHash)
         val response = request.send()
 
@@ -564,7 +564,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get invoke transaction`() {
+    fun getInvokeTransaction() {
         val request = provider.getTransaction(invokeTransactionHash)
         val response = request.send()
 
@@ -658,7 +658,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get event`() {
+    fun getEvents(){
         val eventsContractAddress = devnetClient.declareDeployContract("Events").contractAddress
 
         val key = listOf(Felt.fromHex("0x477e157efde59c5531277ede78acb3e03ef69508c6c35fde3495aa0671d227"))
@@ -689,7 +689,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get current block number`() {
+    fun getCurrentBlockNumber() {
         val request = provider.getBlockNumber()
         val response = request.send()
 
@@ -697,7 +697,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get current block number and hash`() {
+    fun getCurrentBlockHashAndNumber() {
         val request = provider.getBlockHashAndNumber()
         val response = request.send()
 
@@ -714,7 +714,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block transaction count with block tag`() {
+    fun getBlockTransactionCountWithBlockTag() {
         val request = provider.getBlockTransactionCount(BlockTag.LATEST)
         val response = request.send()
 
@@ -722,7 +722,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block transaction count with block hash`() {
+    fun getBlockTransactionCountWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockTransactionCount(blockHash)
@@ -732,7 +732,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block transaction count with block number`() {
+    fun getBlockTransactionCountWithBlockNumber() {
         val request = provider.getBlockTransactionCount(1)
         val response = request.send()
 
@@ -740,7 +740,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get sync information node not syncing`() {
+    fun getSyncInformationNodeNotSyncing() {
         val request = provider.getSyncing()
         val response = request.send()
 
@@ -780,7 +780,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get chain id`() {
+    fun getChainId(){
         val request = provider.getChainId()
         val response = request.send()
 
@@ -788,7 +788,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get nonce with block tag`() {
+    fun getNonceWithBlockTag() {
         val request = provider.getNonce(balanceContractAddress, BlockTag.LATEST)
         val response = request.send()
 
@@ -796,7 +796,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get nonce with block number`() {
+    fun getNonceWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getNonce(balanceContractAddress, blockNumber)
@@ -806,7 +806,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get nonce with block hash`() {
+    fun getNonceWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getNonce(balanceContractAddress, blockHash)
@@ -876,7 +876,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transactions with block tag`() {
+    fun getBlockWithTransactionsWithBlockTag() {
         val request = provider.getBlockWithTxs(BlockTag.LATEST)
         val response = request.send()
 
@@ -886,7 +886,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transactions with block hash`() {
+    fun getBlockWithTransactionsWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockWithTxs(blockHash)
@@ -896,7 +896,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transactions with block number`() {
+    fun getBlockWithTransactionsWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithTxs(blockNumber)
@@ -1023,7 +1023,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction receipts with block tag`() {
+    fun getBlockWithTransactionReceiptsWithBlockTag() {
         val request = provider.getBlockWithReceipts(BlockTag.LATEST)
         val response = request.send()
 
@@ -1033,7 +1033,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction receipts with block hash`() {
+    fun getBlockWithTransactionReceiptsWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockWithReceipts(blockHash)
@@ -1043,7 +1043,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction receipts with block number`() {
+    fun getBlockWithTransactionReceiptsWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithReceipts(blockNumber)
@@ -1094,7 +1094,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction hashes with block tag`() {
+    fun getBlockWithTransactionHashesWithBlockTag() {
         val request = provider.getBlockWithTxHashes(BlockTag.LATEST)
         val response = request.send()
 
@@ -1104,7 +1104,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction hashes with block hash`() {
+    fun getBlockWithTransactionHashesWithBlockHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getBlockWithTxHashes(blockHash)
@@ -1114,7 +1114,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get block with transaction hashes with block number`() {
+    fun getBlockWithTransactionHashesWithBlockNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getBlockWithTxHashes(blockNumber)
@@ -1124,7 +1124,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get state of block with latest tag`() {
+    fun getStateOfBlockWithLatestTag() {
         val request = provider.getStateUpdate(BlockTag.LATEST)
         val response = request.send()
 
@@ -1162,7 +1162,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get state of block with hash`() {
+    fun getStateOfBlockWithHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getStateUpdate(blockHash)
@@ -1173,7 +1173,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get state of block with number`() {
+    fun getStateOfBlockWithNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getStateUpdate(blockNumber)
@@ -1184,7 +1184,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get transactions by block tag and index`() {
+    fun getTransactionByBlockTagAndIndex() {
         val request = provider.getTransactionByBlockIdAndIndex(BlockTag.LATEST, 0)
         val response = request.send()
 
@@ -1192,7 +1192,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get transactions by block hash and index`() {
+    fun getTransactionByBlockHashAndIndex() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
         val request = provider.getTransactionByBlockIdAndIndex(blockHash, 0)
@@ -1202,7 +1202,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get transactions by block number and index`() {
+    fun getTransactionByBlockNumberAndIndex() {
         val blockNumber = provider.getBlockNumber().send().value
 
         val request = provider.getTransactionByBlockIdAndIndex(blockNumber, 0)
@@ -1245,7 +1245,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `batch get transactions`() {
+    fun batchGetTransactions() {
         val blockNumber = provider.getBlockNumber().send().value
         val request = provider.batchRequests(
             provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
@@ -1264,7 +1264,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `batch requests any`() {
+    fun batchRequestsAny() {
         val request = provider.batchRequestsAny(
             provider.getTransaction(invokeTransactionHash),
             provider.getBlockNumber(),
