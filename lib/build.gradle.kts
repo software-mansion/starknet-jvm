@@ -40,6 +40,7 @@ tasks.dokkaHtml {
     outputDirectory.set(file("build/dokka/html"))
     dokkaSourceSets {
         configureEach {
+            samples.setFrom("src/test/kotlin")
             includes.from("kotlin-guide.md")
         }
     }
