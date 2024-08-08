@@ -50,7 +50,7 @@ internal class SignerTest {
         // Create signed transaction
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        assertEquals(signature.size, 2)
+        assertEquals(2, signature.size)
         assertTrue(signature.all { it != Felt.ZERO })
     }
 
@@ -64,7 +64,7 @@ internal class SignerTest {
             accountAddress = accountAddress,
         )
 
-        assertEquals(signature.size, 2)
+        assertEquals(2, signature.size)
         assertTrue(signature.all { it != Felt.ZERO })
     }
 }
