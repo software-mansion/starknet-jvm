@@ -1501,7 +1501,7 @@ class StandardAccountTest {
 
         @Test
         @Disabled("Used as example in docs")
-        fun exampleAccountUsage(){
+        fun exampleAccountUsage() {
             val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
             val chainId = provider.getChainId().send()
@@ -1542,7 +1542,7 @@ class StandardAccountTest {
                 ),
             )
 
-            val signedTransaction= account.signV3(otherCall, params)
+            val signedTransaction = account.signV3(otherCall, params)
             val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
 
             // Sign transaction for fee estimation only

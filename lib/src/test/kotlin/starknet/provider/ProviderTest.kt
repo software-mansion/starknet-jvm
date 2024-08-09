@@ -16,7 +16,6 @@ import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
-
 class ProviderTest {
     companion object {
         private val devnetClient = DevnetClient(
