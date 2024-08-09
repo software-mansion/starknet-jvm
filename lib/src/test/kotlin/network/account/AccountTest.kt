@@ -393,7 +393,7 @@ class AccountTest {
     }
 
     @Test
-    fun `get ETH balance`() {
+    fun getETHBalance() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val account = constNonceAccount
@@ -414,7 +414,7 @@ class AccountTest {
     }
 
     @Test
-    fun `transfer ETH`() {
+    fun transferETH() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
 
         val account = standardAccount

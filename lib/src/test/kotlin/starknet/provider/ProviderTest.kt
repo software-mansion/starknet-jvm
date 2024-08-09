@@ -10,10 +10,12 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import starknet.utils.DevnetClient
 import java.nio.file.Paths
+
 
 class ProviderTest {
     companion object {
@@ -1283,5 +1285,15 @@ class ProviderTest {
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
+    }
+
+    @Test
+    @Disabled("Used as example in docs")
+    fun jsonRpcProviderCreationExample() {
+        // JsonRpcProvider can be created using constructor
+        JsonRpcProvider("https://example-node-url.com/rpc")
+
+        // or with a custom HttpService
+        // JsonRpcProvider("https://example-node-url.com/rpc", myHttpService)
     }
 }
