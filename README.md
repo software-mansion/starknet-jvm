@@ -43,80 +43,10 @@ Documentation is provided in two formats:
 - [Kotlin](https://docs.swmansion.com/starknet-jvm/kotlin/)
 
 
-## Example usages
+## Guides
+- [Koltin guide](lib/kotlin-guide.md)
+- [Java guide](lib/java-guide.md)
 
-### Making synchronous requests
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.BlockTag;
-import com.swmansion.starknet.data.types.Felt;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-        
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
-
-        // Make a request
-        Felt contractAddress = Felt.fromHex("0x42362362436");
-        Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        Felt response = request.send();
-
-        System.out.println(response);
-    }
-}
-```
-
-### Making asynchronous requests
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.BlockTag;
-import com.swmansion.starknet.data.types.Felt;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.util.concurrent.CompletableFuture;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-        
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
-
-        // Make a request
-        Felt contractAddress = Felt.fromHex("0x42362362436");
-        Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        CompletableFuture<Felt> response = request.sendAsync();
-
-        response.thenAccept(System.out::println);
-    }
-}
-```
-
-### Standard flow examples
-
-- [Deploying account](lib/starknet-jvm.md#deploying-account)
-- [Invoking contract: Transferring ETH](lib/starknet-jvm.md#invoking-contract-transferring-eth)
-- [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
-- [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
 
 ## Demo applications
 These demo apps can be used with any Starknet RPC node, including devnet.
@@ -125,25 +55,7 @@ They are intended for demonstration/testing purposes only.
 ### [Java demo](javademo)
 
 
-## Reusing http clients
 
-Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
-This way you reuse connections and thread pools.
-
-✅ **Do:** 
-```java
-var provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
-var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
-```
-
-❌ **Don't:**
-```java
-var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
-```
 
 
 ## Development
