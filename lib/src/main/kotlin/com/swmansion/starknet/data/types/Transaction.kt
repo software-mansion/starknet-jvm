@@ -2,8 +2,7 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
-import com.swmansion.starknet.data.serializers.InvokeTransactionV1Serializer
-import com.swmansion.starknet.data.serializers.TransactionPayloadSerializer
+import com.swmansion.starknet.data.serializers.TransactionSerializer
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -73,7 +72,7 @@ enum class DAMode(val value: Int) {
     L2(1),
 }
 
-@Serializable(with = TransactionPayloadSerializer::class)
+@Serializable(with = TransactionSerializer::class)
 sealed class Transaction : StarknetResponse {
     abstract val hash: Felt?
     abstract val version: TransactionVersion
@@ -194,7 +193,8 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-@Serializable(with = InvokeTransactionV1Serializer::class)
+
+@Serializable
 @Suppress("DataClassPrivateConstructor")
 data class InvokeTransactionV1 private constructor(
     @SerialName("calldata")
@@ -705,6 +705,7 @@ sealed class DeployAccountTransaction : Transaction() {
 }
 
 @Suppress("DataClassPrivateConstructor")
+
 @Serializable
 data class DeployAccountTransactionV1 private constructor(
     @SerialName("class_hash")

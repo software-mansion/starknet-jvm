@@ -154,7 +154,7 @@ class JsonRpcProvider(
     }
 
     override fun deployAccount(payload: DeployAccountTransactionV1): HttpRequest<DeployAccountResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
         }
@@ -163,7 +163,7 @@ class JsonRpcProvider(
     }
 
     override fun deployAccount(payload: DeployAccountTransactionV3): HttpRequest<DeployAccountResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
         }
@@ -243,7 +243,10 @@ class JsonRpcProvider(
     override fun invokeFunction(
         payload: InvokeTransactionV1,
     ): HttpRequest<InvokeFunctionResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+//        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
+        println("V1 $params")
+
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
         }
@@ -254,7 +257,8 @@ class JsonRpcProvider(
     override fun invokeFunction(
         payload: InvokeTransactionV3,
     ): HttpRequest<InvokeFunctionResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+//        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
         }
@@ -347,7 +351,7 @@ class JsonRpcProvider(
     }
 
     override fun declareContract(payload: DeclareTransactionV2): HttpRequest<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
@@ -356,7 +360,7 @@ class JsonRpcProvider(
     }
 
     override fun declareContract(payload: DeclareTransactionV3): HttpRequest<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
