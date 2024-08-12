@@ -657,7 +657,7 @@ class AccountTest {
             signature = emptyList(),
             maxFee = invokeTx.maxFee,
             nonce = invokeTx.nonce,
-            chainId = chainId
+            chainId = chainId,
         )
         val invokeTxWihtoutSignature2 = InvokeTransactionV1(
             senderAddress = invokeTx2.senderAddress,
@@ -665,7 +665,7 @@ class AccountTest {
             signature = emptyList(),
             maxFee = invokeTx2.maxFee,
             nonce = invokeTx2.nonce,
-            chainId = chainId
+            chainId = chainId,
         )
         val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
         val simulationResult2 = provider.simulateTransactions(

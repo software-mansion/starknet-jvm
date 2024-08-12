@@ -193,7 +193,6 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-
 @Serializable
 @Suppress("DataClassPrivateConstructor")
 data class InvokeTransactionV1 private constructor(
@@ -705,7 +704,6 @@ sealed class DeployAccountTransaction : Transaction() {
 }
 
 @Suppress("DataClassPrivateConstructor")
-
 @Serializable
 data class DeployAccountTransactionV1 private constructor(
     @SerialName("class_hash")
