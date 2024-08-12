@@ -11,10 +11,10 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
+internal object TransactionPayloadSerializer : KSerializer<Transaction> {
     override val descriptor = PrimitiveSerialDescriptor("TransactionPayload", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): TransactionPayload {
+    override fun deserialize(decoder: Decoder): Transaction {
         require(decoder is JsonDecoder)
         val element = decoder.decodeJsonElement()
         val jsonElement = element.jsonObject
@@ -30,16 +30,21 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         }
     }
 
-    override fun serialize(encoder: Encoder, value: TransactionPayload) {
+    override fun serialize(encoder: Encoder, value: Transaction) {
         require(encoder is JsonEncoder)
 
         val jsonObject = when (value) {
-            is InvokeTransactionV1Payload -> Json.encodeToJsonElement(InvokeTransactionV1Payload.serializer(), value).jsonObject
-            is InvokeTransactionV3Payload -> Json.encodeToJsonElement(InvokeTransactionV3Payload.serializer(), value).jsonObject
-            is DeclareTransactionV2Payload -> Json.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, value).jsonObject
-            is DeclareTransactionV3Payload -> Json.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, value).jsonObject
-            is DeployAccountTransactionV1Payload -> Json.encodeToJsonElement(DeployAccountTransactionV1Payload.serializer(), value).jsonObject
-            is DeployAccountTransactionV3Payload -> Json.encodeToJsonElement(DeployAccountTransactionV3Payload.serializer(), value).jsonObject
+            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
+            is InvokeTransactionV3 -> Json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
+            is DeclareTransactionV2 -> Json.encodeToJsonElement(DeclareTransactionV2.serializer(), value).jsonObject
+            is DeclareTransactionV3 -> Json.encodeToJsonElement(DeclareTransactionV3.serializer()).jsonObject
+            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
+            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
+            is DeclareTransactionV0 -> Json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
+            is DeclareTransactionV1 -> Json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
+            is DeployTransaction -> Json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
+            is InvokeTransactionV0 -> Json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
+            is L1HandlerTransaction -> Json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
         }
 
         val result = JsonObject(
@@ -49,48 +54,72 @@ internal object TransactionPayloadSerializer : KSerializer<TransactionPayload> {
         encoder.encodeJsonElement(result)
     }
 
-    private fun deserializeInvoke(decoder: JsonDecoder, element: JsonElement): InvokeTransactionPayload {
+    private fun deserializeInvoke(decoder: JsonDecoder, element: JsonElement): InvokeTransaction {
         val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
-            Felt(3) -> decoder.json.decodeFromJsonElement(InvokeTransactionV3Payload.serializer(), element)
-            Felt.ONE -> decoder.json.decodeFromJsonElement(InvokeTransactionV1Payload.serializer(), element)
+            Felt(3) -> decoder.json.decodeFromJsonElement(InvokeTransactionV3.serializer(), element)
+            Felt.ONE -> decoder.json.decodeFromJsonElement(InvokeTransactionV1.serializer(), element)
             else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
 
-    private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransactionPayload {
+    private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransaction {
         val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
-            Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3Payload.serializer(), element)
-            Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2Payload.serializer(), element)
+            Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3.serializer(), element)
+            Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2.serializer(), element)
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
 
-    private fun deserializeDeployAccount(decoder: JsonDecoder, element: JsonElement): DeployAccountTransactionPayload {
+    private fun deserializeDeployAccount(decoder: JsonDecoder, element: JsonElement): DeployAccountTransaction {
         val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
-            Felt(3) -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV3Payload.serializer(), element)
-            Felt.ONE -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV1Payload.serializer(), element)
+            Felt(3) -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV3.serializer(), element)
+            Felt.ONE -> decoder.json.decodeFromJsonElement(DeployAccountTransactionV1.serializer(), element)
             else -> throw IllegalArgumentException("Invalid deploy account transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
 }
 
-internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2Payload> {
+internal object InvokeTransactionV1Serializer : KSerializer<InvokeTransactionV1> {
     override val descriptor = PrimitiveSerialDescriptor("DeclareTransactionV2Payload", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: DeclareTransactionV2Payload) {
+    override fun serialize(encoder: Encoder, value: InvokeTransactionV1) {
         require(encoder is JsonEncoder)
 
         val jsonObject = buildJsonObject {
-            put("contract_class", value.contractDefinition.toJson())
+            put("type", value.type.toString())
+            put("calldata", Json.encodeToJsonElement(value.calldata))
+            put("sender_address", value.senderAddress.hexString())
+            put("max_fee", value.maxFee.hexString())
+            put("version", value.version.value.hexString())
+            putJsonArray("signature") { value.signature.forEach { add(it) } }
+            put("nonce", value.nonce)
+        }
+
+        encoder.encodeJsonElement(jsonObject)
+    }
+
+    override fun deserialize(decoder: Decoder): InvokeTransactionV1 {
+        throw SerializationException("Class used for serialization only.")
+    }
+}
+
+internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTransactionV2> {
+    override val descriptor = PrimitiveSerialDescriptor("DeclareTransactionV2Payload", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: DeclareTransactionV2) {
+        require(encoder is JsonEncoder)
+
+        val jsonObject = buildJsonObject {
+            put("contract_class", value.contractDefinition!!.toJson())
             put("sender_address", value.senderAddress.hexString())
             put("version", value.version.value.hexString())
             put("max_fee", value.maxFee.hexString())
@@ -103,19 +132,19 @@ internal object DeclareTransactionV2PayloadSerializer : KSerializer<DeclareTrans
         encoder.encodeJsonElement(jsonObject)
     }
 
-    override fun deserialize(decoder: Decoder): DeclareTransactionV2Payload {
+    override fun deserialize(decoder: Decoder): DeclareTransactionV2 {
         throw SerializationException("Class used for serialization only.")
     }
 }
 
-internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTransactionV3Payload> {
+internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTransactionV3> {
     override val descriptor = PrimitiveSerialDescriptor("DeclareTransactionV3Payload", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: DeclareTransactionV3Payload) {
+    override fun serialize(encoder: Encoder, value: DeclareTransactionV3) {
         require(encoder is JsonEncoder)
 
         val jsonObject = buildJsonObject {
-            put("contract_class", value.contractDefinition.toJson())
+            put("contract_class", value.contractDefinition!!.toJson())
             put("sender_address", value.senderAddress.hexString())
             put("version", value.version.value.hexString())
             putJsonArray("signature") { value.signature.forEach { add(it) } }
@@ -133,7 +162,7 @@ internal object DeclareTransactionV3PayloadSerializer : KSerializer<DeclareTrans
         encoder.encodeJsonElement(jsonObject)
     }
 
-    override fun deserialize(decoder: Decoder): DeclareTransactionV3Payload {
+    override fun deserialize(decoder: Decoder): DeclareTransactionV3 {
         throw SerializationException("Class used for serialization only.")
     }
 }

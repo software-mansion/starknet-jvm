@@ -998,7 +998,7 @@ class StandardAccountTest {
             // Make sure tx matches what we sent
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
             assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
+            assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
             assertEquals(payload.version, tx.version)
             assertEquals(payload.nonce, tx.nonce)
@@ -1061,7 +1061,7 @@ class StandardAccountTest {
             // Make sure tx matches what we sent
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
             assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
+            assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
             assertEquals(payload.version, tx.version)
             assertEquals(payload.nonce, tx.nonce)

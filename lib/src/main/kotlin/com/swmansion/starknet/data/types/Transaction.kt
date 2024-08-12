@@ -2,6 +2,8 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
+import com.swmansion.starknet.data.serializers.InvokeTransactionV1Serializer
+import com.swmansion.starknet.data.serializers.TransactionPayloadSerializer
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -71,7 +73,7 @@ enum class DAMode(val value: Int) {
     L2(1),
 }
 
-@Serializable
+@Serializable(with = TransactionPayloadSerializer::class)
 sealed class Transaction : StarknetResponse {
     abstract val hash: Felt?
     abstract val version: TransactionVersion
@@ -192,8 +194,8 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
+@Serializable(with = InvokeTransactionV1Serializer::class)
 @Suppress("DataClassPrivateConstructor")
-@Serializable
 data class InvokeTransactionV1 private constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
@@ -243,17 +245,6 @@ data class InvokeTransactionV1 private constructor(
         signature = signature,
         nonce = nonce,
     )
-
-    fun toPayload(): InvokeTransactionV1Payload {
-        return InvokeTransactionV1Payload(
-            calldata = calldata,
-            signature = signature,
-            maxFee = maxFee,
-            nonce = nonce,
-            senderAddress = senderAddress,
-            version = version,
-        )
-    }
 }
 
 @Serializable
@@ -330,17 +321,6 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
     )
-
-    fun toPayload(): InvokeTransactionV3Payload {
-        return InvokeTransactionV3Payload(
-            calldata = calldata,
-            signature = signature,
-            nonce = nonce,
-            senderAddress = senderAddress,
-            version = version,
-            resourceBounds = resourceBounds,
-        )
-    }
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -559,20 +539,6 @@ data class DeclareTransactionV2 internal constructor(
         compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
     )
 
-    @Throws(ConvertingToPayloadFailedException::class)
-    internal fun toPayload(): DeclareTransactionV2Payload {
-        contractDefinition ?: throw ConvertingToPayloadFailedException()
-        return DeclareTransactionV2Payload(
-            contractDefinition = contractDefinition,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            nonce = nonce,
-            signature = signature,
-            compiledClassHash = compiledClassHash,
-            version = version,
-        )
-    }
-
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
@@ -660,20 +626,6 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
     )
-
-    @Throws(ConvertingToPayloadFailedException::class)
-    internal fun toPayload(): DeclareTransactionV3Payload {
-        contractDefinition ?: throw ConvertingToPayloadFailedException()
-        return DeclareTransactionV3Payload(
-            contractDefinition = contractDefinition,
-            senderAddress = senderAddress,
-            nonce = nonce,
-            resourceBounds = resourceBounds,
-            signature = signature,
-            compiledClassHash = compiledClassHash,
-            version = version,
-        )
-    }
 
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
@@ -814,18 +766,6 @@ data class DeployAccountTransactionV1 private constructor(
         ),
         signature = signature,
     )
-
-    internal fun toPayload(): DeployAccountTransactionV1Payload {
-        return DeployAccountTransactionV1Payload(
-            classHash = classHash,
-            salt = contractAddressSalt,
-            constructorCalldata = constructorCalldata,
-            version = version,
-            nonce = nonce,
-            maxFee = maxFee,
-            signature = signature,
-        )
-    }
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -909,15 +849,5 @@ data class DeployAccountTransactionV3 private constructor(
         paymasterData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
-    )
-
-    internal fun toPayload() = DeployAccountTransactionV3Payload(
-        classHash = classHash,
-        salt = contractAddressSalt,
-        constructorCalldata = constructorCalldata,
-        version = version,
-        nonce = nonce,
-        signature = signature,
-        resourceBounds = resourceBounds,
     )
 }

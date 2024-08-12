@@ -2,7 +2,6 @@ package com.swmansion.starknet.account
 
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.DeployAccountTransactionV1Payload
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.Provider
@@ -99,7 +98,7 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
+    override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1 {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV1(
             senderAddress = address,
@@ -112,10 +111,10 @@ class StandardAccount @JvmOverloads constructor(
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
-    override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3 {
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
         val tx = InvokeTransactionV3(
             senderAddress = address,
@@ -128,7 +127,7 @@ class StandardAccount @JvmOverloads constructor(
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
     override fun signDeployAccountV1(
@@ -138,7 +137,7 @@ class StandardAccount @JvmOverloads constructor(
         maxFee: Felt,
         nonce: Felt,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV1Payload {
+    ): DeployAccountTransactionV1 {
         val tx = DeployAccountTransactionV1(
             classHash = classHash,
             contractAddress = address,
@@ -151,7 +150,7 @@ class StandardAccount @JvmOverloads constructor(
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
     override fun signDeployAccountV3(
@@ -160,7 +159,7 @@ class StandardAccount @JvmOverloads constructor(
         salt: Felt,
         params: DeployAccountParamsV3,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV3Payload {
+    ): DeployAccountTransactionV3 {
         val tx = DeployAccountTransactionV3(
             classHash = classHash,
             senderAddress = address,
@@ -173,7 +172,7 @@ class StandardAccount @JvmOverloads constructor(
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
     override fun signDeclareV2(
@@ -181,7 +180,7 @@ class StandardAccount @JvmOverloads constructor(
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionV2Payload {
+    ): DeclareTransactionV2 {
         val tx = DeclareTransactionV2(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
@@ -193,7 +192,7 @@ class StandardAccount @JvmOverloads constructor(
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
     override fun signDeclareV3(
@@ -201,7 +200,7 @@ class StandardAccount @JvmOverloads constructor(
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionV3Payload {
+    ): DeclareTransactionV3 {
         val tx = DeclareTransactionV3(
             contractDefinition = sierraContractDefinition,
             senderAddress = address,
@@ -213,7 +212,7 @@ class StandardAccount @JvmOverloads constructor(
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
-        return signedTransaction.toPayload()
+        return signedTransaction
     }
 
     override fun signTypedData(typedData: TypedData): Signature {
@@ -449,7 +448,7 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
+    private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<Transaction> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = signV1(calls, executionParams, true)
 
@@ -462,10 +461,10 @@ class StandardAccount @JvmOverloads constructor(
             signature = payload.signature,
             forFeeEstimate = true,
         )
-        return listOf(signedTransaction.toPayload())
+        return listOf(signedTransaction)
     }
 
-    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<TransactionPayload> {
+    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<Transaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
@@ -481,7 +480,7 @@ class StandardAccount @JvmOverloads constructor(
             resourceBounds = payload.resourceBounds,
             forFeeEstimate = true,
         )
-        return listOf(signedTransaction.toPayload())
+        return listOf(signedTransaction)
     }
 
     private fun prepareSimulationFlagsForFeeEstimate(skipValidate: Boolean): Set<SimulationFlagForEstimateFee> {
