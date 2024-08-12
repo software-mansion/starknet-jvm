@@ -243,7 +243,6 @@ class JsonRpcProvider(
     override fun invokeFunction(
         payload: InvokeTransactionV1,
     ): HttpRequest<InvokeFunctionResponse> {
-//        val params = jsonWithDefaults.encodeToJsonElement(payload)
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         println("V1 $params")
 
@@ -257,7 +256,6 @@ class JsonRpcProvider(
     override fun invokeFunction(
         payload: InvokeTransactionV3,
     ): HttpRequest<InvokeFunctionResponse> {
-//        val params = jsonWithDefaults.encodeToJsonElement(payload)
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
