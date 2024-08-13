@@ -70,23 +70,21 @@ tasks.dokkaJavadoc {
 
 tasks.register("generateGuides") {
     doLast {
-        println(project.rootDir)
         val kotlinSamplesDir = "${project.projectDir}/src/test/kotlin"
         val javaSamplesDir = "${project.rootDir}/javademo/src/main/java/com/example/javademo"
-        val sourceFile = file("guide.md")
-        val kotlinOutputFile = project.projectDir.resolve("kotlin-guide.md")
-        val javaOutputFile = project.projectDir.resolve("java-guide.md")
+        val guideFile = file("guide.md")
+        val kotlinGuideFile = project.projectDir.resolve("kotlin-guide.md")
+        val javaGuideFile = project.projectDir.resolve("java-guide.md")
 
-        val sourceContent = sourceFile.readText()
+        val guideContent = guideFile.readText()
 
-        val kotlinPlaceholderPattern = Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="Kotlin"\) -->""")
-        val javaPlaceholderPattern = Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="Java"\) -->""")
+        val kotlinCodeSectionPattern = Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="Kotlin"\) -->""")
+        val javaCodeSectionPattern = Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="Java"\) -->""")
 
         val kotlinCodeBlockPattern = Regex("""```kotlin[\s\S]*?```""")
         val javaCodeBlockPattern = Regex("""```java[\s\S]*?```""")
 
         fun extractCodeSection(path: String, functionName: String, language: String): String {
-            println("path: $path, functionName: $functionName, language: $language")
             val file = file(path)
             if (!file.exists()) {
                 return ""
@@ -108,14 +106,14 @@ tasks.register("generateGuides") {
             return codeSection.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
-        var kotlinContent = kotlinPlaceholderPattern.replace(sourceContent) { matchResult ->
+        var kotlinContent = kotlinCodeSectionPattern.replace(guideContent) { matchResult ->
             val path = matchResult.groupValues[1]
             val functionName = matchResult.groupValues[2]
             val codeSection = extractCodeSection("$kotlinSamplesDir/$path", functionName, "Kotlin")
             if (codeSection.isBlank()) "" else "```kotlin\n$codeSection\n```"
         }
 
-        var javaContent = javaPlaceholderPattern.replace(sourceContent) { matchResult ->
+        var javaContent = javaCodeSectionPattern.replace(guideContent) { matchResult ->
             val path = matchResult.groupValues[1]
             val functionName = matchResult.groupValues[2]
             val codeSection = extractCodeSection("$javaSamplesDir/$path", functionName, "Java")
@@ -123,18 +121,18 @@ tasks.register("generateGuides") {
         }
 
         kotlinContent = kotlinContent
-            .replace(kotlinPlaceholderPattern, "")
-            .replace(javaPlaceholderPattern, "")
+            .replace(kotlinCodeSectionPattern, "")
+            .replace(javaCodeSectionPattern, "")
 
         javaContent = javaContent
-            .replace(kotlinPlaceholderPattern, "")
-            .replace(javaPlaceholderPattern, "")
+            .replace(kotlinCodeSectionPattern, "")
+            .replace(javaCodeSectionPattern, "")
 
         kotlinContent = kotlinContent.replace(javaCodeBlockPattern, "")
         javaContent = javaContent.replace(kotlinCodeBlockPattern, "")
 
-        kotlinOutputFile.writeText(kotlinContent)
-        javaOutputFile.writeText(javaContent)
+        kotlinGuideFile.writeText(kotlinContent)
+        javaGuideFile.writeText(javaContent)
     }
 }
 
