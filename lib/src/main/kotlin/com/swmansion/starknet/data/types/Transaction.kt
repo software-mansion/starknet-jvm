@@ -193,8 +193,8 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-@Serializable
 @Suppress("DataClassPrivateConstructor")
+@Serializable
 data class InvokeTransactionV1 private constructor(
     @SerialName("calldata")
     override val calldata: Calldata,
