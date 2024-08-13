@@ -395,7 +395,7 @@ class AccountTest {
     @Test
     fun getETHBalance() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
+        // docsStart
         val account = constNonceAccount
         val call = Call(
             contractAddress = ethContractAddress,
@@ -409,14 +409,14 @@ class AccountTest {
             low = response[0],
             high = response[1],
         )
-
+        // docsEnd
         assertTrue(balance.value > Felt.ZERO.value)
     }
 
     @Test
     fun transferETH() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-
+        // docsStart
         val account = standardAccount
 
         val recipientAccountAddress = constNonceAccountAddress
@@ -433,6 +433,7 @@ class AccountTest {
         Thread.sleep(15000)
 
         val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
+        // docsEnd
         assertTrue(transferReceipt.isAccepted)
     }
 

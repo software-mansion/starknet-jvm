@@ -87,7 +87,6 @@ fun main() {
 
 ## Deploying account V3
 ```kotlin
-
 val privateKey = Felt(22222)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -115,8 +114,6 @@ val params = DeployAccountParamsV3(
 )
 
 // Prefund the new account address with STRK
-devnetClient.prefundAccountStrk(address)
-
 val payload = newAccount.signDeployAccountV3(
     classHash = accountContractClassHash,
     salt = salt,
@@ -126,33 +123,18 @@ val payload = newAccount.signDeployAccountV3(
 )
 
 val response = provider.deployAccount(payload).send()
-
-// Make sure the address matches the calculated one
-assertEquals(address, response.address)
-
 // Make sure tx matches what we sent
 val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
-assertEquals(payload.classHash, tx.classHash)
-assertEquals(payload.salt, tx.contractAddressSalt)
-assertEquals(payload.constructorCalldata, tx.constructorCalldata)
-assertEquals(payload.version, tx.version)
-assertEquals(payload.nonce, tx.nonce)
-assertEquals(payload.signature, tx.signature)
-
 // Invoke function to make sure the account was deployed properly
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 val result = newAccount.executeV3(call).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-assertTrue(receipt.isAccepted)
-        
 ```
 
 ## Estimating fee for deploy account V3 transaction
 
 ```kotlin
-
 val privateKey = Felt(22223)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -180,17 +162,11 @@ val payloadForFeeEstimation = account.signDeployAccountV3(
     params = params,
     forFeeEstimate = true,
 )
-
-assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
-
 val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
-        
 ```
 
 ## Deploying account V1
 ```kotlin
-
 val privateKey = Felt(11111)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -201,8 +177,8 @@ val address = ContractAddressCalculator.calculateAddressFromHash(
     calldata = calldata,
     salt = salt,
 )
-devnetClient.prefundAccountEth(address)
 
+// Make sure to prefund the new account address with ETH
 val account = StandardAccount(
     address,
     privateKey,
@@ -218,33 +194,16 @@ val payload = account.signDeployAccountV1(
 )
 
 val response = provider.deployAccount(payload).send()
-
-// Make sure the address matches the calculated one
-assertEquals(address, response.address)
-
-// Make sure tx matches what we sent
 val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
-assertEquals(payload.classHash, tx.classHash)
-assertEquals(payload.salt, tx.contractAddressSalt)
-assertEquals(payload.constructorCalldata, tx.constructorCalldata)
-assertEquals(payload.version, tx.version)
-assertEquals(payload.nonce, tx.nonce)
-assertEquals(payload.maxFee, tx.maxFee)
-assertEquals(payload.signature, tx.signature)
-
 // Invoke function to make sure the account was deployed properly
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 val result = account.executeV1(call).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-assertTrue(receipt.isAccepted)
-        
 ```
 
 ## Estimating fee for deploy account V1 transaction
 ```kotlin
-
 val privateKey = Felt(11112)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -270,18 +229,11 @@ val payloadForFeeEstimation = account.signDeployAccountV1(
     nonce = Felt.ZERO,
     forFeeEstimate = true,
 )
-assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
-
 val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
-        
 ```
 
 ## Invoking contract: Transferring ETH
 ```kotlin
-
-assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-
 val account = standardAccount
 
 val recipientAccountAddress = constNonceAccountAddress
@@ -298,13 +250,10 @@ val response = request.send()
 Thread.sleep(15000)
 
 val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
-assertTrue(transferReceipt.isAccepted)
-    
 ```
 
 ## Estimating fee for invoke V3 transaction
 ```kotlin
-
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
 val request = account.estimateFeeV3(
@@ -312,20 +261,10 @@ val request = account.estimateFeeV3(
     skipValidate = false,
 )
 val feeEstimate = request.send().values.first()
-
-assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-assertEquals(
-    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-    feeEstimate.overallFee.value,
-)
-        
 ```
 
 ## Calling contract: Fetching ETH balance
 ```kotlin
-
-assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-
 val account = constNonceAccount
 val call = Call(
     contractAddress = ethContractAddress,
@@ -339,14 +278,10 @@ val balance = Uint256(
     low = response[0],
     high = response[1],
 )
-
-assertTrue(balance.value > Felt.ZERO.value)
-    
 ```
 
 ## Making multiple calls: get multiple transactions data
 ```kotlin
-
 val blockNumber = provider.getBlockNumber().send().value
 val request = provider.batchRequests(
     provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
@@ -357,17 +292,10 @@ val request = provider.batchRequests(
 )
 
 val response = request.send()
-
-assertEquals(response[0].getOrThrow().hash, invokeTransactionHash)
-assertEquals(response[1].getOrThrow().hash, invokeTransactionHash)
-assertEquals(response[2].getOrThrow().hash, declareTransactionHash)
-assertEquals(response[3].getOrThrow().hash, deployAccountTransactionHash)
-    
 ```
 
 ## Making multiple calls of different types in one request
 ```kotlin
-
 val request = provider.batchRequestsAny(
     provider.getTransaction(invokeTransactionHash),
     provider.getBlockNumber(),
@@ -379,21 +307,10 @@ val response = request.send()
 val transaction = response[0].getOrThrow() as Transaction
 val blockNumber = (response[1].getOrThrow() as IntResponse).value
 val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
-
-assertEquals(transaction.hash, invokeTransactionHash)
-
-assertNotEquals(0, blockNumber)
-
-assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
-assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
-    
 ```
 
 ## Declaring Cairo 1/2 contract V3
 ```kotlin
-
-devnetClient.prefundAccountStrk(accountAddress)
-
 ScarbClient.buildSaltedContract(
     placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
     saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -421,14 +338,10 @@ val request = provider.declareContract(declareTransactionPayload)
 val result = request.send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-assertTrue(receipt.isAccepted)
-        
 ```
 
 ## Estimating fee for declare V3 transaction
 ```kotlin
-
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -443,25 +356,12 @@ val declareTransactionPayload = account.signDeclareV3(
     params,
     true,
 )
-
-assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
-
 val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
 val feeEstimate = request.send().values.first()
-
-assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-assertEquals(
-    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-    feeEstimate.overallFee.value,
-)
-        
 ```
 
 ## Declaring Cairo 1/2 contract V2
 ```kotlin
-
-devnetClient.prefundAccountEth(accountAddress)
-
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -478,14 +378,10 @@ val request = provider.declareContract(declareTransactionPayload)
 val result = request.send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-assertTrue(receipt.isAccepted)
-        
 ```
 
 ## Estimating fee for declare V2 transaction
 ```kotlin
-
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -499,18 +395,8 @@ val declareTransactionPayload = account.signDeclareV2(
     params = ExecutionParams(nonce, Felt.ZERO),
     forFeeEstimate = true,
 )
-
-assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
-
 val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
 val feeEstimate = request.send().values.first()
-
-assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-assertEquals(
-    feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
-    feeEstimate.overallFee.value,
-)
-        
 ```
 
 # Package com.swmansion.starknet.account
@@ -518,61 +404,7 @@ Account interface used to simplify preparing, signing Starknet transactions and 
 
 
 ## Example usage of `StandardAccount`
-```kotlin
 
-val provider = JsonRpcProvider("https://example-node-url.com/rpc")
-
-val chainId = provider.getChainId().send()
-val address = Felt(0x1234)
-val privateKey = Felt(0x1)
-val account: Account = StandardAccount(address, privateKey, provider, chainId)
-
-// Execute a single call
-val resourceBounds = ResourceBounds(
-    Uint64(10000),
-    Uint128(10000000L),
-)
-val contractAddress = Felt(0x1111)
-val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
-val request = account.executeV3(call, resourceBounds)
-val response = request.send()
-
-// Execute multiple calls
-val call1 = Call(contractAddress, "increase_balance", listOf(Felt(100)))
-val call2 = Call(contractAddress, "increase_balance", listOf(Felt(200)))
-account.executeV3(listOf(call1, call2), resourceBounds).send()
-
-// Use automatic maxFee estimation
-account.executeV3(call).send()
-
-// or
-account.executeV3(call, resourceBounds).send()
-
-// Construct transaction step by step
-val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
-
-val nonce = account.getNonce().send()
-val params = InvokeParamsV3(
-    nonce,
-    ResourceBounds(
-        Uint64(20000),
-        Uint128(1200000000),
-    ),
-)
-
-val signedTransaction= account.signV3(otherCall, params)
-val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
-
-// Sign transaction for fee estimation only
-val transactionForFeeEstimation = account.signV3(call, params, true)
-
-// Sign and verify TypedData signature
-val typedData = TypedData.fromJsonString("...")
-val typedDataSignature = account.signTypedData(typedData)
-val isValidSignatureRequest = account.verifyTypedDataSignature(typedData, typedDataSignature)
-val isValidSignature = isValidSignatureRequest.send()
-        
-```
 
 # Package com.swmansion.starknet.crypto
 
@@ -610,15 +442,7 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
 
-```kotlin
 
-// JsonRpcProvider can be created using constructor
-JsonRpcProvider("https://example-node-url.com/rpc")
-
-// or with a custom HttpService
-// JsonRpcProvider("https://example-node-url.com/rpc", myHttpService)
-    
-```
 
 # Package com.swmansion.starknet.service.http
 

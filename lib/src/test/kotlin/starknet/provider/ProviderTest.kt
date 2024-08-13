@@ -1247,6 +1247,7 @@ class ProviderTest {
 
     @Test
     fun batchGetTransactions() {
+        // docsStart
         val blockNumber = provider.getBlockNumber().send().value
         val request = provider.batchRequests(
             provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
@@ -1257,7 +1258,7 @@ class ProviderTest {
         )
 
         val response = request.send()
-
+        // docsEnd
         assertEquals(response[0].getOrThrow().hash, invokeTransactionHash)
         assertEquals(response[1].getOrThrow().hash, invokeTransactionHash)
         assertEquals(response[2].getOrThrow().hash, declareTransactionHash)
@@ -1266,6 +1267,7 @@ class ProviderTest {
 
     @Test
     fun batchRequestsAny() {
+        // docsStart
         val request = provider.batchRequestsAny(
             provider.getTransaction(invokeTransactionHash),
             provider.getBlockNumber(),
@@ -1277,7 +1279,7 @@ class ProviderTest {
         val transaction = response[0].getOrThrow() as Transaction
         val blockNumber = (response[1].getOrThrow() as IntResponse).value
         val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
-
+        // docsEnd
         assertEquals(transaction.hash, invokeTransactionHash)
 
         assertNotEquals(0, blockNumber)

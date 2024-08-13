@@ -219,6 +219,7 @@ class StandardAccountTest {
 
         @Test
         fun estimateFeeForInvokeV3Transaction() {
+            // docsStart
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV3(
@@ -226,7 +227,7 @@ class StandardAccountTest {
                 skipValidate = false,
             )
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -289,6 +290,7 @@ class StandardAccountTest {
     inner class DeclareEstimateTest {
         @Test
         fun estimateFeeForDeclareV2Transaction() {
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -302,12 +304,12 @@ class StandardAccountTest {
                 params = ExecutionParams(nonce, Felt.ZERO),
                 forFeeEstimate = true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
-
+            // docsStart
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -317,6 +319,7 @@ class StandardAccountTest {
 
         @Test
         fun estimateFeeForDeclareV3Transaction() {
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -331,12 +334,12 @@ class StandardAccountTest {
                 params,
                 true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
-
+            // docsStart
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -393,7 +396,7 @@ class StandardAccountTest {
         @Test
         fun signAndSendDeclareV2Transaction() {
             devnetClient.prefundAccountEth(accountAddress)
-
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -410,7 +413,7 @@ class StandardAccountTest {
             val result = request.send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
 
@@ -441,7 +444,7 @@ class StandardAccountTest {
         @Test
         fun signAndSendDeclareV3Transaction() {
             devnetClient.prefundAccountStrk(accountAddress)
-
+            // docsStart
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -469,7 +472,7 @@ class StandardAccountTest {
             val result = request.send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
     }
@@ -894,6 +897,7 @@ class StandardAccountTest {
     inner class DeployAccountEstimateTest {
         @Test
         fun estimateFeeForDeployAccountV1Transaction() {
+            // docsStart
             val privateKey = Felt(11112)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -919,14 +923,18 @@ class StandardAccountTest {
                 nonce = Felt.ZERO,
                 forFeeEstimate = true,
             )
+            // docsEnd
             assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
+            // docsStart
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            // docsEnd
             assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
         }
 
         @Test
         fun estimateFeeForDeployAccountV3Transaction() {
+            // docsStart
             val privateKey = Felt(22223)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -954,10 +962,12 @@ class StandardAccountTest {
                 params = params,
                 forFeeEstimate = true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
+            // docsStart
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            // docsEnd
             assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
         }
     }
@@ -966,6 +976,7 @@ class StandardAccountTest {
     inner class DeployAccountTest {
         @Test
         fun signAndSendDeployAccountV1Transaction() {
+            // docsStart
             val privateKey = Felt(11111)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -976,8 +987,12 @@ class StandardAccountTest {
                 calldata = calldata,
                 salt = salt,
             )
+
+            // Make sure to prefund the new account address with ETH
+            // docsEnd
             devnetClient.prefundAccountEth(address)
 
+            // docsStart
             val account = StandardAccount(
                 address,
                 privateKey,
@@ -993,12 +1008,14 @@ class StandardAccountTest {
             )
 
             val response = provider.deployAccount(payload).send()
-
+            // docsEnd
             // Make sure the address matches the calculated one
             assertEquals(address, response.address)
 
             // Make sure tx matches what we sent
+            // docsStart
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
+            // docsEnd
             assertEquals(payload.classHash, tx.classHash)
             assertEquals(payload.salt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
@@ -1007,17 +1024,19 @@ class StandardAccountTest {
             assertEquals(payload.maxFee, tx.maxFee)
             assertEquals(payload.signature, tx.signature)
 
+            // docsStart
             // Invoke function to make sure the account was deployed properly
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
             val result = account.executeV1(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
 
         @Test
         fun signAndSendDeployAccountV3Transaction() {
+            // docsStart
             val privateKey = Felt(22222)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -1045,8 +1064,9 @@ class StandardAccountTest {
             )
 
             // Prefund the new account address with STRK
+            // docsEnd
             devnetClient.prefundAccountStrk(address)
-
+            // docsStart
             val payload = newAccount.signDeployAccountV3(
                 classHash = accountContractClassHash,
                 salt = salt,
@@ -1056,12 +1076,13 @@ class StandardAccountTest {
             )
 
             val response = provider.deployAccount(payload).send()
-
+            // docsEnd
             // Make sure the address matches the calculated one
             assertEquals(address, response.address)
-
+            // docsStart
             // Make sure tx matches what we sent
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+            // docsEnd
             assertEquals(payload.classHash, tx.classHash)
             assertEquals(payload.salt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
@@ -1069,12 +1090,13 @@ class StandardAccountTest {
             assertEquals(payload.nonce, tx.nonce)
             assertEquals(payload.signature, tx.signature)
 
+            // docsStart
             // Invoke function to make sure the account was deployed properly
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
             val result = newAccount.executeV3(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
     }
