@@ -128,6 +128,15 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 
 ## Building documentation
 
+User guides for kotlin and java are generated automatically based on `guide.md` file (⚠️ only this file should be modified ⚠️).
+It can include both code snippets and code section tags (which are used to include code from specific function).
+They will be embedded in the respective guides
+This way the code in the documentation is always up to date with the code in the repository.
+
+Execute following command to generate the guides:
+
+`./gradlew generateGuides`
+
 Documentation is written in Kdoc format and markdown and is generated using `Dokka`. Execute
 following commands from `/lib` to build docs.
 
