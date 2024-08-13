@@ -128,10 +128,20 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 
 ## Building documentation
 
-User guides for kotlin and java are generated automatically based on `guide.md` file (⚠️ only this file should be modified ⚠️).
-It can include both code snippets and code section tags (which are used to include code from specific function).
-They will be embedded in the respective guides
-This way the code in the documentation is always up to date with the code in the repository.
+User guides for Kotlin and Java are generated automatically based on the guide.md file (⚠️ only this file should be modified ⚠️).
+This file can include both code snippets and code section tags (which are used to embed code from specific functions).
+These elements will be automatically included in the respective guides, ensuring that the documentation is always up to date with the code in the repository.
+
+
+
+Code snippet examples:
+* Kotlin - `<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="Kotlin") -->
+  `
+* Java - `<!-- codeSection(path="Main.java", function="signAndSendDeployAccountV3Transaction", language="Java") -->
+  `
+
+Content of embedded functions can be tailored using `docsStart` and `docsEnd` comments inside the function. Only the content between those comments will be included in the documentation.
+
 
 Execute following command to generate the guides:
 
