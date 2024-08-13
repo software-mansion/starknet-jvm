@@ -132,9 +132,10 @@ User guides for Kotlin and Java are generated automatically based on the guide.m
 This file can include both code snippets and code section tags (which are used to embed code from specific functions).
 These elements will be automatically included in the respective guides, ensuring that the documentation is always up to date with the code in the repository.
 
+Code section template:
+`<!-- codeSection(path="path/to/file", function="functionName", language="language") -->`
 
-
-Code snippet examples:
+Code section examples:
 * Kotlin - `<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="Kotlin") -->
   `
 * Java - `<!-- codeSection(path="Main.java", function="signAndSendDeployAccountV3Transaction", language="Java") -->
