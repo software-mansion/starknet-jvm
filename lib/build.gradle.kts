@@ -84,6 +84,9 @@ tasks.register("generateGuides") {
         val kotlinCodeBlockPattern = Regex("""```kotlin[\s\S]*?```""")
         val javaCodeBlockPattern = Regex("""```java[\s\S]*?```""")
 
+        val docsStartPattern = Regex("""^\s*//\s*docsStart\s*$""")
+        val docsEndPattern = Regex("""^\s*//\s*docsEnd\s*$""")
+
         fun extractCodeSection(path: String, functionName: String, language: String): String {
             val file = file(path)
             if (!file.exists()) {
@@ -99,11 +102,27 @@ tasks.register("generateGuides") {
 
             val matchResult = functionRegex.find(content) ?: return ""
             val codeSection = matchResult.groupValues[1].lines()
+            val filteredLines = mutableListOf<String>()
+            var capture = false
+
+            for (line in codeSection) {
+                if (docsStartPattern.containsMatchIn(line)) {
+                    capture = true
+                    continue
+                }
+                if (docsEndPattern.containsMatchIn(line)) {
+                    capture = false
+                    continue
+                }
+                if (capture) {
+                    filteredLines.add(line)
+                }
+            }
             val minIndent = codeSection.filter { it.isNotBlank() }
                 .map { it.indexOfFirst { char -> !char.isWhitespace() } }
                 .minOrNull() ?: 0
 
-            return codeSection.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
+            return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
         var kotlinContent = kotlinCodeSectionPattern.replace(guideContent) { matchResult ->
