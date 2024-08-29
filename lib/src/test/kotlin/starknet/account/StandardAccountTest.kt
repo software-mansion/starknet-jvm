@@ -89,6 +89,13 @@ class StandardAccountTest {
     }
 
     @Test
+    fun `generate random private key`() {
+        val randomPrivateKey = StandardAccount.generatePrivateKey()
+        assertTrue(randomPrivateKey.value < Felt.PRIME)
+        assertTrue(randomPrivateKey.hexStringPadded().length == 66)
+    }
+
+    @Test
     fun `cairo 0 account with automatic version detection`() {
         val call = Call(
             contractAddress = balanceContractAddress,

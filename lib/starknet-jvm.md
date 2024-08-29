@@ -156,6 +156,10 @@ public class Main {
 
         // Create an account interface
         Felt privateKey = Felt.fromHex("0x123");
+        
+        // You can also generate a random private key
+         Felt randomPrivateKey = StarknetCurve.generatePrivateKey();
+        
         Felt publicKey = StarknetCurve.getPublicKey(privateKey);
 
         // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
