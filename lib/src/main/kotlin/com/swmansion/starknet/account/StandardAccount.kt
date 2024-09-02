@@ -10,6 +10,7 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import java.math.BigInteger
+import java.security.SecureRandom
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -95,6 +96,21 @@ class StandardAccount @JvmOverloads constructor(
         private fun detectCairoVersion(provider: Provider, address: Felt): CairoVersion {
             val contract = provider.getClassAt(address).send()
             return if (contract is ContractClass) CairoVersion.ONE else CairoVersion.ZERO
+        }
+
+        /**
+         * Generate a random private key.
+         *
+         * @return private key
+         */
+        @JvmStatic
+        fun generatePrivateKey(): Felt {
+            val random = SecureRandom()
+            val randomBytes = ByteArray(32)
+            random.nextBytes(randomBytes)
+            val randomInt = BigInteger(1, randomBytes)
+            val privateKey = randomInt % Felt.PRIME
+            return privateKey.toFelt
         }
     }
 
