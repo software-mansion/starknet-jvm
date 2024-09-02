@@ -427,6 +427,7 @@ class AccountTest {
             entrypoint = "transfer",
             calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
         )
+
         val request = account.executeV1(call)
         val response = request.send()
         Thread.sleep(15000)
