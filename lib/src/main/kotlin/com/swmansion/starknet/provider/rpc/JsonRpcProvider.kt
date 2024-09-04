@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.Provider
@@ -219,7 +218,7 @@ class JsonRpcProvider(
         val payload = GetTransactionByHashPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionSerializer)
     }
 
     override fun getTransactionReceipt(transactionHash: Felt): HttpRequest<out TransactionReceipt> {
@@ -657,7 +656,7 @@ class JsonRpcProvider(
     private fun getTransactionByBlockIdAndIndex(payload: GetTransactionByBlockIdAndIndexPayload): HttpRequest<Transaction> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionSerializer)
     }
 
     override fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): HttpRequest<Transaction> {
