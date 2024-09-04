@@ -24,7 +24,8 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             TransactionType.INVOKE -> deserializeInvoke(decoder, element)
             TransactionType.DECLARE -> deserializeDeclare(decoder, element)
             TransactionType.DEPLOY_ACCOUNT -> deserializeDeployAccount(decoder, element)
-            else -> throw IllegalArgumentException("Invalid transaction type '${typeElement.jsonPrimitive.content}'")
+            TransactionType.DEPLOY -> Json.decodeFromJsonElement(DeployTransaction.serializer(), element)
+            TransactionType.L1_HANDLER -> Json.decodeFromJsonElement(L1HandlerTransaction.serializer(), element)
         }
     }
 
@@ -32,16 +33,16 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(encoder is JsonEncoder)
 
         val jsonObject = when (value) {
-            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1Serializer, value).jsonObject
             is InvokeTransactionV3 -> Json.encodeToJsonElement(InvokeTransactionV3Serializer, value).jsonObject
-            is DeclareTransactionV2 -> Json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
-            is DeclareTransactionV3 -> Json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
-            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1Serializer, value).jsonObject
-            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3Serializer, value).jsonObject
-            is DeclareTransactionV0 -> Json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
-            is DeclareTransactionV1 -> Json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
-            is DeployTransaction -> Json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
+            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1Serializer, value).jsonObject
             is InvokeTransactionV0 -> Json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
+            is DeclareTransactionV3 -> Json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
+            is DeclareTransactionV2 -> Json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
+            is DeclareTransactionV1 -> Json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
+            is DeclareTransactionV0 -> Json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
+            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3Serializer, value).jsonObject
+            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1Serializer, value).jsonObject
+            is DeployTransaction -> Json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
             is L1HandlerTransaction -> Json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
         }
 
@@ -59,6 +60,7 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(InvokeTransactionV3.serializer(), element)
             Felt.ONE -> decoder.json.decodeFromJsonElement(InvokeTransactionV1.serializer(), element)
+            Felt.ZERO -> decoder.json.decodeFromJsonElement(InvokeTransactionV0.serializer(), element)
             else -> throw IllegalArgumentException("Invalid invoke transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
@@ -70,6 +72,8 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         return when (version) {
             Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3.serializer(), element)
             Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2.serializer(), element)
+            Felt.ONE -> decoder.json.decodeFromJsonElement(DeclareTransactionV1.serializer(), element)
+            Felt.ZERO -> decoder.json.decodeFromJsonElement(DeclareTransactionV0.serializer(), element)
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
