@@ -154,6 +154,11 @@ Run
 ./gradlew installKotlinterPrePushHook
 ```
 
+### Update submodules
+Run
+```
+git submodule update --init --recursive
+```
 
 ## Running tests
 
@@ -166,6 +171,8 @@ Run
   - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 - [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
+- [`java`](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html) - make sure to have Java 11 installed and set the `JAVA_HOME` environment variable to the path of your JDK installation
+- [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed
 
 ### Regular Tests
 Use the following command to run tests:
@@ -227,3 +234,25 @@ following commands from `/lib` to build docs.
 * `./gradlew dokkaHtmlJava` to build java format docs
 
 Generated documentation can be found in their respective folders inside `/build/dokka`.
+
+## Release checklist
+Perform these actions before releasing a new starknet-jvm version:
+1. Checkout to `main` and pull
+```
+git checkout main && git pull
+```
+2. Create new branch for version bump
+```
+git checkout -b chore/bump-version-to-0.x.x
+```
+3. Update the version in `lib/build.gradle.kts` (following [semantic versioning](https://semver.org/)).
+4. After merging PR, create a new tag
+```
+git checkout main && git pull
+
+git tag -a 0.x.x -m "Version 0.x.x"
+```
+5. Push the tag (release workflow will be automatically triggered)
+```
+git push origin 0.x.x
+```
