@@ -160,9 +160,6 @@ Run
 git submodule update --init --recursive
 ```
 
-### Java
-Make sure to set the `JAVA_HOME` environment variable to the path of your JDK installation.
-
 ## Running tests
 
 ### Prerequisites
@@ -174,6 +171,8 @@ Make sure to set the `JAVA_HOME` environment variable to the path of your JDK in
   - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 - [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
+- [`java`](https://www.java.com/) - make sure to set the `JAVA_HOME` environment variable to the path of your JDK installation
+- [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed on your system
 
 ### Regular Tests
 Use the following command to run tests:
