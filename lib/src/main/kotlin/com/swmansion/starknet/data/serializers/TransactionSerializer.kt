@@ -33,22 +33,22 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(encoder is JsonEncoder)
 
         val jsonObject = when (value) {
-            is InvokeTransactionV3 -> Json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
-            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
-            is InvokeTransactionV0 -> Json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
-            is DeclareTransactionV3 -> Json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
-            is DeclareTransactionV2 -> Json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
-            is DeclareTransactionV1 -> Json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
-            is DeclareTransactionV0 -> Json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
-            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
-            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
-            is DeployTransaction -> Json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
-            is L1HandlerTransaction -> Json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
+            is InvokeTransactionV3 -> encoder.json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
+            is InvokeTransactionV1 -> encoder.json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
+            is InvokeTransactionV0 -> encoder.json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
+            is DeclareTransactionV3 -> encoder.json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
+            is DeclareTransactionV2 -> encoder.json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
+            is DeclareTransactionV1 -> encoder.json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
+            is DeclareTransactionV0 -> encoder.json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
+            is DeployAccountTransactionV3 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
+            is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
+            is DeployTransaction -> encoder.json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
+            is L1HandlerTransaction -> encoder.json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
         }
 
         val ignoredKeys = listOf("transaction_hash", "contract_address")
         val result = JsonObject(
-            jsonObject.filter { (key, _) -> !ignoredKeys.contains(key) }.plus("type" to Json.encodeToJsonElement(value.type)),
+            jsonObject.filter { (key, _) -> !ignoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
         )
         encoder.encodeJsonElement(result)
     }
@@ -73,7 +73,7 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             Felt(3) -> decoder.json.decodeFromJsonElement(DeclareTransactionV3.serializer(), element)
             Felt(2) -> decoder.json.decodeFromJsonElement(DeclareTransactionV2.serializer(), element)
             Felt.ONE -> decoder.json.decodeFromJsonElement(DeclareTransactionV1.serializer(), element)
-            Felt.ZERO -> decoder.json.decodeFromJsonElement(DeclareTransactionV0.serializer(), element)
+            Felt(0) -> decoder.json.decodeFromJsonElement(DeclareTransactionV0.serializer(), element)
             else -> throw IllegalArgumentException("Invalid declare transaction version '${versionElement.jsonPrimitive.content}'")
         }
     }
