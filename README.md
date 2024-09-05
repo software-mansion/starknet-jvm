@@ -245,7 +245,7 @@ git checkout main && git pull
 git checkout -b chore/bump-version-to-0.x.x
 ```
 3. Update the version in `lib/build.gradle.kts` (following [semantic versioning](https://semver.org/)).
-Note: For some reason, we don't increment MAJOR version.
+Note: We will never increment MAJOR version.
 4. Merge PR and create new tag
 ```
 git checkout main && git pull
