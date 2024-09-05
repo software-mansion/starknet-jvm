@@ -33,23 +33,23 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(encoder is JsonEncoder)
 
         val jsonObject = when (value) {
-            is InvokeTransactionV3 -> Json.encodeToJsonElement(InvokeTransactionV3Serializer, value).jsonObject
-            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1Serializer, value).jsonObject
+            is InvokeTransactionV3 -> Json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
+            is InvokeTransactionV1 -> Json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
             is InvokeTransactionV0 -> Json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
             is DeclareTransactionV3 -> Json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
             is DeclareTransactionV2 -> Json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
             is DeclareTransactionV1 -> Json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
             is DeclareTransactionV0 -> Json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
-            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3Serializer, value).jsonObject
-            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1Serializer, value).jsonObject
+            is DeployAccountTransactionV3 -> Json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
+            is DeployAccountTransactionV1 -> Json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
             is DeployTransaction -> Json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
             is L1HandlerTransaction -> Json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
         }
 
+        val ignoredKeys = listOf("transaction_hash", "contract_address")
         val result = JsonObject(
-            jsonObject.plus("type" to Json.encodeToJsonElement(value.type)),
+            jsonObject.filter { (key, _) -> !ignoredKeys.contains(key) }.plus("type" to Json.encodeToJsonElement(value.type)),
         )
-
         encoder.encodeJsonElement(result)
     }
 
