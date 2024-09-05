@@ -227,3 +227,26 @@ following commands from `/lib` to build docs.
 * `./gradlew dokkaHtmlJava` to build java format docs
 
 Generated documentation can be found in their respective folders inside `/build/dokka`.
+
+## Release checklist
+Perform these actions before releasing a new starknet-jvm version:
+1. Checkout to `main` and pull
+```
+git checkout main && git pull
+```
+2. Create new branch for version bump
+```
+git checkout -b chore/bump-version-to-0.x.x
+```
+3. Update the version in `lib/build.gradle.kts` (following [semantic versioning](https://semver.org/)).
+Note: For some reason, we don't increment MAJOR version.
+4. Merge PR and create new tag
+```
+git checkout main && git pull
+
+git tag -a 0.x.x -m "Version 0.x.x"
+```
+5. Push the tag (release workflow will be triggered)
+```
+git push origin 0.x.x
+```
