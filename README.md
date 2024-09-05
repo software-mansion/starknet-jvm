@@ -156,7 +156,7 @@ Run
 
 ### Update submodules
 Run
-```kotlin
+```
 git submodule update --init --recursive
 ```
 
