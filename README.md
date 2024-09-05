@@ -252,7 +252,7 @@ git checkout main && git pull
 
 git tag -a 0.x.x -m "Version 0.x.x"
 ```
-5. Push the tag (release workflow will be triggered)
+5. Push the tag (release workflow will be automatically triggered)
 ```
 git push origin 0.x.x
 ```
