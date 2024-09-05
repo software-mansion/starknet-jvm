@@ -160,6 +160,8 @@ Run
 git submodule update --init --recursive
 ```
 
+### Java
+Make sure to set the `JAVA_HOME` environment variable to the path of your JDK installation.
 
 ## Running tests
 
