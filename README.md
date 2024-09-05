@@ -154,6 +154,12 @@ Run
 ./gradlew installKotlinterPrePushHook
 ```
 
+### Update submodules
+Run
+```kotlin
+git submodule update --init --recursive
+```
+
 
 ## Running tests
 
