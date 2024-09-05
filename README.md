@@ -172,7 +172,7 @@ git submodule update --init --recursive
 - [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
 - [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
 - [`java`](https://www.java.com/) - make sure to set the `JAVA_HOME` environment variable to the path of your JDK installation
-- [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed on your system
+- [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed
 
 ### Regular Tests
 Use the following command to run tests:
