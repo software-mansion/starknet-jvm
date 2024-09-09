@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-internal val transactionIgnoredKeys = listOf("transaction_hash", "contract_address", "transaction_type")
+internal val transactionIgnoredKeys = listOf("transaction_hash", "contract_address")
 
 internal object TransactionSerializer : KSerializer<Transaction> {
     override val descriptor = PrimitiveSerialDescriptor("Transaction", PrimitiveKind.STRING)
