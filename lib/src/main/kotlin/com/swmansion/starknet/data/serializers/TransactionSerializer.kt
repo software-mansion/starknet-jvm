@@ -9,6 +9,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
+internal val transactionIgnoredKeys = listOf("transaction_hash", "contract_address", "transaction_type")
+
 internal object TransactionSerializer : KSerializer<Transaction> {
     override val descriptor = PrimitiveSerialDescriptor("Transaction", PrimitiveKind.STRING)
 
@@ -33,22 +35,21 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(encoder is JsonEncoder)
 
         val jsonObject = when (value) {
-            is InvokeTransactionV3 -> encoder.json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
-            is InvokeTransactionV1 -> encoder.json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
+            is InvokeTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is InvokeTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
             is InvokeTransactionV0 -> encoder.json.encodeToJsonElement(InvokeTransactionV0.serializer(), value).jsonObject
-            is DeclareTransactionV3 -> encoder.json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
-            is DeclareTransactionV2 -> encoder.json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
-            is DeclareTransactionV1 -> encoder.json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
+            is DeclareTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is DeclareTransactionV2 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is DeclareTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
             is DeclareTransactionV0 -> encoder.json.encodeToJsonElement(DeclareTransactionV0.serializer(), value).jsonObject
-            is DeployAccountTransactionV3 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
-            is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
+            is DeployAccountTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
             is DeployTransaction -> encoder.json.encodeToJsonElement(DeployTransaction.serializer(), value).jsonObject
             is L1HandlerTransaction -> encoder.json.encodeToJsonElement(L1HandlerTransaction.serializer(), value).jsonObject
         }
 
-        val ignoredKeys = listOf("transaction_hash", "contract_address")
         val result = JsonObject(
-            jsonObject.filter { (key, _) -> !ignoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
+            jsonObject.filter { (key, _) -> !transactionIgnoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
         )
         encoder.encodeJsonElement(result)
     }
