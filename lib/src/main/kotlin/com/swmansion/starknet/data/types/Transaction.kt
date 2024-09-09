@@ -2,6 +2,7 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
+import com.swmansion.starknet.data.serializers.ExecutableTransactionSerializer
 import com.swmansion.starknet.data.serializers.TransactionSerializer
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -80,6 +81,14 @@ sealed class Transaction : StarknetResponse {
     abstract val nonce: Felt
     abstract val type: TransactionType
 }
+
+@Serializable(with = ExecutableTransactionSerializer::class)
+sealed interface ExecutableTransaction
+{
+    @SerialName("type")
+    val type: TransactionType
+}
+
 
 @Serializable
 sealed interface DeprecatedTransaction {
@@ -218,7 +227,7 @@ data class InvokeTransactionV1 private constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction(), DeprecatedTransaction {
+) : InvokeTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         calldata: Calldata,
@@ -284,7 +293,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
-) : InvokeTransaction(), TransactionV3 {
+) : InvokeTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -456,7 +465,7 @@ data class DeclareTransactionV1 private constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
+) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,
@@ -507,7 +516,7 @@ data class DeclareTransactionV2 internal constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
+) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -585,7 +594,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction(), TransactionV3 {
+) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -734,7 +743,7 @@ data class DeployAccountTransactionV1 private constructor(
 
     @SerialName("nonce")
     override val nonce: Felt,
-) : DeployAccountTransaction(), DeprecatedTransaction {
+) : DeployAccountTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,
@@ -810,7 +819,7 @@ data class DeployAccountTransactionV3 private constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
-) : DeployAccountTransaction(), TransactionV3 {
+) : DeployAccountTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,

@@ -841,7 +841,7 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<Transaction>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
 
     /** Simulate executing a list of transactions
      *
@@ -850,7 +850,7 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<Transaction>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
 
     /** Simulate executing a list of transactions
      *
@@ -859,5 +859,5 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<Transaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
 }

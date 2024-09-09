@@ -683,7 +683,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<Transaction>,
+        transactions: List<ExecutableTransaction>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {
@@ -693,7 +693,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<Transaction>,
+        transactions: List<ExecutableTransaction>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {
@@ -703,7 +703,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<Transaction>,
+        transactions: List<ExecutableTransaction>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {
