@@ -1,6 +1,5 @@
 package com.swmansion.starknet.data.types
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -119,8 +118,8 @@ internal data class GetTransactionByBlockIdAndIndexPayload(
 
 @Serializable
 internal data class SimulateTransactionsPayload(
+    //    @Contextual
     @SerialName("transactions")
-//    @Contextual
     val transactions: List<
         ExecutableTransaction,
         >,

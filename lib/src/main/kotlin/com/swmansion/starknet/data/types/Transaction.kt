@@ -83,12 +83,10 @@ sealed class Transaction : StarknetResponse {
 }
 
 @Serializable(with = ExecutableTransactionSerializer::class)
-sealed interface ExecutableTransaction
-{
+sealed interface ExecutableTransaction {
     @SerialName("type")
     val type: TransactionType
 }
-
 
 @Serializable
 sealed interface DeprecatedTransaction {
