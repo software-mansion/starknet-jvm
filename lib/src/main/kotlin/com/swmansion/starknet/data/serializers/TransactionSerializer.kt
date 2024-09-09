@@ -37,12 +37,12 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             "TransactionSerializer can only serialize ExecutableTransaction instances."
         }
         val jsonObject = when (value) {
-            is InvokeTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-            is InvokeTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-            is DeclareTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-            is DeclareTransactionV2 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-            is DeclareTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-            is DeployAccountTransactionV3 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is InvokeTransactionV3,
+            is InvokeTransactionV1,
+            is DeclareTransactionV3,
+            is DeclareTransactionV2,
+            is DeclareTransactionV1,
+            is DeployAccountTransactionV3,
             is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
         }
 
