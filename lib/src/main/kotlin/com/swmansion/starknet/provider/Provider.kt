@@ -468,7 +468,7 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getEstimateFee(
-        payload: List<Transaction>,
+        payload: List<ExecutableTransaction>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<EstimateFeeResponseList>
@@ -483,7 +483,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<Transaction>, blockHash: Felt): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<ExecutableTransaction>, blockHash: Felt): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -497,7 +497,7 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getEstimateFee(
-        payload: List<Transaction>,
+        payload: List<ExecutableTransaction>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<EstimateFeeResponseList>
@@ -512,7 +512,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<Transaction>, blockNumber: Int): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<ExecutableTransaction>, blockNumber: Int): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -526,7 +526,7 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getEstimateFee(
-        payload: List<Transaction>,
+        payload: List<ExecutableTransaction>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): Request<EstimateFeeResponseList>
@@ -541,7 +541,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<Transaction>, blockTag: BlockTag): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<ExecutableTransaction>, blockTag: BlockTag): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -554,7 +554,7 @@ interface Provider {
      * @throws RequestFailedException
      */
 
-    fun getEstimateFee(payload: List<Transaction>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<ExecutableTransaction>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -566,7 +566,7 @@ interface Provider {
      * @throws RequestFailedException
      */
 
-    fun getEstimateFee(payload: List<Transaction>): Request<EstimateFeeResponseList>
+    fun getEstimateFee(payload: List<ExecutableTransaction>): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a message fee.

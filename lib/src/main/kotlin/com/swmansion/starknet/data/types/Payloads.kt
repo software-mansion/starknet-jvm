@@ -51,7 +51,7 @@ internal data class GetTransactionStatusPayload(
 @Serializable
 internal data class EstimateTransactionFeePayload(
     @SerialName("request")
-    val request: List<Transaction>,
+    val request: List<ExecutableTransaction>,
 
     @SerialName("simulation_flags")
     val simulationFlags: Set<SimulationFlagForEstimateFee>,
@@ -120,7 +120,7 @@ internal data class GetTransactionByBlockIdAndIndexPayload(
 @Serializable
 internal data class SimulateTransactionsPayload(
     @SerialName("transactions")
-    @Contextual
+//    @Contextual
     val transactions: List<
         ExecutableTransaction,
         >,

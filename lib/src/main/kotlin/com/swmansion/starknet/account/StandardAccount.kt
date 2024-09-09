@@ -464,7 +464,7 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<Transaction> {
+    private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
         val payload = signV1(calls, executionParams, true)
 
@@ -480,7 +480,7 @@ class StandardAccount @JvmOverloads constructor(
         return listOf(signedTransaction)
     }
 
-    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<Transaction> {
+    private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
