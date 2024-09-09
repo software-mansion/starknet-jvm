@@ -118,7 +118,6 @@ internal data class GetTransactionByBlockIdAndIndexPayload(
 
 @Serializable
 internal data class SimulateTransactionsPayload(
-    //    @Contextual
     @SerialName("transactions")
     val transactions: List<
         ExecutableTransaction,
