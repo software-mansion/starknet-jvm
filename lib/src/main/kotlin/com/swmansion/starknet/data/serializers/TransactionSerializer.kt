@@ -43,7 +43,8 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             is DeclareTransactionV2,
             is DeclareTransactionV1,
             is DeployAccountTransactionV3,
-            is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
+            is DeployAccountTransactionV1,
+            -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
         }
 
         val result = JsonObject(
