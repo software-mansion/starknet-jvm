@@ -4,7 +4,6 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.Provider
@@ -153,8 +152,8 @@ class JsonRpcProvider(
         return callContract(call, BlockTag.LATEST)
     }
 
-    override fun deployAccount(payload: DeployAccountTransactionV1Payload): HttpRequest<DeployAccountResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+    override fun deployAccount(payload: DeployAccountTransactionV1): HttpRequest<DeployAccountResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
         }
@@ -162,8 +161,8 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
     }
 
-    override fun deployAccount(payload: DeployAccountTransactionV3Payload): HttpRequest<DeployAccountResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+    override fun deployAccount(payload: DeployAccountTransactionV3): HttpRequest<DeployAccountResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("deploy_account_transaction", params)
         }
@@ -219,7 +218,7 @@ class JsonRpcProvider(
         val payload = GetTransactionByHashPayload(transactionHash)
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionSerializer)
     }
 
     override fun getTransactionReceipt(transactionHash: Felt): HttpRequest<out TransactionReceipt> {
@@ -241,9 +240,10 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeTransactionV1Payload,
+        payload: InvokeTransactionV1,
     ): HttpRequest<InvokeFunctionResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
+
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
         }
@@ -252,9 +252,9 @@ class JsonRpcProvider(
     }
 
     override fun invokeFunction(
-        payload: InvokeTransactionV3Payload,
+        payload: InvokeTransactionV3,
     ): HttpRequest<InvokeFunctionResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(payload)
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("invoke_transaction", params)
         }
@@ -346,8 +346,8 @@ class JsonRpcProvider(
         return getClassHashAt(contractAddress, BlockTag.LATEST)
     }
 
-    override fun declareContract(payload: DeclareTransactionV2Payload): HttpRequest<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV2PayloadSerializer, payload)
+    override fun declareContract(payload: DeclareTransactionV2): HttpRequest<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
@@ -355,8 +355,8 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
 
-    override fun declareContract(payload: DeclareTransactionV3Payload): HttpRequest<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(DeclareTransactionV3PayloadSerializer, payload)
+    override fun declareContract(payload: DeclareTransactionV3): HttpRequest<DeclareResponse> {
+        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
             put("declare_transaction", params)
         }
@@ -428,7 +428,7 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): HttpRequest<EstimateFeeResponseList> {
@@ -438,14 +438,14 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockHash: Felt,
     ): HttpRequest<EstimateFeeResponseList> {
         return getEstimateFee(payload, blockHash, defaultFeeEstimateSimulationFlags)
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): HttpRequest<EstimateFeeResponseList> {
@@ -455,14 +455,14 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockNumber: Int,
     ): HttpRequest<EstimateFeeResponseList> {
         return getEstimateFee(payload, blockNumber, defaultFeeEstimateSimulationFlags)
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): HttpRequest<EstimateFeeResponseList> {
@@ -472,20 +472,20 @@ class JsonRpcProvider(
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         blockTag: BlockTag,
     ): HttpRequest<EstimateFeeResponseList> {
         return getEstimateFee(payload, blockTag, defaultFeeEstimateSimulationFlags)
     }
 
     override fun getEstimateFee(
-        payload: List<TransactionPayload>,
+        payload: List<ExecutableTransaction>,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): HttpRequest<EstimateFeeResponseList> {
         return getEstimateFee(payload, BlockTag.PENDING, simulationFlags)
     }
 
-    override fun getEstimateFee(payload: List<TransactionPayload>): HttpRequest<EstimateFeeResponseList> {
+    override fun getEstimateFee(payload: List<ExecutableTransaction>): HttpRequest<EstimateFeeResponseList> {
         return getEstimateFee(payload, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
     }
 
@@ -655,7 +655,7 @@ class JsonRpcProvider(
     private fun getTransactionByBlockIdAndIndex(payload: GetTransactionByBlockIdAndIndexPayload): HttpRequest<Transaction> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionPolymorphicSerializer)
+        return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX, jsonPayload, TransactionSerializer)
     }
 
     override fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): HttpRequest<Transaction> {
@@ -683,7 +683,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
+        transactions: List<ExecutableTransaction>,
         blockTag: BlockTag,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {
@@ -693,7 +693,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
+        transactions: List<ExecutableTransaction>,
         blockNumber: Int,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {
@@ -703,7 +703,7 @@ class JsonRpcProvider(
     }
 
     override fun simulateTransactions(
-        transactions: List<TransactionPayload>,
+        transactions: List<ExecutableTransaction>,
         blockHash: Felt,
         simulationFlags: Set<SimulationFlag>,
     ): HttpRequest<SimulatedTransactionList> {

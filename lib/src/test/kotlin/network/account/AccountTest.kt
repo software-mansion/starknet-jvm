@@ -124,7 +124,7 @@ class AccountTest {
 
         val signedTransaction = DeclareTransactionV2(
             senderAddress = declareTransactionPayload.senderAddress,
-            contractDefinition = declareTransactionPayload.contractDefinition,
+            contractDefinition = declareTransactionPayload.contractDefinition!!,
             casmContractDefinition = casmContractDefinition,
             chainId = chainId,
             nonce = nonce,
@@ -132,7 +132,7 @@ class AccountTest {
             signature = declareTransactionPayload.signature,
         )
 
-        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction.toPayload()), BlockTag.LATEST, emptySet())
+        val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction), BlockTag.LATEST, emptySet())
 
         val feeEstimate = feeEstimateRequest.send().values.first()
         assertNotEquals(Felt(0), feeEstimate.gasConsumed)
@@ -499,7 +499,7 @@ class AccountTest {
 
         val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
         assertEquals(payload.classHash, tx.classHash)
-        assertEquals(payload.salt, tx.contractAddressSalt)
+        assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
         assertEquals(payload.constructorCalldata, tx.constructorCalldata)
         assertEquals(payload.version, tx.version)
         assertEquals(payload.nonce, tx.nonce)
@@ -590,7 +590,7 @@ class AccountTest {
         val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
 
         assertEquals(payload.classHash, tx.classHash)
-        assertEquals(payload.salt, tx.contractAddressSalt)
+        assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
         assertEquals(payload.constructorCalldata, tx.constructorCalldata)
         assertEquals(payload.version, tx.version)
         assertEquals(payload.nonce, tx.nonce)
@@ -651,8 +651,23 @@ class AccountTest {
         assertTrue(simulationResult.values[1].transactionTrace is RevertedInvokeTransactionTrace)
         assertNotNull((simulationResult.values[1].transactionTrace as RevertedInvokeTransactionTrace).executeInvocation.revertReason)
 
-        val invokeTxWithoutSignature = InvokeTransactionV1Payload(invokeTx.senderAddress, invokeTx.calldata, emptyList(), invokeTx.maxFee, invokeTx.version, invokeTx.nonce)
-        val invokeTxWihtoutSignature2 = InvokeTransactionV1Payload(invokeTx2.senderAddress, invokeTx2.calldata, emptyList(), invokeTx2.maxFee, invokeTx2.version, invokeTx2.nonce)
+        val chainId = provider.getChainId().send()
+        val invokeTxWithoutSignature = InvokeTransactionV1(
+            senderAddress = invokeTx.senderAddress,
+            calldata = invokeTx.calldata,
+            signature = emptyList(),
+            maxFee = invokeTx.maxFee,
+            nonce = invokeTx.nonce,
+            chainId = chainId,
+        )
+        val invokeTxWihtoutSignature2 = InvokeTransactionV1(
+            senderAddress = invokeTx2.senderAddress,
+            calldata = invokeTx2.calldata,
+            signature = emptyList(),
+            maxFee = invokeTx2.maxFee,
+            nonce = invokeTx2.nonce,
+            chainId = chainId,
+        )
         val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
         val simulationResult2 = provider.simulateTransactions(
             transactions = listOf(invokeTxWithoutSignature, invokeTxWihtoutSignature2),
@@ -699,7 +714,15 @@ class AccountTest {
         assertEquals(1, simulationResult.values.size)
         assertTrue(simulationResult.values[0].transactionTrace is DeployAccountTransactionTrace)
 
-        val deployAccountTxWithoutSignature = DeployAccountTransactionV1Payload(deployAccountTx.classHash, deployAccountTx.salt, deployAccountTx.constructorCalldata, deployAccountTx.version, deployAccountTx.nonce, deployAccountTx.maxFee, emptyList())
+        val deployAccountTxWithoutSignature = DeployAccountTransactionV1(
+            classHash = deployAccountTx.classHash,
+            salt = deployAccountTx.contractAddressSalt,
+            calldata = deployAccountTx.constructorCalldata,
+            nonce = deployAccountTx.nonce,
+            maxFee = deployAccountTx.maxFee,
+            signature = emptyList(),
+            chainId = chainId,
+        )
 
         val simulationFlags2 = setOf(SimulationFlag.SKIP_FEE_CHARGE, SimulationFlag.SKIP_VALIDATE)
         val simulationResult2 = provider.simulateTransactions(
