@@ -641,7 +641,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction private constructor(
     @SerialName("contract_address")
-    val contractAddress: Felt,
+    val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("calldata")
     val calldata: Calldata,
