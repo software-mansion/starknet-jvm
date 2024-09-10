@@ -697,8 +697,9 @@ sealed class DeployAccountTransaction : Transaction() {
     @SerialName("class_hash")
     abstract val classHash: Felt
 
+    // not in RPC spec
     @SerialName("contract_address")
-    abstract val contractAddress: Felt
+    abstract val contractAddress: Felt?
 
     @SerialName("contract_address_salt")
     abstract val contractAddressSalt: Felt
@@ -718,7 +719,7 @@ data class DeployAccountTransactionV1 private constructor(
 
     // not in RPC spec, can be removed in the future
     @SerialName("contract_address")
-    override val contractAddress: Felt = Felt.ZERO,
+    override val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("contract_address_salt")
     override val contractAddressSalt: Felt,
@@ -782,7 +783,7 @@ data class DeployAccountTransactionV3 private constructor(
 
     // not in RPC spec, can be removed in the future
     @SerialName("contract_address")
-    override val contractAddress: Felt = Felt.ZERO,
+    override val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("contract_address_salt")
     override val contractAddressSalt: Felt,
