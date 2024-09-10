@@ -36,16 +36,7 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(value is ExecutableTransaction) {
             "TransactionSerializer can only serialize ExecutableTransaction instances."
         }
-        val jsonObject = when (value) {
-            is InvokeTransactionV3,
-            is InvokeTransactionV1,
-            is DeclareTransactionV3,
-            is DeclareTransactionV2,
-            is DeclareTransactionV1,
-            is DeployAccountTransactionV3,
-            is DeployAccountTransactionV1,
-            -> encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-        }
+        val jsonObject = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
 
         val result = JsonObject(
             jsonObject.filter { (key, _) -> !transactionIgnoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
