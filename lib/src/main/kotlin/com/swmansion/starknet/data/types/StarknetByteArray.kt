@@ -37,6 +37,14 @@ data class StarknetByteArray(
         return listOf(data.size.toFelt) + data + listOf(pendingWord, pendingWordLen.toFelt)
     }
 
+    /**
+     * Encode as a String
+     */
+    override fun toString(): String {
+        val shortStrings = data.map { it.toShortString() } + pendingWord.toShortString()
+        return shortStrings.joinToString(separator = "").replace("\u0000", "")
+    }
+
     companion object {
         /**
          * Create byte array from a string.

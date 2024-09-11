@@ -18,7 +18,7 @@ internal class ByteArrayTests {
 
     companion object {
         @JvmStatic
-        private fun getByteArrayFromString(): List<ByteArrayTestCase> {
+        private fun getByteArrayTestCases(): List<ByteArrayTestCase> {
             return listOf(
                 ByteArrayTestCase(
                     input = "hello",
@@ -64,7 +64,7 @@ internal class ByteArrayTests {
     }
 
     @ParameterizedTest
-    @MethodSource("getByteArrayFromString")
+    @MethodSource("getByteArrayTestCases")
     fun `byte array from string`(testCase: ByteArrayTestCase) {
         val byteArray = StarknetByteArray.fromString(testCase.input)
 
@@ -76,6 +76,18 @@ internal class ByteArrayTests {
             listOf(testCase.data.size.toFelt) + testCase.data + listOf(testCase.pendingWord, testCase.pendingWordLen.toFelt),
             byteArray.toCalldata(),
         )
+    }
+
+    @ParameterizedTest
+    @MethodSource("getByteArrayTestCases")
+    fun `byte array to string`(testCase: ByteArrayTestCase) {
+        val byteArray = StarknetByteArray(
+            data = testCase.data,
+            pendingWord = testCase.pendingWord,
+            pendingWordLen = testCase.pendingWordLen,
+        )
+
+        assertEquals(testCase.input, byteArray.toString())
     }
 
     @Nested
