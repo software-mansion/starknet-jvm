@@ -1,8 +1,8 @@
 package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.serializers.BlockIdSerializer
-import com.swmansion.starknet.data.serializers.TransactionPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.TransactionSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -82,7 +82,7 @@ data class ProcessedBlockWithTransactions(
 
     @SerialName("transactions")
     override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
+        @Serializable(with = TransactionSerializer::class)
         Transaction,
         >,
 
@@ -121,7 +121,7 @@ data class ProcessedBlockWithTransactions(
 data class PendingBlockWithTransactions(
     @SerialName("transactions")
     override val transactions: List<
-        @Serializable(with = TransactionPolymorphicSerializer::class)
+        @Serializable(with = TransactionSerializer::class)
         Transaction,
         >,
 
@@ -149,7 +149,7 @@ data class PendingBlockWithTransactions(
 
 @Serializable
 data class TransactionWithReceipt(
-    @Serializable(with = TransactionPolymorphicSerializer::class)
+    @Serializable(with = TransactionSerializer::class)
     @SerialName("transaction")
     val transaction: Transaction,
 

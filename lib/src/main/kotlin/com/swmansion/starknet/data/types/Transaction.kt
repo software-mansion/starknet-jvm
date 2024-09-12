@@ -2,6 +2,8 @@ package com.swmansion.starknet.data.types
 
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
+import com.swmansion.starknet.data.serializers.ExecutableTransactionSerializer
+import com.swmansion.starknet.data.serializers.TransactionSerializer
 import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -71,13 +73,19 @@ enum class DAMode(val value: Int) {
     L2(1),
 }
 
-@Serializable
+@Serializable(with = TransactionSerializer::class)
 sealed class Transaction : StarknetResponse {
     abstract val hash: Felt?
     abstract val version: TransactionVersion
     abstract val signature: Signature
     abstract val nonce: Felt
     abstract val type: TransactionType
+}
+
+@Serializable(with = ExecutableTransactionSerializer::class)
+sealed interface ExecutableTransaction {
+    @SerialName("type")
+    val type: TransactionType
 }
 
 @Serializable
@@ -217,7 +225,7 @@ data class InvokeTransactionV1 private constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction(), DeprecatedTransaction {
+) : InvokeTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         calldata: Calldata,
@@ -243,17 +251,6 @@ data class InvokeTransactionV1 private constructor(
         signature = signature,
         nonce = nonce,
     )
-
-    fun toPayload(): InvokeTransactionV1Payload {
-        return InvokeTransactionV1Payload(
-            calldata = calldata,
-            signature = signature,
-            maxFee = maxFee,
-            nonce = nonce,
-            senderAddress = senderAddress,
-            version = version,
-        )
-    }
 }
 
 @Serializable
@@ -294,7 +291,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
-) : InvokeTransaction(), TransactionV3 {
+) : InvokeTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -330,17 +327,6 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
     )
-
-    fun toPayload(): InvokeTransactionV3Payload {
-        return InvokeTransactionV3Payload(
-            calldata = calldata,
-            signature = signature,
-            nonce = nonce,
-            senderAddress = senderAddress,
-            version = version,
-            resourceBounds = resourceBounds,
-        )
-    }
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -477,7 +463,7 @@ data class DeclareTransactionV1 private constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
+) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,
@@ -528,7 +514,7 @@ data class DeclareTransactionV2 internal constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
+) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -558,20 +544,6 @@ data class DeclareTransactionV2 internal constructor(
         nonce = nonce,
         compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
     )
-
-    @Throws(ConvertingToPayloadFailedException::class)
-    internal fun toPayload(): DeclareTransactionV2Payload {
-        contractDefinition ?: throw ConvertingToPayloadFailedException()
-        return DeclareTransactionV2Payload(
-            contractDefinition = contractDefinition,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            nonce = nonce,
-            signature = signature,
-            compiledClassHash = compiledClassHash,
-            version = version,
-        )
-    }
 
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
@@ -620,7 +592,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction(), TransactionV3 {
+) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         senderAddress: Felt,
@@ -661,20 +633,6 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         feeDataAvailabilityMode = DAMode.L1,
     )
 
-    @Throws(ConvertingToPayloadFailedException::class)
-    internal fun toPayload(): DeclareTransactionV3Payload {
-        contractDefinition ?: throw ConvertingToPayloadFailedException()
-        return DeclareTransactionV3Payload(
-            contractDefinition = contractDefinition,
-            senderAddress = senderAddress,
-            nonce = nonce,
-            resourceBounds = resourceBounds,
-            signature = signature,
-            compiledClassHash = compiledClassHash,
-            version = version,
-        )
-    }
-
     internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
@@ -683,7 +641,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 @SerialName("L1_HANDLER")
 data class L1HandlerTransaction private constructor(
     @SerialName("contract_address")
-    val contractAddress: Felt,
+    val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("calldata")
     val calldata: Calldata,
@@ -739,8 +697,9 @@ sealed class DeployAccountTransaction : Transaction() {
     @SerialName("class_hash")
     abstract val classHash: Felt
 
+    // not in RPC spec
     @SerialName("contract_address")
-    abstract val contractAddress: Felt
+    abstract val contractAddress: Felt?
 
     @SerialName("contract_address_salt")
     abstract val contractAddressSalt: Felt
@@ -760,7 +719,7 @@ data class DeployAccountTransactionV1 private constructor(
 
     // not in RPC spec, can be removed in the future
     @SerialName("contract_address")
-    override val contractAddress: Felt = Felt.ZERO,
+    override val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("contract_address_salt")
     override val contractAddressSalt: Felt,
@@ -783,7 +742,7 @@ data class DeployAccountTransactionV1 private constructor(
 
     @SerialName("nonce")
     override val nonce: Felt,
-) : DeployAccountTransaction(), DeprecatedTransaction {
+) : DeployAccountTransaction(), DeprecatedTransaction, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,
@@ -814,18 +773,6 @@ data class DeployAccountTransactionV1 private constructor(
         ),
         signature = signature,
     )
-
-    internal fun toPayload(): DeployAccountTransactionV1Payload {
-        return DeployAccountTransactionV1Payload(
-            classHash = classHash,
-            salt = contractAddressSalt,
-            constructorCalldata = constructorCalldata,
-            version = version,
-            nonce = nonce,
-            maxFee = maxFee,
-            signature = signature,
-        )
-    }
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -836,7 +783,7 @@ data class DeployAccountTransactionV3 private constructor(
 
     // not in RPC spec, can be removed in the future
     @SerialName("contract_address")
-    override val contractAddress: Felt = Felt.ZERO,
+    override val contractAddress: Felt? = Felt.ZERO,
 
     @SerialName("contract_address_salt")
     override val contractAddressSalt: Felt,
@@ -871,7 +818,7 @@ data class DeployAccountTransactionV3 private constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
-) : DeployAccountTransaction(), TransactionV3 {
+) : DeployAccountTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
         classHash: Felt,
@@ -909,15 +856,5 @@ data class DeployAccountTransactionV3 private constructor(
         paymasterData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
-    )
-
-    internal fun toPayload() = DeployAccountTransactionV3Payload(
-        classHash = classHash,
-        salt = contractAddressSalt,
-        constructorCalldata = constructorCalldata,
-        version = version,
-        nonce = nonce,
-        signature = signature,
-        resourceBounds = resourceBounds,
     )
 }
