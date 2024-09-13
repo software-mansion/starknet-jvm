@@ -12,7 +12,8 @@ echo "Installing scarb..."
 asdf plugin add scarb || true
 echo "Done!"
 
-
+echo "Checking v1 contracts formatting..."
+scarb fmt --check
 echo "Compiling v1 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V1_CONTRACT_PATH" || exit 1
@@ -23,7 +24,8 @@ popd || exit 1
 popd || exit 1
 echo "Done!"
 
-
+echo "Checking v2 contracts formatting..."
+scarb fmt --check
 echo "Compiling v2 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V2_CONTRACT_PATH" || exit 1
@@ -34,6 +36,8 @@ popd || exit 1
 popd || exit 1
 echo "Done!"
 
+echo "Checking v2.6 contracts formatting..."
+scarb fmt --check
 echo "Compiling v2.6 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V2_6_CONTRACT_PATH" || exit 1
