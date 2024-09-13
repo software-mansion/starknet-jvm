@@ -60,6 +60,12 @@ internal class ByteArrayTests {
                     pendingWordLen = 0,
                 ),
                 ByteArrayTestCase(
+                    input = "\u0000",
+                    data = emptyList(),
+                    pendingWord = Felt.ZERO,
+                    pendingWordLen = 1,
+                ),
+                ByteArrayTestCase(
                     input = "This is my string: \u0000",
                     data = emptyList(),
                     pendingWord = Felt.fromHex("0x54686973206973206d7920737472696e673a2000"),
