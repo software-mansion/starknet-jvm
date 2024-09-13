@@ -18,7 +18,7 @@ internal class ByteArrayTests {
 
     companion object {
         @JvmStatic
-        private fun getByteArrayFromString(): List<ByteArrayTestCase> {
+        private fun getByteArrayTestCases(): List<ByteArrayTestCase> {
             return listOf(
                 ByteArrayTestCase(
                     input = "hello",
@@ -59,12 +59,30 @@ internal class ByteArrayTests {
                     pendingWord = Felt.ZERO,
                     pendingWordLen = 0,
                 ),
+                ByteArrayTestCase(
+                    input = "\u0000",
+                    data = emptyList(),
+                    pendingWord = Felt.ZERO,
+                    pendingWordLen = 1,
+                ),
+                ByteArrayTestCase(
+                    input = "This is my string: \u0000",
+                    data = emptyList(),
+                    pendingWord = Felt.fromHex("0x54686973206973206d7920737472696e673a2000"),
+                    pendingWordLen = 20,
+                ),
+                ByteArrayTestCase(
+                    input = "This is my string, I like it!: \u0000",
+                    data = listOf(Felt.fromHex("0x54686973206973206d7920737472696e672c2049206c696b65206974213a20")),
+                    pendingWord = Felt.ZERO,
+                    pendingWordLen = 1,
+                ),
             )
         }
     }
 
     @ParameterizedTest
-    @MethodSource("getByteArrayFromString")
+    @MethodSource("getByteArrayTestCases")
     fun `byte array from string`(testCase: ByteArrayTestCase) {
         val byteArray = StarknetByteArray.fromString(testCase.input)
 
@@ -76,6 +94,18 @@ internal class ByteArrayTests {
             listOf(testCase.data.size.toFelt) + testCase.data + listOf(testCase.pendingWord, testCase.pendingWordLen.toFelt),
             byteArray.toCalldata(),
         )
+    }
+
+    @ParameterizedTest
+    @MethodSource("getByteArrayTestCases")
+    fun `byte array to string`(testCase: ByteArrayTestCase) {
+        val byteArray = StarknetByteArray(
+            data = testCase.data,
+            pendingWord = testCase.pendingWord,
+            pendingWordLen = testCase.pendingWordLen,
+        )
+
+        assertEquals(testCase.input, byteArray.toString())
     }
 
     @Nested
