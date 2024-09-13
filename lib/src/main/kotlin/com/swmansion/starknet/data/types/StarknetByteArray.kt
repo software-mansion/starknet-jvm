@@ -44,7 +44,6 @@ data class StarknetByteArray(
      * Encode as a String
      */
     override fun toString(): String {
-        // Handle edge case when pending word is null character.
         val pendingWordShortString = if (pendingWord == Felt.ZERO && pendingWordLen == 0) "" else pendingWord.toShortString()
         val shortStrings = data.map { it.toShortString() } + pendingWordShortString
         return shortStrings.joinToString(separator = "")
