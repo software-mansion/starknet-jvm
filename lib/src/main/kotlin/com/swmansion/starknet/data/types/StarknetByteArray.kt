@@ -60,21 +60,6 @@ data class StarknetByteArray(
         fun fromString(string: String): StarknetByteArray {
             val shortStrings = string.splitToShortStrings()
             val encodedShortStrings = shortStrings.map(Felt::fromShortString)
-
-//            if(shortStrings.isEmpty()) {
-//                return StarknetByteArray(emptyList(), Felt.ZERO, 0)
-//            }
-//            else if(shortStrings.last().length == 31) {
-//                return StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
-//            }
-//            // edge case for "\u0000" character
-//            else if (encodedShortStrings.last() == Felt.ZERO) {
-//                return StarknetByteArray(encodedShortStrings.dropLast(1), encodedShortStrings.last(), 1)
-//            }
-//            else {
-//                return StarknetByteArray(encodedShortStrings.dropLast(1), encodedShortStrings.last(), shortStrings.last().length)
-//            }
-
             return if (shortStrings.isEmpty() || shortStrings.last().length == 31)
                 StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
             else
