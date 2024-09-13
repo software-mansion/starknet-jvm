@@ -26,7 +26,7 @@ data class StarknetByteArray(
             "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
         }
         // We skip the edge case when pending word is a null character, because its pendingWord.byteLength is 0 and pendingWordLen is 1.
-        if(!(pendingWord == Felt.ZERO && pendingWordLen == 1)) {
+        if (!(pendingWord == Felt.ZERO && pendingWordLen == 1)) {
             require(pendingWord.byteLength == pendingWordLen) {
                 "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
             }
@@ -45,7 +45,7 @@ data class StarknetByteArray(
      */
     override fun toString(): String {
         // Handle edge case when pending word is null character.
-        val pendingWordShortString = if(pendingWord == Felt.ZERO && pendingWordLen == 0) "" else pendingWord.toShortString()
+        val pendingWordShortString = if (pendingWord == Felt.ZERO && pendingWordLen == 0) "" else pendingWord.toShortString()
         val shortStrings = data.map { it.toShortString() } + pendingWordShortString
         return shortStrings.joinToString(separator = "")
     }

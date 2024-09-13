@@ -60,11 +60,11 @@ internal class ByteArrayTests {
                     pendingWordLen = 0,
                 ),
                 ByteArrayTestCase(
-                    input="This is my string, I like it!: \u0000",
+                    input = "This is my string, I like it!: \u0000",
                     data = listOf(Felt.fromHex("0x54686973206973206d7920737472696e672c2049206c696b65206974213a20")),
                     pendingWord = Felt.ZERO,
                     pendingWordLen = 1,
-                )
+                ),
             )
         }
     }
