@@ -28,7 +28,7 @@ data class StarknetByteArray(
         require(pendingWordLen in 0..30) {
             "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
         }
-        // We skip the edge case when pending word is a null character, because its pendingWord.byteLength is 0 and pendingWordLen is 1.
+        // We skip the edge case when pending word is a null character, because its pendingWord.byteLength is not equal to pendingWordLen.
         if (!isPendingWordNullChar) {
             require(pendingWord.byteLength == pendingWordLen) {
                 "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
