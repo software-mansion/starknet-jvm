@@ -60,6 +60,7 @@ data class StarknetByteArray(
         fun fromString(string: String): StarknetByteArray {
             val shortStrings = string.splitToShortStrings()
             val encodedShortStrings = shortStrings.map(Felt::fromShortString)
+
             return if (shortStrings.isEmpty() || shortStrings.last().length == 31)
                 StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
             else
