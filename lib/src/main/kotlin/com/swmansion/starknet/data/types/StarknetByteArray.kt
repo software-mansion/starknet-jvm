@@ -18,6 +18,9 @@ data class StarknetByteArray(
     val pendingWord: Felt,
     val pendingWordLen: Int,
 ) : ConvertibleToCalldata {
+    private val isPendingWordNullChar: Boolean
+        get() = pendingWord == Felt.ZERO && pendingWordLen == 1
+
     init {
         data.forEach {
             require(it.byteLength == 31) { "All elements of 'data' must be 31 bytes long. [${it.hexString()}] of length [${it.byteLength}] given." }
@@ -26,7 +29,6 @@ data class StarknetByteArray(
             "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
         }
         // We skip the edge case when pending word is a null character, because its pendingWord.byteLength is 0 and pendingWordLen is 1.
-        val isPendingWordNullChar = pendingWord == Felt.ZERO && pendingWordLen == 1
         if (!isPendingWordNullChar) {
             require(pendingWord.byteLength == pendingWordLen) {
                 "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
@@ -45,7 +47,7 @@ data class StarknetByteArray(
      * Encode as a String
      */
     override fun toString(): String {
-        val pendingWordShortString = if (pendingWord == Felt.ZERO && pendingWordLen == 0) "" else pendingWord.toShortString()
+        val pendingWordShortString = if (isPendingWordNullChar || pendingWordLen > 0) pendingWord.toShortString() else ""
         val shortStrings = data.map { it.toShortString() } + pendingWordShortString
         return shortStrings.joinToString(separator = "")
     }
