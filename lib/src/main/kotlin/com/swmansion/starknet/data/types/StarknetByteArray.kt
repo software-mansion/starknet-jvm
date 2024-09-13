@@ -25,8 +25,11 @@ data class StarknetByteArray(
         require(pendingWordLen in 0..30) {
             "The length of 'pendingWord' must be between 0 and 30. [$pendingWordLen] given."
         }
-        require(pendingWord.byteLength == pendingWordLen) {
-            "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
+        // We skip the edge case when pending word is a null character, because its pendingWord.byteLength is 0 and pendingWordLen is 1.
+        if(!(pendingWord == Felt.ZERO && pendingWordLen == 1)) {
+            require(pendingWord.byteLength == pendingWordLen) {
+                "The length of 'pendingWord' must be equal to 'pendingWordLen'. [${pendingWord.hexString()}] of length [${pendingWord.byteLength}] given."
+            }
         }
     }
 
@@ -41,8 +44,10 @@ data class StarknetByteArray(
      * Encode as a String
      */
     override fun toString(): String {
-        val shortStrings = data.map { it.toShortString() } + pendingWord.toShortString()
-        return shortStrings.joinToString(separator = "").replace("\u0000", "")
+        // Handle edge case when pending word is null character.
+        val pendingWordShortString = if(pendingWord == Felt.ZERO && pendingWordLen == 0) "" else pendingWord.toShortString()
+        val shortStrings = data.map { it.toShortString() } + pendingWordShortString
+        return shortStrings.joinToString(separator = "")
     }
 
     companion object {
@@ -55,6 +60,20 @@ data class StarknetByteArray(
         fun fromString(string: String): StarknetByteArray {
             val shortStrings = string.splitToShortStrings()
             val encodedShortStrings = shortStrings.map(Felt::fromShortString)
+
+//            if(shortStrings.isEmpty()) {
+//                return StarknetByteArray(emptyList(), Felt.ZERO, 0)
+//            }
+//            else if(shortStrings.last().length == 31) {
+//                return StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
+//            }
+//            // edge case for "\u0000" character
+//            else if (encodedShortStrings.last() == Felt.ZERO) {
+//                return StarknetByteArray(encodedShortStrings.dropLast(1), encodedShortStrings.last(), 1)
+//            }
+//            else {
+//                return StarknetByteArray(encodedShortStrings.dropLast(1), encodedShortStrings.last(), shortStrings.last().length)
+//            }
 
             return if (shortStrings.isEmpty() || shortStrings.last().length == 31)
                 StarknetByteArray(encodedShortStrings, Felt.ZERO, 0)
