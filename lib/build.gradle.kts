@@ -78,8 +78,10 @@ tasks.register("generateGuides") {
 
         val guideContent = guideFile.readText()
 
-        val kotlinCodeSectionPattern = Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="Kotlin"\) -->""")
-        val javaCodeSectionPattern = Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="Java"\) -->""")
+        val kotlinCodeSectionPattern =
+            Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="kotlin"\) -->""")
+        val javaCodeSectionPattern =
+            Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="java"\) -->""")
 
         val kotlinCodeBlockPattern = Regex("""```kotlin[\s\S]*?```""")
         val javaCodeBlockPattern = Regex("""```java[\s\S]*?```""")
@@ -95,9 +97,13 @@ tasks.register("generateGuides") {
 
             val content = file.readText()
             val functionRegex = when (language) {
-                "Kotlin" -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
-                "Java" -> Regex("""(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""", RegexOption.MULTILINE)
-                else -> throw IllegalArgumentException("Unsupported language: $language")
+                "kotlin" -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
+                "java" -> Regex(
+                    """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
+                    RegexOption.MULTILINE,
+                )
+
+                else -> throw IllegalArgumentException("Unsupported language $language while extracting code section.")
             }
 
             val matchResult = functionRegex.find(content) ?: return ""
@@ -125,30 +131,25 @@ tasks.register("generateGuides") {
             return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
-        var kotlinContent = kotlinCodeSectionPattern.replace(guideContent) { matchResult ->
-            val path = matchResult.groupValues[1]
-            val functionName = matchResult.groupValues[2]
-            val codeSection = extractCodeSection("$kotlinSamplesDir/$path", functionName, "Kotlin")
-            if (codeSection.isBlank()) "" else "```kotlin\n$codeSection\n```"
+        fun processFileContent(pattern: Regex, samplesDir: String, language: String): String {
+            var content = pattern.replace(guideContent) { matchResult ->
+                val path = matchResult.groupValues[1]
+                val functionName = matchResult.groupValues[2]
+                val codeSection = extractCodeSection("$samplesDir/$path", functionName, language)
+                if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
+            }
+
+            content = content.replace(kotlinCodeSectionPattern, "")
+                .replace(javaCodeSectionPattern, "")
+
+            return content.replace(
+                if (language == "kotlin") javaCodeBlockPattern else kotlinCodeBlockPattern,
+                ""
+            )
         }
 
-        var javaContent = javaCodeSectionPattern.replace(guideContent) { matchResult ->
-            val path = matchResult.groupValues[1]
-            val functionName = matchResult.groupValues[2]
-            val codeSection = extractCodeSection("$javaSamplesDir/$path", functionName, "Java")
-            if (codeSection.isBlank()) "" else "```java\n$codeSection\n```"
-        }
-
-        kotlinContent = kotlinContent
-            .replace(kotlinCodeSectionPattern, "")
-            .replace(javaCodeSectionPattern, "")
-
-        javaContent = javaContent
-            .replace(kotlinCodeSectionPattern, "")
-            .replace(javaCodeSectionPattern, "")
-
-        kotlinContent = kotlinContent.replace(javaCodeBlockPattern, "")
-        javaContent = javaContent.replace(kotlinCodeBlockPattern, "")
+        val kotlinContent = processFileContent(kotlinCodeSectionPattern, kotlinSamplesDir, "kotlin")
+        val javaContent = processFileContent(javaCodeSectionPattern, javaSamplesDir, "java")
 
         kotlinGuideFile.writeText(kotlinContent)
         javaGuideFile.writeText(javaContent)
