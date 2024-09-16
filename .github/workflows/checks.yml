@@ -42,7 +42,7 @@ jobs:
           popd
 
       - name: Cache devnet build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: starknet-devnet-rs/target/release
           key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}

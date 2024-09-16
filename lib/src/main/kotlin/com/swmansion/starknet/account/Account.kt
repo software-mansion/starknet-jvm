@@ -23,7 +23,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 1 payload
      */
-    fun signV1(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload {
+    fun signV1(call: Call, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1 {
         return signV1(listOf(call), params, forFeeEstimate)
     }
 
@@ -37,7 +37,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload {
+    fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3 {
         return signV3(listOf(call), params, forFeeEstimate)
     }
 
@@ -50,7 +50,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
      */
-    fun signV1(call: Call, params: ExecutionParams): InvokeTransactionV1Payload {
+    fun signV1(call: Call, params: ExecutionParams): InvokeTransactionV1 {
         return signV1(listOf(call), params, false)
     }
 
@@ -63,7 +63,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3Payload {
+    fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3 {
         return signV3(listOf(call), params, false)
     }
 
@@ -77,7 +77,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 1 payload
      */
-    fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1Payload
+    fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1
 
     /**
      * Sign multiple calls as a single version 3 invoke transaction.
@@ -89,7 +89,7 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3Payload
+    fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3
 
     /**
      * Sign multiple calls as a single version 1 invoke transaction.
@@ -100,7 +100,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 1 payload
      */
-    fun signV1(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1Payload {
+    fun signV1(calls: List<Call>, params: ExecutionParams): InvokeTransactionV1 {
         return signV1(calls, params, false)
     }
 
@@ -113,7 +113,7 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3Payload {
+    fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3 {
         return signV3(calls, params, false)
     }
 
@@ -137,7 +137,7 @@ interface Account {
         maxFee: Felt,
         nonce: Felt,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV1Payload
+    ): DeployAccountTransactionV1
 
     /**
      * Sign version 3 deploy account transaction.
@@ -157,7 +157,7 @@ interface Account {
         salt: Felt,
         params: DeployAccountParamsV3,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV3Payload
+    ): DeployAccountTransactionV3
 
     /**
      * Sign version 1 deploy account transaction.
@@ -175,7 +175,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         maxFee: Felt,
-    ): DeployAccountTransactionV1Payload {
+    ): DeployAccountTransactionV1 {
         return signDeployAccountV1(classHash, calldata, salt, maxFee, Felt.ZERO, false)
     }
 
@@ -196,7 +196,7 @@ interface Account {
         salt: Felt,
         l1ResourceBounds: ResourceBounds,
         forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV3Payload {
+    ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
             l1ResourceBounds = l1ResourceBounds,
@@ -219,7 +219,7 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         l1ResourceBounds: ResourceBounds,
-    ): DeployAccountTransactionV3Payload {
+    ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
             l1ResourceBounds = l1ResourceBounds,
@@ -243,7 +243,7 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionV2Payload
+    ): DeclareTransactionV2
 
     /**
      * Sign a version 2 declare transaction.
@@ -259,7 +259,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: ExecutionParams,
-    ): DeclareTransactionV2Payload {
+    ): DeclareTransactionV2 {
         return signDeclareV2(sierraContractDefinition, casmContractDefinition, params, false)
     }
 
@@ -279,7 +279,7 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionV3Payload
+    ): DeclareTransactionV3
 
     /**
      * Sign a version 3 declare transaction.
@@ -295,7 +295,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
-    ): DeclareTransactionV3Payload {
+    ): DeclareTransactionV3 {
         return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false)
     }
 

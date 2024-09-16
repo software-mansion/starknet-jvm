@@ -91,6 +91,13 @@ class StandardAccountTest {
     }
 
     @Test
+    fun `generate random private key`() {
+        val randomPrivateKey = StandardAccount.generatePrivateKey()
+        assertTrue(randomPrivateKey.value < Felt.PRIME)
+        assertTrue(randomPrivateKey.hexStringPadded().length == 66)
+    }
+
+    @Test
     fun `cairo 0 account with automatic version detection`() {
         val call = Call(
             contractAddress = balanceContractAddress,
@@ -1017,7 +1024,7 @@ class StandardAccountTest {
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
             // docsEnd
             assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
+            assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
             assertEquals(payload.version, tx.version)
             assertEquals(payload.nonce, tx.nonce)
@@ -1084,7 +1091,7 @@ class StandardAccountTest {
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
             // docsEnd
             assertEquals(payload.classHash, tx.classHash)
-            assertEquals(payload.salt, tx.contractAddressSalt)
+            assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
             assertEquals(payload.version, tx.version)
             assertEquals(payload.nonce, tx.nonce)
