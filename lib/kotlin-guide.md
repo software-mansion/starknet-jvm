@@ -120,11 +120,7 @@ fun main() {
 
 ## Making synchronous requests
 
-### In Java
 
-
-
-### In Kotlin
 
 ```kotlin
 import com.swmansion.starknet.data.types.BlockTag
@@ -150,11 +146,7 @@ fun main() {
 It is also possible to make asynchronous requests. `Request.sendAsync()` returns a `CompletableFuture`
 that can be than handled in preferred way.
 
-### In Java
 
-
-
-### In Kotlin
 
 ```kotlin
 import com.swmansion.starknet.data.types.BlockTag
@@ -222,6 +214,7 @@ val result = newAccount.executeV3(call).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
+
 
 ## Estimating fee for deploy account V3 transaction
 
@@ -532,8 +525,6 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 
 Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
-
-
 
 # Package com.swmansion.starknet.service.http
 

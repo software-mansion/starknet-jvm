@@ -1287,14 +1287,4 @@ class ProviderTest {
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
     }
-
-    @Test
-    @Disabled("Used as example in docs")
-    fun jsonRpcProviderCreationExample() {
-        // JsonRpcProvider can be created using constructor
-        JsonRpcProvider("https://example-node-url.com/rpc")
-
-        // or with a custom HttpService
-        // JsonRpcProvider("https://example-node-url.com/rpc", myHttpService)
-    }
 }
