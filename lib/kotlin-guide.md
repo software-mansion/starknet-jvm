@@ -5,8 +5,23 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
 
-## Reusing http clients
+## Quickstart
+### Using provider
+`Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
+It supports read and write operations, like querying the blockchain state or adding new transactions.
+```kotlin
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
+fun main() {
+    val provider = JsonRpcProvider("https://your.node.url")
+    
+    val request = provider.getBlockWithTxs(1)
+    val response = request.send()
+}
+```
+
+
+### Reusing providers
 Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
 This way you reuse connections and thread pools.
 
@@ -26,6 +41,82 @@ val account1 = StandardAccount(provider1, accountAddress1, privateKey1)
 val provider2 = JsonRpcProvider("https://example-node-url.com/rpc")
 val account2 = StandardAccount(provider2, accountAddress2, privateKey2)
 ```
+
+### Creating account
+`StandardAccount` is the default implementation of `Account` interface. It supports an account contract which proxies the calls to other contracts on Starknet.
+
+Account can be created in two ways:
+
+- By constructor (It is required to provide an address and either private key or signer).
+
+- By methods `Account.signDeployAccountV3()` or `Account.signDeployAccountV3()`
+
+There are some examples how to do it:
+
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+
+fun main() {
+    // If you don't have a private key, you can generate a random one
+    val randomPrivateKey = StandardAccount.generatePrivateKey()
+
+    // Create an instance of account which is already deployed
+    // providing an address and a private key
+    val account = StandardAccount(
+        address = Felt.fromHex("0x123"),
+        privateKey = Felt.fromHex("0x456"),
+        provider = ...,
+        chainId = StarknetChainId.SEPOLIA,
+    )
+    
+    // It's possible to specify a signer
+    val accountWithSigner = StandardAccount(
+        address = Felt.fromHex("0x123"),
+        signer = ...,
+        provider = ...,
+        chainId = StarknetChainId.SEPOLIA,
+    )
+}
+```
+
+
+
+### Using account - transferring STRK tokens
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
+    val provider = JsonRpcProvider("https://your.node.url")
+    val account = StandardAccount(
+        address = Felt.fromHex("0x123"),
+        privateKey = Felt.fromHex("0x456"),
+        provider = provider,
+        chainId = StarknetChainId.SEPOLIA,
+    )
+
+
+    val amount = Uint256(Felt(100))
+    val recipientAccountAddress = Felt.fromHex("0x789")
+    val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
+    val call = Call(
+        contractAddress = strkContractAddress,
+        entrypoint = "transfer",
+        calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
+    )
+
+    val request = account.executeV3(call)
+    val response = request.send()
+}
+```
+
+
 
 ## Making synchronous requests
 

@@ -5,8 +5,25 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
 
-## Reusing http clients
+## Quickstart
+### Using provider
+`Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
+It supports read and write operations, like querying the blockchain state or adding new transactions.
 
+```java
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+public class Main {
+    public static void main(String[] args) {
+        JsonRpcProvider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl);
+        
+        Request<BlockWithTxs> request = provider.getBlockWithTxs(1);
+        BlockWithTxs response = request.send();
+    }
+}
+```
+
+### Reusing providers
 Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
 This way you reuse connections and thread pools.
 
@@ -26,6 +43,89 @@ Provider provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
 Account account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 
+
+### Creating account
+`StandardAccount` is the default implementation of `Account` interface. It supports an account contract which proxies the calls to other contracts on Starknet.
+
+Account can be created in two ways:
+
+- By constructor (It is required to provide an address and either private key or signer).
+
+- By methods `Account.signDeployAccountV3()` or `Account.signDeployAccountV3()`
+
+There are some examples how to do it:
+
+
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.data.types.StarknetChainId;
+
+public class Main {
+    public static void main(String[] args) {
+        // If you don't have a private key, you can generate a random one
+        Felt randomPrivateKey = StandardAccount.generatePrivateKey();
+
+        // Create an instance of account which is already deployed
+        // providing an address and a private key
+        Account account = StandardAccount(
+                Felt.fromHex("0x123"),
+                Felt.fromHex("0x456"),
+                provider,
+                StarknetChainId.SEPOLIA
+                );
+
+        // It's possible to specify a signer
+        Account accountWithSigner = StandardAccount(
+                Felt.fromHex("0x123"),
+                signer,
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+    }
+}
+```
+
+### Using account - transferring STRK tokens
+
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        Provider provider = new JsonRpcProvider("https://your.node.url");
+
+        Account account = new StandardAccount(
+                Felt.fromHex("0x123"),
+                Felt.fromHex("0x456"),
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+
+        Uint256 amount = new Uint256(new Felt(100));
+        Felt recipientAccountAddress = Felt.fromHex("0x789");
+        Felt strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d");
+        Call call = Call.fromCallArguments(
+                strkContractAddress,
+                "transfer",
+                List.of(recipientAccountAddress, amount)
+        );
+
+        Request<InvokeFunctionResponse> executeRequest = account.executeV3(call);
+        InvokeFunctionResponse executeResponse = executeRequest.send();
+    }
+}
+```
 
 ## Making synchronous requests
 
