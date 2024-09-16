@@ -10,7 +10,6 @@ import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import java.math.BigInteger
-import java.security.SecureRandom
 import java.util.concurrent.CompletableFuture
 
 /**
