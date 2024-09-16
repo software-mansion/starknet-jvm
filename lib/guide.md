@@ -296,52 +296,52 @@ fun main() {
 
 
 ## Deploying account V3
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="kotlin") -->
 
 
 ## Estimating fee for deploy account V3 transaction
 
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeployAccountV3Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeployAccountV3Transaction", language="kotlin") -->
 
 ## Deploying account V1
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV1Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV1Transaction", language="kotlin") -->
 
 ## Estimating fee for deploy account V1 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeployAccountV1Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeployAccountV1Transaction", language="kotlin") -->
 
 ## Invoking contract: Transferring ETH
-<!-- codeSection(path="network/account/AccountTest.kt", function="transferETH", language="Kotlin") -->
+<!-- codeSection(path="network/account/AccountTest.kt", function="transferETH", language="kotlin") -->
 
 ## Estimating fee for invoke V3 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForInvokeV3Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForInvokeV3Transaction", language="kotlin") -->
 
 ## Calling contract: Fetching ETH balance
-<!-- codeSection(path="network/account/AccountTest.kt", function="getETHBalance", language="Kotlin") -->
+<!-- codeSection(path="network/account/AccountTest.kt", function="getETHBalance", language="kotlin") -->
 
 ## Making multiple calls: get multiple transactions data
-<!-- codeSection(path="starknet/provider/ProviderTest.kt", function="batchGetTransactions", language="Kotlin") -->
+<!-- codeSection(path="starknet/provider/ProviderTest.kt", function="batchGetTransactions", language="kotlin") -->
 
 ## Making multiple calls of different types in one request
-<!-- codeSection(path="starknet/provider/ProviderTest.kt", function="batchRequestsAny", language="Kotlin") -->
+<!-- codeSection(path="starknet/provider/ProviderTest.kt", function="batchRequestsAny", language="kotlin") -->
 
 ## Declaring Cairo 1/2 contract V3
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeclareV3Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeclareV3Transaction", language="kotlin") -->
 
 ## Estimating fee for declare V3 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeclareV3Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeclareV3Transaction", language="kotlin") -->
 
 ## Declaring Cairo 1/2 contract V2
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeclareV2Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeclareV2Transaction", language="kotlin") -->
 
 ## Estimating fee for declare V2 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeclareV2Transaction", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeclareV2Transaction", language="kotlin") -->
 
 # Package com.swmansion.starknet.account
 Account interface used to simplify preparing, signing Starknet transactions and automatic fee estimation.
 
 
 ## Example usage of `StandardAccount`
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="exampleAccountUsage", language="Kotlin") -->
+<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="exampleAccountUsage", language="kotlin") -->
 
 # Package com.swmansion.starknet.crypto
 
@@ -361,7 +361,7 @@ Data classes representing Starknet transactions.
 # Package com.swmansion.starknet.deployercontract
 Classes for interacting with Universal Deployer Contract (UDC).
 
-<!-- codeSection(path="starknet/deployercontract/DeployerContractTest.kt", function="testUdcDeployV3", language="Kotlin") -->
+<!-- codeSection(path="starknet/deployercontract/DeployerContractTest.kt", function="testUdcDeployV3", language="kotlin") -->
 
 # Package com.swmansion.starknet.provider
 Provider interface and its implementations.
