@@ -249,6 +249,7 @@ val payloadForFeeEstimation = account.signDeployAccountV3(
 val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 ```
 
+
 ## Deploying account V1
 ```kotlin
 val privateKey = Felt(11111)
@@ -286,6 +287,7 @@ val result = account.executeV1(call).send()
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
 
+
 ## Estimating fee for deploy account V1 transaction
 ```kotlin
 val privateKey = Felt(11112)
@@ -316,6 +318,7 @@ val payloadForFeeEstimation = account.signDeployAccountV1(
 val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 ```
 
+
 ## Invoking contract: Transferring ETH
 ```kotlin
 val account = standardAccount
@@ -336,6 +339,7 @@ Thread.sleep(15000)
 val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
 ```
 
+
 ## Estimating fee for invoke V3 transaction
 ```kotlin
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
@@ -346,6 +350,7 @@ val request = account.estimateFeeV3(
 )
 val feeEstimate = request.send().values.first()
 ```
+
 
 ## Calling contract: Fetching ETH balance
 ```kotlin
@@ -364,6 +369,7 @@ val balance = Uint256(
 )
 ```
 
+
 ## Making multiple calls: get multiple transactions data
 ```kotlin
 val blockNumber = provider.getBlockNumber().send().value
@@ -377,6 +383,7 @@ val request = provider.batchRequests(
 
 val response = request.send()
 ```
+
 
 ## Making multiple calls of different types in one request
 ```kotlin
@@ -392,6 +399,7 @@ val transaction = response[0].getOrThrow() as Transaction
 val blockNumber = (response[1].getOrThrow() as IntResponse).value
 val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
 ```
+
 
 ## Declaring Cairo 1/2 contract V3
 ```kotlin
@@ -424,6 +432,7 @@ val result = request.send()
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
 
+
 ## Estimating fee for declare V3 transaction
 ```kotlin
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
@@ -443,6 +452,7 @@ val declareTransactionPayload = account.signDeclareV3(
 val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
 val feeEstimate = request.send().values.first()
 ```
+
 
 ## Declaring Cairo 1/2 contract V2
 ```kotlin
@@ -464,6 +474,7 @@ val result = request.send()
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
 
+
 ## Estimating fee for declare V2 transaction
 ```kotlin
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
@@ -482,6 +493,7 @@ val declareTransactionPayload = account.signDeclareV2(
 val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
 val feeEstimate = request.send().values.first()
 ```
+
 
 # Package com.swmansion.starknet.account
 Account interface used to simplify preparing, signing Starknet transactions and automatic fee estimation.
