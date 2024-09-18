@@ -141,7 +141,7 @@ public class Main {
                 Felt.fromHex("0x456"),
                 provider,
                 StarknetChainId.SEPOLIA
-                );
+        );
 
         // It's possible to specify a signer
         Account accountWithSigner = StandardAccount(
