@@ -1023,10 +1023,7 @@ Signer and Account implementations.
 Data classes representing Starknet objects and utilities for handling them.
 
 # Package com.swmansion.starknet.data.types
-Data classes representing Starknet objects.
-
-# Package com.swmansion.starknet.data.types.transactions
-Data classes representing Starknet transactions.
+Data classes representing Starknet objects and transactions.
 
 # Package com.swmansion.starknet.deployercontract
 Classes for interacting with Universal Deployer Contract (UDC).
