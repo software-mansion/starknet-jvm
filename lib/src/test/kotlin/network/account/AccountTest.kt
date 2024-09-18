@@ -393,7 +393,7 @@ class AccountTest {
     }
 
     @Test
-    fun getETHBalance() {
+    fun getEthBalance() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // docsStart
         val account = constNonceAccount
