@@ -5,7 +5,29 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
 
-## Example usages
+<!-- TOC -->
+## Table of contents
+* [Using provider](#using-provider)
+* [Reusing provider](#reusing-providers)
+* [Creating account](#creating-account)
+* [Transferring STRK tokens](#transferring-strk-tokens)
+* [Making synchronous requests](#making-synchronous-requests)
+* [Making asynchronous requests](#making-asynchronous-requests)
+* [Deploying account V3](#deploying-account-v3)
+* [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
+* [Deploying account V1](#deploying-account-v1)
+* [Estimating fee for deploy account V1 transaction](#estimating-fee-for-deploy-account-v1-transaction)
+* [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
+* [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
+* [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
+* [Making multiple calls: get multiple transactions data](#making-multiple-calls-get-multiple-transactions-data)
+* [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
+* [Declaring Cairo 1/2 contract V3](#declaring-cairo-12-contract-v3)
+* [Estimating fee for declare V3 transaction](#estimating-fee-for-declare-v3-transaction)
+* [Declaring Cairo 1/2 contract V2](#declaring-cairo-12-contract-v2)
+* [Estimating fee for declare V2 transaction](#estimating-fee-for-declare-v2-transaction)
+<!-- TOC -->
+
 ### Using provider
 `Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
 It supports read and write operations, like querying the blockchain state or adding new transactions.
