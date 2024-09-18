@@ -1065,7 +1065,7 @@ OkHttpService httpService = new OkHttpService(httpClient);
 # Package com.swmansion.starknet.signer
 
 Signer interface and its implementations.
-Recommended way of using Signer is through an Account.
+Recommended way of using Signer is through an [Account](src/main/kotlin/com/swmansion/starknet/account/Account.kt).
 
 ```java
 // Create a signer
