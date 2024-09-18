@@ -112,21 +112,14 @@ tasks.register("generateGuides") {
             var capture = false
 
             for (line in codeSection) {
-                if (docsStartPattern.containsMatchIn(line)) {
-                    capture = true
-                    continue
-                }
-                if (docsEndPattern.containsMatchIn(line)) {
-                    capture = false
-                    continue
-                }
-                if (capture) {
-                    filteredLines.add(line)
+                when {
+                    docsStartPattern.containsMatchIn(line) -> capture = true
+                    docsEndPattern.containsMatchIn(line) -> capture = false
+                    capture -> filteredLines.add(line)
                 }
             }
             val minIndent = codeSection.filter { it.isNotBlank() }
-                .map { it.indexOfFirst { char -> !char.isWhitespace() } }
-                .minOrNull() ?: 0
+                .minOfOrNull { it.indexOfFirst { char -> !char.isWhitespace() } } ?: 0
 
             return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }

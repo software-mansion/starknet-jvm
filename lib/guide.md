@@ -30,7 +30,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 
 ### Using provider
 `Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
-It supports read and write operations, like querying the blockchain state or adding new transactions.
+It supports read and write operations, like querying the blockchain state or send new transactions for execution.
 ```kotlin
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
@@ -141,7 +141,7 @@ public class Main {
                 Felt.fromHex("0x456"),
                 provider,
                 StarknetChainId.SEPOLIA
-                );
+        );
 
         // It's possible to specify a signer
         Account accountWithSigner = StandardAccount(
@@ -1043,7 +1043,7 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 
 # Package com.swmansion.starknet.provider.rpc
 
-Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
+Provider implementing the [JSON-RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
 
 # Package com.swmansion.starknet.service.http
@@ -1064,8 +1064,8 @@ OkHttpService httpService = new OkHttpService(httpClient);
 
 # Package com.swmansion.starknet.signer
 
-Signer interface and its implementations.
-Recommended way of using Signer is through an [Account](src/main/kotlin/com/swmansion/starknet/account/Account.kt).
+Signer interface and its implementations for manually signing transactions to be sent to Starknet.
+Recommended way of using Signer is through an Account.
 
 ```java
 // Create a signer
