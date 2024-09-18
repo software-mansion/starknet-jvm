@@ -1067,7 +1067,7 @@ OkHttpService httpService = new OkHttpService(httpClient);
 
 # Package com.swmansion.starknet.signer
 
-Signer interface and its implementations.
+Signer interface and its implementations for manually signing transactions to be sent to Starknet.
 Recommended way of using Signer is through an Account.
 
 ```java
