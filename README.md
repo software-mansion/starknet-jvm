@@ -38,6 +38,76 @@ Documentation is provided in two formats:
 - [Java and other jvm languages](https://docs.swmansion.com/starknet-jvm/)
 - [Kotlin](https://docs.swmansion.com/starknet-jvm/kotlin/)
 
+## Example usages
+### Transferring STRK tokens
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
+    val provider = JsonRpcProvider("https://your.node.url")
+    val account = StandardAccount(
+        address = Felt.fromHex("0x123"),
+        privateKey = Felt.fromHex("0x456"),
+        provider = provider,
+        chainId = StarknetChainId.SEPOLIA,
+    )
+
+
+    val amount = Uint256(Felt(100))
+    val recipientAccountAddress = Felt.fromHex("0x789")
+    val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
+    val call = Call(
+        contractAddress = strkContractAddress,
+        entrypoint = "transfer",
+        calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
+    )
+
+    val request = account.executeV3(call)
+    val response = request.send()
+}
+```
+
+```java
+import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        Provider provider = new JsonRpcProvider("https://your.node.url");
+
+        Account account = new StandardAccount(
+                Felt.fromHex("0x123"),
+                Felt.fromHex("0x456"),
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+
+        Uint256 amount = new Uint256(new Felt(100));
+        Felt recipientAccountAddress = Felt.fromHex("0x789");
+        Felt strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d");
+        Call call = Call.fromCallArguments(
+                strkContractAddress,
+                "transfer",
+                List.of(recipientAccountAddress, amount)
+        );
+
+        Request<InvokeFunctionResponse> executeRequest = account.executeV3(call);
+        InvokeFunctionResponse executeResponse = executeRequest.send();
+    }
+}
+```
+For more example usages, see guides below👇
 
 ## Guides
 - [Koltin guide](lib/kotlin-guide.md)
@@ -49,10 +119,6 @@ These demo apps can be used with any Starknet RPC node, including devnet.
 They are intended for demonstration/testing purposes only. 
 ### [Android demo](androiddemo)
 ### [Java demo](javademo)
-
-
-
-
 
 ## Development
 
