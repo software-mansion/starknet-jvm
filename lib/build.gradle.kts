@@ -83,7 +83,7 @@ tasks.register("generateGuides") {
         val javaCodeSectionPattern =
             Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="java"\) -->""")
 
-        val kotlinCodeBlockPattern = Regex("""```kotlin[\s\S]*?```""")
+        val kotlinCodeBlockPattern = Regex("""```(kotlin|kt)[\s\S]*?```""")
         val javaCodeBlockPattern = Regex("""```java[\s\S]*?```""")
 
         val docsStartPattern = Regex("""^\s*//\s*docsStart\s*$""")
