@@ -1046,7 +1046,7 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 
 # Package com.swmansion.starknet.provider.rpc
 
-Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
+Provider implementing the [JSON-RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
 
 # Package com.swmansion.starknet.service.http
