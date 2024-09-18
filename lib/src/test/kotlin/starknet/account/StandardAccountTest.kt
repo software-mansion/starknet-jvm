@@ -87,7 +87,7 @@ class StandardAccountTest {
     fun creatingAccountWithPrivateKey() {
         val address = Felt(123)
         val privateKey = Felt(456)
-        val account = StandardAccount(Felt.ZERO, privateKey, provider, chainId)
+        val account = StandardAccount(address, privateKey, provider, chainId)
     }
 
     @Test
