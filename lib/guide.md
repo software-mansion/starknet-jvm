@@ -35,7 +35,7 @@ It supports read and write operations, like querying the blockchain state or add
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
-    val provider = JsonRpcProvider("https://your.node.url")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
     
     val request = provider.getBlockWithTxs(1)
     val response = request.send()
@@ -60,27 +60,27 @@ This way you reuse connections and thread pools.
 
 ✅ **Do:**
 ```java
-Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 Account account1 = new StandardAccount(provider, accountAddress1, privateKey1);
 Account account2 = new StandardAccount(provider, accountAddress2, privateKey2);
 ```
 ```kotlin
-val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider = JsonRpcProvider("https://your.node.url/rpc")
 val account1 = StandardAccount(provider, accountAddress1, privateKey1)
 val account2 = StandardAccount(provider, accountAddress2, privateKey2)
 ```
 
 ❌ **Don't:**
 ```java
-Provider provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
+Provider provider1 = new JsonRpcProvider("https://your.node.url/rpc");
 Account account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-Provider provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
+Provider provider2 = new JsonRpcProvider("https://your.node.url/rpc");
 Account account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
 ```
 ```kotlin
-val provider1 = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider1 = JsonRpcProvider("https://your.node.url/rpc")
 val account1 = StandardAccount(provider1, accountAddress1, privateKey1)
-val provider2 = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider2 = JsonRpcProvider("https://your.node.url/rpc")
 val account2 = StandardAccount(provider2, accountAddress2, privateKey2)
 ```
 
@@ -235,7 +235,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
@@ -255,7 +255,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
 
     // Make a request
     val contractAddress = Felt.fromHex("0x423623626")
@@ -284,7 +284,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Make a request
         Felt contractAddress = Felt.fromHex("0x42362362436");
@@ -304,7 +304,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
 
     // Make an asynchronous request
     val contractAddress = Felt.fromHex("0x423623626")
@@ -333,7 +333,7 @@ import java.util.List;
 public class Main {
 public static void main(String[] args) {
 // Create a provider for interacting with Starknet
-Provider provider = new JsonRpcProvider("http://127.0.0.1:5050/rpc");
+Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -393,7 +393,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -448,7 +448,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -514,7 +514,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -567,7 +567,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
         
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -623,7 +623,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -664,7 +664,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
         
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -708,7 +708,7 @@ import static com.swmansion.starknet.data.Selector.selectorFromName;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Batch any RPC requests
         // Get block hash and number + Check the initial value of `balance` in contract
@@ -744,7 +744,7 @@ import static com.swmansion.starknet.data.Selector.selectorFromName;
 public class Main {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
-        JsonRpcProvider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        JsonRpcProvider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Batch any RPC requests
         // Get block hash and number + Check the initial value of `balance` in contract
@@ -784,7 +784,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         StarknetChainId chainId = provider.getChainId().send();
 
@@ -848,7 +848,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -910,7 +910,7 @@ import java.nio.file.Paths;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
@@ -970,7 +970,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x1234");
