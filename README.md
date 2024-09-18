@@ -219,7 +219,9 @@ Content of embedded functions can be tailored using `docsStart` and `docsEnd` co
 
 Execute following command to generate the guides:
 
-`./gradlew generateGuides`
+```sh
+./gradlew generateGuides
+```
 
 Documentation is written in Kdoc format and markdown and is generated using `Dokka`. Execute
 following commands from `/lib` to build docs.
