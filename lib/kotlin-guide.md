@@ -5,15 +5,37 @@ querying starknet state, executing transactions and deploying contracts.
 
 Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.
 
-## Quickstart
+<!-- TOC -->
+## Table of contents
+* [Using provider](#using-provider)
+* [Reusing provider](#reusing-providers)
+* [Creating account](#creating-account)
+* [Transferring STRK tokens](#transferring-strk-tokens)
+* [Making synchronous requests](#making-synchronous-requests)
+* [Making asynchronous requests](#making-asynchronous-requests)
+* [Deploying account V3](#deploying-account-v3)
+* [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
+* [Deploying account V1](#deploying-account-v1)
+* [Estimating fee for deploy account V1 transaction](#estimating-fee-for-deploy-account-v1-transaction)
+* [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
+* [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
+* [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
+* [Making multiple calls: get multiple transactions data](#making-multiple-calls-get-multiple-transactions-data)
+* [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
+* [Declaring Cairo 1/2 contract V3](#declaring-cairo-12-contract-v3)
+* [Estimating fee for declare V3 transaction](#estimating-fee-for-declare-v3-transaction)
+* [Declaring Cairo 1/2 contract V2](#declaring-cairo-12-contract-v2)
+* [Estimating fee for declare V2 transaction](#estimating-fee-for-declare-v2-transaction)
+<!-- TOC -->
+
 ### Using provider
 `Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
-It supports read and write operations, like querying the blockchain state or adding new transactions.
+It supports read and write operations, like querying the blockchain state or send new transactions for execution.
 ```kotlin
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
-    val provider = JsonRpcProvider("https://your.node.url")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
     
     val request = provider.getBlockWithTxs(1)
     val response = request.send()
@@ -28,7 +50,7 @@ This way you reuse connections and thread pools.
 ✅ **Do:**
 
 ```kotlin
-val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider = JsonRpcProvider("https://your.node.url/rpc")
 val account1 = StandardAccount(provider, accountAddress1, privateKey1)
 val account2 = StandardAccount(provider, accountAddress2, privateKey2)
 ```
@@ -36,9 +58,9 @@ val account2 = StandardAccount(provider, accountAddress2, privateKey2)
 ❌ **Don't:**
 
 ```kotlin
-val provider1 = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider1 = JsonRpcProvider("https://your.node.url/rpc")
 val account1 = StandardAccount(provider1, accountAddress1, privateKey1)
-val provider2 = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider2 = JsonRpcProvider("https://your.node.url/rpc")
 val account2 = StandardAccount(provider2, accountAddress2, privateKey2)
 ```
 
@@ -83,7 +105,7 @@ fun main() {
 
 
 
-### Using account - transferring STRK tokens
+### Transferring STRK tokens
 ```kotlin
 import com.swmansion.starknet.account.StandardAccount
 import com.swmansion.starknet.data.types.Call
@@ -129,7 +151,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
 
     // Make a request
     val contractAddress = Felt.fromHex("0x423623626")
@@ -155,7 +177,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     // Create a provider for interacting with Starknet
-    val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
 
     // Make an asynchronous request
     val contractAddress = Felt.fromHex("0x423623626")
@@ -169,7 +191,7 @@ fun main() {
 
 
 ## Deploying account V3
-```kotlin
+```KOTLIN
 val privateKey = Felt(22222)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -218,7 +240,7 @@ val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
 ## Estimating fee for deploy account V3 transaction
 
-```kotlin
+```KOTLIN
 val privateKey = Felt(22223)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -251,7 +273,7 @@ val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 
 
 ## Deploying account V1
-```kotlin
+```KOTLIN
 val privateKey = Felt(11111)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -289,7 +311,7 @@ val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
 
 ## Estimating fee for deploy account V1 transaction
-```kotlin
+```KOTLIN
 val privateKey = Felt(11112)
 val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -320,28 +342,11 @@ val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 
 
 ## Invoking contract: Transferring ETH
-```kotlin
-val account = standardAccount
 
-val recipientAccountAddress = constNonceAccountAddress
-
-val amount = Uint256(Felt.ONE)
-val call = Call(
-    contractAddress = ethContractAddress,
-    entrypoint = "transfer",
-    calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
-)
-
-val request = account.executeV1(call)
-val response = request.send()
-Thread.sleep(15000)
-
-val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
-```
 
 
 ## Estimating fee for invoke V3 transaction
-```kotlin
+```KOTLIN
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
 val request = account.estimateFeeV3(
@@ -353,25 +358,11 @@ val feeEstimate = request.send().values.first()
 
 
 ## Calling contract: Fetching ETH balance
-```kotlin
-val account = constNonceAccount
-val call = Call(
-    contractAddress = ethContractAddress,
-    entrypoint = "balanceOf",
-    calldata = listOf(account.address),
-)
 
-val request = provider.callContract(call)
-val response = request.send()
-val balance = Uint256(
-    low = response[0],
-    high = response[1],
-)
-```
 
 
 ## Making multiple calls: get multiple transactions data
-```kotlin
+```KOTLIN
 val blockNumber = provider.getBlockNumber().send().value
 val request = provider.batchRequests(
     provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
@@ -386,7 +377,7 @@ val response = request.send()
 
 
 ## Making multiple calls of different types in one request
-```kotlin
+```KOTLIN
 val request = provider.batchRequestsAny(
     provider.getTransaction(invokeTransactionHash),
     provider.getBlockNumber(),
@@ -402,7 +393,7 @@ val txStatus = response[2].getOrThrow() as GetTransactionStatusResponse
 
 
 ## Declaring Cairo 1/2 contract V3
-```kotlin
+```KOTLIN
 ScarbClient.buildSaltedContract(
     placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
     saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -434,7 +425,7 @@ val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
 
 ## Estimating fee for declare V3 transaction
-```kotlin
+```KOTLIN
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -455,7 +446,7 @@ val feeEstimate = request.send().values.first()
 
 
 ## Declaring Cairo 1/2 contract V2
-```kotlin
+```KOTLIN
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -476,7 +467,7 @@ val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
 
 ## Estimating fee for declare V2 transaction
-```kotlin
+```KOTLIN
 val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
 val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -512,10 +503,7 @@ Signer and Account implementations.
 Data classes representing Starknet objects and utilities for handling them.
 
 # Package com.swmansion.starknet.data.types
-Data classes representing Starknet objects.
-
-# Package com.swmansion.starknet.data.types.transactions
-Data classes representing Starknet transactions.
+Data classes representing Starknet objects and transactions.
 
 # Package com.swmansion.starknet.deployercontract
 Classes for interacting with Universal Deployer Contract (UDC).
@@ -535,7 +523,7 @@ In the case of `Request.sendAsync()`, an exception would have to be handled in t
 
 # Package com.swmansion.starknet.provider.rpc
 
-Provider implementing the [JSON RPC interface](https://github.com/starkware-libs/starknet-specs)
+Provider implementing the [JSON-RPC interface](https://github.com/starkware-libs/starknet-specs)
 to communicate with the network.
 
 # Package com.swmansion.starknet.service.http
@@ -549,7 +537,7 @@ application can use a single `OkHttpClient`. Read more [here](https://square.git
 
 # Package com.swmansion.starknet.signer
 
-Signer interface and its implementations.
+Signer interface and its implementations for manually signing transactions to be sent to Starknet.
 Recommended way of using Signer is through an Account.
 
 
