@@ -491,8 +491,59 @@ Account interface used to simplify preparing, signing Starknet transactions and 
 
 
 ## Example usage of `StandardAccount`
+```kotlin
+val provider = JsonRpcProvider("https://example-node-url.com/rpc")
 
+val chainId = provider.getChainId().send()
+val address = Felt(0x1234)
+val privateKey = Felt(0x1)
+val account: Account = StandardAccount(address, privateKey, provider, chainId)
 
+// Execute a single call
+val resourceBounds = ResourceBounds(
+    Uint64(10000),
+    Uint128(10000000L),
+)
+val contractAddress = Felt(0x1111)
+val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+val request = account.executeV3(call, resourceBounds)
+val response = request.send()
+
+// Execute multiple calls
+val call1 = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+val call2 = Call(contractAddress, "increase_balance", listOf(Felt(200)))
+account.executeV3(listOf(call1, call2), resourceBounds).send()
+
+// Use automatic maxFee estimation
+account.executeV3(call).send()
+
+// or
+account.executeV3(call, resourceBounds).send()
+
+// Construct transaction step by step
+val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
+
+val nonce = account.getNonce().send()
+val params = InvokeParamsV3(
+    nonce,
+    ResourceBounds(
+        Uint64(20000),
+        Uint128(1200000000),
+    ),
+)
+
+val signedTransaction = account.signV3(otherCall, params)
+val signedInvokeResponse = provider.invokeFunction(signedTransaction).send()
+
+// Sign transaction for fee estimation only
+val transactionForFeeEstimation = account.signV3(call, params, true)
+
+// Sign and verify TypedData signature
+val typedData = TypedData.fromJsonString("...")
+val typedDataSignature = account.signTypedData(typedData)
+val isValidSignatureRequest = account.verifyTypedDataSignature(typedData, typedDataSignature)
+val isValidSignature = isValidSignatureRequest.send()
+```
 # Package com.swmansion.starknet.crypto
 
 Cryptography and signature related classes.

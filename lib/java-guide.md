@@ -904,7 +904,6 @@ Account interface used to simplify preparing, signing Starknet transactions and 
 
 ## Example usage of `StandardAccount`
 
-
 # Package com.swmansion.starknet.crypto
 
 Cryptography and signature related classes.
