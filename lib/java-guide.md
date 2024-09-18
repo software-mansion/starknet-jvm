@@ -899,7 +899,8 @@ public class Main {
 ```
 
 # Package com.swmansion.starknet.account
-Account interface used to send Starknet transactions for execution.
+[Account](src/main/kotlin/com/swmansion/starknet/account/Account.kt) interface is used to send Starknet transactions for execution. Its base implementation is [StandardAccount](src/main/kotlin/com/swmansion/starknet/account/StandardAccount.kt).
+
 
 
 ## Example usage of `StandardAccount`
