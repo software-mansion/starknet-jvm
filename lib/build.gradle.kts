@@ -308,6 +308,11 @@ publishing {
                         name.set("Maksim Zdobnikau")
                         email.set("maksim.zdobnikau@swmansion.com")
                     }
+                    developer {
+                        id.set("franciszekjob")
+                        name.set("Franciszek Job")
+                        email.set("franciszek.job@swmansion.com")
+                    }
                 }
                 scm {
                     connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
