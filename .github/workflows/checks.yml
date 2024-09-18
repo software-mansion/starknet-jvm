@@ -85,8 +85,10 @@ jobs:
       - name: Generate and check guides
         run: |
           ./gradlew :lib:generateGuides
-          git diff --exit-code lib/kotlin-guide.md lib/java-guide.md
-        continue-on-error: false
+          if ! git diff --exit-code lib/kotlin-guide.md lib/java-guide.md; then
+            echo "Guides are not updated."
+            exit 1
+          fi
 
       - name: Run tests and generate coverage report
         env:
