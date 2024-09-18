@@ -82,6 +82,12 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
+      - name: Generate and check guides
+        run: |
+          ./gradlew :lib:generateGuides
+          git diff --exit-code lib/kotlin-guide.md lib/java-guide.md
+        continue-on-error: false
+
       - name: Run tests and generate coverage report
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
