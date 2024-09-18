@@ -201,7 +201,7 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 
 ## Building documentation
 
-User guides for Kotlin and Java are generated automatically based on the guide.md file (⚠️ only this file should be modified ⚠️).
+User guides for Kotlin and Java are generated automatically based on the [guide.md](lib/guide.md) file (⚠️ only this file should be modified ⚠️).
 This file can include both code snippets and code section tags (which are used to embed code from specific functions).
 These elements will be automatically included in the respective guides, ensuring that the documentation is always up to date with the code in the repository.
 
