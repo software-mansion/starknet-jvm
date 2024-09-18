@@ -6,6 +6,8 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
+import android.databinding.tool.ext.L
+import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
 
 version = "0.12.2"
@@ -69,7 +71,32 @@ tasks.dokkaJavadoc {
 
 enum class Language(val langName: String) {
     KOTLIN("kotlin"),
-    JAVA("java")
+    JAVA("java");
+
+    fun getCodeSectionRegex(): Regex {
+        return when (this) {
+            KOTLIN -> Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="${KOTLIN.langName}"\) -->""")
+            JAVA -> Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="${Language.JAVA.langName}"\) -->""")
+        }
+    }
+
+    fun getCodeBlockRegex(): Regex {
+        return when (this) {
+            KOTLIN -> Regex("""```(${KOTLIN.langName}|kt)[\s\S]*?```""")
+            JAVA -> Regex("""```${JAVA.langName}[\s\S]*?```""")
+        }
+    }
+
+    fun getFunctionRegex(functionName: String): Regex {
+        return when (this) {
+            KOTLIN -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
+            JAVA -> Regex(
+                """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
+                RegexOption.MULTILINE,
+            )
+        }
+
+    }
 }
 
 tasks.register("generateGuides") {
@@ -82,14 +109,6 @@ tasks.register("generateGuides") {
 
         val guideContent = guideFile.readText()
 
-        val kotlinCodeSectionRegex =
-            Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="${Language.KOTLIN.langName}"\) -->""")
-        val javaCodeSectionRegex =
-            Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="${Language.JAVA.langName}"\) -->""")
-
-        val kotlinCodeBlockRegex = Regex("""```(kotlin|kt)[\s\S]*?```""")
-        val javaCodeBlockRegex = Regex("""```java[\s\S]*?```""")
-
         val docsStartRegex = Regex("""^\s*//\s*docsStart\s*$""")
         val docsEndRegex = Regex("""^\s*//\s*docsEnd\s*$""")
 
@@ -100,15 +119,8 @@ tasks.register("generateGuides") {
             }
 
             val content = file.readText()
-            val functionRegex = when (language) {
-                Language.KOTLIN -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
-                Language.JAVA -> Regex(
-                    """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
-                    RegexOption.MULTILINE,
-                )
-            }
 
-            val matchResult = functionRegex.find(content) ?: return ""
+            val matchResult = language.getFunctionRegex(functionName).find(content) ?: return ""
             val codeSection = matchResult.groupValues[1].lines()
             val filteredLines = mutableListOf<String>()
             var capture = false
@@ -126,25 +138,25 @@ tasks.register("generateGuides") {
             return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
-        fun processFileContent(regex: Regex, dir: String, language: Language): String {
-            var content = regex.replace(guideContent) { matchResult ->
+        fun processFileContent(dir: String, language: Language): String {
+            var content = language.getCodeSectionRegex().replace(guideContent) { matchResult ->
                 val path = matchResult.groupValues[1]
                 val functionName = matchResult.groupValues[2]
-                val codeSection = extractCodeSection("$dir/$path", functionName, language)
+                val codeSection = extractCodeSection(path="$dir/$path", functionName=functionName, language=language)
                 if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
             }
 
-            content = content.replace(kotlinCodeSectionRegex, "")
-                .replace(javaCodeSectionRegex, "")
+            content = content.replace(Language.KOTLIN.getCodeSectionRegex(), "")
+                .replace(Language.JAVA.getCodeSectionRegex(), "")
 
             return content.replace(
-                if (language == Language.KOTLIN) javaCodeBlockRegex else kotlinCodeBlockRegex,
+                if (language == Language.KOTLIN) Language.JAVA.getCodeBlockRegex() else Language.KOTLIN.getCodeBlockRegex(),
                 ""
             )
         }
 
-        val kotlinContent = processFileContent(kotlinCodeSectionRegex, kotlinSamplesDir, Language.KOTLIN)
-        val javaContent = processFileContent(javaCodeSectionRegex, javaSamplesDir, Language.JAVA)
+        val kotlinContent = processFileContent(dir=kotlinSamplesDir, language = Language.KOTLIN)
+        val javaContent = processFileContent(dir=javaSamplesDir, language = Language.JAVA)
 
         kotlinGuideFile.writeText(kotlinContent)
         javaGuideFile.writeText(javaContent)
