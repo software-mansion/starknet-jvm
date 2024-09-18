@@ -899,7 +899,7 @@ public class Main {
 ```
 
 # Package com.swmansion.starknet.account
-Account interface used to simplify preparing, signing Starknet transactions and automatic fee estimation.
+Account interface used to send Starknet transactions for execution.
 
 
 ## Example usage of `StandardAccount`
