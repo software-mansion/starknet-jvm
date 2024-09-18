@@ -203,6 +203,11 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 
 User guides for Kotlin and Java are generated automatically based on the [guide.md](lib/guide.md) file (⚠️ only this file should be modified ⚠️).
 This file can include both code snippets and code section tags (which are used to embed code from specific functions).
+
+Functions eligible for inclusion in the code section can be located in any file within the following directories:
+- `lib/src/test/kotlin` for Kotlin
+- `javademo/src/main/java/com/example/javademo` for Java
+
 These elements will be automatically included in the respective guides, ensuring that the documentation is always up to date with the code in the repository.
 
 Code section template:
