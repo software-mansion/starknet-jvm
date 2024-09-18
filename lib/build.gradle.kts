@@ -125,8 +125,7 @@ tasks.register("generateGuides") {
                 }
             }
             val minIndent = codeSection.filter { it.isNotBlank() }
-                .map { it.indexOfFirst { char -> !char.isWhitespace() } }
-                .minOrNull() ?: 0
+                .minOfOrNull { it.indexOfFirst { char -> !char.isWhitespace() } } ?: 0
 
             return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
