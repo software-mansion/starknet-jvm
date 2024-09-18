@@ -361,7 +361,7 @@ val feeEstimate = request.send().values.first()
 
 
 
-## Making multiple calls: get multiple transactions data
+## Making multiple calls: get multiple transactions data in one request
 ```KOTLIN
 val blockNumber = provider.getBlockNumber().send().value
 val request = provider.batchRequests(
@@ -493,7 +493,7 @@ val feeEstimate = request.send().values.first()
 
 ## Example usage of `StandardAccount`
 ```kotlin
-val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider = JsonRpcProvider("https://your.node.url.com/rpc")
 
 val chainId = provider.getChainId().send()
 val address = Felt(0x1234)

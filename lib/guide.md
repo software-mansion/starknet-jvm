@@ -693,38 +693,34 @@ public class Main {
 }
 ```
 
-## Making multiple calls: get multiple transactions data
+## Making multiple calls: get multiple transactions data in one request
 <!-- codeSection(path="starknet/provider/ProviderTest.kt", function="batchGetTransactions", language="kotlin") -->
 ```java
-import com.swmansion.starknet.data.types.*;
+package com.example.javademo;
+
 import com.swmansion.starknet.data.types.RequestResult;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest;
 
 import java.util.List;
 
-import static com.swmansion.starknet.data.Selector.selectorFromName;
-
-public class Main {
+public class Abc {
     public static void main(String[] args) {
         // Create a provider for interacting with Starknet
         JsonRpcProvider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
-        // Batch any RPC requests
-        // Get block hash and number + Check the initial value of `balance` in contract
-        HttpBatchRequest mixedRequest = provider.batchRequestsAny(
-                provider.getBlockHashAndNumber(),
-                provider.getStorageAt(Felt.fromHex("0x123"), selectorFromName("balance"))
+        int blockNumber = provider.getBlockNumber().send().getValue();
+
+        // Batch RPC requests
+        HttpBatchRequest request = provider.batchRequests(
+                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                provider.getTransaction(invokeTransactionHash),
+                provider.getTransaction(declareTransactionHash),
+                provider.getTransaction(deployAccountTransactionHash)
         );
 
         // Create and send the batch request
-        List<RequestResult> mixedResponse = mixedRequest.send();
-
-        GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) mixedResponse.get(0).getOrNull();
-        Felt contractBalance = (Felt) mixedResponse.get(1).getOrNull();
-
-        System.out.println("Block hash: " + blockHashAndNumber.getBlockHash() + ".");
-        System.out.println("Initial contract balance: " + contractBalance.getValue() + ".");
+        List<RequestResult> response = request.send();
     }
 }
 ```
@@ -1013,7 +1009,7 @@ public class Main {
 
 ## Example usage of `StandardAccount`
 ```kotlin
-val provider = JsonRpcProvider("https://example-node-url.com/rpc")
+val provider = JsonRpcProvider("https://your.node.url.com/rpc")
 
 val chainId = provider.getChainId().send()
 val address = Felt(0x1234)
