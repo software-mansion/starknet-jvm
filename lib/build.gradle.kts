@@ -131,11 +131,11 @@ tasks.register("generateGuides") {
             return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
         }
 
-        fun processFileContent(pattern: Regex, samplesDir: String, language: String): String {
+        fun processFileContent(pattern: Regex, dir: String, language: String): String {
             var content = pattern.replace(guideContent) { matchResult ->
                 val path = matchResult.groupValues[1]
                 val functionName = matchResult.groupValues[2]
-                val codeSection = extractCodeSection("$samplesDir/$path", functionName, language)
+                val codeSection = extractCodeSection("$dir/$path", functionName, language)
                 if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
             }
 
