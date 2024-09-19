@@ -155,8 +155,8 @@ tasks.register("generateGuides") {
             )
         }
 
-        val kotlinContent = processFileContent(dir=kotlinSamplesDir, language = Language.KOTLIN)
-        val javaContent = processFileContent(dir=javaSamplesDir, language = Language.JAVA)
+        val kotlinContent = processFileContent(dir = kotlinSamplesDir, language = Language.KOTLIN)
+        val javaContent = processFileContent(dir = javaSamplesDir, language = Language.JAVA)
 
         kotlinGuideFile.writeText(kotlinContent)
         javaGuideFile.writeText(javaContent)
