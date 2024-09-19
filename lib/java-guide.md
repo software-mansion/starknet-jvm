@@ -30,7 +30,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 
 ### Using provider
 `Provider` is a facade for interacting with Starknet. `JsonRpcProvider` is a client which interacts with a Starknet full nodes like [Pathfinder](https://github.com/eqlabs/pathfinder), [Papyrus](https://github.com/starkware-libs/papyrus) or [Juno](https://github.com/NethermindEth/juno).
-It supports read and write operations, like querying the blockchain state or send new transactions for execution.
+It supports read and write operations, like querying the blockchain state or sending new transactions for execution.
 
 ```java
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
