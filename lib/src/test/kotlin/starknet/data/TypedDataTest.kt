@@ -759,14 +759,14 @@ internal class TypedDataTest {
         private val tdJsonString by lazy { File("$TYPED_DATA_DIR_PATH/rev_1/typed_data_basic_types_example.json").readText() }
 
         @Test
-        fun `typed data toJsonString`() {
+        fun typedDataToJsonString() {
             // tdJsonString is a JSON string in pretty-printed format, so we need to convert it to minified format
             val expectedJsonString = Json.encodeToString(Json.parseToJsonElement(tdJsonString))
             assertEquals(expectedJsonString, td.toJsonString())
         }
 
         @Test
-        fun `typed data fromJsonString`() {
+        fun typedDataFromJsonString() {
             val tdFromJsonString = TypedData.fromJsonString(tdJsonString)
             assertEquals(td, tdFromJsonString)
         }

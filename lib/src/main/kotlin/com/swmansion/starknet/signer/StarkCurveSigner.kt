@@ -14,6 +14,9 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
     // Generating public key takes a while
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
+    /**
+     * @sample starknet.signer.SignerTest.signTransaction
+     */
     override fun signTransaction(transaction: Transaction): Signature {
         // TODO: if hash is missing, generate it on demand
         requireNotNull(transaction.hash) { "Invalid transaction: hash is missing." }
@@ -21,6 +24,10 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
         return StarknetCurve.sign(privateKey, transaction.hash!!).toList()
     }
 
+    /**
+     * @sample starknet.signer.SignerTest.signTypedData
+
+     */
     override fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature {
         val messageHash = typedData.getMessageHash(accountAddress)
         return StarknetCurve.sign(privateKey, messageHash).toList()

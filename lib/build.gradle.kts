@@ -6,6 +6,8 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
+import android.databinding.tool.ext.L
+import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
 
 version = "0.12.2"
@@ -35,11 +37,23 @@ val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     }
 }
 
-tasks.withType<DokkaTask>().configureEach {
+tasks.dokkaHtml {
     moduleName.set("starknet-jvm")
+    outputDirectory.set(file("build/dokka/html"))
     dokkaSourceSets {
         configureEach {
-            includes.from("starknet-jvm.md")
+            samples.setFrom("src/test/kotlin")
+            includes.from("kotlin-guide.md")
+        }
+    }
+}
+
+tasks.dokkaJavadoc {
+    moduleName.set("starknet-jvm")
+    outputDirectory.set(file("build/dokka/javadoc"))
+    dokkaSourceSets {
+        configureEach {
+            includes.from("java-guide.md")
         }
     }
 }
@@ -54,6 +68,103 @@ tasks.dokkaJavadoc {
         }
     }
 }
+
+enum class Language(val langName: String) {
+    KOTLIN("kotlin") {
+        override fun getCodeSectionRegex() =
+            Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="$langName"\) -->""")
+
+        override fun getCodeBlockRegex() = Regex("""```($langName|kt)[\s\S]*?```""")
+
+        override fun getFunctionRegex(functionName: String) = Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
+    },
+    JAVA("java") {
+        override fun getCodeSectionRegex() =
+            Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="$langName"\) -->""")
+
+        override fun getCodeBlockRegex() = Regex("""```$langName[\s\S]*?```""")
+
+        override fun getFunctionRegex(functionName: String) = Regex(
+            """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
+            RegexOption.MULTILINE,
+        )
+    };
+
+    abstract fun getCodeSectionRegex(): Regex
+    abstract fun getCodeBlockRegex(): Regex
+    abstract fun getFunctionRegex(functionName: String): Regex
+}
+
+tasks.register("generateGuides") {
+    doLast {
+        val kotlinSamplesDir = "${project.projectDir}/src/test/kotlin"
+        val javaSamplesDir = "${project.rootDir}/javademo/src/main/java/com/example/javademo"
+        val guideFile = file("guide.md")
+        val kotlinGuideFile = project.projectDir.resolve("${Language.KOTLIN.langName}-guide.md")
+        val javaGuideFile = project.projectDir.resolve("${Language.JAVA.langName}-guide.md")
+
+        val guideContent = guideFile.readText()
+
+        val docsStartRegex = Regex("""^\s*//\s*docsStart\s*$""")
+        val docsEndRegex = Regex("""^\s*//\s*docsEnd\s*$""")
+
+        fun extractCodeSection(path: String, functionName: String, language: Language): String {
+            val file = file(path)
+            if (!file.exists()) {
+                return ""
+            }
+
+            val content = file.readText()
+
+            val matchResult = language.getFunctionRegex(functionName).find(content) ?: return ""
+            val codeSection = matchResult.groupValues[1].lines()
+            val filteredLines = mutableListOf<String>()
+            var capture = false
+
+            for (line in codeSection) {
+                when {
+                    docsStartRegex.containsMatchIn(line) -> capture = true
+                    docsEndRegex.containsMatchIn(line) -> capture = false
+                    capture -> filteredLines.add(line)
+                }
+            }
+            val minIndent = codeSection.filter { it.isNotBlank() }
+                .minOfOrNull { it.indexOfFirst { char -> !char.isWhitespace() } } ?: 0
+
+            return filteredLines.joinToString("\n") { if (it.isBlank()) it else it.drop(minIndent) }
+        }
+
+        fun processFileContent(dir: String, language: Language): String {
+            var content = language.getCodeSectionRegex().replace(guideContent) { matchResult ->
+                val (path, functionName) = matchResult.destructured
+                val codeSection = extractCodeSection(path="$dir/$path", functionName=functionName, language=language)
+                if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
+            }
+
+            content = Language.values().fold(content) { c, lang ->
+                c.replace(lang.getCodeSectionRegex(), "")
+            }
+
+            return content.replace(
+                when (language) {
+                    Language.KOTLIN -> Language.JAVA.getCodeBlockRegex()
+                    Language.JAVA -> Language.KOTLIN.getCodeBlockRegex()
+                },
+                ""
+            )
+        }
+
+        val kotlinContent = processFileContent(dir = kotlinSamplesDir, language = Language.KOTLIN)
+        val javaContent = processFileContent(dir = javaSamplesDir, language = Language.JAVA)
+
+        kotlinGuideFile.writeText(kotlinContent)
+        javaGuideFile.writeText(javaContent)
+    }
+}
+
+
+
+
 
 tasks.jar {
     manifest {
@@ -202,6 +313,11 @@ publishing {
                         id.set("maksimzdobnikau")
                         name.set("Maksim Zdobnikau")
                         email.set("maksim.zdobnikau@swmansion.com")
+                    }
+                    developer {
+                        id.set("franciszekjob")
+                        name.set("Franciszek Job")
+                        email.set("franciszek.job@swmansion.com")
                     }
                 }
                 scm {

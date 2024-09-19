@@ -83,9 +83,10 @@ class StandardAccountTest {
     }
 
     @Test
-    fun `creating account with private key`() {
-        val privateKey = Felt(1234)
-        StandardAccount(Felt.ZERO, privateKey, provider, chainId)
+    fun creatingAccountWithPrivateKey() {
+        val address = Felt(123)
+        val privateKey = Felt(456)
+        val account = StandardAccount(address, privateKey, provider, chainId)
     }
 
     @Test
@@ -130,7 +131,7 @@ class StandardAccountTest {
     }
 
     @Test
-    fun `cairo 1 account with automatic version detection`() {
+    fun createCairo1AccountWithAutomaticVersionDetection() {
         val call = Call(
             contractAddress = balanceContractAddress,
             entrypoint = "increase_balance",
@@ -164,19 +165,19 @@ class StandardAccountTest {
     @Nested
     inner class NonceTest {
         @Test
-        fun `get nonce`() {
+        fun getNonce() {
             val nonce = account.getNonce().send()
             assert(nonce >= Felt.ZERO)
         }
 
         @Test
-        fun `get nonce at latest block tag`() {
+        fun getNonceAtLatestBlockTag() {
             val nonce = account.getNonce(BlockTag.LATEST).send()
             assert(nonce >= Felt.ZERO)
         }
 
         @Test
-        fun `get nonce at block hash`() {
+        fun getNonceAtBlockHash() {
             val blockHashAndNumber = provider.getBlockHashAndNumber().send()
 
             val nonce = account.getNonce(blockHashAndNumber.blockHash).send()
@@ -184,7 +185,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `get nonce at block number`() {
+        fun getNonceAtBlockNumber() {
             val blockNumber = provider.getBlockNumber().send().value
 
             val nonce = account.getNonce(blockNumber).send()
@@ -209,7 +210,7 @@ class StandardAccountTest {
     @Nested
     inner class InvokeEstimateTest {
         @Test
-        fun `estimate fee for invoke v1 transaction`() {
+        fun estimateFeeForInvokeV1Transaction() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV1(call)
@@ -223,7 +224,8 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `estimate fee for invoke v3 transaction`() {
+        fun estimateFeeForInvokeV3Transaction() {
+            // docsStart
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV3(
@@ -231,7 +233,7 @@ class StandardAccountTest {
                 skipValidate = false,
             )
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -240,7 +242,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `estimate fee with skip validate flag`() {
+        fun estimateFeeWithSkipValidateFlag() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val nonce = account.getNonce().send()
@@ -276,7 +278,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `estimate fee for invoke v1 transaction at latest block tag`() {
+        fun estimateFeeForInvokeV1TransactionAtLatestBlockTag() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val request = account.estimateFeeV1(call, BlockTag.LATEST)
@@ -293,7 +295,8 @@ class StandardAccountTest {
     @Nested
     inner class DeclareEstimateTest {
         @Test
-        fun `estimate fee for declare v2 transaction`() {
+        fun estimateFeeForDeclareV2Transaction() {
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -307,12 +310,12 @@ class StandardAccountTest {
                 params = ExecutionParams(nonce, Felt.ZERO),
                 forFeeEstimate = true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V2_QUERY, declareTransactionPayload.version)
-
+            // docsStart
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -321,7 +324,8 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `estimate fee for declare v3 transaction`() {
+        fun estimateFeeForDeclareV3Transaction() {
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -336,12 +340,12 @@ class StandardAccountTest {
                 params,
                 true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
-
+            // docsStart
             val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
-
+            // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
                 feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
@@ -351,7 +355,7 @@ class StandardAccountTest {
     }
 
     @Test
-    fun `estimate message fee`() {
+    fun estimateMessageFee() {
         val l1l2ContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.sierra.json").readText()
         val l1l2CasmContractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_l1_l2.casm.json").readText()
 
@@ -396,9 +400,9 @@ class StandardAccountTest {
     @Nested
     inner class DeclareTest {
         @Test
-        fun `sign and send declare v2 transaction`() {
+        fun signAndSendDeclareV2Transaction() {
             devnetClient.prefundAccountEth(accountAddress)
-
+            // docsStart
             val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
             val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
@@ -415,7 +419,7 @@ class StandardAccountTest {
             val result = request.send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
 
@@ -444,9 +448,9 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign and send declare v3 transaction`() {
+        fun signAndSendDeclareV3Transaction() {
             devnetClient.prefundAccountStrk(accountAddress)
-
+            // docsStart
             ScarbClient.buildSaltedContract(
                 placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
                 saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
@@ -474,7 +478,7 @@ class StandardAccountTest {
             val result = request.send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
     }
@@ -504,7 +508,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign TypedData revision 1`() {
+        fun signTypedDataRevision1() {
             val typedData = tdRev1
 
             // Sign typedData
@@ -552,7 +556,7 @@ class StandardAccountTest {
     @Nested
     inner class InvokeTest {
         @Test
-        fun `sign v1 single call`() {
+        fun signV1SingleCall() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 calldata = listOf(Felt(10)),
@@ -574,7 +578,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign v3 single call`() {
+        fun signV3SingleCall() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 calldata = listOf(Felt(10)),
@@ -599,7 +603,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v1 single call`() {
+        fun executeV1SingleCall() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -614,7 +618,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v3 single call`() {
+        fun executeV3SingleCall() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -629,7 +633,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v1 single call with specific fee estimate multiplier`() {
+        fun executeV1SingleCallWithSpecificFeeEstimateMultiplier() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -704,7 +708,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign v1 multiple calls test`() {
+        fun signV1MultipleCalls() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -725,7 +729,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `sign v3 multiple calls test`() {
+        fun signV3MultipleCalls() {
             val call = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -749,7 +753,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v1 multiple calls`() {
+        fun executeV1MultipleCalls() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -770,7 +774,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `execute v3 multiple calls`() {
+        fun executeV3MultipleCalls() {
             val call1 = Call(
                 contractAddress = balanceContractAddress,
                 entrypoint = "increase_balance",
@@ -898,7 +902,8 @@ class StandardAccountTest {
     @Nested
     inner class DeployAccountEstimateTest {
         @Test
-        fun `estimate fee for deploy account v1 transaction`() {
+        fun estimateFeeForDeployAccountV1Transaction() {
+            // docsStart
             val privateKey = Felt(11112)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -918,20 +923,24 @@ class StandardAccountTest {
             )
             val payloadForFeeEstimation = account.signDeployAccountV1(
                 classHash = accountContractClassHash,
-                salt = salt,
                 calldata = calldata,
+                salt = salt,
                 maxFee = Felt.ZERO,
                 nonce = Felt.ZERO,
                 forFeeEstimate = true,
             )
+            // docsEnd
             assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
 
+            // docsStart
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            // docsEnd
             assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
         }
 
         @Test
-        fun `estimate fee for deploy account v3 transaction`() {
+        fun estimateFeeForDeployAccountV3Transaction() {
+            // docsStart
             val privateKey = Felt(22223)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -954,15 +963,17 @@ class StandardAccountTest {
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash = accountContractClassHash,
-                salt = salt,
                 calldata = calldata,
+                salt = salt,
                 params = params,
                 forFeeEstimate = true,
             )
-
+            // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
+            // docsStart
             val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
+            // docsEnd
             assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
         }
     }
@@ -970,7 +981,8 @@ class StandardAccountTest {
     @Nested
     inner class DeployAccountTest {
         @Test
-        fun `sign and send deploy account v1 transaction`() {
+        fun signAndSendDeployAccountV1Transaction() {
+            // docsStart
             val privateKey = Felt(11111)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -981,8 +993,12 @@ class StandardAccountTest {
                 calldata = calldata,
                 salt = salt,
             )
+
+            // Make sure to prefund the new account address with ETH
+            // docsEnd
             devnetClient.prefundAccountEth(address)
 
+            // docsStart
             val account = StandardAccount(
                 address,
                 privateKey,
@@ -991,19 +1007,21 @@ class StandardAccountTest {
             )
             val payload = account.signDeployAccountV1(
                 classHash = accountContractClassHash,
-                salt = salt,
                 calldata = calldata,
+                salt = salt,
                 // 10*fee from estimate deploy account fee
                 maxFee = Felt.fromHex("0x11fcc58c7f7000"),
             )
 
             val response = provider.deployAccount(payload).send()
-
+            // docsEnd
             // Make sure the address matches the calculated one
             assertEquals(address, response.address)
 
             // Make sure tx matches what we sent
+            // docsStart
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
+            // docsEnd
             assertEquals(payload.classHash, tx.classHash)
             assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
@@ -1012,17 +1030,19 @@ class StandardAccountTest {
             assertEquals(payload.maxFee, tx.maxFee)
             assertEquals(payload.signature, tx.signature)
 
+            // docsStart
             // Invoke function to make sure the account was deployed properly
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
             val result = account.executeV1(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
 
         @Test
-        fun `sign and send deploy account v3 transaction`() {
+        fun signAndSendDeployAccountV3Transaction() {
+            // docsStart
             val privateKey = Felt(22222)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
@@ -1050,8 +1070,9 @@ class StandardAccountTest {
             )
 
             // Prefund the new account address with STRK
+            // docsEnd
             devnetClient.prefundAccountStrk(address)
-
+            // docsStart
             val payload = newAccount.signDeployAccountV3(
                 classHash = accountContractClassHash,
                 salt = salt,
@@ -1061,12 +1082,13 @@ class StandardAccountTest {
             )
 
             val response = provider.deployAccount(payload).send()
-
+            // docsEnd
             // Make sure the address matches the calculated one
             assertEquals(address, response.address)
-
+            // docsStart
             // Make sure tx matches what we sent
             val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+            // docsEnd
             assertEquals(payload.classHash, tx.classHash)
             assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
             assertEquals(payload.constructorCalldata, tx.constructorCalldata)
@@ -1074,12 +1096,13 @@ class StandardAccountTest {
             assertEquals(payload.nonce, tx.nonce)
             assertEquals(payload.signature, tx.signature)
 
+            // docsStart
             // Invoke function to make sure the account was deployed properly
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
             val result = newAccount.executeV3(call).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
+            // docsEnd
             assertTrue(receipt.isAccepted)
         }
     }
@@ -1187,7 +1210,7 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `simulate invoke v3 and deploy account v3 transactions`() {
+        fun simulateInvokeV3AndDeployAccountV3Transactions() {
             val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
 
@@ -1218,8 +1241,8 @@ class StandardAccountTest {
             devnetClient.prefundAccountStrk(newAccountAddress)
             val deployAccountTx = newAccount.signDeployAccountV3(
                 classHash = accountContractClassHash,
-                salt = salt,
                 calldata = calldata,
+                salt = salt,
                 l1ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),

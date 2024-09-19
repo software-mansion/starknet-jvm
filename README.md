@@ -13,14 +13,10 @@
   * [Table of contents](#table-of-contents)
   * [Installation](#installation)
   * [Documentation](#documentation)
-  * [Example usages](#example-usages)
-    * [Making synchronous requests](#making-synchronous-requests)
-    * [Making asynchronous requests](#making-asynchronous-requests)
-    * [Standard flow examples](#standard-flow-examples)
+  * [Guides](#guides)
   * [Demo applications](#demo-applications)
     * [Android demo](#android-demo)
     * [Java demo](#java-demo)
-  * [Reusing http clients](#reusing-http-clients)
   * [Development](#development)
     * [Hooks](#hooks)
   * [Running tests](#running-tests)
@@ -42,109 +38,87 @@ Documentation is provided in two formats:
 - [Java and other jvm languages](https://docs.swmansion.com/starknet-jvm/)
 - [Kotlin](https://docs.swmansion.com/starknet-jvm/kotlin/)
 
-
 ## Example usages
+### Transferring STRK tokens
+```kotlin
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.data.types.Call
+import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.StarknetChainId
+import com.swmansion.starknet.data.types.Uint256
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
-### Making synchronous requests
+fun main() {
+    val provider = JsonRpcProvider("https://your.node.url")
+    val account = StandardAccount(
+        address = Felt.fromHex("0x123"),
+        privateKey = Felt.fromHex("0x456"),
+        provider = provider,
+        chainId = StarknetChainId.SEPOLIA,
+    )
+
+
+    val amount = Uint256(Felt(100))
+    val recipientAccountAddress = Felt.fromHex("0x789")
+    val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
+    val call = Call(
+        contractAddress = strkContractAddress,
+        entrypoint = "transfer",
+        calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
+    )
+
+    val request = account.executeV3(call)
+    val response = request.send()
+}
+```
 
 ```java
 import com.swmansion.starknet.account.Account;
 import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.BlockTag;
-import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.data.types.*;
 import com.swmansion.starknet.provider.Provider;
 import com.swmansion.starknet.provider.Request;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-        
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
-
-        // Make a request
-        Felt contractAddress = Felt.fromHex("0x42362362436");
-        Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        Felt response = request.send();
-
-        System.out.println(response);
-    }
-}
-```
-
-### Making asynchronous requests
-
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.data.types.BlockTag;
-import com.swmansion.starknet.data.types.Felt;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-        
-        // Create an account interface
-        Felt accountAddress = Felt.fromHex("0x13241455");
-        Felt privateKey = Felt.fromHex("0x425125");
-        Account account = new StandardAccount(provider, accountAddress, privateKey);
+        Provider provider = new JsonRpcProvider("https://your.node.url");
 
-        // Make a request
-        Felt contractAddress = Felt.fromHex("0x42362362436");
-        Felt storageKey = Felt.fromHex("0x13241253414");
-        Request<Felt> request = account.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
-        CompletableFuture<Felt> response = request.sendAsync();
+        Account account = new StandardAccount(
+                Felt.fromHex("0x123"),
+                Felt.fromHex("0x456"),
+                provider,
+                StarknetChainId.SEPOLIA
+        );
 
-        response.thenAccept(System.out::println);
+        Uint256 amount = new Uint256(new Felt(100));
+        Felt recipientAccountAddress = Felt.fromHex("0x789");
+        Felt strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d");
+        Call call = Call.fromCallArguments(
+                strkContractAddress,
+                "transfer",
+                List.of(recipientAccountAddress, amount)
+        );
+
+        Request<InvokeFunctionResponse> executeRequest = account.executeV3(call);
+        InvokeFunctionResponse executeResponse = executeRequest.send();
     }
 }
 ```
+For more example usages, see guides below👇
 
-### Standard flow examples
+## Guides
+- [Koltin guide](lib/kotlin-guide.md)
+- [Java guide](lib/java-guide.md)
 
-- [Deploying account](lib/starknet-jvm.md#deploying-account)
-- [Invoking contract: Transferring ETH](lib/starknet-jvm.md#invoking-contract-transferring-eth)
-- [Calling contract: Fetching ETH balance](lib/starknet-jvm.md#calling-contract-fetching-eth-balance)
-- [Declaring Cairo 1/2 contract](lib/starknet-jvm.md#declaring-cairo-12-contract)
 
 ## Demo applications
 These demo apps can be used with any Starknet RPC node, including devnet.
 They are intended for demonstration/testing purposes only. 
 ### [Android demo](androiddemo)
 ### [Java demo](javademo)
-
-
-## Reusing http clients
-
-Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
-This way you reuse connections and thread pools.
-
-✅ **Do:** 
-```java
-var provider = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account1 = new StandardAccount(provider, accountAddress1, privateKey1);
-var account2 = new StandardAccount(provider, accountAddress2, privateKey2);
-```
-
-❌ **Don't:**
-```java
-var provider1 = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
-var provider2 = new JsonRpcProvider("https://example-node-url.com/rpc");
-var account2 = new StandardAccount(provider2, accountAddress2, privateKey2);
-```
-
 
 ## Development
 
@@ -226,6 +200,33 @@ We want this library to be used by both kotlin & java users. In order to ensure 
 
 
 ## Building documentation
+
+User guides for Kotlin and Java are generated automatically based on the [guide.md](lib/guide.md) file (⚠️ only this file should be modified ⚠️).
+This file can include both code snippets and code section tags (which are used to embed code from specific functions).
+
+Functions eligible for inclusion in the code section can be located in any file within the following directories:
+- [`lib/src/test/kotlin`](lib/src/test/kotlin) for Kotlin
+- [`javademo/src/main/java/com/example/javademo`](javademo/src/main/java/com/example/javademo) for Java
+
+These elements will be automatically included in the respective guides, ensuring that the documentation is always up to date with the code in the repository.
+
+Code section template:
+`<!-- codeSection(path="path/to/file", function="functionName", language="language") -->`
+
+Code section examples:
+* Kotlin - `<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="Kotlin") -->
+  `
+* Java - `<!-- codeSection(path="Main.java", function="signAndSendDeployAccountV3Transaction", language="Java") -->
+  `
+
+Content of embedded functions can be tailored using `docsStart` and `docsEnd` comments inside the function. Only the content between those comments will be included in the documentation.
+
+
+Execute following command to generate the guides:
+
+```sh
+./gradlew generateGuides
+```
 
 Documentation is written in Kdoc format and markdown and is generated using `Dokka`. Execute
 following commands from `/lib` to build docs.

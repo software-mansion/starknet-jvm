@@ -54,7 +54,7 @@ object StandardDeployerTest {
     }
 
     @Test
-    fun `test udc deploy v1`() {
+    fun testUdcDeployV1() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV1(
             classHash = balanceContractClassHash,
@@ -69,7 +69,7 @@ object StandardDeployerTest {
     }
 
     @Test
-    fun `test udc deploy v3`() {
+    fun testUdcDeployV3() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
@@ -84,7 +84,7 @@ object StandardDeployerTest {
     }
 
     @Test
-    fun `test udc deploy v1 with specific fee`() {
+    fun testUdcDeployV1WithSpecificFee() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV1(
             classHash = balanceContractClassHash,
@@ -100,7 +100,7 @@ object StandardDeployerTest {
     }
 
     @Test
-    fun `test udc deploy v3 with specific resource bounds`() {
+    fun testUdcDeployV3WithSpecificResourceBounds() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
@@ -118,7 +118,7 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    fun `test udc deploy v1 with default parameters`() {
+    fun testUdcDeployV1WithDefaultParameters() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV1(
             classHash = balanceContractClassHash,
@@ -130,7 +130,7 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    fun `test udc deploy v3 with default parameters`() {
+    fun testUdcDeployV3WithDefaultParameters() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
@@ -142,7 +142,7 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    fun `test udc deploy v1 with specific fee and default parameters`() {
+    fun testUdcDeployV1WithSpecificFeeAndDefaultParameters() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV1(
             classHash = balanceContractClassHash,
@@ -155,7 +155,7 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    fun `test udc deploy v3 with specific fee and default parameters`() {
+    fun testUdcDeployV3WithSpecificFeeAndDefaultParameters() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,

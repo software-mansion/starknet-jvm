@@ -82,6 +82,17 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
+      - name: Check guides
+        run: |
+          ./gradlew :lib:generateGuides
+          if ! git diff --exit-code lib/*.md; then
+            echo "Error: Guides are not up-to-date. Please run './gradlew :lib:generateGuides' and commit the changes."
+
+            exit 1
+          else
+            echo "Guides are up-to-date"
+          fi
+
       - name: Run tests and generate coverage report
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet

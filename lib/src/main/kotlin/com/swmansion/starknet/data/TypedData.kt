@@ -601,6 +601,8 @@ data class TypedData private constructor(
          * Create TypedData from JSON string.
          *
          * @param typedData json string of typed data
+         * @return TypedData instance
+         * @sample starknet.data.TypedDataTest.JsonConversionTest.typedDataFromJsonString
          */
         @JvmStatic
         fun fromJsonString(typedData: String): TypedData =
@@ -609,6 +611,8 @@ data class TypedData private constructor(
 
     /**
      * Create a JSON string from TypedData.
+     *
+     * @return JSON string of typed data
      */
     fun toJsonString(): String =
         Json { encodeDefaults = true }.encodeToString(serializer(), this)
