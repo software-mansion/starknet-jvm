@@ -142,8 +142,9 @@ tasks.register("generateGuides") {
                 if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
             }
 
-            content = content.replace(Language.KOTLIN.getCodeSectionRegex(), "")
-                .replace(Language.JAVA.getCodeSectionRegex(), "")
+            content = Language.values().fold(content) { c, lang ->
+                c.replace(lang.getCodeSectionRegex(), "")
+            }
 
             return content.replace(
                 when (language) {
