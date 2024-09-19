@@ -86,7 +86,8 @@ jobs:
         run: |
           ./gradlew :lib:generateGuides
           if ! git diff --exit-code lib/kotlin-guide.md lib/java-guide.md; then
-            echo "Guides are not updated."
+            echo "Error: Guides are not up-to-date. Please run './gradlew :lib:generateGuides' and commit the changes.
+
             exit 1
           else
             echo "Guides are up-to-date"
