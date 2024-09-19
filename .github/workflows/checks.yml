@@ -82,7 +82,7 @@ jobs:
       - name: Lint
         run: ./gradlew :lib:lintKotlin
 
-      - name: Generate and check guides
+      - name: Check guides
         run: |
           ./gradlew :lib:generateGuides
           if ! git diff --exit-code lib/kotlin-guide.md lib/java-guide.md; then
