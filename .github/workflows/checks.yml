@@ -88,6 +88,8 @@ jobs:
           if ! git diff --exit-code lib/kotlin-guide.md lib/java-guide.md; then
             echo "Guides are not updated."
             exit 1
+          else
+            echo "Guides are up-to-date"
           fi
 
       - name: Run tests and generate coverage report
