@@ -86,7 +86,7 @@ jobs:
         run: |
           ./gradlew :lib:generateGuides
           if ! git diff --exit-code lib/*.md; then
-            echo "Error: Guides are not up-to-date. Please run './gradlew :lib:generateGuides' and commit the changes".
+            echo "Error: Guides are not up-to-date. Please run './gradlew :lib:generateGuides' and commit the changes."
 
             exit 1
           else
