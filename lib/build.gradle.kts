@@ -136,8 +136,7 @@ tasks.register("generateGuides") {
 
         fun processFileContent(dir: String, language: Language): String {
             var content = language.getCodeSectionRegex().replace(guideContent) { matchResult ->
-                val path = matchResult.groupValues[1]
-                val functionName = matchResult.groupValues[2]
+                val (path, functionName) = matchResult.destructured
                 val codeSection = extractCodeSection(path="$dir/$path", functionName=functionName, language=language)
                 if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
             }
