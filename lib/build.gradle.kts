@@ -70,33 +70,29 @@ tasks.dokkaJavadoc {
 }
 
 enum class Language(val langName: String) {
-    KOTLIN("kotlin"),
-    JAVA("java");
+    KOTLIN("kotlin") {
+        override fun getCodeSectionRegex() =
+            Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="$langName"\) -->""")
 
-    fun getCodeSectionRegex(): Regex {
-        return when (this) {
-            KOTLIN -> Regex("""<!-- codeSection\(path="([\w/]+\.kt)", function="([^"]+)", language="${KOTLIN.langName}"\) -->""")
-            JAVA -> Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="${Language.JAVA.langName}"\) -->""")
-        }
-    }
+        override fun getCodeBlockRegex() = Regex("""```($langName|kt)[\s\S]*?```""")
 
-    fun getCodeBlockRegex(): Regex {
-        return when (this) {
-            KOTLIN -> Regex("""```(${KOTLIN.langName}|kt)[\s\S]*?```""")
-            JAVA -> Regex("""```${JAVA.langName}[\s\S]*?```""")
-        }
-    }
+        override fun getFunctionRegex(functionName: String) = Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
+    },
+    JAVA("java") {
+        override fun getCodeSectionRegex() =
+            Regex("""<!-- codeSection\(path="([\w/]+\.java)", function="([^"]+)", language="$langName"\) -->""")
 
-    fun getFunctionRegex(functionName: String): Regex {
-        return when (this) {
-            KOTLIN -> Regex("""fun\s+$functionName\s*\(.*\)\s*\{([\s\S]*?)\}""")
-            JAVA -> Regex(
-                """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
-                RegexOption.MULTILINE,
-            )
-        }
+        override fun getCodeBlockRegex() = Regex("""```$langName[\s\S]*?```""")
 
-    }
+        override fun getFunctionRegex(functionName: String) = Regex(
+            """(?:public|private|protected)?\s+[\w<>\[\]]+\s+$functionName\s*\([^)]*\)\s*\{([\s\S]*?)}\s*""",
+            RegexOption.MULTILINE,
+        )
+    };
+
+    abstract fun getCodeSectionRegex(): Regex
+    abstract fun getCodeBlockRegex(): Regex
+    abstract fun getFunctionRegex(functionName: String): Regex
 }
 
 tasks.register("generateGuides") {
