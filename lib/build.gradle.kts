@@ -146,7 +146,10 @@ tasks.register("generateGuides") {
                 .replace(Language.JAVA.getCodeSectionRegex(), "")
 
             return content.replace(
-                if (language == Language.KOTLIN) Language.JAVA.getCodeBlockRegex() else Language.KOTLIN.getCodeBlockRegex(),
+                when (language) {
+                    Language.KOTLIN -> Language.JAVA.getCodeBlockRegex()
+                    Language.JAVA -> Language.KOTLIN.getCodeBlockRegex()
+                },
                 ""
             )
         }
