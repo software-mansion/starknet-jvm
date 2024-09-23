@@ -49,7 +49,9 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     // Make sure you are using the AAR and not a JAR and include transitive dependencies
-    implementation(files("/Users/franciszekjob/Projects/starknet/starknet-jvm/lib/build/libs/lib-0.13.0.jar"))
+    implementation("com.swmansion.starknet:starknet:0.13.0@aar"){
+        isTransitive = true
+    }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
     testImplementation("junit:junit:4.13.2")
