@@ -1,0 +1,32 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:com.swmansion.starknet.data.types/BlockId.Hash///PointingToDeclaration/com/swmansion/starknet/data/types/BlockId.Hash.html
+$dokka.location:com.swmansion.starknet.data.types/BlockId.Number///PointingToDeclaration/com/swmansion/starknet/data/types/BlockId.Number.html
+$dokka.location:com.swmansion.starknet.data.types/BlockId.Tag///PointingToDeclaration/com/swmansion/starknet/data/types/BlockId.Tag.html
+$dokka.location:com.swmansion.starknet.data.types/Cairo0ContractDefinition.InvalidContractException///PointingToDeclaration/com/swmansion/starknet/data/types/Cairo0ContractDefinition.InvalidContractException.html
+$dokka.location:com.swmansion.starknet.data.types/Cairo1ContractDefinition.InvalidContractException///PointingToDeclaration/com/swmansion/starknet/data/types/Cairo1ContractDefinition.InvalidContractException.html
+$dokka.location:com.swmansion.starknet.data.types/CairoVersion.Companion///PointingToDeclaration/com/swmansion/starknet/data/types/CairoVersion.Companion.html
+$dokka.location:com.swmansion.starknet.data.types/CasmContractClass.EntryPointsByType///PointingToDeclaration/com/swmansion/starknet/data/types/CasmContractClass.EntryPointsByType.html
+$dokka.location:com.swmansion.starknet.data.types/CasmContractDefinition.InvalidContractException///PointingToDeclaration/com/swmansion/starknet/data/types/CasmContractDefinition.InvalidContractException.html
+$dokka.location:com.swmansion.starknet.data.types/RequestResult.Companion///PointingToDeclaration/com/swmansion/starknet/data/types/RequestResult.Companion.html
+$dokka.location:com.swmansion.starknet.data/TypedData.Context///PointingToDeclaration/com/swmansion/starknet/data/TypedData.Context.html
+$dokka.location:com.swmansion.starknet.data/TypedData.Domain///PointingToDeclaration/com/swmansion/starknet/data/TypedData.Domain.html
+$dokka.location:com.swmansion.starknet.data/TypedData.EnumType///PointingToDeclaration/com/swmansion/starknet/data/TypedData.EnumType.html
+$dokka.location:com.swmansion.starknet.data/TypedData.MerkleTreeType///PointingToDeclaration/com/swmansion/starknet/data/TypedData.MerkleTreeType.html
+$dokka.location:com.swmansion.starknet.data/TypedData.Revision///PointingToDeclaration/com/swmansion/starknet/data/TypedData.Revision.html
+$dokka.location:com.swmansion.starknet.data/TypedData.StandardType///PointingToDeclaration/com/swmansion/starknet/data/TypedData.StandardType.html
+$dokka.location:com.swmansion.starknet.data/TypedData.Type///PointingToDeclaration/com/swmansion/starknet/data/TypedData.Type.html
+$dokka.location:com.swmansion.starknet.service.http/HttpService.Payload///PointingToDeclaration/com/swmansion/starknet/service/http/HttpService.Payload.html
+com.swmansion.starknet.account
+com.swmansion.starknet.crypto
+com.swmansion.starknet.data
+com.swmansion.starknet.data.types
+com.swmansion.starknet.data.types.conversions
+com.swmansion.starknet.deployercontract
+com.swmansion.starknet.provider
+com.swmansion.starknet.provider.exceptions
+com.swmansion.starknet.provider.rpc
+com.swmansion.starknet.service.http
+com.swmansion.starknet.service.http.requests
+com.swmansion.starknet.signer
+
