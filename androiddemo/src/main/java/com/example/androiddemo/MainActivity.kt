@@ -97,7 +97,6 @@ class MainActivity : AppCompatActivity() {
                         signer = signer,
                         provider = provider,
                         chainId = chainId,
-                        cairoVersion = Felt.ONE,
                     )
 
                     // Details of the transfer transaction

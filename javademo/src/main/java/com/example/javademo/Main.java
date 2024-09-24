@@ -45,7 +45,7 @@ public class Main {
         Felt privateKey = Felt.fromHex(DemoConfig.accountPrivateKey);
         // Make sure to check Cairo version of account contract
         StarknetChainId chainId = provider.getChainId().send();
-        Account account = new StandardAccount(address, privateKey, provider, chainId, Felt.ONE);
+        Account account = new StandardAccount(address, privateKey, provider, chainId);
 
         // Invoke a contract (Transfer ETH)
         Felt recipientAccountAddress = Felt.fromHex("0x987654321");
@@ -177,7 +177,7 @@ public class Main {
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
-        DeclareTransactionV3Payload declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
+        DeclareTransactionV3 declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
         Request<EstimateFeeResponseList> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
         EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
@@ -185,7 +185,7 @@ public class Main {
         // Declare a contract
         ResourceBounds l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).getL1Gas();
         DeclareParamsV3 params = new DeclareParamsV3(nonce, l1ResourceBounds);
-        DeclareTransactionV3Payload declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false);
+        DeclareTransactionV3 declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false);
 
         Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
 
