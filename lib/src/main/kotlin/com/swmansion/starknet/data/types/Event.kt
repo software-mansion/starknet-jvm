@@ -64,16 +64,16 @@ data class EmittedEvent @JvmOverloads constructor(
 @Serializable
 data class GetEventsPayload @JvmOverloads constructor(
     @SerialName("from_block")
-    val fromBlockId: BlockId,
+    val fromBlockId: BlockId? = null,
 
     @SerialName("to_block")
-    val toBlockId: BlockId,
+    val toBlockId: BlockId? = null,
 
     @SerialName("address")
-    val address: Felt,
+    val address: Felt? = null,
 
     @SerialName("keys")
-    val keys: List<List<Felt>>,
+    val keys: List<List<Felt>>? = null,
 
     @SerialName("chunk_size")
     val chunkSize: Int,
