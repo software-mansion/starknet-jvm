@@ -65,6 +65,7 @@ sealed class TransactionReceipt : StarknetResponse {
     abstract val actualFee: FeePayment
     abstract val executionStatus: TransactionExecutionStatus
     abstract val finalityStatus: TransactionFinalityStatus
+    abstract val failureReason: String?
     abstract val revertReason: String?
     abstract val events: List<Event>
     abstract val messagesSent: List<MessageL2ToL1>
@@ -106,6 +107,9 @@ data class InvokeTransactionReceipt private constructor(
 
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
+
+    @SerialName("failure_reason")
+    override val failureReason: String? = null,
 
     @SerialName("block_hash")
     override val blockHash: Felt? = null,
@@ -169,6 +173,9 @@ data class DeclareTransactionReceipt private constructor(
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
+    @SerialName("failure_reason")
+    override val failureReason: String? = null,
+
     @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
@@ -229,6 +236,9 @@ data class DeployAccountTransactionReceipt private constructor(
 
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
+
+    @SerialName("failure_reason")
+    override val failureReason: String? = null,
 
     @SerialName("block_hash")
     override val blockHash: Felt? = null,
@@ -297,6 +307,9 @@ data class DeployTransactionReceipt private constructor(
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
 
+    @SerialName("failure_reason")
+    override val failureReason: String? = null,
+
     @SerialName("block_hash")
     override val blockHash: Felt? = null,
 
@@ -363,6 +376,9 @@ data class L1HandlerTransactionReceipt private constructor(
 
     @SerialName("finality_status")
     override val finalityStatus: TransactionFinalityStatus,
+
+    @SerialName("failure_reason")
+    override val failureReason: String? = null,
 
     @SerialName("block_hash")
     override val blockHash: Felt? = null,
