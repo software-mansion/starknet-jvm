@@ -111,6 +111,11 @@ object StandardDeployerTest {
                 maxAmount = Uint64(50000),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
+            // TODO: Check if these l2 resources bounds are adequate
+            l2ResourceBounds = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
+            ),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
@@ -161,6 +166,11 @@ object StandardDeployerTest {
             classHash = balanceContractClassHash,
             constructorCalldata = listOf(initialBalance),
             l1ResourceBounds = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
+            ),
+            // TODO: Check if these l2 resources bounds are adequate
+            l2ResourceBounds = ResourceBounds(
                 maxAmount = Uint64(50000),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),

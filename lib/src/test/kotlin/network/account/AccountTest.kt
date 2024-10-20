@@ -135,8 +135,10 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(signedTransaction), BlockTag.LATEST, emptySet())
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.gasPrice)
+        assertNotEquals(Felt(0), feeEstimate.l1GasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
+        assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
@@ -160,6 +162,7 @@ class AccountTest {
         val params = DeclareParamsV3(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
+            l2ResourceBounds = ResourceBounds.ZERO,
         )
         val declareTransactionPayload = account.signDeclareV3(
             sierraContractDefinition = contractDefinition,
@@ -171,8 +174,10 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertNotEquals(Felt(0), feeEstimate.gasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.gasPrice)
+        assertNotEquals(Felt(0), feeEstimate.l1GasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
+        assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
+        assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
@@ -265,9 +270,15 @@ class AccountTest {
             maxAmount = Uint64(100000),
             maxPricePerUnit = Uint128(2500000000000),
         )
+        // TODO: Check if these l2 resources bounds are adequate
+        val l2ResourceBounds = ResourceBounds(
+            maxAmount = Uint64(100000),
+            maxPricePerUnit = Uint128(2500000000000),
+        )
         val params = DeclareParamsV3(
             nonce = nonce,
             l1ResourceBounds = l1ResourceBounds,
+            l2ResourceBounds = l2ResourceBounds,
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
@@ -545,6 +556,7 @@ class AccountTest {
             params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
                 l1ResourceBounds = ResourceBounds.ZERO,
+                l2ResourceBounds = ResourceBounds.ZERO,
             ),
             forFeeEstimate = true, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
         )
@@ -570,6 +582,7 @@ class AccountTest {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
             l1ResourceBounds = resourceBounds.l1Gas,
+            l2ResourceBounds = resourceBounds.l2Gas,
         )
         val payload = deployedAccount.signDeployAccountV3(
             classHash = classHash,
