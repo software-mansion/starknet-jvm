@@ -32,10 +32,11 @@ class StandardDeployer(
         salt: Felt,
         constructorCalldata: Calldata,
         l1ResourceBounds: ResourceBounds,
+        l2ResourceBounds: ResourceBounds,
     ): Request<ContractDeployment> {
         val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
-        return account.executeV3(call, l1ResourceBounds).map { ContractDeployment(it.transactionHash) }
+        return account.executeV3(call, l1ResourceBounds, l2ResourceBounds).map { ContractDeployment(it.transactionHash) }
     }
 
     override fun deployContractV1(
@@ -65,9 +66,9 @@ class StandardDeployer(
         return deployContractV1(classHash, true, salt, constructorCalldata, maxFee)
     }
 
-    override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, l1ResourceBounds: ResourceBounds): Request<ContractDeployment> {
+    override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<ContractDeployment> {
         val salt = randomSalt()
-        return deployContractV3(classHash, true, salt, constructorCalldata, l1ResourceBounds)
+        return deployContractV3(classHash, true, salt, constructorCalldata, l1ResourceBounds, l2ResourceBounds)
     }
 
     override fun deployContractV1(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {

@@ -314,11 +314,12 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+    override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
                 nonce = nonce,
                 l1ResourceBounds = l1ResourceBounds,
+                l2ResourceBounds = l2ResourceBounds,
             )
             val payload = signV3(calls, signParams, false)
 
@@ -343,7 +344,7 @@ class StandardAccount @JvmOverloads constructor(
                 amountMultiplier = estimateAmountMultiplier,
                 unitPriceMultiplier = estimateUnitPriceMultiplier,
             )
-            executeV3(calls, resourceBounds.l1Gas)
+            executeV3(calls, resourceBounds.l1Gas, resourceBounds.l2Gas)
         }
     }
 
@@ -363,7 +364,7 @@ class StandardAccount @JvmOverloads constructor(
     override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
             val resourceBounds = estimateFee.values.first().toResourceBounds()
-            executeV3(calls, resourceBounds.l1Gas)
+            executeV3(calls, resourceBounds.l1Gas, resourceBounds.l2Gas)
         }
     }
 
@@ -371,8 +372,8 @@ class StandardAccount @JvmOverloads constructor(
         return executeV1(listOf(call), maxFee)
     }
 
-    override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
-        return executeV3(listOf(call), l1ResourceBounds)
+    override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), l1ResourceBounds, l2ResourceBounds)
     }
 
     override fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
@@ -542,6 +543,7 @@ class StandardAccount @JvmOverloads constructor(
         val executionParams = InvokeParamsV3(
             nonce = nonce,
             l1ResourceBounds = ResourceBounds.ZERO,
+            l2ResourceBounds = ResourceBounds.ZERO,
         )
         val payload = signV3(calls, executionParams, true)
 

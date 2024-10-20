@@ -195,11 +195,13 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         l1ResourceBounds: ResourceBounds,
+        l2ResourceBounds: ResourceBounds,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
             l1ResourceBounds = l1ResourceBounds,
+            l2ResourceBounds = l2ResourceBounds,
         )
         return signDeployAccountV3(classHash, calldata, salt, params, forFeeEstimate)
     }
@@ -219,10 +221,12 @@ interface Account {
         calldata: Calldata,
         salt: Felt,
         l1ResourceBounds: ResourceBounds,
+        l2ResourceBounds: ResourceBounds,
     ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
             l1ResourceBounds = l1ResourceBounds,
+            l2ResourceBounds = l2ResourceBounds,
         )
         return signDeployAccountV3(classHash, calldata, salt, params, false)
     }
@@ -334,9 +338,10 @@ interface Account {
      *
      * @param calls a list of calls to be executed.
      * @param l1ResourceBounds L1 resource bounds for the transaction.
+     * @param l2ResourceBounds L2 resource bounds for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+    fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 1 invoke transaction.
@@ -356,9 +361,10 @@ interface Account {
      *
      * @param call a call to be executed.
      * @param l1ResourceBounds L1 resource bounds for the transaction.
+     * @param l2ResourceBounds L2 resource bounds for the transaction.
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, l1ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+    fun executeV3(call: Call, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 1 invoke transaction with automatically estimated fee

@@ -43,17 +43,23 @@ data class DeployAccountResponse(
 
 @Serializable
 data class EstimateFeeResponse(
-    @SerialName("gas_consumed")
-    val gasConsumed: Felt,
+    @SerialName("l1_gas_consumed")
+    val l1GasConsumed: Felt,
 
-    @SerialName("gas_price")
-    val gasPrice: Felt,
+    @SerialName("l1_gas_price")
+    val l1GasPrice: Felt,
 
-    @SerialName("data_gas_consumed")
-    val dataGasConsumed: Felt,
+    @SerialName("l2_gas_consumed")
+    val l2GasConsumed: Felt,
 
-    @SerialName("data_gas_price")
-    val dataGasPrice: Felt,
+    @SerialName("l2_gas_price")
+    val l2GasPrice: Felt,
+
+    @SerialName("l1_data_gas_consumed")
+    val l1DataGasConsumed: Felt,
+
+    @SerialName("l1_data_gas_price")
+    val l1DataGasPrice: Felt,
 
     @SerialName("overall_fee")
     val overallFee: Felt,
@@ -79,9 +85,11 @@ data class EstimateFeeResponse(
     /**
      * Convert estimated fee to resource bounds with applied multipliers.
      *
-     * Calculates max amount as maxAmount = [overallFee] / [gasPrice], unless [gasPrice] is 0, then maxAmount is 0.
-     * Calculates max price per unit as maxPricePerUnit = [gasPrice].
-     * Then multiplies maxAmount by round([amountMultiplier] * 100%) and maxPricePerUnit by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
+     * Calculates max amount l1 as maxAmountL1 = [overallFee] / [l1GasPrice], unless [l1GasPrice] is 0, then maxAmountL1 is 0.
+     * Calculates max amount l2 as maxAmountL2 = [overallFee] / [l2GasPrice], unless [l2GasPrice] is 0, then maxAmountL2 is 0.
+     * Calculates max price per unit l1 as maxPricePerUnitL1 = [l1GasPrice].
+     * Calculates max price per unit l2 as maxPricePerUnitL2 = [l2GasPrice].
+     * Then multiplies maxAmountL1/L2 by round([amountMultiplier] * 100%) and maxPricePerUnitL1/L2 by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
      *
      * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
      * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
@@ -96,14 +104,22 @@ data class EstimateFeeResponse(
         require(amountMultiplier >= 0)
         require(unitPriceMultiplier >= 0)
 
-        val maxAmount = when (gasPrice) {
+        val maxAmountL1 = when (l1GasPrice) {
             Felt.ZERO -> Uint64.ZERO
-            else -> (overallFee.value / gasPrice.value).applyMultiplier(amountMultiplier).toUint64
+            else -> (overallFee.value / l1GasPrice.value).applyMultiplier(amountMultiplier).toUint64
         }
-        val maxPricePerUnit = gasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
+
+        val maxAmountL2 = when (l2GasPrice) {
+            Felt.ZERO -> Uint64.ZERO
+            else -> (overallFee.value / l2GasPrice.value).applyMultiplier(amountMultiplier).toUint64
+        }
+
+        val maxPricePerUnitL1 = l1GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
+        val maxPricePerUnitL2 = l2GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
 
         return ResourceBoundsMapping(
-            l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
+            l1Gas = ResourceBounds(maxAmount = maxAmountL1, maxPricePerUnit = maxPricePerUnitL1),
+            l2Gas = ResourceBounds(maxAmount = maxAmountL2, maxPricePerUnit = maxPricePerUnitL2),
         )
     }
 
@@ -309,10 +325,9 @@ data class PendingStateUpdateResponse(
 ) : StateUpdate()
 
 // TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
-@Suppress("DataClassPrivateConstructor")
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class ResourceBoundsMapping private constructor(
+data class ResourceBoundsMapping(
     @SerialName("l1_gas")
     @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
@@ -320,16 +335,7 @@ data class ResourceBoundsMapping private constructor(
     @SerialName("l2_gas")
     @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
-) {
-    constructor(
-        l1Gas: ResourceBounds,
-    ) : this(
-        // As of Starknet 0.13.0, the L2 gas is not supported
-        // Because of this, the L2 gas values are hardcoded to 0
-        l1Gas = l1Gas,
-        l2Gas = ResourceBounds.ZERO,
-    )
-}
+)
 
 @Serializable
 data class ResourceBounds(
