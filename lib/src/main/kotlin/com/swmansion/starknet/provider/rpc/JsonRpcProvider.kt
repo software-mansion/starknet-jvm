@@ -270,6 +270,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
     }
 
+    override fun getMessageStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatueResponse> {
+        val payload = GetMessagesStatusPayload(l1TransactionHash)
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, GetMessagesStatueResponse.serializer())
+    }
+
     /**
      * @sample starknet.account.StandardAccountTest.InvokeTest.signV1SingleCall
      */
@@ -884,6 +891,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
     GET_TRANSACTION_STATUS("starknet_getTransactionStatus"),
+    GET_MESSAGES_STATUS("starknet_getMessagesStatus"),
     DECLARE("starknet_addDeclareTransaction"),
     GET_EVENTS("starknet_getEvents"),
     GET_BLOCK_NUMBER("starknet_blockNumber"),

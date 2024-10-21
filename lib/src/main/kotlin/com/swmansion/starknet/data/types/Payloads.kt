@@ -48,6 +48,12 @@ internal data class GetTransactionStatusPayload(
 )
 
 @Serializable
+internal data class GetMessagesStatusPayload(
+    @SerialName("transaction_hash")
+    val transactionHash: NumAsHex,
+)
+
+@Serializable
 internal data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<ExecutableTransaction>,

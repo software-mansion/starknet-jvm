@@ -151,6 +151,18 @@ data class GetTransactionStatusResponse(
 ) : StarknetResponse
 
 @Serializable
+data class GetMessagesStatueResponse(
+    @SerialName("transaction_hash")
+    val transactionHash: Felt,
+
+    @SerialName("finality_status")
+    val finalityStatus: TransactionStatus,
+
+    @SerialName("failure_reason")
+    val failureReason: String? = null,
+) : StarknetResponse
+
+@Serializable
 sealed class Syncing : StarknetResponse {
     abstract val status: Boolean
 

@@ -322,6 +322,15 @@ interface Provider {
     fun getTransactionStatus(transactionHash: Felt): Request<GetTransactionStatusResponse>
 
     /**
+     * Get L1 handler transaction data.
+     *
+     * Get L1 handler transaction data for all L1 → L2 messages sent by the given L1 transaction.
+     *
+     */
+    fun getMessageStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatueResponse>
+
+
+    /**
      * Get the contract class definition.
      *
      * Get the contract class definition associated with the given hash.
