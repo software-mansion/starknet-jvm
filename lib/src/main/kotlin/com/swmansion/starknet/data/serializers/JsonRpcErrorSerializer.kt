@@ -17,7 +17,6 @@ internal object JsonRpcErrorSerializer : KSerializer<JsonRpcError> {
         val jsonObject = input.decodeJsonElement().jsonObject
 
         val code = jsonObject.getValue("code").jsonPrimitive.content.toInt()
-        val message = jsonObject.getValue("message").jsonPrimitive.content
         val data = jsonObject["data"]?.let {
             when (it) {
                 is JsonPrimitive -> it.jsonPrimitive.content
@@ -26,11 +25,7 @@ internal object JsonRpcErrorSerializer : KSerializer<JsonRpcError> {
             }
         }
 
-        return JsonRpcError(
-            code = code,
-            message = message,
-            data = data,
-        )
+        return JsonRpcError.fromCode(code, data)
     }
 
     override val descriptor: SerialDescriptor

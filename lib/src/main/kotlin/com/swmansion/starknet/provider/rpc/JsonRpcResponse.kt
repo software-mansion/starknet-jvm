@@ -1,6 +1,5 @@
 package com.swmansion.starknet.provider.rpc
 
-import com.swmansion.starknet.data.serializers.JsonRpcErrorSerializer
 import com.swmansion.starknet.data.types.StarknetResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -20,14 +19,3 @@ internal data class JsonRpcResponse<T : StarknetResponse>(
     val error: JsonRpcError? = null,
 )
 
-@Serializable(with = JsonRpcErrorSerializer::class)
-internal data class JsonRpcError(
-    @SerialName("code")
-    val code: Int,
-
-    @SerialName("message")
-    val message: String,
-
-    @SerialName("data")
-    val data: String? = null,
-)
