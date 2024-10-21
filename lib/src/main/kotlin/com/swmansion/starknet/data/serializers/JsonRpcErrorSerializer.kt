@@ -1,6 +1,6 @@
 package com.swmansion.starknet.data.serializers
 
-import com.swmansion.starknet.provider.rpc.JsonRpcError
+import com.swmansion.starknet.provider.rpc.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -25,7 +25,21 @@ internal object JsonRpcErrorSerializer : KSerializer<JsonRpcError> {
             }
         }
 
-        return JsonRpcError.fromCode(code, data)
+        return when (code) {
+            1 -> FailedToReceiveTransactionError()
+            20 -> ContractNotFoundError()
+            24 -> BlockNotFoundError()
+            27 -> InvalidTransactionIndexError()
+            28 -> ClassHashNotFoundError()
+            29 -> TransactionHashNotFoundError()
+            31 -> PageSizeTooBigError()
+            32 -> NoBlocksError()
+            33 -> InvalidContinuationTokenError()
+            34 -> TooManyKeysInFilterError()
+            40 -> ContractError(data = data!!)
+            41 -> TransactionExecutionError(data = data!!)
+            else -> throw IllegalArgumentException("Unknown JSON RPC error code: $code")
+        }
     }
 
     override val descriptor: SerialDescriptor

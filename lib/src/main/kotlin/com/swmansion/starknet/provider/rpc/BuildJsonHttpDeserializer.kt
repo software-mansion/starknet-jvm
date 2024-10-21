@@ -20,7 +20,11 @@ private fun <T : StarknetResponse> getResult(
             RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
                 message = jsonRpcResponse.error.message,
-                data = jsonRpcResponse.error.data,
+                data = when (val error = jsonRpcResponse.error) {
+                    is ContractError -> Json.encodeToString(error.data)
+                    is TransactionExecutionError -> Json.encodeToString(error.data)
+                    else -> null
+                },
                 payload = payload,
             ),
         )
@@ -78,7 +82,11 @@ internal fun <T : StarknetResponse> buildJsonHttpDeserializer(
             throw RpcRequestFailedException(
                 code = jsonRpcResponse.error.code,
                 message = jsonRpcResponse.error.message,
-                data = jsonRpcResponse.error.data,
+                data = when (val error = jsonRpcResponse.error) {
+                    is ContractError -> Json.encodeToString(error.data)
+                    is TransactionExecutionError -> Json.encodeToString(error.data)
+                    else -> null
+                },
                 payload = response.body,
             )
         }
