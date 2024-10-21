@@ -43,7 +43,7 @@ data class InvokeParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds
+            l2Gas = l2ResourceBounds,
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -71,7 +71,7 @@ data class DeclareParamsV3 private constructor(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds
+            l2Gas = l2ResourceBounds,
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
@@ -98,12 +98,12 @@ data class DeployAccountParamsV3 private constructor(
     constructor(
         nonce: Felt = Felt.ZERO,
         l1ResourceBounds: ResourceBounds,
-        l2ResourceBounds: ResourceBounds
+        l2ResourceBounds: ResourceBounds,
     ) : this(
         nonce = nonce,
         resourceBounds = ResourceBoundsMapping(
             l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds
+            l2Gas = l2ResourceBounds,
         ),
         tip = Uint64.ZERO,
         paymasterData = emptyList(),

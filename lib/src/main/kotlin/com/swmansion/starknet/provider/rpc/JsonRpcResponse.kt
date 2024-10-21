@@ -18,4 +18,3 @@ internal data class JsonRpcResponse<T : StarknetResponse>(
     @SerialName("error")
     val error: JsonRpcError? = null,
 )
-

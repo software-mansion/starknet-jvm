@@ -2,15 +2,9 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.serializers.ContractExecutionErrorPolymorphicSerializer
 import com.swmansion.starknet.data.types.Felt
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @Serializable
@@ -40,7 +34,7 @@ data class ContractNotFoundError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 20,
         message = "Contract not found",
@@ -53,7 +47,7 @@ data class BlockNotFoundError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 24,
         message = "Block not found",
@@ -66,7 +60,7 @@ data class InvalidTransactionIndexError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 27,
         message = "Invalid transaction index in a block",
@@ -79,7 +73,7 @@ data class ClassHashNotFoundError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 28,
         message = "Class hash not found",
@@ -92,7 +86,7 @@ data class TransactionHashNotFoundError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 29,
         message = "Transaction hash not found",
@@ -105,7 +99,7 @@ data class PageSizeTooBigError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 31,
         message = "Requested page size is too big",
@@ -118,7 +112,7 @@ data class NoBlocksError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 32,
         message = "There are no blocks",
@@ -131,7 +125,7 @@ data class InvalidContinuationTokenError private constructor(
     override val code: Int,
     override val message: String,
 
-    ) : JsonRpcError {
+) : JsonRpcError {
     constructor() : this(
         code = 33,
         message = "The supplied continuation token is invalid or unknown",
@@ -193,7 +187,6 @@ data class TransactionExecutionErrorData(
     val error: ContractExecutionError,
 )
 
-
 @Serializable(with = ContractExecutionErrorPolymorphicSerializer::class)
 sealed class ContractExecutionError {
     @Serializable
@@ -216,7 +209,6 @@ sealed class ContractExecutionError {
         val value: String,
     ) : ContractExecutionError()
 }
-
 
 fun main() {
     val json = Json {
