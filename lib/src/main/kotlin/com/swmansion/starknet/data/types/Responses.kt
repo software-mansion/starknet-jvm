@@ -145,6 +145,9 @@ data class GetTransactionStatusResponse(
 
     @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
+
+    @SerialName("failure_reason")
+    val failureReason: String? = null,
 ) : StarknetResponse
 
 @Serializable
