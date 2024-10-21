@@ -79,7 +79,7 @@ data class GetEventsPayload @JvmOverloads constructor(
     val chunkSize: Int,
 
     @SerialName("continuation_token")
-    val continuationToken: String? = "0",
+    val continuationToken: String? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -89,5 +89,5 @@ data class GetEventsResult @JvmOverloads constructor(
     val events: List<EmittedEvent>,
 
     @JsonNames("continuation_token")
-    val continuationToken: String? = "0",
+    val continuationToken: String? = null,
 ) : StarknetResponse
