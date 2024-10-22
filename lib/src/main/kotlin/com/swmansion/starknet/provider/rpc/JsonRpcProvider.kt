@@ -653,6 +653,22 @@ class JsonRpcProvider(
         return getNonce(payload)
     }
 
+    private fun getStorageProof(payload: GetStorageProofPayload): HttpRequest<StorageProof> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_STORAGE_PROOF, jsonPayload, StorageProof.serializer())
+    }
+
+    override fun getStorageProof (
+        classHashes: List<Felt>?,
+        contractAddresses: List<Felt>?,
+        contractsStorageKeys: List<ContractStorageKey>?,
+    ): Request<StorageProof> {
+        val payload = GetStorageProofPayload(classHashes, contractAddresses, contractsStorageKeys)
+
+        return getStorageProof(payload)
+    }
+
     /**
      * @sample starknet.provider.ProviderTest.getSyncInformationNodeNotSyncing
      */
@@ -907,6 +923,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_NONCE("starknet_getNonce"),
+    GET_STORAGE_PROOF("starknet_getStorageProof"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
     SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
 }

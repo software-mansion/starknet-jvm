@@ -3,8 +3,6 @@ package com.swmansion.starknet.provider
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
-typealias StorageProofClassHash = Felt
-
 /**
  * Provider for interacting with Starknet.
  *
@@ -665,28 +663,18 @@ interface Provider {
      */
     fun getNonce(contractAddress: Felt, blockHash: Felt): Request<Felt>
 
-    // TODO: Add KDocs for getStorageProof
-    fun getStorageProof(classHashes: List<Felt>, contractAddresses: List<Felt>, contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
-
-    fun getStorageProof(contractAddresses: List<Felt>, contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
-
-    // TODO: Resolve overload conflict
-//    fun getStorageProof(classHashes: List<Felt>, contractsStorageKeys: List<ContractStorageKey>)
-
-    fun getStorageProof(classHashes: List<Felt>, contractAddresses: List<Felt>): Request<StorageProof>
-
-    fun getStorageProof(classHashes: List<Felt>): Request<StorageProof>
-
-    // TODO: Resolve overload conflict
-//    fun getStorageProof(contractAddresses: List<Felt>)
-
-//     TODO: Resolve overload conflict
-//    fun getStorageProof(contractAddresses: List<Felt>)
-
-    fun getStorageProof(contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
-
-    fun getStorageProof(): Request<StorageProof>
-
+    /**
+     * Get merkle paths in one of the state tries.
+     *
+     * Get merkle paths in one of the state tries: global state, classes, individual contract.
+     *
+     * @param classHashes list of class hashes for which we want to prove membership
+     * @param contractAddresses list of contract addresses for which we want to prove membership
+     * @param contractsStorageKeys list of contract address and storage keys pairs
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageProof(classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractStorageKey>? = null): Request<StorageProof>
 
     /**
      * Get the block synchronization status.
