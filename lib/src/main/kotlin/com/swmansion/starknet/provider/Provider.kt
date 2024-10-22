@@ -3,6 +3,8 @@ package com.swmansion.starknet.provider
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
+typealias StorageProofClassHash = Felt
+
 /**
  * Provider for interacting with Starknet.
  *
@@ -326,6 +328,9 @@ interface Provider {
      *
      * Get L1 handler transaction data for all L1 → L2 messages sent by the given L1 transaction.
      *
+     * @param l1TransactionHash The hash of the L1 transaction.
+     *
+     * @throws RequestFailedException
      */
     fun getMessageStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatueResponse>
 
@@ -659,6 +664,29 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getNonce(contractAddress: Felt, blockHash: Felt): Request<Felt>
+
+    // TODO: Add KDocs for getStorageProof
+    fun getStorageProof(classHashes: List<Felt>, contractAddresses: List<Felt>, contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
+
+    fun getStorageProof(contractAddresses: List<Felt>, contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
+
+    // TODO: Resolve overload conflict
+//    fun getStorageProof(classHashes: List<Felt>, contractsStorageKeys: List<ContractStorageKey>)
+
+    fun getStorageProof(classHashes: List<Felt>, contractAddresses: List<Felt>): Request<StorageProof>
+
+    fun getStorageProof(classHashes: List<Felt>): Request<StorageProof>
+
+    // TODO: Resolve overload conflict
+//    fun getStorageProof(contractAddresses: List<Felt>)
+
+//     TODO: Resolve overload conflict
+//    fun getStorageProof(contractAddresses: List<Felt>)
+
+    fun getStorageProof(contractsStorageKeys: List<ContractStorageKey>): Request<StorageProof>
+
+    fun getStorageProof(): Request<StorageProof>
+
 
     /**
      * Get the block synchronization status.
