@@ -821,6 +821,11 @@ class ProviderTest {
     }
 
     @Test
+    fun getStorageProof() {
+        // TODO
+    }
+
+    @Test
     fun `get pending block with transactions`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """

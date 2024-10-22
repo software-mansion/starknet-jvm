@@ -97,6 +97,11 @@ class ProviderTest {
     }
 
     @Test
+    fun `get storage proof`() {
+        // TODO
+    }
+
+    @Test
     fun `get transaction status`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
