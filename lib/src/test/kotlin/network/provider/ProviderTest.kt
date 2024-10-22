@@ -115,6 +115,11 @@ class ProviderTest {
     }
 
     @Test
+    fun `get messages status`() {
+        // TODO
+    }
+
+    @Test
     fun `get deploy account v1 transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 

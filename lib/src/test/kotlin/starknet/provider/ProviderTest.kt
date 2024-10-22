@@ -87,6 +87,11 @@ class ProviderTest {
     }
 
     @Test
+    fun getMessagesStatus() {
+        // TODO
+    }
+
+    @Test
     fun callContractWithBlockNumber() {
         val currentNumber = provider.getBlockNumber().send().value
 
