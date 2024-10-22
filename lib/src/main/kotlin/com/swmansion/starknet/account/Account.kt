@@ -188,6 +188,8 @@ interface Account {
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @param l1ResourceBounds L1 resource bounds for the transaction
+     * @param l2ResourceBounds L2 resource bounds for the transaction
      * @return signed deploy account payload
      */
     fun signDeployAccountV3(
@@ -214,6 +216,8 @@ interface Account {
      * @param classHash hash of the contract that will be deployed. Has to be declared first!
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
+     * @param l1ResourceBounds L1 resource bounds for the transaction
+     * @param l2ResourceBounds L2 resource bounds for the transaction
      * @return signed deploy account payload
      */
     fun signDeployAccountV3(
