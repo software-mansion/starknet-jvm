@@ -90,6 +90,18 @@ internal data class GetNoncePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
+internal data class GetStorageProofPayload @JvmOverloads constructor(
+    @SerialName("class_hashes")
+    val classHashes: List<Felt>? = null,
+
+    @SerialName("contract_addresses")
+    val contractAddresses: List<Felt>? = null,
+
+    @SerialName("contract_storage_keys")
+    val contractStorageKeys: List<ContractStorageKey>? = null,
+)
+
+@Serializable
 internal data class GetBlockWithTransactionsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
