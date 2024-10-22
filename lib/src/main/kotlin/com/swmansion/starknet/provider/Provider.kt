@@ -332,7 +332,6 @@ interface Provider {
      */
     fun getMessageStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatueResponse>
 
-
     /**
      * Get the contract class definition.
      *

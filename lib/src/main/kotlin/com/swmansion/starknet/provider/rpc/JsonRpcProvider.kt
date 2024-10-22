@@ -659,7 +659,7 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_STORAGE_PROOF, jsonPayload, StorageProof.serializer())
     }
 
-    override fun getStorageProof (
+    override fun getStorageProof(
         classHashes: List<Felt>?,
         contractAddresses: List<Felt>?,
         contractsStorageKeys: List<ContractStorageKey>?,

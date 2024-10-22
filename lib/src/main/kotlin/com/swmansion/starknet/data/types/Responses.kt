@@ -435,7 +435,7 @@ data class MerkleNode(
     val value: Felt,
 
     @SerialName("children_hashes")
-    val childrenHashes: ChildrenHashes? = null
+    val childrenHashes: ChildrenHashes? = null,
 )
 
 @Serializable
@@ -444,7 +444,7 @@ data class ChildrenHashes(
     val left: Felt,
 
     @SerialName("right")
-    val right: Felt
+    val right: Felt,
 )
 
 @Serializable
@@ -453,5 +453,5 @@ data class NodeHashToNodeMapping(
     val nodeHash: Felt,
 
     @SerialName("node")
-    val node: MerkleNode
+    val node: MerkleNode,
 )
