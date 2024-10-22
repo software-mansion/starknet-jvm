@@ -163,6 +163,18 @@ data class GetMessagesStatueResponse(
 ) : StarknetResponse
 
 @Serializable
+data class StorageProof(
+    @SerialName("classes_proof")
+    val classesProof: NodeHashToNodeMapping,
+
+    @SerialName("contracts_proof")
+    val contractsProof: NodeHashToNodeMapping,
+
+    @SerialName("contracts_storage_proofs")
+    val contractsStorageProofs: List<NodeHashToNodeMapping>,
+) : StarknetResponse
+
+@Serializable
 sealed class Syncing : StarknetResponse {
     abstract val status: Boolean
 
@@ -410,3 +422,36 @@ enum class L1DAMode {
     @SerialName("CALLDATA")
     CALLDATA,
 }
+
+@Serializable
+data class MerkleNode(
+    @SerialName("path")
+    val path: Int,
+
+    @SerialName("length")
+    val length: Int,
+
+    @SerialName("value")
+    val value: Felt,
+
+    @SerialName("children_hashes")
+    val childrenHashes: ChildrenHashes? = null
+)
+
+@Serializable
+data class ChildrenHashes(
+    @SerialName("left")
+    val left: Felt,
+
+    @SerialName("right")
+    val right: Felt
+)
+
+@Serializable
+data class NodeHashToNodeMapping(
+    @SerialName("node_hash")
+    val nodeHash: Felt,
+
+    @SerialName("node")
+    val node: MerkleNode
+)
