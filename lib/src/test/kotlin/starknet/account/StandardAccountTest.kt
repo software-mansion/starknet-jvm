@@ -734,7 +734,7 @@ class StandardAccountTest {
                 maxAmount = Uint64(20000),
                 maxPricePerUnit = Uint128(120000000000),
             )
-            // TODO: Check if these l2 resources bounds are adequate
+            // TODO: Check if these l2 resources need to be updated once we can add tests
             val l2ResourceBounds = ResourceBounds(
                 maxAmount = Uint64(20000),
                 maxPricePerUnit = Uint128(120000000000),
@@ -782,7 +782,7 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
@@ -1274,7 +1274,7 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
@@ -1304,7 +1304,7 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2ResourceBounds = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
@@ -1390,7 +1390,7 @@ class StandardAccountTest {
                         maxAmount = Uint64(100000),
                         maxPricePerUnit = Uint128(1000000000000),
                     ),
-                    // TODO: Check if these l2 resources bounds are adequate
+                    // TODO: Check if these l2 resources need to be updated once we can add tests
                     l2ResourceBounds = ResourceBounds(
                         maxAmount = Uint64(100000),
                         maxPricePerUnit = Uint128(1000000000000),

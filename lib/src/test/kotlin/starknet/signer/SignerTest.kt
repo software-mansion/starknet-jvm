@@ -41,7 +41,7 @@ internal class SignerTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2Gas = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),

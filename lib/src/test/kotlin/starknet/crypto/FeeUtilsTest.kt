@@ -77,7 +77,7 @@ class FeeUtilsTest {
                     maxAmount = Uint64(2499),
                     maxPricePerUnit = Uint128(113),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2Gas = ResourceBounds(
                     maxAmount = Uint64(2499),
                     maxPricePerUnit = Uint128(113),
@@ -94,7 +94,7 @@ class FeeUtilsTest {
                     maxAmount = Uint64(2499),
                     maxPricePerUnit = Uint128(113),
                 ),
-                // TODO: Check if these l2 resources bounds are adequate
+                // TODO: Check if these l2 resources need to be updated once we can add tests
                 l2Gas = ResourceBounds(
                     maxAmount = Uint64(2499),
                     maxPricePerUnit = Uint128(113),

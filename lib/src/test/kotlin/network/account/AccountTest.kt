@@ -270,7 +270,7 @@ class AccountTest {
             maxAmount = Uint64(100000),
             maxPricePerUnit = Uint128(2500000000000),
         )
-        // TODO: Check if these l2 resources bounds are adequate
+        // TODO: Check if these l2 resources need to be updated once we can add tests
         val l2ResourceBounds = ResourceBounds(
             maxAmount = Uint64(100000),
             maxPricePerUnit = Uint128(2500000000000),

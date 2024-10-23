@@ -123,7 +123,7 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
-                    // TODO: Check if these l2 resources bounds are adequate
+                    // TODO: Check if these l2 resources need to be updated once we can add tests
                     l2Gas = ResourceBounds(
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
@@ -153,7 +153,7 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
-                    // TODO: Check if these l2 resources bounds are adequate
+                    // TODO: Check if these l2 resources need to be updated once we can add tests
                     l2Gas = ResourceBounds(
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
