@@ -13,7 +13,6 @@ import kotlin.math.roundToInt
 
 typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
 
-
 @Serializable
 data class CallContractResponse(
     val result: List<Felt>,
@@ -178,7 +177,7 @@ data class StorageProof(
     val contractsStorageProofs: List<NodeHashToNodeMapping>,
 
     @SerialName("global_roots")
-    val globalRoots: GlobalRoots
+    val globalRoots: GlobalRoots,
 ) : StarknetResponse
 
 @Serializable
@@ -190,7 +189,7 @@ data class GlobalRoots(
     val classesTreeRoot: Felt,
 
     @SerialName("block_hash")
-    val blockHash: Felt
+    val blockHash: Felt,
 )
 
 @Serializable
@@ -223,7 +222,7 @@ data class ContractsProof(
     val nodes: NodeHashToNodeMapping,
 
     @SerialName("contract_leaves_data")
-    val contractLeavesData: List<ContractLeafData>
+    val contractLeavesData: List<ContractLeafData>,
 )
 
 @Serializable
@@ -232,7 +231,7 @@ data class ContractLeafData(
     val nonce: Felt,
 
     @SerialName("class_hash")
-    val classHash: Felt
+    val classHash: Felt,
 )
 
 @Serializable
