@@ -154,7 +154,7 @@ data class GetTransactionStatusResponse(
 ) : StarknetResponse
 
 @Serializable
-data class GetMessagesStatueResponse(
+data class GetMessagesStatusResponse(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 

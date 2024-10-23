@@ -270,11 +270,11 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
     }
 
-    override fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatueResponse> {
+    override fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatusResponse> {
         val payload = GetMessagesStatusPayload(l1TransactionHash)
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, GetMessagesStatueResponse.serializer())
+        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, GetMessagesStatusResponse.serializer())
     }
 
     /**
