@@ -182,7 +182,7 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x2540be400"),
                     ),
-                    // TODO: Adjust these resources bounds once devnet and integration are updated
+                    // TODO: Check if these l2 resources need to be updated once we can add tests
                     l2Gas = ResourceBounds(
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x2540be400"),
