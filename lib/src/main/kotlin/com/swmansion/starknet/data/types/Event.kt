@@ -64,22 +64,22 @@ data class EmittedEvent @JvmOverloads constructor(
 @Serializable
 data class GetEventsPayload @JvmOverloads constructor(
     @SerialName("from_block")
-    val fromBlockId: BlockId,
+    val fromBlockId: BlockId? = null,
 
     @SerialName("to_block")
-    val toBlockId: BlockId,
+    val toBlockId: BlockId? = null,
 
     @SerialName("address")
-    val address: Felt,
+    val address: Felt? = null,
 
     @SerialName("keys")
-    val keys: List<List<Felt>>,
+    val keys: List<List<Felt>>? = null,
 
     @SerialName("chunk_size")
     val chunkSize: Int,
 
     @SerialName("continuation_token")
-    val continuationToken: String? = "0",
+    val continuationToken: String? = null,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -89,5 +89,5 @@ data class GetEventsResult @JvmOverloads constructor(
     val events: List<EmittedEvent>,
 
     @JsonNames("continuation_token")
-    val continuationToken: String? = "0",
+    val continuationToken: String? = null,
 ) : StarknetResponse
