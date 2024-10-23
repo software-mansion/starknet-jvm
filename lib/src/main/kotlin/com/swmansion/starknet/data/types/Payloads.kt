@@ -91,6 +91,9 @@ internal data class GetNoncePayload(
 
 @Serializable
 internal data class GetStorageProofPayload @JvmOverloads constructor(
+    @SerialName("block_id")
+    val blockId: BlockId,
+
     @SerialName("class_hashes")
     val classHashes: List<Felt>? = null,
 

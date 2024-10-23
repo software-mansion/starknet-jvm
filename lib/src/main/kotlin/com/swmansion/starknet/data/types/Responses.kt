@@ -6,9 +6,13 @@ import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import java.math.BigInteger
 import kotlin.math.roundToInt
+
+typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
+
 
 @Serializable
 data class CallContractResponse(
@@ -168,11 +172,77 @@ data class StorageProof(
     val classesProof: NodeHashToNodeMapping,
 
     @SerialName("contracts_proof")
-    val contractsProof: NodeHashToNodeMapping,
+    val contractsProof: ContractsProof,
 
     @SerialName("contracts_storage_proofs")
     val contractsStorageProofs: List<NodeHashToNodeMapping>,
+
+    @SerialName("global_roots")
+    val globalRoots: GlobalRoots
 ) : StarknetResponse
+
+@Serializable
+data class GlobalRoots(
+    @SerialName("contracts_tree_root")
+    val contractsTreeRoot: Felt,
+
+    @SerialName("classes_tree_root")
+    val classesTreeRoot: Felt,
+
+    @SerialName("block_hash")
+    val blockHash: Felt
+)
+
+@Serializable
+data class MerkleNode(
+    @SerialName("path")
+    val path: Int,
+
+    @SerialName("length")
+    val length: Int,
+
+    @SerialName("value")
+    val value: Felt,
+
+    @SerialName("children_hashes")
+    val childrenHashes: ChildrenHashes? = null,
+)
+
+@Serializable
+data class ChildrenHashes(
+    @SerialName("left")
+    val left: Felt,
+
+    @SerialName("right")
+    val right: Felt,
+)
+
+@Serializable
+data class ContractsProof(
+    @SerialName("nodes")
+    val nodes: NodeHashToNodeMapping,
+
+    @SerialName("contract_leaves_data")
+    val contractLeavesData: List<ContractLeafData>
+)
+
+@Serializable
+data class ContractLeafData(
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("class_hash")
+    val classHash: Felt
+)
+
+@Serializable
+data class NodeHashToNodeMappingItem(
+    @SerialName("node_hash")
+    val nodeHash: Felt,
+
+    @SerialName("node")
+    val node: MerkleNode,
+)
 
 @Serializable
 sealed class Syncing : StarknetResponse {
@@ -423,37 +493,87 @@ enum class L1DAMode {
     CALLDATA,
 }
 
-@Serializable
-data class MerkleNode(
-    @SerialName("path")
-    val path: Int,
+fun main() {
+    println("Hello, World!")
+    val x = """
+       {
+  "classes_proof": [
+    {
+      "node_hash": "0x1a2b3c4d",
+      "node": {
+        "path": 1,
+        "length": 256,
+        "value": "0x123456789abcdef",
+        "children_hashes": {
+          "left": "0xaaaabbbbcccc",
+          "right": "0xdddddeeeeeffff"
+        }
+      }
+    },
+    {
+      "node_hash": "0x2b3c4d5e",
+      "node": {
+        "path": 2,
+        "length": 128,
+        "value": "0xabcdef123456789",
+        "children_hashes": null
+      }
+    }
+  ],
+  "contracts_proof": [
+    {
+      "node_hash": "0x3c4d5e6f",
+      "node": {
+        "path": 3,
+        "length": 64,
+        "value": "0x9876543210fedcba",
+        "children_hashes": {
+          "left": "0xbbbbccccdddd",
+          "right": "0xeeeeffffaaaa"
+        }
+      }
+    }
+  ],
+  "contracts_storage_proofs": [
+    [
+      {
+        "node_hash": "0x4d5e6f7a",
+        "node": {
+          "path": 4,
+          "length": 32,
+          "value": "0x1fedcba987654321",
+          "children_hashes": {
+            "left": "0xccccddddbbbb",
+            "right": "0xffffaaaabbbb"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "node_hash": "0x5e6f7a8b",
+        "node": {
+          "path": 5,
+          "length": 16,
+          "value": "0x123123123456",
+          "children_hashes": null
+        }
+      },
+      {
+        "node_hash": "0x5e6f7a8b",
+        "node": {
+          "path": 5,
+          "length": 16,
+          "value": "0x123123123456",
+          "children_hashes": null
+        }
+      }
+    ]
+  ]
+}
 
-    @SerialName("length")
-    val length: Int,
+    """.trimIndent()
 
-    @SerialName("value")
-    val value: Felt,
-
-    @SerialName("children_hashes")
-    val childrenHashes: ChildrenHashes? = null,
-)
-
-@Serializable
-data class ChildrenHashes(
-    @SerialName("left")
-    val left: Felt,
-
-    @SerialName("right")
-    val right: Felt,
-)
-
-typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
-
-@Serializable
-data class NodeHashToNodeMappingItem(
-    @SerialName("node_hash")
-    val nodeHash: Felt,
-
-    @SerialName("node")
-    val node: MerkleNode,
-)
+    val storageProof = Json.decodeFromString(StorageProof.serializer(), x)
+    print(storageProof)
+}

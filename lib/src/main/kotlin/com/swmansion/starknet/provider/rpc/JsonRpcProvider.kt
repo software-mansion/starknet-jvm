@@ -660,11 +660,12 @@ class JsonRpcProvider(
     }
 
     override fun getStorageProof(
+        blockId: BlockId,
         classHashes: List<Felt>?,
         contractAddresses: List<Felt>?,
         contractsStorageKeys: List<ContractStorageKey>?,
     ): Request<StorageProof> {
-        val payload = GetStorageProofPayload(classHashes, contractAddresses, contractsStorageKeys)
+        val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
 
         return getStorageProof(payload)
     }

@@ -667,13 +667,14 @@ interface Provider {
      *
      * Get merkle paths in one of the state tries: global state, classes, individual contract.
      *
+     * @param blockId the hash of the requested block
      * @param classHashes list of class hashes for which we want to prove membership
      * @param contractAddresses list of contract addresses for which we want to prove membership
      * @param contractsStorageKeys list of contract address and storage keys pairs
      *
      * @throws RequestFailedException
      */
-    fun getStorageProof(classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractStorageKey>? = null): Request<StorageProof>
+    fun getStorageProof(blockId: BlockId, classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractStorageKey>? = null): Request<StorageProof>
 
     /**
      * Get the block synchronization status.

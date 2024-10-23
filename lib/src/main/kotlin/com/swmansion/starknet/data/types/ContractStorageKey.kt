@@ -8,6 +8,6 @@ data class ContractStorageKey(
     @SerialName("contract_address")
     val contractAddress: Felt,
 
-    @SerialName("key")
-    val key: Felt,
+    @SerialName("storage_keys")
+    val key: List<Felt>,
 )
