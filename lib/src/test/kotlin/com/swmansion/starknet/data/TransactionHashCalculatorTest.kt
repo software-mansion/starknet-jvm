@@ -123,10 +123,10 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
-                    // TODO: Check if these l2 resources need to be updated once we can add tests
+                    // TODO: Check if these l2  can be equal to 0
                     l2Gas = ResourceBounds(
-                        maxAmount = Uint64.fromHex("0x186a0"),
-                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                        maxAmount = Uint64.ZERO,
+                        maxPricePerUnit = Uint128.ZERO,
                     ),
                 ),
                 paymasterData = emptyList(),
@@ -153,10 +153,10 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
-                    // TODO: Check if these l2 resources need to be updated once we can add tests
+                    // TODO: Check if these l2  can be equal to 0
                     l2Gas = ResourceBounds(
-                        maxAmount = Uint64.fromHex("0x186a0"),
-                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                        maxAmount = Uint64.ZERO,
+                        maxPricePerUnit = Uint128.ZERO,
                     ),
                 ),
                 tip = Uint64.ZERO,
@@ -182,10 +182,10 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x2540be400"),
                     ),
-                    // TODO: Check if these l2 resources need to be updated once we can add tests
+                    // TODO: Check if these l2  can be equal to 0
                     l2Gas = ResourceBounds(
-                        maxAmount = Uint64.fromHex("0x186a0"),
-                        maxPricePerUnit = Uint128.fromHex("0x2540be400"),
+                        maxAmount = Uint64.ZERO,
+                        maxPricePerUnit = Uint128.ZERO,
                     ),
                 ),
                 tip = Uint64.ZERO,
