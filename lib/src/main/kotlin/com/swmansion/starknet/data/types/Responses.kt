@@ -6,6 +6,7 @@ import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import java.math.BigInteger
 import kotlin.math.roundToInt
@@ -447,8 +448,10 @@ data class ChildrenHashes(
     val right: Felt,
 )
 
+typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
+
 @Serializable
-data class NodeHashToNodeMapping(
+data class NodeHashToNodeMappingItem(
     @SerialName("node_hash")
     val nodeHash: Felt,
 
