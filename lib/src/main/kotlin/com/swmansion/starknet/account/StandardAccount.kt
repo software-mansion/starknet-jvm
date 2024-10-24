@@ -318,8 +318,7 @@ class StandardAccount @JvmOverloads constructor(
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
                 nonce = nonce,
-                l1ResourceBounds = resourceBounds.l1Gas,
-                l2ResourceBounds = resourceBounds.l2Gas,
+                resourceBounds = resourceBounds,
             )
             val payload = signV3(calls, signParams, false)
 
@@ -542,8 +541,10 @@ class StandardAccount @JvmOverloads constructor(
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,
-            l1ResourceBounds = ResourceBounds.ZERO,
-            l2ResourceBounds = ResourceBounds.ZERO,
+            resourceBounds = ResourceBoundsMapping(
+                ResourceBounds.ZERO,
+                ResourceBounds.ZERO,
+            )
         )
         val payload = signV3(calls, executionParams, true)
 
