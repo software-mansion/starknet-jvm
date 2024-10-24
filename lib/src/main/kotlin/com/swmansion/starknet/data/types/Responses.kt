@@ -162,7 +162,7 @@ data class MessageStatus(
 
     @SerialName("failure_reason")
     val failureReason: String? = null,
-) : StarknetResponse
+)
 
 @Serializable
 data class StorageProof(

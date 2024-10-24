@@ -161,8 +161,10 @@ class AccountTest {
         val nonce = account.getNonce().send()
         val params = DeclareParamsV3(
             nonce = nonce,
-            l1ResourceBounds = ResourceBounds.ZERO,
-            l2ResourceBounds = ResourceBounds.ZERO,
+            resourceBounds = ResourceBoundsMapping(
+                ResourceBounds.ZERO,
+                ResourceBounds.ZERO,
+            )
         )
         val declareTransactionPayload = account.signDeclareV3(
             sierraContractDefinition = contractDefinition,
@@ -277,8 +279,10 @@ class AccountTest {
         )
         val params = DeclareParamsV3(
             nonce = nonce,
-            l1ResourceBounds = l1ResourceBounds,
-            l2ResourceBounds = l2ResourceBounds,
+            resourceBounds = ResourceBoundsMapping(
+                l1Gas = l1ResourceBounds,
+                l2Gas = l2ResourceBounds,
+            ),
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,

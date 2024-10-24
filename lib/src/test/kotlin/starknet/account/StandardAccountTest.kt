@@ -259,7 +259,9 @@ class StandardAccountTest {
             )
             val invokeTxV3Payload = account.signV3(
                 call = call,
-                params = InvokeParamsV3(nonce.value.add(BigInteger.ONE).toFelt, ResourceBounds.ZERO, ResourceBounds.ZERO),
+                params = InvokeParamsV3(
+                    nonce = nonce.value.add(BigInteger.ONE).toFelt,
+                    resourceBounds = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO)),
                 forFeeEstimate = true,
             )
             assertEquals(TransactionVersion.V1_QUERY, invokeTxV1Payload.version)
@@ -346,7 +348,13 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
-            val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO, l2ResourceBounds = ResourceBounds.ZERO)
+            val params = DeclareParamsV3(
+                nonce = nonce,
+                resourceBounds = ResourceBoundsMapping(
+                    ResourceBounds.ZERO,
+                    ResourceBounds.ZERO,
+                )
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -489,16 +497,16 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
-            val params = DeclareParamsV3(
-                nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
+            val resourceBounds = ResourceBoundsMapping(
+                ResourceBounds(
                     maxAmount = Uint64(100000),
                     maxPricePerUnit = Uint128(1000000000000),
                 ),
-                l2ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(0),
-                    maxPricePerUnit = Uint128(0),
-                ),
+                ResourceBounds.ZERO,
+            )
+            val params = DeclareParamsV3(
+                nonce = nonce,
+                resourceBounds = resourceBounds,
             )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
@@ -616,16 +624,19 @@ class StandardAccountTest {
                 entrypoint = "increase_balance",
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-                l2ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
 
             val payload = account.signV3(call, params)
@@ -777,17 +788,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val params = InvokeParamsV3(
-                nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
+            val resourceBounds = ResourceBoundsMapping(
+                ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
                 // TODO: Check if these l2 resources need to be updated once we can add tests
-                l2ResourceBounds = ResourceBounds(
+                ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
+            )
+            val params = InvokeParamsV3(
+                nonce = account.getNonce().send(),
+                resourceBounds = resourceBounds,
             )
 
             val payload = account.signV3(listOf(call, call, call), params)
@@ -1270,17 +1284,20 @@ class StandardAccountTest {
 
             val nonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-            val params = InvokeParamsV3(
-                nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
+            val resourceBounds = ResourceBoundsMapping(
+                ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
                 // TODO: Check if these l2 resources need to be updated once we can add tests
-                l2ResourceBounds = ResourceBounds(
+                ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
+                )
+            val params = InvokeParamsV3(
+                nonce = nonce,
+                resourceBounds = resourceBounds,
             )
 
             val invokeTx = account.signV3(call, params)
@@ -1299,17 +1316,6 @@ class StandardAccountTest {
 
             devnetClient.prefundAccountStrk(newAccountAddress)
 
-            val resourceBounds = ResourceBoundsMapping(
-                l1Gas = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-                // TODO: Check if these l2 resources need to be updated once we can add tests
-                l2Gas = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-            )
             val deployAccountTx = newAccount.signDeployAccountV3(
                 classHash = accountContractClassHash,
                 calldata = calldata,
@@ -1387,20 +1393,23 @@ class StandardAccountTest {
             val casmContractDefinition = CasmContractDefinition(casmCode)
 
             val nonce = account.getNonce().send()
+            val resourceBounds = ResourceBoundsMapping(
+                ResourceBounds(
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
+                ),
+                // TODO: Check if these l2 resources need to be updated once we can add tests
+                ResourceBounds(
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
+                ),
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 casmContractDefinition,
                 DeclareParamsV3(
                     nonce = nonce,
-                    l1ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(100000),
-                        maxPricePerUnit = Uint128(1000000000000),
-                    ),
-                    // TODO: Check if these l2 resources need to be updated once we can add tests
-                    l2ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(100000),
-                        maxPricePerUnit = Uint128(1000000000000),
-                    ),
+                    resourceBounds = resourceBounds,
                 ),
             )
 
