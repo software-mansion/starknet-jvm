@@ -10,6 +10,8 @@ import kotlinx.serialization.json.JsonNames
 import java.math.BigInteger
 import kotlin.math.roundToInt
 
+typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
+
 @Serializable
 data class CallContractResponse(
     val result: List<Felt>,
@@ -43,17 +45,23 @@ data class DeployAccountResponse(
 
 @Serializable
 data class EstimateFeeResponse(
-    @SerialName("gas_consumed")
-    val gasConsumed: Felt,
+    @SerialName("l1_gas_consumed")
+    val l1GasConsumed: Felt,
 
-    @SerialName("gas_price")
-    val gasPrice: Felt,
+    @SerialName("l1_gas_price")
+    val l1GasPrice: Felt,
 
-    @SerialName("data_gas_consumed")
-    val dataGasConsumed: Felt,
+    @SerialName("l2_gas_consumed")
+    val l2GasConsumed: Felt,
 
-    @SerialName("data_gas_price")
-    val dataGasPrice: Felt,
+    @SerialName("l2_gas_price")
+    val l2GasPrice: Felt,
+
+    @SerialName("l1_data_gas_consumed")
+    val l1DataGasConsumed: Felt,
+
+    @SerialName("l1_data_gas_price")
+    val l1DataGasPrice: Felt,
 
     @SerialName("overall_fee")
     val overallFee: Felt,
@@ -79,9 +87,11 @@ data class EstimateFeeResponse(
     /**
      * Convert estimated fee to resource bounds with applied multipliers.
      *
-     * Calculates max amount as maxAmount = [overallFee] / [gasPrice], unless [gasPrice] is 0, then maxAmount is 0.
-     * Calculates max price per unit as maxPricePerUnit = [gasPrice].
-     * Then multiplies maxAmount by round([amountMultiplier] * 100%) and maxPricePerUnit by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
+     * Calculates max amount l1 as maxAmountL1 = [overallFee] / [l1GasPrice], unless [l1GasPrice] is 0, then maxAmountL1 is 0.
+     * Calculates max amount l2 as maxAmountL2 = [overallFee] / [l2GasPrice], unless [l2GasPrice] is 0, then maxAmountL2 is 0.
+     * Calculates max price per unit l1 as maxPricePerUnitL1 = [l1GasPrice].
+     * Calculates max price per unit l2 as maxPricePerUnitL2 = [l2GasPrice].
+     * Then multiplies maxAmountL1/L2 by round([amountMultiplier] * 100%) and maxPricePerUnitL1/L2 by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on each.
      *
      * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
      * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
@@ -96,14 +106,22 @@ data class EstimateFeeResponse(
         require(amountMultiplier >= 0)
         require(unitPriceMultiplier >= 0)
 
-        val maxAmount = when (gasPrice) {
+        val maxAmountL1 = when (l1GasPrice) {
             Felt.ZERO -> Uint64.ZERO
-            else -> (overallFee.value / gasPrice.value).applyMultiplier(amountMultiplier).toUint64
+            else -> (overallFee.value / l1GasPrice.value).applyMultiplier(amountMultiplier).toUint64
         }
-        val maxPricePerUnit = gasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
+
+        val maxAmountL2 = when (l2GasPrice) {
+            Felt.ZERO -> Uint64.ZERO
+            else -> (overallFee.value / l2GasPrice.value).applyMultiplier(amountMultiplier).toUint64
+        }
+
+        val maxPricePerUnitL1 = l1GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
+        val maxPricePerUnitL2 = l2GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
 
         return ResourceBoundsMapping(
-            l1Gas = ResourceBounds(maxAmount = maxAmount, maxPricePerUnit = maxPricePerUnit),
+            l1Gas = ResourceBounds(maxAmount = maxAmountL1, maxPricePerUnit = maxPricePerUnitL1),
+            l2Gas = ResourceBounds(maxAmount = maxAmountL2, maxPricePerUnit = maxPricePerUnitL2),
         )
     }
 
@@ -129,7 +147,100 @@ data class GetTransactionStatusResponse(
 
     @SerialName("execution_status")
     val executionStatus: TransactionExecutionStatus? = null,
+
+    @SerialName("failure_reason")
+    val failureReason: String? = null,
 ) : StarknetResponse
+
+@Serializable
+data class MessageStatus(
+    @SerialName("transaction_hash")
+    val transactionHash: Felt,
+
+    @SerialName("finality_status")
+    val finalityStatus: TransactionStatus,
+
+    @SerialName("failure_reason")
+    val failureReason: String? = null,
+)
+
+@Serializable
+data class StorageProof(
+    @SerialName("classes_proof")
+    val classesProof: NodeHashToNodeMapping,
+
+    @SerialName("contracts_proof")
+    val contractsProof: ContractsProof,
+
+    @SerialName("contracts_storage_proofs")
+    val contractsStorageProofs: List<NodeHashToNodeMapping>,
+
+    @SerialName("global_roots")
+    val globalRoots: GlobalRoots,
+) : StarknetResponse {
+    @Serializable
+    data class GlobalRoots(
+        @SerialName("contracts_tree_root")
+        val contractsTreeRoot: Felt,
+
+        @SerialName("classes_tree_root")
+        val classesTreeRoot: Felt,
+
+        @SerialName("block_hash")
+        val blockHash: Felt,
+    )
+}
+
+@Serializable
+data class ContractsProof(
+    @SerialName("nodes")
+    val nodes: NodeHashToNodeMapping,
+
+    @SerialName("contract_leaves_data")
+    val contractLeavesData: List<ContractLeafData>,
+)
+
+@Serializable
+data class ContractLeafData(
+    @SerialName("nonce")
+    val nonce: Felt,
+
+    @SerialName("class_hash")
+    val classHash: Felt,
+)
+
+@Serializable
+data class NodeHashToNodeMappingItem(
+    @SerialName("node_hash")
+    val nodeHash: Felt,
+
+    @SerialName("node")
+    val node: MerkleNode,
+) {
+    @Serializable
+    sealed interface MerkleNode
+
+    @Serializable
+    data class BinaryNode(
+        @SerialName("left")
+        val left: Felt,
+
+        @SerialName("right")
+        val right: Felt,
+    ) : MerkleNode
+
+    @Serializable
+    data class EdgeNode(
+        @SerialName("path")
+        val path: Int,
+
+        @SerialName("length")
+        val length: Int,
+
+        @SerialName("child")
+        val value: Felt,
+    ) : MerkleNode
+}
 
 @Serializable
 sealed class Syncing : StarknetResponse {
@@ -309,10 +420,9 @@ data class PendingStateUpdateResponse(
 ) : StateUpdate()
 
 // TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
-@Suppress("DataClassPrivateConstructor")
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class ResourceBoundsMapping private constructor(
+data class ResourceBoundsMapping(
     @SerialName("l1_gas")
     @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
@@ -320,16 +430,7 @@ data class ResourceBoundsMapping private constructor(
     @SerialName("l2_gas")
     @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
-) {
-    constructor(
-        l1Gas: ResourceBounds,
-    ) : this(
-        // As of Starknet 0.13.0, the L2 gas is not supported
-        // Because of this, the L2 gas values are hardcoded to 0
-        l1Gas = l1Gas,
-        l2Gas = ResourceBounds.ZERO,
-    )
-}
+)
 
 @Serializable
 data class ResourceBounds(

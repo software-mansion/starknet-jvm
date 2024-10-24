@@ -24,10 +24,12 @@ class JsonRpcResponseTest {
                 "uknown_key": "value",
                 "result": {
                     "unknown_primitive": "value",
-                    "gas_consumed": "0x1234",
-                    "gas_price": "0x5678",
-                    "data_gas_consumed": "0xabc",
-                    "data_gas_price": "0x789",
+                    "l1_gas_consumed": "0x1234",
+                    "l1_gas_price": "0x5678",
+                    "l2_gas_consumed": "0x1111",
+                    "l2_gas_price": "0x2222",
+                    "l1_data_gas_consumed": "0xabc",
+                    "l1_data_gas_price": "0x789",
                     "overall_fee": "0x9abc",
                     "unknown_object": {"key_1": "value_1", "key_2": "value_2"},
                     "unit": "FRI",
@@ -44,8 +46,10 @@ class JsonRpcResponseTest {
         val request = provider.getEstimateMessageFee(message, BlockTag.PENDING)
         val response = request.send()
 
-        assertEquals(Felt.fromHex("0x1234"), response.gasConsumed)
-        assertEquals(Felt.fromHex("0x5678"), response.gasPrice)
+        assertEquals(Felt.fromHex("0x1234"), response.l1GasConsumed)
+        assertEquals(Felt.fromHex("0x5678"), response.l1GasPrice)
+        assertEquals(Felt.fromHex("0x1111"), response.l2GasConsumed)
+        assertEquals(Felt.fromHex("0x2222"), response.l2GasPrice)
         assertEquals(Felt.fromHex("0x9abc"), response.overallFee)
         assertEquals(PriceUnit.FRI, response.feeUnit)
 

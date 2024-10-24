@@ -46,6 +46,7 @@ sealed interface Block : StarknetResponse {
     val sequencerAddress: Felt
     val parentHash: Felt
     val l1GasPrice: ResourcePrice
+    val l2GasPrice: ResourcePrice
     val l1DataGasPrice: ResourcePrice
     val l1DataAvailabilityMode: L1DAMode
     val starknetVersion: String
@@ -107,6 +108,9 @@ data class ProcessedBlockWithTransactions(
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
+
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
 
@@ -136,6 +140,9 @@ data class PendingBlockWithTransactions(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
 
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
@@ -192,6 +199,9 @@ data class ProcessedBlockWithReceipts(
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
+
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
 
@@ -218,6 +228,9 @@ data class PendingBlockWithReceipts(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
 
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
@@ -263,6 +276,9 @@ data class ProcessedBlockWithTransactionHashes(
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
+
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
 
@@ -289,6 +305,9 @@ data class PendingBlockWithTransactionHashes(
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
+
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: ResourcePrice,
 
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,

@@ -87,6 +87,11 @@ class ProviderTest {
     }
 
     @Test
+    fun getMessagesStatus() {
+        // TODO
+    }
+
+    @Test
     fun callContractWithBlockNumber() {
         val currentNumber = provider.getBlockNumber().send().value
 
@@ -337,19 +342,9 @@ class ProviderTest {
                             [],
                             "execution_resources": 
                             {
-                                "steps": "999",
-                                "memory_holes": "1",
-                                "range_check_builtin_applications": "21",
-                                "pedersen_builtin_applications": "37",
-                                "poseidon_builtin_applications": "451",
-                                "ec_op_builtin_applications": "123",
-                                "ecdsa_builtin_applications": "789",
-                                "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1",
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }
@@ -406,19 +401,9 @@ class ProviderTest {
                 "finality_status": "ACCEPTED_ON_L2",
                 "execution_resources": 
                 {
-                    "steps": "999",
-                    "memory_holes": "1",
-                    "range_check_builtin_applications": "21",
-                    "pedersen_builtin_applications": "37",
-                    "poseidon_builtin_applications": "451",
-                    "ec_op_builtin_applications": "123",
-                    "ecdsa_builtin_applications": "789",
-                    "bitwise_builtin_applications": "1",
-                    "keccak_builtin_applications": "1",
-                    "data_availability": {
-                        "l1_gas": "123",
-                        "l1_data_gas": "456"
-                    }
+                    "l1_gas": "123",
+                    "l1_data_gas": "456",
+                    "l2_gas": "789"
                 }
             }
         }
@@ -489,19 +474,9 @@ class ProviderTest {
                             ],
                             "execution_resources": 
                             {
-                                "steps": "999",
-                                "memory_holes": "1",
-                                "range_check_builtin_applications": "21",
-                                "pedersen_builtin_applications": "37",
-                                "poseidon_builtin_applications": "451",
-                                "ec_op_builtin_applications": "123",
-                                "ecdsa_builtin_applications": "789",
-                                "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1",
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             },
                             "message_hash": "0x8000000000000110000000000000000000000000000000000000011111111111"
                         }
@@ -816,6 +791,11 @@ class ProviderTest {
     }
 
     @Test
+    fun getStorageProof() {
+        // TODO
+    }
+
+    @Test
     fun `get pending block with transactions`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
@@ -830,6 +810,11 @@ class ProviderTest {
                     {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
+                    },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
                     },
                     "l1_data_gas_price":
                     {
@@ -921,6 +906,11 @@ class ProviderTest {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
                     },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
+                    },
                     "l1_data_gas_price":
                     {
                         "price_in_wei": "0x789",
@@ -961,11 +951,9 @@ class ProviderTest {
                                 [],
                                 "execution_resources": 
                                 {
-                                    "steps": "999",
-                                    "data_availability": {
-                                        "l1_gas": "123",
-                                        "l1_data_gas": "456"
-                                    }
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456",
+                                    "l2_gas": "789"
                                 }
                             }
                         },
@@ -999,11 +987,9 @@ class ProviderTest {
                                 [],
                                 "execution_resources": 
                                 {
-                                    "steps": "999",
-                                    "data_availability": {
-                                        "l1_gas": "123",
-                                        "l1_data_gas": "456"
-                                    }
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456",
+                                    "l2_gas": "789"
                                 }
                             }
                         } 
@@ -1067,6 +1053,11 @@ class ProviderTest {
                     {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
+                    },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
                     },
                     "l1_data_gas_price":
                     {

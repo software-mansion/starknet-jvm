@@ -39,11 +39,9 @@ data class InvokeParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
@@ -66,11 +64,9 @@ data class DeclareParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds) : this(
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
@@ -95,12 +91,10 @@ data class DeployAccountParamsV3 private constructor(
     @JvmOverloads
     constructor(
         nonce: Felt = Felt.ZERO,
-        l1ResourceBounds: ResourceBounds,
+        resourceBounds: ResourceBoundsMapping,
     ) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
