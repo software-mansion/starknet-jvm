@@ -164,7 +164,7 @@ class AccountTest {
             resourceBounds = ResourceBoundsMapping(
                 ResourceBounds.ZERO,
                 ResourceBounds.ZERO,
-            )
+            ),
         )
         val declareTransactionPayload = account.signDeclareV3(
             sierraContractDefinition = contractDefinition,

@@ -261,7 +261,8 @@ class StandardAccountTest {
                 call = call,
                 params = InvokeParamsV3(
                     nonce = nonce.value.add(BigInteger.ONE).toFelt,
-                    resourceBounds = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO)),
+                    resourceBounds = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO),
+                ),
                 forFeeEstimate = true,
             )
             assertEquals(TransactionVersion.V1_QUERY, invokeTxV1Payload.version)
@@ -353,7 +354,7 @@ class StandardAccountTest {
                 resourceBounds = ResourceBoundsMapping(
                     ResourceBounds.ZERO,
                     ResourceBounds.ZERO,
-                )
+                ),
             )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
@@ -1294,7 +1295,7 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
-                )
+            )
             val params = InvokeParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
