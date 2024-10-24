@@ -544,7 +544,7 @@ class StandardAccount @JvmOverloads constructor(
             resourceBounds = ResourceBoundsMapping(
                 ResourceBounds.ZERO,
                 ResourceBounds.ZERO,
-            )
+            ),
         )
         val payload = signV3(calls, executionParams, true)
 
