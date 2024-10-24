@@ -670,7 +670,7 @@ class JsonRpcProvider(
         classHashes: List<Felt>?,
         contractAddresses: List<Felt>?,
         contractsStorageKeys: List<ContractStorageKey>?,
-    ): Request<StorageProof> {
+    ): HttpRequest<StorageProof> {
         val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
 
         return getStorageProof(payload)
