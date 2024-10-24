@@ -93,7 +93,7 @@ data class EstimateFeeResponse(
      * Calculates max amount l2 as maxAmountL2 = [overallFee] / [l2GasPrice], unless [l2GasPrice] is 0, then maxAmountL2 is 0.
      * Calculates max price per unit l1 as maxPricePerUnitL1 = [l1GasPrice].
      * Calculates max price per unit l2 as maxPricePerUnitL2 = [l2GasPrice].
-     * Then multiplies maxAmountL1/L2 by round([amountMultiplier] * 100%) and maxPricePerUnitL1/L2 by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on both.
+     * Then multiplies maxAmountL1/L2 by round([amountMultiplier] * 100%) and maxPricePerUnitL1/L2 by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on each.
      *
      * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
      * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.

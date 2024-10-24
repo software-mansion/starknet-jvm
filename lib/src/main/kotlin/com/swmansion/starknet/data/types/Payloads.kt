@@ -90,7 +90,7 @@ internal data class GetNoncePayload(
 ) : PayloadWithBlockId()
 
 @Serializable
-internal data class GetStorageProofPayload @JvmOverloads constructor(
+internal data class GetStorageProofPayload constructor(
     @SerialName("block_id")
     val blockId: BlockId,
 
