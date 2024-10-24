@@ -6,13 +6,11 @@ import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNames
 import java.math.BigInteger
 import kotlin.math.roundToInt
 
 typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
-typealias GetMessagesStatusResponse = List<MessagesStatus>
 
 @Serializable
 data class CallContractResponse(
@@ -155,7 +153,7 @@ data class GetTransactionStatusResponse(
 ) : StarknetResponse
 
 @Serializable
-data class MessagesStatus(
+data class MessageStatus(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 
@@ -491,89 +489,4 @@ enum class L1DAMode {
 
     @SerialName("CALLDATA")
     CALLDATA,
-}
-
-fun main() {
-    println("Hello, World!")
-    val x = """
-       {
-  "classes_proof": [
-    {
-      "node_hash": "0x1a2b3c4d",
-      "node": {
-        "path": 1,
-        "length": 256,
-        "value": "0x123456789abcdef",
-        "children_hashes": {
-          "left": "0xaaaabbbbcccc",
-          "right": "0xdddddeeeeeffff"
-        }
-      }
-    },
-    {
-      "node_hash": "0x2b3c4d5e",
-      "node": {
-        "path": 2,
-        "length": 128,
-        "value": "0xabcdef123456789",
-        "children_hashes": null
-      }
-    }
-  ],
-  "contracts_proof": [
-    {
-      "node_hash": "0x3c4d5e6f",
-      "node": {
-        "path": 3,
-        "length": 64,
-        "value": "0x9876543210fedcba",
-        "children_hashes": {
-          "left": "0xbbbbccccdddd",
-          "right": "0xeeeeffffaaaa"
-        }
-      }
-    }
-  ],
-  "contracts_storage_proofs": [
-    [
-      {
-        "node_hash": "0x4d5e6f7a",
-        "node": {
-          "path": 4,
-          "length": 32,
-          "value": "0x1fedcba987654321",
-          "children_hashes": {
-            "left": "0xccccddddbbbb",
-            "right": "0xffffaaaabbbb"
-          }
-        }
-      }
-    ],
-    [
-      {
-        "node_hash": "0x5e6f7a8b",
-        "node": {
-          "path": 5,
-          "length": 16,
-          "value": "0x123123123456",
-          "children_hashes": null
-        }
-      },
-      {
-        "node_hash": "0x5e6f7a8b",
-        "node": {
-          "path": 5,
-          "length": 16,
-          "value": "0x123123123456",
-          "children_hashes": null
-        }
-      }
-    ]
-  ]
-}
-
-    """.trimIndent()
-
-    val storageProof = Json.decodeFromString(StorageProof.serializer(), x)
-    print(storageProof)
 }

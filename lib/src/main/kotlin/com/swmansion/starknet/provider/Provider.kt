@@ -330,7 +330,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatusResponse>
+    fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<MessageStatusList>
 
     /**
      * Get the contract class definition.

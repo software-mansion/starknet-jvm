@@ -6,12 +6,14 @@ import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicS
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.MessageStatusList
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
 import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 
 /**
@@ -270,13 +272,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
     }
 
-    private fun getMessagesStatus(payload: GetMessagesStatusPayload): HttpRequest<GetMessagesStatusResponse> {
+        private fun getMessagesStatus(payload: GetMessagesStatusPayload): HttpRequest<MessageStatusList> {
         val params = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, GetMessagesStatusResponse.serializer())
+        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, MessageStatusListSerializer)
     }
 
-    override fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<GetMessagesStatusResponse> {
+    override fun getMessagesStatus(l1TransactionHash: NumAsHex): HttpRequest<MessageStatusList> {
         val payload = GetMessagesStatusPayload(l1TransactionHash)
 
         return getMessagesStatus(payload)
