@@ -97,14 +97,10 @@ data class DeployAccountParamsV3 private constructor(
     @JvmOverloads
     constructor(
         nonce: Felt = Felt.ZERO,
-        l1ResourceBounds: ResourceBounds,
-        l2ResourceBounds: ResourceBounds,
+        resourceBounds: ResourceBoundsMapping,
     ) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,

@@ -555,8 +555,10 @@ class AccountTest {
             calldata = calldata,
             params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                l1ResourceBounds = ResourceBounds.ZERO,
-                l2ResourceBounds = ResourceBounds.ZERO,
+                resourceBounds = ResourceBoundsMapping(
+                    ResourceBounds.ZERO,
+                    ResourceBounds.ZERO,
+                ),
             ),
             forFeeEstimate = true, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
         )
@@ -581,8 +583,7 @@ class AccountTest {
 
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
-            l1ResourceBounds = resourceBounds.l1Gas,
-            l2ResourceBounds = resourceBounds.l2Gas,
+            resourceBounds = resourceBounds,
         )
         val payload = deployedAccount.signDeployAccountV3(
             classHash = classHash,

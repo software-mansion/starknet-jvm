@@ -102,19 +102,22 @@ object StandardDeployerTest {
     @Test
     fun testUdcDeployV3WithSpecificResourceBounds() {
         val initialBalance = Felt(1000)
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(0),
+                maxPricePerUnit = Uint128(0),
+            ),
+        )
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
             unique = true,
             salt = Felt(302),
             constructorCalldata = listOf(initialBalance),
-            l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-            l2ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(0),
-                maxPricePerUnit = Uint128(0),
-            ),
+            resourceBounds = resourceBounds,
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
@@ -161,18 +164,21 @@ object StandardDeployerTest {
     @Test
     fun testUdcDeployV3WithSpecificFeeAndDefaultParameters() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV3(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-            l1ResourceBounds = ResourceBounds(
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
                 maxAmount = Uint64(50000),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
             // TODO: Check if these l2 resources need to be updated once we can add tests
-            l2ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(0),
+                maxPricePerUnit = Uint128(0),
             ),
+        )
+        val deployment = standardDeployer.deployContractV3(
+            classHash = balanceContractClassHash,
+            constructorCalldata = listOf(initialBalance),
+            resourceBounds = resourceBounds,
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 

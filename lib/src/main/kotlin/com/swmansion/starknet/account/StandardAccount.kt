@@ -314,12 +314,12 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
+    override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
                 nonce = nonce,
-                l1ResourceBounds = l1ResourceBounds,
-                l2ResourceBounds = l2ResourceBounds,
+                l1ResourceBounds = resourceBounds.l1Gas,
+                l2ResourceBounds = resourceBounds.l2Gas,
             )
             val payload = signV3(calls, signParams, false)
 
@@ -344,7 +344,7 @@ class StandardAccount @JvmOverloads constructor(
                 amountMultiplier = estimateAmountMultiplier,
                 unitPriceMultiplier = estimateUnitPriceMultiplier,
             )
-            executeV3(calls, resourceBounds.l1Gas, resourceBounds.l2Gas)
+            executeV3(calls, resourceBounds)
         }
     }
 
@@ -364,7 +364,7 @@ class StandardAccount @JvmOverloads constructor(
     override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
         return estimateFeeV3(calls).compose { estimateFee ->
             val resourceBounds = estimateFee.values.first().toResourceBounds()
-            executeV3(calls, resourceBounds.l1Gas, resourceBounds.l2Gas)
+            executeV3(calls, resourceBounds)
         }
     }
 
@@ -372,8 +372,8 @@ class StandardAccount @JvmOverloads constructor(
         return executeV1(listOf(call), maxFee)
     }
 
-    override fun executeV3(call: Call, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse> {
-        return executeV3(listOf(call), l1ResourceBounds, l2ResourceBounds)
+    override fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), resourceBounds)
     }
 
     override fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {

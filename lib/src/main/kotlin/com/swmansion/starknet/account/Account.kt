@@ -188,22 +188,19 @@ interface Account {
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @param l1ResourceBounds L1 resource bounds for the transaction
-     * @param l2ResourceBounds L2 resource bounds for the transaction
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      * @return signed deploy account payload
      */
     fun signDeployAccountV3(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
-        l1ResourceBounds: ResourceBounds,
-        l2ResourceBounds: ResourceBounds,
+        resourceBounds: ResourceBoundsMapping,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
-            l1ResourceBounds = l1ResourceBounds,
-            l2ResourceBounds = l2ResourceBounds,
+            resourceBounds = resourceBounds,
         )
         return signDeployAccountV3(classHash, calldata, salt, params, forFeeEstimate)
     }
@@ -216,21 +213,18 @@ interface Account {
      * @param classHash hash of the contract that will be deployed. Has to be declared first!
      * @param calldata constructor calldata for the contract deployment
      * @param salt salt used to calculate address of the new contract
-     * @param l1ResourceBounds L1 resource bounds for the transaction
-     * @param l2ResourceBounds L2 resource bounds for the transaction
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      * @return signed deploy account payload
      */
     fun signDeployAccountV3(
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
-        l1ResourceBounds: ResourceBounds,
-        l2ResourceBounds: ResourceBounds,
+        resourceBounds: ResourceBoundsMapping,
     ): DeployAccountTransactionV3 {
         val params = DeployAccountParamsV3(
             nonce = Felt.ZERO,
-            l1ResourceBounds = l1ResourceBounds,
-            l2ResourceBounds = l2ResourceBounds,
+            resourceBounds = resourceBounds,
         )
         return signDeployAccountV3(classHash, calldata, salt, params, false)
     }
@@ -341,11 +335,10 @@ interface Account {
      * Execute list of calls on Starknet.
      *
      * @param calls a list of calls to be executed.
-     * @param l1ResourceBounds L1 resource bounds for the transaction.
-     * @param l2ResourceBounds L2 resource bounds for the transaction.
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+    fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 1 invoke transaction.
@@ -364,11 +357,10 @@ interface Account {
      * Execute single call on Starknet.
      *
      * @param call a call to be executed.
-     * @param l1ResourceBounds L1 resource bounds for the transaction.
-     * @param l2ResourceBounds L2 resource bounds for the transaction.
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<InvokeFunctionResponse>
+    fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 1 invoke transaction with automatically estimated fee

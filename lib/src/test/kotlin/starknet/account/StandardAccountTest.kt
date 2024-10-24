@@ -739,7 +739,8 @@ class StandardAccountTest {
                 maxAmount = Uint64(20000),
                 maxPricePerUnit = Uint128(120000000000),
             )
-            val result = account.executeV3(call, l1ResourceBounds, l2ResourceBounds).send()
+            val resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds)
+            val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -1004,8 +1005,10 @@ class StandardAccountTest {
             )
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                l1ResourceBounds = ResourceBounds.ZERO,
-                l2ResourceBounds = ResourceBounds.ZERO,
+                resourceBounds = ResourceBoundsMapping(
+                    ResourceBounds.ZERO,
+                    ResourceBounds.ZERO
+                )
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash = accountContractClassHash,
@@ -1117,8 +1120,7 @@ class StandardAccountTest {
 
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                l1ResourceBounds = l1ResourceBounds,
-                l2ResourceBounds = l2ResourceBounds,
+                resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds),
             )
 
             // Prefund the new account address with STRK
@@ -1296,19 +1298,23 @@ class StandardAccountTest {
             val newAccount = StandardAccount(newAccountAddress, privateKey, provider, chainId)
 
             devnetClient.prefundAccountStrk(newAccountAddress)
-            val deployAccountTx = newAccount.signDeployAccountV3(
-                classHash = accountContractClassHash,
-                calldata = calldata,
-                salt = salt,
-                l1ResourceBounds = ResourceBounds(
+
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
                 // TODO: Check if these l2 resources need to be updated once we can add tests
-                l2ResourceBounds = ResourceBounds(
+                l2Gas = ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
+            )
+            val deployAccountTx = newAccount.signDeployAccountV3(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+                resourceBounds = resourceBounds,
             )
 
             val simulationFlags = setOf<SimulationFlag>()

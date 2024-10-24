@@ -3,6 +3,7 @@ package com.swmansion.starknet.deployercontract
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.ResourceBounds
+import com.swmansion.starknet.data.types.ResourceBoundsMapping
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
@@ -48,8 +49,7 @@ interface Deployer {
      * @param unique set whether deployed contract address should be based on account address or not
      * @param salt a salt to be used to calculate deployed contract address
      * @param constructorCalldata constructor calldata
-     * @param l1ResourceBounds L1 resource bounds for the transaction
-     * @param l2ResourceBounds L2 resource bounds for the transaction
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      *
      * @throws RequestFailedException
      *
@@ -60,8 +60,7 @@ interface Deployer {
         unique: Boolean,
         salt: Felt,
         constructorCalldata: Calldata,
-        l1ResourceBounds: ResourceBounds,
-        l2ResourceBounds: ResourceBounds,
+        resourceBounds: ResourceBoundsMapping,
     ): Request<ContractDeployment>
 
     /**
@@ -123,15 +122,14 @@ interface Deployer {
      *
      * @param classHash a class hash of the declared contract
      * @param constructorCalldata constructor calldata
-     * @param l1ResourceBounds L1 resource bounds for the transaction
-     * @param l2ResourceBounds L2 resource bounds for the transaction
+     * @param resourceBounds L1 and L2 resource bounds for the transaction
      *
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException
      *
      * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithSpecificFeeAndDefaultParameters
      */
-    fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds): Request<ContractDeployment>
+    fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, resourceBounds: ResourceBoundsMapping): Request<ContractDeployment>
 
     /**
      * Deploy a contract through Universal Deployer Contract (UDC) using version 1 invoke transaction
