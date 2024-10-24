@@ -39,12 +39,9 @@ data class InvokeParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds) : this(
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
@@ -67,12 +64,9 @@ data class DeclareParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    constructor(nonce: Felt, l1ResourceBounds: ResourceBounds, l2ResourceBounds: ResourceBounds) : this(
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping) : this(
         nonce = nonce,
-        resourceBounds = ResourceBoundsMapping(
-            l1Gas = l1ResourceBounds,
-            l2Gas = l2ResourceBounds,
-        ),
+        resourceBounds = resourceBounds,
         tip = Uint64.ZERO,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
