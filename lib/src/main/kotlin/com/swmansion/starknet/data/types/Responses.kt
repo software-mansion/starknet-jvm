@@ -12,6 +12,7 @@ import java.math.BigInteger
 import kotlin.math.roundToInt
 
 typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
+typealias GetMessagesStatusResponse = List<MessagesStatus>
 
 @Serializable
 data class CallContractResponse(
@@ -154,7 +155,7 @@ data class GetTransactionStatusResponse(
 ) : StarknetResponse
 
 @Serializable
-data class GetMessagesStatusResponse(
+data class MessagesStatus(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
 
