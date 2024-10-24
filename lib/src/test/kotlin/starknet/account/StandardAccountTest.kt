@@ -1007,8 +1007,8 @@ class StandardAccountTest {
                 nonce = Felt.ZERO,
                 resourceBounds = ResourceBoundsMapping(
                     ResourceBounds.ZERO,
-                    ResourceBounds.ZERO
-                )
+                    ResourceBounds.ZERO,
+                ),
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash = accountContractClassHash,

@@ -2,7 +2,6 @@ package com.swmansion.starknet.deployercontract
 
 import com.swmansion.starknet.data.types.Calldata
 import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.ResourceBounds
 import com.swmansion.starknet.data.types.ResourceBoundsMapping
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException

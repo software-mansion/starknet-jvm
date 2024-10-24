@@ -31,7 +31,7 @@ class StandardDeployer(
         unique: Boolean,
         salt: Felt,
         constructorCalldata: Calldata,
-        resourceBounds: ResourceBoundsMapping
+        resourceBounds: ResourceBoundsMapping,
     ): Request<ContractDeployment> {
         val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
