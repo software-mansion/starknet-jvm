@@ -13,7 +13,6 @@ import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
 import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 
 /**
@@ -272,7 +271,7 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
     }
 
-        private fun getMessagesStatus(payload: GetMessagesStatusPayload): HttpRequest<MessageStatusList> {
+    private fun getMessagesStatus(payload: GetMessagesStatusPayload): HttpRequest<MessageStatusList> {
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, MessageStatusListSerializer)
