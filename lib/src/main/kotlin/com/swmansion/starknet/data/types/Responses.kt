@@ -228,6 +228,7 @@ data class NodeHashToNodeMappingItem(
         @SerialName("right")
         val right: Felt,
     ) : MerkleNode
+
     @Serializable
     data class EdgeNode(
         @SerialName("path")
