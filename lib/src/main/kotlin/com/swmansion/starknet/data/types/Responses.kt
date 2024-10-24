@@ -177,43 +177,19 @@ data class StorageProof(
 
     @SerialName("global_roots")
     val globalRoots: GlobalRoots,
-) : StarknetResponse
+) : StarknetResponse {
+    @Serializable
+    data class GlobalRoots(
+        @SerialName("contracts_tree_root")
+        val contractsTreeRoot: Felt,
 
-@Serializable
-data class GlobalRoots(
-    @SerialName("contracts_tree_root")
-    val contractsTreeRoot: Felt,
+        @SerialName("classes_tree_root")
+        val classesTreeRoot: Felt,
 
-    @SerialName("classes_tree_root")
-    val classesTreeRoot: Felt,
-
-    @SerialName("block_hash")
-    val blockHash: Felt,
-)
-
-@Serializable
-data class MerkleNode(
-    @SerialName("path")
-    val path: Int,
-
-    @SerialName("length")
-    val length: Int,
-
-    @SerialName("value")
-    val value: Felt,
-
-    @SerialName("children_hashes")
-    val childrenHashes: ChildrenHashes? = null,
-)
-
-@Serializable
-data class ChildrenHashes(
-    @SerialName("left")
-    val left: Felt,
-
-    @SerialName("right")
-    val right: Felt,
-)
+        @SerialName("block_hash")
+        val blockHash: Felt,
+    )
+}
 
 @Serializable
 data class ContractsProof(
@@ -240,7 +216,30 @@ data class NodeHashToNodeMappingItem(
 
     @SerialName("node")
     val node: MerkleNode,
-)
+) {
+    @Serializable
+    sealed interface MerkleNode
+
+    @Serializable
+    data class BinaryNode(
+        @SerialName("left")
+        val left: Felt,
+
+        @SerialName("right")
+        val right: Felt,
+    ) : MerkleNode
+    @Serializable
+    data class EdgeNode(
+        @SerialName("path")
+        val path: Int,
+
+        @SerialName("length")
+        val length: Int,
+
+        @SerialName("child")
+        val value: Felt,
+    ) : MerkleNode
+}
 
 @Serializable
 sealed class Syncing : StarknetResponse {
