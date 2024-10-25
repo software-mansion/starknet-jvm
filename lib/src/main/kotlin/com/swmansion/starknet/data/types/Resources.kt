@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class DataResources {
+sealed class Resources {
     abstract val l1Gas: Int
     abstract val l2Gas: Int
 }
@@ -19,7 +19,7 @@ data class ExecutionResources(
 
     @SerialName("l2_gas")
     override val l2Gas: Int,
-) : DataResources()
+) : Resources()
 
 @Serializable
 data class InnerCallExecutionResources(
@@ -28,4 +28,4 @@ data class InnerCallExecutionResources(
 
     @SerialName("l2_gas")
     override val l2Gas: Int,
-) : DataResources()
+) : Resources()
