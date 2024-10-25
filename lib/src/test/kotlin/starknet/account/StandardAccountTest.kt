@@ -1448,11 +1448,9 @@ class StandardAccountTest {
                                "revert_reason": "Placeholder revert reason."
                             },
                             "execution_resources": {
-                                "steps": 582,
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }
@@ -1572,11 +1570,9 @@ class StandardAccountTest {
                                 }
                             },
                             "execution_resources": {
-                                "steps": 1600,
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }
