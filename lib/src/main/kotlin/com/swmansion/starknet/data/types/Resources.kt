@@ -1,3 +1,5 @@
+@file:JvmName("Resources")
+
 package com.swmansion.starknet.data.types
 
 import kotlinx.serialization.SerialName
