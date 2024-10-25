@@ -19,7 +19,7 @@ data class ExecutionResources(
 
     @SerialName("l2_gas")
     override val l2Gas: Int,
-): DataResources()
+) : DataResources()
 
 @Serializable
 data class InnerCallExecutionResources(
@@ -28,4 +28,4 @@ data class InnerCallExecutionResources(
 
     @SerialName("l2_gas")
     override val l2Gas: Int,
-): DataResources()
+) : DataResources()
