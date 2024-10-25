@@ -14,3 +14,12 @@ data class ExecutionResources(
     @SerialName("l2_gas")
     val l2Gas: Int,
 )
+
+@Serializable
+data class InnerCallExecutionResources(
+    @SerialName("l1_gas")
+    val l1Gas: Int,
+
+    @SerialName("l2_gas")
+    val l2Gas: Int,
+)

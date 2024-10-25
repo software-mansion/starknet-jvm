@@ -1546,7 +1546,8 @@ class StandardAccountTest {
                                         ],
                                         "messages": [],
                                         "execution_resources": {
-                                            "steps": 582
+                                            "l1_gas": "123",
+                                            "l2_gas": "456"
                                         }
                                     }
                                 ],
@@ -1566,7 +1567,8 @@ class StandardAccountTest {
                                     }
                                 ],
                                 "execution_resources": {
-                                    "steps": 800
+                                    "l1_gas": "123",
+                                    "l2_gas": "789"
                                 }
                             },
                             "execution_resources": {
