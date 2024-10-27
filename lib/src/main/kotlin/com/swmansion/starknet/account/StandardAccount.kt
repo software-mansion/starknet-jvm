@@ -541,10 +541,7 @@ class StandardAccount @JvmOverloads constructor(
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,
-            resourceBounds = ResourceBoundsMapping(
-                ResourceBounds.ZERO,
-                ResourceBounds.ZERO,
-            ),
+            resourceBounds = ResourceBoundsMapping.ZERO,
         )
         val payload = signV3(calls, executionParams, true)
 

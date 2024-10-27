@@ -161,10 +161,7 @@ class AccountTest {
         val nonce = account.getNonce().send()
         val params = DeclareParamsV3(
             nonce = nonce,
-            resourceBounds = ResourceBoundsMapping(
-                ResourceBounds.ZERO,
-                ResourceBounds.ZERO,
-            ),
+            resourceBounds = ResourceBoundsMapping.ZERO,
         )
         val declareTransactionPayload = account.signDeclareV3(
             sierraContractDefinition = contractDefinition,
@@ -559,10 +556,7 @@ class AccountTest {
             calldata = calldata,
             params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                resourceBounds = ResourceBoundsMapping(
-                    ResourceBounds.ZERO,
-                    ResourceBounds.ZERO,
-                ),
+                resourceBounds = ResourceBoundsMapping.ZERO,
             ),
             forFeeEstimate = true, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
         )

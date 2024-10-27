@@ -430,7 +430,12 @@ data class ResourceBoundsMapping(
     @SerialName("l2_gas")
     @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
-)
+) {
+    companion object {
+        @field:JvmField
+        val ZERO = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO)
+    }
+}
 
 @Serializable
 data class ResourceBounds(

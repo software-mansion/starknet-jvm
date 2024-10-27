@@ -255,7 +255,7 @@ class StandardAccountTest {
                 call = call,
                 params = InvokeParamsV3(
                     nonce = nonce.value.add(BigInteger.ONE).toFelt,
-                    resourceBounds = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO),
+                    resourceBounds = ResourceBoundsMapping.ZERO,
                 ),
                 forFeeEstimate = true,
             )
@@ -338,10 +338,7 @@ class StandardAccountTest {
 
             val params = DeclareParamsV3(
                 nonce = nonce,
-                resourceBounds = ResourceBoundsMapping(
-                    ResourceBounds.ZERO,
-                    ResourceBounds.ZERO,
-                ),
+                resourceBounds = ResourceBoundsMapping.ZERO,
             )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
@@ -993,10 +990,7 @@ class StandardAccountTest {
             )
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                resourceBounds = ResourceBoundsMapping(
-                    ResourceBounds.ZERO,
-                    ResourceBounds.ZERO,
-                ),
+                resourceBounds = ResourceBoundsMapping.ZERO,
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash = accountContractClassHash,
