@@ -674,7 +674,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageProof(blockId: BlockId, classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractStorageKeys>? = null): Request<StorageProof>
+    fun getStorageProof(blockId: BlockId? = null, classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractStorageKeys>? = null): Request<StorageProof>
 
     /**
      * Get the block synchronization status.

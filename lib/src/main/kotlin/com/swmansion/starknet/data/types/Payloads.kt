@@ -92,7 +92,7 @@ internal data class GetNoncePayload(
 @Serializable
 internal data class GetStorageProofPayload constructor(
     @SerialName("block_id")
-    val blockId: BlockId,
+    val blockId: BlockId? = null,
 
     @SerialName("class_hashes")
     val classHashes: List<Felt>? = null,
