@@ -88,7 +88,40 @@ class ProviderTest {
 
     @Test
     fun getMessagesStatus() {
-        // TODO
+        val mockedResponse = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "transaction_hash": "0x123",
+                    "finality_status": "ACCEPTED_ON_L2"
+                },
+                {
+                    "transaction_hash": "0x123",
+                    "finality_status": "ACCEPTED_ON_L2",
+                    "failure_reason": "Example failure reason"
+                }
+            ]
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+        val request = provider.getMessagesStatus(NumAsHex(0x123))
+        val response = request.send()
+
+        assertEquals(2, response.values.count())
+
+        assertEquals(Felt(0x123), response.values[0].transactionHash)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
+        assertNull(response.values[0].failureReason)
+
+        assertEquals(Felt(0x123), response.values[1].transactionHash)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
+        assertNotNull(response.values[0].failureReason)
     }
 
     @Test
@@ -792,7 +825,151 @@ class ProviderTest {
 
     @Test
     fun getStorageProof() {
-        // TODO
+        val mockedResponse = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {
+                        "node_hash": "0x123",
+                        "node": {
+                            "left": "0x123",
+                            "right": "0x456"
+                        }
+                    },
+                    {
+                        "node_hash": "0x123",
+                        "node": {
+                            "path": 10,
+                            "length": 20,
+                            "child": "0x456"
+                        }
+                    }
+                ],
+                "contracts_proof": {
+                    "nodes": [
+                        {
+                            "node_hash": "0x789",
+                            "node": {
+                                "path": 3,
+                                "length": 5,
+                                "child": "0xabc"
+                            }
+                        }
+                    ],
+                    "contract_leaves_data": [
+                        {
+                            "nonce": "0x1",
+                            "class_hash": "0xdef"
+                        }
+                    ]
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node_hash": "0x456",
+                            "node": {
+                                "left": "0xabc",
+                                "right": "0xdef"
+                            }
+                        }
+                    ]
+                ],
+                "global_roots": {
+                    "contracts_tree_root": "0x789",
+                    "classes_tree_root": "0xabc",
+                    "block_hash": "0xdef"
+                }
+            }
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+
+        val request = provider.getStorageProof(
+            blockId = BlockId.Number(0),
+        )
+        val response = request.send()
+
+        assertNotNull(response)
+
+        assertTrue(response.classesProof[0].node is NodeHashToNodeMappingItem.BinaryNode)
+        assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
+        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.EdgeNode)
+        assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
+    }
+
+
+    @Test
+    fun `get storage proof with incorrect merkle nodes`() {
+        val mockedResponse = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {
+                        "node_hash": "0x123",
+                        "node": {
+                            "left": "0x123",
+                            "right": "0x456",
+                            "path": 10
+                        }
+                    }
+                ],
+                "contracts_proof": {
+                    "nodes": [
+                        {
+                            "node_hash": "0x789",
+                            "node": {
+                                "path": 3,
+                                "length": 5,
+                                "child": "0xabc"
+                            }
+                        }
+                    ],
+                    "contract_leaves_data": [
+                        {
+                            "nonce": "0x1",
+                            "class_hash": "0xdef"
+                        }
+                    ]
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node_hash": "0x456",
+                            "node": {
+                                "left": "0xabc",
+                                "right": "0xdef"
+                            }
+                        }
+                    ]
+                ],
+                "global_roots": {
+                    "contracts_tree_root": "0x789",
+                    "classes_tree_root": "0xabc",
+                    "block_hash": "0xdef"
+                }
+            }
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+
+        val request = provider.getStorageProof(
+            blockId = BlockId.Number(0),
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            request.send()
+        }
     }
 
     @Test

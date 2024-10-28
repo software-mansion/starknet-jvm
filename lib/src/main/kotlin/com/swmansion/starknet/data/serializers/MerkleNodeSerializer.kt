@@ -1,7 +1,9 @@
 package com.swmansion.starknet.data.serializers
 
 import com.swmansion.starknet.data.types.NodeHashToNodeMappingItem
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
@@ -11,13 +13,14 @@ import kotlinx.serialization.json.jsonObject
 internal object MerkleNodeSerializer : KSerializer<NodeHashToNodeMappingItem.MerkleNode> {
     override val descriptor = NodeHashToNodeMappingItem.MerkleNode.serializer().descriptor
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(decoder: Decoder): NodeHashToNodeMappingItem.MerkleNode {
         require(decoder is JsonDecoder)
         val element = decoder.decodeJsonElement()
         val jsonElement = element.jsonObject
 
-        val binaryNodeKeys = listOf("left", "right")
-        val edgeNodeKeys = listOf("path", "length", "child")
+        val binaryNodeKeys = NodeHashToNodeMappingItem.BinaryNode.serializer().descriptor.elementNames.toSet()
+        val edgeNodeKeys = NodeHashToNodeMappingItem.EdgeNode.serializer().descriptor.elementNames.toSet()
 
         return when (jsonElement.keys) {
             binaryNodeKeys -> {
