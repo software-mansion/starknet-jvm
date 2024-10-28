@@ -903,7 +903,6 @@ class ProviderTest {
         assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
     }
 
-
     @Test
     fun `get storage proof with incorrect merkle nodes`() {
         val mockedResponse = """
