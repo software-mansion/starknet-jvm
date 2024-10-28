@@ -40,7 +40,7 @@ internal class MerkleNodeTest {
     fun `edge node`() {
         val jsonString = """
             {
-               "path": 123,
+               "path": "0x123",
                "length": 456,
                "child": "0x789"
             }
@@ -54,7 +54,7 @@ internal class MerkleNodeTest {
     fun `edge node with missing fields`() {
         val jsonString = """
             {
-               "path": 123,
+               "path": "0x123",
                "length": 456
             }
         """.trimIndent()
@@ -68,7 +68,7 @@ internal class MerkleNodeTest {
     fun `node with mixed fields`() {
         val jsonString = """
             {
-               "path": 10,
+               "path": "0x123",
                "length": 20,
                "right": "0x123"
             }

@@ -233,7 +233,7 @@ data class NodeHashToNodeMappingItem(
     @Serializable
     data class EdgeNode(
         @SerialName("path")
-        val path: Int,
+        val path: NumAsHex,
 
         @SerialName("length")
         val length: Int,
