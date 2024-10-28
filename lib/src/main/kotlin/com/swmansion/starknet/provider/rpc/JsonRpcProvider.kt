@@ -666,7 +666,7 @@ class JsonRpcProvider(
     }
 
     override fun getStorageProof(
-        blockId: BlockId,
+        blockId: BlockId?,
         classHashes: List<Felt>?,
         contractAddresses: List<Felt>?,
         contractsStorageKeys: List<ContractStorageKeys>?,
