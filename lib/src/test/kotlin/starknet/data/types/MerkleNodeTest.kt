@@ -13,8 +13,8 @@ internal class MerkleNodeTest {
     fun `binary node`() {
         val jsonString = """
             {
-               "left": "0x1",
-               "right": "0x2"
+               "left": "0x123",
+               "right": "0x456"
             }
         """.trimIndent()
 
@@ -27,11 +27,11 @@ internal class MerkleNodeTest {
     fun `binary node with missing field`() {
         val jsonString = """
             {
-               "left": "0x1"
+               "left": "0x123"
             }
         """.trimIndent()
 
-        assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"left\":\"0x1\"}") {
+        assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"left\":\"0x123\"}") {
             json.decodeFromString<NodeHashToNodeMappingItem.BinaryNode>(jsonString)
         }
     }
@@ -40,9 +40,9 @@ internal class MerkleNodeTest {
     fun `edge node`() {
         val jsonString = """
             {
-               "path": 10,
-               "length": 20,
-               "child": "0x123"
+               "path": 123,
+               "length": 456,
+               "child": "0x789"
             }
         """.trimIndent()
 
@@ -54,12 +54,12 @@ internal class MerkleNodeTest {
     fun `edge node with missing fields`() {
         val jsonString = """
             {
-               "path": 10,
-               "length": 20
+               "path": 123,
+               "length": 456
             }
         """.trimIndent()
 
-        assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"path\":10,\"length\":20}") {
+        assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"path\":123,\"length\":456}") {
             json.decodeFromString<NodeHashToNodeMappingItem.MerkleNode>(jsonString)
         }
     }
