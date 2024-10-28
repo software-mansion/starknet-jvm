@@ -1,7 +1,7 @@
 package com.swmansion.starknet.data.types
 
+import MerkleNodePolymorphicSerializer
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
-import com.swmansion.starknet.data.serializers.MerkleNodeSerializer
 import com.swmansion.starknet.data.serializers.NotSyncingResponseSerializer
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -218,7 +218,7 @@ data class NodeHashToNodeMappingItem(
     @SerialName("node")
     val node: MerkleNode,
 ) {
-    @Serializable(with = MerkleNodeSerializer::class)
+    @Serializable(with = MerkleNodePolymorphicSerializer::class)
     sealed interface MerkleNode
 
     @Serializable
