@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ContractStorageKey(
+data class ContractStorageKeys(
     @SerialName("contract_address")
     val contractAddress: Felt,
 

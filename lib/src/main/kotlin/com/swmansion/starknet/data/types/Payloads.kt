@@ -101,7 +101,7 @@ internal data class GetStorageProofPayload constructor(
     val contractAddresses: List<Felt>? = null,
 
     @SerialName("contracts_storage_keys")
-    val contractsStorageKeys: List<ContractStorageKey>? = null,
+    val contractsStorageKeys: List<ContractStorageKeys>? = null,
 )
 
 @Serializable
