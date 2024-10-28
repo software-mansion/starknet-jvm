@@ -30,7 +30,6 @@ internal object MerkleNodeSerializer : KSerializer<NodeHashToNodeMappingItem.Mer
         }
     }
 
-
     override fun serialize(encoder: Encoder, value: NodeHashToNodeMappingItem.MerkleNode) {
         require(encoder is JsonEncoder)
 
