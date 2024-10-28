@@ -9,5 +9,5 @@ data class ContractStorageKeys(
     val contractAddress: Felt,
 
     @SerialName("storage_keys")
-    val key: List<Felt>,
+    val storageKeys: List<Felt>,
 )
