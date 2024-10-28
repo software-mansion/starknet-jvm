@@ -19,15 +19,15 @@ internal object MerkleNodeSerializer : KSerializer<NodeHashToNodeMappingItem.Mer
         val binaryNodeKeys = listOf("left", "right")
         val edgeNodeKeys = listOf("path", "length", "child")
 
-        return when {
-            binaryNodeKeys.all { jsonElement.containsKey(it) } -> {
-                decoder.json.decodeFromJsonElement(NodeHashToNodeMappingItem.BinaryNode.serializer(), element)
-            }
-            edgeNodeKeys.all { jsonElement.containsKey(it) } -> {
-                decoder.json.decodeFromJsonElement(NodeHashToNodeMappingItem.EdgeNode.serializer(), element)
-            }
-            else -> throw IllegalArgumentException("Invalid MerkleNode JSON object: $jsonElement")
+        return when (jsonElement.keys) {
+        binaryNodeKeys -> {
+            decoder.json.decodeFromJsonElement(NodeHashToNodeMappingItem.BinaryNode.serializer(), element)
         }
+        edgeNodeKeys -> {
+            decoder.json.decodeFromJsonElement(NodeHashToNodeMappingItem.EdgeNode.serializer(), element)
+        }
+        else -> throw IllegalArgumentException("Invalid MerkleNode JSON object: $jsonElement")
+    }
     }
 
     override fun serialize(encoder: Encoder, value: NodeHashToNodeMappingItem.MerkleNode) {
