@@ -208,6 +208,9 @@ data class ContractLeafData(
 
     @SerialName("class_hash")
     val classHash: Felt,
+
+    @SerialName("storage_root")
+    val storageRoot: Felt? = null,
 )
 
 @Serializable
