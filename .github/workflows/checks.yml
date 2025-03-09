@@ -106,7 +106,7 @@ jobs:
         run: |
           curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
           universal-sierra-compiler --version
-
+  /Users/franciszekjob/Projects/SWM/starknet-foundry/target/release/sncast --hex-format --json --accounts-file /Users/franciszekjob/.starknet_accounts/starknet_open_zeppelin_accounts.json --account legacy_account account deploy --name ggg --l1-gas 100000 --l2-gas 1000000000 --l1-data-gas 100000 --url http://0.0.0.0:5050/rpc
       - name: Install scarb
         run: |
           asdf plugin add scarb
