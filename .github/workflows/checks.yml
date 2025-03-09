@@ -96,7 +96,7 @@ jobs:
           tar -xzvf starknet-foundry.tar.gz
 
           echo "Moving binary to /usr/local/bin/"
-          sudo mv starknet-foundry/target/release/sncast /usr/local/bin/
+          sudo mv target/release/sncast /usr/local/bin/
 
           echo "Verifying installation..."
           sncast --version
