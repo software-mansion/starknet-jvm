@@ -88,12 +88,6 @@ data class EstimateFeeResponse(
     /**
      * Convert estimated fee to resource bounds with applied multipliers.
      *
-     * Calculates max amount l1 as maxAmountL1 = [overallFee] / [l1GasPrice], unless [l1GasPrice] is 0, then maxAmountL1 is 0.
-     * Calculates max amount l2 as maxAmountL2 = [overallFee] / [l2GasPrice], unless [l2GasPrice] is 0, then maxAmountL2 is 0.
-     * Calculates max price per unit l1 as maxPricePerUnitL1 = [l1GasPrice].
-     * Calculates max price per unit l2 as maxPricePerUnitL2 = [l2GasPrice].
-     * Then multiplies maxAmountL1/L2 by round([amountMultiplier] * 100%) and maxPricePerUnitL1/L2 by round([unitPriceMultiplier] * 100%) and performs integer division by 100 on each.
-     *
      * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
      * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
      *
@@ -101,28 +95,16 @@ data class EstimateFeeResponse(
      */
     @JvmOverloads
     fun toResourceBounds(
-        amountMultiplier: Double = 1.5,
-        unitPriceMultiplier: Double = 1.5,
+        amountMultiplier: Double = 1.0,
+        unitPriceMultiplier: Double = 1.0,
     ): ResourceBoundsMapping {
         require(amountMultiplier >= 0)
         require(unitPriceMultiplier >= 0)
 
-        val maxAmountL1 = when (l1GasPrice) {
-            Felt.ZERO -> Uint64.ZERO
-            else -> (overallFee.value / l1GasPrice.value).applyMultiplier(amountMultiplier).toUint64
-        }
-
-        val maxAmountL2 = when (l2GasPrice) {
-            Felt.ZERO -> Uint64.ZERO
-            else -> (overallFee.value / l2GasPrice.value).applyMultiplier(amountMultiplier).toUint64
-        }
-
-        val maxPricePerUnitL1 = l1GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
-        val maxPricePerUnitL2 = l2GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128
-
         return ResourceBoundsMapping(
-            l1Gas = ResourceBounds(maxAmount = maxAmountL1, maxPricePerUnit = maxPricePerUnitL1),
-            l2Gas = ResourceBounds(maxAmount = maxAmountL2, maxPricePerUnit = maxPricePerUnitL2),
+            l1Gas = ResourceBounds(maxAmount = l1GasConsumed.value.applyMultiplier(amountMultiplier).toUint64, maxPricePerUnit = l1GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128),
+            l1DataGas = ResourceBounds(maxAmount = l1DataGasConsumed.value.applyMultiplier(amountMultiplier).toUint64, maxPricePerUnit = l1DataGasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128),
+            l2Gas = ResourceBounds(maxAmount = l2GasConsumed.value.applyMultiplier(amountMultiplier).toUint64, maxPricePerUnit = l2GasPrice.value.applyMultiplier(unitPriceMultiplier).toUint128),
         )
     }
 
@@ -431,13 +413,17 @@ data class ResourceBoundsMapping(
     @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
 
+    @SerialName("l1_data_gas")
+    @JsonNames("L1_DATA_GAS")
+    val l1DataGas: ResourceBounds,
+
     @SerialName("l2_gas")
     @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
 ) {
     companion object {
         @field:JvmField
-        val ZERO = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO)
+        val ZERO = ResourceBoundsMapping(ResourceBounds.ZERO, ResourceBounds.ZERO, ResourceBounds.ZERO)
     }
 }
 
