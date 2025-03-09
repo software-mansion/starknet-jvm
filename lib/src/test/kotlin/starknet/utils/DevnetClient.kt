@@ -56,7 +56,7 @@ class DevnetClient(
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/47ee2a73c227ee356f344ce94e5f61871299be80/crates/starknet-devnet-core/src/constants.rs
-        val accountContractClassHash = Felt.fromHex("0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f")
+        val accountContractClassHash = Felt.fromHex("0x044cab2e6a3a7bc516425d06d76c6ffd56ae308864dbc66f8e75028e3784aa29")
         val legacyAccountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
         val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
@@ -107,7 +107,7 @@ class DevnetClient(
             stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(3, TimeUnit.SECONDS)
+        devnetProcess.waitFor(10, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")
@@ -163,6 +163,7 @@ class DevnetClient(
         accountName: String,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
+        type: String,
     ): CreateAccountResult {
         val params = mutableListOf(
             "create",
@@ -170,6 +171,8 @@ class DevnetClient(
             accountName,
             "--class-hash",
             classHash.hexString(),
+            "--type",
+            type,
         )
         salt?.let {
             params.add("--salt")
@@ -202,10 +205,12 @@ class DevnetClient(
             "deploy",
             "--name",
             accountName,
-            "--max-fee",
-            maxFee.hexString(),
-            "--class-hash",
-            classHash.hexString(),
+            "--l1-gas",
+            "100000",
+            "--l2-gas",
+            "1000000000",
+            "--l1-data-gas",
+            "100000",
         )
         val response = runSnCast(
             command = "account",
@@ -226,8 +231,9 @@ class DevnetClient(
         salt: Felt? = null,
         maxFee: Felt = Felt(1000000000000000),
         accountName: String = "__default__",
+        type: String = "oz",
     ): DeployAccountResult {
-        val createResult = createAccount(accountName, classHash, salt)
+        val createResult = createAccount(accountName, classHash, salt, type)
         val details = createResult.details
         val deployResult = deployAccount(classHash, maxFee, prefund = true, accountName)
 
@@ -247,8 +253,12 @@ class DevnetClient(
         val params = listOf(
             "--contract-name",
             contractName,
-            "--max-fee",
-            maxFee.hexString(),
+            "--l1-gas",
+            "100000",
+            "--l2-gas",
+            "1000000000",
+            "--l1-data-gas",
+            "100000",
         )
         val response = runSnCast(
             command = "declare",
@@ -275,8 +285,12 @@ class DevnetClient(
         val params = mutableListOf(
             "--class-hash",
             classHash.hexString(),
-            "--max-fee",
-            maxFee.hexString(),
+            "--l1-gas",
+            "100000",
+            "--l2-gas",
+            "1000000000",
+            "--l1-data-gas",
+            "100000",
         )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
@@ -335,8 +349,12 @@ class DevnetClient(
             contractAddress.hexString(),
             "--function",
             function,
-            "--max-fee",
-            maxFee.hexString(),
+            "--l1-gas",
+            "100000",
+            "--l2-gas",
+            "1000000000",
+            "--l1-data-gas",
+            "100000",
         )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
@@ -366,12 +384,12 @@ class DevnetClient(
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
-            "--url",
-            rpcUrl,
             "--account",
             accountName,
             command,
             *(args.toTypedArray()),
+            "--url",
+            rpcUrl,
         )
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
