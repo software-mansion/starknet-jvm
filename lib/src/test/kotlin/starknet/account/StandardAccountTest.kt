@@ -473,7 +473,14 @@ class StandardAccountTest {
                     maxAmount = Uint64(100000),
                     maxPricePerUnit = Uint128(1000000000000),
                 ),
-                ResourceBounds.ZERO,
+                ResourceBounds(
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
+                ),
+                ResourceBounds(
+                    maxAmount = Uint64(100000),
+                    maxPricePerUnit = Uint128(1000000000000),
+                ),
             )
             val params = DeclareParamsV3(
                 nonce = nonce,
@@ -604,6 +611,10 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
             )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
@@ -721,7 +732,7 @@ class StandardAccountTest {
                 maxAmount = Uint64(20000),
                 maxPricePerUnit = Uint128(120000000000),
             )
-            val resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds)
+            val resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds, l1ResourceBounds)
             val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -765,6 +776,10 @@ class StandardAccountTest {
                     maxPricePerUnit = Uint128(120000000000),
                 ),
                 // TODO: Check if these l2 resources need to be updated once we can add tests
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
                 ResourceBounds(
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
@@ -1102,7 +1117,7 @@ class StandardAccountTest {
 
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds),
+                resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds, l1ResourceBounds),
             )
 
             // Prefund the new account address with STRK
@@ -1262,6 +1277,10 @@ class StandardAccountTest {
                     maxAmount = Uint64(20000),
                     maxPricePerUnit = Uint128(120000000000),
                 ),
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
+                ),
             )
             val params = InvokeParamsV3(
                 nonce = nonce,
@@ -1370,6 +1389,10 @@ class StandardAccountTest {
                 ResourceBounds(
                     maxAmount = Uint64(100000),
                     maxPricePerUnit = Uint128(1000000000000),
+                ),
+                ResourceBounds(
+                    maxAmount = Uint64(20000),
+                    maxPricePerUnit = Uint128(120000000000),
                 ),
             )
             val declareTransactionPayload = account.signDeclareV3(

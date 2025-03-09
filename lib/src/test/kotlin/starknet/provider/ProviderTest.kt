@@ -121,7 +121,7 @@ class ProviderTest {
 
         assertEquals(Felt(0x123), response.values[1].transactionHash)
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
-        assertNotNull(response.values[0].failureReason)
+        assertNotNull(response.values[1].failureReason)
     }
 
     @Test
@@ -831,55 +831,47 @@ class ProviderTest {
             "jsonrpc": "2.0",
             "result": {
                 "classes_proof": [
+                    {"node": {"left": "0x123", "right": "0x123"}, "node_hash": "0x123"},
                     {
-                        "node_hash": "0x123",
-                        "node": {
-                            "left": "0x123",
-                            "right": "0x456"
-                        }
-                    },
-                    {
-                        "node_hash": "0x123",
-                        "node": {
-                            "path": 10,
-                            "length": 20,
-                            "child": "0x456"
-                        }
+                        "node": {"child": "0x123", "length": 2, "path": "0x123"},
+                        "node_hash": "0x123"
                     }
                 ],
                 "contracts_proof": {
+                    "contract_leaves_data": [
+                        {"class_hash": "0x123", "nonce": "0x0", "storage_root": "0x123"}
+                    ],
                     "nodes": [
                         {
-                            "node_hash": "0x789",
-                            "node": {
-                                "path": 3,
-                                "length": 5,
-                                "child": "0xabc"
-                            }
-                        }
-                    ],
-                    "contract_leaves_data": [
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123",
+                        },
                         {
-                            "nonce": "0x1",
-                            "class_hash": "0xdef"
+                            "node": {"child": "0x123", "length": 232, "path": "0x123"},
+                            "node_hash": "0x123",
                         }
                     ]
                 },
                 "contracts_storage_proofs": [
                     [
                         {
-                            "node_hash": "0x456",
-                            "node": {
-                                "left": "0xabc",
-                                "right": "0xdef"
-                            }
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123"
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 123, "path": "0x123"},
+                            "node_hash": "0x123"
+                        },
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123"
                         }
                     ]
                 ],
                 "global_roots": {
-                    "contracts_tree_root": "0x789",
-                    "classes_tree_root": "0xabc",
-                    "block_hash": "0xdef"
+                    "block_hash": "0x123",
+                    "classes_tree_root": "0x456",
+                    "contracts_tree_root": "0x789"
                 }
             }
         }
@@ -901,6 +893,15 @@ class ProviderTest {
         assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
         assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.EdgeNode)
         assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
+
+        assertEquals(2, response.classesProof.size)
+        assertEquals(2, response.contractsProof.nodes.size)
+        assertEquals(1, response.contractsStorageProofs.size)
+        assertEquals(Felt.fromHex("0x123"), response.globalRoots.blockHash)
+        assertEquals(Felt.fromHex("0x456"), response.globalRoots.classesTreeRoot)
+        assertEquals(Felt.fromHex("0x789"), response.globalRoots.contractsTreeRoot)
+
+
     }
 
     @Test
