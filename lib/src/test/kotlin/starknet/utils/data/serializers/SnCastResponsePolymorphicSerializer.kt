@@ -10,7 +10,7 @@ internal object SnCastResponsePolymorphicSerializer : JsonContentPolymorphicSeri
 
         val commandObject = jsonObject.getOrElse("command") { throw IllegalArgumentException("Missing command type in sncast response") }
         val command = Json.decodeFromJsonElement(SnCastCommand.serializer(), commandObject)
-
+        println(command)
         val error = jsonObject["error"]?.jsonPrimitive?.content
         error?.let {
             throw SnCastCommandFailed(commandObject.jsonPrimitive.content, error)
