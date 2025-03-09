@@ -247,11 +247,6 @@ class StandardAccountTest {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
             val nonce = account.getNonce().send()
-            val invokeTxV1Payload = account.signV3(
-                call = call,
-                params = InvokeParamsV3(nonce, ResourceBoundsMapping.ZERO),
-                forFeeEstimate = true,
-            )
             val invokeTxV3Payload = account.signV3(
                 call = call,
                 params = InvokeParamsV3(
@@ -260,14 +255,12 @@ class StandardAccountTest {
                 ),
                 forFeeEstimate = true,
             )
-            assertEquals(TransactionVersion.V1_QUERY, invokeTxV1Payload.version)
             assertEquals(TransactionVersion.V3_QUERY, invokeTxV3Payload.version)
 
-            val invokeTxV1PayloadWithoutSignature = invokeTxV1Payload.copy(signature = emptyList())
             val invokeTxV3PayloadWithoutSignature = invokeTxV3Payload.copy(signature = emptyList())
 
             val request = provider.getEstimateFee(
-                payload = listOf(invokeTxV1PayloadWithoutSignature, invokeTxV3PayloadWithoutSignature),
+                payload = listOf(invokeTxV3PayloadWithoutSignature),
                 simulationFlags = setOf(SimulationFlagForEstimateFee.SKIP_VALIDATE),
             )
 
@@ -939,7 +932,7 @@ class StandardAccountTest {
             resourceBounds = ResourceBoundsMapping.ZERO,
             forFeeEstimate = true,
         )
-        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
+        assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
         assertThrows(RequestFailedException::class.java) {
             provider.deployAccount(payloadForFeeEstimation).send()
