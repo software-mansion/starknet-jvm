@@ -181,7 +181,7 @@ object StandardDeployerTest {
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(50000 ),
+                maxAmount = Uint64(50000),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
         )
