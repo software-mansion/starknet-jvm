@@ -15,8 +15,8 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 * [Making asynchronous requests](#making-asynchronous-requests)
 * [Deploying account V3](#deploying-account-v3)
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
-* [Deploying account V1](#deploying-account-v1)
-* [Estimating fee for deploy account V1 transaction](#estimating-fee-for-deploy-account-v1-transaction)
+* [Deploying account V3](#deploying-account-v3)
+* [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
 * [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
 * [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
@@ -321,7 +321,7 @@ public class Main {
 }
 ```
 
-## Deploying account V1
+## Deploying account V3
 
 ```java
 import com.swmansion.starknet.account.Account;
@@ -386,7 +386,7 @@ public class Main {
 }
 ```
 
-## Estimating fee for deploy account V1 transaction
+## Estimating fee for deploy account V3 transaction
 
 ```java
 package org.example;
