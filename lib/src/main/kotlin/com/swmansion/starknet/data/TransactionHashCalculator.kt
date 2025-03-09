@@ -14,6 +14,7 @@ import com.swmansion.starknet.extensions.toFelt
 object TransactionHashCalculator {
     private val l1GasPrefix by lazy { Felt.fromShortString("L1_GAS") }
     private val l2GasPrefix by lazy { Felt.fromShortString("L2_GAS") }
+    private val l1DataGasPrefix by lazy { Felt.fromShortString("L1_DATA") }
 
     @JvmStatic
     fun calculateInvokeTxV1Hash(
@@ -241,7 +242,7 @@ object TransactionHashCalculator {
         )
     }
 
-    private fun prepareResourceBoundsForFee(resourceBounds: ResourceBoundsMapping): Pair<Felt, Felt> {
+    private fun prepareResourceBoundsForFee(resourceBounds: ResourceBoundsMapping): List<Felt> {
         val l1GasBound = l1GasPrefix.value.shiftLeft(64 + 128)
             .add(resourceBounds.l1Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l1Gas.maxPricePerUnit.value)
@@ -250,8 +251,12 @@ object TransactionHashCalculator {
             .add(resourceBounds.l2Gas.maxAmount.value.shiftLeft(128))
             .add(resourceBounds.l2Gas.maxPricePerUnit.value)
             .toFelt
+        val l1DataGasBound = l1DataGasPrefix.value.shiftLeft(64 + 128)
+            .add(resourceBounds.l1DataGas.maxAmount.value.shiftLeft(128))
+            .add(resourceBounds.l1DataGas.maxPricePerUnit.value)
+            .toFelt
 
-        return l1GasBound to l2GasBound
+        return listOf(l1GasBound, l2GasBound, l1DataGasBound)
     }
 
     internal fun prepareDataAvailabilityModes(

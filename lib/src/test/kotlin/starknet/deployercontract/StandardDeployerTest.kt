@@ -8,6 +8,7 @@ import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -108,8 +109,8 @@ object StandardDeployerTest {
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(0),
-                maxPricePerUnit = Uint128(0),
+                maxAmount = Uint64(50000000),
+                maxPricePerUnit = Uint128(100_000_000_000),
             ),
             l1DataGas = ResourceBounds(
                 maxAmount = Uint64(50000),
@@ -173,13 +174,12 @@ object StandardDeployerTest {
                 maxAmount = Uint64(50000),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
-            // TODO: Check if these l2 resources need to be updated once we can add tests
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(0),
-                maxPricePerUnit = Uint128(0),
+                maxAmount = Uint64(50000000),
+                maxPricePerUnit = Uint128(100_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(50000),
+                maxAmount = Uint64(50000 ),
                 maxPricePerUnit = Uint128(100_000_000_000),
             ),
         )
