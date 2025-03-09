@@ -82,8 +82,10 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             ARCHIVE_URL="https://github.com/franciszekjob/starknet-foundry/releases/download/v0.39.0-rc.0/starknet-foundry-x86_64-unknown-linux-gnu.tar.gz"
+            ARCHIVE_DIR_NAME="starknet-foundry-x86_64-unknown-linux-gnu"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             ARCHIVE_URL="https://github.com/franciszekjob/starknet-foundry/releases/download/v0.39.0-rc.0/starknet-foundry-aarch64-apple-darwin.tar.gz"
+            ARCHIVE_DIR_NAME="starknet-foundry-aarch64-apple-darwin"
           else
             echo "Unsupported OS: $RUNNER_OS"
             exit 1
@@ -96,7 +98,7 @@ jobs:
           tar -xzvf starknet-foundry.tar.gz
 
           echo "Moving binary to /usr/local/bin/"
-          sudo mv target/release/sncast /usr/local/bin/
+          sudo mv $ARCHIVE_DIR_NAME/sncast /usr/local/bin/
 
           echo "Verifying installation..."
           sncast --version
