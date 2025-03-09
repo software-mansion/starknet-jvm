@@ -76,9 +76,9 @@ jobs:
 #          fi
 
       - name: Setup asdf
-        uses: asdf-vm/actions/setup@v2
+        uses: asdf-vm/actions/setup@v3
 
-      # TODO: This is temporary adjustment. It should be revamped once sncast supports RPC 0.8.0
+      # TODO: This is temporary adjustment. It should be revamped once there is release of sncast supporting RPC 0.8.0
       - name: Install starknet-foundry
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -108,7 +108,7 @@ jobs:
           universal-sierra-compiler --version
       - name: Install scarb
         run: |
-          asdf plugin add scarb
+          asdf plugin-add scarb
           asdf install scarb 0.4.0
           asdf install scarb 0.7.0
           asdf install scarb 2.6.0
