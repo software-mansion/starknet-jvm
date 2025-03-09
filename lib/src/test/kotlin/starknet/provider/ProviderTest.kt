@@ -900,8 +900,6 @@ class ProviderTest {
         assertEquals(Felt.fromHex("0x123"), response.globalRoots.blockHash)
         assertEquals(Felt.fromHex("0x456"), response.globalRoots.classesTreeRoot)
         assertEquals(Felt.fromHex("0x789"), response.globalRoots.contractsTreeRoot)
-
-
     }
 
     @Test

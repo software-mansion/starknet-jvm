@@ -107,7 +107,7 @@ class FeeUtilsTest {
                 ),
                 l1DataGas = ResourceBounds(
                     maxAmount = Uint64(1000),
-                    maxPricePerUnit = Uint128(100)
+                    maxPricePerUnit = Uint128(100),
                 ),
             )
             assertEquals(expected, result)

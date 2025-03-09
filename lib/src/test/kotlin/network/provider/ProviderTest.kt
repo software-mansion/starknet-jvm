@@ -67,8 +67,8 @@ class ProviderTest {
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x1e04294ce4f7dd489ba5b5618dc112b37f9a7e82e2ded5691fb3083839dd3b5")
         }
         private val strkContractAddress =
-            Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d");
-        private val strkClassHash = Felt.fromHex("0x04ad3c1dc8413453db314497945b6903e1c766495a1e60492d44da9c2a986e4b");
+            Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
+        private val strkClassHash = Felt.fromHex("0x04ad3c1dc8413453db314497945b6903e1c766495a1e60492d44da9c2a986e4b")
 
         @Suppress("const")
         private val specificBlockNumber = 1000
@@ -536,10 +536,10 @@ class ProviderTest {
                 ContractsStorageKeys(
                     contractAddress = strkContractAddress,
                     // balances storage key
-                    storageKeys = listOf(Felt.fromHex("0x45524332305f62616c616e636573"))
-                )
+                    storageKeys = listOf(Felt.fromHex("0x45524332305f62616c616e636573")),
+                ),
             ),
-            classHashes = listOf(strkClassHash)
+            classHashes = listOf(strkClassHash),
         )
         val storageProof = request.send()
 
@@ -549,16 +549,15 @@ class ProviderTest {
         assertEquals(16, storageProof.contractsStorageProofs[0].size)
         assertEquals(
             Felt.fromHex("0x404446e37fc08c0bf4979821e50bdac7919b56d19d2df9e16f0aa7a0d506e50"),
-            storageProof.globalRoots.blockHash
+            storageProof.globalRoots.blockHash,
         )
         assertEquals(
             Felt.fromHex("0x43568bf995aacf4b56615e97b7237c1b03d199344ad66d38f38fda250ef1586"),
-            storageProof.globalRoots.classesTreeRoot
+            storageProof.globalRoots.classesTreeRoot,
         )
         assertEquals(
             Felt.fromHex("0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189"),
-            storageProof.globalRoots.contractsTreeRoot
+            storageProof.globalRoots.contractsTreeRoot,
         )
-
     }
 }
