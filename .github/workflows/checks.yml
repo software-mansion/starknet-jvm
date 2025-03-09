@@ -105,6 +105,7 @@ jobs:
       - name: Install universal-sierra-compiler
         run: |
           curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
+          universal-sierra-compiler --version
 
       - name: Install scarb
         run: |
