@@ -392,6 +392,8 @@ class DevnetClient(
             "--url",
             rpcUrl,
         )
+
+        println(processBuilder.command().joinToString(" "))
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
         val process = processBuilder.start()
