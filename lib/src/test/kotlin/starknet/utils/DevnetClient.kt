@@ -174,7 +174,7 @@ class DevnetClient(
             classHash.hexString(),
             "--type",
             type,
-            "--silent"
+            "--silent",
         )
         salt?.let {
             params.add("--salt")
