@@ -111,6 +111,10 @@ object StandardDeployerTest {
                 maxAmount = Uint64(0),
                 maxPricePerUnit = Uint128(0),
             ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
+            ),
         )
         val deployment = standardDeployer.deployContractV3(
             classHash = balanceContractClassHash,
@@ -173,6 +177,10 @@ object StandardDeployerTest {
             l2Gas = ResourceBounds(
                 maxAmount = Uint64(0),
                 maxPricePerUnit = Uint128(0),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(50000),
+                maxPricePerUnit = Uint128(100_000_000_000),
             ),
         )
         val deployment = standardDeployer.deployContractV3(

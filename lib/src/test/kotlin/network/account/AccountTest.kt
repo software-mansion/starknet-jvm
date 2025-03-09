@@ -279,6 +279,7 @@ class AccountTest {
             resourceBounds = ResourceBoundsMapping(
                 l1Gas = l1ResourceBounds,
                 l2Gas = l2ResourceBounds,
+                l1DataGas = l1ResourceBounds,
             ),
         )
         val declareTransactionPayload = account.signDeclareV3(
