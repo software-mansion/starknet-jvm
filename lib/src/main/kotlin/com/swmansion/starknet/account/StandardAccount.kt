@@ -134,7 +134,6 @@ class StandardAccount @JvmOverloads constructor(
         return signedTransaction
     }
 
-
     /**
      * @sample starknet.account.StandardAccountTest.DeployAccountTest.signAndSendDeployAccountV3Transaction
      */

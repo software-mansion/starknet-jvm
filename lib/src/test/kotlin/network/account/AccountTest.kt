@@ -82,7 +82,7 @@ class AccountTest {
             l1DataGas = ResourceBounds(
                 maxAmount = Uint64(100000),
                 maxPricePerUnit = Uint128(2500000000000),
-            )
+            ),
         )
         data class DeclaredAccount(
             val classHash: Felt,
@@ -421,7 +421,7 @@ class AccountTest {
         )
         val params = InvokeParamsV3(
             nonce = nonce,
-            resourceBounds = resourceBounds
+            resourceBounds = resourceBounds,
         )
         val invokeTx = account.signV3(call, params)
 
@@ -504,7 +504,7 @@ class AccountTest {
             classHash = classHash,
             salt = salt,
             calldata = calldata,
-            resourceBounds = resourceBounds
+            resourceBounds = resourceBounds,
         )
 
         // Use SKIP_FEE_CHARGE flag to avoid having to transfer funds to the account
