@@ -669,7 +669,7 @@ class JsonRpcProvider(
         blockId: BlockId,
         classHashes: List<Felt>?,
         contractAddresses: List<Felt>?,
-        contractsStorageKeys: List<ContractStorageKeys>?,
+        contractsStorageKeys: List<ContractsStorageKeys>?,
     ): HttpRequest<StorageProof> {
         val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
 
