@@ -14,18 +14,6 @@ class StandardDeployer(
     private val provider: Provider,
     private val account: Account,
 ) : Deployer {
-    override fun deployContractV1(
-        classHash: Felt,
-        unique: Boolean,
-        salt: Felt,
-        constructorCalldata: Calldata,
-        maxFee: Felt,
-    ): Request<ContractDeployment> {
-        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
-
-        return account.executeV1(call, maxFee).map { ContractDeployment(it.transactionHash) }
-    }
-
     override fun deployContractV3(
         classHash: Felt,
         unique: Boolean,
@@ -36,17 +24,6 @@ class StandardDeployer(
         val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
 
         return account.executeV3(call, resourceBounds).map { ContractDeployment(it.transactionHash) }
-    }
-
-    override fun deployContractV1(
-        classHash: Felt,
-        unique: Boolean,
-        salt: Felt,
-        constructorCalldata: Calldata,
-    ): Request<ContractDeployment> {
-        val call = buildDeployContractCall(classHash, unique, salt, constructorCalldata)
-
-        return account.executeV1(call).map { ContractDeployment(it.transactionHash) }
     }
 
     override fun deployContractV3(
@@ -60,19 +37,9 @@ class StandardDeployer(
         return account.executeV3(call).map { ContractDeployment(it.transactionHash) }
     }
 
-    override fun deployContractV1(classHash: Felt, constructorCalldata: Calldata, maxFee: Felt): Request<ContractDeployment> {
-        val salt = randomSalt()
-        return deployContractV1(classHash, true, salt, constructorCalldata, maxFee)
-    }
-
     override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, resourceBounds: ResourceBoundsMapping): Request<ContractDeployment> {
         val salt = randomSalt()
         return deployContractV3(classHash, true, salt, constructorCalldata, resourceBounds)
-    }
-
-    override fun deployContractV1(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {
-        val salt = randomSalt()
-        return deployContractV1(classHash, true, salt, constructorCalldata)
     }
 
     override fun deployContractV3(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment> {

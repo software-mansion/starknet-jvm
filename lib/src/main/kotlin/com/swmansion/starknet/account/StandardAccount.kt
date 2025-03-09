@@ -116,25 +116,6 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     /**
-     * @sample starknet.account.StandardAccountTest.InvokeTest.signV1MultipleCalls
-     */
-    override fun signV1(calls: List<Call>, params: ExecutionParams, forFeeEstimate: Boolean): InvokeTransactionV1 {
-        val calldata = AccountCalldataTransformer.callsToExecuteCalldata(calls, cairoVersion.version)
-        val tx = InvokeTransactionV1(
-            senderAddress = address,
-            calldata = calldata,
-            chainId = chainId,
-            nonce = params.nonce,
-            maxFee = params.maxFee,
-            forFeeEstimate = forFeeEstimate,
-        )
-
-        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
-
-        return signedTransaction
-    }
-
-    /**
      * @sample starknet.account.StandardAccountTest.InvokeTest.signV3MultipleCalls
      */
     override fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3 {
@@ -153,31 +134,6 @@ class StandardAccount @JvmOverloads constructor(
         return signedTransaction
     }
 
-    /**
-     * @sample starknet.account.StandardAccountTest.DeployAccountTest.signAndSendDeployAccountV1Transaction
-     */
-    override fun signDeployAccountV1(
-        classHash: Felt,
-        calldata: Calldata,
-        salt: Felt,
-        maxFee: Felt,
-        nonce: Felt,
-        forFeeEstimate: Boolean,
-    ): DeployAccountTransactionV1 {
-        val tx = DeployAccountTransactionV1(
-            classHash = classHash,
-            contractAddress = address,
-            salt = salt,
-            calldata = calldata,
-            chainId = chainId,
-            maxFee = maxFee,
-            forFeeEstimate = forFeeEstimate,
-            nonce = nonce,
-        )
-        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
-
-        return signedTransaction
-    }
 
     /**
      * @sample starknet.account.StandardAccountTest.DeployAccountTest.signAndSendDeployAccountV3Transaction
@@ -198,29 +154,6 @@ class StandardAccount @JvmOverloads constructor(
             forFeeEstimate = forFeeEstimate,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
-        )
-        val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
-
-        return signedTransaction
-    }
-
-    /**
-     * @sample starknet.account.StandardAccountTest.DeclareTest.signAndSendDeclareV2Transaction
-     */
-    override fun signDeclareV2(
-        sierraContractDefinition: Cairo1ContractDefinition,
-        casmContractDefinition: CasmContractDefinition,
-        params: ExecutionParams,
-        forFeeEstimate: Boolean,
-    ): DeclareTransactionV2 {
-        val tx = DeclareTransactionV2(
-            contractDefinition = sierraContractDefinition,
-            senderAddress = address,
-            chainId = chainId,
-            nonce = params.nonce,
-            maxFee = params.maxFee,
-            casmContractDefinition = casmContractDefinition,
-            forFeeEstimate = forFeeEstimate,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -305,15 +238,6 @@ class StandardAccount @JvmOverloads constructor(
         throw e
     }
 
-    override fun executeV1(calls: List<Call>, maxFee: Felt): Request<InvokeFunctionResponse> {
-        return getNonce().compose { nonce ->
-            val signParams = ExecutionParams(nonce = nonce, maxFee = maxFee)
-            val payload = signV1(calls, signParams)
-
-            return@compose provider.invokeFunction(payload)
-        }
-    }
-
     override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
@@ -323,13 +247,6 @@ class StandardAccount @JvmOverloads constructor(
             val payload = signV3(calls, signParams, false)
 
             return@compose provider.invokeFunction(payload)
-        }
-    }
-
-    override fun executeV1(calls: List<Call>, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
-        return estimateFeeV1(calls).compose { estimateFee ->
-            val maxFee = estimateFee.values.first().toMaxFee(estimateFeeMultiplier)
-            executeV1(calls, maxFee)
         }
     }
 
@@ -348,16 +265,6 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     /**
-     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1MultipleCalls
-     */
-    override fun executeV1(calls: List<Call>): Request<InvokeFunctionResponse> {
-        return estimateFeeV1(calls).compose { estimateFee ->
-            val maxFee = estimateFee.values.first().toMaxFee()
-            executeV1(calls, maxFee)
-        }
-    }
-
-    /**
      * @sample starknet.account.StandardAccountTest.InvokeTest.executeV3MultipleCalls
      */
     override fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse> {
@@ -367,16 +274,8 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun executeV1(call: Call, maxFee: Felt): Request<InvokeFunctionResponse> {
-        return executeV1(listOf(call), maxFee)
-    }
-
     override fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), resourceBounds)
-    }
-
-    override fun executeV1(call: Call, estimateFeeMultiplier: Double): Request<InvokeFunctionResponse> {
-        return executeV1(listOf(call), estimateFeeMultiplier)
     }
 
     override fun executeV3(
@@ -389,13 +288,6 @@ class StandardAccount @JvmOverloads constructor(
             estimateAmountMultiplier = estimateAmountMultiplier,
             estimateUnitPriceMultiplier = estimateUnitPriceMultiplier,
         )
-    }
-
-    /**
-     * @sample starknet.account.StandardAccountTest.InvokeTest.executeV1SingleCall
-     */
-    override fun executeV1(call: Call): Request<InvokeFunctionResponse> {
-        return executeV1(listOf(call))
     }
 
     /**
@@ -425,42 +317,16 @@ class StandardAccount @JvmOverloads constructor(
      */
     override fun getNonce(blockNumber: Int) = provider.getNonce(address, blockNumber)
 
-    /**
-     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV1Transaction
-     */
-    override fun estimateFeeV1(call: Call): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(listOf(call))
-    }
-
     override fun estimateFeeV3(call: Call): Request<EstimateFeeResponseList> {
         return estimateFeeV3(listOf(call))
-    }
-
-    override fun estimateFeeV1(call: Call, skipValidate: Boolean): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(listOf(call), skipValidate)
     }
 
     override fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<EstimateFeeResponseList> {
         return estimateFeeV3(listOf(call), skipValidate)
     }
 
-    /**
-     * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV1TransactionAtLatestBlockTag
-     */
-    override fun estimateFeeV1(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(listOf(call), blockTag)
-    }
-
     override fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList> {
         return estimateFeeV3(listOf(call), blockTag)
-    }
-
-    override fun estimateFeeV1(
-        call: Call,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(listOf(call), blockTag, skipValidate)
     }
 
     override fun estimateFeeV3(
@@ -471,16 +337,8 @@ class StandardAccount @JvmOverloads constructor(
         return estimateFeeV3(listOf(call), blockTag, skipValidate)
     }
 
-    override fun estimateFeeV1(calls: List<Call>): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(calls, BlockTag.PENDING, false)
-    }
-
     override fun estimateFeeV3(calls: List<Call>): Request<EstimateFeeResponseList> {
         return estimateFeeV3(calls, BlockTag.PENDING, false)
-    }
-
-    override fun estimateFeeV1(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(calls, BlockTag.PENDING, skipValidate)
     }
 
     /**
@@ -490,24 +348,8 @@ class StandardAccount @JvmOverloads constructor(
         return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
     }
 
-    override fun estimateFeeV1(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {
-        return estimateFeeV1(calls, blockTag, false)
-    }
-
     override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {
         return estimateFeeV3(calls, blockTag, false)
-    }
-
-    override fun estimateFeeV1(
-        calls: List<Call>,
-        blockTag: BlockTag,
-        skipValidate: Boolean,
-    ): Request<EstimateFeeResponseList> {
-        return getNonce(blockTag).compose { nonce ->
-            val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)
-            val payload = buildEstimateFeeV1Payload(calls, nonce)
-            return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
-        }
     }
 
     override fun estimateFeeV3(
@@ -520,22 +362,6 @@ class StandardAccount @JvmOverloads constructor(
             val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)
             return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
-    }
-
-    private fun buildEstimateFeeV1Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
-        val executionParams = ExecutionParams(nonce = nonce, maxFee = Felt.ZERO)
-        val payload = signV1(calls, executionParams, true)
-
-        val signedTransaction = InvokeTransactionV1(
-            senderAddress = payload.senderAddress,
-            calldata = payload.calldata,
-            chainId = chainId,
-            nonce = nonce,
-            maxFee = payload.maxFee,
-            signature = payload.signature,
-            forFeeEstimate = true,
-        )
-        return listOf(signedTransaction)
     }
 
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {

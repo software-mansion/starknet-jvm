@@ -55,21 +55,6 @@ object StandardDeployerTest {
     }
 
     @Test
-    fun testUdcDeployV1() {
-        val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV1(
-            classHash = balanceContractClassHash,
-            unique = true,
-            salt = Felt(101),
-            constructorCalldata = listOf(initialBalance),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue)
-    }
-
-    @Test
     @Disabled("TODO: With auto estimation, devnet returns 'The transaction's resources don't cover validation or the minimal transaction fee' error")
     fun testUdcDeployV3() {
         val initialBalance = Felt(1000)
@@ -78,22 +63,6 @@ object StandardDeployerTest {
             unique = true,
             salt = Felt(301),
             constructorCalldata = listOf(initialBalance),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue)
-    }
-
-    @Test
-    fun testUdcDeployV1WithSpecificFee() {
-        val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV1(
-            classHash = balanceContractClassHash,
-            unique = true,
-            salt = Felt(102),
-            constructorCalldata = listOf(initialBalance),
-            maxFee = Felt(1_000_000_000_000_000),
         ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
@@ -131,18 +100,6 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    fun testUdcDeployV1WithDefaultParameters() {
-        val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV1(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue) }
-
-    @Test
     @Disabled("TODO: With auto estimation, devnet returns 'The transaction's resources don't cover validation or the minimal transaction fee' error")
     fun testUdcDeployV3WithDefaultParameters() {
         val initialBalance = Felt(1000)
@@ -153,20 +110,8 @@ object StandardDeployerTest {
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue) }
-
-    @Test
-    fun testUdcDeployV1WithSpecificFeeAndDefaultParameters() {
-        val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV1(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-            maxFee = Felt(1_000_000_000_000_000),
-        ).send()
-        val address = standardDeployer.findContractAddress(deployment).send()
-
-        val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue) }
+        assertEquals(listOf(initialBalance), contractValue)
+    }
 
     @Test
     fun testUdcDeployV3WithSpecificFeeAndDefaultParameters() {
