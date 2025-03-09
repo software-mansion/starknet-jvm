@@ -95,7 +95,8 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-            devnetPath.absolutePathString(),
+//            devnetPath.absolutePathString(),
+            "starknet-devnet",
             "--host",
             host,
             "--port",
