@@ -275,11 +275,9 @@ class DevnetClient(
                 transactionHash = response.transactionHash,
             )
         } catch (e: SnCastCommandFailed) {
-            println("AAA: "+e)
+            println("AAA: " + e)
             throw e
         }
-
-
     }
 
     fun deployContract(
