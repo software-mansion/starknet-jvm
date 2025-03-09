@@ -33,8 +33,8 @@ jobs:
         with:
           cmake-version: '3.18.1'
 
-# TODO: This should be revamped once starknet-devnet has a new release
-      - name: Install devnet
+        # TODO: This is temporary adjustment. It should be revamped once starknet-devnet has a new release
+      - name: Clone starknet-devnet-rs
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             ARCHIVE_URL="https://github.com/franciszekjob/starknet-devnet/releases/download/v0.13.4-rc.0/starknet-devnet-x86_64-unknown-linux-gnu.tar.gz"
@@ -58,26 +58,26 @@ jobs:
           starknet-devnet --version
 
 
-      - name: Cache devnet build
-        uses: actions/cache@v4
-        with:
-          path: starknet-devnet-rs/target/release
-          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
-
-      - name: Build devnet
-        run: |
-          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            pushd ${{ github.workspace }}/starknet-devnet-rs
-            cargo build --release
-            popd
-          else
-            echo "Found existing starknet-devnet-rs build, skipping compilation."
-          fi
+#      - name: Cache devnet build
+#        uses: actions/cache@v4
+#        with:
+#          path: starknet-devnet-rs/target/release
+#          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
+#
+#      - name: Build devnet
+#        run: |
+#          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
+#            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#            pushd ${{ github.workspace }}/starknet-devnet-rs
+#            cargo build --release
+#            popd
+#          else
+#            echo "Found existing starknet-devnet-rs build, skipping compilation."
+#          fi
 
       - name: Setup asdf
         uses: asdf-vm/actions/setup@v2
-# TODO: This should be revamped once sncast supports RPC 0.8.0
+      # TODO: This is temporary adjustment. It should be revamped once sncast supports RPC 0.8.0
       - name: Install starknet-foundry
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
