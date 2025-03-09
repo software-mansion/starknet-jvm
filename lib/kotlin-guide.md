@@ -213,9 +213,14 @@ val l1ResourceBounds = ResourceBounds(
     maxAmount = Uint64(20000),
     maxPricePerUnit = Uint128(120000000000),
 )
+val l2ResourceBounds = ResourceBounds(
+    maxAmount = Uint64(0),
+    maxPricePerUnit = Uint128(0),
+)
+
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
-    l1ResourceBounds = l1ResourceBounds,
+    resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds, l1ResourceBounds),
 )
 
 // Prefund the new account address with STRK
@@ -259,7 +264,7 @@ val account = StandardAccount(
 )
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
-    l1ResourceBounds = ResourceBounds.ZERO,
+    resourceBounds = ResourceBoundsMapping.ZERO,
 )
 val payloadForFeeEstimation = account.signDeployAccountV3(
     classHash = accountContractClassHash,
@@ -405,12 +410,23 @@ val contractDefinition = Cairo2ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
-val params = DeclareParamsV3(
-    nonce = nonce,
-    l1ResourceBounds = ResourceBounds(
+val resourceBounds = ResourceBoundsMapping(
+    ResourceBounds(
         maxAmount = Uint64(100000),
         maxPricePerUnit = Uint128(1000000000000),
     ),
+    ResourceBounds(
+        maxAmount = Uint64(100000),
+        maxPricePerUnit = Uint128(1000000000000),
+    ),
+    ResourceBounds(
+        maxAmount = Uint64(100000),
+        maxPricePerUnit = Uint128(1000000000000),
+    ),
+)
+val params = DeclareParamsV3(
+    nonce = nonce,
+    resourceBounds = resourceBounds,
 )
 val declareTransactionPayload = account.signDeclareV3(
     contractDefinition,
@@ -433,7 +449,10 @@ val contractDefinition = Cairo1ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
-val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+val params = DeclareParamsV3(
+    nonce = nonce,
+    resourceBounds = ResourceBoundsMapping.ZERO,
+)
 val declareTransactionPayload = account.signDeclareV3(
     contractDefinition,
     contractCasmDefinition,
