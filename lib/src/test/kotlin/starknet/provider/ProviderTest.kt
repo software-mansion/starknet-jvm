@@ -40,11 +40,9 @@ class ProviderTest {
 
                 // Prepare devnet address book
                 val deployAccountResult = devnetClient.createDeployAccount()
-//                val declareResult = devnetClient.declareContract("Balance")
-                balanceClassHash = Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
-//                println("XXX "+ balanceClassHash)
-//                declareTransactionHash = declareResult.transactionHash
-//                println("declare tx hash: $declareTransactionHash")
+                val declareResult = devnetClient.declareContract("Balance")
+                balanceClassHash = declareResult.classHash
+                declareTransactionHash = declareResult.transactionHash
                 balanceContractAddress = devnetClient.deployContract(
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),

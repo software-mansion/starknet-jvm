@@ -213,10 +213,16 @@ class DevnetClient(
             accountName,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
-            "1000000000000",
+            "1000000000000000",
+            "--l2-gas-price",
+            "100000000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         val response = runSnCast(
             command = "account",
@@ -261,10 +267,16 @@ class DevnetClient(
             contractName,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
-            "1000000000000",
+            "1000000000000000",
+            "--l2-gas-price",
+            "100000000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         try {
             val response = runSnCast(
@@ -297,10 +309,16 @@ class DevnetClient(
             classHash.hexString(),
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
-            "1000000000000",
+            "1000000000000000",
+            "--l2-gas-price",
+            "100000000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
@@ -361,10 +379,16 @@ class DevnetClient(
             function,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
-            "1000000000000",
+            "1000000000000000",
+            "--l2-gas-price",
+            "100000000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
