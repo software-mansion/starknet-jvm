@@ -109,7 +109,7 @@ class DevnetClient(
             "--fork-block",
             "369169",
             "--fork-network",
-            "https://rpc.pathfinder.equilibrium.co/testnet-sepolia/rpc/v0_8"
+            "https://rpc.pathfinder.equilibrium.co/testnet-sepolia/rpc/v0_8",
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
