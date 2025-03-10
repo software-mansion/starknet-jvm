@@ -151,7 +151,7 @@ class DevnetClient(
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000,
+              "amount": 5000000000000000000000000000000000000,
               "unit": $unit
             }
             """.trimIndent(),
