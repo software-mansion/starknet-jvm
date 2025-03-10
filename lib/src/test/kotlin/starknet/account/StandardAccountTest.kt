@@ -21,6 +21,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
+import starknet.provider.ProviderTest
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
 import java.math.BigInteger
@@ -57,7 +58,12 @@ class StandardAccountTest {
 
                 val accountDetails = devnetClient.createDeployAccount().details
                 val legacyAccountDetails = devnetClient.createDeployAccount(classHash = DevnetClient.legacyAccountContractClassHash, accountName = "legacy_account").details
-                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
+//                balanceContractAddress = devnetClient.declareDeployContract("Balance", constructorCalldata = listOf(Felt(451))).contractAddress
+                val balanceClassHash = Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
+                balanceContractAddress = devnetClient.deployContract(
+                    classHash = balanceClassHash,
+                    constructorCalldata = listOf(Felt(451)),
+                ).contractAddress
                 accountAddress = accountDetails.address
                 legacyAccountAddress = legacyAccountDetails.address
 
