@@ -39,7 +39,7 @@ object StandardDeployerTest {
 
             // Prepare devnet address book
             val accountDetails = devnetClient.createDeployAccount().details
-            balanceContractClassHash = devnetClient.declareContract("Balance").classHash
+            balanceContractClassHash = Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()

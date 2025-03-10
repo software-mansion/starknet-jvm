@@ -40,9 +40,11 @@ class ProviderTest {
 
                 // Prepare devnet address book
                 val deployAccountResult = devnetClient.createDeployAccount()
-                val declareResult = devnetClient.declareContract("Balance")
-                balanceClassHash = declareResult.classHash
-                declareTransactionHash = declareResult.transactionHash
+//                val declareResult = devnetClient.declareContract("Balance")
+                balanceClassHash = Felt.fromHex("0x31de86764e5a6694939a87321dad5769d427790147a4ee96497ba21102c8af9")
+//                println("XXX "+ balanceClassHash)
+//                declareTransactionHash = declareResult.transactionHash
+//                println("declare tx hash: $declareTransactionHash")
                 balanceContractAddress = devnetClient.deployContract(
                     classHash = balanceClassHash,
                     constructorCalldata = listOf(Felt(451)),
@@ -891,7 +893,7 @@ class ProviderTest {
 
         assertTrue(response.classesProof[0].node is NodeHashToNodeMappingItem.BinaryNode)
         assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
-        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.EdgeNode)
+        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.BinaryNode)
         assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
 
         assertEquals(2, response.classesProof.size)

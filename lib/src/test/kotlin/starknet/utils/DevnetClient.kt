@@ -106,6 +106,10 @@ class DevnetClient(
             // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
+            "--fork-block",
+            "369169",
+            "--fork-network",
+            "https://rpc.pathfinder.equilibrium.co/testnet-sepolia/rpc/v0_8"
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
