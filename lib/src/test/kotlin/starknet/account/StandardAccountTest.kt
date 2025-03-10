@@ -21,7 +21,6 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
-import starknet.provider.ProviderTest
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
 import java.math.BigInteger
