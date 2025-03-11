@@ -36,8 +36,8 @@ jobs:
         with:
           cmake-version: '3.18.1'
 
-        # TODO: This is temporary adjustment. It should be revamped once starknet-devnet has a new release
-      - name: Clone starknet-devnet-rs
+      # TODO(#534): Use stable release of starknet-devnet once it's available
+      - name: Download starknet-devnet
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             ARCHIVE_URL="https://github.com/franciszekjob/starknet-devnet/releases/download/v0.13.4-rc.0/starknet-devnet-x86_64-unknown-linux-gnu.tar.gz"
@@ -60,24 +60,6 @@ jobs:
           echo "Verifying installation..."
           starknet-devnet --version
 
-
-#      - name: Cache devnet build
-#        uses: actions/cache@v4
-#        with:
-#          path: starknet-devnet-rs/target/release
-#          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
-#
-#      - name: Build devnet
-#        run: |
-#          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
-#            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-#            pushd ${{ github.workspace }}/starknet-devnet-rs
-#            cargo build --release
-#            popd
-#          else
-#            echo "Found existing starknet-devnet-rs build, skipping compilation."
-#          fi
-
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
         run: |
@@ -99,7 +81,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
-      # TODO: This is temporary adjustment. It should be revamped once there is release of sncast supporting RPC 0.8.0
+      # TODO(#535): Use stable release of starknet-foundry once it's available
       - name: Install starknet-foundry
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -123,10 +105,10 @@ jobs:
           echo "Verifying installation..."
           sncast --version
 
-      - name: Install universal-sierra-compiler
-        run: |
-          curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
-          universal-sierra-compiler --version
+#      - name: Install universal-sierra-compiler
+#        run: |
+#          curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
+
       - name: Install scarb
         run: |
           asdf plugin add scarb
