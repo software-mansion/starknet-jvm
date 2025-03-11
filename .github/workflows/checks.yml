@@ -39,6 +39,7 @@ jobs:
       # TODO(#534): Use stable release of starknet-devnet once it's available
       - name: Download starknet-devnet
         run: |
+          uname -m
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             ARCHIVE_URL="https://github.com/franciszekjob/starknet-devnet/releases/download/v0.13.4-rc.0/starknet-devnet-x86_64-unknown-linux-gnu.tar.gz"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
