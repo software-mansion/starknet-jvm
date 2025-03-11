@@ -83,7 +83,7 @@ jobs:
         run: |
           latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
           echo "Latest asdf version found is $latest_version"
-          echo "LATEST=$latest_version" >> $GITHUB_OUTPUT
+          echo "LATEST=$latest_version" >> $GITHUB_ENV
 
       - name: Setup asdf
         run: |
