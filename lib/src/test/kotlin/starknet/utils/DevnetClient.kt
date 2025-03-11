@@ -448,7 +448,7 @@ class DevnetClient(
 
     private fun requireNoErrors(command: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
-            println("COMMAND: $command, ERROR_STREAM: $errorStream")
+            println("COMMAND: $command, ERROR_STREAM: AAA{$errorStream}BBB")
             throw SnCastCommandFailed(command, errorStream)
         }
     }
