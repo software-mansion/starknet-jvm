@@ -106,6 +106,10 @@ class DevnetClient(
             // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
+//            "--fork-block",
+//            "369169",
+//            "--fork-network",
+//            "https://rpc.pathfinder.equilibrium.co/testnet-sepolia/rpc/v0_8",
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
@@ -147,7 +151,7 @@ class DevnetClient(
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000,
+              "amount": 5000000000000000000000000000000000000,
               "unit": $unit
             }
             """.trimIndent(),
@@ -209,10 +213,16 @@ class DevnetClient(
             accountName,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
             "1000000000",
+            "--l2-gas-price",
+            "100000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         val response = runSnCast(
             command = "account",
@@ -257,23 +267,33 @@ class DevnetClient(
             contractName,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
             "1000000000",
+            "--l2-gas-price",
+            "100000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
-        val response = runSnCast(
-            command = "declare",
-            args = params,
-            accountName = accountName,
-        ) as DeclareSnCastResponse
+        try {
+            val response = runSnCast(
+                command = "declare",
+                args = params,
+                accountName = accountName,
+            ) as DeclareSnCastResponse
+            requireTransactionSuccessful(response.transactionHash, "Declare")
 
-        requireTransactionSuccessful(response.transactionHash, "Declare")
-
-        return DeclareContractResult(
-            classHash = response.classHash,
-            transactionHash = response.transactionHash,
-        )
+            return DeclareContractResult(
+                classHash = response.classHash,
+                transactionHash = response.transactionHash,
+            )
+        } catch (e: SnCastCommandFailed) {
+            println("AAA: " + e)
+            throw e
+        }
     }
 
     fun deployContract(
@@ -289,10 +309,16 @@ class DevnetClient(
             classHash.hexString(),
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
             "1000000000",
+            "--l2-gas-price",
+            "100000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
@@ -353,10 +379,16 @@ class DevnetClient(
             function,
             "--l1-gas",
             "100000",
+            "--l1-gas-price",
+            "10000000000000",
             "--l2-gas",
             "1000000000",
+            "--l2-gas-price",
+            "100000000000000000",
             "--l1-data-gas",
             "100000",
+            "--l1-data-gas-price",
+            "10000000000000",
         )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
@@ -375,6 +407,7 @@ class DevnetClient(
         )
     }
 
+//    /Users/franciszekjob/Projects/SWM/starknet-foundry/target/release/sncast --hex-format --json --accounts-file /Users/franciszekjob/Projects/starknet/starknet-jvm/lib/src/test/resources/accounts/standard_deployer_test/starknet_open_zeppelin_accounts.json --account __default__ account create --name __default__ --class-hash 0x44cab2e6a3a7bc516425d06d76c6ffd56ae308864dbc66f8e75028e3784aa29 --type oz --url http://0.0.0.0:5050/rpc
     private fun runSnCast(
         command: String,
         args: List<String>,
@@ -409,11 +442,13 @@ class DevnetClient(
         // Retrieving the last object works in both cases - with one and with few response objects
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
         val result = lines.last()
+        println("result: $result")
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
+            println("COMMAND: $command, ERROR_STREAM: AAA{$errorStream}BBB")
             throw SnCastCommandFailed(command, errorStream)
         }
     }

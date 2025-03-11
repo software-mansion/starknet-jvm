@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   test_and_lint:
     strategy:
@@ -75,10 +78,28 @@ jobs:
 #            echo "Found existing starknet-devnet-rs build, skipping compilation."
 #          fi
 
-      - name: Setup asdf
-        uses: asdf-vm/actions/setup@v2
+      - name: Fetch latest asdf version from GitHub releases
+        id: asdf_version
+        run: |
+          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
+          echo "Latest asdf version found is $latest_version"
+          echo "LATEST=$latest_version" >> $GITHUB_ENV
 
-      # TODO: This is temporary adjustment. It should be revamped once sncast supports RPC 0.8.0
+      - name: Setup asdf
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            ASDF_PLATFORM="linux-amd64"
+          else
+            ASDF_PLATFORM="darwin-arm64"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz"
+          echo "Downloading asdf from $DOWNLOAD_URL"
+          curl -fsSL "https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz" | tar xzf - -C "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
+
+      # TODO: This is temporary adjustment. It should be revamped once there is release of sncast supporting RPC 0.8.0
       - name: Install starknet-foundry
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -105,7 +126,6 @@ jobs:
       - name: Install universal-sierra-compiler
         run: |
           curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
-          universal-sierra-compiler --version
 
       - name: Install scarb
         run: |

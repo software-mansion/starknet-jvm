@@ -1068,10 +1068,12 @@ class StandardAccountTest {
                 "result": [
                     {
                         "fee_estimation": {
-                            "gas_consumed": "0x9d8",
-                            "gas_price": "0x3b9aca2f",
-                            "data_gas_consumed": "0x3a",
-                            "data_gas_price": "0x1a05",
+                            "l1_gas_consumed": "0x9d8",
+                            "l1_gas_price": "0x3b9aca2f",
+                            "l1_data_gas_consumed": "0x3a",
+                            "l1_data_gas_price": "0x1a05",
+                            "l2_gas_consumed": "0x9d8",
+                            "l2_gas_price": "0x3b9aca2f",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {

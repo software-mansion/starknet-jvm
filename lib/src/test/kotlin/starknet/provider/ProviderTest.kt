@@ -844,11 +844,11 @@ class ProviderTest {
                     "nodes": [
                         {
                             "node": {"left": "0x123", "right": "0x123"},
-                            "node_hash": "0x123",
+                            "node_hash": "0x123"
                         },
                         {
                             "node": {"child": "0x123", "length": 232, "path": "0x123"},
-                            "node_hash": "0x123",
+                            "node_hash": "0x123"
                         }
                     ]
                 },
@@ -891,7 +891,7 @@ class ProviderTest {
 
         assertTrue(response.classesProof[0].node is NodeHashToNodeMappingItem.BinaryNode)
         assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
-        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.EdgeNode)
+        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.BinaryNode)
         assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
 
         assertEquals(2, response.classesProof.size)
