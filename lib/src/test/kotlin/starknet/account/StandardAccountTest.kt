@@ -1072,7 +1072,7 @@ class StandardAccountTest {
 
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                resourceBounds = resourceBounds
+                resourceBounds = resourceBounds,
             )
 
             // Prefund the new account address with STRK
