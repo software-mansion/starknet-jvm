@@ -95,7 +95,7 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-//            devnetPath.absolutePathString(),
+            // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
             "starknet-devnet",
             "--host",
             host,
@@ -106,10 +106,6 @@ class DevnetClient(
             // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
-//            "--fork-block",
-//            "369169",
-//            "--fork-network",
-//            "https://rpc.pathfinder.equilibrium.co/testnet-sepolia/rpc/v0_8",
         )
         devnetProcess = devnetProcessBuilder.start()
         devnetProcess.waitFor(10, TimeUnit.SECONDS)
@@ -278,22 +274,18 @@ class DevnetClient(
             "--l1-data-gas-price",
             "10000000000000",
         )
-        try {
-            val response = runSnCast(
-                command = "declare",
-                args = params,
-                accountName = accountName,
-            ) as DeclareSnCastResponse
-            requireTransactionSuccessful(response.transactionHash, "Declare")
+        val response = runSnCast(
+            command = "declare",
+            args = params,
+            accountName = accountName,
+        ) as DeclareSnCastResponse
 
-            return DeclareContractResult(
-                classHash = response.classHash,
-                transactionHash = response.transactionHash,
-            )
-        } catch (e: SnCastCommandFailed) {
-            println("AAA: " + e)
-            throw e
-        }
+        requireTransactionSuccessful(response.transactionHash, "Declare")
+
+        return DeclareContractResult(
+            classHash = response.classHash,
+            transactionHash = response.transactionHash,
+        )
     }
 
     fun deployContract(
@@ -407,7 +399,6 @@ class DevnetClient(
         )
     }
 
-//    /Users/franciszekjob/Projects/SWM/starknet-foundry/target/release/sncast --hex-format --json --accounts-file /Users/franciszekjob/Projects/starknet/starknet-jvm/lib/src/test/resources/accounts/standard_deployer_test/starknet_open_zeppelin_accounts.json --account __default__ account create --name __default__ --class-hash 0x44cab2e6a3a7bc516425d06d76c6ffd56ae308864dbc66f8e75028e3784aa29 --type oz --url http://0.0.0.0:5050/rpc
     private fun runSnCast(
         command: String,
         args: List<String>,
@@ -427,7 +418,6 @@ class DevnetClient(
             rpcUrl,
         )
 
-        println(processBuilder.command().joinToString(" "))
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
         val process = processBuilder.start()
@@ -442,13 +432,11 @@ class DevnetClient(
         // Retrieving the last object works in both cases - with one and with few response objects
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
         val result = lines.last()
-        println("result: $result")
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {
         if (errorStream.isNotEmpty()) {
-            println("COMMAND: $command, ERROR_STREAM: AAA{$errorStream}BBB")
             throw SnCastCommandFailed(command, errorStream)
         }
     }

@@ -100,7 +100,7 @@ object StandardDeployerTest {
         assertEquals(listOf(initialBalance), contractValue) }
 
     @Test
-    @Disabled("TODO: With auto estimation, devnet returns 'The transaction's resources don't cover validation or the minimal transaction fee' error")
+    @Disabled("TODO(#536)")
     fun testUdcDeployV3WithDefaultParameters() {
         val initialBalance = Felt(1000)
         val deployment = standardDeployer.deployContractV3(

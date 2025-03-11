@@ -535,7 +535,7 @@ class ProviderTest {
             contractsStorageKeys = listOf(
                 ContractsStorageKeys(
                     contractAddress = strkContractAddress,
-                    // balances storage key
+                    // 0x45524332305f62616c616e636573 is storage key holding balances mapping in ERC20 contract
                     storageKeys = listOf(Felt.fromHex("0x45524332305f62616c616e636573")),
                 ),
             ),

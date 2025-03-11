@@ -70,20 +70,22 @@ class AccountTest {
         private val ethContractAddress = Felt.fromHex("0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
         private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
+
         private val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(2500000000000),
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(2500000000000),
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(2500000000000),
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
             ),
         )
+
         data class DeclaredAccount(
             val classHash: Felt,
             val cairoVersion: CairoVersion,
@@ -180,22 +182,9 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val l1ResourceBounds = ResourceBounds(
-            maxAmount = Uint64(100000),
-            maxPricePerUnit = Uint128(2500000000000),
-        )
-        // TODO: Check if these l2 resources need to be updated once we can add tests
-        val l2ResourceBounds = ResourceBounds(
-            maxAmount = Uint64(100000),
-            maxPricePerUnit = Uint128(2500000000000),
-        )
         val params = DeclareParamsV3(
             nonce = nonce,
-            resourceBounds = ResourceBoundsMapping(
-                l1Gas = l1ResourceBounds,
-                l2Gas = l2ResourceBounds,
-                l1DataGas = l1ResourceBounds,
-            ),
+            resourceBounds = resourceBounds,
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,

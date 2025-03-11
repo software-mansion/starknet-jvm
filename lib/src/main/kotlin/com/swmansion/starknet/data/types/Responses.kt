@@ -95,8 +95,8 @@ data class EstimateFeeResponse(
      */
     @JvmOverloads
     fun toResourceBounds(
-        amountMultiplier: Double = 1.0,
-        unitPriceMultiplier: Double = 1.0,
+        amountMultiplier: Double = 1.5,
+        unitPriceMultiplier: Double = 1.5,
     ): ResourceBoundsMapping {
         require(amountMultiplier >= 0)
         require(unitPriceMultiplier >= 0)
