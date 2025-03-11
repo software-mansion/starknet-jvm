@@ -81,10 +81,9 @@ jobs:
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
         run: |
-          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
+          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
           echo "Latest asdf version found is $latest_version"
           echo "LATEST=$latest_version" >> $GITHUB_OUTPUT
-          echo "latest version: $LATEST"
 
       - name: Setup asdf
         run: |
