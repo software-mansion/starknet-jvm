@@ -48,7 +48,7 @@ interface Deployer {
      * @param unique set whether deployed contract address should be based on account address or not
      * @param salt a salt to be used to calculate deployed contract address
      * @param constructorCalldata constructor calldata
-     * @param resourceBounds L1 and L2 resource bounds for the transaction
+     * @param resourceBounds resource bounds for the transaction execution
      *
      * @throws RequestFailedException
      *
@@ -121,7 +121,7 @@ interface Deployer {
      *
      * @param classHash a class hash of the declared contract
      * @param constructorCalldata constructor calldata
-     * @param resourceBounds L1 and L2 resource bounds for the transaction
+     * @param resourceBounds resource bounds for the transaction execution
      *
      * @throws RequestFailedException
      * @throws SaltGenerationFailedException

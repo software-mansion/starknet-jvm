@@ -49,7 +49,7 @@ class StandardAccountTest {
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
 
-        private var resourceBounds = ResourceBoundsMapping(
+        private val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
                 maxAmount = Uint64(100000000000),
                 maxPricePerUnit = Uint128(10000000000000000),
