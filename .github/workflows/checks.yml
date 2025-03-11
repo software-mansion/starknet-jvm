@@ -129,7 +129,7 @@ jobs:
           universal-sierra-compiler --version
       - name: Install scarb
         run: |
-          asdf plugin-add scarb
+          asdf plugin add scarb
           asdf install scarb 0.4.0
           asdf install scarb 0.7.0
           asdf install scarb 2.6.0
