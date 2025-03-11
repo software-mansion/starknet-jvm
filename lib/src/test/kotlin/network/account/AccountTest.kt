@@ -280,7 +280,6 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-
         val params = DeclareParamsV3(
             nonce = nonce,
             resourceBounds = resourceBounds,
