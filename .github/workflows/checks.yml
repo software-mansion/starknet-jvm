@@ -105,9 +105,9 @@ jobs:
           echo "Verifying installation..."
           sncast --version
 
-#      - name: Install universal-sierra-compiler
-#        run: |
-#          curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
+      - name: Install universal-sierra-compiler
+        run: |
+          curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
 
       - name: Install scarb
         run: |
