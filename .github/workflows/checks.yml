@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   test_and_lint:
     strategy:
@@ -75,8 +78,24 @@ jobs:
 #            echo "Found existing starknet-devnet-rs build, skipping compilation."
 #          fi
 
-      - name: Setup asdf
-        uses: asdf-vm/actions/setup@v3
+      - name: Fetch latest asdf version from GitHub releases
+        id: asdf_version
+        run: |
+          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
+          echo "Latest asdf version found is $latest_version"
+          echo "LATEST=$latest_version" >> $GITHUB_OUTPUT
+
+      - name: Setup outdated asdf
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            ASDF_PLATFORM="linux-amd64"
+          else
+            ASDF_PLATFORM="darwin-arm64"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL "https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz" | tar xzf - -C "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
       # TODO: This is temporary adjustment. It should be revamped once there is release of sncast supporting RPC 0.8.0
       - name: Install starknet-foundry
