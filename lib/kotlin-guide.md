@@ -288,18 +288,10 @@ val newAccount = StandardAccount(
     provider,
     chainId,
 )
-val l1ResourceBounds = ResourceBounds(
-    maxAmount = Uint64(20000),
-    maxPricePerUnit = Uint128(120000000000),
-)
-val l2ResourceBounds = ResourceBounds(
-    maxAmount = Uint64(0),
-    maxPricePerUnit = Uint128(0),
-)
 
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
-    resourceBounds = ResourceBoundsMapping(l1ResourceBounds, l2ResourceBounds, l1ResourceBounds),
+    resourceBounds = resourceBounds,
 )
 
 // Prefund the new account address with STRK
@@ -316,7 +308,7 @@ val response = provider.deployAccount(payload).send()
 val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
 // Invoke function to make sure the account was deployed properly
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-val result = newAccount.executeV3(call).send()
+val result = newAccount.executeV3(call, resourceBounds).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
