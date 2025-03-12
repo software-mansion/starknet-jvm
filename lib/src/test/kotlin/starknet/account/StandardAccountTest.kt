@@ -212,7 +212,7 @@ class StandardAccountTest {
             val startNonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
-            account.executeV3(call).send()
+            account.executeV3(call, resourceBounds).send()
 
             val endNonce = account.getNonce().send()
             assertEquals(
