@@ -333,20 +333,6 @@ class StandardAccountTest {
         val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
         val nonce = account.getNonce().send()
 
-        val resourceBounds = ResourceBoundsMapping(
-            ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(1000000000000),
-            ),
-            ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(1000000000000),
-            ),
-            ResourceBounds(
-                maxAmount = Uint64(100000),
-                maxPricePerUnit = Uint128(1000000000000),
-            ),
-        )
         val declareTransactionPayload = account.signDeclareV3(
             l1l2ContractDefinition,
             l1l2CasmContractDefinition,
