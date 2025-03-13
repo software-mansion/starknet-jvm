@@ -270,72 +270,11 @@ val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 
 
 ## Deploying account V1
-```KOTLIN
-val privateKey = Felt(11111)
-val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-val salt = Felt.ONE
-val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
-
-// Make sure to prefund the new account address with ETH
-val account = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
-val payload = account.signDeployAccountV1(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-    // 10*fee from estimate deploy account fee
-    maxFee = Felt.fromHex("0x11fcc58c7f7000"),
-)
-
-val response = provider.deployAccount(payload).send()
-val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
-// Invoke function to make sure the account was deployed properly
-val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-val result = account.executeV1(call).send()
-
-val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-```
 
 
 ## Estimating fee for deploy account V1 transaction
-```KOTLIN
-val privateKey = Felt(11112)
-val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-val salt = Felt.ONE
-val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
-
-val account = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
-val payloadForFeeEstimation = account.signDeployAccountV1(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-    maxFee = Felt.ZERO,
-    nonce = Felt.ZERO,
-    forFeeEstimate = true,
-)
-val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-```
 
 
 ## Invoking contract: Transferring ETH
@@ -443,44 +382,11 @@ val feeEstimate = request.send().values.first()
 
 
 ## Declaring Cairo 1/2 contract V2
-```KOTLIN
-val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
-val contractDefinition = Cairo1ContractDefinition(contractCode)
-val contractCasmDefinition = CasmContractDefinition(casmCode)
-val nonce = account.getNonce().send()
-
-val declareTransactionPayload = account.signDeclareV2(
-    contractDefinition,
-    contractCasmDefinition,
-    ExecutionParams(nonce, Felt(5000000000000000L)),
-)
-val request = provider.declareContract(declareTransactionPayload)
-val result = request.send()
-
-val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-```
 
 
 ## Estimating fee for declare V2 transaction
-```KOTLIN
-val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
-val contractDefinition = Cairo1ContractDefinition(contractCode)
-val contractCasmDefinition = CasmContractDefinition(casmCode)
-val nonce = account.getNonce().send()
-
-val declareTransactionPayload = account.signDeclareV2(
-    sierraContractDefinition = contractDefinition,
-    casmContractDefinition = contractCasmDefinition,
-    params = ExecutionParams(nonce, Felt.ZERO),
-    forFeeEstimate = true,
-)
-val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
-val feeEstimate = request.send().values.first()
-```
 
 
 # Package com.swmansion.starknet.account
