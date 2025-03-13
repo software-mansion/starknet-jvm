@@ -23,7 +23,6 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
-import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
@@ -250,8 +249,8 @@ class StandardAccountTest {
             val invokeTxV3Payload = account.signV3(
                 call = call,
                 params = InvokeParamsV3(
-                    nonce = nonce.value.add(BigInteger.ONE).toFelt,
-                    resourceBounds = ResourceBoundsMapping.ZERO,
+                    nonce = nonce,
+                    resourceBounds = resourceBounds,
                 ),
                 forFeeEstimate = true,
             )
@@ -395,20 +394,6 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
-            val resourceBounds = ResourceBoundsMapping(
-                ResourceBounds(
-                    maxAmount = Uint64(100000),
-                    maxPricePerUnit = Uint128(1000000000000),
-                ),
-                ResourceBounds(
-                    maxAmount = Uint64(100000),
-                    maxPricePerUnit = Uint128(1000000000000),
-                ),
-                ResourceBounds(
-                    maxAmount = Uint64(100000),
-                    maxPricePerUnit = Uint128(1000000000000),
-                ),
-            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -882,6 +867,7 @@ class StandardAccountTest {
     @Nested
     inner class SimulateTransactionsTest {
         @Test
+        @Disabled("TODO(#538): It fails because tx resources don't cover validation or the minimal transaction fee, even though they are be high enough to validate.")
         fun simulateInvokeV3AndDeployAccountV3Transactions() {
             val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
@@ -929,6 +915,7 @@ class StandardAccountTest {
         }
 
         @Test
+        @Disabled("TODO(#538): `l1_data_gas` field is missing in ExecutionResources returned from devnet")
         fun `simulate declare v3 transaction`() {
             devnetClient.prefundAccountStrk(accountAddress)
 
