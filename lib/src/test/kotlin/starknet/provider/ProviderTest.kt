@@ -7,6 +7,7 @@ import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
+import network.provider.ProviderTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -1383,5 +1384,36 @@ class ProviderTest {
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
+    }
+
+    @Test
+    fun `get messages status`() {
+        val mockedResponse = """
+            {
+                "id":0,
+                "jsonrpc":"2.0",
+                "result": [
+                    {
+                        "transaction_hash": "0x1",
+                        "finality_status": "ACCEPTED_ON_L2"
+                    },
+                    {
+                        "transaction_hash": "0x2",
+                        "finality_status": "REJECTED",
+                        "failure_reason": "Some failure reason"
+                    }
+                ]
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+
+        val request = provider.getMessagesStatus(NumAsHex(1))
+        val response = request.send()
+
+        assertNull(response.values[0].failureReason)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
     }
 }
