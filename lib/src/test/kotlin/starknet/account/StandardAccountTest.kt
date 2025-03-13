@@ -23,7 +23,6 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
-import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
@@ -251,7 +250,7 @@ class StandardAccountTest {
                 call = call,
                 params = InvokeParamsV3(
                     nonce = nonce,
-                    resourceBounds = resourceBounds
+                    resourceBounds = resourceBounds,
                 ),
                 forFeeEstimate = true,
             )
