@@ -48,21 +48,6 @@ class StandardAccountTest {
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
 
-        private val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
-            ),
-        )
-
         @JvmStatic
         @BeforeAll
         fun before() {
@@ -211,6 +196,20 @@ class StandardAccountTest {
             val startNonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             account.executeV3(call, resourceBounds).send()
 
             val endNonce = account.getNonce().send()
@@ -245,6 +244,20 @@ class StandardAccountTest {
         fun estimateFeeWithSkipValidateFlag() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val nonce = account.getNonce().send()
             val invokeTxV3Payload = account.signV3(
                 call = call,
@@ -333,6 +346,20 @@ class StandardAccountTest {
         val l1l2CasmContractDefinition = CasmContractDefinition(l1l2CasmContractCode)
         val nonce = account.getNonce().send()
 
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val declareTransactionPayload = account.signDeclareV3(
             l1l2ContractDefinition,
             l1l2CasmContractDefinition,
@@ -380,6 +407,20 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -408,6 +449,20 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = DeclareParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
@@ -506,6 +561,20 @@ class StandardAccountTest {
                 entrypoint = "increase_balance",
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
                 resourceBounds = resourceBounds,
@@ -528,6 +597,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -565,6 +648,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -581,6 +678,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
                 resourceBounds = resourceBounds,
@@ -608,6 +719,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val result = account.executeV3(listOf(call1, call2), resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -623,6 +748,20 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
@@ -730,6 +869,7 @@ class StandardAccountTest {
                 provider,
                 chainId,
             )
+            val resourceBounds = ResourceBoundsMapping
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
                 resourceBounds = ResourceBoundsMapping.ZERO,
@@ -774,6 +914,20 @@ class StandardAccountTest {
                 chainId,
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
                 resourceBounds = resourceBounds,
@@ -860,6 +1014,20 @@ class StandardAccountTest {
 
             val nonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
@@ -920,6 +1088,20 @@ class StandardAccountTest {
             val casmContractDefinition = CasmContractDefinition(casmCode)
 
             val nonce = account.getNonce().send()
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 casmContractDefinition,
@@ -981,6 +1163,20 @@ class StandardAccountTest {
 
             val nonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = InvokeParamsV3(nonce, resourceBounds)
             val invokeTx = account.signV3(call, params)
 
@@ -1111,6 +1307,20 @@ class StandardAccountTest {
 
             val nonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100000000000000),
+                    maxPricePerUnit = Uint128(1000000000000000000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100000000000),
+                    maxPricePerUnit = Uint128(10000000000000000),
+                ),
+            )
             val params = InvokeParamsV3(nonce, resourceBounds)
             val invokeTx = account.signV3(call, params)
 

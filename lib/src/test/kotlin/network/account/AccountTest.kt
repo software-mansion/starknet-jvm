@@ -71,21 +71,6 @@ class AccountTest {
         private val strkContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         private val udcAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
 
-        private val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
-            ),
-        )
-
         data class DeclaredAccount(
             val classHash: Felt,
             val cairoVersion: CairoVersion,
@@ -280,6 +265,20 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val params = DeclareParamsV3(
             nonce = nonce,
             resourceBounds = resourceBounds,
