@@ -52,7 +52,6 @@ jobs:
         with:
           path: starknet-devnet-rs/target/release
           key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
-          save-always: true
 
       - name: Build devnet
         run: |
