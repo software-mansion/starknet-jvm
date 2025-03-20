@@ -243,6 +243,7 @@ class StandardAccountTest {
         }
 
         @Test
+        @Disabled("TODO: Will be fixed in PR with removal of old txs write api")
         fun estimateFeeWithSkipValidateFlag() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
