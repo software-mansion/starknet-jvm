@@ -405,20 +405,15 @@ data class PendingStateUpdateResponse(
     override val stateDiff: StateDiff,
 ) : StateUpdate()
 
-// TODO: remove SCREAMING_SNAKE_CASE @JsonNames once devnet is updated
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ResourceBoundsMapping(
     @SerialName("l1_gas")
-    @JsonNames("L1_GAS")
     val l1Gas: ResourceBounds,
 
     @SerialName("l1_data_gas")
-    @JsonNames("L1_DATA_GAS")
     val l1DataGas: ResourceBounds,
 
     @SerialName("l2_gas")
-    @JsonNames("L2_GAS")
     val l2Gas: ResourceBounds,
 ) {
     companion object {
