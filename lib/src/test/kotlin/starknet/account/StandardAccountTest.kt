@@ -472,6 +472,7 @@ class StandardAccountTest {
             // docsEnd
             assertTrue(receipt.isAccepted)
         }
+
         @Test
         fun `sign and send declare v3 transaction (cairo compiler v2)`() {
             devnetClient.prefundAccountEth(accountAddress)
@@ -764,7 +765,6 @@ class StandardAccountTest {
             assertTrue(receipt.isAccepted)
             assertNotEquals(Felt.ZERO, receipt.actualFee)
         }
-
 
         @Test
         @Disabled("TODO(#536)")
