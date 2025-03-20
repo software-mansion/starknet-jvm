@@ -87,7 +87,7 @@ class ProviderTest {
     }
 
     @Test
-    fun getMessagesStatus() {
+    fun `get messages status`() {
         val mockedResponse = """
         {
             "id": 0,
@@ -140,7 +140,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -161,7 +162,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -181,7 +183,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -451,7 +454,9 @@ class ProviderTest {
         }
 
         val provider = JsonRpcProvider(rpcUrl, httpService)
-        val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
+        val receipt =
+            provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a"))
+                .send()
 
         assertTrue(receipt is InvokeTransactionReceipt)
         assertTrue(receipt.isPending)
@@ -519,7 +524,8 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
+        val request =
+            provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
         val response = request.send()
 
         assertNotNull(response)
@@ -1336,7 +1342,8 @@ class ProviderTest {
         )
         val request = provider.batchRequests(callRequests)
         val response = request.send()
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(response[0].getOrThrow().first(), expectedBalance)
         assertEquals(response[1].getOrThrow().first(), expectedBalance)
@@ -1352,7 +1359,7 @@ class ProviderTest {
             provider.getTransaction(declareTransactionHash),
             provider.getTransaction(deployAccountTransactionHash),
 
-        )
+            )
 
         val response = request.send()
         // docsEnd
@@ -1383,36 +1390,5 @@ class ProviderTest {
 
         assertEquals(TransactionStatus.ACCEPTED_ON_L2, txStatus.finalityStatus)
         assertEquals(TransactionExecutionStatus.SUCCEEDED, txStatus.executionStatus)
-    }
-
-    @Test
-    fun `get messages status`() {
-        val mockedResponse = """
-            {
-                "id":0,
-                "jsonrpc":"2.0",
-                "result": [
-                    {
-                        "transaction_hash": "0x1",
-                        "finality_status": "ACCEPTED_ON_L2"
-                    },
-                    {
-                        "transaction_hash": "0x2",
-                        "finality_status": "REJECTED",
-                        "failure_reason": "Some failure reason"
-                    }
-                ]
-            }
-        """.trimIndent()
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
-        val provider = JsonRpcProvider(rpcUrl, httpService)
-
-        val request = provider.getMessagesStatus(NumAsHex(1))
-        val response = request.send()
-
-        assertNull(response.values[0].failureReason)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
     }
 }
