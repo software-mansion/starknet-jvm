@@ -47,6 +47,20 @@ jobs:
           git checkout ${{ env.DEVNET_SHA }}
           popd
 
+      - name: Cache devnet build
+        uses: actions/cache@v4
+        with:
+          path: starknet-devnet-rs/target/release
+          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
+
+      - name: Build devnet
+        run: |
+          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          pushd ${{ github.workspace }}/starknet-devnet-rs
+          cargo build --release
+          popd
+
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
         run: |
