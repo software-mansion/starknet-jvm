@@ -1358,8 +1358,7 @@ class ProviderTest {
             provider.getTransaction(invokeTransactionHash),
             provider.getTransaction(declareTransactionHash),
             provider.getTransaction(deployAccountTransactionHash),
-
-            )
+        )
 
         val response = request.send()
         // docsEnd
