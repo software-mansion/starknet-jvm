@@ -17,9 +17,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
 * [Deploying account V3](#deploying-account-v3)
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
-* [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
-* [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
 * [Making multiple calls: get multiple transactions data](#making-multiple-calls-get-multiple-transactions-data)
 * [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
 * [Declaring Cairo 1/2 contract V3](#declaring-cairo-12-contract-v3)
@@ -331,9 +329,9 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
 import java.util.List;
 
 public class Main {
-public static void main(String[] args) {
-// Create a provider for interacting with Starknet
-Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
+    public static void main(String[] args) throws InterruptedException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
 
         // Set up an account
         Felt privateKey = Felt.fromHex("0x123");
@@ -352,25 +350,43 @@ Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
         );
 
         StarknetChainId chainId = provider.getChainId().send();
-        Account account = new StandardAccount(address, privateKey, provider, chainId);
 
-        ResourceBounds l1ResourceBounds = new ResourceBounds(
-                new Uint64(20000),
-                new Uint128(120000000000L)
+        Account newAccount = new StandardAccount(address, privateKey, provider, chainId);
+
+        // Make sure to prefund the new account address with at least maxFee
+
+        ResourceBoundsMapping resourceBounds = new ResourceBoundsMapping(
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(1_000_000_000),
+                        new Uint128(1_000_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                )
+
+        );
+        // Create and sign deploy account transaction
+        DeployAccountTransactionV3 payload = newAccount.signDeployAccountV3(
+                classHash,
+                calldata,
+                salt,
+                resourceBounds
         );
 
-        DeployAccountParamsV3 params = new DeployAccountParamsV3(Felt.ZERO, l1ResourceBounds);
-
-        // Make sure to prefund the new account address
-
-        DeployAccountTransactionV3 payload = account.signDeployAccountV3(classHash, calldata, salt, params, false);
-
         DeployAccountResponse response = provider.deployAccount(payload).send();
+
+        Thread.sleep(15000); // wait for deploy account tx to complete
 
         // Make sure the address matches the calculated one
         System.out.println("Calculated address: " + address);
         System.out.println("Deployed address: " + response.getAddress());
         System.out.println("Are addresses equal: " + address.equals(response.getAddress()));
+
     }
 }
 ```
@@ -406,7 +422,7 @@ public class Main {
 
         DeployAccountParamsV3 params = new DeployAccountParamsV3(
                 Felt.ZERO,
-                ResourceBounds.ZERO
+                ResourceBoundsMapping.ZERO
         );
         
         Felt salt = new Felt(2);
@@ -429,128 +445,6 @@ public class Main {
 }
 ```
 
-## Deploying account V3
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeployAccountV3Transaction", language="kotlin") -->
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.crypto.StarknetCurve;
-import com.swmansion.starknet.data.ContractAddressCalculator;
-import com.swmansion.starknet.data.types.DeployAccountResponse;
-import com.swmansion.starknet.data.types.DeployAccountTransactionV1;
-import com.swmansion.starknet.data.types.Felt;
-import com.swmansion.starknet.data.types.StarknetChainId;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x123");
-        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
-
-        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
-        Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
-        Felt salt = new Felt(789);
-        List<Felt> calldata = List.of(publicKey);
-
-        Felt address = ContractAddressCalculator.calculateAddressFromHash(
-                classHash,
-                calldata,
-                salt
-        );
-
-        StarknetChainId chainId = provider.getChainId().send();
-
-        Account newAccount = new StandardAccount(address, privateKey, provider, chainId, CairoVersion.ZERO);
-
-        // Make sure to prefund the new account address with at least maxFee
-
-        // Create and sign deploy account transaction
-        DeployAccountTransactionV1 payload = newAccount.signDeployAccountV1(
-                classHash,
-                calldata,
-                salt,
-                // 10*fee from estimate deploy account fee
-                Felt.fromHex("0x11fcc58c7f7000")
-        );
-
-        DeployAccountResponse response = provider.deployAccount(payload).send();
-
-        Thread.sleep(15000); // wait for deploy account tx to complete
-        
-        // Make sure the address matches the calculated one
-        System.out.println("Calculated address: " + address);
-        System.out.println("Deployed address: " + response.getAddress());
-        System.out.println("Are addresses equal: " + address.equals(response.getAddress()));
-
-    }
-}
-```
-
-## Estimating fee for deploy account V3 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeployAccountV3Transaction", language="kotlin") -->
-```java
-package org.example;
-
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.crypto.StarknetCurve;
-import com.swmansion.starknet.data.ContractAddressCalculator;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-
-        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
-        Felt classHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f");
-        Felt salt = Felt.ONE;
-        List<Felt> calldata = List.of(publicKey);
-        Felt accountAddress = ContractAddressCalculator.calculateAddressFromHash(
-                classHash,
-                calldata,
-                salt
-        );
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-
-        StarknetChainId chainId = provider.getChainId().send();
-        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
-
-        DeployAccountTransactionV1 payloadForFeeEstimation = account.signDeployAccountV1(
-                classHash,
-                calldata,
-                salt,
-                Felt.ZERO,
-                Felt.ZERO,
-                true
-        );
-
-        Request<EstimateFeeResponseList> request = provider.getEstimateFee(List.of(payloadForFeeEstimation));
-        EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
-
-        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee().getValue() + ".");
-    }
-}
-```
-
 ## Invoking contract: Transferring ETH
 <!-- codeSection(path="network/account/AccountTest.kt", function="transferETH", language="kotlin") -->
 ```java
@@ -565,7 +459,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // Create a provider for interacting with Starknet
         Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
         
@@ -711,6 +605,10 @@ public class Abc {
 
         int blockNumber = provider.getBlockNumber().send().getValue();
 
+        Felt invokeTransactionHash = Felt.fromHex("0x123");
+        Felt declareTransactionHash = Felt.fromHex("0x456");
+        Felt deployAccountTransactionHash = Felt.fromHex("0x789");
+        
         // Batch RPC requests
         HttpBatchRequest request = provider.batchRequests(
                 provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
@@ -788,7 +686,7 @@ public class Main {
         Felt privateKey = Felt.fromHex("0x1234");
         Felt accountAddress = Felt.fromHex("0x1236789");
         // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId);
 
         // Import a compiled contract
         Path contractPath = Paths.get("contract.sierra.json");
@@ -807,8 +705,22 @@ public class Main {
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
 
         // Declare a contract
-        ResourceBounds l1ResourceBounds = feeEstimate.toResourceBounds(1.5, 1.5).getL1Gas();
-        DeclareParamsV3 params = new DeclareParamsV3(nonce, l1ResourceBounds);
+        ResourceBoundsMapping resourceBounds = new ResourceBoundsMapping(
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(1_000_000_000),
+                        new Uint128(1_000_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                )
+
+        );
+        DeclareParamsV3 params = new DeclareParamsV3(nonce, resourceBounds);
         DeclareTransactionV3 declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false);
 
         Request<DeclareResponse> request = provider.declareContract(declareTransactionPayload);
@@ -866,7 +778,7 @@ public class Main {
 
         DeclareParamsV3 params = new DeclareParamsV3(
                 nonce,
-                ResourceBounds.ZERO
+                ResourceBoundsMapping.ZERO
         );
 
         DeclareTransactionV3 payload = account.signDeclareV3(
@@ -880,124 +792,6 @@ public class Main {
         EstimateFeeResponse response = request.send().getValues().get(0);
 
         System.out.println("The estimated fee is: " + response.getOverallFee().getValue() + ".");
-    }
-}
-```
-
-## Declaring Cairo 1/2 contract V2
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="signAndSendDeclareV2Transaction", language="kotlin") -->
-```java
-package org.example;
-
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.crypto.StarknetCurve;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-
-        StarknetChainId chainId = provider.getChainId().send();
-        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
-
-        // Import a compiled contract
-        Path contractPath = Paths.get("contract.sierra.json");
-        Path casmPath = Paths.get("contract.casm.json");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        String casmCode = String.join("", Files.readAllLines(casmPath));
-        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
-        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
-        Felt nonce = account.getNonce().send();
-
-        DeclareTransactionV2 payload = account.signDeclareV2(
-                contractDefinition,
-                casmContractDefinition,
-                new ExecutionParams(nonce, new Felt(1000000000000000L)),
-                false
-        );
-        Request<DeclareResponse> request = provider.declareContract(payload);
-        DeclareResponse response = request.send();
-
-        Thread.sleep(60000);
-
-        TransactionReceipt receipt = provider.getTransactionReceipt(response.getTransactionHash()).send();
-
-        System.out.println("Was transaction accepted? " + receipt.isAccepted() + ".");
-    }
-}
-```
-
-## Estimating fee for declare V2 transaction
-<!-- codeSection(path="starknet/account/StandardAccountTest.kt", function="estimateFeeForDeclareV2Transaction", language="kotlin") -->
-```java
-import com.swmansion.starknet.account.Account;
-import com.swmansion.starknet.account.StandardAccount;
-import com.swmansion.starknet.crypto.StarknetCurve;
-import com.swmansion.starknet.data.types.*;
-import com.swmansion.starknet.provider.Provider;
-import com.swmansion.starknet.provider.Request;
-import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
-
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
-        // Create a provider for interacting with Starknet
-        Provider provider = new JsonRpcProvider("https://your.node.url/rpc");
-
-        // Set up an account
-        Felt privateKey = Felt.fromHex("0x1234");
-        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
-        Felt accountAddress = Felt.fromHex("0x1236789");
-        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
-
-        StarknetChainId chainId = provider.getChainId().send();
-        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
-
-        // Import a compiled contract
-        Path contractPath = Paths.get("contract.sierra.json");
-        Path casmPath = Paths.get("contract.casm.json");
-        String contractCode = String.join("", Files.readAllLines(contractPath));
-        String casmCode = String.join("", Files.readAllLines(casmPath));
-
-        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
-        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
-        Felt nonce = account.getNonce().send();
-
-        DeclareTransactionV2 payload = account.signDeclareV2(
-                contractDefinition,
-                casmContractDefinition,
-                new ExecutionParams(nonce,Felt.ZERO),
-                true
-        );
-        Request<EstimateFeeResponseList> request = provider.getEstimateFee(List.of(payload), Collections.emptySet());
-        EstimateFeeResponseList response = request.send();
-        EstimateFeeResponse feeEstimate = response.getValues().get(0);
-        
-        System.out.println("The estimated fee is: " + feeEstimate.getOverallFee().getValue() + ".");
     }
 }
 ```
@@ -1017,9 +811,19 @@ val privateKey = Felt(0x1)
 val account: Account = StandardAccount(address, privateKey, provider, chainId)
 
 // Execute a single call
-val resourceBounds = ResourceBounds(
-    Uint64(10000),
-    Uint128(10000000L),
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000000),
+        maxPricePerUnit = Uint128(1000000000000000000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
 )
 val contractAddress = Felt(0x1111)
 val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
@@ -1043,10 +847,7 @@ val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
 val nonce = account.getNonce().send()
 val params = InvokeParamsV3(
     nonce,
-    ResourceBounds(
-        Uint64(20000),
-        Uint128(1200000000),
-    ),
+    resourceBounds,
 )
 
 val signedTransaction = account.signV3(otherCall, params)

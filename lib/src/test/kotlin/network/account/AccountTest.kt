@@ -298,6 +298,30 @@ class AccountTest {
     }
 
     @Test
+    fun transferEth() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+        // docsStart
+        val account = standardAccount
+
+        val recipientAccountAddress = constNonceAccountAddress
+
+        val amount = Uint256(Felt.ONE)
+        val call = Call(
+            contractAddress = ethContractAddress,
+            entrypoint = "transfer",
+            calldata = listOf(recipientAccountAddress) + amount.toCalldata(),
+        )
+
+        val request = account.executeV3(call)
+        val response = request.send()
+        Thread.sleep(15000)
+
+        val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
+        // docsEnd
+        assertTrue(transferReceipt.isAccepted)
+    }
+
+    @Test
     fun getEthBalance() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // docsStart
