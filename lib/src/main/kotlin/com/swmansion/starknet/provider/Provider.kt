@@ -326,7 +326,7 @@ interface Provider {
      *
      * Get L1 handler transaction data for all L1 → L2 messages sent by the given L1 transaction.
      *
-     * @param l1TransactionHash The hash of the L1 transaction.
+     * @param l1TransactionHash the hash of the L1 transaction.
      *
      * @throws RequestFailedException
      */
@@ -670,7 +670,7 @@ interface Provider {
      * @param blockId the hash of the requested block
      * @param classHashes list of class hashes for which we want to prove membership
      * @param contractAddresses list of contract addresses for which we want to prove membership
-     * @param contractsStorageKeys list of contract address and storage keys pairs
+     * @param contractsStorageKeys list of (contract address, storage keys) pairs
      *
      * @throws RequestFailedException
      */

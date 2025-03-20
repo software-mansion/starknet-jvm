@@ -619,7 +619,7 @@ class StandardAccountTest {
         }
 
         @Test
-        @Disabled("FIXME")
+        @Disabled("TODO(#536)")
         fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -1007,7 +1007,6 @@ class StandardAccountTest {
     @Nested
     inner class SimulateTransactionsTest {
         @Test
-        @Disabled("TODO(#538): It fails because tx resources don't cover validation or the minimal transaction fee, even though they are be high enough to validate.")
         fun simulateInvokeV3AndDeployAccountV3Transactions() {
             val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
@@ -1069,7 +1068,6 @@ class StandardAccountTest {
         }
 
         @Test
-        @Disabled("TODO(#538): `l1_data_gas` field is missing in ExecutionResources returned from devnet")
         fun `simulate declare v3 transaction`() {
             devnetClient.prefundAccountStrk(accountAddress)
 
@@ -1285,7 +1283,6 @@ class StandardAccountTest {
                                 ],
                                 "execution_resources": {
                                     "l1_gas": "123",
-                                    "l1_data_gas": "456",
                                     "l2_gas": "789"
                                 },
                                 "is_reverted": false
