@@ -243,7 +243,7 @@ val response = provider.deployAccount(payload).send()
 val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
 // Invoke function to make sure the account was deployed properly
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-val result = newAccount.executeV3(call, resourceBounds).send()
+val result = newAccount.executeV3(call).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
