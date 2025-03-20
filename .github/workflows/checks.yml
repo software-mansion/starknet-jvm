@@ -19,7 +19,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: 47ee2a73c227ee356f344ce94e5f61871299be80
+      # TODO(#534)
+      DEVNET_SHA: 2ca68aa891ed18877641ecac20d4c643da43b8ff
+      # TODO(#535)
+      SNFOUNDRY_SHA: 66908c308e45e4b5746a5f44118fc2ed70c42817
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,29 +39,30 @@ jobs:
         with:
           cmake-version: '3.18.1'
 
-      # TODO(#534): Use stable release of starknet-devnet once it's available
-      - name: Download starknet-devnet
+      # TODO: Replace with installing release when release is available
+      - name: Clone starknet-devnet-rs
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            ARCHIVE_URL="https://github.com/franciszekjob/starknet-devnet/releases/download/v0.13.4-rc.0/starknet-devnet-x86_64-unknown-linux-gnu.tar.gz"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            ARCHIVE_URL="https://github.com/franciszekjob/starknet-devnet/releases/download/v0.13.4-rc.0/starknet-devnet-aarch64-apple-darwin.tar.gz"
+          git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
+          pushd ${{ github.workspace }}/starknet-devnet-rs
+          git checkout ${{ env.DEVNET_SHA }}
+          popd
+
+      - name: Cache devnet build
+        uses: actions/cache@v4
+        with:
+          path: starknet-devnet-rs/target/release
+          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
+
+      - name: Build devnet
+        run: |
+          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            pushd ${{ github.workspace }}/starknet-devnet-rs
+            cargo build --release
+            popd
           else
-            echo "Unsupported OS: $RUNNER_OS"
-            exit 1
+            echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
-
-          echo "Downloading $ARCHIVE_URL"
-          curl -L -o starknet-devnet.tar.gz "$ARCHIVE_URL"
-
-          echo "Extracting archive..."
-          tar -xzvf starknet-devnet.tar.gz
-
-          echo "Moving binary to /usr/local/bin/"
-          sudo mv starknet-devnet /usr/local/bin/
-
-          echo "Verifying installation..."
-          starknet-devnet --version
 
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
@@ -84,30 +88,7 @@ jobs:
       # TODO(#535): Use stable release of starknet-foundry once it's available
       - name: Install starknet-foundry
         run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            ARCHIVE_URL="https://github.com/franciszekjob/starknet-foundry/releases/download/v0.39.0-rc.0/starknet-foundry-x86_64-unknown-linux-gnu.tar.gz"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            ARCHIVE_URL="https://github.com/franciszekjob/starknet-foundry/releases/download/v0.39.0-rc.0/starknet-foundry-aarch64-apple-darwin.tar.gz"
-          else
-            echo "Unsupported OS: $RUNNER_OS"
-            exit 1
-          fi
-
-          echo "Downloading $ARCHIVE_URL"
-          curl -L -o starknet-foundry.tar.gz "$ARCHIVE_URL"
-
-          echo "Extracting archive..."
-          tar -xzvf starknet-foundry.tar.gz
-
-          echo "Moving binary to /usr/local/bin/"
-          sudo mv sncast /usr/local/bin/
-
-          echo "Verifying installation..."
-          sncast --version
-
-      - name: Install universal-sierra-compiler
-        run: |
-          curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh
+          curl -s https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/snfoundryup | bash -s --  -c ${{ env.SNFOUNDRY_SHA }}
 
       - name: Install scarb
         run: |

@@ -65,7 +65,7 @@ data class FunctionInvocation(
     val messages: List<OrderedMessageL2ToL1>,
 
     @SerialName("execution_resources")
-    val executionResources: ExecutionResources,
+    val executionResources: InnerCallExecutionResources,
 
     @SerialName("is_reverted")
     val isReverted: Boolean,

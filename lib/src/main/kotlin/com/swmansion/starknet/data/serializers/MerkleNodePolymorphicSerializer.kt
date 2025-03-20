@@ -12,10 +12,14 @@ internal object MerkleNodePolymorphicSerializer :
         val binaryNodeKeys = NodeHashToNodeMappingItem.BinaryNode.serializer().descriptor.elementNames.toSet()
         val edgeNodeKeys = NodeHashToNodeMappingItem.EdgeNode.serializer().descriptor.elementNames.toSet()
 
-        return when (jsonElement.keys) {
-            binaryNodeKeys -> NodeHashToNodeMappingItem.BinaryNode.serializer()
-            edgeNodeKeys -> NodeHashToNodeMappingItem.EdgeNode.serializer()
-            else -> throw IllegalArgumentException("Invalid MerkleNode JSON object: $jsonElement")
+        val binaryMatch = jsonElement.keys.intersect(binaryNodeKeys).isNotEmpty()
+        val edgeMatch = jsonElement.keys.intersect(edgeNodeKeys).isNotEmpty()
+
+        return when {
+            binaryMatch && !edgeMatch -> NodeHashToNodeMappingItem.BinaryNode.serializer()
+            edgeMatch && !binaryMatch -> NodeHashToNodeMappingItem.EdgeNode.serializer()
+            binaryMatch && edgeMatch -> throw IllegalArgumentException("Ambiguous MerkleNode JSON object: $jsonElement")
+            else -> throw IllegalArgumentException("Invalid MerkleNode JSON object: missing identifying keys in $jsonElement")
         }
     }
 }

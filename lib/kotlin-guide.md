@@ -210,6 +210,20 @@ val newAccount = StandardAccount(
     chainId,
 )
 
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000000),
+        maxPricePerUnit = Uint128(1000000000000000000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
+)
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
     resourceBounds = resourceBounds,
@@ -229,7 +243,7 @@ val response = provider.deployAccount(payload).send()
 val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
 // Invoke function to make sure the account was deployed properly
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-val result = newAccount.executeV3(call, resourceBounds).send()
+val result = newAccount.executeV3(call).send()
 
 val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 ```
@@ -254,6 +268,7 @@ val account = StandardAccount(
     provider,
     chainId,
 )
+val resourceBounds = ResourceBoundsMapping
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
     resourceBounds = ResourceBoundsMapping.ZERO,
@@ -411,6 +426,20 @@ val contractDefinition = Cairo2ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100000000000000),
+        maxPricePerUnit = Uint128(1000000000000000000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100000000000),
+        maxPricePerUnit = Uint128(10000000000000000),
+    ),
+)
 val params = DeclareParamsV3(
     nonce = nonce,
     resourceBounds = resourceBounds,
@@ -452,11 +481,44 @@ val feeEstimate = request.send().values.first()
 
 
 ## Declaring Cairo 1/2 contract V2
+```KOTLIN
+val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
+val contractDefinition = Cairo1ContractDefinition(contractCode)
+val contractCasmDefinition = CasmContractDefinition(casmCode)
+val nonce = account.getNonce().send()
+
+val declareTransactionPayload = account.signDeclareV2(
+    contractDefinition,
+    contractCasmDefinition,
+    ExecutionParams(nonce, Felt(5000000000000000L)),
+)
+val request = provider.declareContract(declareTransactionPayload)
+val result = request.send()
+
+val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+```
 
 
 ## Estimating fee for declare V2 transaction
+```KOTLIN
+val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
+val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
 
+val contractDefinition = Cairo1ContractDefinition(contractCode)
+val contractCasmDefinition = CasmContractDefinition(casmCode)
+val nonce = account.getNonce().send()
+
+val declareTransactionPayload = account.signDeclareV2(
+    sierraContractDefinition = contractDefinition,
+    casmContractDefinition = contractCasmDefinition,
+    params = ExecutionParams(nonce, Felt.ZERO),
+    forFeeEstimate = true,
+)
+val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+val feeEstimate = request.send().values.first()
+```
 
 
 # Package com.swmansion.starknet.account

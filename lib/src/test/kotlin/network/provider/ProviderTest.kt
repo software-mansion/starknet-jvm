@@ -524,14 +524,14 @@ class ProviderTest {
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
+        val erc20BalancesKey = Felt.fromHex("0x45524332305f62616c616e636573")
         val request = provider.getStorageProof(
             blockId = BlockId.Number(556669),
             contractAddresses = listOf(strkContractAddress),
             contractsStorageKeys = listOf(
                 ContractsStorageKeys(
                     contractAddress = strkContractAddress,
-                    // 0x45524332305f62616c616e636573 is storage key holding balances mapping in ERC20 contract
-                    storageKeys = listOf(Felt.fromHex("0x45524332305f62616c616e636573")),
+                    storageKeys = listOf(erc20BalancesKey),
                 ),
             ),
             classHashes = listOf(strkClassHash),
