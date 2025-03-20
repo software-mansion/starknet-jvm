@@ -108,10 +108,12 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertNotEquals(Felt(0), feeEstimate.l1GasConsumed)
+        assertTrue(feeEstimate.l1GasConsumed >= Felt(0))
         assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
         assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
         assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
+        assertTrue(feeEstimate.l1DataGasConsumed >= Felt(0))
+        assertNotEquals(Felt(0), feeEstimate.l1DataGasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
 
@@ -134,6 +136,20 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
             contractCasmDefinition,
@@ -275,7 +291,7 @@ class AccountTest {
             resourceBounds = ResourceBoundsMapping.ZERO,
             forFeeEstimate = true,
         )
-        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
+        assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
         val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
         assertTrue(feePayload.values.first().overallFee.value > Felt.ONE.value)
@@ -407,6 +423,21 @@ class AccountTest {
                 Felt(2137),
             ),
         )
+
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val params = InvokeParamsV3(
             nonce = nonce,
             resourceBounds = resourceBounds,
@@ -488,6 +519,20 @@ class AccountTest {
         val deployedAccountAddress = ContractAddressCalculator.calculateAddressFromHash(classHash, calldata, salt)
 
         val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, chainId, cairoVersion)
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val deployAccountTx = deployedAccount.signDeployAccountV3(
             classHash = classHash,
             salt = salt,
@@ -545,6 +590,20 @@ class AccountTest {
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
         val nonce = account.getNonce(BlockTag.LATEST).send()
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
             casmContractDefinition,
@@ -579,6 +638,20 @@ class AccountTest {
         val account = standardAccount
         val deployer = StandardDeployer(udcAddress, provider, account)
 
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val deployment = deployer.deployContractV3(
             classHash = classHash,
             constructorCalldata = emptyList(),
@@ -606,6 +679,20 @@ class AccountTest {
         val deployer = StandardDeployer(udcAddress, provider, account)
 
         val initialBalance = Felt(1000)
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100000000000000),
+                maxPricePerUnit = Uint128(1000000000000000000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100000000000),
+                maxPricePerUnit = Uint128(10000000000000000),
+            ),
+        )
         val deployment = deployer.deployContractV3(
             classHash = classHash,
             constructorCalldata = listOf(initialBalance),
