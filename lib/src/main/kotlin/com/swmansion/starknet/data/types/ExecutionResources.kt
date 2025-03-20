@@ -9,7 +9,6 @@ interface Resources {
 
     @SerialName("l2_gas")
     val l2Gas: Int
-
 }
 
 @Serializable
