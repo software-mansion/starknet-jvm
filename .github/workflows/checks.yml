@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # TODO(#534)
-      DEVNET_SHA: 2ca68aa891ed18877641ecac20d4c643da43b8ff
+      DEVNET_SHA: 55d40ea038ab7b6fd765fd829f4369232aed8c1c
       # TODO(#535)
       SNFOUNDRY_SHA: 66908c308e45e4b5746a5f44118fc2ed70c42817
     steps:
