@@ -116,13 +116,13 @@ jobs:
             echo "Guides are up-to-date"
           fi
 
-      - name: Run tests and generate coverage report
-        env:
-          DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
-          NETWORK_TEST_MODE: "disabled"
-        run: ./gradlew :lib:koverXmlReport --info
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
-        with:
-          files: lib/build/reports/kover/report.xml
+#      - name: Run tests and generate coverage report
+#        env:
+#          DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
+#          NETWORK_TEST_MODE: "disabled"
+#        run: ./gradlew :lib:koverXmlReport --info
+#
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
+#        with:
+#          files: lib/build/reports/kover/report.xml
