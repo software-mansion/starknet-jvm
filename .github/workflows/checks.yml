@@ -86,7 +86,7 @@ jobs:
       - name: Install starknet-foundry
         run: |
           asdf plugin add starknet-foundry
-            asdf install starknet-foundry 0.40.0
+          asdf install starknet-foundry 0.40.0
 
       - name: Install scarb
         run: |
