@@ -978,7 +978,7 @@ class StandardAccountTest {
             resourceBounds = resourceBounds,
             forFeeEstimate = true,
         )
-        assertEquals(TransactionVersion.V1_QUERY, payloadForFeeEstimation.version)
+        assertEquals(TransactionVersion.V3_QUERY, payloadForFeeEstimation.version)
 
         assertThrows(RequestFailedException::class.java) {
             provider.deployAccount(payloadForFeeEstimation).send()
