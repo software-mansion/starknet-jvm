@@ -426,7 +426,7 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
-        // As of sncast 0.24.0, declare command returns three response objects
+        // As of sncast 0.40.0, declare command returns three response objects
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
