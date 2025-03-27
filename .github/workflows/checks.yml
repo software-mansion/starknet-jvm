@@ -19,10 +19,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      # TODO(#534)
-      DEVNET_SHA: 2ca68aa891ed18877641ecac20d4c643da43b8ff
-      # TODO(#535)
-      SNFOUNDRY_SHA: 66908c308e45e4b5746a5f44118fc2ed70c42817
+      DEVNET_SHA: fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4
+      SNFOUNDRY_SHA: c20f7692c1a2936327d86b7e2c89c5462f8afdcd
     steps:
       - uses: actions/checkout@v3
         with:
@@ -88,7 +86,8 @@ jobs:
       # TODO(#535): Use stable release of starknet-foundry once it's available
       - name: Install starknet-foundry
         run: |
-          curl -s https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/snfoundryup | bash -s --  -c ${{ env.SNFOUNDRY_SHA }}
+          asdf plugin add starknet-foundry
+            asdf install starknet-foundry 0.40.0
 
       - name: Install scarb
         run: |
