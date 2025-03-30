@@ -1,9 +1,8 @@
 package starknet.utils
 
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.PriceUnit
-import com.swmansion.starknet.data.types.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.TransactionStatus
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.toUint128
+import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
@@ -53,6 +52,21 @@ class DevnetClient(
     private enum class StateArchiveCapacity(val value: String) { FULL("full"), NONE("none") }
 
     private val stateArchiveCapacity = StateArchiveCapacity.FULL
+
+    private val defaultResourceBounds = ResourceBoundsMapping(
+        l1Gas = ResourceBounds(
+            maxAmount = 100000.toUint64,
+            maxPricePerUnit = 10000000000000.toUint128,
+        ),
+        l2Gas = ResourceBounds(
+            maxAmount = 1000000000.toUint64,
+            maxPricePerUnit = 100000000000000000.toUint128,
+        ),
+        l1DataGas = ResourceBounds(
+            maxAmount = 100000.toUint64,
+            maxPricePerUnit = 10000000000000.toUint128,
+        ),
+    )
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4/crates/starknet-devnet-types/src/utils.rs#L123
@@ -193,8 +207,7 @@ class DevnetClient(
     }
 
     fun deployAccount(
-        classHash: Felt = accountContractClassHash,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         prefund: Boolean = false,
         accountName: String = "__default__",
     ): DeployAccountResult {
@@ -207,18 +220,9 @@ class DevnetClient(
             "deploy",
             "--name",
             accountName,
-            "--l1-gas",
-            "100000",
-            "--l1-gas-price",
-            "10000000000000",
-            "--l2-gas",
-            "1000000000",
-            "--l2-gas-price",
-            "100000000000000000",
-            "--l1-data-gas",
-            "100000",
-            "--l1-data-gas-price",
-            "10000000000000",
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         val response = runSnCast(
             command = "account",
@@ -237,13 +241,13 @@ class DevnetClient(
     fun createDeployAccount(
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
         type: String = "oz",
     ): DeployAccountResult {
         val createResult = createAccount(accountName, classHash, salt, type)
         val details = createResult.details
-        val deployResult = deployAccount(classHash, maxFee, prefund = true, accountName)
+        val deployResult = deployAccount(resourceBounds, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
@@ -255,24 +259,15 @@ class DevnetClient(
 
     fun declareContract(
         contractName: String,
-        maxFee: Felt = Felt(5000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeclareContractResult {
         val params = listOf(
             "--contract-name",
             contractName,
-            "--l1-gas",
-            "100000",
-            "--l1-gas-price",
-            "10000000000000",
-            "--l2-gas",
-            "1000000000",
-            "--l2-gas-price",
-            "100000000000000000",
-            "--l1-data-gas",
-            "100000",
-            "--l1-data-gas-price",
-            "10000000000000",
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         val response = runSnCast(
             command = "declare",
@@ -293,24 +288,15 @@ class DevnetClient(
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
         unique: Boolean = false,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeployContractResult {
         val params = mutableListOf(
             "--class-hash",
             classHash.hexString(),
-            "--l1-gas",
-            "100000",
-            "--l1-gas-price",
-            "10000000000000",
-            "--l2-gas",
-            "1000000000",
-            "--l2-gas-price",
-            "100000000000000000",
-            "--l1-data-gas",
-            "100000",
-            "--l1-data-gas-price",
-            "10000000000000",
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
@@ -342,14 +328,13 @@ class DevnetClient(
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
         unique: Boolean = false,
-        maxFeeDeclare: Felt = Felt(5000000000000000),
-        maxFeeDeploy: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeployContractResult {
-        val declareResponse = declareContract(contractName, maxFeeDeclare, accountName)
+        val declareResponse = declareContract(contractName, resourceBounds, accountName)
 
         val classHash = declareResponse.classHash
-        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy, accountName)
+        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, resourceBounds, accountName)
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -361,7 +346,7 @@ class DevnetClient(
         contractAddress: Felt,
         function: String,
         calldata: List<Felt>,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): InvokeContractResult {
         val params = mutableListOf(
@@ -369,18 +354,9 @@ class DevnetClient(
             contractAddress.hexString(),
             "--function",
             function,
-            "--l1-gas",
-            "100000",
-            "--l1-gas-price",
-            "10000000000000",
-            "--l2-gas",
-            "1000000000",
-            "--l2-gas-price",
-            "100000000000000000",
-            "--l1-data-gas",
-            "100000",
-            "--l1-data-gas-price",
-            "10000000000000",
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
@@ -399,6 +375,23 @@ class DevnetClient(
         )
     }
 
+    private fun createFeeArgs(resourceBounds: ResourceBoundsMapping): Array<String> {
+        return arrayOf(
+            "--l1-gas",
+            resourceBounds.l1Gas.maxAmount.value.toString(),
+            "--l1-gas-price",
+            resourceBounds.l1Gas.maxPricePerUnit.value.toString(),
+            "--l2-gas",
+            resourceBounds.l2Gas.maxAmount.value.toString(),
+            "--l2-gas-price",
+            resourceBounds.l2Gas.maxPricePerUnit.value.toString(),
+            "--l1-data-gas",
+            resourceBounds.l1DataGas.maxAmount.value.toString(),
+            "--l1-data-gas-price",
+            resourceBounds.l1DataGas.maxPricePerUnit.value.toString(),
+        )
+    }
+
     private fun runSnCast(
         command: String,
         args: List<String>,
@@ -414,8 +407,6 @@ class DevnetClient(
             accountName,
             command,
             *(args.toTypedArray()),
-            "--url",
-            rpcUrl,
         )
 
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
