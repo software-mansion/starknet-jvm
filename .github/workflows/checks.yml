@@ -62,7 +62,7 @@ jobs:
           fi
 
       - name: Setup asdf
-        uses: asdf-vm/actions/setup@v4
+        uses: asdf-vm/actions/install@v4
 
       - name: Install starknet-foundry
         run: |
