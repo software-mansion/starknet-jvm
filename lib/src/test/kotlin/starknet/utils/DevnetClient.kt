@@ -189,6 +189,8 @@ class DevnetClient(
             "--type",
             type,
             "--silent",
+            "--url",
+            rpcUrl,
         )
         salt?.let {
             params.add("--salt")
