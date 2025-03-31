@@ -893,8 +893,6 @@ class ProviderTest {
         )
         val response = request.send()
 
-        assertNotNull(response)
-
         assertTrue(response.classesProof[0].node is NodeHashToNodeMappingItem.BinaryNode)
         assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
         assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.BinaryNode)
