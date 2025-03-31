@@ -86,6 +86,7 @@ class ProviderTest {
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
     }
 
+    // TODO(#540)
     @Test
     fun `get messages status`() {
         val mockedResponse = """
