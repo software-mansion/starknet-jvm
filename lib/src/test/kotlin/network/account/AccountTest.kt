@@ -108,7 +108,7 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertTrue(feeEstimate.l1GasConsumed == Felt(0))
+        assertEquals(Felt(0), feeEstimate.l1GasConsumed)
         assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
         assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
         assertNotEquals(Felt(0), feeEstimate.l2GasPrice)

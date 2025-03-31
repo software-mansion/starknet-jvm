@@ -28,36 +28,6 @@ internal class TransactionHashCalculatorTest {
             val expected = Felt.fromHex("0x119b1a69e0c35b9035be945d3a1d551f2f78473b10311734fafb1f5df3f61d9")
             assertEquals(expected, hash)
         }
-
-        @Test
-        fun `calculate deploy account v1 transaction hash`() {
-            val hash = TransactionHashCalculator.calculateDeployAccountV1TxHash(
-                classHash = Felt.fromHex("0x21a7f43387573b68666669a0ed764252ce5367708e696e31967764a90b429c2"),
-                calldata = calldata,
-                salt = Felt(1234),
-                chainId = chainId,
-                version = TransactionVersion.V1,
-                maxFee = maxFee,
-                nonce = Felt.ZERO,
-            )
-            val expected = Felt.fromHex("0x68beaf15e356928a1850cf343be85032efad964324b0abca4a9a57ff2057ef7")
-            assertEquals(expected, hash)
-        }
-
-        @Test
-        fun `calculate declare v2 transaction hash`() {
-            val hash = TransactionHashCalculator.calculateDeclareV2TxHash(
-                classHash = Felt.fromHex("0x5ae9d09292a50ed48c5930904c880dab56e85b825022a7d689cfc9e65e01ee7"),
-                compiledClassHash = Felt.fromHex("0x1add56d64bebf8140f3b8a38bdf102b7874437f0c861ab4ca7526ec33b4d0f8"),
-                senderAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
-                version = TransactionVersion.V2,
-                chainId = chainId,
-                nonce = Felt(9876),
-                maxFee = maxFee,
-            )
-            val expected = Felt.fromHex("0x31e70aad6b93265e2bd1f619841115320a2a2899759a3af3b1d9582f23e7588")
-            assertEquals(expected, hash)
-        }
     }
 
     @Nested
