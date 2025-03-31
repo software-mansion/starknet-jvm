@@ -61,6 +61,7 @@ jobs:
             echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
 
+      # TODO(#539)
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
         run: |
