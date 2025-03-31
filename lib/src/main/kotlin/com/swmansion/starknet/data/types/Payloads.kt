@@ -48,6 +48,12 @@ internal data class GetTransactionStatusPayload(
 )
 
 @Serializable
+internal data class GetMessagesStatusPayload(
+    @SerialName("transaction_hash")
+    val transactionHash: NumAsHex,
+)
+
+@Serializable
 internal data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<ExecutableTransaction>,
@@ -82,6 +88,21 @@ internal data class GetNoncePayload(
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
+
+@Serializable
+internal data class GetStorageProofPayload constructor(
+    @SerialName("block_id")
+    val blockId: BlockId,
+
+    @SerialName("class_hashes")
+    val classHashes: List<Felt>? = null,
+
+    @SerialName("contract_addresses")
+    val contractAddresses: List<Felt>? = null,
+
+    @SerialName("contracts_storage_keys")
+    val contractsStorageKeys: List<ContractsStorageKeys>? = null,
+)
 
 @Serializable
 internal data class GetBlockWithTransactionsPayload(

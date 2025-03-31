@@ -66,6 +66,9 @@ class ProviderTest {
             Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x3224282d7f577055cd72894cb66e511f105576788796a1d50538e7eae5efbe1")
             Network.SEPOLIA_TESTNET -> Felt.fromHex("0x1e04294ce4f7dd489ba5b5618dc112b37f9a7e82e2ded5691fb3083839dd3b5")
         }
+        private val strkContractAddress =
+            Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
+        private val strkClassHash = Felt.fromHex("0x04ad3c1dc8413453db314497945b6903e1c766495a1e60492d44da9c2a986e4b")
 
         @Suppress("const")
         private val specificBlockNumber = 1000
@@ -515,5 +518,41 @@ class ProviderTest {
         response.transactionsWithReceipts.forEach {
             assertFalse(it.receipt.isPending)
         }
+    }
+
+    @Test
+    fun `get storage proof`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val erc20BalancesKey = Felt.fromHex("0x45524332305f62616c616e636573")
+        val request = provider.getStorageProof(
+            blockId = BlockId.Number(556669),
+            contractAddresses = listOf(strkContractAddress),
+            contractsStorageKeys = listOf(
+                ContractsStorageKeys(
+                    contractAddress = strkContractAddress,
+                    storageKeys = listOf(erc20BalancesKey),
+                ),
+            ),
+            classHashes = listOf(strkClassHash),
+        )
+        val storageProof = request.send()
+
+        assertNotNull(storageProof)
+        assertEquals(17, storageProof.classesProof.size)
+        assertEquals(20, storageProof.contractsProof.nodes.size)
+        assertEquals(16, storageProof.contractsStorageProofs[0].size)
+        assertEquals(
+            Felt.fromHex("0x404446e37fc08c0bf4979821e50bdac7919b56d19d2df9e16f0aa7a0d506e50"),
+            storageProof.globalRoots.blockHash,
+        )
+        assertEquals(
+            Felt.fromHex("0x43568bf995aacf4b56615e97b7237c1b03d199344ad66d38f38fda250ef1586"),
+            storageProof.globalRoots.classesTreeRoot,
+        )
+        assertEquals(
+            Felt.fromHex("0x2ae204c3378558b33c132f4721612285d9988cc8dc99f47fce92adc6b38a189"),
+            storageProof.globalRoots.contractsTreeRoot,
+        )
     }
 }

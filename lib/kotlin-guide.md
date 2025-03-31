@@ -209,13 +209,24 @@ val newAccount = StandardAccount(
     provider,
     chainId,
 )
-val l1ResourceBounds = ResourceBounds(
-    maxAmount = Uint64(20000),
-    maxPricePerUnit = Uint128(120000000000),
+
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000_000),
+        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
 )
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
-    l1ResourceBounds = l1ResourceBounds,
+    resourceBounds = resourceBounds,
 )
 
 // Prefund the new account address with STRK
@@ -257,9 +268,10 @@ val account = StandardAccount(
     provider,
     chainId,
 )
+val resourceBounds = ResourceBoundsMapping
 val params = DeployAccountParamsV3(
     nonce = Felt.ZERO,
-    l1ResourceBounds = ResourceBounds.ZERO,
+    resourceBounds = ResourceBoundsMapping.ZERO,
 )
 val payloadForFeeEstimation = account.signDeployAccountV3(
     classHash = accountContractClassHash,
@@ -369,7 +381,6 @@ val request = provider.batchRequests(
     provider.getTransaction(invokeTransactionHash),
     provider.getTransaction(declareTransactionHash),
     provider.getTransaction(deployAccountTransactionHash),
-
 )
 
 val response = request.send()
@@ -405,12 +416,23 @@ val contractDefinition = Cairo2ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000_000),
+        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+)
 val params = DeclareParamsV3(
     nonce = nonce,
-    l1ResourceBounds = ResourceBounds(
-        maxAmount = Uint64(100000),
-        maxPricePerUnit = Uint128(1000000000000),
-    ),
+    resourceBounds = resourceBounds,
 )
 val declareTransactionPayload = account.signDeclareV3(
     contractDefinition,
@@ -433,7 +455,10 @@ val contractDefinition = Cairo1ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
-val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+val params = DeclareParamsV3(
+    nonce = nonce,
+    resourceBounds = ResourceBoundsMapping.ZERO,
+)
 val declareTransactionPayload = account.signDeclareV3(
     contractDefinition,
     contractCasmDefinition,

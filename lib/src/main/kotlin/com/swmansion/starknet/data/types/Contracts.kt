@@ -338,7 +338,7 @@ data class CasmContractClass(
 data class CasmEntryPoint(
     val selector: Felt,
     val offset: Int,
-    val builtins: List<String>? = null,
+    val builtins: List<String>,
 )
 
 @Serializable

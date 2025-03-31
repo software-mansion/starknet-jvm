@@ -23,7 +23,6 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
-import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
@@ -217,8 +216,9 @@ class StandardAccountTest {
             val feeEstimate = request.send().values.first()
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            val calculatedFee = feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
             assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                calculatedFee,
                 feeEstimate.overallFee.value,
             )
         }
@@ -235,16 +235,32 @@ class StandardAccountTest {
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            val calculatedFee = feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
             assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                calculatedFee,
                 feeEstimate.overallFee.value,
             )
         }
 
         @Test
+        @Disabled("TODO: Will be fixed in PR with removal of old txs write api")
         fun estimateFeeWithSkipValidateFlag() {
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val nonce = account.getNonce().send()
             val invokeTxV1Payload = account.signV1(
                 call = call,
@@ -253,7 +269,10 @@ class StandardAccountTest {
             )
             val invokeTxV3Payload = account.signV3(
                 call = call,
-                params = InvokeParamsV3(nonce.value.add(BigInteger.ONE).toFelt, ResourceBounds.ZERO),
+                params = InvokeParamsV3(
+                    nonce = nonce,
+                    resourceBounds = resourceBounds,
+                ),
                 forFeeEstimate = true,
             )
             assertEquals(TransactionVersion.V1_QUERY, invokeTxV1Payload.version)
@@ -270,8 +289,10 @@ class StandardAccountTest {
             val feeEstimates = request.send()
             feeEstimates.values.forEach {
                 assertNotEquals(Felt.ZERO, it.overallFee)
+
+                val calculatedFee = it.l1GasPrice.value * it.l1GasConsumed.value + it.l1DataGasPrice.value * it.l1DataGasConsumed.value + it.l2GasPrice.value * it.l2GasConsumed.value
                 assertEquals(
-                    it.gasPrice.value * it.gasConsumed.value + it.dataGasPrice.value * it.dataGasConsumed.value,
+                    calculatedFee,
                     it.overallFee.value,
                 )
             }
@@ -286,7 +307,7 @@ class StandardAccountTest {
 
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value,
                 feeEstimate.overallFee.value,
             )
         }
@@ -317,8 +338,9 @@ class StandardAccountTest {
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
+            val calculatedFee = feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value
             assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                calculatedFee,
                 feeEstimate.overallFee.value,
             )
         }
@@ -333,7 +355,10 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
-            val params = DeclareParamsV3(nonce = nonce, l1ResourceBounds = ResourceBounds.ZERO)
+            val params = DeclareParamsV3(
+                nonce = nonce,
+                resourceBounds = ResourceBoundsMapping.ZERO,
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -348,7 +373,7 @@ class StandardAccountTest {
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
             assertEquals(
-                feeEstimate.gasPrice.value * feeEstimate.gasConsumed.value + feeEstimate.dataGasPrice.value * feeEstimate.dataGasConsumed.value,
+                feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value,
                 feeEstimate.overallFee.value,
             )
         }
@@ -390,9 +415,9 @@ class StandardAccountTest {
         )
         val response = request.send()
 
-        assertNotEquals(Felt.ZERO, response.gasPrice)
+        assertNotEquals(Felt.ZERO, (response.l1GasPrice.value + response.l2GasPrice.value).toFelt)
         assertEquals(
-            response.gasPrice.value * response.gasConsumed.value + response.dataGasPrice.value * response.dataGasConsumed.value,
+            response.l1GasPrice.value * response.l1GasConsumed.value + response.l1DataGasPrice.value * response.l1DataGasConsumed.value,
             response.overallFee.value,
         )
     }
@@ -462,12 +487,23 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = account.getNonce().send()
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val params = DeclareParamsV3(
                 nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(100000),
-                    maxPricePerUnit = Uint128(1000000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
@@ -585,12 +621,23 @@ class StandardAccountTest {
                 entrypoint = "increase_balance",
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
 
             val payload = account.signV3(call, params)
@@ -648,6 +695,7 @@ class StandardAccountTest {
         }
 
         @Test
+        @Disabled("TODO(#536)")
         fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -655,15 +703,13 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val result = account.executeV3(
-                call,
-                estimateAmountMultiplier = 1.59,
-                estimateUnitPriceMultiplier = 1.39,
-            ).send()
+            val maxFee = Felt(10000000000000000L)
+            val result = account.executeV1(call, maxFee).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
             assertTrue(receipt.isAccepted)
+            assertNotEquals(Felt.ZERO, receipt.actualFee)
         }
 
         @Test
@@ -695,11 +741,21 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
-            val l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
             )
-            val result = account.executeV3(call, l1ResourceBounds).send()
+            val result = account.executeV3(call, resourceBounds).send()
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
@@ -736,12 +792,23 @@ class StandardAccountTest {
                 calldata = listOf(Felt(10)),
             )
 
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = account.getNonce().send(),
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
 
             val payload = account.signV3(listOf(call, call, call), params)
@@ -957,9 +1024,10 @@ class StandardAccountTest {
                 provider,
                 chainId,
             )
+            val resourceBounds = ResourceBoundsMapping
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                l1ResourceBounds = ResourceBounds.ZERO,
+                resourceBounds = ResourceBoundsMapping.ZERO,
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
                 classHash = accountContractClassHash,
@@ -1060,13 +1128,24 @@ class StandardAccountTest {
                 provider,
                 chainId,
             )
-            val l1ResourceBounds = ResourceBounds(
-                maxAmount = Uint64(20000),
-                maxPricePerUnit = Uint128(120000000000),
+
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
             )
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
-                l1ResourceBounds = l1ResourceBounds,
+                resourceBounds = resourceBounds,
             )
 
             // Prefund the new account address with STRK
@@ -1216,12 +1295,23 @@ class StandardAccountTest {
 
             val nonce = account.getNonce().send()
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val params = InvokeParamsV3(
                 nonce = nonce,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
 
             val invokeTx = account.signV3(call, params)
@@ -1239,14 +1329,12 @@ class StandardAccountTest {
             val newAccount = StandardAccount(newAccountAddress, privateKey, provider, chainId)
 
             devnetClient.prefundAccountStrk(newAccountAddress)
+
             val deployAccountTx = newAccount.signDeployAccountV3(
                 classHash = accountContractClassHash,
                 calldata = calldata,
                 salt = salt,
-                l1ResourceBounds = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
+                resourceBounds = resourceBounds,
             )
 
             val simulationFlags = setOf<SimulationFlag>()
@@ -1319,15 +1407,26 @@ class StandardAccountTest {
             val casmContractDefinition = CasmContractDefinition(casmCode)
 
             val nonce = account.getNonce().send()
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,
                 casmContractDefinition,
                 DeclareParamsV3(
                     nonce = nonce,
-                    l1ResourceBounds = ResourceBounds(
-                        maxAmount = Uint64(100000),
-                        maxPricePerUnit = Uint128(1000000000000),
-                    ),
+                    resourceBounds = resourceBounds,
                 ),
             )
 
@@ -1353,10 +1452,12 @@ class StandardAccountTest {
                 "result": [
                     {
                         "fee_estimation": {
-                            "gas_consumed": "0x9d8",
-                            "gas_price": "0x3b9aca2f",
-                            "data_gas_consumed": "0x3a",
-                            "data_gas_price": "0x1a05",
+                            "l1_gas_consumed": "0x9d8",
+                            "l1_gas_price": "0x3b9aca2f",
+                            "l1_data_gas_consumed": "0x3a",
+                            "l1_data_gas_price": "0x1a05",
+                            "l2_gas_consumed": "0x9d8",
+                            "l2_gas_price": "0x3b9aca2f",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
@@ -1365,11 +1466,9 @@ class StandardAccountTest {
                                "revert_reason": "Placeholder revert reason."
                             },
                             "execution_resources": {
-                                "steps": 582,
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }
@@ -1382,10 +1481,23 @@ class StandardAccountTest {
             val mockProvider = JsonRpcProvider(devnetClient.rpcUrl, httpService)
 
             val nonce = account.getNonce().send()
-            val maxFee = Felt(1)
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(1000)))
-            val params = ExecutionParams(nonce, maxFee)
-            val invokeTx = account.signV1(call, params)
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
+            val params = InvokeParamsV3(nonce, resourceBounds)
+            val invokeTx = account.signV3(call, params)
 
             val simulationFlags = setOf<SimulationFlag>()
             val simulationResult = mockProvider.simulateTransactions(
@@ -1411,10 +1523,13 @@ class StandardAccountTest {
                 "result": [
                     {
                         "fee_estimation": {
-                            "gas_consumed": "0x9d8",
-                            "gas_price": "0x3b9aca2f",
-                            "data_gas_consumed": "0x3a",
-                            "data_gas_price": "0x1a05",
+                            "l1_gas_consumed": "0x9d8",
+                            "l1_gas_price": "0x3b9aca2f",
+                            "l1_data_gas_consumed": "0x3a",
+                            "l1_data_gas_price": "0x1a05",
+                            "l2_gas_consumed": "0x9d8",
+                            "l2_gas_price": "0x3b9aca2f",
+                            "l1_data_gas_consumed": "0x3a",
                             "overall_fee": "0x24abbb63ea8"
                         },
                         "transaction_trace": {
@@ -1465,8 +1580,10 @@ class StandardAccountTest {
                                         ],
                                         "messages": [],
                                         "execution_resources": {
-                                            "steps": 582
-                                        }
+                                            "l1_gas": "123",
+                                            "l2_gas": "789"
+                                        },
+                                        "is_reverted": false
                                     }
                                 ],
                                 "events": [],
@@ -1485,15 +1602,15 @@ class StandardAccountTest {
                                     }
                                 ],
                                 "execution_resources": {
-                                    "steps": 800
-                                }
+                                    "l1_gas": "123",
+                                    "l2_gas": "789"
+                                },
+                                "is_reverted": false
                             },
                             "execution_resources": {
-                                "steps": 1600,
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }

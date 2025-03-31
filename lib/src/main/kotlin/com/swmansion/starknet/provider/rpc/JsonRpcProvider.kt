@@ -6,6 +6,7 @@ import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicS
 import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.MessageStatusList
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.*
@@ -268,6 +269,18 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_STATUS, params, GetTransactionStatusResponse.serializer())
+    }
+
+    private fun getMessagesStatus(payload: GetMessagesStatusPayload): HttpRequest<MessageStatusList> {
+        val params = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_MESSAGES_STATUS, params, MessageStatusListSerializer)
+    }
+
+    override fun getMessagesStatus(l1TransactionHash: NumAsHex): HttpRequest<MessageStatusList> {
+        val payload = GetMessagesStatusPayload(l1TransactionHash)
+
+        return getMessagesStatus(payload)
     }
 
     /**
@@ -646,6 +659,23 @@ class JsonRpcProvider(
         return getNonce(payload)
     }
 
+    private fun getStorageProof(payload: GetStorageProofPayload): HttpRequest<StorageProof> {
+        val jsonPayload = Json.encodeToJsonElement(payload)
+
+        return buildRequest(JsonRpcMethod.GET_STORAGE_PROOF, jsonPayload, StorageProof.serializer())
+    }
+
+    override fun getStorageProof(
+        blockId: BlockId,
+        classHashes: List<Felt>?,
+        contractAddresses: List<Felt>?,
+        contractsStorageKeys: List<ContractsStorageKeys>?,
+    ): HttpRequest<StorageProof> {
+        val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
+
+        return getStorageProof(payload)
+    }
+
     /**
      * @sample starknet.provider.ProviderTest.getSyncInformationNodeNotSyncing
      */
@@ -884,6 +914,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_TRANSACTION_BY_HASH("starknet_getTransactionByHash"),
     GET_TRANSACTION_RECEIPT("starknet_getTransactionReceipt"),
     GET_TRANSACTION_STATUS("starknet_getTransactionStatus"),
+    GET_MESSAGES_STATUS("starknet_getMessagesStatus"),
     DECLARE("starknet_addDeclareTransaction"),
     GET_EVENTS("starknet_getEvents"),
     GET_BLOCK_NUMBER("starknet_blockNumber"),
@@ -899,6 +930,7 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_STATE_UPDATE("starknet_getStateUpdate"),
     GET_TRANSACTION_BY_BLOCK_ID_AND_INDEX("starknet_getTransactionByBlockIdAndIndex"),
     GET_NONCE("starknet_getNonce"),
+    GET_STORAGE_PROOF("starknet_getStorageProof"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
     SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
 }

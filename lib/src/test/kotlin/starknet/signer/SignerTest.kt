@@ -31,17 +31,26 @@ internal class SignerTest {
 
         // Create calldata
         val calldata = AccountCalldataTransformer.callsToExecuteCalldata(listOf(call1, call2), Felt(1))
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+        )
         val tx = InvokeTransactionV3(
             senderAddress = Felt(0x789),
             calldata = calldata,
             chainId = StarknetChainId.SEPOLIA,
             nonce = Felt(0),
-            resourceBounds = ResourceBoundsMapping(
-                l1Gas = ResourceBounds(
-                    maxAmount = Uint64(20000),
-                    maxPricePerUnit = Uint128(120000000000),
-                ),
-            ),
+            resourceBounds = resourceBounds,
         )
 
         // Get signature

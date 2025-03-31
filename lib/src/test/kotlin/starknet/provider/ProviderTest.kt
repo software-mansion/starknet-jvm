@@ -86,6 +86,45 @@ class ProviderTest {
         assertEquals(TransactionExecutionStatus.SUCCEEDED, transactionStatus.executionStatus)
     }
 
+    // TODO(#540)
+    @Test
+    fun `get messages status`() {
+        val mockedResponse = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": [
+                {
+                    "transaction_hash": "0x123",
+                    "finality_status": "ACCEPTED_ON_L2"
+                },
+                {
+                    "transaction_hash": "0x123",
+                    "finality_status": "ACCEPTED_ON_L2",
+                    "failure_reason": "Example failure reason"
+                }
+            ]
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+        val request = provider.getMessagesStatus(NumAsHex(0x123))
+        val response = request.send()
+
+        assertEquals(2, response.values.count())
+
+        assertEquals(Felt(0x123), response.values[0].transactionHash)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
+        assertNull(response.values[0].failureReason)
+
+        assertEquals(Felt(0x123), response.values[1].transactionHash)
+        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
+        assertNotNull(response.values[1].failureReason)
+    }
+
     @Test
     fun callContractWithBlockNumber() {
         val currentNumber = provider.getBlockNumber().send().value
@@ -102,7 +141,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -123,7 +163,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -143,7 +184,8 @@ class ProviderTest {
         val response = request.send()
         val balance = response.first()
 
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(expectedBalance, balance)
     }
@@ -337,19 +379,9 @@ class ProviderTest {
                             [],
                             "execution_resources": 
                             {
-                                "steps": "999",
-                                "memory_holes": "1",
-                                "range_check_builtin_applications": "21",
-                                "pedersen_builtin_applications": "37",
-                                "poseidon_builtin_applications": "451",
-                                "ec_op_builtin_applications": "123",
-                                "ecdsa_builtin_applications": "789",
-                                "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1",
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             }
                         }
                     }
@@ -406,19 +438,9 @@ class ProviderTest {
                 "finality_status": "ACCEPTED_ON_L2",
                 "execution_resources": 
                 {
-                    "steps": "999",
-                    "memory_holes": "1",
-                    "range_check_builtin_applications": "21",
-                    "pedersen_builtin_applications": "37",
-                    "poseidon_builtin_applications": "451",
-                    "ec_op_builtin_applications": "123",
-                    "ecdsa_builtin_applications": "789",
-                    "bitwise_builtin_applications": "1",
-                    "keccak_builtin_applications": "1",
-                    "data_availability": {
-                        "l1_gas": "123",
-                        "l1_data_gas": "456"
-                    }
+                    "l1_gas": "123",
+                    "l1_data_gas": "456",
+                    "l2_gas": "789"
                 }
             }
         }
@@ -433,7 +455,9 @@ class ProviderTest {
         }
 
         val provider = JsonRpcProvider(rpcUrl, httpService)
-        val receipt = provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a")).send()
+        val receipt =
+            provider.getTransactionReceipt(Felt.fromHex("0x333198614194ae5b5ef921e63898a592de5e9f4d7b6e04745093da88b429f2a"))
+                .send()
 
         assertTrue(receipt is InvokeTransactionReceipt)
         assertTrue(receipt.isPending)
@@ -489,19 +513,9 @@ class ProviderTest {
                             ],
                             "execution_resources": 
                             {
-                                "steps": "999",
-                                "memory_holes": "1",
-                                "range_check_builtin_applications": "21",
-                                "pedersen_builtin_applications": "37",
-                                "poseidon_builtin_applications": "451",
-                                "ec_op_builtin_applications": "123",
-                                "ecdsa_builtin_applications": "789",
-                                "bitwise_builtin_applications": "1",
-                                "keccak_builtin_applications": "1",
-                                "data_availability": {
-                                    "l1_gas": "123",
-                                    "l1_data_gas": "456"
-                                }
+                                "l1_gas": "123",
+                                "l1_data_gas": "456",
+                                "l2_gas": "789"
                             },
                             "message_hash": "0x8000000000000110000000000000000000000000000000000000011111111111"
                         }
@@ -511,7 +525,8 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
+        val request =
+            provider.getTransactionReceipt(Felt.fromHex("0x4b2ff971b669e31c704fde5c1ad6ee08ba2000986a25ad5106ab94546f36f7"))
         val response = request.send()
 
         assertNotNull(response)
@@ -816,6 +831,83 @@ class ProviderTest {
     }
 
     @Test
+    fun getStorageProof() {
+        val mockedResponse = """
+        {
+            "id": 0,
+            "jsonrpc": "2.0",
+            "result": {
+                "classes_proof": [
+                    {"node": {"left": "0x123", "right": "0x123"}, "node_hash": "0x123"},
+                    {
+                        "node": {"child": "0x123", "length": 2, "path": "0x123"},
+                        "node_hash": "0x123"
+                    }
+                ],
+                "contracts_proof": {
+                    "contract_leaves_data": [
+                        {"class_hash": "0x123", "nonce": "0x0", "storage_root": "0x123"}
+                    ],
+                    "nodes": [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123"
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 232, "path": "0x123"},
+                            "node_hash": "0x123"
+                        }
+                    ]
+                },
+                "contracts_storage_proofs": [
+                    [
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123"
+                        },
+                        {
+                            "node": {"child": "0x123", "length": 123, "path": "0x123"},
+                            "node_hash": "0x123"
+                        },
+                        {
+                            "node": {"left": "0x123", "right": "0x123"},
+                            "node_hash": "0x123"
+                        }
+                    ]
+                ],
+                "global_roots": {
+                    "block_hash": "0x123",
+                    "classes_tree_root": "0x456",
+                    "contracts_tree_root": "0x789"
+                }
+            }
+        }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider(rpcUrl, httpService)
+
+        val request = provider.getStorageProof(
+            blockId = BlockId.Number(0),
+        )
+        val response = request.send()
+
+        assertTrue(response.classesProof[0].node is NodeHashToNodeMappingItem.BinaryNode)
+        assertTrue(response.classesProof[1].node is NodeHashToNodeMappingItem.EdgeNode)
+        assertTrue(response.contractsProof.nodes[0].node is NodeHashToNodeMappingItem.BinaryNode)
+        assertTrue(response.contractsStorageProofs[0][0].node is NodeHashToNodeMappingItem.BinaryNode)
+
+        assertEquals(2, response.classesProof.size)
+        assertEquals(2, response.contractsProof.nodes.size)
+        assertEquals(1, response.contractsStorageProofs.size)
+        assertEquals(Felt.fromHex("0x123"), response.globalRoots.blockHash)
+        assertEquals(Felt.fromHex("0x456"), response.globalRoots.classesTreeRoot)
+        assertEquals(Felt.fromHex("0x789"), response.globalRoots.contractsTreeRoot)
+    }
+
+    @Test
     fun `get pending block with transactions`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
@@ -830,6 +922,11 @@ class ProviderTest {
                     {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
+                    },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
                     },
                     "l1_data_gas_price":
                     {
@@ -921,6 +1018,11 @@ class ProviderTest {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
                     },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
+                    },
                     "l1_data_gas_price":
                     {
                         "price_in_wei": "0x789",
@@ -961,11 +1063,9 @@ class ProviderTest {
                                 [],
                                 "execution_resources": 
                                 {
-                                    "steps": "999",
-                                    "data_availability": {
-                                        "l1_gas": "123",
-                                        "l1_data_gas": "456"
-                                    }
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456",
+                                    "l2_gas": "789"
                                 }
                             }
                         },
@@ -999,11 +1099,9 @@ class ProviderTest {
                                 [],
                                 "execution_resources": 
                                 {
-                                    "steps": "999",
-                                    "data_availability": {
-                                        "l1_gas": "123",
-                                        "l1_data_gas": "456"
-                                    }
+                                    "l1_gas": "123",
+                                    "l1_data_gas": "456",
+                                    "l2_gas": "789"
                                 }
                             }
                         } 
@@ -1067,6 +1165,11 @@ class ProviderTest {
                     {
                         "price_in_wei": "0x2137",
                         "price_in_fri": "0x1234"
+                    },
+                    "l2_gas_price":
+                    {
+                        "price_in_wei": "0x123",
+                        "price_in_fri": "0x456"
                     },
                     "l1_data_gas_price":
                     {
@@ -1238,7 +1341,8 @@ class ProviderTest {
         )
         val request = provider.batchRequests(callRequests)
         val response = request.send()
-        val expectedBalance = provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
+        val expectedBalance =
+            provider.getStorageAt(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST).send()
 
         assertEquals(response[0].getOrThrow().first(), expectedBalance)
         assertEquals(response[1].getOrThrow().first(), expectedBalance)
@@ -1253,7 +1357,6 @@ class ProviderTest {
             provider.getTransaction(invokeTransactionHash),
             provider.getTransaction(declareTransactionHash),
             provider.getTransaction(deployAccountTransactionHash),
-
         )
 
         val response = request.send()

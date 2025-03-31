@@ -322,6 +322,17 @@ interface Provider {
     fun getTransactionStatus(transactionHash: Felt): Request<GetTransactionStatusResponse>
 
     /**
+     * Get L1 handler transaction data.
+     *
+     * Get L1 handler transaction data for all L1 → L2 messages sent by the given L1 transaction.
+     *
+     * @param l1TransactionHash the hash of the L1 transaction.
+     *
+     * @throws RequestFailedException
+     */
+    fun getMessagesStatus(l1TransactionHash: NumAsHex): Request<MessageStatusList>
+
+    /**
      * Get the contract class definition.
      *
      * Get the contract class definition associated with the given hash.
@@ -650,6 +661,20 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getNonce(contractAddress: Felt, blockHash: Felt): Request<Felt>
+
+    /**
+     * Get merkle paths in one of the state tries.
+     *
+     * Get merkle paths in one of the state tries: global state, classes, individual contract.
+     *
+     * @param blockId the hash of the requested block
+     * @param classHashes list of class hashes for which we want to prove membership
+     * @param contractAddresses list of contract addresses for which we want to prove membership
+     * @param contractsStorageKeys list of (contract address, storage keys) pairs
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageProof(blockId: BlockId, classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractsStorageKeys>? = null): Request<StorageProof>
 
     /**
      * Get the block synchronization status.

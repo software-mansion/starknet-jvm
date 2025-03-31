@@ -1,9 +1,8 @@
 package starknet.utils
 
-import com.swmansion.starknet.data.types.Felt
-import com.swmansion.starknet.data.types.PriceUnit
-import com.swmansion.starknet.data.types.TransactionExecutionStatus
-import com.swmansion.starknet.data.types.TransactionStatus
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.toUint128
+import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
@@ -54,9 +53,24 @@ class DevnetClient(
 
     private val stateArchiveCapacity = StateArchiveCapacity.FULL
 
+    private val defaultResourceBounds = ResourceBoundsMapping(
+        l1Gas = ResourceBounds(
+            maxAmount = 100_000.toUint64,
+            maxPricePerUnit = 10_000_000_000_000.toUint128,
+        ),
+        l2Gas = ResourceBounds(
+            maxAmount = 1_000_000_000.toUint64,
+            maxPricePerUnit = 100_000_000_000_000_000.toUint128,
+        ),
+        l1DataGas = ResourceBounds(
+            maxAmount = 100_000.toUint64,
+            maxPricePerUnit = 10_000_000_000_000.toUint128,
+        ),
+    )
+
     companion object {
-        // Source: https://github.com/0xSpaceShard/starknet-devnet-rs/blob/47ee2a73c227ee356f344ce94e5f61871299be80/crates/starknet-devnet-core/src/constants.rs
-        val accountContractClassHash = Felt.fromHex("0x61dac032f228abef9c6626f995015233097ae253a7f72d68552db02f2971b8f")
+        // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4/crates/starknet-devnet-types/src/utils.rs#L123
+        val accountContractClassHash = Felt.fromHex("0x02b31e19e45c06f29234e06e2ee98a9966479ba3067f8785ed972794fdb0065c")
         val legacyAccountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
         val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
@@ -95,6 +109,7 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
+            // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
             devnetPath.absolutePathString(),
             "--host",
             host,
@@ -107,7 +122,7 @@ class DevnetClient(
             stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(3, TimeUnit.SECONDS)
+        devnetProcess.waitFor(8, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")
@@ -146,7 +161,7 @@ class DevnetClient(
             """
             {
               "address": "${accountAddress.hexString()}",
-              "amount": 500000000000000000000000000000,
+              "amount": 5000000000000000000000000000000000000,
               "unit": $unit
             }
             """.trimIndent(),
@@ -163,6 +178,7 @@ class DevnetClient(
         accountName: String,
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
+        type: String,
     ): CreateAccountResult {
         val params = mutableListOf(
             "create",
@@ -170,6 +186,11 @@ class DevnetClient(
             accountName,
             "--class-hash",
             classHash.hexString(),
+            "--type",
+            type,
+            "--silent",
+            "--url",
+            rpcUrl,
         )
         salt?.let {
             params.add("--salt")
@@ -188,8 +209,7 @@ class DevnetClient(
     }
 
     fun deployAccount(
-        classHash: Felt = accountContractClassHash,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         prefund: Boolean = false,
         accountName: String = "__default__",
     ): DeployAccountResult {
@@ -202,10 +222,9 @@ class DevnetClient(
             "deploy",
             "--name",
             accountName,
-            "--max-fee",
-            maxFee.hexString(),
-            "--class-hash",
-            classHash.hexString(),
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         val response = runSnCast(
             command = "account",
@@ -224,12 +243,13 @@ class DevnetClient(
     fun createDeployAccount(
         classHash: Felt = accountContractClassHash,
         salt: Felt? = null,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
+        type: String = "oz",
     ): DeployAccountResult {
-        val createResult = createAccount(accountName, classHash, salt)
+        val createResult = createAccount(accountName, classHash, salt, type)
         val details = createResult.details
-        val deployResult = deployAccount(classHash, maxFee, prefund = true, accountName)
+        val deployResult = deployAccount(resourceBounds, prefund = true, accountName)
 
         requireTransactionSuccessful(deployResult.transactionHash, "Deploy Account")
 
@@ -241,14 +261,15 @@ class DevnetClient(
 
     fun declareContract(
         contractName: String,
-        maxFee: Felt = Felt(5000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeclareContractResult {
         val params = listOf(
             "--contract-name",
             contractName,
-            "--max-fee",
-            maxFee.hexString(),
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         val response = runSnCast(
             command = "declare",
@@ -269,14 +290,15 @@ class DevnetClient(
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
         unique: Boolean = false,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeployContractResult {
         val params = mutableListOf(
             "--class-hash",
             classHash.hexString(),
-            "--max-fee",
-            maxFee.hexString(),
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
@@ -308,14 +330,13 @@ class DevnetClient(
         constructorCalldata: List<Felt> = emptyList(),
         salt: Felt? = null,
         unique: Boolean = false,
-        maxFeeDeclare: Felt = Felt(5000000000000000),
-        maxFeeDeploy: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeployContractResult {
-        val declareResponse = declareContract(contractName, maxFeeDeclare, accountName)
+        val declareResponse = declareContract(contractName, resourceBounds, accountName)
 
         val classHash = declareResponse.classHash
-        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, maxFeeDeploy, accountName)
+        val deployResponse = deployContract(classHash, constructorCalldata, salt, unique, resourceBounds, accountName)
 
         return DeployContractResult(
             transactionHash = deployResponse.transactionHash,
@@ -327,7 +348,7 @@ class DevnetClient(
         contractAddress: Felt,
         function: String,
         calldata: List<Felt>,
-        maxFee: Felt = Felt(1000000000000000),
+        resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): InvokeContractResult {
         val params = mutableListOf(
@@ -335,8 +356,9 @@ class DevnetClient(
             contractAddress.hexString(),
             "--function",
             function,
-            "--max-fee",
-            maxFee.hexString(),
+            *createFeeArgs(resourceBounds),
+            "--url",
+            rpcUrl,
         )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
@@ -355,6 +377,23 @@ class DevnetClient(
         )
     }
 
+    private fun createFeeArgs(resourceBounds: ResourceBoundsMapping): Array<String> {
+        return arrayOf(
+            "--l1-gas",
+            resourceBounds.l1Gas.maxAmount.value.toString(),
+            "--l1-gas-price",
+            resourceBounds.l1Gas.maxPricePerUnit.value.toString(),
+            "--l2-gas",
+            resourceBounds.l2Gas.maxAmount.value.toString(),
+            "--l2-gas-price",
+            resourceBounds.l2Gas.maxPricePerUnit.value.toString(),
+            "--l1-data-gas",
+            resourceBounds.l1DataGas.maxAmount.value.toString(),
+            "--l1-data-gas-price",
+            resourceBounds.l1DataGas.maxPricePerUnit.value.toString(),
+        )
+    }
+
     private fun runSnCast(
         command: String,
         args: List<String>,
@@ -366,13 +405,12 @@ class DevnetClient(
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
-            "--url",
-            rpcUrl,
             "--account",
             accountName,
             command,
             *(args.toTypedArray()),
         )
+
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
         val process = processBuilder.start()
@@ -381,7 +419,7 @@ class DevnetClient(
         val error = String(process.errorStream.readAllBytes())
         requireNoErrors(command, error)
 
-        // As of sncast 0.24.0, declare command returns three response objects
+        // As of sncast 0.40.0, declare command returns three response objects
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects

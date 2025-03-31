@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   test_and_lint:
     strategy:
@@ -16,7 +19,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: 47ee2a73c227ee356f344ce94e5f61871299be80
+      DEVNET_SHA: fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4
     steps:
       - uses: actions/checkout@v3
         with:
@@ -58,14 +61,32 @@ jobs:
             echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
 
+      # TODO(#539)
+      - name: Fetch latest asdf version from GitHub releases
+        id: asdf_version
+        run: |
+          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
+          echo "Latest asdf version found is $latest_version"
+          echo "LATEST=$latest_version" >> $GITHUB_ENV
       - name: Setup asdf
-        uses: asdf-vm/actions/setup@v2
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            ASDF_PLATFORM="linux-amd64"
+          else
+            ASDF_PLATFORM="darwin-arm64"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz"
+          echo "Downloading asdf from $DOWNLOAD_URL"
+          curl -fsSL "$DOWNLOAD_URL" | tar xzf - -C "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
-      - name: Install sncast 0.24.0
+      - name: Install starknet-foundry
         run: |
           asdf plugin add starknet-foundry
-          asdf install starknet-foundry 0.24.0
-          asdf global starknet-foundry 0.24.0
+          asdf install starknet-foundry 0.40.0
+          asdf set starknet-foundry 0.40.0 --home
 
       - name: Install scarb
         run: |

@@ -123,12 +123,20 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
+                    l2Gas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                    ),
+                    l1DataGas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                    ),
                 ),
                 paymasterData = emptyList(),
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x41906f1c314cca5f43170ea75d3b1904196a10101190d2b12a41cc61cfd17c")
+            val expected = Felt.fromHex("0x58bf19c9d19264cd2618fd4a9bebe75db59c0c865810986eb352723f6571648")
             assertEquals(expected, hash)
         }
 
@@ -148,13 +156,21 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
                     ),
+                    l2Gas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                    ),
+                    l1DataGas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x5af3107a4000"),
+                    ),
                 ),
                 tip = Uint64.ZERO,
                 paymasterData = emptyList(),
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x29fd7881f14380842414cdfdd8d6c0b1f2174f8916edcfeb1ede1eb26ac3ef0")
+            val expected = Felt.fromHex("0xee682037ec979ab79b3cdb9dfca4f1088eef7cbb1aeadc9cb07b478805747e")
             assertEquals(expected, hash)
         }
 
@@ -172,6 +188,14 @@ internal class TransactionHashCalculatorTest {
                         maxAmount = Uint64.fromHex("0x186a0"),
                         maxPricePerUnit = Uint128.fromHex("0x2540be400"),
                     ),
+                    l2Gas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x2540be400"),
+                    ),
+                    l1DataGas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x186a0"),
+                        maxPricePerUnit = Uint128.fromHex("0x2540be400"),
+                    ),
                 ),
                 tip = Uint64.ZERO,
                 paymasterData = emptyList(),
@@ -179,7 +203,7 @@ internal class TransactionHashCalculatorTest {
                 feeDataAvailabilityMode = DAMode.L1,
                 nonceDataAvailabilityMode = DAMode.L1,
             )
-            val expected = Felt.fromHex("0x41d1f5206ef58a443e7d3d1ca073171ec25fa75313394318fc83a074a6631c3")
+            val expected = Felt.fromHex("0x15e515947b30e7a5ca52e8a25451f6993736ca933867ec41d33d473aaa46959")
             assertEquals(expected, hash)
         }
     }
