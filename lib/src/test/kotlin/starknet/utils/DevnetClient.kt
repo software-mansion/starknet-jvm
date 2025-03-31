@@ -55,16 +55,16 @@ class DevnetClient(
 
     private val defaultResourceBounds = ResourceBoundsMapping(
         l1Gas = ResourceBounds(
-            maxAmount = 100000.toUint64,
-            maxPricePerUnit = 10000000000000.toUint128,
+            maxAmount = 100_000.toUint64,
+            maxPricePerUnit = 10_000_000_000_000.toUint128,
         ),
         l2Gas = ResourceBounds(
-            maxAmount = 1000000000.toUint64,
-            maxPricePerUnit = 100000000000000000.toUint128,
+            maxAmount = 1_000_000_000.toUint64,
+            maxPricePerUnit = 100_000_000_000_000_000.toUint128,
         ),
         l1DataGas = ResourceBounds(
-            maxAmount = 100000.toUint64,
-            maxPricePerUnit = 10000000000000.toUint128,
+            maxAmount = 100_000.toUint64,
+            maxPricePerUnit = 10_000_000_000_000.toUint128,
         ),
     )
 
