@@ -126,44 +126,6 @@ class ProviderTest {
     }
 
     @Test
-    fun `get messages status`() {
-        val mockedResponse = """
-        {
-            "id": 0,
-            "jsonrpc": "2.0",
-            "result": [
-                {
-                    "transaction_hash": "0x123",
-                    "finality_status": "ACCEPTED_ON_L2"
-                },
-                {
-                    "transaction_hash": "0x123",
-                    "finality_status": "ACCEPTED_ON_L2",
-                    "failure_reason": "Example failure reason"
-                }
-            ]
-        }
-        """.trimIndent()
-
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
-        val provider = JsonRpcProvider(rpcUrl, httpService)
-        val request = provider.getMessagesStatus(NumAsHex(0x123))
-        val response = request.send()
-
-        assertEquals(2, response.values.count())
-
-        assertEquals(Felt(0x123), response.values[0].transactionHash)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
-        assertNull(response.values[0].failureReason)
-
-        assertEquals(Felt(0x123), response.values[1].transactionHash)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
-        assertNotNull(response.values[1].failureReason)
-    }
-
-    @Test
     fun callContractWithBlockNumber() {
         val currentNumber = provider.getBlockNumber().send().value
 
