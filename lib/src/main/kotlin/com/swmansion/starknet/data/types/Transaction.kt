@@ -388,7 +388,7 @@ sealed class DeclareTransaction : Transaction() {
 }
 
 @Serializable
-data class DeclareTransactionV0 (
+data class DeclareTransactionV0(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -413,7 +413,7 @@ data class DeclareTransactionV0 (
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV1 (
+data class DeclareTransactionV1(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -438,7 +438,7 @@ data class DeclareTransactionV1 (
 ) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV2 (
+data class DeclareTransactionV2(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -627,7 +627,7 @@ sealed class DeployAccountTransaction : Transaction() {
 }
 
 @Serializable
-data class DeployAccountTransactionV1 (
+data class DeployAccountTransactionV1(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -657,6 +657,7 @@ data class DeployAccountTransactionV1 (
     @SerialName("nonce")
     override val nonce: Felt,
 ) : DeployAccountTransaction(), DeprecatedTransaction
+
 @Suppress("DataClassPrivateConstructor")
 @Serializable
 data class DeployAccountTransactionV3 private constructor(

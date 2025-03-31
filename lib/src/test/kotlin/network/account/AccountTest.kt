@@ -148,7 +148,7 @@ class AccountTest {
             l1DataGas = ResourceBounds(
                 maxAmount = Uint64(100_000_000_000),
                 maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            )
+            ),
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
