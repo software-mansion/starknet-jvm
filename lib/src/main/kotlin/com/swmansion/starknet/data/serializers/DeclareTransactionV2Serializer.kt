@@ -21,7 +21,6 @@ internal object DeclareTransactionV2Serializer : KSerializer<DeclareTransactionV
         require(encoder is JsonEncoder)
 
         val jsonObject = buildJsonObject {
-            put("contract_class", value.contractDefinition!!.toJson())
             put("sender_address", value.senderAddress.hexString())
             put("version", value.version.value.hexString())
             put("max_fee", value.maxFee.hexString())

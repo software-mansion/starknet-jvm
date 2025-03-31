@@ -108,11 +108,11 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertTrue(feeEstimate.l1GasConsumed >= Felt(0))
+        assertTrue(feeEstimate.l1GasConsumed == Felt(0))
         assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
         assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
         assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
-        assertTrue(feeEstimate.l1DataGasConsumed >= Felt(0))
+        assertNotEquals(Felt(0), feeEstimate.l1DataGasConsumed)
         assertNotEquals(Felt(0), feeEstimate.l1DataGasPrice)
         assertNotEquals(Felt(0), feeEstimate.overallFee)
     }
@@ -138,17 +138,17 @@ class AccountTest {
 
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
-            ),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            )
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
@@ -185,16 +185,16 @@ class AccountTest {
 
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val params = DeclareParamsV3(
@@ -298,6 +298,27 @@ class AccountTest {
     }
 
     @Test
+    fun getEthBalance() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+        // docsStart
+        val account = constNonceAccount
+        val call = Call(
+            contractAddress = ethContractAddress,
+            entrypoint = "balanceOf",
+            calldata = listOf(account.address),
+        )
+
+        val request = provider.callContract(call)
+        val response = request.send()
+        val balance = Uint256(
+            low = response[0],
+            high = response[1],
+        )
+        // docsEnd
+        assertTrue(balance.value > Felt.ZERO.value)
+    }
+
+    @Test
     fun transferEth() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // docsStart
@@ -319,27 +340,6 @@ class AccountTest {
         val transferReceipt = provider.getTransactionReceipt(response.transactionHash).send()
         // docsEnd
         assertTrue(transferReceipt.isAccepted)
-    }
-
-    @Test
-    fun getEthBalance() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
-        // docsStart
-        val account = constNonceAccount
-        val call = Call(
-            contractAddress = ethContractAddress,
-            entrypoint = "balanceOf",
-            calldata = listOf(account.address),
-        )
-
-        val request = provider.callContract(call)
-        val response = request.send()
-        val balance = Uint256(
-            low = response[0],
-            high = response[1],
-        )
-        // docsEnd
-        assertTrue(balance.value > Felt.ZERO.value)
     }
 
     @Test
@@ -450,16 +450,16 @@ class AccountTest {
 
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val params = InvokeParamsV3(
@@ -545,16 +545,16 @@ class AccountTest {
         val deployedAccount = StandardAccount(deployedAccountAddress, privateKey, provider, chainId, cairoVersion)
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val deployAccountTx = deployedAccount.signDeployAccountV3(
@@ -616,16 +616,16 @@ class AccountTest {
         val nonce = account.getNonce(BlockTag.LATEST).send()
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val declareTransactionPayload = account.signDeclareV3(
@@ -664,16 +664,16 @@ class AccountTest {
 
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val deployment = deployer.deployContractV3(
@@ -705,16 +705,16 @@ class AccountTest {
         val initialBalance = Felt(1000)
         val resourceBounds = ResourceBoundsMapping(
             l1Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100000000000000),
-                maxPricePerUnit = Uint128(1000000000000000000),
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100000000000),
-                maxPricePerUnit = Uint128(10000000000000000),
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
         )
         val deployment = deployer.deployContractV3(

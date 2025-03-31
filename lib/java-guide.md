@@ -8,22 +8,21 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 <!-- TOC -->
 ## Table of contents
 * [Using provider](#using-provider)
-* [Reusing provider](#reusing-providers)
+* [Reusing providers](#reusing-providers)
 * [Creating account](#creating-account)
 * [Transferring STRK tokens](#transferring-strk-tokens)
 * [Making synchronous requests](#making-synchronous-requests)
 * [Making asynchronous requests](#making-asynchronous-requests)
 * [Deploying account V3](#deploying-account-v3)
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
-* [Deploying account V3](#deploying-account-v3)
-* [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
+* [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
-* [Making multiple calls: get multiple transactions data](#making-multiple-calls-get-multiple-transactions-data)
+* [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
+* [Making multiple calls: get multiple transactions data in one request](#making-multiple-calls-get-multiple-transactions-data-in-one-request)
 * [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
 * [Declaring Cairo 1/2 contract V3](#declaring-cairo-12-contract-v3)
 * [Estimating fee for declare V3 transaction](#estimating-fee-for-declare-v3-transaction)
-* [Declaring Cairo 1/2 contract V2](#declaring-cairo-12-contract-v2)
-* [Estimating fee for declare V2 transaction](#estimating-fee-for-declare-v2-transaction)
+* [Example usage of `StandardAccount`](#example-usage-of-standardaccount)
 <!-- TOC -->
 
 ### Using provider
@@ -278,7 +277,6 @@ public class Main {
         System.out.println("Calculated address: " + address);
         System.out.println("Deployed address: " + response.getAddress());
         System.out.println("Are addresses equal: " + address.equals(response.getAddress()));
-
     }
 }
 ```
