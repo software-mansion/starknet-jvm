@@ -200,9 +200,8 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeTransactionV1 private constructor(
+data class InvokeTransactionV1(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -225,33 +224,7 @@ data class InvokeTransactionV1 private constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction(), DeprecatedTransaction {
-    @JvmOverloads
-    constructor(
-        calldata: Calldata,
-        senderAddress: Felt,
-        chainId: StarknetChainId,
-        nonce: Felt,
-        maxFee: Felt,
-        signature: Signature = emptyList(),
-        forFeeEstimate: Boolean = false,
-    ) : this(
-        hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
-            contractAddress = senderAddress,
-            calldata = calldata,
-            chainId = chainId,
-            version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-            nonce = nonce,
-            maxFee = maxFee,
-        ),
-        senderAddress = senderAddress,
-        calldata = calldata,
-        maxFee = maxFee,
-        version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-        signature = signature,
-        nonce = nonce,
-    )
-}
+) : InvokeTransaction(), DeprecatedTransaction
 
 @Serializable
 data class InvokeTransactionV3 @JvmOverloads internal constructor(

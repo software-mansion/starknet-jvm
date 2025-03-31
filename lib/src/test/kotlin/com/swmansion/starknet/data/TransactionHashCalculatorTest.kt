@@ -14,20 +14,6 @@ internal class TransactionHashCalculatorTest {
         private val maxFee = Felt.fromHex("0xabcd987654210")
 
         private val chainId = StarknetChainId.fromNetworkName("SN_GOERLI")
-
-        @Test
-        fun `calculate invoke v1 transaction hash`() {
-            val hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
-                contractAddress = Felt.fromHex("0x6352037a8acbb31095a8ed0f4aa8d8639e13b705b043a1b08f9640d2f9f0d56"),
-                calldata = calldata,
-                chainId = chainId,
-                version = TransactionVersion.V1,
-                nonce = Felt(9876),
-                maxFee = maxFee,
-            )
-            val expected = Felt.fromHex("0x119b1a69e0c35b9035be945d3a1d551f2f78473b10311734fafb1f5df3f61d9")
-            assertEquals(expected, hash)
-        }
     }
 
     @Nested

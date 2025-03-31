@@ -17,25 +17,6 @@ object TransactionHashCalculator {
     private val l1DataGasPrefix by lazy { Felt.fromShortString("L1_DATA") }
 
     @JvmStatic
-    fun calculateInvokeTxV1Hash(
-        contractAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        maxFee: Felt,
-    ): Felt = transactionHashCommon(
-        txType = TransactionType.INVOKE,
-        version = version,
-        contractAddress = contractAddress,
-        entryPointSelector = Felt.ZERO,
-        calldata = calldata,
-        maxFee = maxFee,
-        chainId = chainId,
-        nonce = nonce,
-    )
-
-    @JvmStatic
     fun calculateInvokeTxV3Hash(
         senderAddress: Felt,
         calldata: Calldata,
