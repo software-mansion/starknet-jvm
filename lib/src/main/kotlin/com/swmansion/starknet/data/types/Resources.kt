@@ -3,16 +3,13 @@ package com.swmansion.starknet.data.types
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-interface Resources {
-    @SerialName("l1_gas")
+sealed interface Resources {
     val l1Gas: Int
-
-    @SerialName("l2_gas")
     val l2Gas: Int
 }
 
 @Serializable
-open class InnerCallExecutionResources(
+class InnerCallExecutionResources(
     @SerialName("l1_gas")
     override val l1Gas: Int,
 

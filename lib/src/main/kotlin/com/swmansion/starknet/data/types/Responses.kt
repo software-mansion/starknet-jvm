@@ -88,6 +88,10 @@ data class EstimateFeeResponse(
     /**
      * Convert estimated fee to resource bounds with applied multipliers.
      *
+     * Calculates max amount of l1 gas as [l1GasConsumed] * [amountMultiplier] and max price per unit as [l1GasPrice] * [unitPriceMultiplier].
+     * Calculates max amount of l2 gas as [l2GasConsumed] * [amountMultiplier] and max price per unit as [l2GasPrice] * [unitPriceMultiplier].
+     * Calculates max amount of l1 data gas as [l1DataGasConsumed] * [amountMultiplier] and max price per unit as [l1DataGasPrice] * [unitPriceMultiplier].
+     *
      * @param amountMultiplier Multiplier for max amount, defaults to 1.5.
      * @param unitPriceMultiplier Multiplier for max price per unit, defaults to 1.5.
      *

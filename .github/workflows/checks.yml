@@ -61,13 +61,13 @@ jobs:
             echo "Found existing starknet-devnet-rs build, skipping compilation."
           fi
 
+      # TODO(#539)
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
         run: |
           latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
           echo "Latest asdf version found is $latest_version"
           echo "LATEST=$latest_version" >> $GITHUB_ENV
-
       - name: Setup asdf
         run: |
           if [ "${{ runner.os }}" = "Linux" ]; then
@@ -78,7 +78,7 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz"
           echo "Downloading asdf from $DOWNLOAD_URL"
-          curl -fsSL "https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz" | tar xzf - -C "$HOME/.local/bin"
+          curl -fsSL "$DOWNLOAD_URL" | tar xzf - -C "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
