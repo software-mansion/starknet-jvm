@@ -21,12 +21,8 @@ internal object ExecutableTransactionSerializer : KSerializer<ExecutableTransact
 
         val jsonObject = when (value) {
             is InvokeTransactionV3 -> encoder.json.encodeToJsonElement(InvokeTransactionV3.serializer(), value).jsonObject
-            is InvokeTransactionV1 -> encoder.json.encodeToJsonElement(InvokeTransactionV1.serializer(), value).jsonObject
             is DeclareTransactionV3 -> encoder.json.encodeToJsonElement(DeclareTransactionV3Serializer, value).jsonObject
-            is DeclareTransactionV2 -> encoder.json.encodeToJsonElement(DeclareTransactionV2Serializer, value).jsonObject
-            is DeclareTransactionV1 -> encoder.json.encodeToJsonElement(DeclareTransactionV1.serializer(), value).jsonObject
             is DeployAccountTransactionV3 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV3.serializer(), value).jsonObject
-            is DeployAccountTransactionV1 -> encoder.json.encodeToJsonElement(DeployAccountTransactionV1.serializer(), value).jsonObject
         }
         val result = JsonObject(
             jsonObject.filter { (key, _) -> !transactionIgnoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
