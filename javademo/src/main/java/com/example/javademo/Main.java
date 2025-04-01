@@ -177,7 +177,7 @@ public class Main {
         Felt nonce = account.getNonce().send();
 
         // Estimate fee for declaring a contract
-        DeclareTransactionV3 declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
+        DeclareTransactionV3 declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBoundsMapping.ZERO), true);
         Request<EstimateFeeResponseList> feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
         EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
         // Make sure to prefund the account with enough funds to cover the fee for declare transaction
