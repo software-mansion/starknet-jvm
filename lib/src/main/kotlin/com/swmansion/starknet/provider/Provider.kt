@@ -21,17 +21,6 @@ interface Provider {
     fun getTransaction(transactionHash: Felt): Request<Transaction>
 
     /**
-     * Invoke a function using version 1 transaction.
-     *
-     * Invoke a function in deployed contract using version 1 transaction.
-     *
-     * @param payload invoke function version 1 payload
-     *
-     * @throws RequestFailedException
-     */
-    fun invokeFunction(payload: InvokeTransactionV1): Request<InvokeFunctionResponse>
-
-    /**
      * Invoke a function using version 3 transaction.
      *
      * Invoke a function in deployed contract using version 3 transaction.
@@ -52,17 +41,6 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getClass(classHash: Felt): Request<ContractClassBase>
-
-    /**
-     * Declare contract using version 2 transaction.
-     *
-     * Declare a contract on Starknet using version 2 transaction.
-     *
-     * @param payload declare transaction version 2 payload
-     *
-     * @throws RequestFailedException
-     */
-    fun declareContract(payload: DeclareTransactionV2): Request<DeclareResponse>
 
     /**
      * Declare contract using version 3 transaction.
@@ -122,17 +100,6 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getBlockTransactionCount(blockNumber: Int): Request<IntResponse>
-
-    /**
-     * Deploy an account contract using version 1 transaction.
-     *
-     * Deploy a new account contract on Starknet.
-     *
-     * @param payload deploy account transaction version 1 payload
-     *
-     * @throws RequestFailedException
-     */
-    fun deployAccount(payload: DeployAccountTransactionV1): Request<DeployAccountResponse>
 
     /**
      * Deploy an account contract using version 3 transaction.

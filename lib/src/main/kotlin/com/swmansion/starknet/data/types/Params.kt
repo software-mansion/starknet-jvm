@@ -5,18 +5,7 @@ package com.swmansion.starknet.data.types
 /**
  * Params used for signing and sending transactions.
  */
-
-sealed class ParamsBase
-
-/**
- * Params used for signing and sending v1 and v2 transactions.
- */
-data class ExecutionParams(
-    val nonce: Felt,
-    val maxFee: Felt,
-) : ParamsBase()
-
-sealed class ParamsV3 : ParamsBase() {
+sealed class ParamsV3 {
     abstract val nonce: Felt
     abstract val resourceBounds: ResourceBoundsMapping
     abstract val tip: Uint64

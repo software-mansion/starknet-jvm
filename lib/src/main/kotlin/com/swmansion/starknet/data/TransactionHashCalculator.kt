@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.Poseidon
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.DAMode
 import com.swmansion.starknet.data.types.TransactionType
@@ -15,25 +14,6 @@ object TransactionHashCalculator {
     private val l1GasPrefix by lazy { Felt.fromShortString("L1_GAS") }
     private val l2GasPrefix by lazy { Felt.fromShortString("L2_GAS") }
     private val l1DataGasPrefix by lazy { Felt.fromShortString("L1_DATA") }
-
-    @JvmStatic
-    fun calculateInvokeTxV1Hash(
-        contractAddress: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        nonce: Felt,
-        maxFee: Felt,
-    ): Felt = transactionHashCommon(
-        txType = TransactionType.INVOKE,
-        version = version,
-        contractAddress = contractAddress,
-        entryPointSelector = Felt.ZERO,
-        calldata = calldata,
-        maxFee = maxFee,
-        chainId = chainId,
-        nonce = nonce,
-    )
 
     @JvmStatic
     fun calculateInvokeTxV3Hash(
@@ -64,33 +44,6 @@ object TransactionHashCalculator {
             ).toTypedArray(),
             Poseidon.poseidonHash(accountDeploymentData),
             Poseidon.poseidonHash(calldata),
-        )
-    }
-
-    @JvmStatic
-    fun calculateDeployAccountV1TxHash(
-        classHash: Felt,
-        calldata: Calldata,
-        salt: Felt,
-        chainId: StarknetChainId,
-        version: TransactionVersion,
-        maxFee: Felt,
-        nonce: Felt,
-    ): Felt {
-        val contractAddress = ContractAddressCalculator.calculateAddressFromHash(
-            classHash = classHash,
-            calldata = calldata,
-            salt = salt,
-        )
-        return transactionHashCommon(
-            txType = TransactionType.DEPLOY_ACCOUNT,
-            version = version,
-            contractAddress = contractAddress,
-            entryPointSelector = Felt.ZERO,
-            calldata = listOf(classHash, salt, *calldata.toTypedArray()),
-            maxFee = maxFee,
-            chainId = chainId,
-            nonce = nonce,
         )
     }
 
@@ -133,30 +86,6 @@ object TransactionHashCalculator {
     }
 
     @JvmStatic
-    fun calculateDeclareV2TxHash(
-        classHash: Felt,
-        chainId: StarknetChainId,
-        senderAddress: Felt,
-        maxFee: Felt,
-        version: TransactionVersion,
-        nonce: Felt,
-        compiledClassHash: Felt,
-    ): Felt {
-        val calldataHash = StarknetCurve.pedersenOnElements(listOf(classHash))
-        return StarknetCurve.pedersenOnElements(
-            TransactionType.DECLARE.txPrefix,
-            version.value,
-            senderAddress,
-            Felt.ZERO,
-            calldataHash,
-            maxFee,
-            chainId.value,
-            nonce,
-            compiledClassHash,
-        )
-    }
-
-    @JvmStatic
     fun calculateDeclareV3TxHash(
         classHash: Felt,
         chainId: StarknetChainId,
@@ -187,28 +116,6 @@ object TransactionHashCalculator {
             Poseidon.poseidonHash(accountDeploymentData),
             classHash,
             compiledClassHash,
-        )
-    }
-
-    private fun transactionHashCommon(
-        txType: TransactionType,
-        version: TransactionVersion,
-        contractAddress: Felt,
-        entryPointSelector: Felt,
-        calldata: Calldata,
-        maxFee: Felt,
-        chainId: StarknetChainId,
-        nonce: Felt,
-    ): Felt {
-        return StarknetCurve.pedersenOnElements(
-            txType.txPrefix,
-            version.value,
-            contractAddress,
-            entryPointSelector,
-            StarknetCurve.pedersenOnElements(calldata),
-            maxFee,
-            chainId.value,
-            nonce,
         )
     }
 

@@ -200,9 +200,8 @@ sealed class InvokeTransaction : Transaction() {
     override val type: TransactionType = TransactionType.INVOKE
 }
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class InvokeTransactionV1 private constructor(
+data class InvokeTransactionV1(
     @SerialName("calldata")
     override val calldata: Calldata,
 
@@ -225,33 +224,7 @@ data class InvokeTransactionV1 private constructor(
     @SerialName("nonce")
     override val nonce: Felt,
 
-) : InvokeTransaction(), DeprecatedTransaction, ExecutableTransaction {
-    @JvmOverloads
-    constructor(
-        calldata: Calldata,
-        senderAddress: Felt,
-        chainId: StarknetChainId,
-        nonce: Felt,
-        maxFee: Felt,
-        signature: Signature = emptyList(),
-        forFeeEstimate: Boolean = false,
-    ) : this(
-        hash = TransactionHashCalculator.calculateInvokeTxV1Hash(
-            contractAddress = senderAddress,
-            calldata = calldata,
-            chainId = chainId,
-            version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-            nonce = nonce,
-            maxFee = maxFee,
-        ),
-        senderAddress = senderAddress,
-        calldata = calldata,
-        maxFee = maxFee,
-        version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-        signature = signature,
-        nonce = nonce,
-    )
-}
+) : InvokeTransaction(), DeprecatedTransaction
 
 @Serializable
 data class InvokeTransactionV3 @JvmOverloads internal constructor(
@@ -387,9 +360,8 @@ sealed class DeclareTransaction : Transaction() {
     override val type: TransactionType = TransactionType.DECLARE
 }
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionV0 private constructor(
+data class DeclareTransactionV0(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -411,34 +383,10 @@ data class DeclareTransactionV0 private constructor(
 
     @SerialName("nonce")
     override val nonce: Felt = Felt.ZERO,
+) : DeclareTransaction(), DeprecatedTransaction
 
-    @SerialName("contract_class")
-    val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction {
-    @JvmOverloads
-    constructor(
-        classHash: Felt,
-        senderAddress: Felt,
-        hash: Felt? = null,
-        maxFee: Felt,
-        signature: Signature,
-        nonce: Felt = Felt.ZERO,
-        contractDefinition: Cairo0ContractDefinition? = null,
-    ) : this(
-        classHash = classHash,
-        senderAddress = senderAddress,
-        hash = hash,
-        maxFee = maxFee,
-        version = TransactionVersion.V0,
-        signature = signature,
-        nonce = nonce,
-        contractDefinition = contractDefinition,
-    )
-}
-
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeclareTransactionV1 private constructor(
+data class DeclareTransactionV1(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -460,33 +408,10 @@ data class DeclareTransactionV1 private constructor(
 
     @SerialName("nonce")
     override val nonce: Felt,
-
-    @SerialName("contract_class")
-    val contractDefinition: Cairo0ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
-    @JvmOverloads
-    constructor(
-        classHash: Felt,
-        senderAddress: Felt,
-        hash: Felt? = null,
-        maxFee: Felt,
-        signature: Signature,
-        nonce: Felt,
-        contractDefinition: Cairo0ContractDefinition? = null,
-    ) : this(
-        classHash = classHash,
-        senderAddress = senderAddress,
-        hash = hash,
-        maxFee = maxFee,
-        version = TransactionVersion.V1,
-        signature = signature,
-        nonce = nonce,
-        contractDefinition = contractDefinition,
-    )
-}
+) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
-data class DeclareTransactionV2 internal constructor(
+data class DeclareTransactionV2(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -511,42 +436,7 @@ data class DeclareTransactionV2 internal constructor(
 
     @SerialName("compiled_class_hash")
     val compiledClassHash: Felt,
-
-    @SerialName("contract_class")
-    val contractDefinition: Cairo1ContractDefinition? = null,
-) : DeclareTransaction(), DeprecatedTransaction, ExecutableTransaction {
-    @JvmOverloads
-    constructor(
-        senderAddress: Felt,
-        contractDefinition: Cairo1ContractDefinition,
-        chainId: StarknetChainId,
-        maxFee: Felt,
-        nonce: Felt,
-        casmContractDefinition: CasmContractDefinition,
-        signature: Signature = emptyList(),
-        forFeeEstimate: Boolean = false,
-    ) : this(
-        hash = TransactionHashCalculator.calculateDeclareV2TxHash(
-            classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
-            chainId = chainId,
-            senderAddress = senderAddress,
-            maxFee = maxFee,
-            version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
-            nonce = nonce,
-            compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
-        ),
-        classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
-        senderAddress = senderAddress,
-        contractDefinition = contractDefinition,
-        maxFee = maxFee,
-        version = if (forFeeEstimate) TransactionVersion.V2_QUERY else TransactionVersion.V2,
-        signature = signature,
-        nonce = nonce,
-        compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
-    )
-
-    internal class ConvertingToPayloadFailedException : RuntimeException()
-}
+) : DeclareTransaction(), DeprecatedTransaction
 
 @Serializable
 data class DeclareTransactionV3 @JvmOverloads constructor(
@@ -632,8 +522,6 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
     )
-
-    internal class ConvertingToPayloadFailedException : RuntimeException()
 }
 
 @Suppress("DataClassPrivateConstructor")
@@ -711,9 +599,8 @@ sealed class DeployAccountTransaction : Transaction() {
     override val type: TransactionType = TransactionType.DEPLOY_ACCOUNT
 }
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class DeployAccountTransactionV1 private constructor(
+data class DeployAccountTransactionV1(
     @SerialName("class_hash")
     override val classHash: Felt,
 
@@ -742,38 +629,7 @@ data class DeployAccountTransactionV1 private constructor(
 
     @SerialName("nonce")
     override val nonce: Felt,
-) : DeployAccountTransaction(), DeprecatedTransaction, ExecutableTransaction {
-    @JvmOverloads
-    constructor(
-        classHash: Felt,
-        contractAddress: Felt = Felt.ZERO,
-        salt: Felt,
-        calldata: Calldata,
-        chainId: StarknetChainId,
-        forFeeEstimate: Boolean = false,
-        maxFee: Felt,
-        signature: Signature = emptyList(),
-        nonce: Felt = Felt.ZERO,
-    ) : this(
-        classHash = classHash,
-        contractAddress = contractAddress,
-        contractAddressSalt = salt,
-        constructorCalldata = calldata,
-        version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-        nonce = nonce,
-        maxFee = maxFee,
-        hash = TransactionHashCalculator.calculateDeployAccountV1TxHash(
-            classHash = classHash,
-            calldata = calldata,
-            salt = salt,
-            chainId = chainId,
-            version = if (forFeeEstimate) TransactionVersion.V1_QUERY else TransactionVersion.V1,
-            maxFee = maxFee,
-            nonce = nonce,
-        ),
-        signature = signature,
-    )
-}
+) : DeployAccountTransaction(), DeprecatedTransaction
 
 @Suppress("DataClassPrivateConstructor")
 @Serializable

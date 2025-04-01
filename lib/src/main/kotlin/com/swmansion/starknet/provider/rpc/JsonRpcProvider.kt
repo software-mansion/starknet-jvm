@@ -169,15 +169,6 @@ class JsonRpcProvider(
         return callContract(call, BlockTag.LATEST)
     }
 
-    override fun deployAccount(payload: DeployAccountTransactionV1): HttpRequest<DeployAccountResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("deploy_account_transaction", params)
-        }
-
-        return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
-    }
-
     override fun deployAccount(payload: DeployAccountTransactionV3): HttpRequest<DeployAccountResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
@@ -281,21 +272,6 @@ class JsonRpcProvider(
         val payload = GetMessagesStatusPayload(l1TransactionHash)
 
         return getMessagesStatus(payload)
-    }
-
-    /**
-     * @sample starknet.account.StandardAccountTest.InvokeTest.signV1SingleCall
-     */
-    override fun invokeFunction(
-        payload: InvokeTransactionV1,
-    ): HttpRequest<InvokeFunctionResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-
-        val jsonPayload = buildJsonObject {
-            put("invoke_transaction", params)
-        }
-
-        return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
 
     /**
@@ -426,15 +402,6 @@ class JsonRpcProvider(
         return getClassHashAt(contractAddress, BlockTag.LATEST)
     }
 
-    override fun declareContract(payload: DeclareTransactionV2): HttpRequest<DeclareResponse> {
-        val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("declare_transaction", params)
-        }
-
-        return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
-    }
-
     override fun declareContract(payload: DeclareTransactionV3): HttpRequest<DeclareResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
         val jsonPayload = buildJsonObject {
@@ -560,7 +527,7 @@ class JsonRpcProvider(
     }
 
     /**
-     * @sample network.account.AccountTest.estimateFeeForDeclareV2Transaction
+     * @sample network.account.AccountTest.estimateFeeForDeclareV3Transaction
      */
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,

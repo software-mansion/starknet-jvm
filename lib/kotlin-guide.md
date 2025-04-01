@@ -8,24 +8,21 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 <!-- TOC -->
 ## Table of contents
 * [Using provider](#using-provider)
-* [Reusing provider](#reusing-providers)
+* [Reusing provider](#reusing-provider)
 * [Creating account](#creating-account)
 * [Transferring STRK tokens](#transferring-strk-tokens)
 * [Making synchronous requests](#making-synchronous-requests)
 * [Making asynchronous requests](#making-asynchronous-requests)
 * [Deploying account V3](#deploying-account-v3)
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
-* [Deploying account V1](#deploying-account-v1)
-* [Estimating fee for deploy account V1 transaction](#estimating-fee-for-deploy-account-v1-transaction)
 * [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
 * [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
-* [Making multiple calls: get multiple transactions data](#making-multiple-calls-get-multiple-transactions-data)
+* [Making multiple calls: get multiple transactions data in one request](#making-multiple-calls-get-multiple-transactions-data-in-one-request)
 * [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
 * [Declaring Cairo 1/2 contract V3](#declaring-cairo-12-contract-v3)
 * [Estimating fee for declare V3 transaction](#estimating-fee-for-declare-v3-transaction)
-* [Declaring Cairo 1/2 contract V2](#declaring-cairo-12-contract-v2)
-* [Estimating fee for declare V2 transaction](#estimating-fee-for-declare-v2-transaction)
+* [Example usage of `StandardAccount`](#example-usage-of-standardaccount)
 <!-- TOC -->
 
 ### Using provider
@@ -43,7 +40,7 @@ fun main() {
 ```
 
 
-### Reusing providers
+### Reusing provider
 Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
 This way you reuse connections and thread pools.
 
@@ -284,75 +281,6 @@ val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 ```
 
 
-## Deploying account V1
-```KOTLIN
-val privateKey = Felt(11111)
-val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-val salt = Felt.ONE
-val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
-
-// Make sure to prefund the new account address with ETH
-val account = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
-val payload = account.signDeployAccountV1(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-    // 10*fee from estimate deploy account fee
-    maxFee = Felt.fromHex("0x11fcc58c7f7000"),
-)
-
-val response = provider.deployAccount(payload).send()
-val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV1
-// Invoke function to make sure the account was deployed properly
-val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
-val result = account.executeV1(call).send()
-
-val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-```
-
-
-## Estimating fee for deploy account V1 transaction
-```KOTLIN
-val privateKey = Felt(11112)
-val publicKey = StarknetCurve.getPublicKey(privateKey)
-
-val salt = Felt.ONE
-val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
-
-val account = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
-val payloadForFeeEstimation = account.signDeployAccountV1(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-    maxFee = Felt.ZERO,
-    nonce = Felt.ZERO,
-    forFeeEstimate = true,
-)
-val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
-```
-
-
 ## Invoking contract: Transferring ETH
 
 
@@ -470,47 +398,6 @@ val feeEstimate = request.send().values.first()
 ```
 
 
-## Declaring Cairo 1/2 contract V2
-```KOTLIN
-val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
-
-val contractDefinition = Cairo1ContractDefinition(contractCode)
-val contractCasmDefinition = CasmContractDefinition(casmCode)
-val nonce = account.getNonce().send()
-
-val declareTransactionPayload = account.signDeclareV2(
-    contractDefinition,
-    contractCasmDefinition,
-    ExecutionParams(nonce, Felt(5000000000000000L)),
-)
-val request = provider.declareContract(declareTransactionPayload)
-val result = request.send()
-
-val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-```
-
-
-## Estimating fee for declare V2 transaction
-```KOTLIN
-val contractCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.sierra.json").readText()
-val casmCode = Path.of("src/test/resources/contracts_v1/target/release/ContractsV1_HelloStarknet.casm.json").readText()
-
-val contractDefinition = Cairo1ContractDefinition(contractCode)
-val contractCasmDefinition = CasmContractDefinition(casmCode)
-val nonce = account.getNonce().send()
-
-val declareTransactionPayload = account.signDeclareV2(
-    sierraContractDefinition = contractDefinition,
-    casmContractDefinition = contractCasmDefinition,
-    params = ExecutionParams(nonce, Felt.ZERO),
-    forFeeEstimate = true,
-)
-val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
-val feeEstimate = request.send().values.first()
-```
-
-
 # Package com.swmansion.starknet.account
 [Account](src/main/kotlin/com/swmansion/starknet/account/Account.kt) interface is used to send Starknet transactions for execution. Its base implementation is [StandardAccount](src/main/kotlin/com/swmansion/starknet/account/StandardAccount.kt).
 
@@ -526,9 +413,19 @@ val privateKey = Felt(0x1)
 val account: Account = StandardAccount(address, privateKey, provider, chainId)
 
 // Execute a single call
-val resourceBounds = ResourceBounds(
-    Uint64(10000),
-    Uint128(10000000L),
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000_000),
+        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
 )
 val contractAddress = Felt(0x1111)
 val call = Call(contractAddress, "increase_balance", listOf(Felt(100)))
@@ -552,10 +449,7 @@ val otherCall = Call(contractAddress, "increase_balance", listOf(Felt(100)))
 val nonce = account.getNonce().send()
 val params = InvokeParamsV3(
     nonce,
-    ResourceBounds(
-        Uint64(20000),
-        Uint128(1200000000),
-    ),
+    resourceBounds,
 )
 
 val signedTransaction = account.signV3(otherCall, params)
