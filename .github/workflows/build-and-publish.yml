@@ -63,7 +63,7 @@ jobs:
           cp crypto/poseidon/build/poseidon/libposeidon.* .
 
       - name: Upload the shared libs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lib-${{ runner.os }}-${{ steps.vars.outputs.os_arch }}
           path: |
@@ -79,7 +79,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
       - name: Upload the AAR
         if: matrix.os == 'ubuntu-20.04'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: starknet-aar
           path: starknet.aar
@@ -121,7 +121,7 @@ jobs:
           docker cp $container:/build/crypto/poseidon/build/bindings/libposeidon_jni.so libposeidon_jni.so
           docker cp $container:/build/crypto/poseidon/build/poseidon/libposeidon.so libposeidon.so
       - name: Upload the shared lib
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lib-Linux-${{ steps.vars.outputs.os_arch }}
           path: |
@@ -153,7 +153,7 @@ jobs:
       - name: Rename JAR
         run: mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9].jar starknet.jar
       - name: Upload the JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: starknet-jar
           path: starknet.jar
@@ -170,12 +170,12 @@ jobs:
       - name: Rename JARS
         run: mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9]-javadoc.jar javadoc.jar && mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9]-sources.jar sources.jar
       - name: Upload javadoc JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: javadoc-jar
           path: javadoc.jar
       - name: Upload sources JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sources-jar
           path: sources.jar
