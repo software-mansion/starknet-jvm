@@ -8,7 +8,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 <!-- TOC -->
 ## Table of contents
 * [Using provider](#using-provider)
-* [Reusing providers](#reusing-providers)
+* [Reusing provider](#reusing-provider)
 * [Creating account](#creating-account)
 * [Transferring STRK tokens](#transferring-strk-tokens)
 * [Making synchronous requests](#making-synchronous-requests)
@@ -40,7 +40,7 @@ fun main() {
 ```
 
 
-### Reusing providers
+### Reusing provider
 Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance.
 This way you reuse connections and thread pools.
 

@@ -1,7 +1,6 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.Poseidon
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.data.types.DAMode
 import com.swmansion.starknet.data.types.TransactionType
@@ -117,28 +116,6 @@ object TransactionHashCalculator {
             Poseidon.poseidonHash(accountDeploymentData),
             classHash,
             compiledClassHash,
-        )
-    }
-
-    private fun transactionHashCommon(
-        txType: TransactionType,
-        version: TransactionVersion,
-        contractAddress: Felt,
-        entryPointSelector: Felt,
-        calldata: Calldata,
-        maxFee: Felt,
-        chainId: StarknetChainId,
-        nonce: Felt,
-    ): Felt {
-        return StarknetCurve.pedersenOnElements(
-            txType.txPrefix,
-            version.value,
-            contractAddress,
-            entryPointSelector,
-            StarknetCurve.pedersenOnElements(calldata),
-            maxFee,
-            chainId.value,
-            nonce,
         )
     }
 
