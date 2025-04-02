@@ -30,7 +30,7 @@ int main() {
 if (NOT HAVE_UINT128)
   FetchContent_Declare(
     boostorg
-    URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
+    URL https://archives.boost.io/release/1.79.0/source/boost_1_79_0.tar.gz
   )
 
   FetchContent_GetProperties(boostorg)
