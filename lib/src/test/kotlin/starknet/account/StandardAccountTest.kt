@@ -23,9 +23,13 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
+import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Instant
 import kotlin.io.path.readText
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 @Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
@@ -47,6 +51,7 @@ class StandardAccountTest {
 
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
+        private lateinit var secondAccount: Account
 
         @JvmStatic
         @BeforeAll
@@ -68,6 +73,14 @@ class StandardAccountTest {
                     provider = provider,
                     chainId = chainId,
                 )
+                secondAccount = devnetClient.createDeployAccount(accountName = "second").details.let {
+                    StandardAccount(
+                        address = it.address,
+                        provider = provider,
+                        privateKey = it.privateKey,
+                        chainId = chainId,
+                    )
+                }
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -249,7 +262,8 @@ class StandardAccountTest {
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            val calculatedFee = feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
+            val calculatedFee =
+                feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
             assertEquals(
                 calculatedFee,
                 feeEstimate.overallFee.value,
@@ -345,7 +359,8 @@ class StandardAccountTest {
             // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
             // docsStart
-            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val request =
+                provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
@@ -1295,6 +1310,75 @@ class StandardAccountTest {
             assertEquals(2, messages.size)
             assertEquals(0, messages[0].order)
             assertEquals(1, messages[1].order)
+        }
+    }
+
+    @Nested
+    inner class OutsideExecutionTest {
+        private val randomAddress = Felt.fromHex("0x655b2696f187daec1952ef59befbd875add757748d6c844fb273439cd0d82f9")
+
+        @Test
+        fun `executes transfers from another specified account`() {
+            val call1 = transferCall(100)
+            val call2 = transferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.createExecuteFromOutsideV2Call(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                calls = listOf(call1, call2),
+                nonce = Felt(Random.nextLong().absoluteValue),
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `executes transfers from another any account`() {
+            val call1 = transferCall(100)
+            val call2 = transferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.createExecuteFromOutsideV2Call(
+                caller = Felt.fromShortString("ANY_CALLER"),
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                calls = listOf(call1, call2),
+                nonce = Felt(Random.nextLong().absoluteValue),
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        private fun getBalance(address: Felt): BigInteger {
+            return devnetClient.provider.callContract(
+                Call(
+                    contractAddress = DevnetClient.ethErc20ContractAddress,
+                    entrypoint = "balance_of",
+                    calldata = listOf(address),
+                ),
+            ).send()[0].value
+        }
+
+        private fun transferCall(amount: Int): Call {
+            return Call(
+                contractAddress = DevnetClient.ethErc20ContractAddress,
+                entrypoint = "transfer",
+                calldata = listOf(
+                    randomAddress,
+                    Uint256(amount).low,
+                    Uint256(0).high,
+                ),
+            )
         }
     }
 }

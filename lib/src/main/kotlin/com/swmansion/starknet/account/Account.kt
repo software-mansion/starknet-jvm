@@ -347,6 +347,20 @@ interface Account {
     ): Request<EstimateFeeResponseList>
 
     /**
+     * @param caller: Authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter: Unix second timestamp of the beginning of the timeframe
+     * @param executeAfter: Unix second timestamp of the end of the timeframe
+     * @param calls: calls
+     */
+    fun createExecuteFromOutsideV2Call(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+        nonce: Felt,
+    ): Call
+
+    /**
      * Get account nonce.
      *
      * Get account nonce for pending block.

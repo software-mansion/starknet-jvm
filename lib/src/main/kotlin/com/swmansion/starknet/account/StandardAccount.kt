@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.compose
@@ -361,6 +362,48 @@ class StandardAccount @JvmOverloads constructor(
             val simulationFlags = prepareSimulationFlagsForFeeEstimate(skipValidate)
             return@compose provider.getEstimateFee(payload, blockTag, simulationFlags)
         }
+    }
+
+    /**
+     * @param caller: Authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter: Unix second timestamp of the beginning of the timeframe
+     * @param executeAfter: Unix second timestamp of the end of the timeframe
+     * @param calls: calls
+     */
+    override fun createExecuteFromOutsideV2Call(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+        nonce: Felt,
+    ): Call {
+        val execution = OutsideExecution(
+            caller = caller,
+            nonce = nonce,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = calls.map {
+                OutsideCall(
+                    to = it.contractAddress,
+                    selector = it.entrypoint,
+                    calldata = it.calldata,
+                )
+            },
+        )
+        val message = execution.toTypedData(chainId)
+
+        val (r, s) = signTypedData(message)
+
+        val outsideTransaction = OutsideTransaction(
+            outsideExecution = execution,
+            signature = StarknetCurveSignature(r, s),
+            signerAddress = address,
+        )
+        return Call(
+            contractAddress = address,
+            "execute_from_outside_v2",
+            outsideTransaction.toCalldata(),
+        )
     }
 
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
