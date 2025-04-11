@@ -624,7 +624,6 @@ class StandardAccountTest {
         }
 
         @Test
-        @Disabled("TODO(#536)")
         fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
