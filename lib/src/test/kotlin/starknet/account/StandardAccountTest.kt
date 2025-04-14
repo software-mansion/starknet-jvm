@@ -29,8 +29,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
 import kotlin.io.path.readText
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 @Execution(ExecutionMode.SAME_THREAD)
 class StandardAccountTest {
@@ -263,8 +261,7 @@ class StandardAccountTest {
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
-            val calculatedFee =
-                feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
+            val calculatedFee = feeEstimate.l1GasPrice.value * feeEstimate.l1GasConsumed.value + feeEstimate.l1DataGasPrice.value * feeEstimate.l1DataGasConsumed.value + feeEstimate.l2GasPrice.value * feeEstimate.l2GasConsumed.value
             assertEquals(
                 calculatedFee,
                 feeEstimate.overallFee.value,
@@ -360,8 +357,7 @@ class StandardAccountTest {
             // docsEnd
             assertEquals(TransactionVersion.V3_QUERY, declareTransactionPayload.version)
             // docsStart
-            val request =
-                provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
+            val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
             val feeEstimate = request.send().values.first()
             // docsEnd
             assertNotEquals(Felt.ZERO, feeEstimate.overallFee)
@@ -1320,8 +1316,8 @@ class StandardAccountTest {
 
         @Test
         fun `executes transfers from another specified account`() {
-            val call1 = transferCall(100)
-            val call2 = transferCall(200)
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCall(
@@ -1340,8 +1336,8 @@ class StandardAccountTest {
 
         @Test
         fun `executes transfers from another any account`() {
-            val call1 = transferCall(100)
-            val call2 = transferCall(200)
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCall(
@@ -1360,8 +1356,8 @@ class StandardAccountTest {
 
         @Test
         fun `executes transfers from the same account`() {
-            val call1 = transferCall(100)
-            val call2 = transferCall(200)
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCall(
@@ -1380,8 +1376,8 @@ class StandardAccountTest {
 
         @Test
         fun `does not execute transfers signed to the different account`() {
-            val call1 = transferCall(100)
-            val call2 = transferCall(200)
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCall(
@@ -1403,8 +1399,8 @@ class StandardAccountTest {
 
         @Test
         fun `does not execute transfers after allowed time interval`() {
-            val call1 = transferCall(100)
-            val call2 = transferCall(200)
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCall(
@@ -1434,7 +1430,7 @@ class StandardAccountTest {
             ).send()[0].value
         }
 
-        private fun transferCall(amount: Int): Call {
+        private fun createTransferCall(amount: Int): Call {
             return Call(
                 contractAddress = DevnetClient.ethErc20ContractAddress,
                 entrypoint = "transfer",

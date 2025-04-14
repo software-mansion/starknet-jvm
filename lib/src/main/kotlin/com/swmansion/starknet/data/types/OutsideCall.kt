@@ -10,13 +10,15 @@ import kotlinx.serialization.Serializable
 data class OutsideCall(
     @SerialName("To")
     val to: Felt,
+
     @SerialName("Selector")
     val selector: Felt,
+
     @SerialName("Calldata")
     val calldata: List<Felt>,
 ) : ConvertibleToCalldata {
     companion object {
-        val typeDescriptor: Descriptor = Descriptor(
+        val typeDescriptor = Descriptor(
             "Call",
             listOf(
                 StandardType(name = "To", type = "ContractAddress"),

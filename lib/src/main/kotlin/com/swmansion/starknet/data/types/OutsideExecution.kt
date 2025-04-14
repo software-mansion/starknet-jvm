@@ -16,12 +16,16 @@ import kotlinx.serialization.json.JsonPrimitive
 data class OutsideExecution(
     @SerialName("Caller")
     val caller: Felt,
+
     @SerialName("Nonce")
     val nonce: Felt,
+
     @SerialName("Execute After")
     val executeAfter: Felt,
+
     @SerialName("Execute Before")
     val executeBefore: Felt,
+
     @SerialName("Calls")
     val calls: List<OutsideCall>,
 ) : ConvertibleToCalldata {
@@ -52,14 +56,14 @@ data class OutsideExecution(
     fun toTypedData(chainId: StarknetChainId): TypedData {
         val domain = domain(chainId)
 
-        val OutsideExecutionTypesV2 = listOf(
+        val outsideExecutionTypesV2 = listOf(
             Domain.typeDescriptorV1,
             typeDescriptor,
             OutsideCall.typeDescriptor,
         )
 
         return TypedData(
-            types = OutsideExecutionTypesV2.associate { it.name to it.properties },
+            types = outsideExecutionTypesV2.associate { it.name to it.properties },
             primaryType = typeDescriptor.name,
             domain = Json.encodeToString(domain),
             message = Json.encodeToString(this),
