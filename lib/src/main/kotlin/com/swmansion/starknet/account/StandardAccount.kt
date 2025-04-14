@@ -364,20 +364,20 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    override fun signOutsideExecutionCall(
+    override fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
         calls: List<Call>,
         nonce: Felt,
     ): Call {
-        val execution = OutsideExecution(
+        val execution = OutsideExecutionV2(
             caller = caller,
             nonce = nonce,
             executeAfter = executeAfter,
             executeBefore = executeBefore,
             calls = calls.map {
-                OutsideCall(
+                OutsideCallV2(
                     to = it.contractAddress,
                     selector = it.entrypoint,
                     calldata = it.calldata,

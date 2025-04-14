@@ -361,7 +361,7 @@ interface Account {
      * @param calls the usual calls to be executed by the account
      * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
      */
-    fun signOutsideExecutionCall(
+    fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
@@ -376,14 +376,14 @@ interface Account {
      * @param call the usual call to be executed by the account
      * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
      */
-    fun signOutsideExecutionCall(
+    fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
         call: Call,
         nonce: Felt,
     ): Call{
-        return signOutsideExecutionCall(
+        return signOutsideExecutionCallV2(
             caller = caller,
             executeAfter = executeAfter,
             executeBefore = executeBefore,
@@ -398,13 +398,13 @@ interface Account {
      * @param executeAfter unix second timestamp of the end of the timeframe
      * @param calls the usual calls to be executed by the account
      */
-    fun signOutsideExecutionCall(
+    fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
         calls: List<Call>,
     ): Call {
-        return signOutsideExecutionCall(
+        return signOutsideExecutionCallV2(
             caller = caller,
             executeAfter = executeAfter,
             executeBefore = executeBefore,
@@ -419,13 +419,13 @@ interface Account {
      * @param executeAfter unix second timestamp of the end of the timeframe
      * @param call the usual call to be executed by the account
      */
-    fun signOutsideExecutionCall(
+    fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
         call: Call,
     ): Call{
-        return signOutsideExecutionCall(
+        return signOutsideExecutionCallV2(
             caller = caller,
             executeAfter = executeAfter,
             executeBefore = executeBefore,

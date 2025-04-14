@@ -6,17 +6,23 @@ import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+interface OutsideCall : ConvertibleToCalldata {
+    val to: Felt
+    val selector: Felt
+    val calldata: List<Felt>
+}
+
 @Serializable
-data class OutsideCall(
+data class OutsideCallV2(
     @SerialName("To")
-    val to: Felt,
+    override val to: Felt,
 
     @SerialName("Selector")
-    val selector: Felt,
+    override val selector: Felt,
 
     @SerialName("Calldata")
-    val calldata: List<Felt>,
-) : ConvertibleToCalldata {
+    override val calldata: List<Felt>,
+) : OutsideCall {
     companion object {
         val typeDescriptor = Descriptor(
             "Call",

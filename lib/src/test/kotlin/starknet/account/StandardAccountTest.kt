@@ -1320,7 +1320,7 @@ class StandardAccountTest {
             val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.signOutsideExecutionCall(
+            val outsideCall = account.signOutsideExecutionCallV2(
                 caller = secondAccount.address,
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
@@ -1340,7 +1340,7 @@ class StandardAccountTest {
             val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.signOutsideExecutionCall(
+            val outsideCall = account.signOutsideExecutionCallV2(
                 caller = Felt.fromShortString("ANY_CALLER"),
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
@@ -1360,7 +1360,7 @@ class StandardAccountTest {
             val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.signOutsideExecutionCall(
+            val outsideCall = account.signOutsideExecutionCallV2(
                 caller = account.address,
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
@@ -1380,7 +1380,7 @@ class StandardAccountTest {
             val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.signOutsideExecutionCall(
+            val outsideCall = account.signOutsideExecutionCallV2(
                 caller = accountAddress,
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
@@ -1403,7 +1403,7 @@ class StandardAccountTest {
             val call2 = createTransferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.signOutsideExecutionCall(
+            val outsideCall = account.signOutsideExecutionCallV2(
                 caller = secondAccount.address,
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.minusSeconds(1).epochSecond),

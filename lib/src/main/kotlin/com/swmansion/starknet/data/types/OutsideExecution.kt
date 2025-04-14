@@ -12,23 +12,33 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 
+interface OutsideExecution : ConvertibleToCalldata {
+    val caller: Felt
+    val nonce: Felt
+    val executeAfter: Felt
+    val executeBefore: Felt
+    val calls: List<OutsideCall>
+
+    fun toTypedData(chainId: StarknetChainId): TypedData
+}
+
 @Serializable
-data class OutsideExecution(
+data class OutsideExecutionV2(
     @SerialName("Caller")
-    val caller: Felt,
+    override val caller: Felt,
 
     @SerialName("Nonce")
-    val nonce: Felt,
+    override val nonce: Felt,
 
     @SerialName("Execute After")
-    val executeAfter: Felt,
+    override val executeAfter: Felt,
 
     @SerialName("Execute Before")
-    val executeBefore: Felt,
+    override val executeBefore: Felt,
 
     @SerialName("Calls")
-    val calls: List<OutsideCall>,
-) : ConvertibleToCalldata {
+    override val calls: List<OutsideCallV2>,
+) : OutsideExecution {
     companion object {
         val typeDescriptor = Descriptor(
             "OutsideExecution",
@@ -53,13 +63,13 @@ data class OutsideExecution(
         ).flatten()
     }
 
-    fun toTypedData(chainId: StarknetChainId): TypedData {
+    override fun toTypedData(chainId: StarknetChainId): TypedData {
         val domain = domain(chainId)
 
         val outsideExecutionTypesV2 = listOf(
             Domain.typeDescriptorV1,
             typeDescriptor,
-            OutsideCall.typeDescriptor,
+            OutsideCallV2.typeDescriptor,
         )
 
         return TypedData(
