@@ -27,6 +27,7 @@ import starknet.utils.ScarbClient
 import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.readText
 
@@ -1322,8 +1323,8 @@ class StandardAccountTest {
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCallV2(
                 caller = secondAccount.address,
-                executeAfter = Felt(now.minusSeconds(10).epochSecond),
-                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
                 calls = listOf(call1, call2),
             )
 
@@ -1342,8 +1343,8 @@ class StandardAccountTest {
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCallV2(
                 caller = Felt.fromShortString("ANY_CALLER"),
-                executeAfter = Felt(now.minusSeconds(10).epochSecond),
-                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
                 calls = listOf(call1, call2),
             )
 
@@ -1362,8 +1363,8 @@ class StandardAccountTest {
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCallV2(
                 caller = account.address,
-                executeAfter = Felt(now.minusSeconds(10).epochSecond),
-                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
                 calls = listOf(call1, call2),
             )
 
@@ -1382,8 +1383,8 @@ class StandardAccountTest {
             val now = Instant.now()
             val outsideCall = account.signOutsideExecutionCallV2(
                 caller = accountAddress,
-                executeAfter = Felt(now.minusSeconds(10).epochSecond),
-                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
                 calls = listOf(call1, call2),
             )
 

@@ -473,8 +473,8 @@ val secondAccount: Account = StandardAccount(secondAddress, secondPrivateKey, pr
 val now = Instant.now()
 val outsideCall = account.signOutsideExecutionCallV2(
     caller = secondAccount.address,
-    executeAfter = Felt(now.minusSeconds(10).epochSecond),
-    executeBefore = Felt(now.plusSeconds(10).epochSecond),
+    executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond), 
+    executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
     calls = listOf(call),
 )
 
