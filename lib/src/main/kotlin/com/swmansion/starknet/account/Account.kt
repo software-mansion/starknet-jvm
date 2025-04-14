@@ -370,7 +370,7 @@ interface Account {
     ): Call
 
     /**
-     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
      * @param executeAfter unix second timestamp of the beginning of the timeframe
      * @param executeAfter unix second timestamp of the end of the timeframe
      * @param call the usual call to be executed by the account
