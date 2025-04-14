@@ -864,7 +864,7 @@ val isValidSignature = isValidSignatureRequest.send()
 // user account, as long as they have the relevant signatures
 val secondAddress = Felt(0x1235)
 val secondPrivateKey = Felt(0x2)
-val secondAccount: Account = StandardAccount(secondAddress, secondPrivateKey, provider, chainId)
+val secondAccount = StandardAccount(secondAddress, secondPrivateKey, provider, chainId)
 
 val now = Instant.now()
 val outsideCall = account.signOutsideExecutionCallV2(
