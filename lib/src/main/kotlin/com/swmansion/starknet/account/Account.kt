@@ -222,7 +222,11 @@ interface Account {
      *
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+    fun executeV3(
+        calls: List<Call>,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 3 invoke transaction with automatically estimated fee
@@ -236,7 +240,11 @@ interface Account {
      *
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+    fun executeV3(
+        call: Call,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls with automatically estimated fee using version 3 invoke transaction.
@@ -360,6 +368,71 @@ interface Account {
         calls: List<Call>,
         nonce: Felt,
     ): Call
+
+    /**
+     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param call the usual call to be executed by the account
+     * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
+     */
+    fun signOutsideExecutionCall(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+        nonce: Felt,
+    ): Call{
+        return signOutsideExecutionCall(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            nonce = Felt.random(),
+        )
+    }
+
+    /**
+     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param calls the usual calls to be executed by the account
+     */
+    fun signOutsideExecutionCall(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+    ): Call {
+        return signOutsideExecutionCall(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = calls,
+            nonce = Felt.random(),
+        )
+    }
+
+    /**
+     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param call the usual call to be executed by the account
+     */
+    fun signOutsideExecutionCall(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+    ): Call{
+        return signOutsideExecutionCall(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            nonce = Felt.random(),
+        )
+    }
 
     /**
      * Get account nonce.

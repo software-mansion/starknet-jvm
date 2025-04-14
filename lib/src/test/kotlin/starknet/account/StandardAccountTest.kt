@@ -1328,7 +1328,6 @@ class StandardAccountTest {
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
                 calls = listOf(call1, call2),
-                nonce = Felt(Random.nextLong().absoluteValue),
             )
 
             secondAccount.executeV3(outsideCall).send()
@@ -1349,7 +1348,6 @@ class StandardAccountTest {
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
                 calls = listOf(call1, call2),
-                nonce = Felt(Random.nextLong().absoluteValue),
             )
 
             secondAccount.executeV3(outsideCall).send()

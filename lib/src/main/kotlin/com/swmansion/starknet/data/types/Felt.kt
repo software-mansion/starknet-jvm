@@ -3,9 +3,12 @@ package com.swmansion.starknet.data.types
 import com.swmansion.starknet.data.parseHex
 import com.swmansion.starknet.data.serializers.FeltSerializer
 import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
+import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
+import java.security.SecureRandom
+import java.util.Random
 
 @Serializable(with = FeltSerializer::class)
 data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata, StarknetResponse {
@@ -66,6 +69,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
         @field:JvmField
         val ONE = Felt(BigInteger.ONE)
+
+        private val random = SecureRandom()
 
         /**
          * Create Felt from hex string. It must start with "0x" prefix.
@@ -139,6 +144,17 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
         @JvmStatic
         fun fromSigned(value: Int): Felt {
             return fromSigned(BigInteger.valueOf(value.toLong()))
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        fun random(random: Random = this.random): Felt {
+            while (true) {
+                val result = BigInteger(PRIME.bitLength(), random)
+                if (result < PRIME) {
+                    return Felt(result)
+                }
+            }
         }
     }
 }
