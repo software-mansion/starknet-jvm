@@ -8,10 +8,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.math.BigInteger
-import java.util.Random
 
 internal class NumAsHexBaseTests {
     @Test
@@ -205,17 +203,6 @@ internal class NumAsHexBaseTests {
             assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", hexStringPadded1)
             assertEquals("0x0000000000000000000000000000000000000000000000000000000000000001", hexStringPadded2)
             assertEquals("0x0000000000000000000000000000000000000000000000000000000000000064", hexStringPadded3)
-        }
-
-        @Test
-        fun `generates random`() {
-            assertDoesNotThrow {
-                Felt.random()
-            }
-            assertEquals(
-                Felt.fromHex("0x7953fbe1ef9513f85e317f35eeec28d2cb7cf071fc6621c8e5310b1750606c9"),
-                Felt.random(Random(2)),
-            )
         }
     }
 

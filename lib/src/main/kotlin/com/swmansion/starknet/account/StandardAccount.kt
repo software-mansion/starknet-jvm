@@ -400,6 +400,54 @@ class StandardAccount @JvmOverloads constructor(
         )
     }
 
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+        nonce: Felt,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            nonce = nonce,
+        )
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = calls,
+            // generatePrivateKey == random felt
+            nonce = generatePrivateKey(),
+        )
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            // generatePrivateKey == random felt
+            nonce = generatePrivateKey(),
+        )
+    }
+
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,

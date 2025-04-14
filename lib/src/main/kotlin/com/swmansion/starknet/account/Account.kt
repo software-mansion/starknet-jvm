@@ -374,15 +374,7 @@ interface Account {
         executeBefore: Felt,
         call: Call,
         nonce: Felt,
-    ): Call {
-        return signOutsideExecutionCallV2(
-            caller = caller,
-            executeAfter = executeAfter,
-            executeBefore = executeBefore,
-            calls = listOf(call),
-            nonce = nonce,
-        )
-    }
+    ): Call
 
     /**
      * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
@@ -395,15 +387,7 @@ interface Account {
         executeAfter: Felt,
         executeBefore: Felt,
         calls: List<Call>,
-    ): Call {
-        return signOutsideExecutionCallV2(
-            caller = caller,
-            executeAfter = executeAfter,
-            executeBefore = executeBefore,
-            calls = calls,
-            nonce = Felt.random(),
-        )
-    }
+    ): Call
 
     /**
      * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
@@ -416,15 +400,7 @@ interface Account {
         executeAfter: Felt,
         executeBefore: Felt,
         call: Call,
-    ): Call {
-        return signOutsideExecutionCallV2(
-            caller = caller,
-            executeAfter = executeAfter,
-            executeBefore = executeBefore,
-            calls = listOf(call),
-            nonce = Felt.random(),
-        )
-    }
+    ): Call
 
     /**
      * Get account nonce.
