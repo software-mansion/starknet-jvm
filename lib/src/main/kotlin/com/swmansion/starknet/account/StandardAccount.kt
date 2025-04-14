@@ -199,25 +199,7 @@ class StandardAccount @JvmOverloads constructor(
         val call = Call(address, "isValidSignature", calldata)
         val request = provider.callContract(call)
 
-        return object : Request<Boolean> {
-            override fun send(): Boolean {
-                return try {
-                    val result = request.send()
-                    result[0] > Felt.ZERO
-                } catch (e: RequestFailedException) {
-                    return handleValidationError(e)
-                }
-            }
-
-            override fun sendAsync(): CompletableFuture<Boolean> {
-                return request.sendAsync().handle { result, exception ->
-                    if (exception is RequestFailedException) {
-                        return@handle handleValidationError(exception)
-                    }
-                    return@handle result[0] > Felt.ZERO
-                }
-            }
-        }
+        return request.toBooleanRequest()
     }
 
     /**
@@ -364,6 +346,30 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun isValidOutsideExecutionNonce(nonce: Felt): Request<Boolean> {
+        return provider.callContract(
+            Call(
+                contractAddress = address,
+                entrypoint = "is_valid_outside_execution_nonce",
+                nonce.toCalldata(),
+            ),
+        ).toBooleanRequest()
+    }
+
+    override fun getOutsideExecutionNonce(): Felt {
+        return getOutsideExecutionNonce(retryLimit = 10)
+    }
+
+    override fun getOutsideExecutionNonce(retryLimit: Int): Felt {
+        repeat(retryLimit) {
+            val randomNonce = generatePrivateKey()
+            if (isValidOutsideExecutionNonce(randomNonce).send()) {
+                return randomNonce
+            }
+        }
+        throw NonceGenerationException()
+    }
+
     override fun signOutsideExecutionCallV2(
         caller: Felt,
         executeAfter: Felt,
@@ -427,8 +433,7 @@ class StandardAccount @JvmOverloads constructor(
             executeAfter = executeAfter,
             executeBefore = executeBefore,
             calls = calls,
-            // generatePrivateKey == random felt
-            nonce = generatePrivateKey(),
+            nonce = getOutsideExecutionNonce(),
         )
     }
 
@@ -443,8 +448,7 @@ class StandardAccount @JvmOverloads constructor(
             executeAfter = executeAfter,
             executeBefore = executeBefore,
             calls = listOf(call),
-            // generatePrivateKey == random felt
-            nonce = generatePrivateKey(),
+            nonce = getOutsideExecutionNonce(),
         )
     }
 
@@ -479,5 +483,28 @@ class StandardAccount @JvmOverloads constructor(
         return BigInteger.valueOf(2).pow(128)
             .add(version.value)
             .toFelt
+    }
+
+    private fun Request<FeltArray>.toBooleanRequest(): Request<Boolean> {
+        val request = this@toBooleanRequest
+        return object : Request<Boolean> {
+            override fun send(): Boolean {
+                return try {
+                    val result = request.send()
+                    result[0] > Felt.ZERO
+                } catch (e: RequestFailedException) {
+                    return handleValidationError(e)
+                }
+            }
+
+            override fun sendAsync(): CompletableFuture<Boolean> {
+                return request.sendAsync().handle { result, exception ->
+                    if (exception is RequestFailedException) {
+                        return@handle handleValidationError(exception)
+                    }
+                    return@handle result[0] > Felt.ZERO
+                }
+            }
+        }
     }
 }

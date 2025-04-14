@@ -1316,6 +1316,37 @@ class StandardAccountTest {
         private val randomAddress = Felt.fromHex("0x123")
 
         @Test
+        fun `isValidOutsideExecutionNonce returns true for not used nonce`() {
+            val nonce = account.getOutsideExecutionNonce()
+            assertEquals(
+                true,
+                account.isValidOutsideExecutionNonce(nonce).send(),
+            )
+        }
+
+        @Test
+        fun `isValidOutsideExecutionNonce returns false for used nonce`() {
+            val call = createTransferCall(100)
+            val now = Instant.now()
+            val nonce = account.getOutsideExecutionNonce()
+
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call),
+                nonce = nonce,
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            assertEquals(
+                false,
+                account.isValidOutsideExecutionNonce(nonce).send(),
+            )
+        }
+
+        @Test
         fun `executes transfers from another specified account`() {
             val call1 = createTransferCall(100)
             val call2 = createTransferCall(200)

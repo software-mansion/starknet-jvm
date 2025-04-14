@@ -347,6 +347,31 @@ interface Account {
     ): Request<EstimateFeeResponseList>
 
     /**
+     * Check is nonce valid for [signOutsideExecutionCallV2]
+     *
+     * @param nonce nonce used for check.
+     */
+    fun isValidOutsideExecutionNonce(nonce: Felt): Request<Boolean>
+
+    /**
+     * Get nonce valid for [signOutsideExecutionCallV2]
+     *
+     * @return nonce valid for [signOutsideExecutionCallV2]
+     */
+    fun getOutsideExecutionNonce(): Felt
+
+    /**
+     * Get nonce valid for [signOutsideExecutionCallV2]
+     *
+     * Method tries to generate random valid nonce see [isValidOutsideExecutionNonce], using no more than [retryLimit] attempts
+     *
+     * @param retryLimit maximum attempts for generate
+     * @return nonce valid for [signOutsideExecutionCallV2]
+     * @throws NonceGenerationException
+     */
+    fun getOutsideExecutionNonce(retryLimit: Int): Felt
+
+    /**
      * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
      * @param executeAfter unix second timestamp of the beginning of the timeframe
      * @param executeAfter unix second timestamp of the end of the timeframe

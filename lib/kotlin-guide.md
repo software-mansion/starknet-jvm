@@ -476,6 +476,7 @@ val outsideCall = account.signOutsideExecutionCallV2(
     executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond), 
     executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
     calls = listOf(call),
+    nonce = getOutsideExecutionNonce()
 )
 
 secondAccount.executeV3(outsideCall).send()
