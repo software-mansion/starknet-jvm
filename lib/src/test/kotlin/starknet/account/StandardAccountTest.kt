@@ -8,6 +8,7 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
@@ -1315,7 +1316,7 @@ class StandardAccountTest {
 
     @Nested
     inner class OutsideExecutionTest {
-        private val randomAddress = Felt.fromHex("0x655b2696f187daec1952ef59befbd875add757748d6c844fb273439cd0d82f9")
+        private val randomAddress = Felt.fromHex("0x123")
 
         @Test
         fun `executes transfers from another specified account`() {
@@ -1355,6 +1356,72 @@ class StandardAccountTest {
             val balanceAfter = getBalance(account.address)
             val diff = balanceBefore - balanceAfter
             assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `executes transfers from the same account`() {
+            val call1 = transferCall(100)
+            val call2 = transferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCall(
+                caller = account.address,
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            account.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `does not execute transfers signed to the different account`() {
+            val call1 = transferCall(100)
+            val call2 = transferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCall(
+                caller = accountAddress,
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.plusSeconds(10).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            assertTrue {
+                assertThrows<RpcRequestFailedException> {
+                    secondAccount.executeV3(outsideCall).send()
+                }.payload.contains("SRC9: invalid caller")
+            }
+
+            val balanceAfter = getBalance(account.address)
+            assertEquals(balanceBefore, balanceAfter)
+        }
+
+        @Test
+        fun `does not execute transfers after allowed time interval`() {
+            val call1 = transferCall(100)
+            val call2 = transferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCall(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.minusSeconds(1).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            assertTrue {
+                assertThrows<RpcRequestFailedException> {
+                    secondAccount.executeV3(outsideCall).send()
+                }.payload.contains("SRC9: now >= execute_before")
+            }
+
+            val balanceAfter = getBalance(account.address)
+            assertEquals(balanceBefore, balanceAfter)
         }
 
         private fun getBalance(address: Felt): BigInteger {
