@@ -1323,7 +1323,7 @@ class StandardAccountTest {
             val call2 = transferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.createExecuteFromOutsideV2Call(
+            val outsideCall = account.signOutsideExecutionCall(
                 caller = secondAccount.address,
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),
@@ -1344,7 +1344,7 @@ class StandardAccountTest {
             val call2 = transferCall(200)
             val balanceBefore = getBalance(account.address)
             val now = Instant.now()
-            val outsideCall = account.createExecuteFromOutsideV2Call(
+            val outsideCall = account.signOutsideExecutionCall(
                 caller = Felt.fromShortString("ANY_CALLER"),
                 executeAfter = Felt(now.minusSeconds(10).epochSecond),
                 executeBefore = Felt(now.plusSeconds(10).epochSecond),

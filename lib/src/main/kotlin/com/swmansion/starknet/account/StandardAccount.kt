@@ -364,13 +364,7 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
-    /**
-     * @param caller: Authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
-     * @param executeAfter: Unix second timestamp of the beginning of the timeframe
-     * @param executeAfter: Unix second timestamp of the end of the timeframe
-     * @param calls: calls
-     */
-    override fun createExecuteFromOutsideV2Call(
+    override fun signOutsideExecutionCall(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,

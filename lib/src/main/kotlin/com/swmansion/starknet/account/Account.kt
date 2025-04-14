@@ -347,12 +347,13 @@ interface Account {
     ): Request<EstimateFeeResponseList>
 
     /**
-     * @param caller: Authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
-     * @param executeAfter: Unix second timestamp of the beginning of the timeframe
-     * @param executeAfter: Unix second timestamp of the end of the timeframe
-     * @param calls: calls
+     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param calls the usual calls to be executed by the account
+     * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
      */
-    fun createExecuteFromOutsideV2Call(
+    fun signOutsideExecutionCall(
         caller: Felt,
         executeAfter: Felt,
         executeBefore: Felt,
