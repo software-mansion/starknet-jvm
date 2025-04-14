@@ -382,7 +382,7 @@ interface Account {
         executeBefore: Felt,
         call: Call,
         nonce: Felt,
-    ): Call{
+    ): Call {
         return signOutsideExecutionCallV2(
             caller = caller,
             executeAfter = executeAfter,
@@ -424,7 +424,7 @@ interface Account {
         executeAfter: Felt,
         executeBefore: Felt,
         call: Call,
-    ): Call{
+    ): Call {
         return signOutsideExecutionCallV2(
             caller = caller,
             executeAfter = executeAfter,

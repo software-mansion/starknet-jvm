@@ -214,7 +214,7 @@ internal class NumAsHexBaseTests {
             }
             assertEquals(
                 Felt.fromHex("0x7953fbe1ef9513f85e317f35eeec28d2cb7cf071fc6621c8e5310b1750606c9"),
-                Felt.random(Random(2))
+                Felt.random(Random(2)),
             )
         }
     }
