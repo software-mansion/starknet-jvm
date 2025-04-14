@@ -355,7 +355,7 @@ interface Account {
     ): Request<EstimateFeeResponseList>
 
     /**
-     * @param caller authorized executor of the transaction(s):  Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
      * @param executeAfter unix second timestamp of the beginning of the timeframe
      * @param executeAfter unix second timestamp of the end of the timeframe
      * @param calls the usual calls to be executed by the account
