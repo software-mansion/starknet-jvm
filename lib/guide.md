@@ -867,14 +867,18 @@ val secondPrivateKey = Felt(0x2)
 val secondAccount = StandardAccount(secondAddress, secondPrivateKey, provider, chainId)
 
 val now = Instant.now()
+
+// create the call for outside execution
 val outsideCall = account.signOutsideExecutionCallV2(
     caller = secondAccount.address,
+    // transaction can be executed within the following time window
     executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond), 
     executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
     calls = listOf(call),
     nonce = getOutsideExecutionNonce()
 )
 
+// execute the transaction from another account
 secondAccount.executeV3(outsideCall).send()
 ```
 # Package com.swmansion.starknet.crypto
