@@ -8,7 +8,7 @@ include_directories("${CMAKE_SOURCE_DIR}/poseidon/bindings")
 include_directories("${CMAKE_SOURCE_DIR}/pedersen/crypto-cpp/src")
 include_directories("${CMAKE_SOURCE_DIR}/pedersen/bindings")
 
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--zmax-page-size=0x4000")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z max-page-size=0x4000")
 
 set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
