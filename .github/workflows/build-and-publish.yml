@@ -1,7 +1,9 @@
 name: Build And Publish Packages
 
-on:
-  push:
+on: push
+
+#on:
+#  push:
 #    tags:
 #      - '*'
 
