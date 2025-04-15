@@ -20,5 +20,7 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -O3 -fPIC")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=0x4000")
+
 add_subdirectory(poseidon)
 add_subdirectory(bindings)
