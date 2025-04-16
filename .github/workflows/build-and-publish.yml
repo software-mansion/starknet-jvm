@@ -9,7 +9,7 @@ on: push
 
 jobs:
 #  verify_version:
-#    runs-on: ubuntu-latest
+#    runs-on: ubuntu-22.04
 #    steps:
 #      - uses: actions/checkout@v3
 #      - name: Verify correct version
@@ -22,7 +22,7 @@ jobs:
 #    needs: [verify_version]
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-22.04, macos-latest ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -41,7 +41,7 @@ jobs:
       # See https://github.com/software-mansion/starknet-jvm/issues/171
       - name: Set up GCC 7
         run: sudo apt update && sudo apt install -y g++-7
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
       - name: Force usage of gcc 7
         run: |
           # First delete any version other than 7
@@ -49,7 +49,7 @@ jobs:
           echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
           echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
         shell: bash
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
 
       - name: Set arch variable
         id: vars
@@ -75,19 +75,19 @@ jobs:
 
       - name: Build android's AAR
         run: ./gradlew android:build
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
       - name: Rename AAR
         run: mv android/build/outputs/aar/android-release.aar starknet.aar
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
       - name: Upload the AAR
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
         uses: actions/upload-artifact@v4
         with:
           name: starknet-aar
           path: starknet.aar
 
   build_virt:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 #    needs: [verify_version]
     strategy:
       matrix:
@@ -135,7 +135,7 @@ jobs:
       archs: ${{ steps.vars.outputs.os_arch }}
 
   package_jar:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build_x64, build_virt]
     steps:
       - uses: actions/checkout@v3
@@ -163,7 +163,7 @@ jobs:
           path: starknet.jar
 
   generate_javadoc_and_sources:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build_x64, build_virt]
     steps:
       - uses: actions/checkout@v3
@@ -185,7 +185,7 @@ jobs:
           path: sources.jar
 
 #  publish:
-#    runs-on: ubuntu-latest
+#    runs-on: ubuntu-22.04
 #    needs: [package_jar, generate_javadoc_and_sources]
 #    steps:
 #      - uses: actions/checkout@v3
