@@ -42,10 +42,10 @@ jobs:
       - name: Set up GCC 11
         run: sudo apt update && sudo apt install -y g++-11
         if: matrix.os == 'ubuntu-22.04'
-      - name: Force usage of gcc 7
+      - name: Force usage of gcc 11
         run: |
-          # First delete any version other than 7
-          sudo find /usr/lib/gcc/x86_64-linux-gnu/ -maxdepth 1 -mindepth 1 ! -name 7 -exec rm -rf {} +
+          # First delete any version other than 11
+          sudo find /usr/lib/gcc/x86_64-linux-gnu/ -maxdepth 1 -mindepth 1 ! -name 11 -exec rm -rf {} +
           echo "CC=/usr/bin/gcc-11" >> $GITHUB_ENV
           echo "CXX=/usr/bin/g++-11" >> $GITHUB_ENV
         shell: bash
