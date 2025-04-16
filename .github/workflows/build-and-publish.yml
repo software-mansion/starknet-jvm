@@ -39,15 +39,15 @@ jobs:
           cache: 'gradle'
 
       # See https://github.com/software-mansion/starknet-jvm/issues/171
-      - name: Set up GCC 7
-        run: sudo apt update && sudo apt install -y g++-7
+      - name: Set up GCC 11
+        run: sudo apt update && sudo apt install -y g++-11
         if: matrix.os == 'ubuntu-22.04'
       - name: Force usage of gcc 7
         run: |
           # First delete any version other than 7
           sudo find /usr/lib/gcc/x86_64-linux-gnu/ -maxdepth 1 -mindepth 1 ! -name 7 -exec rm -rf {} +
-          echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
-          echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
+          echo "CC=/usr/bin/gcc-11" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-11" >> $GITHUB_ENV
         shell: bash
         if: matrix.os == 'ubuntu-22.04'
 
