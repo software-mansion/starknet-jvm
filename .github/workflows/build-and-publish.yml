@@ -142,6 +142,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: download
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
       - name: Move shared libs
         run: |
           # Mac uses a universal binary
@@ -167,6 +171,10 @@ jobs:
     needs: [build_x64, build_virt]
     steps:
       - uses: actions/checkout@v3
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
       - name: Generate javadoc JAR
         run: ./gradlew javadocJar
       - name: Generate sources JAR
