@@ -10,7 +10,7 @@ permissions:
 jobs:
   build-and-publish-docs:
     concurrency: ci-${{ github.ref }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 #     TODO: Uncomment this check once running workflow manually is note needed anymore
 #    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
