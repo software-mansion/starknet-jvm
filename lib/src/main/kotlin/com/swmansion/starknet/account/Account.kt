@@ -347,6 +347,87 @@ interface Account {
     ): Request<EstimateFeeResponseList>
 
     /**
+     * Check is nonce valid for [signOutsideExecutionCallV2]
+     *
+     * @param nonce nonce used for check.
+     */
+    fun isValidOutsideExecutionNonce(nonce: Felt): Request<Boolean>
+
+    /**
+     * Get nonce valid for [signOutsideExecutionCallV2]
+     *
+     * @return nonce valid for [signOutsideExecutionCallV2]
+     */
+    fun getOutsideExecutionNonce(): Felt
+
+    /**
+     * Get nonce valid for [signOutsideExecutionCallV2]
+     *
+     * Method tries to generate random valid nonce see [isValidOutsideExecutionNonce], using no more than [retryLimit] attempts
+     *
+     * @param retryLimit maximum attempts for generate
+     * @return nonce valid for [signOutsideExecutionCallV2]
+     * @throws NonceGenerationException
+     */
+    fun getOutsideExecutionNonce(retryLimit: Int): Felt
+
+    /**
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param calls the usual calls to be executed by the account
+     * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
+     */
+    fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+        nonce: Felt,
+    ): Call
+
+    /**
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param call the usual call to be executed by the account
+     * @param nonce this is different from the account’s usual nonce, it is used to prevent signature reuse across executions and doesn’t need to be incremental as long as it’s unique.
+     */
+    fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+        nonce: Felt,
+    ): Call
+
+    /**
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param calls the usual calls to be executed by the account
+     */
+    fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+    ): Call
+
+    /**
+     * @param caller authorized executor of the transaction(s): Hex address or Felt.fromShortString("ANY_CALLER")
+     * @param executeAfter unix second timestamp of the beginning of the timeframe
+     * @param executeAfter unix second timestamp of the end of the timeframe
+     * @param call the usual call to be executed by the account
+     */
+    fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+    ): Call
+
+    /**
      * Get account nonce.
      *
      * Get account nonce for pending block.

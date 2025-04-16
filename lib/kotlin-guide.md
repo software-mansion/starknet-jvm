@@ -463,6 +463,41 @@ val typedData = TypedData.fromJsonString("...")
 val typedDataSignature = account.signTypedData(typedData)
 val isValidSignatureRequest = account.verifyTypedDataSignature(typedData, typedDataSignature)
 val isValidSignature = isValidSignatureRequest.send()
+
+// Outside Execution, also known as meta-transactions, allows a protocol to submit transactions on behalf of a 
+// user account, as long as they have the relevant signatures
+val secondAddress = Felt(0x1235)
+val secondPrivateKey = Felt(0x2)
+val secondAccount = StandardAccount(secondAddress, secondPrivateKey, provider, chainId)
+
+val now = Instant.now()
+
+// create the call for outside execution
+val outsideCall1 = account.signOutsideExecutionCallV2(
+    caller = secondAccount.address,
+    // transaction can be executed within the following time window
+    executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond), 
+    executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+    calls = listOf(call),
+    nonce = getOutsideExecutionNonce()
+)
+
+// execute the transaction from another account
+secondAccount.executeV3(outsideCall1).send()
+
+// create the call for outside execution
+val outsideCall2 = account.signOutsideExecutionCallV2(
+    // transaction can be executed by any caller
+    caller = Felt.fromShortString("ANY_CALLER"),
+    // transaction can be executed within the following time window
+    executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+    executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+    calls = listOf(call1, call2),
+    nonce = getOutsideExecutionNonce()
+)
+
+// execute the transaction from another account
+secondAccount.executeV3(outsideCall2).send()
 ```
 # Package com.swmansion.starknet.crypto
 

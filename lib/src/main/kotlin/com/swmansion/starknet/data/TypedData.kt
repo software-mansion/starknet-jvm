@@ -157,6 +157,11 @@ data class TypedData private constructor(
         }
     }
 
+    data class Descriptor(
+        val name: String,
+        val properties: List<Type>,
+    )
+
     /**
      * TypedData revision.
      *
@@ -181,6 +186,26 @@ data class TypedData private constructor(
         val chainId: JsonPrimitive,
         val revision: JsonPrimitive? = null,
     ) {
+        companion object {
+            val typeDescriptorV0 = Descriptor(
+                "StarkNetDomain",
+                listOf(
+                    StandardType(name = "name", type = "felt"),
+                    StandardType(name = "version", type = "felt"),
+                    StandardType(name = "chainId", type = "felt"),
+                ),
+            )
+            val typeDescriptorV1 = Descriptor(
+                "StarknetDomain",
+                listOf(
+                    StandardType(name = "name", type = "shortstring"),
+                    StandardType(name = "version", type = "shortstring"),
+                    StandardType(name = "chainId", type = "shortstring"),
+                    StandardType(name = "revision", type = "shortstring"),
+                ),
+            )
+        }
+
         @Transient
         val resolvedRevision = revision?.let {
             Json.decodeFromJsonElement<Revision>(it)
