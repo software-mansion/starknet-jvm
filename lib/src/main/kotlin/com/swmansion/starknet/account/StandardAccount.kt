@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.compose
@@ -198,25 +199,7 @@ class StandardAccount @JvmOverloads constructor(
         val call = Call(address, "isValidSignature", calldata)
         val request = provider.callContract(call)
 
-        return object : Request<Boolean> {
-            override fun send(): Boolean {
-                return try {
-                    val result = request.send()
-                    result[0] > Felt.ZERO
-                } catch (e: RequestFailedException) {
-                    return handleValidationError(e)
-                }
-            }
-
-            override fun sendAsync(): CompletableFuture<Boolean> {
-                return request.sendAsync().handle { result, exception ->
-                    if (exception is RequestFailedException) {
-                        return@handle handleValidationError(exception)
-                    }
-                    return@handle result[0] > Felt.ZERO
-                }
-            }
-        }
+        return request.toBooleanRequest()
     }
 
     /**
@@ -363,6 +346,112 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun isValidOutsideExecutionNonce(nonce: Felt): Request<Boolean> {
+        return provider.callContract(
+            Call(
+                contractAddress = address,
+                entrypoint = "is_valid_outside_execution_nonce",
+                nonce.toCalldata(),
+            ),
+        ).toBooleanRequest()
+    }
+
+    override fun getOutsideExecutionNonce(): Felt {
+        return getOutsideExecutionNonce(retryLimit = 10)
+    }
+
+    override fun getOutsideExecutionNonce(retryLimit: Int): Felt {
+        repeat(retryLimit) {
+            val randomNonce = generatePrivateKey()
+            if (isValidOutsideExecutionNonce(randomNonce).send()) {
+                return randomNonce
+            }
+        }
+        throw NonceGenerationException()
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+        nonce: Felt,
+    ): Call {
+        val execution = OutsideExecutionV2(
+            caller = caller,
+            nonce = nonce,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = calls.map {
+                OutsideCallV2(
+                    to = it.contractAddress,
+                    selector = it.entrypoint,
+                    calldata = it.calldata,
+                )
+            },
+        )
+        val message = execution.toTypedData(chainId)
+
+        val (r, s) = signTypedData(message)
+
+        val outsideTransaction = OutsideTransaction(
+            outsideExecution = execution,
+            signature = StarknetCurveSignature(r, s),
+            signerAddress = address,
+        )
+        return Call(
+            contractAddress = address,
+            "execute_from_outside_v2",
+            outsideTransaction.toCalldata(),
+        )
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+        nonce: Felt,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            nonce = nonce,
+        )
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        calls: List<Call>,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = calls,
+            nonce = getOutsideExecutionNonce(),
+        )
+    }
+
+    override fun signOutsideExecutionCallV2(
+        caller: Felt,
+        executeAfter: Felt,
+        executeBefore: Felt,
+        call: Call,
+    ): Call {
+        return signOutsideExecutionCallV2(
+            caller = caller,
+            executeAfter = executeAfter,
+            executeBefore = executeBefore,
+            calls = listOf(call),
+            nonce = getOutsideExecutionNonce(),
+        )
+    }
+
     private fun buildEstimateFeeV3Payload(calls: List<Call>, nonce: Felt): List<ExecutableTransaction> {
         val executionParams = InvokeParamsV3(
             nonce = nonce,
@@ -394,5 +483,28 @@ class StandardAccount @JvmOverloads constructor(
         return BigInteger.valueOf(2).pow(128)
             .add(version.value)
             .toFelt
+    }
+
+    private fun Request<FeltArray>.toBooleanRequest(): Request<Boolean> {
+        val request = this@toBooleanRequest
+        return object : Request<Boolean> {
+            override fun send(): Boolean {
+                return try {
+                    val result = request.send()
+                    result[0] > Felt.ZERO
+                } catch (e: RequestFailedException) {
+                    return handleValidationError(e)
+                }
+            }
+
+            override fun sendAsync(): CompletableFuture<Boolean> {
+                return request.sendAsync().handle { result, exception ->
+                    if (exception is RequestFailedException) {
+                        return@handle handleValidationError(exception)
+                    }
+                    return@handle result[0] > Felt.ZERO
+                }
+            }
+        }
     }
 }
