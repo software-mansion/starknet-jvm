@@ -47,25 +47,25 @@ data class DeployAccountResponse(
 @Serializable
 data class EstimateFeeResponse(
     @SerialName("l1_gas_consumed")
-    val l1GasConsumed: Felt,
+    val l1GasConsumed: Uint64,
 
     @SerialName("l1_gas_price")
-    val l1GasPrice: Felt,
+    val l1GasPrice: Uint128,
 
     @SerialName("l2_gas_consumed")
-    val l2GasConsumed: Felt,
+    val l2GasConsumed: Uint64,
 
     @SerialName("l2_gas_price")
-    val l2GasPrice: Felt,
+    val l2GasPrice: Uint128,
 
     @SerialName("l1_data_gas_consumed")
-    val l1DataGasConsumed: Felt,
+    val l1DataGasConsumed: Uint64,
 
     @SerialName("l1_data_gas_price")
-    val l1DataGasPrice: Felt,
+    val l1DataGasPrice: Uint128,
 
     @SerialName("overall_fee")
-    val overallFee: Felt,
+    val overallFee: Uint128,
 
     // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")

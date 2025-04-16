@@ -46,11 +46,11 @@ class JsonRpcResponseTest {
         val request = provider.getEstimateMessageFee(message, BlockTag.PENDING)
         val response = request.send()
 
-        assertEquals(Felt.fromHex("0x1234"), response.l1GasConsumed)
-        assertEquals(Felt.fromHex("0x5678"), response.l1GasPrice)
-        assertEquals(Felt.fromHex("0x1111"), response.l2GasConsumed)
-        assertEquals(Felt.fromHex("0x2222"), response.l2GasPrice)
-        assertEquals(Felt.fromHex("0x9abc"), response.overallFee)
+        assertEquals(Uint64.fromHex("0x1234"), response.l1GasConsumed)
+        assertEquals(Uint128.fromHex("0x5678"), response.l1GasPrice)
+        assertEquals(Uint64.fromHex("0x1111"), response.l2GasConsumed)
+        assertEquals(Uint128.fromHex("0x2222"), response.l2GasPrice)
+        assertEquals(Uint128.fromHex("0x9abc"), response.overallFee)
         assertEquals(PriceUnit.FRI, response.feeUnit)
 
         val provider2 = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = false)
