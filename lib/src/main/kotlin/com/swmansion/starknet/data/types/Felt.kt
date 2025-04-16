@@ -6,6 +6,7 @@ import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
 import com.swmansion.starknet.extensions.toHex
 import kotlinx.serialization.Serializable
 import java.math.BigInteger
+import java.security.SecureRandom
 
 @Serializable(with = FeltSerializer::class)
 data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata, StarknetResponse {
@@ -66,6 +67,8 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
 
         @field:JvmField
         val ONE = Felt(BigInteger.ONE)
+
+        private val random = SecureRandom()
 
         /**
          * Create Felt from hex string. It must start with "0x" prefix.
