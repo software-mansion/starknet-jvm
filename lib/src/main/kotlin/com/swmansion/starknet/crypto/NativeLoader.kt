@@ -5,7 +5,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.util.*
 
-object NativeLoader {
+internal object NativeLoader {
     private val operatingSystem: SystemType by lazy {
         val system = System.getProperty("os.name", "generic")?.lowercase(Locale.ENGLISH) ?: throw UnknownOS()
         when {
