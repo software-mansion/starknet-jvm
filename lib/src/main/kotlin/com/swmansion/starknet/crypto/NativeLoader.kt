@@ -5,7 +5,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.util.*
 
-internal object NativeLoader {
+object NativeLoader {
     private val operatingSystem: SystemType by lazy {
         val system = System.getProperty("os.name", "generic")?.lowercase(Locale.ENGLISH) ?: throw UnknownOS()
         when {
@@ -51,7 +51,7 @@ internal object NativeLoader {
         System.load(tmpFilePath.toString())
     }
 
-    enum class SystemType {
+    private enum class SystemType {
         Windows, MacOS, Linux, Other
     }
 
@@ -60,28 +60,23 @@ internal object NativeLoader {
 
     class UnknownOS : RuntimeException("Failed to fetch OS name")
 
-    fun getLibPath(system: SystemType, architecture: String, name: String): String {
+    private fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
             SystemType.Linux -> {
                 // Try to load from AAR
-                val androidAbi: String? = runCatching {
+                val androidAbi = runCatching {
                     val buildClass = Class.forName("android.os.Build")
 
                     @Suppress("UNCHECKED_CAST")
-                    val supAbis = buildClass.getField("SUPPORTED_ABIS")
+                    val supportedAbis = buildClass.getField("SUPPORTED_ABIS")
                         .get(null) as Array<String>
-                    println("Android ABI: $supAbis")
-                    supAbis.firstOrNull()
+
+                    supportedAbis.firstOrNull()
                 }.getOrNull()
 
-                println("Android ABI: $androidAbi")
                 if (androidAbi != null) {
-                    val jniPath = "/jni/$androidAbi/$name.so"
-                    println("jniPath: $jniPath")
-                    if (NativeLoader::class.java.getResource(jniPath) != null) {
-                        return jniPath
-                    }
+                    return "/jni/$androidAbi/$name.so"
                 }
 
                 // Fallback to the default path
