@@ -51,7 +51,7 @@ internal object NativeLoader {
         System.load(tmpFilePath.toString())
     }
 
-    private enum class SystemType {
+    enum class SystemType {
         Windows, MacOS, Linux, Other
     }
 
@@ -60,11 +60,33 @@ internal object NativeLoader {
 
     class UnknownOS : RuntimeException("Failed to fetch OS name")
 
-    private fun getLibPath(system: SystemType, architecture: String, name: String): String {
+    fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
-            SystemType.Linux -> "/linux/$architecture/$name.so"
-            else -> throw UnsupportedPlatform(operatingSystem.name, architecture)
+            SystemType.Linux -> {
+                // Try to load from AAR
+                val androidAbi: String? = runCatching {
+                    val buildClass = Class.forName("android.os.Build")
+
+                    @Suppress("UNCHECKED_CAST")
+                    val supAbis = buildClass.getField("SUPPORTED_ABIS")
+                        .get(null) as Array<String>
+                    supAbis.firstOrNull()
+                }.getOrNull()
+
+                if (androidAbi != null) {
+                    val jniPath = "/jni/$androidAbi/$name.so"
+                    if (NativeLoader::class.java.getResource(jniPath) != null) {
+                        return jniPath
+                    }
+                }
+
+                // Fallback to the default path
+                "/linux/$architecture/$name.so"
+            }
+
+            else ->
+                throw UnsupportedPlatform(operatingSystem.name, architecture)
         }
     }
 }
