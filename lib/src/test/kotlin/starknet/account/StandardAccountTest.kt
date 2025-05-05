@@ -8,6 +8,7 @@ import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
@@ -23,8 +24,11 @@ import org.mockito.kotlin.mock
 import starknet.data.loadTypedData
 import starknet.utils.DevnetClient
 import starknet.utils.ScarbClient
+import java.math.BigInteger
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.Duration
+import java.time.Instant
 import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -47,6 +51,7 @@ class StandardAccountTest {
 
         private lateinit var chainId: StarknetChainId
         private lateinit var account: Account
+        private lateinit var secondAccount: Account
 
         @JvmStatic
         @BeforeAll
@@ -68,6 +73,14 @@ class StandardAccountTest {
                     provider = provider,
                     chainId = chainId,
                 )
+                secondAccount = devnetClient.createDeployAccount(accountName = "second").details.let {
+                    StandardAccount(
+                        address = it.address,
+                        provider = provider,
+                        privateKey = it.privateKey,
+                        chainId = chainId,
+                    )
+                }
             } catch (ex: Exception) {
                 devnetClient.close()
                 throw ex
@@ -624,7 +637,6 @@ class StandardAccountTest {
         }
 
         @Test
-        @Disabled("TODO(#536)")
         fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -1295,6 +1307,170 @@ class StandardAccountTest {
             assertEquals(2, messages.size)
             assertEquals(0, messages[0].order)
             assertEquals(1, messages[1].order)
+        }
+    }
+
+    @Nested
+    inner class OutsideExecutionTest {
+        private val randomAddress = Felt.fromHex("0x123")
+
+        @Test
+        fun `isValidOutsideExecutionNonce returns true for not used nonce`() {
+            val nonce = account.getOutsideExecutionNonce()
+            assertEquals(
+                true,
+                account.isValidOutsideExecutionNonce(nonce).send(),
+            )
+        }
+
+        @Test
+        fun `isValidOutsideExecutionNonce returns false for used nonce`() {
+            val call = createTransferCall(100)
+            val now = Instant.now()
+            val nonce = account.getOutsideExecutionNonce()
+
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call),
+                nonce = nonce,
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            assertEquals(
+                false,
+                account.isValidOutsideExecutionNonce(nonce).send(),
+            )
+        }
+
+        @Test
+        fun `executes transfers from another specified account`() {
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `executes transfers from another any account`() {
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = Felt.fromShortString("ANY_CALLER"),
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            secondAccount.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `executes transfers from the same account`() {
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = account.address,
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            account.executeV3(outsideCall).send()
+
+            val balanceAfter = getBalance(account.address)
+            val diff = balanceBefore - balanceAfter
+            assertEquals(diff, 300.toBigInteger())
+        }
+
+        @Test
+        fun `does not execute transfers signed to the different account`() {
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = accountAddress,
+                executeAfter = Felt(now.minus(Duration.ofHours(1)).epochSecond),
+                executeBefore = Felt(now.plus(Duration.ofHours(1)).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            assertTrue {
+                assertThrows<RpcRequestFailedException> {
+                    secondAccount.executeV3(outsideCall).send()
+                }.payload.contains("SRC9: invalid caller")
+            }
+
+            val balanceAfter = getBalance(account.address)
+            assertEquals(balanceBefore, balanceAfter)
+        }
+
+        @Test
+        fun `does not execute transfers after allowed time interval`() {
+            val call1 = createTransferCall(100)
+            val call2 = createTransferCall(200)
+            val balanceBefore = getBalance(account.address)
+            val now = Instant.now()
+            val outsideCall = account.signOutsideExecutionCallV2(
+                caller = secondAccount.address,
+                executeAfter = Felt(now.minusSeconds(10).epochSecond),
+                executeBefore = Felt(now.minusSeconds(1).epochSecond),
+                calls = listOf(call1, call2),
+            )
+
+            assertTrue {
+                assertThrows<RpcRequestFailedException> {
+                    secondAccount.executeV3(outsideCall).send()
+                }.payload.contains("SRC9: now >= execute_before")
+            }
+
+            val balanceAfter = getBalance(account.address)
+            assertEquals(balanceBefore, balanceAfter)
+        }
+
+        private fun getBalance(address: Felt): BigInteger {
+            return devnetClient.provider.callContract(
+                Call(
+                    contractAddress = DevnetClient.ethErc20ContractAddress,
+                    entrypoint = "balance_of",
+                    calldata = listOf(address),
+                ),
+            ).send()[0].value
+        }
+
+        private fun createTransferCall(amount: Int): Call {
+            return Call(
+                contractAddress = DevnetClient.ethErc20ContractAddress,
+                entrypoint = "transfer",
+                calldata = listOf(
+                    randomAddress,
+                    Uint256(amount).low,
+                    Uint256(0).high,
+                ),
+            )
         }
     }
 }

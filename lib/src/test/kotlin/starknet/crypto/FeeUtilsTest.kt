@@ -9,13 +9,13 @@ import org.junit.jupiter.api.assertThrows
 class FeeUtilsTest {
     companion object {
         val estimateFee = EstimateFeeResponse(
-            l1GasConsumed = Felt(1000),
-            l1GasPrice = Felt(100),
-            l1DataGasConsumed = Felt(1000),
-            l1DataGasPrice = Felt(100),
-            l2GasConsumed = Felt(200),
-            l2GasPrice = Felt(50),
-            overallFee = Felt(1000 * 100 + 200 * 50 + 1000 * 100), // 210000
+            l1GasConsumed = Uint64(1000),
+            l1GasPrice = Uint128(100),
+            l1DataGasConsumed = Uint64(1000),
+            l1DataGasPrice = Uint128(100),
+            l2GasConsumed = Uint64(200),
+            l2GasPrice = Uint128(50),
+            overallFee = Uint128(1000 * 100 + 200 * 50 + 1000 * 100), // 210000
             feeUnit = PriceUnit.WEI,
         )
     }
