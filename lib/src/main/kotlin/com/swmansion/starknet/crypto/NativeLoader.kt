@@ -71,11 +71,14 @@ internal object NativeLoader {
                     @Suppress("UNCHECKED_CAST")
                     val supAbis = buildClass.getField("SUPPORTED_ABIS")
                         .get(null) as Array<String>
+                    println("Android ABI: $supAbis")
                     supAbis.firstOrNull()
                 }.getOrNull()
 
+                println("Android ABI: $androidAbi")
                 if (androidAbi != null) {
                     val jniPath = "/jni/$androidAbi/$name.so"
+                    println("jniPath: $jniPath")
                     if (NativeLoader::class.java.getResource(jniPath) != null) {
                         return jniPath
                     }
