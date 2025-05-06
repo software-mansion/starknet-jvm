@@ -4,7 +4,6 @@ import java.net.URL
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.util.*
-import java.util.logging.Logger
 
 internal object NativeLoader {
     private val operatingSystem: SystemType by lazy {
@@ -105,5 +104,4 @@ internal object NativeLoader {
             println("$tag: $msg")
         }
     }
-
 }
