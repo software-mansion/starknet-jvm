@@ -53,7 +53,7 @@ internal object NativeLoader {
         System.load(tmpFilePath.toString())
     }
 
-    private enum class SystemType {
+    enum class SystemType {
         Windows, MacOS, Linux, Other
     }
 
@@ -62,7 +62,7 @@ internal object NativeLoader {
 
     class UnknownOS : RuntimeException("Failed to fetch OS name")
 
-    private fun getLibPath(system: SystemType, architecture: String, name: String): String {
+    fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
             SystemType.Linux -> {
