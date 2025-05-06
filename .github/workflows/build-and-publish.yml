@@ -151,9 +151,9 @@ jobs:
           cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
           mkdir -p lib/build/libs/shared/linux/{amd64,arm64,aarch64,x86_64}
           cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
+          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/x86_64/
           cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
           cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/aarch64/
-          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/x86_64/
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Rename JAR
