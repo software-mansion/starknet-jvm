@@ -31,6 +31,7 @@ internal object NativeLoader {
             e.printStackTrace()
             // Find the package bundled in this jar
             val path = getLibPath(operatingSystem, architecture, "lib" + name)
+            println("lib path: $path")
             val resource =
                 NativeLoader::class.java.getResource(path) ?: throw UnsupportedPlatform(
                     operatingSystem.name,
@@ -76,7 +77,10 @@ internal object NativeLoader {
                 }.getOrNull()
 
                 if (androidAbi != null) {
-                    return "/jni/$androidAbi/$name.so"
+                    val libPath = "/jni/$androidAbi/$name.so"
+                    if (NativeLoader::class.java.getResource(libPath) != null) {
+                        return libPath
+                    }
                 }
 
                 // Fallback to the default path

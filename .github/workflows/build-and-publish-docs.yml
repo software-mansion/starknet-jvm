@@ -33,9 +33,9 @@ jobs:
           ./gradlew :lib:dokkaHtml
           cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6
-        with:
-          folder: lib/build/dokka/javadoc
-          branch: gh-pages
-          single-commit: true
+#      - name: Deploy
+#        uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6
+#        with:
+#          folder: lib/build/dokka/javadoc
+#          branch: gh-pages
+#          single-commit: true
