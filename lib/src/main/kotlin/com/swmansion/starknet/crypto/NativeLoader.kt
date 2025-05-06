@@ -4,6 +4,7 @@ import java.net.URL
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.util.*
+import java.util.logging.Logger
 
 internal object NativeLoader {
     private val operatingSystem: SystemType by lazy {
@@ -31,7 +32,8 @@ internal object NativeLoader {
             e.printStackTrace()
             // Find the package bundled in this jar
             val path = getLibPath(operatingSystem, architecture, "lib" + name)
-            println("lib path: $path")
+            println("NativeLoader, lib path: $path")
+            safeLog("NativeLoader", "lib path: $path")
             val resource =
                 NativeLoader::class.java.getResource(path) ?: throw UnsupportedPlatform(
                     operatingSystem.name,
@@ -77,6 +79,8 @@ internal object NativeLoader {
                 }.getOrNull()
 
                 if (androidAbi != null) {
+                    println("NativeLoader, androidAbi: $androidAbi")
+                    safeLog("NativeLoader", "androidAbi: $androidAbi")
                     val libPath = "/jni/$androidAbi/$name.so"
                     if (NativeLoader::class.java.getResource(libPath) != null) {
                         return libPath
@@ -91,4 +95,15 @@ internal object NativeLoader {
                 throw UnsupportedPlatform(operatingSystem.name, architecture)
         }
     }
+
+    private fun safeLog(tag: String, msg: String) {
+        runCatching {
+            val logClass = Class.forName("android.util.Log")
+            val dMethod = logClass.getMethod("d", String::class.java, String::class.java)
+            dMethod.invoke(null, tag, msg)
+        }.onFailure {
+            println("$tag: $msg")
+        }
+    }
+
 }
