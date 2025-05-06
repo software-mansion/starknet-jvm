@@ -76,10 +76,7 @@ internal object NativeLoader {
                 }.getOrNull()
 
                 if (androidAbi != null) {
-                    val jniPath = "/jni/$androidAbi/$name.so"
-                    if (NativeLoader::class.java.getResource(jniPath) != null) {
-                        return jniPath
-                    }
+                    return "/jni/$androidAbi/$name.so"
                 }
 
                 // Fallback to the default path
