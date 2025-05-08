@@ -17,7 +17,12 @@ internal object NativeLoader {
     }
 
     private val architecture: String by lazy {
-        System.getProperty("os.arch")
+        val arch = System.getProperty("os.arch")
+        when {
+            arch.contains("aarch64") || arch.contains("arm64") -> "arm64"
+            arch.contains("x86_64") || arch.contains("amd64") -> "x86_64"
+            else -> arch
+        }
     }
 
     fun load(name: String) = load(name, operatingSystem, architecture)
