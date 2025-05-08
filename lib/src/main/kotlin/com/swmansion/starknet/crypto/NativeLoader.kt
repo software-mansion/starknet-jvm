@@ -33,6 +33,7 @@ internal object NativeLoader {
             // a class path.
             System.loadLibrary(name)
         } catch (e: UnsatisfiedLinkError) {
+            e.printStackTrace()
             // Find the package bundled in this jar
             val path = getLibPath(operatingSystem, architecture, "lib" + name)
             val resource =
