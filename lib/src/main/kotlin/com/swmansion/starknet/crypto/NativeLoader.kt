@@ -17,7 +17,11 @@ internal object NativeLoader {
     }
 
     private val architecture: String by lazy {
-        System.getProperty("os.arch")
+        val arch = System.getProperty("os.arch")
+        when {
+            arch.contains("aarch64") || arch.contains("arm64") -> "arm64"
+            else -> arch
+        }
     }
 
     fun load(name: String) = load(name, operatingSystem, architecture)
@@ -54,7 +58,7 @@ internal object NativeLoader {
     }
 
     enum class SystemType {
-        Windows, MacOS, Linux, Other
+        Windows, MacOS, Linux, Android, Other
     }
 
     class UnsupportedPlatform(system: String, architecture: String) :
@@ -65,6 +69,7 @@ internal object NativeLoader {
     fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
+//            SystemType.Android ->
             SystemType.Linux -> {
                 // Try to load from AAR
                 val androidAbi = runCatching {
