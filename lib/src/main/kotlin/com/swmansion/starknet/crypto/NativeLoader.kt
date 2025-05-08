@@ -21,8 +21,8 @@ internal object NativeLoader {
         // Following adjustment is needed to load the correct library, for missing aarch64 and x86_64 directories.
         val arch = System.getProperty("os.arch")
         when {
-            arch.contains("aarch64") || arch.contains("arm64") -> "arm64"
-            arch.contains("x86_64") || arch.contains("amd64") -> "amd64"
+            arch.equals("aarch64") || arch.equals("arm64") -> "arm64"
+            arch.equals("x86_64") || arch.equals("amd64") -> "amd64"
             else -> arch
         }
     }
