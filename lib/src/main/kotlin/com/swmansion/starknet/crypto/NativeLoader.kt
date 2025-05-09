@@ -20,9 +20,9 @@ internal object NativeLoader {
         // Currently, our generated jar includes 2 subdirectories under linux: amd64 and arm64.
         // Following adjustment is needed to load the correct library, for missing aarch64 and x86_64 directories.
         val arch = System.getProperty("os.arch")
-        when {
-            arch.equals("aarch64") || arch.equals("arm64") -> "arm64"
-            arch.equals("x86_64") || arch.equals("amd64") -> "amd64"
+        when (arch) {
+            "aarch64" -> "arm64"
+            "x86_64" -> "amd64"
             else -> arch
         }
     }
