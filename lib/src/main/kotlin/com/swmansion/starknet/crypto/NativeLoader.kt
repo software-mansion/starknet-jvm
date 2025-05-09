@@ -17,7 +17,14 @@ internal object NativeLoader {
     }
 
     private val architecture: String by lazy {
-        System.getProperty("os.arch")
+        // Currently, our generated jar includes 2 subdirectories under linux: amd64 and arm64.
+        // Following adjustment is needed to load the correct library, for missing aarch64 and x86_64 directories.
+        val arch = System.getProperty("os.arch")
+        when (arch) {
+            "aarch64" -> "arm64"
+            "x86_64" -> "amd64"
+            else -> arch
+        }
     }
 
     fun load(name: String) = load(name, operatingSystem, architecture)
