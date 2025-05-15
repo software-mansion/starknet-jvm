@@ -71,7 +71,18 @@ object StarknetCurve {
      * @param values an iterable of Felts
      */
     @JvmStatic
-    fun pedersen(values: Iterable<Felt>): Felt = values.fold(Felt.ZERO) { a, b -> pedersen(a, b) }
+    fun pedersen(values: Iterable<Felt>): Felt {
+        val iterator = values.iterator()
+        var accumulator = if (iterator.hasNext()) {
+            iterator.next()
+        } else {
+            return Felt.ZERO
+        }
+        iterator.forEach {
+            accumulator = pedersen(accumulator, it)
+        }
+        return accumulator
+    }
 
     /**
      * Compute pedersen hash on collection of Felts.
