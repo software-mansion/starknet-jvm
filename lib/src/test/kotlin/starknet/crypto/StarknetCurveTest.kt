@@ -135,7 +135,7 @@ internal class StarknetCurveTest {
         for (case in cases) {
             val result = StarknetCurve.pedersen(case.first, case.second)
             assertEquals(Felt.fromHex(case.third), result)
-            assertEquals( StarknetCurve.pedersen(listOf(case.first, case.second)), result)
+            assertEquals(StarknetCurve.pedersen(listOf(case.first, case.second)), result)
         }
     }
 
