@@ -1,6 +1,7 @@
 [submodule "crypto/pedersen/crypto-cpp"]
 	path = crypto/pedersen/crypto-cpp
 	url = git@github.com:software-mansion-labs/crypto-cpp.git
+	url = git@github.com:starkware-libs/crypto-cpp.git
 [submodule "crypto/poseidon/poseidon"]
 	path = crypto/poseidon/poseidon
 	url = git@github.com:THenry14/poseidon.git
