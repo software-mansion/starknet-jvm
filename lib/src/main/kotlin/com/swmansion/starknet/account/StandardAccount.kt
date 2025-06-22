@@ -282,7 +282,7 @@ class StandardAccount @JvmOverloads constructor(
     /**
      * @sample starknet.account.StandardAccountTest.NonceTest.getNonce
      */
-    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
+    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PRE_CONFIRMED)
 
     /**
      * @sample starknet.account.StandardAccountTest.NonceTest.getNonceAtLatestBlockTag
@@ -320,14 +320,14 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun estimateFeeV3(calls: List<Call>): Request<EstimateFeeResponseList> {
-        return estimateFeeV3(calls, BlockTag.PENDING, false)
+        return estimateFeeV3(calls, BlockTag.PRE_CONFIRMED, false)
     }
 
     /**
      * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV3Transaction
      */
     override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList> {
-        return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
+        return estimateFeeV3(calls, BlockTag.PRE_CONFIRMED, skipValidate)
     }
 
     override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {

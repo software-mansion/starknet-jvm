@@ -363,20 +363,20 @@ class ProviderTest {
         assertTrue(response is ProcessedBlockWithTransactions)
     }
 
-    @Disabled
+//    @Disabled
     @Test
-    fun `get block with transactions with pending block tag`() {
+    fun `get block with transactions with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
         // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
-        val request = provider.getBlockWithTxs(BlockTag.PENDING)
+        val request = provider.getBlockWithTxs(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithTransactions)
+        assertTrue(response is PreConfirmedBlockWithTransactions)
     }
 
     @Test
@@ -418,18 +418,18 @@ class ProviderTest {
 
     @Disabled
     @Test
-    fun `get block with transaction hashes with pending block tag`() {
+    fun `get block with transaction hashes with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
         // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
-        val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
+        val request = provider.getBlockWithTxHashes(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithTransactionHashes)
+        assertTrue(response is PreConfirmedBlockWithTransactionHashes)
     }
 
     @Test
@@ -471,18 +471,18 @@ class ProviderTest {
 
     @Disabled
     @Test
-    fun `get block with receipts with pending block tag`() {
+    fun `get block with receipts with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
         // 1. This test may fail because there's temporarily no pending block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
-        val request = provider.getBlockWithReceipts(BlockTag.PENDING)
+        val request = provider.getBlockWithReceipts(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         assertNotNull(response)
-        assertTrue(response is PendingBlockWithReceipts)
+        assertTrue(response is PreConfirmedBlockWithReceipts)
         response.transactionsWithReceipts.forEach {
             assertTrue(it.receipt.isPending)
         }

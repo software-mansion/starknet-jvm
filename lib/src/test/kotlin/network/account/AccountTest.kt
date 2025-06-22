@@ -105,7 +105,7 @@ class AccountTest {
             forFeeEstimate = true,
         )
 
-        val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PENDING)
+        val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PRE_CONFIRMED)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
         assertEquals(Felt(0), feeEstimate.l1GasConsumed)

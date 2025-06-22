@@ -553,29 +553,29 @@ class JsonRpcProvider(
         payload: List<ExecutableTransaction>,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
     ): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, BlockTag.PENDING, simulationFlags)
+        return getEstimateFee(payload, BlockTag.PRE_CONFIRMED, simulationFlags)
     }
 
     /**
      * @sample starknet.account.StandardAccountTest.DeployAccountEstimateTest.estimateFeeForDeployAccountV3Transaction
      */
     override fun getEstimateFee(payload: List<ExecutableTransaction>): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, BlockTag.PENDING, defaultFeeEstimateSimulationFlags)
+        return getEstimateFee(payload, BlockTag.PRE_CONFIRMED, defaultFeeEstimateSimulationFlags)
     }
 
-    private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): HttpRequest<EstimateFeeResponse> {
+    private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): HttpRequest<EstimateMessageFeeResponse> {
         val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateFeeResponse.serializer())
+        return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateMessageFeeResponse.serializer())
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): HttpRequest<EstimateFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): HttpRequest<EstimateFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
@@ -584,7 +584,7 @@ class JsonRpcProvider(
     /**
      * @sample starknet.account.StandardAccountTest.estimateMessageFee
      */
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): HttpRequest<EstimateFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
@@ -597,7 +597,7 @@ class JsonRpcProvider(
     }
 
     override fun getNonce(contractAddress: Felt): HttpRequest<Felt> =
-        getNonce(contractAddress, blockTag = BlockTag.PENDING)
+        getNonce(contractAddress, blockTag = BlockTag.PRE_CONFIRMED)
 
     /**
      * @sample starknet.provider.ProviderTest.getNonceWithBlockTag
@@ -638,6 +638,10 @@ class JsonRpcProvider(
         contractAddresses: List<Felt>?,
         contractsStorageKeys: List<ContractsStorageKeys>?,
     ): HttpRequest<StorageProof> {
+        require(blockId != BlockId.Tag(BlockTag.PRE_CONFIRMED)) {
+            "Pre-coonfirmed block tag is not allowed for `getStorageProof`"
+        }
+
         val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
 
         return getStorageProof(payload)

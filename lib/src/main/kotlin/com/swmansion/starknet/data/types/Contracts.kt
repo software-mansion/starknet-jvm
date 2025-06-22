@@ -78,7 +78,11 @@ data class StructMember(
     val name: String,
     val type: String,
     val offset: Int,
-)
+) {
+    init {
+        require(offset >= 0) { "Offset must be non-negative, got: $offset" }
+    }
+}
 
 @SerialName("struct")
 @Serializable
@@ -101,7 +105,11 @@ data class SierraEntryPoint(
     @SerialName("function_idx")
     val functionIdx: Int,
     val selector: Felt,
-)
+) {
+    init {
+        require(functionIdx >= 0) { "Function index must be non-negative, got: $functionIdx" }
+    }
+}
 
 @Serializable
 data class DeprecatedEntryPointsByType(

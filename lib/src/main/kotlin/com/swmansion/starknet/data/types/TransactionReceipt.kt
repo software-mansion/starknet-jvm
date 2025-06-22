@@ -8,23 +8,20 @@ import kotlinx.serialization.json.JsonNames
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionStatus {
-    @JsonNames("PENDING", "RECEIVED")
-    PENDING,
+    @JsonNames("RECEIVED")
+    RECEIVED,
+
+    @JsonNames("CANDIDATE")
+    CANDIDATE,
+
+    @JsonNames("PRE_CONFIRMED")
+    PRE_CONFIRMED,
 
     @JsonNames("ACCEPTED_ON_L1")
     ACCEPTED_ON_L1,
 
     @JsonNames("ACCEPTED_ON_L2")
     ACCEPTED_ON_L2,
-
-    @JsonNames("REJECTED")
-    REJECTED,
-
-    @JsonNames("UNKNOWN", "NOT_RECEIVED")
-    UNKNOWN,
-
-    @JsonNames("REVERTED")
-    REVERTED,
 }
 
 @Serializable

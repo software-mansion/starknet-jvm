@@ -16,7 +16,7 @@ import kotlinx.serialization.json.jsonObject
 internal object BlockWithTransactionsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactions>(BlockWithTransactions::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactions> {
         return when (isPendingBlock(element.jsonObject)) {
-            true -> PendingBlockWithTransactions.serializer()
+            true -> PreConfirmedBlockWithTransactions.serializer()
             false -> ProcessedBlockWithTransactions.serializer()
         }
     }
@@ -25,7 +25,7 @@ internal object BlockWithTransactionsPolymorphicSerializer : JsonContentPolymorp
 internal object BlockWithTransactionHashesPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactionHashes>(BlockWithTransactionHashes::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactionHashes> {
         return when (isPendingBlock(element.jsonObject)) {
-            true -> PendingBlockWithTransactionHashes.serializer()
+            true -> PreConfirmedBlockWithTransactionHashes.serializer()
             false -> ProcessedBlockWithTransactionHashes.serializer()
         }
     }
@@ -34,7 +34,7 @@ internal object BlockWithTransactionHashesPolymorphicSerializer : JsonContentPol
 internal object BlockWithReceiptsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithReceipts>(BlockWithReceipts::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithReceipts> {
         return when (isPendingBlock(element.jsonObject)) {
-            true -> PendingBlockWithReceipts.serializer()
+            true -> PreConfirmedBlockWithReceipts.serializer()
             false -> ProcessedBlockWithReceiptsSerializer
         }
     }

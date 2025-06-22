@@ -226,7 +226,7 @@ class ProviderTest {
 
     @Test
     fun getClassDefinitionAtClassHashWithLatestBlock() {
-        // FIXME: Devnet only support's calls with block_id of the latest or pending. Other block_id are not supported.
+        // FIXME: Devnet only support's calls with block_id of the latest or pre-confirmed. Other block_id are not supported.
         // After it's fixed add tests with 1) block hash 2) block number
         val request = provider.getClass(balanceClassHash, BlockTag.LATEST)
         val response = request.send()
@@ -298,8 +298,8 @@ class ProviderTest {
     }
 
     @Test
-    fun `get class definition at contract address (pending block tag)`() {
-        val request = provider.getClassAt(balanceContractAddress, BlockTag.PENDING)
+    fun `get class definition at contract address (pre-confirmed block tag)`() {
+        val request = provider.getClassAt(balanceContractAddress, BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         // This test assumes that balance contract is written in Cairo 1
@@ -315,8 +315,8 @@ class ProviderTest {
     }
 
     @Test
-    fun getClassHashAtPendingBlock() {
-        val request = provider.getClassHashAt(balanceContractAddress, BlockTag.PENDING)
+    fun getClassHashAtPreConfirmedBlock() {
+        val request = provider.getClassHashAt(balanceContractAddress, BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         assertNotEquals(Felt.ZERO, response)
@@ -908,14 +908,14 @@ class ProviderTest {
     }
 
     @Test
-    fun `get pending block with transactions`() {
+    fun `get pre-confirmed block with transactions`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
                 "jsonrpc":"2.0",
                 "result":{
-                    "parent_hash": "0x123",
+                    "block_number": 1,
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
                     "l1_gas_price": 
@@ -966,10 +966,10 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getBlockWithTxs(BlockTag.PENDING)
+        val request = provider.getBlockWithTxs(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactions)
+        assertTrue(response is PreConfirmedBlockWithTransactions)
     }
 
     @Test
@@ -1003,14 +1003,14 @@ class ProviderTest {
     }
 
     @Test
-    fun `get pending block with transaction receipts`() {
+    fun `get pre-confirmed block with transaction receipts`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
                 "jsonrpc":"2.0",
                 "result":{
-                    "parent_hash": "0x123",
+                    "block_number": 1,
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
                     "l1_gas_price": 
@@ -1114,10 +1114,10 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getBlockWithReceipts(BlockTag.PENDING)
+        val request = provider.getBlockWithReceipts(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithReceipts)
+        assertTrue(response is PreConfirmedBlockWithReceipts)
     }
 
     @Test
@@ -1151,14 +1151,14 @@ class ProviderTest {
     }
 
     @Test
-    fun `get pending block with transaction hashes`() {
+    fun `get pre-confirmed block with transaction hashes`() {
         // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
                 "jsonrpc":"2.0",
                 "result":{
-                    "parent_hash": "0x123",
+                    "block_number": 1,
                     "timestamp": 7312,
                     "sequencer_address": "0x1234",
                     "l1_gas_price": 
@@ -1190,10 +1190,10 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getBlockWithTxHashes(BlockTag.PENDING)
+        val request = provider.getBlockWithTxHashes(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
-        assertTrue(response is PendingBlockWithTransactionHashes)
+        assertTrue(response is PreConfirmedBlockWithTransactionHashes)
     }
 
     @Test
@@ -1258,10 +1258,10 @@ class ProviderTest {
         }
         val provider = JsonRpcProvider(rpcUrl, httpService)
 
-        val request = provider.getStateUpdate(BlockTag.PENDING)
+        val request = provider.getStateUpdate(BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
-        assertTrue(response is PendingStateUpdateResponse)
+        assertTrue(response is PreConfirmedStateUpdateResponse)
     }
 
     @Test

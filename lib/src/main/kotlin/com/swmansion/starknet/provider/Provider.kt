@@ -556,7 +556,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): Request<EstimateFeeResponse>
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): Request<EstimateMessageFeeResponse>
 
     /**
      * Estimate a message fee.
@@ -568,7 +568,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): Request<EstimateFeeResponse>
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): Request<EstimateMessageFeeResponse>
 
     /**
      * Estimate a message fee.
@@ -580,7 +580,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): Request<EstimateFeeResponse>
+    fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): Request<EstimateMessageFeeResponse>
 
     /**
      * Get a nonce.
