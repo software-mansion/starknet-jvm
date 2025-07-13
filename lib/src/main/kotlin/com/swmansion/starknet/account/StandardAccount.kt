@@ -237,7 +237,7 @@ class StandardAccount @JvmOverloads constructor(
             val signParams = InvokeParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
-                tip = tip
+                tip = tip,
             )
             val payload = signV3(calls, signParams, false)
 

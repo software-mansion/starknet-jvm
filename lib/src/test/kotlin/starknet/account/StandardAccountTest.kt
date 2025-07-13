@@ -545,7 +545,7 @@ class StandardAccountTest {
             val params = DeclareParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
-                tip = tip
+                tip = tip,
             )
             val declareTransactionPayload = account.signDeclareV3(
                 contractDefinition,

@@ -212,7 +212,7 @@ interface Account {
     fun executeV3(
         calls: List<Call>,
         resourceBounds: ResourceBoundsMapping,
-        tip: Uint64
+        tip: Uint64,
     ): Request<InvokeFunctionResponse>
 
     /**
