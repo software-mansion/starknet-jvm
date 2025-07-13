@@ -804,6 +804,28 @@ class StandardAccountTest {
         }
 
         @Test
+        fun `execute v3 multiple calls with tip`() {
+            val call1 = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val call2 = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val tip = Uint64(12345)
+            val result = account.executeV3(listOf(call1, call2), tip).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
         fun `two executes v3 with single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -1039,9 +1061,12 @@ class StandardAccountTest {
                     maxPricePerUnit = Uint128(10_000_000_000_000_000),
                 ),
             )
+
+            val tip = Uint64(12345)
             val params = DeployAccountParamsV3(
                 nonce = Felt.ZERO,
                 resourceBounds = resourceBounds,
+                tip = tip,
             )
 
             devnetClient.prefundAccountStrk(address)
@@ -1063,6 +1088,7 @@ class StandardAccountTest {
             assertEquals(payload.version, tx.version)
             assertEquals(payload.nonce, tx.nonce)
             assertEquals(payload.signature, tx.signature)
+            assertEquals(payload.tip, tx.tip)
 
             val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
             val result = newAccount.executeV3(call).send()
