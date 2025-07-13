@@ -186,7 +186,6 @@ class DevnetClient(
             classHash.hexString(),
             "--type",
             type,
-            "--silent",
             "--url",
             rpcUrl,
         )
@@ -199,10 +198,11 @@ class DevnetClient(
             command = "account",
             args = params,
         ) as AccountCreateSnCastResponse
-
+        println("response")
+        println(response)
         return CreateAccountResult(
             details = readAccountDetails(accountName),
-            maxFee = response.maxFee,
+            estimatedFee = response.estimatedFee,
         )
     }
 
@@ -398,8 +398,7 @@ class DevnetClient(
         accountName: String = "__default__",
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
-            "sncast",
-            "--hex-format",
+            "/Users/franciszekjob/Projects/SWM/starknet-foundry/target/debug/sncast",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
@@ -421,8 +420,16 @@ class DevnetClient(
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
+
+        // Sometimes, commands may generate links to network explorer, so we want to line before
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
-        val result = lines.last()
+        val last = lines.lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+        println(last)
+        val result = if (last.contains("\"links\"")) {
+            lines.dropLast(1).lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+        } else {
+            last
+        }
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 

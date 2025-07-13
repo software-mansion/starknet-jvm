@@ -1235,7 +1235,7 @@ class ProviderTest {
     }
 
     @Test
-    fun `get state of block with pending tag`() {
+    fun `get state of block with pre-confirmed tag`() {
         val mockedResponse = """
             {
                 "id":0,

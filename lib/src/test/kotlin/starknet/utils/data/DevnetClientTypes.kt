@@ -1,6 +1,7 @@
 package starknet.utils.data
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.Uint128
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -11,7 +12,7 @@ data class DeployAccountResult(
 )
 data class CreateAccountResult(
     val details: AccountDetails,
-    val maxFee: Felt,
+    val estimatedFee: Uint128,
 )
 
 data class DeclareContractResult(
