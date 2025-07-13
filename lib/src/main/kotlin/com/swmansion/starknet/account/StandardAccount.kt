@@ -232,6 +232,19 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse> {
+        return getNonce().compose { nonce ->
+            val signParams = InvokeParamsV3(
+                nonce = nonce,
+                resourceBounds = resourceBounds,
+                tip = tip
+            )
+            val payload = signV3(calls, signParams, false)
+
+            return@compose provider.invokeFunction(payload)
+        }
+    }
+
     override fun executeV3(
         calls: List<Call>,
         estimateAmountMultiplier: Double,
@@ -256,8 +269,23 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun executeV3(calls: List<Call>, tip: Uint64): Request<InvokeFunctionResponse> {
+        return estimateFeeV3(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.values.first().toResourceBounds()
+            executeV3(calls, resourceBounds, tip)
+        }
+    }
+
     override fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), resourceBounds)
+    }
+
+    override fun executeV3(
+        call: Call,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), resourceBounds, tip)
     }
 
     override fun executeV3(
@@ -277,6 +305,10 @@ class StandardAccount @JvmOverloads constructor(
      */
     override fun executeV3(call: Call): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call))
+    }
+
+    override fun executeV3(call: Call, tip: Uint64): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), tip)
     }
 
     /**
