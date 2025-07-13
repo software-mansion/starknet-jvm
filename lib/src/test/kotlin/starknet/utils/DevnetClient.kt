@@ -108,8 +108,8 @@ class DevnetClient(
 
         val devnetProcessBuilder = ProcessBuilder(
             // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-//            devnetPath.absolutePathString(),
-            "starknet-devnet",
+            devnetPath.absolutePathString(),
+//            "starknet-devnet",
             "--host",
             host,
             "--port",
@@ -399,7 +399,7 @@ class DevnetClient(
         accountName: String = "__default__",
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
-            "sncast",
+            "/Users/franciszekjob/Projects/SWM/starknet-foundry/target/debug/sncast",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),

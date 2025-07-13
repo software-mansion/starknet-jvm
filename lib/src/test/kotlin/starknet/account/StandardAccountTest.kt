@@ -32,7 +32,6 @@ import java.time.Instant
 import kotlin.io.path.readText
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled
 class StandardAccountTest {
     companion object {
         private val devnetClient = DevnetClient(
@@ -1124,7 +1123,8 @@ class StandardAccountTest {
                             "l1_data_gas_price": "0x1a05",
                             "l2_gas_consumed": "0x9d8",
                             "l2_gas_price": "0x3b9aca2f",
-                            "overall_fee": "0x24abbb63ea8"
+                            "overall_fee": "0x24abbb63ea8",
+                            "unit": "FRI"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",
@@ -1196,7 +1196,8 @@ class StandardAccountTest {
                             "l2_gas_consumed": "0x9d8",
                             "l2_gas_price": "0x3b9aca2f",
                             "l1_data_gas_consumed": "0x3a",
-                            "overall_fee": "0x24abbb63ea8"
+                            "overall_fee": "0x24abbb63ea8",
+                            "unit": "FRI"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",

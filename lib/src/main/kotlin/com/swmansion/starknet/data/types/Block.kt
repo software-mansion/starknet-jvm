@@ -86,6 +86,9 @@ data class ProcessedBlockWithTransactions(
         Transaction,
         >,
 
+    @SerialName("parent_hash")
+    val parentHash: Felt,
+
     @SerialName("block_hash")
     override val blockHash: Felt,
 
@@ -189,6 +192,9 @@ data class ProcessedBlockWithReceipts(
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
 
+    @SerialName("parent_hash")
+    val parentHash: Felt,
+
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
 
@@ -262,6 +268,9 @@ data class ProcessedBlockWithTransactionHashes(
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
+
+    @SerialName("parent_hash")
+    val parentHash: Felt,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
