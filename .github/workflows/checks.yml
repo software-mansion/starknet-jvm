@@ -51,16 +51,37 @@ jobs:
           path: starknet-devnet-rs/target/release
           key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
 
-      - name: Build devnet
+#      - name: Build devnet
+#        run: |
+#          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
+#            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#            pushd ${{ github.workspace }}/starknet-devnet-rs
+#            cargo build --release
+#            popd
+#          else
+#            echo "Found existing starknet-devnet-rs build, skipping compilation."
+#          fi
+
+      - name: Download starknet-devnet
         run: |
-          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            pushd ${{ github.workspace }}/starknet-devnet-rs
-            cargo build --release
-            popd
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            ARCHIVE_URL="https://github.com/0xSpaceShard/starknet-devnet/releases/download/v0.5.0-rc.1/starknet-devnet-aarch64-unknown-linux-gnu.tar.gz"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            ARCHIVE_URL="https://github.com/0xSpaceShard/starknet-devnet/releases/download/v0.5.0-rc.1/starknet-devnet-aarch64-apple-darwin.tar.gz"
           else
-            echo "Found existing starknet-devnet-rs build, skipping compilation."
+            echo "Unsupported OS: $RUNNER_OS"
+            exit 1
           fi
+          
+          echo "Downloading $ARCHIVE_URL"
+          curl -L -o starknet-devnet.tar.gz "$ARCHIVE_URL"
+
+          echo "Extracting archive..."
+          tar -xzvf starknet-devnet.tar.gz
+          echo "Moving binary to /usr/local/bin/"
+          sudo mv starknet-devnet /usr/local/bin/
+          echo "Verifying installation..."
+          starknet-devnet --version
 
       # TODO(#539)
       - name: Fetch latest asdf version from GitHub releases
