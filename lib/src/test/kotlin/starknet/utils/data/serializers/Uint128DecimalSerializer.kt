@@ -17,11 +17,11 @@ object Uint128DecimalSerializer : KSerializer<Uint128> {
     }
 
     override fun deserialize(decoder: Decoder): Uint128 {
-        val s = decoder.decodeString()
-        return if (s.startsWith("0x")) {
-            Uint128.fromHex(s)
+        val str = decoder.decodeString()
+        return if (str.startsWith("0x")) {
+            Uint128.fromHex(str)
         } else {
-            Uint128(s.toBigInteger())
+            Uint128(str.toBigInteger())
         }
     }
 }
