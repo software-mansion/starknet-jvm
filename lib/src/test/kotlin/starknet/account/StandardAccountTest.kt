@@ -948,7 +948,6 @@ class StandardAccountTest {
 
     @Nested
     inner class DeployAccountTest {
-//        @Disabled
         @Test
         fun signAndSendDeployAccountV3Transaction() {
             // docsStart
