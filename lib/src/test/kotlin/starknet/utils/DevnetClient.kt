@@ -408,7 +408,6 @@ class DevnetClient(
         // Retrieving the last object works in both cases - with one and with few response objects
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
         val result = lines.last()
-
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
