@@ -185,28 +185,7 @@ data class GetTransactionStatusResponse(
 
     @SerialName("failure_reason")
     val failureReason: String? = null,
-) : StarknetResponse {
-    init {
-        require(finalityStatus in validStatuses) {
-            "finalityStatus '$finalityStatus' is not allowed as `finalityStatus`"
-        }
-    }
-
-    companion object {
-        private val validStatuses = setOf(
-            TransactionStatus.ACCEPTED_ON_L1,
-            TransactionStatus.ACCEPTED_ON_L2,
-        )
-    }
-}
-
-fun main() {
-    val xyz = GetTransactionStatusResponse(
-        finalityStatus = TransactionStatus.CANDIDATE,
-        executionStatus = TransactionExecutionStatus.SUCCEEDED,
-        failureReason = null,
-    )
-}
+) : StarknetResponse
 
 @Serializable
 data class MessageStatus(
@@ -214,7 +193,7 @@ data class MessageStatus(
     val transactionHash: Felt,
 
     @SerialName("finality_status")
-    val finalityStatus: TransactionStatus,
+    val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("failure_reason")
     val failureReason: String? = null,

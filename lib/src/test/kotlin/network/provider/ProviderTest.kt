@@ -363,7 +363,6 @@ class ProviderTest {
         assertTrue(response is ProcessedBlockWithTransactions)
     }
 
-//    @Disabled
     @Test
     fun `get block with transactions with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
