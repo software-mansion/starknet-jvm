@@ -926,9 +926,7 @@ class StandardAccountTest {
                 provider,
                 chainId,
             )
-            val resourceBounds = ResourceBoundsMapping
             val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
                 resourceBounds = ResourceBoundsMapping.ZERO,
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
@@ -950,6 +948,7 @@ class StandardAccountTest {
 
     @Nested
     inner class DeployAccountTest {
+//        @Disabled
         @Test
         fun signAndSendDeployAccountV3Transaction() {
             // docsStart
@@ -986,7 +985,6 @@ class StandardAccountTest {
                 ),
             )
             val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
                 resourceBounds = resourceBounds,
             )
 
@@ -1032,7 +1030,7 @@ class StandardAccountTest {
             val privateKey = Felt(22222)
             val publicKey = StarknetCurve.getPublicKey(privateKey)
 
-            val salt = Felt(2)
+            val salt = Felt(3)
             val calldata = listOf(publicKey)
             val address = ContractAddressCalculator.calculateAddressFromHash(
                 classHash = accountContractClassHash,
@@ -1064,7 +1062,6 @@ class StandardAccountTest {
 
             val tip = Uint64(12345)
             val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
                 resourceBounds = resourceBounds,
                 tip = tip,
             )
