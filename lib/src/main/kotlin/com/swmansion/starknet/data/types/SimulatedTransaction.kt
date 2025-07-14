@@ -217,6 +217,7 @@ data class DeployAccountTransactionTrace private constructor(
 @Serializable
 data class L1HandlerTransactionTrace private constructor(
     @SerialName("function_invocation")
+    @Serializable(with = RevertibleFunctionInvocationPolymorphicSerializer::class)
     val functionInvocation: RevertibleFunctionInvocation,
 
     @SerialName("state_diff")
