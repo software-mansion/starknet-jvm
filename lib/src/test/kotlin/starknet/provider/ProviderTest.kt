@@ -909,7 +909,7 @@ class ProviderTest {
 
     @Test
     fun `get pre-confirmed block with transactions`() {
-        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
+        // TODO (#304): We should also test for 'pre-confirmed' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
@@ -1004,7 +1004,7 @@ class ProviderTest {
 
     @Test
     fun `get pre-confirmed block with transaction receipts`() {
-        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
+        // TODO (#304): We should also test for 'pre-confirmed' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,
@@ -1152,7 +1152,7 @@ class ProviderTest {
 
     @Test
     fun `get pre-confirmed block with transaction hashes`() {
-        // TODO (#304): We should also test for 'pending' tag, but atm they are not supported in devnet
+        // TODO (#304): We should also test for 'pre-confirmed' tag, but atm they are not supported in devnet
         val mockedResponse = """
             {
                 "id":0,

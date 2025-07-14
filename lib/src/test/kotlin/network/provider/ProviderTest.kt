@@ -367,7 +367,7 @@ class ProviderTest {
     fun `get block with transactions with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
-        // 1. This test may fail because there's temporarily no pending block at the moment.
+        // 1. This test may fail because there's temporarily no preconfirmed block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
@@ -420,7 +420,7 @@ class ProviderTest {
     fun `get block with transaction hashes with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
-        // 1. This test may fail because there's temporarily no pending block at the moment.
+        // 1. This test may fail because there's temporarily no preconfirmed block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 
@@ -473,7 +473,7 @@ class ProviderTest {
     fun `get block with receipts with pre-confirmed block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
         // Note to future developers experiencing failures in this test:
-        // 1. This test may fail because there's temporarily no pending block at the moment.
+        // 1. This test may fail because there's temporarily no preconfirmed block at the moment.
         // If this happens, try running the test again after a while or disable it.
         // 2. The node can be configured such way that accessing pending block is not supported.
 

@@ -117,7 +117,7 @@ class DevnetClient(
             port.toString(),
             "--seed",
             seed.toString(),
-            // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
+            // This is currently needed for devnet to support requests with specified block_id (not latest or preconfirmed)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
