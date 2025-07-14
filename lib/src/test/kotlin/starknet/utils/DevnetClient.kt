@@ -110,8 +110,7 @@ class DevnetClient(
 
         val devnetProcessBuilder = ProcessBuilder(
             // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-//            devnetPath.absolutePathString(),
-            "starknet-devnet",
+            devnetPath.absolutePathString(),
             "--host",
             host,
             "--port",
@@ -182,6 +181,7 @@ class DevnetClient(
         type: String,
     ): CreateAccountResult {
         val params = mutableListOf(
+            "create",
             "--name",
             accountName,
             "--class-hash",
@@ -197,7 +197,7 @@ class DevnetClient(
         }
 
         val response = runSnCast(
-            command = "account create",
+            command = "account",
             args = params,
         ) as AccountCreateSnCastResponse
 
@@ -218,6 +218,7 @@ class DevnetClient(
         }
 
         val params = listOf(
+            "deploy",
             "--name",
             accountName,
             *createFeeArgs(resourceBounds),
@@ -225,7 +226,7 @@ class DevnetClient(
             rpcUrl,
         )
         val response = runSnCast(
-            command = "account deploy",
+            command = "account",
             args = params,
             accountName = accountName,
         ) as AccountDeploySnCastResponse
@@ -404,7 +405,7 @@ class DevnetClient(
             accountFilePath.absolutePathString(),
             "--account",
             accountName,
-            *command.split(" ").toTypedArray(),
+            command,
             *(args.toTypedArray()),
         )
 
@@ -421,26 +422,16 @@ class DevnetClient(
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
 
-        // Sometimes, commands may generate links to network explorer, so we want to line before
+        // Sometimes, commands may generate links to network explorer, so we want the penultimate line
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
-        val last = lines.lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+        val last = lines.lastOrNull() ?: throw Exception("No response from `sncast`")
         val result = if (last.contains("\"links\"")) {
-            lines.dropLast(1).lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+            lines.dropLast(1).lastOrNull() ?: throw Exception("No response from `sncast`")
         } else {
             last
         }
 
-        // Since sncast 0.45.0, `command` key is not included in json response
-        val parsed = Json.parseToJsonElement(result)
-        require(parsed is JsonObject) {
-            "Expected sncast output to be a JSON object, got: $parsed"
-        }
-
-        val parsedMap = parsed.toMutableMap()
-        parsedMap["command"] = JsonPrimitive(command)
-        val resultWithCommand = JsonObject(parsedMap)
-
-        return json.decodeFromString(SnCastResponsePolymorphicSerializer, resultWithCommand.toString())
+        return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {

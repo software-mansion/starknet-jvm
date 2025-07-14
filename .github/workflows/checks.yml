@@ -7,7 +7,8 @@ on:
 
 env:
   GH_TOKEN: ${{ github.token }}
-  SNFOUNDRY_SHA: ea523190d40812bd769786409c314401be28f86d # https://github.com/foundry-rs/starknet-foundry/tree/rpc-0-9-0
+# TODO: Remove below env once stable release of starknet foundry is available
+  SNFOUNDRY_SHA: 3d227d0aa6bf896f912144088f3c7bf0424f4c13
 
 jobs:
   test_and_lint:
@@ -85,7 +86,7 @@ jobs:
 
       - name: Install starknet-foundry
         run: |
-# TODO: Use below steps once stable release of starknet-foundry is available
+# TODO: Use below steps once stable release of starknet foundry is available
 #          asdf plugin add starknet-foundry
 #          asdf install starknet-foundry 0.40.0
 #          asdf set starknet-foundry 0.40.0 --home
