@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.HexToIntDeserializer
 import com.swmansion.starknet.data.serializers.RevertibleFunctionInvocationPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionTracePolymorphicSerializer
 import kotlinx.serialization.SerialName
@@ -79,7 +80,7 @@ data class FunctionInvocation(
 
     @SerialName("is_reverted")
     val isReverted: Boolean,
-) : RevertibleFunctionInvocation()
+): RevertibleFunctionInvocation()
 
 @Serializable
 data class RevertedFunctionInvocation(
