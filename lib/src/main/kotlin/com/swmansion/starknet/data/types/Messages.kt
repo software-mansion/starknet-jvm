@@ -58,8 +58,4 @@ data class OrderedMessageL2ToL1(
 
     @SerialName("payload")
     val payload: List<Felt>,
-) {
-    init {
-        require(order >= 0) { "`order` must be non-negative, got $order" }
-    }
-}
+)

@@ -1305,8 +1305,7 @@ class StandardAccountTest {
             val trace = simulationResult.values.first().transactionTrace
             assertTrue(trace is InvokeTransactionTrace)
             val invokeTrace = trace as InvokeTransactionTrace
-            assertTrue(invokeTrace.executeInvocation is FunctionInvocation)
-            val messages = (invokeTrace.executeInvocation as FunctionInvocation).messages
+            val messages = invokeTrace.executeInvocation.messages
             assertEquals(2, messages.size)
             assertEquals(0, messages[0].order)
             assertEquals(1, messages[1].order)
