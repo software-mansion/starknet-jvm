@@ -77,12 +77,8 @@ data class EventAbiEntry(
 data class StructMember(
     val name: String,
     val type: String,
-    val offset: Int,
-) {
-    init {
-        require(offset >= 0) { "Offset must be non-negative, got: $offset" }
-    }
-}
+    val offset: UInt,
+)
 
 @SerialName("struct")
 @Serializable
@@ -103,13 +99,9 @@ data class DeprecatedCairoEntryPoint(
 @Serializable
 data class SierraEntryPoint(
     @SerialName("function_idx")
-    val functionIdx: Int,
+    val functionIdx: UInt,
     val selector: Felt,
-) {
-    init {
-        require(functionIdx >= 0) { "Function index must be non-negative, got: $functionIdx" }
-    }
-}
+)
 
 @Serializable
 data class DeprecatedEntryPointsByType(

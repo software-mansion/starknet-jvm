@@ -100,7 +100,7 @@ class DevnetClient(
             port.toString(),
             "--seed",
             seed.toString(),
-            // This is currently needed for devnet to support requests with specified block_id (not latest or preconfirmed)
+            // This is currently needed for devnet to support requests with specified block_id (not latest or pre-confirmed)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
@@ -382,10 +382,12 @@ class DevnetClient(
         accountName: String = "__default__",
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
-            "sncast",
+            "/Users/franciszekjob/Projects/SWM/starknet-foundry/target/debug/sncast",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
+            "--profile",
+            "tests_profile",
             "--account",
             accountName,
             command,
@@ -404,15 +406,16 @@ class DevnetClient(
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
-
-        // Sometimes, commands may generate links to network explorer, so we want the penultimate line
+//
+//        // Sometimes, commands may generate links to network explorer, so we want the penultimate line
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
-        val last = lines.lastOrNull() ?: throw Exception("No response from `sncast`")
-        val result = if (last.contains("\"links\"")) {
-            lines.dropLast(1).lastOrNull() ?: throw Exception("No response from `sncast`")
-        } else {
-            last
-        }
+//        val last = lines.lastOrNull() ?: throw Exception("No response from `sncast`")
+//        val result = if (last.contains("\"links\"")) {
+//            lines.dropLast(1).lastOrNull() ?: throw Exception("No response from `sncast`")
+//        } else {
+//            last
+//        }
+        val result = lines.last()
 
         return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }

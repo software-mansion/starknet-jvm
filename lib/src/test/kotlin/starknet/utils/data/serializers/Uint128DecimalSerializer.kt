@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-object Uint128DecimalSerializer : KSerializer<Uint128> {
+internal object Uint128DecimalSerializer : KSerializer<Uint128> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Uint128(decimal)", PrimitiveKind.STRING)
 

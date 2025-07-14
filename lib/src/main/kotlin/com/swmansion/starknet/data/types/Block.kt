@@ -60,6 +60,7 @@ sealed interface Block : StarknetResponse {
 sealed interface ProcessedBlock : Block {
     val status: BlockStatus
     val blockHash: Felt
+    val parentHash: Felt
     val newRoot: Felt
 }
 
@@ -87,7 +88,7 @@ data class ProcessedBlockWithTransactions(
         >,
 
     @SerialName("parent_hash")
-    val parentHash: Felt,
+    override val parentHash: Felt,
 
     @SerialName("block_hash")
     override val blockHash: Felt,
@@ -193,7 +194,7 @@ data class ProcessedBlockWithReceipts(
     override val sequencerAddress: Felt,
 
     @SerialName("parent_hash")
-    val parentHash: Felt,
+    override val parentHash: Felt,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
@@ -270,7 +271,7 @@ data class ProcessedBlockWithTransactionHashes(
     override val sequencerAddress: Felt,
 
     @SerialName("parent_hash")
-    val parentHash: Felt,
+    override val parentHash: Felt,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
