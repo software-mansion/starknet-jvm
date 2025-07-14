@@ -38,11 +38,7 @@ data class OrderedEvent(
 
     @SerialName("data")
     val data: List<Felt>,
-) {
-    init {
-        require(order >= 0) { "`order` must be non-negative, got $order" }
-    }
-}
+)
 
 @Serializable
 data class EmittedEvent @JvmOverloads constructor(

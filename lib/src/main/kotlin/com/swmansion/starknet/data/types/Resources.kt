@@ -15,12 +15,7 @@ class InnerCallExecutionResources(
 
     @SerialName("l2_gas")
     override val l2Gas: Int,
-) : Resources {
-    init {
-        require(l1Gas >= 0) { "`l1Gas` must be non-negative, got $l1Gas" }
-        require(l2Gas >= 0) { "`l2Gas` must be non-negative, got $l2Gas" }
-    }
-}
+) : Resources
 
 @Serializable
 data class ExecutionResources(
