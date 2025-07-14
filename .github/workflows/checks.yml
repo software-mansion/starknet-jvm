@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ github.token }}
 # TODO: Remove below env once stable release of starknet foundry is available
