@@ -117,11 +117,11 @@ class ProviderTest {
         assertEquals(2, response.values.count())
 
         assertEquals(Felt(0x123), response.values[0].transactionHash)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
+        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L2, response.values[0].finalityStatus)
         assertNull(response.values[0].failureReason)
 
         assertEquals(Felt(0x123), response.values[1].transactionHash)
-        assertEquals(TransactionStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
+        assertEquals(TransactionFinalityStatus.ACCEPTED_ON_L2, response.values[1].finalityStatus)
         assertNotNull(response.values[1].failureReason)
     }
 
