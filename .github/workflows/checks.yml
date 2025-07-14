@@ -7,7 +7,7 @@ on:
 
 env:
   GH_TOKEN: ${{ github.token }}
-  SNFOUNDRY_SHA: 183aea9e51f0ebdb2384cce34a5b59aa47059dea
+  SNFOUNDRY_SHA: ea523190d40812bd769786409c314401be28f86d
 
 jobs:
   test_and_lint:
