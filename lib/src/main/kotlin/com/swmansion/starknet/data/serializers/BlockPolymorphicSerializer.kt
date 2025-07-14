@@ -15,27 +15,27 @@ import kotlinx.serialization.json.jsonObject
 
 internal object BlockWithTransactionsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactions>(BlockWithTransactions::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactions> {
-        return when (isPendingBlock(element.jsonObject)) {
-            true -> PreConfirmedBlockWithTransactions.serializer()
-            false -> ProcessedBlockWithTransactions.serializer()
+        return when (isProcessedBlock(element.jsonObject)) {
+            true -> ProcessedBlockWithTransactions.serializer()
+            false -> PreConfirmedBlockWithTransactions.serializer()
         }
     }
 }
 
 internal object BlockWithTransactionHashesPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactionHashes>(BlockWithTransactionHashes::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactionHashes> {
-        return when (isPendingBlock(element.jsonObject)) {
-            true -> PreConfirmedBlockWithTransactionHashes.serializer()
-            false -> ProcessedBlockWithTransactionHashes.serializer()
+        return when (isProcessedBlock(element.jsonObject)) {
+            true -> ProcessedBlockWithTransactionHashes.serializer()
+            false -> PreConfirmedBlockWithTransactionHashes.serializer()
         }
     }
 }
 
 internal object BlockWithReceiptsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithReceipts>(BlockWithReceipts::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithReceipts> {
-        return when (isPendingBlock(element.jsonObject)) {
-            true -> PreConfirmedBlockWithReceipts.serializer()
-            false -> ProcessedBlockWithReceiptsSerializer
+        return when (isProcessedBlock(element.jsonObject)) {
+            true -> ProcessedBlockWithReceiptsSerializer
+            false -> PreConfirmedBlockWithReceipts.serializer()
         }
     }
 }
@@ -65,6 +65,7 @@ internal object ProcessedBlockWithReceiptsSerializer : KSerializer<ProcessedBloc
     }
 }
 
-private fun isPendingBlock(element: JsonObject): Boolean {
-    return listOf("block_hash", "block_number", "new_root").any { it !in element }
+private fun isProcessedBlock(element: JsonObject): Boolean {
+    // Only processed blocks have "parent_hash"
+    return "parent_hash" in element
 }

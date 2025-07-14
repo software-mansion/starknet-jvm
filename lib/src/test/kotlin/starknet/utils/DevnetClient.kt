@@ -72,25 +72,8 @@ class DevnetClient(
         // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/430b3370e60b28b8de430143b26e52bf36380b9a/crates/starknet-devnet-core/src/constants.rs#L25
         val accountContractClassHash = Felt.fromHex("0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564")
         val legacyAccountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
-        val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
-        val strkErc20ContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
-        val udcContractClassHash = Felt.fromHex("0x7b3e05f48f0c69e4a65ce5e076a66271a527aff2c34ce1083ec6e1526997a69")
         val udcContractAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
-
-        // For seed 1053545547
-        val predeployedAccount1 = AccountDetails(
-            privateKey = Felt.fromHex("0xa2ed22bb0cb0b49c69f6d6a8d24bc5ea"),
-            publicKey = Felt.fromHex("0x198e98e771ebb5da7f4f05658a80a3d6be2213dc5096d055cbbefa62901ab06"),
-            address = Felt.fromHex("0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b"),
-            salt = Felt(20),
-        )
-        val predeployedAccount2 = AccountDetails(
-            privateKey = Felt.fromHex("0xc1c7db92d22ef773de96f8bde8e56c85"),
-            publicKey = Felt.fromHex("0x26df62f8e61920575f9c9391ed5f08397cfcfd2ade02d47781a4a8836c091fd"),
-            address = Felt.fromHex("0x34864aab9f693157f88f2213ffdaa7303a46bbea92b702416a648c3d0e42f35"),
-            salt = Felt(20),
-        )
     }
 
     fun start() {
@@ -110,15 +93,14 @@ class DevnetClient(
 
         val devnetProcessBuilder = ProcessBuilder(
             // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-//            devnetPath.absolutePathString(),
-            "starknet-devnet",
+            devnetPath.absolutePathString(),
             "--host",
             host,
             "--port",
             port.toString(),
             "--seed",
             seed.toString(),
-            // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
+            // This is currently needed for devnet to support requests with specified block_id (not latest or preconfirmed)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
@@ -182,6 +164,7 @@ class DevnetClient(
         type: String,
     ): CreateAccountResult {
         val params = mutableListOf(
+            "create",
             "--name",
             accountName,
             "--class-hash",
@@ -197,7 +180,7 @@ class DevnetClient(
         }
 
         val response = runSnCast(
-            command = "account create",
+            command = "account",
             args = params,
         ) as AccountCreateSnCastResponse
 
@@ -218,6 +201,7 @@ class DevnetClient(
         }
 
         val params = listOf(
+            "deploy",
             "--name",
             accountName,
             *createFeeArgs(resourceBounds),
@@ -225,7 +209,7 @@ class DevnetClient(
             rpcUrl,
         )
         val response = runSnCast(
-            command = "account deploy",
+            command = "account",
             args = params,
             accountName = accountName,
         ) as AccountDeploySnCastResponse
@@ -404,7 +388,7 @@ class DevnetClient(
             accountFilePath.absolutePathString(),
             "--account",
             accountName,
-            *command.split(" ").toTypedArray(),
+            command,
             *(args.toTypedArray()),
         )
 
@@ -421,26 +405,16 @@ class DevnetClient(
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
 
-        // Sometimes, commands may generate links to network explorer, so we want to line before
+        // Sometimes, commands may generate links to network explorer, so we want the penultimate line
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
-        val last = lines.lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+        val last = lines.lastOrNull() ?: throw Exception("No response from `sncast`")
         val result = if (last.contains("\"links\"")) {
-            lines.dropLast(1).lastOrNull() ?: throw DevnetSetupFailedException("No response from `sncast`")
+            lines.dropLast(1).lastOrNull() ?: throw Exception("No response from `sncast`")
         } else {
             last
         }
 
-        // Since sncast 0.45.0, `command` key is not included in json response
-        val parsed = Json.parseToJsonElement(result)
-        require(parsed is JsonObject) {
-            "Expected sncast output to be a JSON object, got: $parsed"
-        }
-
-        val parsedMap = parsed.toMutableMap()
-        parsedMap["command"] = JsonPrimitive(command)
-        val resultWithCommand = JsonObject(parsedMap)
-
-        return json.decodeFromString(SnCastResponsePolymorphicSerializer, resultWithCommand.toString())
+        return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {
