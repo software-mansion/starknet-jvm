@@ -639,7 +639,7 @@ class JsonRpcProvider(
         contractsStorageKeys: List<ContractsStorageKeys>?,
     ): HttpRequest<StorageProof> {
         require(blockId != BlockId.Tag(BlockTag.PRE_CONFIRMED)) {
-            "Pre-coonfirmed block tag is not allowed for `getStorageProof`"
+            "Pre-confirmed block tag is not allowed for `getStorageProof`"
         }
 
         val payload = GetStorageProofPayload(blockId, classHashes, contractAddresses, contractsStorageKeys)
