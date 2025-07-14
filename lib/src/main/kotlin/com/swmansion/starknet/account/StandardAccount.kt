@@ -221,15 +221,7 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
-        return getNonce().compose { nonce ->
-            val signParams = InvokeParamsV3(
-                nonce = nonce,
-                resourceBounds = resourceBounds,
-            )
-            val payload = signV3(calls, signParams, false)
-
-            return@compose provider.invokeFunction(payload)
-        }
+        return executeV3(calls, resourceBounds, Uint64.ZERO)
     }
 
     override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse> {

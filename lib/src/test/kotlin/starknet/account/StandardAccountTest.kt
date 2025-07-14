@@ -555,6 +555,9 @@ class StandardAccountTest {
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
 
+            val tx = provider.getTransaction(result.transactionHash).send() as DeclareTransactionV3
+            assertEquals(tip, tx.tip)
+
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
         }
@@ -694,8 +697,10 @@ class StandardAccountTest {
             val tip = Uint64(12345)
             val result = account.executeV3(call, tip).send()
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val tx = provider.getTransaction(result.transactionHash).send() as InvokeTransactionV3
+            assertEquals(tip, tx.tip)
 
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
         }
 
@@ -820,8 +825,10 @@ class StandardAccountTest {
             val tip = Uint64(12345)
             val result = account.executeV3(listOf(call1, call2), tip).send()
 
-            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            val tx = provider.getTransaction(result.transactionHash).send() as InvokeTransactionV3
+            assertEquals(tip, tx.tip)
 
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
         }
 
