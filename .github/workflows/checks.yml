@@ -86,10 +86,10 @@ jobs:
 
       - name: Install starknet-foundry
         run: |
-# TODO: Use below steps once stable release of starknet foundry is available
-#          asdf plugin add starknet-foundry
-#          asdf install starknet-foundry 0.40.0
-#          asdf set starknet-foundry 0.40.0 --home
+        # TODO: Use below steps once stable release of starknet foundry is available
+        #          asdf plugin add starknet-foundry
+        #          asdf install starknet-foundry 0.40.0
+        #          asdf set starknet-foundry 0.40.0 --home
           DOWNLOAD_URL="https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/snfoundryup"
           curl -s "$DOWNLOAD_URL" | bash -s --  -c ${{ env.SNFOUNDRY_SHA }}
 
