@@ -16,7 +16,6 @@ import starknet.utils.DevnetClient
 import java.nio.file.Paths
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled
 object StandardDeployerTest {
     private val devnetClient = DevnetClient(
         port = 5053,

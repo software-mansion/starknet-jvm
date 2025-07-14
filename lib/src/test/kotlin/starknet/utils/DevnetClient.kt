@@ -404,7 +404,7 @@ class DevnetClient(
             accountFilePath.absolutePathString(),
             "--account",
             accountName,
-            command,
+            *command.split(" ").toTypedArray(),
             *(args.toTypedArray()),
         )
 

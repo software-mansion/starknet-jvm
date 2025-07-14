@@ -40,19 +40,14 @@ enum class TransactionExecutionStatus {
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 enum class TransactionFinalityStatus {
+    @JsonNames("PRE_CONFIRMED")
+    PRE_CONFIRMED,
+
     @JsonNames("ACCEPTED_ON_L1")
     ACCEPTED_ON_L1,
 
     @JsonNames("ACCEPTED_ON_L2")
     ACCEPTED_ON_L2,
-
-    // Not in RPC spec
-    @JsonNames("RECEIVED", "PENDING")
-    RECEIVED,
-
-    // Not in RPC spec
-    @JsonNames("NOT_RECEIVED", "UNKNOWN")
-    NOT_RECEIVED,
 }
 
 @Serializable
