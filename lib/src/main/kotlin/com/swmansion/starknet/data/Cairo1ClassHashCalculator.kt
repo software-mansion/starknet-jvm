@@ -53,7 +53,7 @@ object Cairo1ClassHashCalculator {
     private fun getSierraEntryPointsArray(arr: List<SierraEntryPoint>): List<Felt> {
         val entryPointsArray = mutableListOf<Felt>()
         for (ep in arr) {
-            entryPointsArray.addAll(listOf(ep.selector, Felt(ep.functionIdx)))
+            entryPointsArray.addAll(listOf(ep.selector, Felt(ep.functionIdx.toInt())))
         }
         return entryPointsArray
     }
