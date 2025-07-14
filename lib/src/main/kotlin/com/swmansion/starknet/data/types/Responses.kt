@@ -273,15 +273,11 @@ data class NodeHashToNodeMappingItem(
         val path: NumAsHex,
 
         @SerialName("length")
-        val length: Int,
+        val length: UInt,
 
         @SerialName("child")
         val value: Felt,
-    ) : MerkleNode {
-        init {
-            require(length >= 0) { "`length` must be non-negative, got $length" }
-        }
-    }
+    ) : MerkleNode
 }
 
 @Serializable
