@@ -128,6 +128,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = params.nonce,
             forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
+            tip = params.tip
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -154,6 +155,7 @@ class StandardAccount @JvmOverloads constructor(
             forFeeEstimate = forFeeEstimate,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
+            tip = params.tip,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -177,6 +179,7 @@ class StandardAccount @JvmOverloads constructor(
             forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
             casmContractDefinition = casmContractDefinition,
+            tip = params.tip,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -232,7 +235,7 @@ class StandardAccount @JvmOverloads constructor(
                 tip = tip,
             )
             val payload = signV3(calls, signParams, false)
-
+            println(payload)
             return@compose provider.invokeFunction(payload)
         }
     }
