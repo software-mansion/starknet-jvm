@@ -128,7 +128,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = params.nonce,
             forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
-            tip = params.tip
+            tip = params.tip,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
