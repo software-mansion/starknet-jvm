@@ -1,5 +1,7 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.HexToIntDeserializer
+import com.swmansion.starknet.data.serializers.RevertibleFunctionInvocationPolymorphicSerializer
 import com.swmansion.starknet.data.serializers.TransactionTracePolymorphicSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -28,6 +30,15 @@ enum class SimulationFlag(val value: String) {
 enum class SimulationFlagForEstimateFee(val value: String) {
     SKIP_VALIDATE("SKIP_VALIDATE"),
 }
+
+@Serializable
+sealed class RevertibleFunctionInvocation
+
+@Serializable
+data class RevertReason(
+    @SerialName("revert_reason")
+    val revertReason: String,
+) : RevertibleFunctionInvocation()
 
 @Serializable
 data class FunctionInvocation(
@@ -69,7 +80,7 @@ data class FunctionInvocation(
 
     @SerialName("is_reverted")
     val isReverted: Boolean,
-)
+): RevertibleFunctionInvocation()
 
 @Serializable
 data class RevertedFunctionInvocation(
@@ -101,7 +112,8 @@ data class InvokeTransactionTrace(
     override val validateInvocation: FunctionInvocation? = null,
 
     @SerialName("execute_invocation")
-    val executeInvocation: FunctionInvocation,
+    @Serializable(with = RevertibleFunctionInvocationPolymorphicSerializer::class)
+    val executeInvocation: RevertibleFunctionInvocation,
 
     @SerialName("fee_transfer_invocation")
     override val feeTransferInvocation: FunctionInvocation? = null,
@@ -206,7 +218,7 @@ data class DeployAccountTransactionTrace private constructor(
 @Serializable
 data class L1HandlerTransactionTrace private constructor(
     @SerialName("function_invocation")
-    val functionInvocation: FunctionInvocation,
+    val functionInvocation: RevertibleFunctionInvocation,
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
