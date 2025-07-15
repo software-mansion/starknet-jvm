@@ -77,7 +77,7 @@ data class EventAbiEntry(
 data class StructMember(
     val name: String,
     val type: String,
-    val offset: Int,
+    val offset: UInt,
 )
 
 @SerialName("struct")
@@ -99,7 +99,7 @@ data class DeprecatedCairoEntryPoint(
 @Serializable
 data class SierraEntryPoint(
     @SerialName("function_idx")
-    val functionIdx: Int,
+    val functionIdx: UInt,
     val selector: Felt,
 )
 

@@ -430,7 +430,7 @@ interface Account {
     /**
      * Get account nonce.
      *
-     * Get account nonce for pending block.
+     * Get account nonce for pre-confirmed block.
      *
      * @return nonce as field value.
      */

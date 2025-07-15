@@ -1044,7 +1044,7 @@ class StandardAccountTest {
             val simulationFlags = setOf<SimulationFlag>()
             val simulationResult = provider.simulateTransactions(
                 transactions = listOf(invokeTx, deployAccountTx),
-                blockTag = BlockTag.PENDING,
+                blockTag = BlockTag.PRE_CONFIRMED,
                 simulationFlags = simulationFlags,
             ).send()
             assertEquals(2, simulationResult.values.size)
@@ -1098,7 +1098,7 @@ class StandardAccountTest {
             val simulationFlags = setOf<SimulationFlag>()
             val simulationResult = provider.simulateTransactions(
                 transactions = listOf(declareTransactionPayload),
-                blockTag = BlockTag.PENDING,
+                blockTag = BlockTag.PRE_CONFIRMED,
                 simulationFlags = simulationFlags,
             ).send()
             assertEquals(1, simulationResult.values.size)
@@ -1123,7 +1123,8 @@ class StandardAccountTest {
                             "l1_data_gas_price": "0x1a05",
                             "l2_gas_consumed": "0x9d8",
                             "l2_gas_price": "0x3b9aca2f",
-                            "overall_fee": "0x24abbb63ea8"
+                            "overall_fee": "0x24abbb63ea8",
+                            "unit": "FRI"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",
@@ -1167,7 +1168,7 @@ class StandardAccountTest {
             val simulationFlags = setOf<SimulationFlag>()
             val simulationResult = mockProvider.simulateTransactions(
                 transactions = listOf(invokeTx),
-                blockTag = BlockTag.PENDING,
+                blockTag = BlockTag.PRE_CONFIRMED,
                 simulationFlags = simulationFlags,
             ).send()
 
@@ -1195,7 +1196,8 @@ class StandardAccountTest {
                             "l2_gas_consumed": "0x9d8",
                             "l2_gas_price": "0x3b9aca2f",
                             "l1_data_gas_consumed": "0x3a",
-                            "overall_fee": "0x24abbb63ea8"
+                            "overall_fee": "0x24abbb63ea8",
+                            "unit": "FRI"
                         },
                         "transaction_trace": {
                             "type": "INVOKE",
@@ -1296,7 +1298,7 @@ class StandardAccountTest {
             val simulationFlags = setOf<SimulationFlag>()
             val simulationResult = mockProvider.simulateTransactions(
                 transactions = listOf(invokeTx),
-                blockTag = BlockTag.PENDING,
+                blockTag = BlockTag.PRE_CONFIRMED,
                 simulationFlags = simulationFlags,
             ).send()
 

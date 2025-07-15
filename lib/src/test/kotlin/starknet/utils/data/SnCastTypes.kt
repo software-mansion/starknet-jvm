@@ -1,10 +1,12 @@
 package starknet.utils.data
 
 import com.swmansion.starknet.data.types.Felt
+import com.swmansion.starknet.data.types.Uint128
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
+import starknet.utils.data.serializers.Uint128DecimalSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -56,8 +58,9 @@ data class AccountCreateSnCastResponse(
     @JsonNames("address")
     val accountAddress: Felt,
 
-    @JsonNames("max_fee")
-    val maxFee: Felt,
+    @JsonNames("estimated_fee")
+    @Serializable(with = Uint128DecimalSerializer::class)
+    val estimatedFee: Uint128,
 ) : SnCastResponse()
 
 @OptIn(ExperimentalSerializationApi::class)

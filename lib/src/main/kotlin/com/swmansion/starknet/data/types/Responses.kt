@@ -44,33 +44,48 @@ data class DeployAccountResponse(
     val address: Felt? = null,
 ) : StarknetResponse
 
+sealed class EstimateFeeCommon : StarknetResponse {
+    abstract val l1GasConsumed: Uint64
+    abstract val l1GasPrice: Uint128
+    abstract val l2GasConsumed: Uint64
+    abstract val l2GasPrice: Uint128
+    abstract val l1DataGasConsumed: Uint64
+    abstract val l1DataGasPrice: Uint128
+    abstract val overallFee: Uint128
+}
+
 @Serializable
 data class EstimateFeeResponse(
     @SerialName("l1_gas_consumed")
-    val l1GasConsumed: Uint64,
+    override val l1GasConsumed: Uint64,
 
     @SerialName("l1_gas_price")
-    val l1GasPrice: Uint128,
+    override val l1GasPrice: Uint128,
 
     @SerialName("l2_gas_consumed")
-    val l2GasConsumed: Uint64,
+    override val l2GasConsumed: Uint64,
 
     @SerialName("l2_gas_price")
-    val l2GasPrice: Uint128,
+    override val l2GasPrice: Uint128,
 
     @SerialName("l1_data_gas_consumed")
-    val l1DataGasConsumed: Uint64,
+    override val l1DataGasConsumed: Uint64,
 
     @SerialName("l1_data_gas_price")
-    val l1DataGasPrice: Uint128,
+    override val l1DataGasPrice: Uint128,
 
     @SerialName("overall_fee")
-    val overallFee: Uint128,
+    override val overallFee: Uint128,
 
-    // TODO: (#344) Deviation from the spec, make this non-nullable once Pathfinder is updated
     @SerialName("unit")
-    val feeUnit: PriceUnit? = null,
-) : StarknetResponse {
+    val feeUnit: PriceUnit,
+) : StarknetResponse, EstimateFeeCommon() {
+    init {
+        require(feeUnit == PriceUnit.FRI) {
+            "`feeUnit` for `EstimateFeeResponse` can only be FRI"
+        }
+    }
+
     /**
      * Convert estimated fee to max fee with applied multiplier.
      *
@@ -117,6 +132,39 @@ data class EstimateFeeResponse(
     }
 }
 
+@Serializable
+data class EstimateMessageFeeResponse(
+    @SerialName("l1_gas_consumed")
+    override val l1GasConsumed: Uint64,
+
+    @SerialName("l1_gas_price")
+    override val l1GasPrice: Uint128,
+
+    @SerialName("l2_gas_consumed")
+    override val l2GasConsumed: Uint64,
+
+    @SerialName("l2_gas_price")
+    override val l2GasPrice: Uint128,
+
+    @SerialName("l1_data_gas_consumed")
+    override val l1DataGasConsumed: Uint64,
+
+    @SerialName("l1_data_gas_price")
+    override val l1DataGasPrice: Uint128,
+
+    @SerialName("overall_fee")
+    override val overallFee: Uint128,
+
+    @SerialName("unit")
+    val feeUnit: PriceUnit,
+) : StarknetResponse, EstimateFeeCommon() {
+    init {
+        require(feeUnit == PriceUnit.WEI) {
+            "`feeUnit` for `EstimateMessageFeeResponse` can only be WEI"
+        }
+    }
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class GetBlockHashAndNumberResponse(
@@ -145,7 +193,7 @@ data class MessageStatus(
     val transactionHash: Felt,
 
     @SerialName("finality_status")
-    val finalityStatus: TransactionStatus,
+    val finalityStatus: TransactionFinalityStatus,
 
     @SerialName("failure_reason")
     val failureReason: String? = null,
@@ -225,7 +273,7 @@ data class NodeHashToNodeMappingItem(
         val path: NumAsHex,
 
         @SerialName("length")
-        val length: Int,
+        val length: UInt,
 
         @SerialName("child")
         val value: Felt,
@@ -401,7 +449,7 @@ data class StateUpdateResponse(
 ) : StateUpdate()
 
 @Serializable
-data class PendingStateUpdateResponse(
+data class PreConfirmedStateUpdateResponse(
     @SerialName("old_root")
     override val oldRoot: Felt,
 

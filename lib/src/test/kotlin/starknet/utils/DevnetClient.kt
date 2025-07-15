@@ -69,28 +69,11 @@ class DevnetClient(
     )
 
     companion object {
-        // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4/crates/starknet-devnet-types/src/utils.rs#L123
-        val accountContractClassHash = Felt.fromHex("0x02b31e19e45c06f29234e06e2ee98a9966479ba3067f8785ed972794fdb0065c")
+        // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/430b3370e60b28b8de430143b26e52bf36380b9a/crates/starknet-devnet-core/src/constants.rs#L25
+        val accountContractClassHash = Felt.fromHex("0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564")
         val legacyAccountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
-        val ethErc20ContractClassHash = Felt.fromHex("0x6a22bf63c7bc07effa39a25dfbd21523d211db0100a0afd054d172b81840eaf")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
-        val strkErc20ContractAddress = Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
-        val udcContractClassHash = Felt.fromHex("0x7b3e05f48f0c69e4a65ce5e076a66271a527aff2c34ce1083ec6e1526997a69")
         val udcContractAddress = Felt.fromHex("0x41a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf")
-
-        // For seed 1053545547
-        val predeployedAccount1 = AccountDetails(
-            privateKey = Felt.fromHex("0xa2ed22bb0cb0b49c69f6d6a8d24bc5ea"),
-            publicKey = Felt.fromHex("0x198e98e771ebb5da7f4f05658a80a3d6be2213dc5096d055cbbefa62901ab06"),
-            address = Felt.fromHex("0x1323cacbc02b4aaed9bb6b24d121fb712d8946376040990f2f2fa0dcf17bb5b"),
-            salt = Felt(20),
-        )
-        val predeployedAccount2 = AccountDetails(
-            privateKey = Felt.fromHex("0xc1c7db92d22ef773de96f8bde8e56c85"),
-            publicKey = Felt.fromHex("0x26df62f8e61920575f9c9391ed5f08397cfcfd2ade02d47781a4a8836c091fd"),
-            address = Felt.fromHex("0x34864aab9f693157f88f2213ffdaa7303a46bbea92b702416a648c3d0e42f35"),
-            salt = Felt(20),
-        )
     }
 
     fun start() {
@@ -117,7 +100,7 @@ class DevnetClient(
             port.toString(),
             "--seed",
             seed.toString(),
-            // This is currently needed for devnet to support requests with specified block_id (not latest or pending)
+            // This is currently needed for devnet to support requests with specified block_id (not latest or pre-confirmed)
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
@@ -188,7 +171,6 @@ class DevnetClient(
             classHash.hexString(),
             "--type",
             type,
-            "--silent",
             "--url",
             rpcUrl,
         )
@@ -204,7 +186,7 @@ class DevnetClient(
 
         return CreateAccountResult(
             details = readAccountDetails(accountName),
-            maxFee = response.maxFee,
+            estimatedFee = response.estimatedFee,
         )
     }
 
@@ -401,10 +383,11 @@ class DevnetClient(
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
             "sncast",
-            "--hex-format",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
+            "--profile",
+            "tests_profile",
             "--account",
             accountName,
             command,
