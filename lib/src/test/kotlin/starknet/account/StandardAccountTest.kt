@@ -511,6 +511,56 @@ class StandardAccountTest {
             // docsEnd
             assertTrue(receipt.isAccepted)
         }
+
+        @Test
+        fun `sign and send declare v3 transaction with tip`() {
+            devnetClient.prefundAccountStrk(accountAddress)
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            )
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+            val contractDefinition = Cairo2ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = account.getNonce().send()
+
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
+
+            val tip = Uint64(12345)
+            val params = DeclareParamsV3(
+                nonce = nonce,
+                resourceBounds = resourceBounds,
+                tip = tip,
+            )
+            val declareTransactionPayload = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                params,
+            )
+            val request = provider.declareContract(declareTransactionPayload)
+            val result = request.send()
+
+            val tx = provider.getTransaction(result.transactionHash).send() as DeclareTransactionV3
+            assertEquals(tip, tx.tip)
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            assertTrue(receipt.isAccepted)
+        }
     }
 
     @Nested
@@ -637,6 +687,24 @@ class StandardAccountTest {
         }
 
         @Test
+        fun `execute v3 single call with tip`() {
+            val call = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val tip = Uint64(12345)
+            val result = account.executeV3(call, tip).send()
+
+            val tx = provider.getTransaction(result.transactionHash).send() as InvokeTransactionV3
+            assertEquals(tip, tx.tip)
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
         fun `execute v3 single call with specific fee estimate multiplier`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -741,6 +809,30 @@ class StandardAccountTest {
         }
 
         @Test
+        fun `execute v3 multiple calls with tip`() {
+            val call1 = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val call2 = Call(
+                contractAddress = balanceContractAddress,
+                entrypoint = "increase_balance",
+                calldata = listOf(Felt(10)),
+            )
+
+            val tip = Uint64(12345)
+            val result = account.executeV3(listOf(call1, call2), tip).send()
+
+            val tx = provider.getTransaction(result.transactionHash).send() as InvokeTransactionV3
+            assertEquals(tip, tx.tip)
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
         fun `two executes v3 with single call`() {
             val call = Call(
                 contractAddress = balanceContractAddress,
@@ -841,9 +933,7 @@ class StandardAccountTest {
                 provider,
                 chainId,
             )
-            val resourceBounds = ResourceBoundsMapping
             val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
                 resourceBounds = ResourceBoundsMapping.ZERO,
             )
             val payloadForFeeEstimation = account.signDeployAccountV3(
@@ -901,7 +991,6 @@ class StandardAccountTest {
                 ),
             )
             val params = DeployAccountParamsV3(
-                nonce = Felt.ZERO,
                 resourceBounds = resourceBounds,
             )
 
@@ -939,6 +1028,75 @@ class StandardAccountTest {
 
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             // docsEnd
+            assertTrue(receipt.isAccepted)
+        }
+
+        @Test
+        fun `sign and send deploy account v3 transaction with tip`() {
+            val privateKey = Felt(22222)
+            val publicKey = StarknetCurve.getPublicKey(privateKey)
+
+            val salt = Felt(3)
+            val calldata = listOf(publicKey)
+            val address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash = accountContractClassHash,
+                calldata = calldata,
+                salt = salt,
+            )
+
+            val newAccount = StandardAccount(
+                address,
+                privateKey,
+                provider,
+                chainId,
+            )
+
+            val resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+                l2Gas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000_000),
+                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+                ),
+                l1DataGas = ResourceBounds(
+                    maxAmount = Uint64(100_000_000_000),
+                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
+                ),
+            )
+
+            val tip = Uint64(12345)
+            val params = DeployAccountParamsV3(
+                resourceBounds = resourceBounds,
+                tip = tip,
+            )
+
+            devnetClient.prefundAccountStrk(address)
+            val payload = newAccount.signDeployAccountV3(
+                classHash = accountContractClassHash,
+                salt = salt,
+                calldata = calldata,
+                params = params,
+                forFeeEstimate = false,
+            )
+
+            val response = provider.deployAccount(payload).send()
+            assertEquals(address, response.address)
+
+            val tx = provider.getTransaction(response.transactionHash).send() as DeployAccountTransactionV3
+            assertEquals(payload.classHash, tx.classHash)
+            assertEquals(payload.contractAddressSalt, tx.contractAddressSalt)
+            assertEquals(payload.constructorCalldata, tx.constructorCalldata)
+            assertEquals(payload.version, tx.version)
+            assertEquals(payload.nonce, tx.nonce)
+            assertEquals(payload.signature, tx.signature)
+            assertEquals(payload.tip, tx.tip)
+
+            val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
+            val result = newAccount.executeV3(call).send()
+
+            val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
         }
     }

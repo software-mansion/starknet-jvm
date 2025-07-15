@@ -200,6 +200,22 @@ interface Account {
     fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
 
     /**
+     * Execute a list of calls using version 3 invoke transaction.
+     *
+     * Execute list of calls on Starknet.
+     *
+     * @param calls a list of calls to be executed.
+     * @param resourceBounds resource bounds for the transaction execution
+     * @param tip tip of the transaction
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(
+        calls: List<Call>,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse>
+
+    /**
      * Execute single call using version 3 invoke transaction.
      *
      * Execute single call on Starknet.
@@ -209,6 +225,18 @@ interface Account {
      * @return Invoke function response, containing transaction hash.
      */
     fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call using version 3 invoke transaction.
+     *
+     * Execute single call on Starknet.
+     *
+     * @param call a call to be executed.
+     * @param resourceBounds resource bounds for the transaction execution
+     * @param tip tip of the transaction
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 3 invoke transaction with automatically estimated fee
@@ -247,12 +275,30 @@ interface Account {
     fun executeV3(calls: List<Call>): Request<InvokeFunctionResponse>
 
     /**
+     * Execute a list of calls with automatically estimated fee using version 3 invoke transaction.
+     *
+     * @param calls a list of calls to be executed.
+     * @param tip tip of the transaction
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(calls: List<Call>, tip: Uint64): Request<InvokeFunctionResponse>
+
+    /**
      * Execute single call with automatically estimated fee using version 3 invoke transaction.
      *
      * @param call a call to be executed.
      * @return Invoke function response, containing transaction hash.
      */
     fun executeV3(call: Call): Request<InvokeFunctionResponse>
+
+    /**
+     * Execute single call with automatically estimated fee using version 3 invoke transaction.
+     *
+     * @param call a call to be executed.
+     * @param tip tip of the transaction
+     * @return Invoke function response, containing transaction hash.
+     */
+    fun executeV3(call: Call, tip: Uint64): Request<InvokeFunctionResponse>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
