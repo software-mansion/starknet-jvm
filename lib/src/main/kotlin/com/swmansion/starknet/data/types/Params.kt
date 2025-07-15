@@ -63,8 +63,17 @@ data class DeclareParamsV3 private constructor(
     override val nonceDataAvailabilityMode: DAMode,
     override val feeDataAvailabilityMode: DAMode,
 ) : ParamsV3() {
-    @JvmOverloads
-    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping, tip: Uint64 = Uint64.ZERO) : this(
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping) : this(
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+        tip = Uint64.ZERO,
+        paymasterData = emptyList(),
+        accountDeploymentData = emptyList(),
+        nonceDataAvailabilityMode = DAMode.L1,
+        feeDataAvailabilityMode = DAMode.L1,
+    )
+
+    constructor(nonce: Felt, resourceBounds: ResourceBoundsMapping, tip: Uint64) : this(
         nonce = nonce,
         resourceBounds = resourceBounds,
         tip = tip,
