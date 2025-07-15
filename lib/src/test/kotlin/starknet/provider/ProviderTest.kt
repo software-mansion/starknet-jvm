@@ -226,8 +226,6 @@ class ProviderTest {
 
     @Test
     fun getClassDefinitionAtClassHashWithLatestBlock() {
-        // FIXME: Devnet only support's calls with block_id of the latest or pre-confirmed. Other block_id are not supported.
-        // After it's fixed add tests with 1) block hash 2) block number
         val request = provider.getClass(balanceClassHash, BlockTag.LATEST)
         val response = request.send()
 
