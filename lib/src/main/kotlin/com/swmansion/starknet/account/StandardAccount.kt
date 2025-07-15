@@ -235,7 +235,6 @@ class StandardAccount @JvmOverloads constructor(
                 tip = tip,
             )
             val payload = signV3(calls, signParams, false)
-            println(payload)
             return@compose provider.invokeFunction(payload)
         }
     }
