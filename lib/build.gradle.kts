@@ -10,7 +10,7 @@ import android.databinding.tool.ext.L
 import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.15.0"
+version = "0.16.0-rc.0"
 group = "com.swmansion.starknet"
 
 plugins {
