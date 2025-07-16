@@ -32,7 +32,7 @@ class JsonRpcResponseTest {
                     "l1_data_gas_price": "0x789",
                     "overall_fee": "0x9abc",
                     "unknown_object": {"key_1": "value_1", "key_2": "value_2"},
-                    "unit": "FRI",
+                    "unit": "WEI",
                     "unknown_sequence": ["0x1", "0x2"]
                 }
             }
@@ -43,7 +43,7 @@ class JsonRpcResponseTest {
         val message = MessageL1ToL2(Felt.ONE, Felt.ONE, Felt.ONE, Felt.ONE, listOf(Felt.ZERO, Felt.ONE))
 
         val provider = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = true)
-        val request = provider.getEstimateMessageFee(message, BlockTag.PENDING)
+        val request = provider.getEstimateMessageFee(message, BlockTag.PRE_CONFIRMED)
         val response = request.send()
 
         assertEquals(Uint64.fromHex("0x1234"), response.l1GasConsumed)
@@ -51,10 +51,10 @@ class JsonRpcResponseTest {
         assertEquals(Uint64.fromHex("0x1111"), response.l2GasConsumed)
         assertEquals(Uint128.fromHex("0x2222"), response.l2GasPrice)
         assertEquals(Uint128.fromHex("0x9abc"), response.overallFee)
-        assertEquals(PriceUnit.FRI, response.feeUnit)
+        assertEquals(PriceUnit.WEI, response.feeUnit)
 
         val provider2 = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = false)
-        val request2 = provider2.getEstimateMessageFee(message, BlockTag.PENDING)
+        val request2 = provider2.getEstimateMessageFee(message, BlockTag.PRE_CONFIRMED)
         assertThrows<SerializationException> {
             request2.send()
         }

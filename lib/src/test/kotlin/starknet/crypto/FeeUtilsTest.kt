@@ -16,7 +16,7 @@ class FeeUtilsTest {
             l2GasConsumed = Uint64(200),
             l2GasPrice = Uint128(50),
             overallFee = Uint128(1000 * 100 + 200 * 50 + 1000 * 100), // 210000
-            feeUnit = PriceUnit.WEI,
+            feeUnit = PriceUnit.FRI,
         )
     }
 

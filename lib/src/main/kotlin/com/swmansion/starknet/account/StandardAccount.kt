@@ -128,6 +128,7 @@ class StandardAccount @JvmOverloads constructor(
             nonce = params.nonce,
             forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
+            tip = params.tip,
         )
 
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
@@ -154,6 +155,7 @@ class StandardAccount @JvmOverloads constructor(
             forFeeEstimate = forFeeEstimate,
             nonce = params.nonce,
             resourceBounds = params.resourceBounds,
+            tip = params.tip,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -177,6 +179,7 @@ class StandardAccount @JvmOverloads constructor(
             forFeeEstimate = forFeeEstimate,
             resourceBounds = params.resourceBounds,
             casmContractDefinition = casmContractDefinition,
+            tip = params.tip,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
@@ -221,13 +224,17 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
+        return executeV3(calls, resourceBounds, Uint64.ZERO)
+    }
+
+    override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
                 nonce = nonce,
                 resourceBounds = resourceBounds,
+                tip = tip,
             )
             val payload = signV3(calls, signParams, false)
-
             return@compose provider.invokeFunction(payload)
         }
     }
@@ -256,8 +263,23 @@ class StandardAccount @JvmOverloads constructor(
         }
     }
 
+    override fun executeV3(calls: List<Call>, tip: Uint64): Request<InvokeFunctionResponse> {
+        return estimateFeeV3(calls).compose { estimateFee ->
+            val resourceBounds = estimateFee.values.first().toResourceBounds()
+            executeV3(calls, resourceBounds, tip)
+        }
+    }
+
     override fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse> {
         return executeV3(listOf(call), resourceBounds)
+    }
+
+    override fun executeV3(
+        call: Call,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), resourceBounds, tip)
     }
 
     override fun executeV3(
@@ -279,10 +301,14 @@ class StandardAccount @JvmOverloads constructor(
         return executeV3(listOf(call))
     }
 
+    override fun executeV3(call: Call, tip: Uint64): Request<InvokeFunctionResponse> {
+        return executeV3(listOf(call), tip)
+    }
+
     /**
      * @sample starknet.account.StandardAccountTest.NonceTest.getNonce
      */
-    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PENDING)
+    override fun getNonce(): Request<Felt> = getNonce(BlockTag.PRE_CONFIRMED)
 
     /**
      * @sample starknet.account.StandardAccountTest.NonceTest.getNonceAtLatestBlockTag
@@ -320,14 +346,14 @@ class StandardAccount @JvmOverloads constructor(
     }
 
     override fun estimateFeeV3(calls: List<Call>): Request<EstimateFeeResponseList> {
-        return estimateFeeV3(calls, BlockTag.PENDING, false)
+        return estimateFeeV3(calls, BlockTag.PRE_CONFIRMED, false)
     }
 
     /**
      * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeForInvokeV3Transaction
      */
     override fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList> {
-        return estimateFeeV3(calls, BlockTag.PENDING, skipValidate)
+        return estimateFeeV3(calls, BlockTag.PRE_CONFIRMED, skipValidate)
     }
 
     override fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList> {

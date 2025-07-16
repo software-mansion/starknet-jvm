@@ -5,8 +5,14 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ github.token }}
+# TODO: Remove below env once stable release of starknet foundry is available
+  SNFOUNDRY_SHA: 3d227d0aa6bf896f912144088f3c7bf0424f4c13
 
 jobs:
   test_and_lint:
@@ -19,7 +25,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: fc5a2753a2eedcc27eed7a4fae3ecac08c2ca1b4
+      DEVNET_SHA: aafa74e4297734bacba72d0faa7c711eacecfc7a # v0.5.0-rc.1
     steps:
       - uses: actions/checkout@v3
         with:
@@ -83,10 +89,14 @@ jobs:
           echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
       - name: Install starknet-foundry
+        # TODO: Use below steps once stable release of starknet foundry is available
+        # run: |
+        #   asdf plugin add starknet-foundry
+        #   asdf install starknet-foundry 0.40.0
+        #   asdf set starknet-foundry 0.40.0 --home
         run: |
-          asdf plugin add starknet-foundry
-          asdf install starknet-foundry 0.40.0
-          asdf set starknet-foundry 0.40.0 --home
+          DOWNLOAD_URL="https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/snfoundryup"
+          curl -s "$DOWNLOAD_URL" | bash -s --  -c ${{ env.SNFOUNDRY_SHA }}
 
       - name: Install scarb
         run: |

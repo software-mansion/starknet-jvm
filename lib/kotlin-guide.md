@@ -222,7 +222,6 @@ val resourceBounds = ResourceBoundsMapping(
     ),
 )
 val params = DeployAccountParamsV3(
-    nonce = Felt.ZERO,
     resourceBounds = resourceBounds,
 )
 
@@ -265,9 +264,7 @@ val account = StandardAccount(
     provider,
     chainId,
 )
-val resourceBounds = ResourceBoundsMapping
 val params = DeployAccountParamsV3(
-    nonce = Felt.ZERO,
     resourceBounds = ResourceBoundsMapping.ZERO,
 )
 val payloadForFeeEstimation = account.signDeployAccountV3(

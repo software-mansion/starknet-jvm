@@ -8,12 +8,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"), PENDING("pending")
+    LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
 }
 
 @Serializable
 enum class BlockStatus {
-    PENDING,
+    PRE_CONFIRMED,
     ACCEPTED_ON_L1,
     ACCEPTED_ON_L2,
     REJECTED,
@@ -44,7 +44,7 @@ sealed class BlockId {
 sealed interface Block : StarknetResponse {
     val timestamp: Int
     val sequencerAddress: Felt
-    val parentHash: Felt
+    val blockNumber: Int
     val l1GasPrice: ResourcePrice
     val l2GasPrice: ResourcePrice
     val l1DataGasPrice: ResourcePrice
@@ -60,16 +60,16 @@ sealed interface Block : StarknetResponse {
 sealed interface ProcessedBlock : Block {
     val status: BlockStatus
     val blockHash: Felt
-    val blockNumber: Int
+    val parentHash: Felt
     val newRoot: Felt
 }
 
 /**
- * Represents a pending block.
+ * Represents a pre-confirmed block.
  *
- * Corresponds to the `PENDING_BLOCK_HEADER` schema defined in the JSON-RPC spec.
+ * Corresponds to the `PRE_CONFIRMED_BLOCK_HEADER` schema defined in the JSON-RPC spec.
  */
-sealed interface PendingBlock : Block
+sealed interface PreConfirmedBlock : Block
 
 @Serializable
 sealed class BlockWithTransactions : Block {
@@ -122,21 +122,21 @@ data class ProcessedBlockWithTransactions(
 ) : BlockWithTransactions(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithTransactions(
+data class PreConfirmedBlockWithTransactions(
     @SerialName("transactions")
     override val transactions: List<
         @Serializable(with = TransactionSerializer::class)
         Transaction,
         >,
 
+    @SerialName("block_number")
+    override val blockNumber: Int,
+
     @SerialName("timestamp")
     override val timestamp: Int,
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
@@ -152,7 +152,7 @@ data class PendingBlockWithTransactions(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithTransactions(), PendingBlock
+) : BlockWithTransactions(), PreConfirmedBlock
 
 @Serializable
 data class TransactionWithReceipt(
@@ -213,18 +213,18 @@ data class ProcessedBlockWithReceipts(
 ) : BlockWithReceipts(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithReceipts(
+data class PreConfirmedBlockWithReceipts(
     @SerialName("transactions")
     override val transactionsWithReceipts: List<TransactionWithReceipt>,
+
+    @SerialName("block_number")
+    override val blockNumber: Int,
 
     @SerialName("timestamp")
     override val timestamp: Int,
 
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
@@ -240,7 +240,7 @@ data class PendingBlockWithReceipts(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithReceipts(), PendingBlock
+) : BlockWithReceipts(), PreConfirmedBlock
 
 @Serializable
 sealed class BlockWithTransactionHashes : Block {
@@ -290,7 +290,7 @@ data class ProcessedBlockWithTransactionHashes(
 ) : BlockWithTransactionHashes(), ProcessedBlock
 
 @Serializable
-data class PendingBlockWithTransactionHashes(
+data class PreConfirmedBlockWithTransactionHashes(
     @SerialName("transactions")
     override val transactionHashes: List<Felt>,
 
@@ -300,8 +300,8 @@ data class PendingBlockWithTransactionHashes(
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
 
-    @SerialName("parent_hash")
-    override val parentHash: Felt,
+    @SerialName("block_number")
+    override val blockNumber: Int,
 
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
@@ -317,4 +317,4 @@ data class PendingBlockWithTransactionHashes(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithTransactionHashes(), PendingBlock
+) : BlockWithTransactionHashes(), PreConfirmedBlock
