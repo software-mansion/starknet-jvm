@@ -21,6 +21,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
+    id("io.codearte.nexus-staging") version "0.30.0"
     id("com.vanniktech.maven.publish") version "0.34.0"
     id("org.jetbrains.kotlinx.kover")
 
@@ -269,9 +270,6 @@ tasks.javadoc {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
-
     coordinates("com.swmansion.starknet", "starknet", project.version.toString())
 
     pom {
@@ -334,4 +332,9 @@ mavenPublishing {
             }
         }
     }
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 }
