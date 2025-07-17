@@ -338,3 +338,10 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 }
+
+nexusStaging {
+    serverUrl = "https://s01.oss.sonatype.org/service/local/"
+    packageGroup = "com.swmansion"
+    username = System.getenv("MAVEN_USERNAME")
+    password = System.getenv("MAVEN_PASSWORD")
+}
