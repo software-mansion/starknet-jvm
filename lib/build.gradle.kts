@@ -9,6 +9,9 @@
 import android.databinding.tool.ext.L
 import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
 
 version = "0.16.0-rc.0"
 group = "com.swmansion.starknet"
@@ -18,7 +21,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
-    id("io.codearte.nexus-staging") version "0.30.0"
+    id("com.vanniktech.maven.publish") version "0.34.0"
     id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
@@ -193,7 +196,7 @@ tasks.test {
 
     useJUnitPlatform()
 
-    val libsSharedPath = file("$buildDir/libs/shared").absolutePath
+    val libsSharedPath = file("${layout.buildDirectory}/libs/shared").absolutePath
     val pedersenJniPath = file("${rootDir}/crypto/pedersen/build/bindings").absolutePath
     val poseidonJniPath = file("${rootDir}/crypto/poseidon/build/bindings").absolutePath
     val posedionPath = file("${rootDir}/crypto/poseidon/build/poseidon").absolutePath
@@ -218,7 +221,7 @@ tasks.test {
 // Used by CI. Locally you should use jarWithNative task
 tasks.jar {
     from(
-        file("file:${buildDir}/libs/shared").absolutePath
+        file("file:${layout.buildDirectory}/libs/shared").absolutePath
     )
 }
 
@@ -265,105 +268,70 @@ tasks.javadoc {
     exclude("com.swmansion.starknet.extensions")
 }
 
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-publishing {
-    publications {
-        create<MavenPublication>("starknet") {
-            artifactId = "starknet"
-            artifact("starknet-jar/starknet.jar")
-            artifact("starknet-aar/starknet.aar")
-            artifact("javadoc-jar/javadoc.jar") {
-                classifier="javadoc"
-            }
-            artifact("sources-jar/sources.jar"){
-                classifier="sources"
-            }
-            pom {
-                name.set("starknet")
-                description.set("Starknet SDK for JVM languages")
-                url.set("https://github.com/software-mansion/starknet-jvm")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("jakubptak")
-                        name.set("Jakub Ptak")
-                        email.set("jakub.ptak@swmansion.com")
-                    }
-                    developer {
-                        id.set("arturmichalek")
-                        name.set("Artur Michałek")
-                        email.set("artur.michalek@swmansion.com")
-                    }
-                    developer {
-                        id.set("bartoszrybarski")
-                        name.set("Bartosz Rybarski")
-                        email.set("bartosz.rybarski@swmansion.com")
-                    }
-                    developer {
-                        id.set("wojciechszymczyk")
-                        name.set("Wojciech Szymczyk")
-                        email.set("wojciech.szymczyk@swmansion.com")
-                    }
-                    developer {
-                        id.set("maksimzdobnikau")
-                        name.set("Maksim Zdobnikau")
-                        email.set("maksim.zdobnikau@swmansion.com")
-                    }
-                    developer {
-                        id.set("franciszekjob")
-                        name.set("Franciszek Job")
-                        email.set("franciszek.job@swmansion.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
-                    developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
-                    url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
-                }
-                pom.withXml {
-                    val dependenciesNode = asNode().appendNode("dependencies")
+    coordinates("com.swmansion.starknet", "starknet", project.version.toString())
 
-                    configurations["implementation"].allDependencies.forEach {
-                        if (it.group != null && it.version != null) {
-                            val dependencyNode = dependenciesNode.appendNode("dependency")
-                            dependencyNode.appendNode("groupId", it.group)
-                            dependencyNode.appendNode("artifactId", it.name)
-                            dependencyNode.appendNode("version", it.version)
-                        }
-                    }
+    pom {
+        name.set("starknet")
+        description.set("Starknet SDK for JVM languages")
+        url.set("https://github.com/software-mansion/starknet-jvm")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
+            }
+        }
+        developers {
+            developer {
+                id.set("jakubptak")
+                name.set("Jakub Ptak")
+                email.set("jakub.ptak@swmansion.com")
+            }
+            developer {
+                id.set("arturmichalek")
+                name.set("Artur Michałek")
+                email.set("artur.michalek@swmansion.com")
+            }
+            developer {
+                id.set("bartoszrybarski")
+                name.set("Bartosz Rybarski")
+                email.set("bartosz.rybarski@swmansion.com")
+            }
+            developer {
+                id.set("wojciechszymczyk")
+                name.set("Wojciech Szymczyk")
+                email.set("wojciech.szymczyk@swmansion.com")
+            }
+            developer {
+                id.set("maksimzdobnikau")
+                name.set("Maksim Zdobnikau")
+                email.set("maksim.zdobnikau@swmansion.com")
+            }
+            developer {
+                id.set("franciszekjob")
+                name.set("Franciszek Job")
+                email.set("franciszek.job@swmansion.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+            developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+            url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
+        }
+        withXml {
+            val dependenciesNode = asNode().appendNode("dependencies")
+
+            configurations["implementation"].allDependencies.forEach {
+                if (it.group != null && it.version != null) {
+                    val dependencyNode = dependenciesNode.appendNode("dependency")
+                    dependencyNode.appendNode("groupId", it.group)
+                    dependencyNode.appendNode("artifactId", it.name)
+                    dependencyNode.appendNode("version", it.version)
                 }
             }
         }
     }
-    repositories {
-        maven {
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
-            }
-            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
-        }
-
-    }
-}
-
-nexusStaging {
-    serverUrl = "https://s01.oss.sonatype.org/service/local/"
-    packageGroup = "com.swmansion"
-    username = System.getenv("MAVEN_USERNAME")
-    password = System.getenv("MAVEN_PASSWORD")
-}
-
-signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["starknet"])
 }
