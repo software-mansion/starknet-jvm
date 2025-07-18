@@ -343,8 +343,8 @@ publishing {
     repositories {
         maven {
             credentials {
-                username = System.getenv("MAVEN_CENTRAL_USERNAME")
-                password = System.getenv("MAVEN_CENTRAL_USERNAME")
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_USERNAME")
             }
             val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
@@ -357,8 +357,8 @@ publishing {
 nexusStaging {
     serverUrl = "https://s01.oss.sonatype.org/service/local/"
     packageGroup = "com.swmansion"
-    username = System.getenv("MAVEN_CENTRAL_USERNAME")
-    password = System.getenv("MAVEN_CENTRAL_PASSWORD")
+    username = System.getenv("MAVEN_USERNAME")
+    password = System.getenv("MAVEN_PASSWORD")
 }
 
 signing {
