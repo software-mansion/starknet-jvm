@@ -21,8 +21,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
-    id("io.codearte.nexus-staging") version "0.30.0"
-    id("com.vanniktech.maven.publish") version "0.34.0"
+    id("com.vanniktech.maven.publish") version "0.27.0"
     id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
@@ -337,11 +336,4 @@ mavenPublishing {
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
-}
-
-nexusStaging {
-    serverUrl = "https://s01.oss.sonatype.org/service/local/"
-    packageGroup = "com.swmansion"
-    username = System.getenv("MAVEN_USERNAME")
-    password = System.getenv("MAVEN_PASSWORD")
 }
