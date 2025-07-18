@@ -12,6 +12,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SonatypeHost
 
 version = "0.16.0-rc.0"
 group = "com.swmansion.starknet"
@@ -334,6 +335,6 @@ mavenPublishing {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
+    publishToMavenCentral(SonatypeHost.S01)
     signAllPublications()
 }
