@@ -1,8 +1,8 @@
 package com.swmansion.starknet.extensions.math
+import com.swmansion.starknet.data.types.Uint64
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.Assertions.assertEquals
-import com.swmansion.starknet.data.types.Uint64
 import java.math.BigInteger
 
 internal class MedianTest {

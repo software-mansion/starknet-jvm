@@ -17,6 +17,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
 * [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
+* [Estimating tip for V3 transaction](#estimating-tip-for-v3-transaction)
 * [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
 * [Making multiple calls: get multiple transactions data in one request](#making-multiple-calls-get-multiple-transactions-data-in-one-request)
 * [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
@@ -429,6 +430,22 @@ public class Main {
 
         EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
         System.out.println("The estimated fee is: " + feeEstimate.getOverallFee().getValue() + ".");
+    }
+}
+```
+
+## Estimating tip for V3 transaction
+
+
+```java
+import com.swmansion.starknet.data.types.Uint64;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import static com.swmansion.starknet.helpers.Tip.estimateTip;
+
+public class Main {
+    public static void main(String[] args) {
+        JsonRpcProvider provider = new JsonRpcProvider("https://your.node.url/rpc");
+        Uint64 tipEstimate = estimateTip(provider);
     }
 }
 ```

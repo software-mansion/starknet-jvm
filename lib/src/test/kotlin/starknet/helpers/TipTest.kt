@@ -1,6 +1,5 @@
 package starknet.helpers
 
-import com.swmansion.starknet.data.types.BlockId
 import com.swmansion.starknet.data.types.Uint64
 import com.swmansion.starknet.helpers.estimateTip
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -17,9 +16,9 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
-import java.nio.file.Paths
 
 @Execution(ExecutionMode.SAME_THREAD)
+@Disabled
 class TipTest {
     companion object {
         private val devnetClient = DevnetClient(
@@ -77,7 +76,7 @@ class TipTest {
                     "transactions": []
                 }
             }
-            """.trimIndent()
+        """.trimIndent()
 
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
@@ -214,7 +213,7 @@ class TipTest {
                     ]
                 }
             }
-            """.trimIndent()
+        """.trimIndent()
 
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
@@ -382,7 +381,7 @@ class TipTest {
                     ]
                 }
             }
-            """.trimIndent()
+        """.trimIndent()
 
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)

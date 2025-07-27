@@ -17,6 +17,7 @@ Although written in Kotlin, Starknet-jvm has been created with compatibility wit
 * [Estimating fee for deploy account V3 transaction](#estimating-fee-for-deploy-account-v3-transaction)
 * [Invoking contract: Transferring ETH](#invoking-contract-transferring-eth)
 * [Estimating fee for invoke V3 transaction](#estimating-fee-for-invoke-v3-transaction)
+* [Estimating tip for V3 transaction](#estimating-tip-for-v3-transaction)
 * [Calling contract: Fetching ETH balance](#calling-contract-fetching-eth-balance)
 * [Making multiple calls: get multiple transactions data in one request](#making-multiple-calls-get-multiple-transactions-data-in-one-request)
 * [Making multiple calls of different types in one request](#making-multiple-calls-of-different-types-in-one-request)
@@ -292,6 +293,19 @@ val request = account.estimateFeeV3(
 )
 val feeEstimate = request.send().values.first()
 ```
+
+
+## Estimating tip for V3 transaction
+```kotlin
+import com.swmansion.starknet.helpers.estimateTip
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+
+fun main() {
+    val provider = JsonRpcProvider("https://your.node.url/rpc")
+    val tipEstimate = estimateTip(provider)
+}
+```
+
 
 
 ## Calling contract: Fetching ETH balance

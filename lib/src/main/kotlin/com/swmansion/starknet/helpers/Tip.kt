@@ -1,3 +1,5 @@
+@file:JvmName("Tip")
+
 package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.data.types.*
