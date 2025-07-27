@@ -307,7 +307,6 @@ fun main() {
 ```
 
 
-
 ## Calling contract: Fetching ETH balance
 
 

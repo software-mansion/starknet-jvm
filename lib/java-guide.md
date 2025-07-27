@@ -436,7 +436,6 @@ public class Main {
 
 ## Estimating tip for V3 transaction
 
-
 ```java
 import com.swmansion.starknet.data.types.Uint64;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;

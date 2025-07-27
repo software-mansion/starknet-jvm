@@ -552,7 +552,6 @@ fun main() {
     val tipEstimate = estimateTip(provider)
 }
 ```
-
 ```java
 import com.swmansion.starknet.data.types.Uint64;
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
