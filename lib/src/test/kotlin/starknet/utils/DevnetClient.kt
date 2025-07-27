@@ -382,7 +382,7 @@ class DevnetClient(
         accountName: String = "__default__",
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
-            "/Users/franciszekjob/Projects/SWM/starknet-foundry/target/debug/sncast",
+            "sncast",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
