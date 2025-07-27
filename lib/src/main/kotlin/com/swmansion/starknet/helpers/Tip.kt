@@ -3,8 +3,9 @@
 package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.extensions.math.median
+import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
+import org.nield.kotlinstatistics.median
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the latest block.
  *
@@ -38,11 +39,12 @@ fun estimateTip(
 
     val tips = blockWithTxs.transactions
         .filterIsInstance<TransactionV3>()
-        .map { it.tip }
+        .map { it.tip.value.toDouble() }
+
 
     if (tips.isEmpty()) {
         return Uint64.ZERO
     }
 
-    return tips.median()
+    return tips.median().toInt().toUint64
 }
