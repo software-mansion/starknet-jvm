@@ -543,6 +543,12 @@ public class Main {
 ```
 
 ## Estimating tip for V3 transaction
+
+Until Starknet 0.14.0, transactions were processed in FIFO order.
+Starting from mentioned version, it is possible to include a tip with the transaction fee to incentivize it being placed in an earlier block.
+
+Below example shows how to automatically estimate the tip for a transaction.
+
 ```kotlin
 import com.swmansion.starknet.helpers.estimateTip
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
