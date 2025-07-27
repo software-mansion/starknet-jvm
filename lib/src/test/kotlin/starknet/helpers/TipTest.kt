@@ -18,7 +18,6 @@ import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 
 @Execution(ExecutionMode.SAME_THREAD)
-@Disabled
 class TipTest {
     companion object {
         private val devnetClient = DevnetClient(

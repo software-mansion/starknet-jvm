@@ -36,7 +36,7 @@ internal class MedianTest {
     }
 
     @Test
-    fun `median of single-element list returns that element`() {
+    fun `median of single-element list`() {
         val list = listOf(Uint64(BigInteger.valueOf(42)))
         assertEquals(
             Uint64(BigInteger.valueOf(42)),
