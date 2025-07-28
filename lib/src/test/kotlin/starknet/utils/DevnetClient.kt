@@ -105,7 +105,7 @@ class DevnetClient(
             stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(12, TimeUnit.SECONDS)
+        devnetProcess.waitFor(30, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")
@@ -382,7 +382,7 @@ class DevnetClient(
         accountName: String = "__default__",
     ): SnCastResponse {
         val processBuilder = ProcessBuilder(
-            "sncast",
+            "/Users/franciszekjob/Projects/SWM/starknet-foundry/target/debug/sncast",
             "--json",
             "--accounts-file",
             accountFilePath.absolutePathString(),
