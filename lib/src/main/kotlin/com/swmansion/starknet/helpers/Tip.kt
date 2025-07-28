@@ -39,7 +39,7 @@ fun estimateTip(
 
     val tips = blockWithTxs.transactions
         .filterIsInstance<TransactionV3>()
-        .map { it.tip.value.toDouble() }
+        .map { it.tip.value }
 
     if (tips.isEmpty()) {
         return Uint64.ZERO
