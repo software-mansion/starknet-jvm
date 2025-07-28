@@ -8,6 +8,7 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -16,33 +17,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 
-@Execution(ExecutionMode.SAME_THREAD)
 class TipTest {
-    companion object {
-        private val devnetClient = DevnetClient(
-            port = 5054,
-        )
-        private val rpcUrl = devnetClient.rpcUrl
-        private val provider = JsonRpcProvider(rpcUrl)
-
-        @JvmStatic
-        @BeforeAll
-        fun before() {
-            try {
-                devnetClient.start()
-            } catch (ex: Exception) {
-                devnetClient.close()
-                throw ex
-            }
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun after() {
-            devnetClient.close()
-        }
-    }
-
     @Test
     fun `block without transactions`() {
         val mockedResponse = """
@@ -79,7 +54,7 @@ class TipTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(TipTest.rpcUrl, httpService)
+        val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider)
 
         assertEquals(Uint64.ZERO, tipEstimate)
@@ -216,7 +191,7 @@ class TipTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(TipTest.rpcUrl, httpService)
+        val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider)
 
         assertEquals(Uint64(200), tipEstimate)
@@ -384,7 +359,7 @@ class TipTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(TipTest.rpcUrl, httpService)
+        val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider)
 
         assertEquals(Uint64(250), tipEstimate)
@@ -535,7 +510,7 @@ class TipTest {
         val httpService = mock<HttpService> {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
-        val provider = JsonRpcProvider(TipTest.rpcUrl, httpService)
+        val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider)
 
         assertEquals(Uint64(200), tipEstimate)
