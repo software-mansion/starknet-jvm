@@ -5,7 +5,7 @@ package com.swmansion.starknet.helpers
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
-import org.nield.kotlinstatistics.median
+import org.apache.commons.math3.stat.descriptive.rank.Median
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
  *
@@ -87,5 +87,5 @@ private fun estimateTip(
         return Uint64.ZERO
     }
 
-    return tips.median().toInt().toUint64
+    return Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toInt().toUint64
 }
