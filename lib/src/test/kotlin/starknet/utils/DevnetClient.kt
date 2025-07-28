@@ -105,7 +105,7 @@ class DevnetClient(
             stateArchiveCapacity.value,
         )
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(30, TimeUnit.SECONDS)
+        devnetProcess.waitFor(8, TimeUnit.SECONDS)
 
         if (!devnetProcess.isAlive) {
             throw DevnetSetupFailedException("Could not start devnet process")

@@ -9,15 +9,18 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
 
+@Execution(ExecutionMode.SAME_THREAD)
 class TipTest {
     companion object {
         private val devnetClient = DevnetClient(
-            port = 5051,
+            port = 5054,
         )
         private val rpcUrl = devnetClient.rpcUrl
         private val provider = JsonRpcProvider(rpcUrl)
