@@ -6,15 +6,9 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-import android.databinding.tool.ext.L
-import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
-import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
-import com.vanniktech.maven.publish.JavaLibrary
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.SonatypeHost
 
-version = "0.16.0-rc.0"
+version = "0.16.0-dev.0"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -22,7 +16,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
-    id("com.vanniktech.maven.publish") version "0.27.0"
+    id("com.vanniktech.maven.publish") version "0.34.0"
     id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
@@ -141,7 +135,8 @@ tasks.register("generateGuides") {
         fun processFileContent(dir: String, language: Language): String {
             var content = language.getCodeSectionRegex().replace(guideContent) { matchResult ->
                 val (path, functionName) = matchResult.destructured
-                val codeSection = extractCodeSection(path="$dir/$path", functionName=functionName, language=language)
+                val codeSection =
+                    extractCodeSection(path = "$dir/$path", functionName = functionName, language = language)
                 if (codeSection.isBlank()) "" else "```$language\n$codeSection\n```"
             }
 
@@ -154,7 +149,7 @@ tasks.register("generateGuides") {
                     Language.KOTLIN -> Language.JAVA.getCodeBlockRegex()
                     Language.JAVA -> Language.KOTLIN.getCodeBlockRegex()
                 },
-                ""
+                "",
             )
         }
 
@@ -175,8 +170,8 @@ tasks.jar {
         attributes(
             mapOf(
                 "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version
-            )
+                "Implementation-Version" to project.version,
+            ),
         )
     }
 }
@@ -205,9 +200,9 @@ tasks.test {
 
     systemProperty(
         "networkTestMode",
-            project.findProperty("networkTestMode")
-                ?: System.getenv("NETWORK_TEST_MODE")
-                ?: "disabled",
+        project.findProperty("networkTestMode")
+            ?: System.getenv("NETWORK_TEST_MODE")
+            ?: "disabled",
     )
 
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
@@ -222,7 +217,7 @@ tasks.test {
 // Used by CI. Locally you should use jarWithNative task
 tasks.jar {
     from(
-        file("file:${layout.buildDirectory}/libs/shared").absolutePath
+        file("file:${layout.buildDirectory}/libs/shared").absolutePath,
     )
 }
 
@@ -335,6 +330,6 @@ mavenPublishing {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.S01)
+    publishToMavenCentral()
     signAllPublications()
 }
