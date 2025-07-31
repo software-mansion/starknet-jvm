@@ -150,10 +150,6 @@ tasks.register("generateGuides") {
     }
 }
 
-
-
-
-
 tasks.jar {
     manifest {
         attributes(
@@ -163,9 +159,9 @@ tasks.jar {
             ),
         )
     }
-    from(
-        file("file:${layout.buildDirectory}/libs/shared").absolutePath,
-    )
+    from(project.layout.buildDirectory.dir("libs/shared").get().asFile.absolutePath) {
+        include("**/*")
+    }
 }
 
 val buildCrypto = task<Exec>("BuildCrypto") {
@@ -203,12 +199,6 @@ tasks.test {
         events("PASSED", "SKIPPED", "FAILED")
         showStandardStreams = true
     }
-}
-
-tasks.jar {
-    from(
-        file("file:${layout.buildDirectory}/libs/shared").absolutePath
-    )
 }
 
 dependencies {
