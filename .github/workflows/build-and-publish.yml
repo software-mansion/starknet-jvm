@@ -173,7 +173,7 @@ jobs:
         with:
           cmake-version: '3.18.1'
       - name: Generate javadoc JAR
-        run: ./gradlew javadocJar
+        run: ./gradlew dokkaJavadocJar
       - name: Generate sources JAR
         run: ./gradlew sourcesJar
       - name: Rename JARS
