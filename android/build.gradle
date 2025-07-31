@@ -18,6 +18,7 @@ android {
             cmake {
                 targets "crypto_jni", "poseidon_jni"
                 arguments "-DCMAKE_BUILD_TYPE=Release", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                cppFlags += "-Wno-error=unused-but-set-variable"
             }
         }
 
