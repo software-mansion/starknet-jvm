@@ -1,7 +1,7 @@
 package com.swmansion.starknet.data.types
 
-import MerkleNodePolymorphicSerializer
 import com.swmansion.starknet.data.serializers.HexToIntDeserializer
+import com.swmansion.starknet.data.serializers.MerkleNodePolymorphicSerializer
 import com.swmansion.starknet.data.serializers.NotSyncingResponseSerializer
 import com.swmansion.starknet.extensions.*
 import kotlinx.serialization.ExperimentalSerializationApi

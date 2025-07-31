@@ -6,9 +6,7 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-import org.jetbrains.dokka.gradle.DokkaTask
-
-version = "0.16.0-dev.0"
+version = "0.16.0-SNAPSHOT"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -23,16 +21,7 @@ plugins {
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
-    `maven-publish`
     signing
-}
-
-val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
-    dokkaSourceSets.create("dokkaHtmlJava") {
-        dependencies {
-            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
-        }
-    }
 }
 
 tasks.dokkaHtml {
@@ -174,6 +163,9 @@ tasks.jar {
             ),
         )
     }
+    from(
+        file("file:${layout.buildDirectory}/libs/shared").absolutePath,
+    )
 }
 
 val buildCrypto = task<Exec>("BuildCrypto") {
@@ -213,19 +205,6 @@ tasks.test {
     }
 }
 
-
-// Used by CI. Locally you should use jarWithNative task
-tasks.jar {
-    from(
-        file("file:${layout.buildDirectory}/libs/shared").absolutePath,
-    )
-}
-
-val jarWithNative = task("jarWithNative") {
-    dependsOn(buildCrypto)
-    finalizedBy(tasks.jar)
-}
-
 dependencies {
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -252,10 +231,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
+//java {
+//    withJavadocJar()
+//    withSourcesJar()
+//}
 
 tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
@@ -314,18 +293,18 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
             url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
         }
-        withXml {
-            val dependenciesNode = asNode().appendNode("dependencies")
-
-            configurations["implementation"].allDependencies.forEach {
-                if (it.group != null && it.version != null) {
-                    val dependencyNode = dependenciesNode.appendNode("dependency")
-                    dependencyNode.appendNode("groupId", it.group)
-                    dependencyNode.appendNode("artifactId", it.name)
-                    dependencyNode.appendNode("version", it.version)
-                }
-            }
-        }
+//        withXml {
+//            val dependenciesNode = asNode().appendNode("dependencies")
+//
+//            configurations["implementation"].allDependencies.forEach {
+//                if (it.group != null && it.version != null) {
+//                    val dependencyNode = dependenciesNode.appendNode("dependency")
+//                    dependencyNode.appendNode("groupId", it.group)
+//                    dependencyNode.appendNode("artifactId", it.name)
+//                    dependencyNode.appendNode("version", it.version)
+//                }
+//            }
+//        }
     }
 }
 
