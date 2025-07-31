@@ -205,6 +205,12 @@ tasks.test {
     }
 }
 
+tasks.jar {
+    from(
+        file("file:${layout.buildDirectory}/libs/shared").absolutePath
+    )
+}
+
 dependencies {
     // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
