@@ -25,7 +25,6 @@ object StandardDeployerTest {
 
     private lateinit var signer: Signer
 
-    private val deployerAddress = DevnetClient.udcContractAddress
     private lateinit var accountAddress: Felt
     private lateinit var balanceContractClassHash: Felt
     private lateinit var standardDeployer: StandardDeployer
@@ -43,7 +42,6 @@ object StandardDeployerTest {
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()
             standardDeployer = StandardDeployer(
-                deployerAddress,
                 provider,
                 StandardAccount(accountAddress, signer, provider, chainId),
             )
