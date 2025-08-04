@@ -20,10 +20,10 @@ class StandardDeployer(
         provider: Provider,
         account: Account,
     ) : this(
-            Felt.fromHex(UDC_ADDRESS),
-            provider,
-            account
-        )
+        Felt.fromHex(UDC_ADDRESS),
+        provider,
+        account,
+    )
 
     override fun deployContractV3(
         classHash: Felt,
