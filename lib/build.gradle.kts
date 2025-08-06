@@ -228,11 +228,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 
-//java {
-//    withJavadocJar()
-//    withSourcesJar()
-//}
-
 tasks.javadoc {
     if (JavaVersion.current().isJava9Compatible) {
         (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
@@ -290,22 +285,10 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
             url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
         }
-//        withXml {
-//            val dependenciesNode = asNode().appendNode("dependencies")
-//
-//            configurations["implementation"].allDependencies.forEach {
-//                if (it.group != null && it.version != null) {
-//                    val dependencyNode = dependenciesNode.appendNode("dependency")
-//                    dependencyNode.appendNode("groupId", it.group)
-//                    dependencyNode.appendNode("artifactId", it.name)
-//                    dependencyNode.appendNode("version", it.version)
-//                }
-//            }
-//        }
     }
 }
 
 mavenPublishing {
     publishToMavenCentral()
-//    signAllPublications()
+    signAllPublications()
 }

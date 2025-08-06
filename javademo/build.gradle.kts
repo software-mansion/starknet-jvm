@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.swmansion.starknet:starknet:0.14.0")
+    implementation("com.swmansion.starknet:starknet:0.16.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
 }
