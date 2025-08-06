@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-version = "0.16.0-SNAPSHOT"
+version = "0.16.0-rc.0"
 group = "com.swmansion.starknet"
 
 plugins {
