@@ -162,6 +162,7 @@ tasks.jar {
     from(project.layout.buildDirectory.dir("libs/shared").get().asFile.absolutePath) {
         include("**/*")
     }
+    archiveBaseName.set("starknet")
 }
 
 val buildCrypto = task<Exec>("BuildCrypto") {
@@ -306,5 +307,5 @@ mavenPublishing {
 
 mavenPublishing {
     publishToMavenCentral()
-    signAllPublications()
+//    signAllPublications()
 }

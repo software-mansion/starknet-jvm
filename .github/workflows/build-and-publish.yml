@@ -7,18 +7,18 @@ on:
   workflow_dispatch:
 
 jobs:
-#  verify_version:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Verify correct version
-#        run: |
-#          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
-#          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
+  #  verify_version:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - name: Verify correct version
+  #        run: |
+  #          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
+  #          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
 
   build_x64:
     runs-on: ${{ matrix.os }}
-#    needs: [verify_version]
+    #    needs: [verify_version]
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
@@ -87,7 +87,7 @@ jobs:
 
   build_virt:
     runs-on: ubuntu-latest
-#    needs: [verify_version]
+    #    needs: [verify_version]
     strategy:
       matrix:
         include:
@@ -133,18 +133,75 @@ jobs:
     outputs:
       archs: ${{ steps.vars.outputs.os_arch }}
 
-  package_jar:
+#  package_jar:
+#    runs-on: ubuntu-latest
+#    needs: [ build_x64, build_virt ]
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/download-artifact@v4
+#        with:
+#          path: download
+#      - name: Setup cmake
+#        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+#        with:
+#          cmake-version: '3.18.1'
+#      - name: Move shared libs
+#        run: |
+#          # Mac uses a universal binary
+#          mkdir -p lib/build/libs/shared/darwin
+#          cp -r download/lib-macOS*/* lib/build/libs/shared/darwin/
+#          mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
+#          cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
+#          cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
+#      - name: Bundle universal JAR
+#        run: ./gradlew lib:jar
+#      - name: Rename JAR
+#        run: mv lib/build/libs/lib-*.jar starknet.jar
+#      - name: Upload the JAR
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: starknet-jar
+#          path: starknet.jar
+
+  #  generate_javadoc_and_sources:
+  #    runs-on: ubuntu-latest
+  #    needs: [build_x64, build_virt]
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - name: Setup cmake
+  #        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+  #        with:
+  #          cmake-version: '3.18.1'
+  #      - name: Generate javadoc JAR
+  #        run: ./gradlew dokkaJavadocJar
+  #      - name: Generate sources JAR
+  #        run: ./gradlew sourcesJar
+  #      - name: Rename JARS
+  #        run: mv lib/build/libs/lib-*-javadoc.jar javadoc.jar && mv lib/build/libs/lib-*-sources.jar sources.jar
+  #      - name: Upload javadoc JAR
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: javadoc-jar
+  #          path: javadoc.jar
+  #      - name: Upload sources JAR
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: sources-jar
+  #          path: sources.jar
+
+  publish:
     runs-on: ubuntu-latest
-    needs: [build_x64, build_virt]
+    needs: [ build_x64, build_virt ]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v4
-        with:
-          path: download
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
         with:
           cmake-version: '3.18.1'
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: download
       - name: Move shared libs
         run: |
           # Mac uses a universal binary
@@ -153,51 +210,7 @@ jobs:
           mkdir -p lib/build/libs/shared/linux/{amd64,arm64}
           cp -r download/lib-Linux-x86_64/* lib/build/libs/shared/linux/amd64/
           cp -r download/lib-Linux-aarch64/* lib/build/libs/shared/linux/arm64/
-      - name: Bundle universal JAR
-        run: ./gradlew lib:jar
-      - name: Rename JAR
-        run: mv lib/build/libs/lib-*.jar starknet.jar
-      - name: Upload the JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: starknet-jar
-          path: starknet.jar
 
-  generate_javadoc_and_sources:
-    runs-on: ubuntu-latest
-    needs: [build_x64, build_virt]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
-        with:
-          cmake-version: '3.18.1'
-      - name: Generate javadoc JAR
-        run: ./gradlew dokkaJavadocJar
-      - name: Generate sources JAR
-        run: ./gradlew sourcesJar
-      - name: Rename JARS
-        run: mv lib/build/libs/lib-*-javadoc.jar javadoc.jar && mv lib/build/libs/lib-*-sources.jar sources.jar
-      - name: Upload javadoc JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: javadoc-jar
-          path: javadoc.jar
-      - name: Upload sources JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: sources-jar
-          path: sources.jar
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: [package_jar, generate_javadoc_and_sources]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
-        with:
-          cmake-version: '3.18.1'
       - uses: actions/download-artifact@v4
         with:
           path: lib/
