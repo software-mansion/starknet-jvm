@@ -2,6 +2,8 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.vanniktech.maven.publish'
+    id 'signing'
 }
 
 android {
@@ -54,6 +56,7 @@ android {
     }
 }
 
+
 dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -62,4 +65,66 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.9.23'
+}
+
+// Get version and group from lib module
+version = rootProject.project("lib").version
+group = rootProject.project("lib").group
+
+mavenPublishing {
+    coordinates(group.toString(), "starknet", version.toString())
+
+    pom {
+        name.set("starknet")
+        description.set("Starknet SDK for Android")
+        url.set("https://github.com/software-mansion/starknet-jvm")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://github.com/software-mansion/starknet-jvm/blob/main/LICENSE")
+            }
+        }
+        developers {
+            developer {
+                id.set("jakubptak")
+                name.set("Jakub Ptak")
+                email.set("jakub.ptak@swmansion.com")
+            }
+            developer {
+                id.set("arturmichalek")
+                name.set("Artur Michałek")
+                email.set("artur.michalek@swmansion.com")
+            }
+            developer {
+                id.set("bartoszrybarski")
+                name.set("Bartosz Rybarski")
+                email.set("bartosz.rybarski@swmansion.com")
+            }
+            developer {
+                id.set("wojciechszymczyk")
+                name.set("Wojciech Szymczyk")
+                email.set("wojciech.szymczyk@swmansion.com")
+            }
+            developer {
+                id.set("maksimzdobnikau")
+                name.set("Maksim Zdobnikau")
+                email.set("maksim.zdobnikau@swmansion.com")
+            }
+            developer {
+                id.set("franciszekjob")
+                name.set("Franciszek Job")
+                email.set("franciszek.job@swmansion.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/software-mansion/starknet-jvm.git")
+            developerConnection.set("scm:git:ssh://github.com:software-mansion/starknet-jvm.git")
+            url.set("https://github.com/software-mansion/starknet-jvm/tree/main")
+        }
+    }
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 }

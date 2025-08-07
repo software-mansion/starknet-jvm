@@ -72,18 +72,18 @@ jobs:
             libposeidon_jni.*
             libposeidon.*
 
-      - name: Build android's AAR
-        run: ./gradlew android:build
-        if: matrix.os == 'ubuntu-latest'
-      - name: Rename AAR
-        run: mv android/build/outputs/aar/android-release.aar starknet.aar
-        if: matrix.os == 'ubuntu-latest'
-      - name: Upload the AAR
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: starknet-aar
-          path: starknet.aar
+#      - name: Build android's AAR
+#        run: ./gradlew android:build
+#        if: matrix.os == 'ubuntu-latest'
+#      - name: Rename AAR
+#        run: mv android/build/outputs/aar/android-release.aar starknet.aar
+#        if: matrix.os == 'ubuntu-latest'
+#      - name: Upload the AAR
+#        if: matrix.os == 'ubuntu-latest'
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: starknet-aar
+#          path: starknet.aar
 
   build_virt:
     runs-on: ubuntu-latest
@@ -219,8 +219,8 @@ jobs:
         with:
           java-version: 17
           distribution: 'corretto'
-      - name: Publish package
-        run: ./gradlew publishToMavenCentral
+      - name: Publish packages
+        run: ./gradlew publishAllPublicationsToMavenCentral
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

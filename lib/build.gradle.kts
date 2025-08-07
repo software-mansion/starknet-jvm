@@ -6,7 +6,7 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-version = "0.16.0-rc.0"
+version = "0.16.0-SNAPSHOT"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -14,7 +14,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
-    id("com.vanniktech.maven.publish") version "0.34.0"
+    id("com.vanniktech.maven.publish")
     id("org.jetbrains.kotlinx.kover")
 
     kotlin("plugin.serialization")
