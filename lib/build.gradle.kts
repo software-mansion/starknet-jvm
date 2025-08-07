@@ -6,8 +6,8 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-version = "0.16.0-SNAPSHOT"
-group = "com.swmansion.starknet"
+group = rootProject.group
+version = rootProject.version
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.

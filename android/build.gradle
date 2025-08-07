@@ -6,6 +6,9 @@ plugins {
     id 'signing'
 }
 
+version = rootProject.version
+group = rootProject.group
+
 android {
     compileSdk 33
     namespace "com.swmansion.starknet"
@@ -67,12 +70,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.9.23'
 }
 
-// Get version and group from lib module
-version = rootProject.project("lib").version
-group = rootProject.project("lib").group
-
 mavenPublishing {
-    coordinates(group.toString(), "starknet", version.toString())
+    coordinates("com.swmansion.starknet", "starknet", project.version.toString())
 
     pom {
         name.set("starknet")
