@@ -4,22 +4,20 @@ on:
   push:
     tags:
       - '*'
-  workflow_dispatch:
-
 
 jobs:
-#  verify_version:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Verify correct version
-#        run: |
-#          [ $(grep -e "version = " lib/build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
-#          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
+  verify_version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Verify correct version
+        run: |
+          [ $(grep -e "version = " build.gradle.kts | awk -F'"' '{print $2}') == "$GITHUB_REF_NAME" ] \
+          || { echo "Mismatch between tag and lib version set in gradle build file, cannot continue."; exit 1; }
 
   build_x64:
     runs-on: ${{ matrix.os }}
-#    needs: [verify_version]
+    needs: [ verify_version ]
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
@@ -88,7 +86,7 @@ jobs:
 
   build_virt:
     runs-on: ubuntu-latest
-#    needs: [verify_version]
+    needs: [ verify_version ]
     strategy:
       matrix:
         include:
@@ -136,7 +134,7 @@ jobs:
 
   package_jar:
     runs-on: ubuntu-latest
-    needs: [build_x64, build_virt]
+    needs: [ build_x64, build_virt ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v4
@@ -166,7 +164,7 @@ jobs:
 
   generate_javadoc_and_sources:
     runs-on: ubuntu-latest
-    needs: [build_x64, build_virt]
+    needs: [ build_x64, build_virt ]
     steps:
       - uses: actions/checkout@v3
       - name: Setup cmake
@@ -192,7 +190,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [package_jar, generate_javadoc_and_sources]
+    needs: [ package_jar, generate_javadoc_and_sources ]
     steps:
       - uses: actions/checkout@v3
       - name: Setup cmake
