@@ -157,7 +157,7 @@ jobs:
       - name: Bundle universal JAR
         run: ./gradlew lib:jar
       - name: Rename JAR
-        run: mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9].jar starknet.jar
+        run: mv lib/build/libs/lib-*.jar starknet.jar
       - name: Upload the JAR
         uses: actions/upload-artifact@v4
         with:
@@ -178,7 +178,7 @@ jobs:
       - name: Generate sources JAR
         run: ./gradlew sourcesJar
       - name: Rename JARS
-        run: mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9]-javadoc.jar javadoc.jar && mv lib/build/libs/lib-[0-9].[0-9][0-9].[0-9]-sources.jar sources.jar
+        run: mv lib/build/libs/lib-*-javadoc.jar javadoc.jar && mv lib/build/libs/lib-*-sources.jar sources.jar
       - name: Upload javadoc JAR
         uses: actions/upload-artifact@v4
         with:
