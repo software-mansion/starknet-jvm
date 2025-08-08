@@ -213,15 +213,15 @@ jobs:
       - name: Publish package
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publish closeAndReleaseRepository
+          arguments: publish publishToSonatype closeSonatypeStagingRepository
         env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.MAVEN_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.MAVEN_PASSWORD }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
-      - name: Finalize deployment
-        run: |
-          curl -X POST https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.swmansion -H "Accept: application/json" -H "Authorization: Bearer ${{ secrets.MAVEN_TOKEN }}"
+#      - name: Finalize deployment
+#        run: |
+#          curl -X POST https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.swmansion -H "Accept: application/json" -H "Authorization: Bearer ${{ secrets.MAVEN_TOKEN }}"
       - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
         with:
           files: |

@@ -6,21 +6,14 @@
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
 
-import android.databinding.tool.ext.L
-import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
-
-version = "0.16.0-rc.1"
-group = "com.swmansion.starknet"
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.jmailen.kotlinter")
-    id("io.codearte.nexus-staging") version "0.30.0"
     id("org.jetbrains.kotlinx.kover")
-
     kotlin("plugin.serialization")
 
     // Apply the java-library plugin for API and implementation separation.
@@ -340,25 +333,6 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
-            }
-            val releasesRepoUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-            val snapshotsRepoUrl = uri("https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots/")
-            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
-        }
-
-    }
-}
-
-nexusStaging {
-    serverUrl = "https://ossrh-staging-api.central.sonatype.com"
-    packageGroup = "com.swmansion"
-    username = System.getenv("MAVEN_USERNAME")
-    password = System.getenv("MAVEN_PASSWORD")
 }
 
 signing {
