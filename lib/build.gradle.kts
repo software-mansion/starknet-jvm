@@ -14,7 +14,7 @@ import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
 
-version = "0.16.0-rc.0"
+version = "0.16.0-rc.1"
 group = "com.swmansion.starknet"
 
 plugins {
