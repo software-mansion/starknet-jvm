@@ -10,7 +10,7 @@ import android.databinding.tool.ext.L
 import org.apache.commons.codec.language.bm.Lang
 import org.jetbrains.dokka.gradle.DokkaTask
 
-version = "0.15.0"
+version = "0.16.0-rc.1"
 group = "com.swmansion.starknet"
 
 plugins {
@@ -355,7 +355,7 @@ publishing {
 }
 
 nexusStaging {
-    serverUrl = "https://s01.oss.sonatype.org/service/local/"
+    serverUrl = "https://ossrh-staging-api.central.sonatype.com"
     packageGroup = "com.swmansion"
     username = System.getenv("MAVEN_USERNAME")
     password = System.getenv("MAVEN_PASSWORD")
