@@ -222,7 +222,7 @@ jobs:
       - name: Release the staging directory
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: indSonatypeStagingRepository releaseSonatypeStagingRepository
+          arguments: findSonatypeStagingRepository releaseSonatypeStagingRepository
         env:
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEUSERNAME }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
