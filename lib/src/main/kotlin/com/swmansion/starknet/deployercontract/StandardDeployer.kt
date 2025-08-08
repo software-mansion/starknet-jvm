@@ -9,11 +9,22 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import java.security.SecureRandom
 
+private const val UDC_ADDRESS = "0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125"
+
 class StandardDeployer(
     private val deployerAddress: Felt,
     private val provider: Provider,
     private val account: Account,
 ) : Deployer {
+    constructor(
+        provider: Provider,
+        account: Account,
+    ) : this(
+        Felt.fromHex(UDC_ADDRESS),
+        provider,
+        account,
+    )
+
     override fun deployContractV3(
         classHash: Felt,
         unique: Boolean,
