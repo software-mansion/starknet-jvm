@@ -221,7 +221,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
       - name: Finalize deployment
         run: |
-          curl -X POST /manual/upload/defaultRepository/com.swmansion -H "Accept: application/json" -H "Authorization: Bearer ${{ secrets.MAVEN_TOKEN }}"
+          curl -X POST https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.swmansion -H "Accept: application/json" -H "Authorization: Bearer ${{ secrets.MAVEN_TOKEN }}"
       - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
         with:
           files: |
