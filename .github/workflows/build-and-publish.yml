@@ -213,12 +213,21 @@ jobs:
       - name: Publish package
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publish publishToSonatype closeSonatypeStagingRepository
+          arguments: publishToSonatype closeSonatypeStagingRepository
         env:
-          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.MAVEN_USERNAME }}
-          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.MAVEN_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEUSERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+      - name: Release the staging directory
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: indSonatypeStagingRepository releaseSonatypeStagingRepository
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEUSERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
 #      - name: Finalize deployment
 #        run: |
 #          curl -X POST https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.swmansion -H "Accept: application/json" -H "Authorization: Bearer ${{ secrets.MAVEN_TOKEN }}"
