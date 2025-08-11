@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
+    L1_ACCEPTED("l1_accepted"), LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
 }
 
 @Serializable
@@ -16,7 +16,6 @@ enum class BlockStatus {
     PRE_CONFIRMED,
     ACCEPTED_ON_L1,
     ACCEPTED_ON_L2,
-    REJECTED,
 }
 
 @Serializable(with = BlockIdSerializer::class)
