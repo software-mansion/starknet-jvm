@@ -353,6 +353,17 @@ class ProviderTest {
     }
 
     @Test
+    fun `get block with transactions with l1 accepted block tag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val request = provider.getBlockWithTxs(BlockTag.L1_ACCEPTED)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is ProcessedBlockWithTransactions)
+    }
+
+    @Test
     fun `get block with transactions with latest block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
