@@ -49,7 +49,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64.ZERO, tipEstimate)
     }
@@ -186,7 +186,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(200), tipEstimate)
     }
@@ -354,7 +354,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(250), tipEstimate)
     }
@@ -505,7 +505,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(200), tipEstimate)
     }

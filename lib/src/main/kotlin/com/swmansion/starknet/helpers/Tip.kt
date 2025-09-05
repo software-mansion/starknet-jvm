@@ -3,8 +3,10 @@
 package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
+import com.swmansion.starknet.provider.Request
 import org.apache.commons.math3.stat.descriptive.rank.Median
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
@@ -17,7 +19,7 @@ import org.apache.commons.math3.stat.descriptive.rank.Median
 fun estimateTip(
     provider: Provider,
     blockHash: Felt,
-): Uint64 {
+): Request<Uint64> {
     return estimateTip(provider, BlockId.Hash(blockHash))
 }
 
@@ -31,7 +33,7 @@ fun estimateTip(
 fun estimateTip(
     provider: Provider,
     blockTag: BlockTag,
-): Uint64 {
+): Request<Uint64> {
     return estimateTip(provider, BlockId.Tag(blockTag))
 }
 
@@ -45,7 +47,7 @@ fun estimateTip(
 fun estimateTip(
     provider: Provider,
     blockNumber: Int,
-): Uint64 {
+): Request<Uint64> {
     return estimateTip(provider, BlockId.Number(blockNumber))
 }
 
@@ -57,7 +59,7 @@ fun estimateTip(
  */
 fun estimateTip(
     provider: Provider,
-): Uint64 {
+): Request<Uint64> {
     return estimateTip(provider, BlockId.Tag(BlockTag.LATEST))
 }
 
@@ -71,21 +73,22 @@ fun estimateTip(
 private fun estimateTip(
     provider: Provider,
     blockId: BlockId,
-): Uint64 {
+): Request<Uint64> {
     val request = when (blockId) {
         is BlockId.Hash -> provider.getBlockWithTxs(blockId.blockHash)
         is BlockId.Number -> provider.getBlockWithTxs(blockId.blockNumber)
         is BlockId.Tag -> provider.getBlockWithTxs(blockId.blockTag)
     }
-    val blockWithTxs = request.send()
 
-    val tips = blockWithTxs.transactions
-        .filterIsInstance<TransactionV3>()
-        .map { it.tip.value }
+    return request.map { blockWithTxs ->
+        val tips = blockWithTxs.transactions
+            .filterIsInstance<TransactionV3>()
+            .map { it.tip.value }
 
-    if (tips.isEmpty()) {
-        return Uint64.ZERO
+        if (tips.isEmpty()) {
+            return@map Uint64.ZERO
+        }
+
+        Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toInt().toUint64
     }
-
-    return Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toInt().toUint64
 }
