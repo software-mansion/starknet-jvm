@@ -3,8 +3,8 @@
 package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.extensions.map
+import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import org.apache.commons.math3.stat.descriptive.rank.Median
@@ -79,7 +79,7 @@ private fun estimateTip(
         is BlockId.Number -> provider.getBlockWithTxs(blockId.blockNumber)
         is BlockId.Tag -> provider.getBlockWithTxs(blockId.blockTag)
     }
-    
+
     return request.map { blockWithTxs ->
         val tips = blockWithTxs.transactions
             .filterIsInstance<TransactionV3>()
