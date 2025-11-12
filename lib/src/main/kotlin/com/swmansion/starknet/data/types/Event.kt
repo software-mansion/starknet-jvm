@@ -63,7 +63,18 @@ data class EmittedEvent @JvmOverloads constructor(
 
     @SerialName("transaction_hash")
     val transactionHash: Felt,
-)
+
+    @SerialName("transaction_index")
+    val transactionIndex: Int,
+
+    @SerialName("event_index")
+    val eventIndex: Int,
+) {
+    init {
+        require(transactionIndex >= 0) { "`transaction_index` must be non-negative, got $transactionIndex" }
+        require(eventIndex >= 0) { "`event_index` must be non-negative, got $eventIndex" }
+    }
+}
 
 @Serializable
 data class GetEventsPayload @JvmOverloads constructor(
