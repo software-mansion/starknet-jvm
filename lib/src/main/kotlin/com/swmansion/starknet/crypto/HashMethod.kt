@@ -26,7 +26,7 @@ enum class HashMethod {
         override fun hash(values: List<Felt>): Felt {
             return Blake.blake2sHash(values)
         }
-    },;
+    }, ;
 
     abstract fun hash(first: Felt, second: Felt): Felt
     abstract fun hash(values: List<Felt>): Felt

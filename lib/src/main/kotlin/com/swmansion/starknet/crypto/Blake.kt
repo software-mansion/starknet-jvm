@@ -1,8 +1,8 @@
 package com.swmansion.starknet.crypto
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toFelt
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.Security
@@ -141,5 +141,4 @@ object Blake {
     @JvmStatic
     fun blake2sHash(values: Iterable<Felt>): Felt =
         values.fold(Felt.ZERO) { a, b -> blake2sHash(a, b) }
-
 }
