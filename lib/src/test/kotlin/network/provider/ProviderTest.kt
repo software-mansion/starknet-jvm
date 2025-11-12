@@ -534,7 +534,7 @@ class ProviderTest {
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val erc20BalancesKey = Felt.fromHex("0x45524332305f62616c616e636573")
+        val erc20BalancesKey = StorageKey("0x45524332305f62616c616e636573")
         val request = provider.getStorageProof(
             blockId = BlockId.Number(556669),
             contractAddresses = listOf(strkContractAddress),
