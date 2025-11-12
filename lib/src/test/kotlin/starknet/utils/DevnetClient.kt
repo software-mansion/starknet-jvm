@@ -91,8 +91,7 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-            // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-            devnetPath.absolutePathString(),
+            "starknet-devnet",
             "--host",
             host,
             "--port",
