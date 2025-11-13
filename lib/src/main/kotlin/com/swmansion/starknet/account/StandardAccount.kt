@@ -37,7 +37,6 @@ class StandardAccount @JvmOverloads constructor(
         hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
     }
 
-
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
