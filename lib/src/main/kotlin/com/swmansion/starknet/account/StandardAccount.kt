@@ -34,6 +34,7 @@ class StandardAccount @JvmOverloads constructor(
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
     private var hashMethod: HashMethod
+
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
@@ -57,7 +58,7 @@ class StandardAccount @JvmOverloads constructor(
     )
 
     init {
-         this.hashMethod =
+        this.hashMethod =
             hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
     }
 
