@@ -5,8 +5,11 @@ import com.swmansion.starknet.extensions.toUint128
 import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
+import com.swmansion.starknet.service.http.requests.HttpRequest
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import starknet.utils.data.*
@@ -31,7 +34,6 @@ class DevnetClient(
 
     private val baseUrl: String = "http://$host:$port"
     val rpcUrl: String = "$baseUrl/rpc"
-    val mintUrl: String = "$baseUrl/mint"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -138,13 +140,18 @@ class DevnetClient(
     private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
         val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
-            url = mintUrl,
+            url = rpcUrl,
             body =
             """
             {
-              "address": "${accountAddress.hexString()}",
-              "amount": 5000000000000000000000000000000000000,
-              "unit": $unit
+              "jsonrpc": "2.0",
+              "id": 0,
+              "method": "devnet_mint",
+              "params": {
+                "address": "${accountAddress.hexString()}",
+                "amount": 100000000000000000000000000000,
+                "unit": $unit
+              }
             }
             """.trimIndent(),
             method = "POST",
