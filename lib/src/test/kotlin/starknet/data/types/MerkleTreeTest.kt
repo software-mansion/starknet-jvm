@@ -10,16 +10,23 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 
 internal class MerkleTreeTest {
-    @ParameterizedTest
-    @EnumSource(HashMethod::class)
-    fun `calculate hashes`(hashFunction: HashMethod) {
-        val applyHash: (Felt, Felt) -> Felt = when (hashFunction) {
-            HashMethod.PEDERSEN -> StarknetCurve::pedersen
-            HashMethod.POSEIDON -> Poseidon::poseidonHash
-            HashMethod.BLAKE2S -> throw IllegalArgumentException("Blake2s is not supported for Merkle tree hashing.")
+    companion object {
+        @JvmStatic
+        fun getHashMethods(): List<HashMethod> {
+            return listOf(
+                HashMethod.PEDERSEN,
+                HashMethod.POSEIDON,
+            )
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("getHashMethods")
+    fun `calculate hashes`(hashFunction: HashMethod) {
+        val applyHash: (Felt, Felt) ->Felt = { left, right -> hashFunction.hash(left, right) }
 
         val leaves = listOf(
             Felt.fromHex("0x12"),
