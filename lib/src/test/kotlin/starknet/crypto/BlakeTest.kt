@@ -53,7 +53,7 @@ class BlakeTest {
         assertEquals(
             expected,
             result,
-            "For input $input, expected hash $expected but got $result"
+            "For input $input, expected hash $expected but got $result",
         )
     }
 }
