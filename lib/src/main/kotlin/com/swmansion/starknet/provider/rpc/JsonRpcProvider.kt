@@ -42,6 +42,10 @@ class JsonRpcProvider(
         }
     }
 
+    init {
+        println("Using JsonRpcProvider with url: $url")
+    }
+
     private fun <T : StarknetResponse> buildRequest(
         method: JsonRpcMethod,
         paramsJson: JsonElement,
