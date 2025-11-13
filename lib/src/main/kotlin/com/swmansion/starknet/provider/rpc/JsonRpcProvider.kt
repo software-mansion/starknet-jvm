@@ -44,6 +44,7 @@ class JsonRpcProvider(
 
     init {
         println("Using JsonRpcProvider with url: $url")
+        println("url.length=${url.length}")
     }
 
     private fun <T : StarknetResponse> buildRequest(
