@@ -30,25 +30,25 @@ object Cairo1ClassHashCalculator {
         val contractClass = json.decodeFromJsonElement(CasmContractClass.serializer(), contract.toJson())
 
         val casmVersion = Felt.fromShortString(contractClass.casmClassVersion)
-        val externalEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
-        val l1HandlerEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
-        val constructorEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
-        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths) }
+        val externalEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.external, hashMethod))
+        val l1HandlerEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler, hashMethod))
+        val constructorEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor, hashMethod))
+        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths, hashMethod) }
             ?: hashMethod.hash(contractClass.bytecode)
 
         return (hashMethod.hash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
     }
 
-    private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>): Felt {
+    private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>, hashMethod: HashMethod): Felt {
         val segmentStarts = bytecodeSegmentLengths.scan(0, Int::plus)
 
         val hashLeaves = bytecodeSegmentLengths.flatMapIndexed { index, length ->
             val segment = bytecode.slice(segmentStarts[index] until segmentStarts[index + 1])
 
-            listOf(length.toFelt) + Poseidon.poseidonHash(segment)
+            listOf(length.toFelt) + hashMethod.hash(segment)
         }
 
-        return (BigInteger.ONE + Poseidon.poseidonHash(hashLeaves).value).toFelt
+        return (BigInteger.ONE + hashMethod.hash(hashLeaves).value).toFelt
     }
 
     private fun getSierraEntryPointsArray(arr: List<SierraEntryPoint>): List<Felt> {
@@ -59,13 +59,13 @@ object Cairo1ClassHashCalculator {
         return entryPointsArray
     }
 
-    private fun getCasmEntryPointsArray(arr: List<CasmEntryPoint>): List<Felt> {
+    private fun getCasmEntryPointsArray(arr: List<CasmEntryPoint>, hashMethod: HashMethod): List<Felt> {
         val entryPointsArray = mutableListOf<Felt>()
         for (ep in arr) {
             requireNotNull(ep.builtins) { "Builtins cannot be null!" }
 
             val encodedBuiltins = ep.builtins.map { Felt.fromShortString(it) }
-            val builtinsHash = Poseidon.poseidonHash(encodedBuiltins)
+            val builtinsHash = hashMethod.hash(encodedBuiltins)
 
             entryPointsArray.addAll(listOf(ep.selector, Felt(ep.offset), builtinsHash))
         }
