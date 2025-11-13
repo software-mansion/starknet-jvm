@@ -7,6 +7,7 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import starknet.utils.data.*
 import starknet.utils.data.serializers.AccountDetailsSerializer
@@ -30,7 +31,6 @@ class DevnetClient(
 
     private val baseUrl: String = "http://$host:$port"
     val rpcUrl: String = "$baseUrl/rpc"
-    val mintUrl: String = "$baseUrl/mint"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -91,8 +91,7 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-            // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-            devnetPath.absolutePathString(),
+            "starknet-devnet",
             "--host",
             host,
             "--port",
@@ -138,13 +137,18 @@ class DevnetClient(
     private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
         val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
-            url = mintUrl,
+            url = rpcUrl,
             body =
             """
             {
-              "address": "${accountAddress.hexString()}",
-              "amount": 5000000000000000000000000000000000000,
-              "unit": $unit
+              "jsonrpc": "2.0",
+              "id": 0,
+              "method": "devnet_mint",
+              "params": {
+                "address": "${accountAddress.hexString()}",
+                "amount": 100000000000000000000000000000000000,
+                "unit": $unit
+              }
             }
             """.trimIndent(),
             method = "POST",
@@ -405,9 +409,29 @@ class DevnetClient(
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
-        val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
+        val lines = String(process.inputStream.readAllBytes()).trim().split("\n").filter { it != "null" }
         val result = lines.last()
-        return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
+
+        // Workaround: "command" field is not present in sncast response anymore, hence
+        // we need to put it to JSON synthetically
+        val jsonElement = json.parseToJsonElement(result).jsonObject.toMutableMap()
+        val commandStr = if (command == "account") {
+            command + " " + (
+                args.getOrNull(0)
+                    ?: throw IllegalArgumentException("Missing subcommand for account command")
+                )
+        } else {
+            command
+        }
+        jsonElement["command"] = JsonPrimitive(commandStr)
+
+        // Remove fields with null values
+        jsonElement.entries.removeIf { it.value is JsonNull }
+
+        return json.decodeFromString(
+            SnCastResponsePolymorphicSerializer,
+            json.encodeToString(JsonObject(jsonElement)),
+        )
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {

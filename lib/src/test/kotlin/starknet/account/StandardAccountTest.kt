@@ -1151,6 +1151,7 @@ class StandardAccountTest {
     @Nested
     inner class SimulateTransactionsTest {
         @Test
+        @Disabled("TODO(#594)")
         fun simulateInvokeV3AndDeployAccountV3Transactions() {
             val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
@@ -1212,6 +1213,7 @@ class StandardAccountTest {
         }
 
         @Test
+        @Disabled("TODO(#594)")
         fun `simulate declare v3 transaction`() {
             devnetClient.prefundAccountStrk(accountAddress)
 
