@@ -5,11 +5,8 @@ import com.swmansion.starknet.extensions.toUint128
 import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
-import com.swmansion.starknet.provider.rpc.JsonRpcRequest
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
-import com.swmansion.starknet.service.http.requests.HttpRequest
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import starknet.utils.data.*
