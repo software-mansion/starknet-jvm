@@ -31,9 +31,10 @@ class StandardAccount @JvmOverloads constructor(
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: CairoVersion = CairoVersion.ONE,
-    private val hashMethod: HashMethod,
+    private val cairoVersion: CairoVersion = CairoVersion.ONE
 ) : Account {
+    private lateinit var hashMethod: HashMethod
+
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
@@ -54,31 +55,11 @@ class StandardAccount @JvmOverloads constructor(
         provider = provider,
         chainId = chainId,
         cairoVersion = cairoVersion,
-        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion()),
     )
 
-    /**
-     * @param address the address of the account contract
-     * @param signer a signer instance used to sign transactions
-     * @param provider a provider used to interact with Starknet
-     * @param chainId the chain id of the Starknet network
-     * @param cairoVersion the version of Cairo language in which account contract is written
-     */
-    @JvmOverloads
-    constructor(
-        address: Felt,
-        signer: Signer,
-        provider: Provider,
-        chainId: StarknetChainId,
-        cairoVersion: CairoVersion = CairoVersion.ONE,
-    ) : this(
-        address = address,
-        signer = signer,
-        provider = provider,
-        chainId = chainId,
-        cairoVersion = cairoVersion,
-        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion()),
-    )
+    init {
+        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+    }
 
     companion object {
         /**
