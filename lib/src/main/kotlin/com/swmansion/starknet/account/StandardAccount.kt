@@ -12,7 +12,6 @@ import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.toVersion
 import java.math.BigInteger
 import java.security.SecureRandom
@@ -36,6 +35,7 @@ class StandardAccount @JvmOverloads constructor(
 ) : Account {
     private val hashMethod: HashMethod =
         hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer

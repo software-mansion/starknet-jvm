@@ -1,8 +1,7 @@
 package com.swmansion.starknet.data
 
-import com.swmansion.starknet.crypto.Poseidon
-import com.swmansion.starknet.crypto.Blake
 import com.swmansion.starknet.crypto.HashMethod
+import com.swmansion.starknet.crypto.Poseidon
 import com.swmansion.starknet.crypto.starknetKeccak
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt

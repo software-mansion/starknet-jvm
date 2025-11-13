@@ -1,7 +1,6 @@
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
-import io.github.z4kn4fein.semver.Version
 
 enum class HashMethod {
     PEDERSEN {

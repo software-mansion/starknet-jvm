@@ -2,7 +2,6 @@ package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.crypto.HashMethod
 import io.github.z4kn4fein.semver.Version
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -26,7 +25,5 @@ class RpcTest {
         assert(actualHashMethod == expectedHashMethod) {
             "For version $version, expected hash method $expectedHashMethod but got $actualHashMethod"
         }
-
     }
-
 }
