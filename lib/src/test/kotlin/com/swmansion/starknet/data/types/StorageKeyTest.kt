@@ -13,6 +13,7 @@ class StorageKeyTest {
             return listOf(
                 "0x0",
                 "0x7abcdef",
+                "0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             )
         }
     }
