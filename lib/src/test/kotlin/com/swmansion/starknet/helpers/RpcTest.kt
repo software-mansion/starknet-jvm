@@ -11,6 +11,7 @@ class RpcTest {
         fun getTestCases(): List<Pair<Version, HashMethod>> {
             return listOf(
                 Pair(Version(0, 9, 0), HashMethod.POSEIDON),
+                Pair(Version(0, 9, 1), HashMethod.POSEIDON),
                 Pair(Version(0, 10, 0), HashMethod.BLAKE2S),
                 Pair(Version(0, 11, 5), HashMethod.BLAKE2S),
             )

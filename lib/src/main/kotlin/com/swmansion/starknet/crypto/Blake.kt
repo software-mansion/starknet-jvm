@@ -1,3 +1,8 @@
+/**
+ * This module's Blake2s felt encoding and hashing logic is based on StarkWare's
+ * sequencer implementation:
+ * https://github.com/starkware-libs/sequencer/blob/b29c0e8c61f7b2340209e256cf87dfe9f2c811aa/crates/blake2s/src/lib.rs
+ */
 package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
