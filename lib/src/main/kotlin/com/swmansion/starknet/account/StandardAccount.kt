@@ -54,7 +54,7 @@ class StandardAccount @JvmOverloads constructor(
         provider = provider,
         chainId = chainId,
         cairoVersion = cairoVersion,
-        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion()),
     )
 
     /**
@@ -77,7 +77,7 @@ class StandardAccount @JvmOverloads constructor(
         provider = provider,
         chainId = chainId,
         cairoVersion = cairoVersion,
-        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion()),
     )
 
     companion object {
