@@ -43,8 +43,10 @@ class JsonRpcProvider(
     }
 
     init {
+        println(this)
         println("Using JsonRpcProvider with url: $url")
         println("url.length=${url.length}")
+        println(this::class.simpleName)
     }
 
     private fun <T : StarknetResponse> buildRequest(

@@ -33,7 +33,10 @@ class StandardAccount @JvmOverloads constructor(
     override val chainId: StarknetChainId,
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
-    private lateinit var hashMethod: HashMethod
+    private val hashMethod: HashMethod by lazy {
+        hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+    }
+
 
     /**
      * @param address the address of the account contract
@@ -56,10 +59,6 @@ class StandardAccount @JvmOverloads constructor(
         chainId = chainId,
         cairoVersion = cairoVersion,
     )
-
-    init {
-        hashMethod = hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
-    }
 
     companion object {
         /**
