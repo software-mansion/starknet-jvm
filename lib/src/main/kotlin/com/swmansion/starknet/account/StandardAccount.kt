@@ -31,7 +31,7 @@ class StandardAccount @JvmOverloads constructor(
     private val signer: Signer,
     private val provider: Provider,
     override val chainId: StarknetChainId,
-    private val cairoVersion: CairoVersion = CairoVersion.ONE
+    private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
     private lateinit var hashMethod: HashMethod
 
