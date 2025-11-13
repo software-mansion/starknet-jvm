@@ -1,8 +1,6 @@
 package starknet.data.types
 
 import com.swmansion.starknet.crypto.HashMethod
-import com.swmansion.starknet.crypto.Poseidon
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -26,7 +24,7 @@ internal class MerkleTreeTest {
     @ParameterizedTest
     @MethodSource("getHashMethods")
     fun `calculate hashes`(hashFunction: HashMethod) {
-        val applyHash: (Felt, Felt) ->Felt = { left, right -> hashFunction.hash(left, right) }
+        val applyHash: (Felt, Felt) -> Felt = { left, right -> hashFunction.hash(left, right) }
 
         val leaves = listOf(
             Felt.fromHex("0x12"),
