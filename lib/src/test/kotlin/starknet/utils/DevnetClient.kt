@@ -146,7 +146,7 @@ class DevnetClient(
               "method": "devnet_mint",
               "params": {
                 "address": "${accountAddress.hexString()}",
-                "amount": 100000000000000000000000000000,
+                "amount": 100000000000000000000000000000000000,
                 "unit": $unit
               }
             }

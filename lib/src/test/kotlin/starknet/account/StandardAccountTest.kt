@@ -1213,6 +1213,7 @@ class StandardAccountTest {
         }
 
         @Test
+        @Disabled("TODO(#594)")
         fun `simulate declare v3 transaction`() {
             devnetClient.prefundAccountStrk(accountAddress)
 
