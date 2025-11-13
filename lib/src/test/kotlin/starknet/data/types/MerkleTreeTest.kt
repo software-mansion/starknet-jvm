@@ -18,6 +18,7 @@ internal class MerkleTreeTest {
         val applyHash: (Felt, Felt) -> Felt = when (hashFunction) {
             HashMethod.PEDERSEN -> StarknetCurve::pedersen
             HashMethod.POSEIDON -> Poseidon::poseidonHash
+            HashMethod.BLAKE2S -> throw IllegalArgumentException("Blake2s is not supported for Merkle tree hashing.")
         }
 
         val leaves = listOf(

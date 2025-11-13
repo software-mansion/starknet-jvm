@@ -1,6 +1,8 @@
 package com.swmansion.starknet.data
 
 import com.swmansion.starknet.crypto.Poseidon
+import com.swmansion.starknet.crypto.Blake
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.starknetKeccak
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt
@@ -24,18 +26,18 @@ object Cairo1ClassHashCalculator {
         return (Poseidon.poseidonHash(listOf(sierraVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, abiHash, sierraProgramHash)))
     }
 
-    fun computeCasmClassHash(contract: CasmContractDefinition): Felt {
+    fun computeCasmClassHash(contract: CasmContractDefinition, hashMethod: HashMethod): Felt {
         val json = if (contract.ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
         val contractClass = json.decodeFromJsonElement(CasmContractClass.serializer(), contract.toJson())
 
         val casmVersion = Felt.fromShortString(contractClass.casmClassVersion)
-        val externalEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
-        val l1HandlerEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
-        val constructorEntryPointHash = Poseidon.poseidonHash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
+        val externalEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.external))
+        val l1HandlerEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler))
+        val constructorEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor))
         val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths) }
-            ?: Poseidon.poseidonHash(contractClass.bytecode)
+            ?: hashMethod.hash(contractClass.bytecode)
 
-        return (Poseidon.poseidonHash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
+        return (hashMethod.hash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
     }
 
     private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>): Felt {

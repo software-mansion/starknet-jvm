@@ -1,15 +1,19 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.helpers.hashMethodFromRpcVersion
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
+import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.toVersion
 import java.math.BigInteger
 import java.security.SecureRandom
 import java.util.concurrent.CompletableFuture
@@ -30,6 +34,8 @@ class StandardAccount @JvmOverloads constructor(
     override val chainId: StarknetChainId,
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
+    private val hashMethod: HashMethod =
+        hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
@@ -180,6 +186,7 @@ class StandardAccount @JvmOverloads constructor(
             resourceBounds = params.resourceBounds,
             casmContractDefinition = casmContractDefinition,
             tip = params.tip,
+            hashMethod = hashMethod,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 

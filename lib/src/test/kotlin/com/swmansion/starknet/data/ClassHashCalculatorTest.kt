@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.data.types.CasmContractDefinition
 import com.swmansion.starknet.data.types.Felt
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,7 +32,7 @@ internal class ClassHashCalculatorTest {
         val casmCode = Path.of(sourcePath).readText()
         val casmContractDefinition = CasmContractDefinition(casmCode)
 
-        val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition)
+        val compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition, HashMethod.POSEIDON)
         assertEquals(expectedHash, compiledClassHash)
     }
 }

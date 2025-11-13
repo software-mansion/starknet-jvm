@@ -246,6 +246,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
     implementation("org.apache.commons:commons-math3:3.6.1")
+
+    implementation("io.github.z4kn4fein:semver:3.0.0")
 }
 
 java {
