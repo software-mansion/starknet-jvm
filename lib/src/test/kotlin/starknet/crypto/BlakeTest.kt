@@ -53,7 +53,7 @@ class BlakeTest {
         assertEquals(
             expected,
             result,
-            "Starknet Kotlin implementation differs from Cairo reference",
+            "For input $input, expected hash $expected but got $result"
         )
     }
 }
