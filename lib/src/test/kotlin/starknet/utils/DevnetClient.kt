@@ -412,8 +412,10 @@ class DevnetClient(
         // we need to put it to JSON synthetically
         val jsonElement = json.parseToJsonElement(result).jsonObject.toMutableMap()
         val commandStr = if (command == "account") {
-            command + " " + (args.getOrNull(0)
-                ?: throw IllegalArgumentException("Missing subcommand for account command"))
+            command + " " + (
+                args.getOrNull(0)
+                    ?: throw IllegalArgumentException("Missing subcommand for account command")
+                )
         } else {
             command
         }
@@ -421,7 +423,6 @@ class DevnetClient(
 
         // Remove fields with null values
         jsonElement.entries.removeIf { it.value is JsonNull }
-
 
         return json.decodeFromString(
             SnCastResponsePolymorphicSerializer,
