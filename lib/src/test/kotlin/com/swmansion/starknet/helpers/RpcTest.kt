@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class RpcTest {
     companion object {
         @JvmStatic
-        fun getTestCases(): List<Pair<Version, HashMethod>> {
+        private fun getTestCases(): List<Pair<Version, HashMethod>> {
             return listOf(
                 Pair(Version(0, 9, 0), HashMethod.POSEIDON),
                 Pair(Version(0, 9, 1), HashMethod.POSEIDON),
