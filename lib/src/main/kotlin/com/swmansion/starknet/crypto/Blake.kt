@@ -8,12 +8,9 @@ package com.swmansion.starknet.crypto
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toFelt
 import org.bouncycastle.crypto.digests.Blake2sDigest
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
-import java.security.MessageDigest
-import java.security.Security
 
 object Blake {
 
