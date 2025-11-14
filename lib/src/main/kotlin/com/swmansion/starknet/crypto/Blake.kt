@@ -7,8 +7,11 @@ package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toFelt
+import org.bouncycastle.crypto.digests.Blake2sDigest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.nio.ByteOrder.LITTLE_ENDIAN
 import java.security.MessageDigest
 import java.security.Security
 
@@ -30,8 +33,8 @@ object Blake {
      * @param values List of Felt values to encode.
      * @return List of encoded 32-bit integers.
      */
-    private fun encodeFeltsToU32s(values: List<Felt>): List<Int> {
-        val unpackedU32s = mutableListOf<Int>()
+    private fun encodeFeltsToInts(values: List<Felt>): List<Int> {
+        val unpackedInts = mutableListOf<Int>()
 
         for (value in values) {
             val valueBytes = value.value.toByteArray().let {
@@ -46,19 +49,19 @@ object Blake {
                 // Small: 2 limbs only (high-32 then low-32 of the last 8 bytes)
                 val high = BigInteger(1, valueBytes.copyOfRange(24, 28)).toInt()
                 val low = BigInteger(1, valueBytes.copyOfRange(28, 32)).toInt()
-                unpackedU32s.add(high)
-                unpackedU32s.add(low)
+                unpackedInts.add(high)
+                unpackedInts.add(low)
             } else {
                 // Big: 8 limbs, big-endian order
-                val start = unpackedU32s.size
+                val start = unpackedInts.size
                 for (i in 0 until 32 step 4) {
                     val limb = BigInteger(1, valueBytes.copyOfRange(i, i + 4)).toInt()
-                    unpackedU32s.add(limb)
+                    unpackedInts.add(limb)
                 }
-                unpackedU32s[start] = unpackedU32s[start] or bigMarker
+                unpackedInts[start] = unpackedInts[start] or bigMarker
             }
         }
-        return unpackedU32s
+        return unpackedInts
     }
 
     /**
@@ -70,12 +73,17 @@ object Blake {
     private fun pack256LeToFelt(hashBytes: ByteArray): Felt {
         require(hashBytes.size >= 32) { "need at least 32 bytes to pack" }
 
-        var value = BigInteger.ZERO
-        for (i in 31 downTo 0) {
-            value = value.shiftLeft(8).add(BigInteger.valueOf((hashBytes[i].toInt() and 0xFF).toLong()))
-        }
+        val reversed = hashBytes.copyOfRange(0, 32).reversedArray()
+        val value = BigInteger(1, reversed)
         return value.mod(Felt.PRIME).toFelt
     }
+
+    private fun blake2sHashBytes(vararg inputs: ByteArray): ByteArray {
+        val digest = MessageDigest.getInstance("BLAKE2S-256", "BC")
+        for (input in inputs) digest.update(input)
+        return digest.digest()
+    }
+
 
     /**
      * Computes the Blake2s hash of the given data and converts it to a Felt.
@@ -83,11 +91,9 @@ object Blake {
      * @param data Byte array to hash.
      * @return Felt representation of the hash.
      */
-    private fun blake2sToFelt(data: ByteArray): Felt {
-        val digest = MessageDigest.getInstance("BLAKE2S-256", "BC")
-        val hash = digest.digest(data)
-        return pack256LeToFelt(hash)
-    }
+    private fun blake2sToFelt(data: ByteArray): Felt =
+        pack256LeToFelt(blake2sHashBytes(data))
+
 
     /**
      * Computes the Blake2s hash of a list of Felts.
@@ -97,18 +103,14 @@ object Blake {
      */
     @JvmStatic
     fun blake2sHash(felts: List<Felt>): Felt {
-        val u32Words = encodeFeltsToU32s(felts)
+        val words = encodeFeltsToInts(felts)
 
         // Serialize as little-endian bytes
-        val byteStream = u32Words.flatMap { word ->
-            val bytes = ByteArray(4)
-            for (i in 0 until 4) {
-                bytes[i] = ((word shr (8 * i)) and 0xFF).toByte()
-            }
-            bytes.asList()
+        val byteArray = words.flatMap { word ->
+            ByteBuffer.allocate(4).order(LITTLE_ENDIAN).putInt(word).array().asList()
         }.toByteArray()
 
-        return blake2sToFelt(byteStream)
+        return blake2sToFelt(byteArray)
     }
 
     /**
@@ -118,12 +120,9 @@ object Blake {
      * @param second Byte array to hash.
      * @return Byte array representation of the hash.
      */
-    @JvmStatic
-    private fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance("BLAKE2S-256", "BC")
-        digest.update(first)
-        return digest.digest(second)
-    }
+    private fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray =
+        blake2sHashBytes(first, second)
+
 
     /**
      * Computes Blake2s hash on pair of Felts.
