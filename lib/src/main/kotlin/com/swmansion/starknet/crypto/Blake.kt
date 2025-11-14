@@ -104,14 +104,4 @@ object Blake {
 
         return blake2sToFelt(byteArray)
     }
-
-    /**
-     * Computes Blake2s hash on pair of byte arrays.
-     *
-     * @param first Byte array to hash.
-     * @param second Byte array to hash.
-     * @return Byte array representation of the hash.
-     */
-    private fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray =
-        blake2sHashBytes(first, second)
 }
