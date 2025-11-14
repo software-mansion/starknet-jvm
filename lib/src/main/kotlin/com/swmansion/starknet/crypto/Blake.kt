@@ -12,10 +12,11 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.Security
 
+
 object Blake {
 
     private val smallThreshold: BigInteger = BigInteger.ONE.shiftLeft(63)
-    private val bigMarker = 1 shl 31
+    private const val bigMarker = 1 shl 31
 
     init {
         if (Security.getProvider("BC") == null) {
@@ -34,11 +35,10 @@ object Blake {
 
         for (value in values) {
             val valueBytes = value.value.toByteArray().let {
-                // ensure 32-byte big-endian representation
-                when {
-                    it.size < 32 -> ByteArray(32 - it.size) + it
-                    it.size > 32 -> it.copyOfRange(it.size - 32, it.size)
-                    else -> it
+                if (it.size < 32) {
+                    ByteArray(32 - it.size) + it
+                } else {
+                    it.copyOfRange(it.size - 32, it.size)
                 }
             }
 
@@ -112,20 +112,21 @@ object Blake {
     }
 
     /**
-     * Converts a Felt to its native byte array representation (32 bytes, big-endian).
+     * Computes Blake2s hash on pair of byte arrays.
      *
-     * @param felt Felt value to convert.
-     * @return Byte array representation of the Felt.
+     * @param first Byte array to hash.
+     * @param second Byte array to hash.
+     * @return Byte array representation of the hash.
      */
     @JvmStatic
-    fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray {
+    private fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray {
         val digest = MessageDigest.getInstance("BLAKE2S-256", "BC")
         digest.update(first)
         return digest.digest(second)
     }
 
     /**
-     * Converts pair of Felts to their native byte array representations and computes their Blake2s hash.
+     * Computes Blake2s hash on pair of Felts.
      *
      * @param first Felt value to convert.
      * @param second Felt value to convert.
@@ -138,7 +139,7 @@ object Blake {
     }
 
     /**
-     * Converts an iterable of Felts to their native byte array representations and computes their Blake2s hash.
+     * Computes Blake2s hash on iterable of Felts.
      *
      * @param values Iterable of Felt values to convert.
      * @return Felt representation of the hash.
