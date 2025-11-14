@@ -7,6 +7,7 @@ package com.swmansion.starknet.crypto
 
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.extensions.toFelt
+import org.bouncycastle.crypto.digests.Blake2sDigest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -18,12 +19,6 @@ object Blake {
 
     private val smallThreshold: BigInteger = BigInteger.ONE.shiftLeft(63)
     private const val bigMarker = 1 shl 31
-
-    init {
-        if (Security.getProvider("BC") == null) {
-            Security.addProvider(BouncyCastleProvider())
-        }
-    }
 
     /**
      * Encodes a list of felts into 32-bit words following Cairo's encoding scheme.
@@ -77,9 +72,13 @@ object Blake {
     }
 
     private fun blake2sHashBytes(vararg inputs: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance("BLAKE2S-256", "BC")
-        for (input in inputs) digest.update(input)
-        return digest.digest()
+        val digest = Blake2sDigest(256)
+        for (input in inputs) {
+            digest.update(input, 0, input.size)
+        }
+        val hash = ByteArray(32)
+        digest.doFinal(hash, 0)
+        return hash
     }
 
     /**
