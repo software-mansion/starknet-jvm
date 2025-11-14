@@ -412,6 +412,7 @@ class DevnetClient(
         val lines = String(process.inputStream.readAllBytes()).trim().split("\n").filter { it != "null" }
         val result = lines.last()
 
+        // TODO(#596)
         // Workaround: "command" field is not present in sncast response anymore, hence
         // we need to put it to JSON synthetically
         val jsonElement = json.parseToJsonElement(result).jsonObject.toMutableMap()
