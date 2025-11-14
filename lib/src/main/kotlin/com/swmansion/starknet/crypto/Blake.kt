@@ -118,27 +118,4 @@ object Blake {
      */
     private fun blake2sHash(first: ByteArray, second: ByteArray): ByteArray =
         blake2sHashBytes(first, second)
-
-    /**
-     * Computes Blake2s hash on pair of Felts.
-     *
-     * @param first Felt value to convert.
-     * @param second Felt value to convert.
-     * @return Byte array representation of the hash.
-     */
-    @JvmStatic
-    fun blake2sHash(first: Felt, second: Felt): Felt {
-        val hash = blake2sHash(feltToNative(first), feltToNative(second))
-        return pack256LeToFelt(hash)
-    }
-
-    /**
-     * Computes Blake2s hash on iterable of Felts.
-     *
-     * @param values Iterable of Felt values to convert.
-     * @return Felt representation of the hash.
-     */
-    @JvmStatic
-    fun blake2sHash(values: Iterable<Felt>): Felt =
-        values.fold(Felt.ZERO) { a, b -> blake2sHash(a, b) }
 }
