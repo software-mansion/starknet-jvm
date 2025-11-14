@@ -2,6 +2,7 @@ package com.swmansion.starknet.helpers
 
 import com.swmansion.starknet.crypto.HashMethod
 import io.github.z4kn4fein.semver.Version
+import io.github.z4kn4fein.semver.toVersion
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -13,7 +14,9 @@ class RpcTest {
                 Pair(Version(0, 9, 0), HashMethod.POSEIDON),
                 Pair(Version(0, 9, 1), HashMethod.POSEIDON),
                 Pair(Version(0, 10, 0), HashMethod.BLAKE2S),
+                Pair("0.10.0-rc.1".toVersion(), HashMethod.BLAKE2S),
                 Pair(Version(0, 11, 5), HashMethod.BLAKE2S),
+                Pair(Version(1, 0, 0), HashMethod.BLAKE2S),
             )
         }
     }
