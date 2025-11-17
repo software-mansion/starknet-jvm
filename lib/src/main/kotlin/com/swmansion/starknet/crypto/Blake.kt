@@ -15,7 +15,7 @@ import java.nio.ByteOrder.LITTLE_ENDIAN
 object Blake {
 
     private val smallThreshold: BigInteger = BigInteger.ONE.shiftLeft(63)
-    private const val bigMarker = 1 shl 31
+    private const val BIG_MARKER = 1 shl 31
 
     /**
      * Encodes a list of felts into 32-bit words following Cairo's encoding scheme.
@@ -48,7 +48,7 @@ object Blake {
                     val limb = BigInteger(1, valueBytes.copyOfRange(i, i + 4)).toInt()
                     unpackedInts.add(limb)
                 }
-                unpackedInts[start] = unpackedInts[start] or bigMarker
+                unpackedInts[start] = unpackedInts[start] or BIG_MARKER
             }
         }
         return unpackedInts

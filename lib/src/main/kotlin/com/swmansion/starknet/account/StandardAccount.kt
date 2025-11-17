@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.github.zafarkhaja.semver.Version
 import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
@@ -12,7 +13,6 @@ import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
-import io.github.z4kn4fein.semver.toVersion
 import java.math.BigInteger
 import java.security.SecureRandom
 import java.util.concurrent.CompletableFuture
@@ -34,7 +34,7 @@ class StandardAccount @JvmOverloads constructor(
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
     private val hashMethod: HashMethod by lazy {
-        hashMethodFromRpcVersion(provider.getSpecVersion().send().value.toVersion())
+        hashMethodFromRpcVersion(Version.tryParse(provider.getSpecVersion().send().value).orElseThrow())
     }
 
     /**

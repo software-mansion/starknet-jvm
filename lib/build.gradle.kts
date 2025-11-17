@@ -247,7 +247,7 @@ dependencies {
 
     implementation("org.apache.commons:commons-math3:3.6.1")
 
-    implementation("io.github.z4kn4fein:semver:3.0.0")
+    implementation("com.github.zafarkhaja:java-semver:0.10.2")
 }
 
 java {
