@@ -27,12 +27,14 @@ object Blake {
         val unpackedInts = mutableListOf<Int>()
 
         for (value in values) {
-            val valueBytes = value.value.toByteArray().let {
-                if (it.size < 32) {
-                    ByteArray(32 - it.size) + it
-                } else {
-                    it.copyOfRange(it.size - 32, it.size)
-                }
+            val rawBytes = value.value.toByteArray()
+
+            require(rawBytes.size <= 32) {
+                "rawBytes size ${rawBytes.size} exceeds 32 bytes"
+            }
+
+            val valueBytes = rawBytes.let {
+                ByteArray(32 - it.size) + it
             }
 
             if (value.value < smallThreshold) {
