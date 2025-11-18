@@ -34,7 +34,7 @@ class StandardAccount @JvmOverloads constructor(
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
     private val hashMethod: HashMethod by lazy {
-        hashMethodFromRpcVersion(Version.tryParse(provider.getSpecVersion().send().value).orElseThrow())
+        hashMethodFromRpcVersion(Version.parse(provider.getSpecVersion().send().value))
     }
 
     /**

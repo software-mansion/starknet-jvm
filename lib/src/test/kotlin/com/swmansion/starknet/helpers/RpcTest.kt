@@ -10,12 +10,12 @@ class RpcTest {
         @JvmStatic
         private fun getTestCases(): List<Pair<Version, HashMethod>> {
             return listOf(
-                Pair(Version.tryParse("0.9.0").orElseThrow(), HashMethod.POSEIDON),
-                Pair(Version.tryParse("0.9.1").orElseThrow(), HashMethod.POSEIDON),
-                Pair(Version.tryParse("0.10.0").orElseThrow(), HashMethod.BLAKE2S),
-                Pair(Version.tryParse("0.10.0-rc.1").orElseThrow(), HashMethod.BLAKE2S),
-                Pair(Version.tryParse("0.11.5").orElseThrow(), HashMethod.BLAKE2S),
-                Pair(Version.tryParse("1.0.0").orElseThrow(), HashMethod.BLAKE2S),
+                Pair(Version.parse("0.9.0"), HashMethod.POSEIDON),
+                Pair(Version.parse("0.9.1"), HashMethod.POSEIDON),
+                Pair(Version.parse("0.10.0"), HashMethod.BLAKE2S),
+                Pair(Version.parse("0.10.0-rc.1"), HashMethod.BLAKE2S),
+                Pair(Version.parse("0.11.5"), HashMethod.BLAKE2S),
+                Pair(Version.parse("1.0.0"), HashMethod.BLAKE2S),
             )
         }
     }
