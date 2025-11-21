@@ -133,6 +133,30 @@ interface Provider {
     fun getSpecVersion(): Request<StringResponse>
 
     /**
+     * Get a Starknet version for the selected block.
+     *
+     * @param blockTag the tag of the requested block
+     *
+     */
+    fun getStarknetVersion(blockTag: BlockTag): Request<String>
+
+    /**
+     * Get a Starknet version for the selected block.
+     *
+     * @param blockHash the hash of the requested block
+     *
+     */
+    fun getStarknetVersion(blockHash: Felt): Request<String>
+
+    /**
+     * Get a Starknet version for the selected block.
+     *
+     * @param blockNumber the number of the requested block
+     *
+     */
+    fun getStarknetVersion(blockNumber: Int): Request<String>
+
+    /**
      * Calls a contract deployed on Starknet.
      *
      * @param call a call to be made

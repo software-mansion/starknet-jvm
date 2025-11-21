@@ -2,14 +2,12 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
-import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
-import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.data.types.MessageStatusList
+import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import com.swmansion.starknet.service.http.*
+import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.service.http.OkHttpService
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
 import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
@@ -75,7 +73,13 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+        return HttpBatchRequest.fromRequestsAny(
+            url,
+            orderedRequests,
+            responseSerializers,
+            deserializationJson,
+            httpService,
+        )
     }
 
     /** Batch multiple various calls into a single RPC request
@@ -108,7 +112,13 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
+        return HttpBatchRequest.fromRequests(
+            url,
+            orderedRequests,
+            responseSerializers,
+            deserializationJson,
+            httpService,
+        )
     }
 
     /** Batch multiple calls into a single RPC request
@@ -130,6 +140,18 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StringResponseSerializer)
+    }
+
+    override fun getStarknetVersion(blockTag: BlockTag): Request<String> {
+        return this.getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
+    }
+
+    override fun getStarknetVersion(blockHash: Felt): Request<String> {
+        return this.getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
+    }
+
+    override fun getStarknetVersion(blockNumber: Int): Request<String> {
+        return this.getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
     }
 
     private fun callContract(payload: CallContractPayload): HttpRequest<FeltArray> {
@@ -569,13 +591,19 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateMessageFeeResponse.serializer())
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockHash: Felt,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockNumber: Int,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
@@ -584,7 +612,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.account.StandardAccountTest.estimateMessageFee
      */
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockTag: BlockTag,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
@@ -732,7 +763,11 @@ class JsonRpcProvider(
     private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): HttpRequest<BlockWithTransactionHashes> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, BlockWithTransactionHashesPolymorphicSerializer)
+        return buildRequest(
+            JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES,
+            jsonPayload,
+            BlockWithTransactionHashesPolymorphicSerializer,
+        )
     }
 
     /**
