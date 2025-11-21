@@ -486,6 +486,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
 
+    // This is here pretty much only for unit testing. It's not used in any logic and not serialized.
     @Transient
     internal val hashMethod: HashMethod? = null,
 ) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
