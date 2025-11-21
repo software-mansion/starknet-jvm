@@ -399,6 +399,8 @@ class StandardAccountTest {
             l1l2ContractDefinition,
             l1l2CasmContractDefinition,
             DeclareParamsV3(nonce, resourceBounds),
+            // TODO(#594) Remove this override
+            hashMethod = HashMethod.POSEIDON,
         )
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
@@ -460,6 +462,8 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 DeclareParamsV3(nonce, resourceBounds),
+                // TODO(#594) Remove this override
+                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -506,6 +510,8 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 params,
+                // TODO(#594) Remove this override
+                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -554,6 +560,8 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 params,
+                // TODO(#594) Remove this override
+                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
