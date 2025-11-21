@@ -2,11 +2,14 @@ package com.swmansion.starknet.provider.rpc
 
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
+import com.swmansion.starknet.data.serializers.BlockWithTransactionsPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.SyncPolymorphicSerializer
+import com.swmansion.starknet.data.serializers.TransactionReceiptPolymorphicSerializer
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.data.types.MessageStatusList
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import com.swmansion.starknet.service.http.HttpService
-import com.swmansion.starknet.service.http.OkHttpService
+import com.swmansion.starknet.service.http.*
 import com.swmansion.starknet.service.http.requests.HttpBatchRequest
 import com.swmansion.starknet.service.http.requests.HttpRequest
 import kotlinx.serialization.KSerializer
@@ -729,11 +732,7 @@ class JsonRpcProvider(
     private fun getBlockWithTxHashes(payload: GetBlockWithTransactionHashesPayload): HttpRequest<BlockWithTransactionHashes> {
         val jsonPayload = Json.encodeToJsonElement(payload)
 
-        return buildRequest(
-            JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES,
-            jsonPayload,
-            BlockWithTransactionHashesPolymorphicSerializer,
-        )
+        return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_TX_HASHES, jsonPayload, BlockWithTransactionHashesPolymorphicSerializer)
     }
 
     /**
