@@ -1,13 +1,11 @@
 package com.swmansion.starknet.account
 
-import com.github.zafarkhaja.semver.Version
 import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.compose
 import com.swmansion.starknet.extensions.toFelt
-import com.swmansion.starknet.helpers.hashMethodFromRpcVersion
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
@@ -33,10 +31,6 @@ class StandardAccount @JvmOverloads constructor(
     override val chainId: StarknetChainId,
     private val cairoVersion: CairoVersion = CairoVersion.ONE,
 ) : Account {
-    private val hashMethod: HashMethod by lazy {
-        hashMethodFromRpcVersion(Version.parse(provider.getSpecVersion().send().value))
-    }
-
     /**
      * @param address the address of the account contract
      * @param privateKey a private key used to create a signer
@@ -177,6 +171,7 @@ class StandardAccount @JvmOverloads constructor(
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
+        hashMethod: HashMethod,
     ): DeclareTransactionV3 {
         val tx = DeclareTransactionV3(
             contractDefinition = sierraContractDefinition,
@@ -235,7 +230,11 @@ class StandardAccount @JvmOverloads constructor(
         return executeV3(calls, resourceBounds, Uint64.ZERO)
     }
 
-    override fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse> {
+    override fun executeV3(
+        calls: List<Call>,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse> {
         return getNonce().compose { nonce ->
             val signParams = InvokeParamsV3(
                 nonce = nonce,
