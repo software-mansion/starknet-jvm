@@ -145,7 +145,7 @@ interface Account {
      * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
-     * @param hashMethod a method to be used to hash the casmContractDefinition
+     * @param hashMethod a method to be used to hash the `casmContractDefinition`
      * @return signed declare transaction payload
      */
     fun signDeclareV3(
@@ -184,7 +184,7 @@ interface Account {
      * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
      * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional parameters for the transaction
-     * @param hashMethod a method to be used to hash the casmContractDefinition
+     * @param hashMethod a method to be used to hash the `casmContractDefinition`
      * @return signed declare transaction payload
      */
     fun signDeclareV3(
