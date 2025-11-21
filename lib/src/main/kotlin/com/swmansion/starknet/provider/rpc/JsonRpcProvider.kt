@@ -72,13 +72,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequestsAny(
-            url,
-            orderedRequests,
-            responseSerializers,
-            deserializationJson,
-            httpService,
-        )
+        return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     /** Batch multiple various calls into a single RPC request
@@ -111,13 +105,7 @@ class JsonRpcProvider(
             )
         }
         val responseSerializers = requests.map { it.serializer }
-        return HttpBatchRequest.fromRequests(
-            url,
-            orderedRequests,
-            responseSerializers,
-            deserializationJson,
-            httpService,
-        )
+        return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
 
     /** Batch multiple calls into a single RPC request
@@ -578,19 +566,13 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateMessageFeeResponse.serializer())
     }
 
-    override fun getEstimateMessageFee(
-        message: MessageL1ToL2,
-        blockHash: Felt,
-    ): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
 
-    override fun getEstimateMessageFee(
-        message: MessageL1ToL2,
-        blockNumber: Int,
-    ): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
@@ -599,10 +581,7 @@ class JsonRpcProvider(
     /**
      * @sample starknet.account.StandardAccountTest.estimateMessageFee
      */
-    override fun getEstimateMessageFee(
-        message: MessageL1ToL2,
-        blockTag: BlockTag,
-    ): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
