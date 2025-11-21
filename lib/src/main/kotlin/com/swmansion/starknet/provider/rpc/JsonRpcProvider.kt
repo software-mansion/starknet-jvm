@@ -3,7 +3,6 @@ package com.swmansion.starknet.provider.rpc
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.serializers.*
 import com.swmansion.starknet.data.types.*
-import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
 import com.swmansion.starknet.service.http.HttpService
@@ -140,18 +139,6 @@ class JsonRpcProvider(
         val params = Json.encodeToJsonElement(JsonArray(emptyList()))
 
         return buildRequest(JsonRpcMethod.GET_SPEC_VERSION, params, StringResponseSerializer)
-    }
-
-    override fun getStarknetVersion(blockTag: BlockTag): Request<String> {
-        return this.getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
-    }
-
-    override fun getStarknetVersion(blockHash: Felt): Request<String> {
-        return this.getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
-    }
-
-    override fun getStarknetVersion(blockNumber: Int): Request<String> {
-        return this.getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
     }
 
     private fun callContract(payload: CallContractPayload): HttpRequest<FeltArray> {

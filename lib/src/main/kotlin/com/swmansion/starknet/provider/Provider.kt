@@ -1,6 +1,7 @@
 package com.swmansion.starknet.provider
 
 import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 
 /**
@@ -138,7 +139,9 @@ interface Provider {
      * @param blockTag the tag of the requested block
      *
      */
-    fun getStarknetVersion(blockTag: BlockTag): Request<String>
+    fun getStarknetVersion(blockTag: BlockTag): Request<String> {
+        return getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
+    }
 
     /**
      * Get a Starknet version for the selected block.
@@ -146,7 +149,9 @@ interface Provider {
      * @param blockHash the hash of the requested block
      *
      */
-    fun getStarknetVersion(blockHash: Felt): Request<String>
+    fun getStarknetVersion(blockHash: Felt): Request<String> {
+        return getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
+    }
 
     /**
      * Get a Starknet version for the selected block.
@@ -154,7 +159,9 @@ interface Provider {
      * @param blockNumber the number of the requested block
      *
      */
-    fun getStarknetVersion(blockNumber: Int): Request<String>
+    fun getStarknetVersion(blockNumber: Int): Request<String> {
+        return getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
+    }
 
     /**
      * Calls a contract deployed on Starknet.
