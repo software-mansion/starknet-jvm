@@ -487,7 +487,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
     val contractDefinition: Cairo1ContractDefinition? = null,
 
     @Transient
-    internal val hashMethod: HashMethod? = null
+    internal val hashMethod: HashMethod? = null,
 ) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(

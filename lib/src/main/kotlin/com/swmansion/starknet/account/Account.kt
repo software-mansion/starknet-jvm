@@ -152,7 +152,7 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
-        hashMethod: HashMethod
+        hashMethod: HashMethod,
     ): DeclareTransactionV3
 
     /**
@@ -189,7 +189,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
-        hashMethod: HashMethod
+        hashMethod: HashMethod,
     ): DeclareTransactionV3 {
         return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false, hashMethod)
     }

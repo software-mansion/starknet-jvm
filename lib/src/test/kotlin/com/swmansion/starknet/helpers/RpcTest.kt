@@ -1,6 +1,5 @@
 package com.swmansion.starknet.helpers
 
-import com.github.zafarkhaja.semver.Version
 import com.swmansion.starknet.crypto.HashMethod
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

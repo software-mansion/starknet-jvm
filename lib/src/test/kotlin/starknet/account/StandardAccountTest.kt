@@ -638,7 +638,7 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 DeclareParamsV3(nonce, resourceBounds),
-                HashMethod.POSEIDON
+                HashMethod.POSEIDON,
             )
 
             assertEquals(declareTransaction.hashMethod, HashMethod.POSEIDON)
@@ -677,7 +677,7 @@ class StandardAccountTest {
                       ]
                    }
                 }
-                """.trimIndent(),
+                    """.trimIndent(),
                 )
             }
             val provider = JsonRpcProvider("", httpService)
@@ -717,7 +717,7 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 DeclareParamsV3(nonce, resourceBounds),
-                hashMethod
+                hashMethod,
             )
 
             // TODO(#594) Change asserted to Blake here after devnet is upgraded to 0.14.1 / RPC 0.10.0
