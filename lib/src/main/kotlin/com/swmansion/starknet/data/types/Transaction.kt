@@ -9,6 +9,7 @@ import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -484,6 +485,9 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
+
+    @Transient
+    internal val hashMethod: HashMethod? = null
 ) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
@@ -525,6 +529,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         accountDeploymentData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
+        hashMethod = hashMethod,
     )
 }
 
