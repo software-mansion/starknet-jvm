@@ -754,7 +754,6 @@ class StandardAccountTest {
         assertEquals(declareTransaction.hashMethod, HashMethod.BLAKE2S)
     }
 
-
     @Nested
     inner class SignTypedDataTest {
         private val tdRev0 by lazy { loadTypedData("rev_0/typed_data_struct_array_example.json") }
