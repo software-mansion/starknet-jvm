@@ -588,21 +588,7 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = Felt.ONE
 
-            val resourceBounds = ResourceBoundsMapping(
-                l1Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-                l2Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000_000),
-                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-                ),
-                l1DataGas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-            )
-
+            val resourceBounds = ResourceBoundsMapping.ZERO
             val declareTransaction = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -627,21 +613,7 @@ class StandardAccountTest {
             val contractCasmDefinition = CasmContractDefinition(casmCode)
             val nonce = Felt.ONE
 
-            val resourceBounds = ResourceBoundsMapping(
-                l1Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-                l2Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000_000),
-                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-                ),
-                l1DataGas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-            )
-
+            val resourceBounds = ResourceBoundsMapping.ZERO
             val declareTransaction = account.signDeclareV3(
                 contractDefinition,
                 contractCasmDefinition,
@@ -702,20 +674,7 @@ class StandardAccountTest {
             val contractDefinition = Cairo1ContractDefinition(contractCode)
             val contractCasmDefinition = CasmContractDefinition(casmCode)
 
-            val resourceBounds = ResourceBoundsMapping(
-                l1Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-                l2Gas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000_000),
-                    maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-                ),
-                l1DataGas = ResourceBounds(
-                    maxAmount = Uint64(100_000_000_000),
-                    maxPricePerUnit = Uint128(10_000_000_000_000_000),
-                ),
-            )
+            val resourceBounds = ResourceBoundsMapping.ZERO
             val nonce = Felt.ONE
 
             val starknetVersion = provider.getStarknetVersion(BlockTag.PRE_CONFIRMED).send()
