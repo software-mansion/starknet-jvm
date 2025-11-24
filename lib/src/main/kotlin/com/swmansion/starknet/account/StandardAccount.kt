@@ -182,6 +182,7 @@ class StandardAccount @JvmOverloads constructor(
             resourceBounds = params.resourceBounds,
             casmContractDefinition = casmContractDefinition,
             tip = params.tip,
+            hashMethod = hashMethod,
         )
         val signedTransaction = tx.copy(signature = signer.signTransaction(tx))
 
