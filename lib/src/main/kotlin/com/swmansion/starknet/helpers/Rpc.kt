@@ -6,11 +6,11 @@ import com.swmansion.starknet.crypto.HashMethod
 /**
  * Get hash method from provided Starknet version.
  *
- * @param starknet_version Starknet version
+ * @param starknetVersion Starknet version
  */
-fun getHashMethodFromStarknetVersion(starknet_version: String): HashMethod {
+fun getHashMethodFromStarknetVersion(starknetVersion: String): HashMethod {
     // Compare only (major, minor, patch) tuple to ignore pre-release/dev versions.
-    val version = Version.parse(starknet_version)
+    val version = Version.parse(starknetVersion)
     val versionTriple = Triple(version.majorVersion().toInt(), version.minorVersion().toInt(), version.patchVersion().toInt())
     return if (versionTriple >= Triple(0, 14, 1)) {
         HashMethod.BLAKE2S
