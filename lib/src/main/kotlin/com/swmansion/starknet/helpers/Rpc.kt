@@ -22,5 +22,5 @@ fun getHashMethodFromStarknetVersion(starknetVersion: String): HashMethod {
 }
 
 operator fun <A : Comparable<A>, B : Comparable<B>, C : Comparable<C>>
-        Triple<A, B, C>.compareTo(other: Triple<A, B, C>): Int =
+    Triple<A, B, C>.compareTo(other: Triple<A, B, C>): Int =
     compareValuesBy(this, other, Triple<A, B, C>::first, Triple<A, B, C>::second, Triple<A, B, C>::third)
