@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.Request
@@ -144,6 +145,7 @@ interface Account {
      * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
      * @param params additional parameters for the transaction
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @param hashMethod a method to be used to hash the `casmContractDefinition`
      * @return signed declare transaction payload
      */
     fun signDeclareV3(
@@ -151,7 +153,48 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
+        hashMethod: HashMethod,
     ): DeclareTransactionV3
+
+    /**
+     * Sign a version 3 declare transaction.
+     *
+     * Prepare and sign a version 3 declare transaction to be executed on Starknet.
+     *
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
+     * @param params additional parameters for the transaction
+     * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
+     * @return signed declare transaction payload
+     */
+    fun signDeclareV3(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: DeclareParamsV3,
+        forFeeEstimate: Boolean,
+    ): DeclareTransactionV3 {
+        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, forFeeEstimate, HashMethod.BLAKE2S)
+    }
+
+    /**
+     * Sign a version 3 declare transaction.
+     *
+     * Prepare and sign a version 3 declare transaction to be executed on Starknet.
+     *
+     * @param sierraContractDefinition a cairo 1/2 sierra compiled definition of the contract to be declared
+     * @param casmContractDefinition a casm representation of cairo 1/2 compiled contract to be declared
+     * @param params additional parameters for the transaction
+     * @param hashMethod a method to be used to hash the `casmContractDefinition`
+     * @return signed declare transaction payload
+     */
+    fun signDeclareV3(
+        sierraContractDefinition: Cairo1ContractDefinition,
+        casmContractDefinition: CasmContractDefinition,
+        params: DeclareParamsV3,
+        hashMethod: HashMethod,
+    ): DeclareTransactionV3 {
+        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false, hashMethod)
+    }
 
     /**
      * Sign a version 3 declare transaction.

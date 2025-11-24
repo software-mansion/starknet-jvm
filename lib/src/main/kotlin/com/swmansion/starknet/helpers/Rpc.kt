@@ -3,10 +3,16 @@ package com.swmansion.starknet.helpers
 import com.github.zafarkhaja.semver.Version
 import com.swmansion.starknet.crypto.HashMethod
 
-internal fun hashMethodFromRpcVersion(version: Version): HashMethod {
+/**
+ * Get hash method from provided Starknet version.
+ *
+ * @param starknetVersion Starknet version
+ */
+fun getHashMethodFromStarknetVersion(starknetVersion: String): HashMethod {
     // Compare only (major, minor, patch) tuple to ignore pre-release/dev versions.
+    val version = Version.parse(starknetVersion)
     val versionTriple = Triple(version.majorVersion().toInt(), version.minorVersion().toInt(), version.patchVersion().toInt())
-    return if (versionTriple >= Triple(0, 10, 0)) {
+    return if (versionTriple >= Triple(0, 14, 1)) {
         HashMethod.BLAKE2S
     } else {
         HashMethod.POSEIDON
