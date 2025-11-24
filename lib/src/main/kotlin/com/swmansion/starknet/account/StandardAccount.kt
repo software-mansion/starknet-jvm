@@ -1,5 +1,6 @@
 package com.swmansion.starknet.account
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
@@ -170,6 +171,7 @@ class StandardAccount @JvmOverloads constructor(
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
+        hashMethod: HashMethod,
     ): DeclareTransactionV3 {
         val tx = DeclareTransactionV3(
             contractDefinition = sierraContractDefinition,
