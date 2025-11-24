@@ -42,31 +42,6 @@ jobs:
         with:
           cmake-version: '3.18.1'
 
-      # TODO: Replace with installing release when release is available
-      - name: Clone starknet-devnet-rs
-        run: |
-          git clone https://github.com/0xSpaceShard/starknet-devnet-rs.git starknet-devnet-rs
-          pushd ${{ github.workspace }}/starknet-devnet-rs
-          git checkout ${{ env.DEVNET_SHA }}
-          popd
-
-      - name: Cache devnet build
-        uses: actions/cache@v4
-        with:
-          path: starknet-devnet-rs/target/release
-          key: ${{ runner.os }}-starknet-devnet-rs-target-release-${{ env.DEVNET_SHA }}
-
-      - name: Build devnet
-        run: |
-          if [[ ! -d ${{ github.workspace }}/starknet-devnet-rs/target/release ]]; then
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            pushd ${{ github.workspace }}/starknet-devnet-rs
-            cargo build --release
-            popd
-          else
-            echo "Found existing starknet-devnet-rs build, skipping compilation."
-          fi
-
       # TODO(#539)
       - name: Fetch latest asdf version from GitHub releases
         id: asdf_version
@@ -74,6 +49,7 @@ jobs:
           latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
           echo "Latest asdf version found is $latest_version"
           echo "LATEST=$latest_version" >> $GITHUB_ENV
+
       - name: Setup asdf
         run: |
           if [ "${{ runner.os }}" = "Linux" ]; then
@@ -88,15 +64,17 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
 
-      - name: Install starknet-foundry
-        # TODO: Use below steps once stable release of starknet foundry is available
-        # run: |
-        #   asdf plugin add starknet-foundry
-        #   asdf install starknet-foundry 0.40.0
-        #   asdf set starknet-foundry 0.40.0 --home
+      - name: Install starknet-devnet
         run: |
-          DOWNLOAD_URL="https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/snfoundryup"
-          curl -s "$DOWNLOAD_URL" | bash -s --  -c ${{ env.SNFOUNDRY_SHA }}
+          asdf plugin add starknet-devnet
+          asdf install starknet-devnet 0.6.1
+          asdf set starknet-devnet 0.6.1 --home
+
+      - name: Install starknet-foundry
+        run: |
+           asdf plugin add starknet-foundry
+           asdf install starknet-foundry 0.52.0
+           asdf set starknet-foundry 0.52.0 --home
 
       - name: Install scarb
         run: |
