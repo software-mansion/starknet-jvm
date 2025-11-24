@@ -625,38 +625,36 @@ class StandardAccountTest {
         }
 
         @Test
-        fun `starknet account detect hash method`() {
+        fun `starknet account detect hash method poseidon`() {
             val httpService = mock<HttpService> {
                 on { send(any()) } doReturn HttpResponse(
                     true,
                     200,
                     """
-                {
-                   "id":0,
-                   "jsonrpc":"2.0",
-                   "result":{
-                      "block_number":2989106,
-                      "l1_da_mode":"BLOB",
-                      "l1_data_gas_price":{
-                         "price_in_fri":"0x56d9",
-                         "price_in_wei":"0x1"
-                      },
-                      "l1_gas_price":{
-                         "price_in_fri":"0x1438ad6de514",
-                         "price_in_wei":"0x3b9aca09"
-                      },
-                      "l2_gas_price":{
-                         "price_in_fri":"0xb2d05e00",
-                         "price_in_wei":"0x20f12"
-                      },
-                      "sequencer_address":"0x1176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8",
-                      "starknet_version":"0.14.0",
-                      "timestamp":1763660730,
-                      "transactions":[
-                         
-                      ]
-                   }
-                }
+                    {
+                      "id": 0,
+                      "jsonrpc": "2.0",
+                      "result": {
+                        "block_number": 2989106,
+                        "l1_da_mode": "BLOB",
+                        "l1_data_gas_price": {
+                          "price_in_fri": "0x56d9",
+                          "price_in_wei": "0x1"
+                        },
+                        "l1_gas_price": {
+                          "price_in_fri": "0x1438ad6de514",
+                          "price_in_wei": "0x3b9aca09"
+                        },
+                        "l2_gas_price": {
+                          "price_in_fri": "0xb2d05e00",
+                          "price_in_wei": "0x20f12"
+                        },
+                        "sequencer_address": "0x1176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8",
+                        "starknet_version": "0.14.0",
+                        "timestamp": 1763660730,
+                        "transactions": []
+                      }
+                    }
                     """.trimIndent(),
                 )
             }
@@ -691,6 +689,71 @@ class StandardAccountTest {
             assertEquals(declareTransaction.hashMethod, HashMethod.POSEIDON)
         }
     }
+
+    @Test
+    fun `starknet account detect hash method blake`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                {
+                  "id": 0,
+                  "jsonrpc": "2.0",
+                  "result": {
+                    "block_number": 2989106,
+                    "l1_da_mode": "BLOB",
+                    "l1_data_gas_price": {
+                      "price_in_fri": "0x56d9",
+                      "price_in_wei": "0x1"
+                    },
+                    "l1_gas_price": {
+                      "price_in_fri": "0x1438ad6de514",
+                      "price_in_wei": "0x3b9aca09"
+                    },
+                    "l2_gas_price": {
+                      "price_in_fri": "0xb2d05e00",
+                      "price_in_wei": "0x20f12"
+                    },
+                    "sequencer_address": "0x1176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8",
+                    "starknet_version": "0.14.1",
+                    "timestamp": 1763660730,
+                    "transactions": []
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = JsonRpcProvider("", httpService)
+
+        val account = standardAccount
+
+        ScarbClient.buildSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+
+        val resourceBounds = ResourceBoundsMapping.ZERO
+        val nonce = Felt.ONE
+
+        val starknetVersion = provider.getStarknetVersion(BlockTag.PRE_CONFIRMED).send()
+        val hashMethod = getHashMethodFromStarknetVersion(starknetVersion)
+
+        val declareTransaction = account.signDeclareV3(
+            contractDefinition,
+            contractCasmDefinition,
+            DeclareParamsV3(nonce, resourceBounds),
+            hashMethod,
+        )
+
+        assertEquals(declareTransaction.hashMethod, HashMethod.BLAKE2S)
+    }
+
 
     @Nested
     inner class SignTypedDataTest {
