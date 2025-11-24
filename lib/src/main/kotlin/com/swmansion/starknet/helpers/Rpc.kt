@@ -10,7 +10,7 @@ import com.swmansion.starknet.crypto.HashMethod
  * @return Hash method
  */
 fun getHashMethodFromStarknetVersion(starknetVersion: String): HashMethod {
-    // Compare only (major, minor, patch) tuple to ignore pre-release/dev versions.Add a comment on  lines R12 to R13Add diff commentMarkdown input:  edit mode selected.WritePreviewAdd a suggestionHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceSaved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a reviewReturn to code
+    // Compare only (major, minor, patch) tuple to ignore pre-release/dev versions
     val version = Version.parse(starknetVersion)
     val versionTriple =
         Triple(version.majorVersion().toInt(), version.minorVersion().toInt(), version.patchVersion().toInt())
