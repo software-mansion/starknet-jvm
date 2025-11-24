@@ -136,8 +136,8 @@ interface Provider {
     /**
      * Get a Starknet version for the selected block.
      *
-     * @param blockTag the tag of the requested block
-     *
+     * @param blockTag the tag of the requested block.
+     * @return Starknet version for the selected block.
      */
     fun getStarknetVersion(blockTag: BlockTag): Request<String> {
         return getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
@@ -146,8 +146,8 @@ interface Provider {
     /**
      * Get a Starknet version for the selected block.
      *
-     * @param blockHash the hash of the requested block
-     *
+     * @param blockHash the hash of the requested block.
+     * @return Starknet version for the selected block.
      */
     fun getStarknetVersion(blockHash: Felt): Request<String> {
         return getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
@@ -156,8 +156,8 @@ interface Provider {
     /**
      * Get a Starknet version for the selected block.
      *
-     * @param blockNumber the number of the requested block
-     *
+     * @param blockNumber the number of the requested block.
+     * @return Starknet version for the selected block.
      */
     fun getStarknetVersion(blockNumber: Int): Request<String> {
         return getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
