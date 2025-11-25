@@ -1,5 +1,5 @@
 allprojects {
-    version = "0.16.1"
+    version = "0.16.2"
     group = "com.swmansion.starknet"
 }
 
