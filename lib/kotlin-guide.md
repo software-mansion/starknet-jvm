@@ -382,6 +382,8 @@ val declareTransactionPayload = account.signDeclareV3(
     contractDefinition,
     contractCasmDefinition,
     params,
+    // TODO(#594) Remove this override
+    hashMethod = HashMethod.POSEIDON,
 )
 val request = provider.declareContract(declareTransactionPayload)
 val result = request.send()
