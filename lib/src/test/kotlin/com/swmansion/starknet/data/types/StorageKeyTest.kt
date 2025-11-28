@@ -26,7 +26,7 @@ class StorageKeyTest {
 
     @Test
     fun `length exceeds limit`() {
-        val hex = "0x7abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\n"
+        val hex = "0x7abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcabc"
 
         val exception = assertThrows(IllegalArgumentException::class.java) {
             StorageKey(hex)
