@@ -399,8 +399,6 @@ class StandardAccountTest {
             l1l2ContractDefinition,
             l1l2CasmContractDefinition,
             DeclareParamsV3(nonce, resourceBounds),
-            // TODO(#594) Remove this override
-            hashMethod = HashMethod.POSEIDON,
         )
         val l2ContractClassHash = provider.declareContract(declareTransactionPayload).send().classHash
         val l2ContractAddress = devnetClient.deployContract(
@@ -462,8 +460,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 DeclareParamsV3(nonce, resourceBounds),
-                // TODO(#594) Remove this override
-                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -510,8 +506,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 params,
-                // TODO(#594) Remove this override
-                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -560,8 +554,6 @@ class StandardAccountTest {
                 contractDefinition,
                 contractCasmDefinition,
                 params,
-                // TODO(#594) Remove this override
-                hashMethod = HashMethod.POSEIDON,
             )
             val request = provider.declareContract(declareTransactionPayload)
             val result = request.send()
@@ -685,7 +677,6 @@ class StandardAccountTest {
                 hashMethod,
             )
 
-            // TODO(#594) Change asserted to Blake here after devnet is upgraded to 0.14.1 / RPC 0.10.0
             assertEquals(declareTransaction.hashMethod, HashMethod.POSEIDON)
         }
     }
@@ -1342,7 +1333,6 @@ class StandardAccountTest {
     @Nested
     inner class SimulateTransactionsTest {
         @Test
-        @Disabled("TODO(#594)")
         fun simulateInvokeV3AndDeployAccountV3Transactions() {
             val account = StandardAccount(accountAddress, signer, provider, chainId)
             devnetClient.prefundAccountStrk(accountAddress)
@@ -1404,7 +1394,6 @@ class StandardAccountTest {
         }
 
         @Test
-        @Disabled("TODO(#594)")
         fun `simulate declare v3 transaction`() {
             devnetClient.prefundAccountStrk(accountAddress)
 

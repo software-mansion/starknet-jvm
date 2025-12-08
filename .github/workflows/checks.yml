@@ -67,14 +67,14 @@ jobs:
       - name: Install starknet-devnet
         run: |
           asdf plugin add starknet-devnet
-          asdf install starknet-devnet 0.6.1
-          asdf set starknet-devnet 0.6.1 --home
+          asdf install starknet-devnet 0.7.0
+          asdf set starknet-devnet 0.7.0 --home
 
       - name: Install starknet-foundry
         run: |
            asdf plugin add starknet-foundry
-           asdf install starknet-foundry 0.52.0
-           asdf set starknet-foundry 0.52.0 --home
+           asdf install starknet-foundry 0.53.0
+           asdf set starknet-foundry 0.53.0 --home
 
       - name: Install scarb
         run: |

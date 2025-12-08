@@ -10,7 +10,6 @@ import com.swmansion.starknet.service.http.HttpService
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -674,7 +673,6 @@ class ProviderTest {
     }
 
     @Test
-    @Disabled("TODO(#594)")
     fun getEvents() {
         val eventsContractAddress = devnetClient.declareDeployContract("Events").contractAddress
 
@@ -1229,7 +1227,6 @@ class ProviderTest {
     }
 
     @Test
-    @Disabled("TODO(#594)")
     fun getStateOfBlockWithLatestTag() {
         val request = provider.getStateUpdate(BlockTag.LATEST)
         val response = request.send()
@@ -1238,7 +1235,6 @@ class ProviderTest {
     }
 
     @Test
-    @Disabled("TODO(#594)")
     fun `get state of block with pre-confirmed tag`() {
         val mockedResponse = """
             {
@@ -1269,7 +1265,6 @@ class ProviderTest {
     }
 
     @Test
-    @Disabled("TODO(#594)")
     fun getStateOfBlockWithHash() {
         val blockHash = provider.getBlockHashAndNumber().send().blockHash
 
@@ -1281,7 +1276,6 @@ class ProviderTest {
     }
 
     @Test
-    @Disabled("TODO(#594)")
     fun getStateOfBlockWithNumber() {
         val blockNumber = provider.getBlockNumber().send().value
 
@@ -1401,8 +1395,7 @@ class ProviderTest {
         val request = provider.getStarknetVersion(BlockTag.LATEST)
         val response = request.send()
 
-        // TODO(#594) Change asserted to Blake here after devnet is upgraded to 0.14.1 / RPC 0.10.0
-        assertEquals(response, "0.14.0")
+        assertEquals(response, "0.14.1")
     }
 
     @Test
@@ -1412,8 +1405,7 @@ class ProviderTest {
         val request = provider.getStarknetVersion(blockNumber)
         val response = request.send()
 
-        // TODO(#594) Change asserted to Blake here after devnet is upgraded to 0.14.1 / RPC 0.10.0
-        assertEquals(response, "0.14.0")
+        assertEquals(response, "0.14.1")
     }
 
     @Test
@@ -1423,7 +1415,6 @@ class ProviderTest {
         val request = provider.getStarknetVersion(blockHash)
         val response = request.send()
 
-        // TODO(#594) Change asserted to Blake here after devnet is upgraded to 0.14.1 / RPC 0.10.0
-        assertEquals(response, "0.14.0")
+        assertEquals(response, "0.14.1")
     }
 }

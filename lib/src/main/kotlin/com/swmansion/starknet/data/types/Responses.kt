@@ -400,7 +400,7 @@ data class StateDiff(
     val declaredClasses: List<DeclaredClassItem>,
 
     @SerialName("migrated_compiled_classes")
-    val migratedCompiledClasses: List<MigratedClassItem>,
+    val migratedCompiledClasses: List<MigratedClassItem>? = null,
 
     @SerialName("deployed_contracts")
     val deployedContracts: List<DeployedContractItem>,
