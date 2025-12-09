@@ -73,8 +73,8 @@ jobs:
       - name: Install starknet-foundry
         run: |
            asdf plugin add starknet-foundry
-           asdf install starknet-foundry 0.53.0
-           asdf set starknet-foundry 0.53.0 --home
+           asdf install starknet-foundry nightly-2025-12-02
+           asdf set starknet-foundry nightly-2025-12-02 --home
 
       - name: Install scarb
         run: |
