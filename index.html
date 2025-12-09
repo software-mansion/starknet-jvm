@@ -1,0 +1,743 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>starknet-jvm 0.17.0 API </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="jquery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="jquery/jquery-migrate-3.4.0.min.js"></script>
+    <script type="text/javascript" src="jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="search.js"></script>
+    <script async type="text/javascript" src="module-search-index.js"></script>
+    <script async type="text/javascript" src="package-search-index.js"></script>
+    <script async type="text/javascript" src="type-search-index.js"></script>
+    <script async type="text/javascript" src="member-search-index.js"></script>
+    <script async type="text/javascript" src="tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li class="navBarCell1Rev">Overview</li>
+    
+    <li>Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="overview-tree.html">Tree</a></li>
+    
+    <li><a href="deprecated.html">Deprecated</a></li>
+    <li><a href="index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+<main role="main">
+    <div class="header">
+        <h1 class="title">starknet-jvm 0.17.0 API </h1>
+    </div>
+        <div class="header">
+            <div class="subtitle">
+                <div class="block"><p>Starknet-jvm is a library allowing for easy interaction with the Starknet JSON-RPC nodes, including querying starknet state, executing transactions and deploying contracts.</p><p>Although written in Kotlin, Starknet-jvm has been created with compatibility with Java in mind.</p>&lt;!-- TOC --&gt;<ul><li><p>#using-provider</p></li><li><p>#reusing-provider</p></li><li><p>#creating-account</p></li><li><p>#transferring-strk-tokens</p></li><li><p>#making-synchronous-requests</p></li><li><p>#making-asynchronous-requests</p></li><li><p>#deploying-account-v3</p></li><li><p>#estimating-fee-for-deploy-account-v3-transaction</p></li><li><p>#invoking-contract-transferring-eth</p></li><li><p>#estimating-fee-for-invoke-v3-transaction</p></li><li><p>#estimating-tip-for-v3-transaction</p></li><li><p>#calling-contract-fetching-eth-balance</p></li><li><p>#making-multiple-calls-get-multiple-transactions-data-in-one-request</p></li><li><p>#making-multiple-calls-of-different-types-in-one-request</p></li><li><p>#declaring-cairo-12-contract-v3</p></li><li><p>#estimating-fee-for-declare-v3-transaction</p></li><li><p>#example-usage-of-standardaccount</p></li></ul>&lt;!-- TOC --&gt;<p><code>Provider</code> is a facade for interacting with Starknet. <code>JsonRpcProvider</code> is a client which interacts with a Starknet full nodes like <a href=https://github.com/eqlabs/pathfinder.html>Pathfinder</a>, <a href=https://github.com/starkware-libs/papyrus.html>Papyrus</a> or <a href=https://github.com/NethermindEth/juno.html>Juno</a>. It supports read and write operations, like querying the blockchain state or sending new transactions for execution.</p><pre><code>import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+public class Main {
+    public static void main(String[] args) {
+        JsonRpcProvider provider = new JsonRpcProvider(DemoConfig.rpcNodeUrl);
+        
+        Request&lt;BlockWithTxs&gt; request = provider.getBlockWithTxs(1);
+        BlockWithTxs response = request.send();
+    }
+}</code></pre><p>Make sure you don't create a new provider every time you want to use one. Instead, you should reuse existing instance. This way you reuse connections and thread pools.</p><p>✅ Do:</p><pre><code>Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+Account account1 = new StandardAccount(provider, accountAddress1, privateKey1);
+Account account2 = new StandardAccount(provider, accountAddress2, privateKey2);</code></pre><p>❌ Don't:</p><pre><code>Provider provider1 = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+Account account1 = new StandardAccount(provider1, accountAddress1, privateKey1);
+Provider provider2 = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+Account account2 = new StandardAccount(provider2, accountAddress2, privateKey2);</code></pre><p><code>StandardAccount</code> is the default implementation of <code>Account</code> interface. It supports an account contract which proxies the calls to other contracts on Starknet.</p><p>Account can be created in two ways:</p><ul><li><p>By constructor (It is required to provide an address and either private key or signer).</p></li><li><p>By methods <code>Account.signDeployAccountV3()</code> or <code>Account.signDeployAccountV3()</code></p></li></ul><p>There are some examples how to do it:</p><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.data.types.StarknetChainId;
+
+public class Main {
+    public static void main(String[] args) {
+        // If you don't have a private key, you can generate a random one
+        Felt randomPrivateKey = StandardAccount.generatePrivateKey();
+
+        // Create an instance of account which is already deployed
+        // providing an address and a private key
+        Account account = StandardAccount(
+                Felt.fromHex(&quot;0x123&quot;),
+                Felt.fromHex(&quot;0x456&quot;),
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+
+        // It's possible to specify a signer
+        Account accountWithSigner = StandardAccount(
+                Felt.fromHex(&quot;0x123&quot;),
+                signer,
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url&quot;);
+
+        Account account = new StandardAccount(
+                Felt.fromHex(&quot;0x123&quot;),
+                Felt.fromHex(&quot;0x456&quot;),
+                provider,
+                StarknetChainId.SEPOLIA
+        );
+
+        Uint256 amount = new Uint256(new Felt(100));
+        Felt recipientAccountAddress = Felt.fromHex(&quot;0x789&quot;);
+        Felt strkContractAddress = Felt.fromHex(&quot;0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d&quot;);
+        Call call = Call.fromCallArguments(
+                strkContractAddress,
+                &quot;transfer&quot;,
+                List.of(recipientAccountAddress, amount)
+        );
+
+        Request&lt;InvokeFunctionResponse&gt; executeRequest = account.executeV3(call);
+        InvokeFunctionResponse executeResponse = executeRequest.send();
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.data.types.BlockTag;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Make a request
+        Felt contractAddress = Felt.fromHex(&quot;0x42362362436&quot;);
+        Felt storageKey = Felt.fromHex(&quot;0x13241253414&quot;);
+        Request&lt;Felt&gt; request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        Felt response = request.send();
+
+        System.out.println(response);
+    }
+}</code></pre><p>It is also possible to make asynchronous requests. <code>Request.sendAsync()</code> returns a <code>CompletableFuture</code> that can be than handled in preferred way.</p><pre><code>import com.swmansion.starknet.data.types.BlockTag;
+import com.swmansion.starknet.data.types.Felt;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.concurrent.CompletableFuture;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Make a request
+        Felt contractAddress = Felt.fromHex(&quot;0x42362362436&quot;);
+        Felt storageKey = Felt.fromHex(&quot;0x13241253414&quot;);
+        Request&lt;Felt&gt; request = provider.getStorageAt(contractAddress, storageKey, BlockTag.LATEST);
+        CompletableFuture&lt;Felt&gt; response = request.sendAsync();
+
+        response.thenAccept(System.out::println);
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.ContractAddressCalculator;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex(&quot;0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f&quot;);
+        Felt salt = new Felt(789);
+        List&lt;Felt&gt; calldata = List.of(publicKey);
+
+        Felt address = ContractAddressCalculator.calculateAddressFromHash(
+                classHash,
+                calldata,
+                salt
+        );
+
+        StarknetChainId chainId = provider.getChainId().send();
+
+        Account newAccount = new StandardAccount(address, privateKey, provider, chainId);
+
+        // Make sure to prefund the new account address with at least maxFee
+
+        ResourceBoundsMapping resourceBounds = new ResourceBoundsMapping(
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(1_000_000_000),
+                        new Uint128(1_000_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                )
+
+        );
+        // Create and sign deploy account transaction
+        DeployAccountTransactionV3 payload = newAccount.signDeployAccountV3(
+                classHash,
+                calldata,
+                salt,
+                resourceBounds
+        );
+
+        DeployAccountResponse response = provider.deployAccount(payload).send();
+
+        Thread.sleep(15000); // wait for deploy account tx to complete
+
+        // Make sure the address matches the calculated one
+        System.out.println(&quot;Calculated address: &quot; + address);
+        System.out.println(&quot;Deployed address: &quot; + response.getAddress());
+        System.out.println(&quot;Are addresses equal: &quot; + address.equals(response.getAddress()));
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+
+        DeployAccountParamsV3 params = new DeployAccountParamsV3(
+                Felt.ZERO,
+                ResourceBoundsMapping.ZERO
+        );
+        
+        Felt salt = new Felt(2);
+        List&lt;Felt&gt; calldata = List.of(publicKey);
+        // Use the class hash of the desired account contract (i.e. the class hash of OpenZeppelin account contract)
+        Felt classHash = Felt.fromHex(&quot;0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f&quot;);
+        DeployAccountTransactionV3 payloadForFeeEstimation = account.signDeployAccountV3(
+                classHash,
+                calldata,
+                salt,
+                params,
+                true
+        );
+        
+        Request&lt;EstimateFeeResponseList&gt; request = provider.getEstimateFee(List.of(payloadForFeeEstimation));
+        EstimateFeeResponse response = request.send().getValues().get(0);
+
+        System.out.println(&quot;The estimated fee is: &quot; + response.getOverallFee().getValue() + &quot;.&quot;);
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import com.swmansion.starknet.provider.Request;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+        
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and private key have examples values for demonstration purposes only.
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+
+        Felt recipientAccountAddress = Felt.fromHex(&quot;0x987654321&quot;);
+        Uint256 amount = new Uint256(new Felt(451));
+        
+        // Specify the contract address, in this example ERC-20 ETH contract is used
+        Felt erc20ContractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;);
+        
+        // Create a call
+        List&lt;Felt&gt; calldata = new ArrayList&lt;&gt;();
+        calldata.add(recipientAccountAddress);
+        calldata.addAll(amount.toCalldata());
+        Call invokeCall = new Call(erc20ContractAddress, &quot;transfer&quot;, calldata);
+
+        // Create and sign invoke transaction
+        Request&lt;InvokeFunctionResponse&gt; executeRequest = account.executeV3(invokeCall);
+
+        // account.executeV3(call) estimates the fee automatically
+        // If you want to estimate the fee manually, please refer to the &quot;Estimate Fee&quot; example
+        
+        // Send the transaction
+        InvokeFunctionResponse executeResponse = executeRequest.send();
+
+        Thread.sleep(20000); // wait for invoke tx to complete
+
+        // Make sure that the transaction succeeded
+        Request&lt;? extends TransactionReceipt&gt; invokeReceiptRequest = provider.getTransactionReceipt(executeResponse.getTransactionHash());
+        TransactionReceipt invokeReceipt = invokeReceiptRequest.send();
+
+        System.out.println(&quot;Was invoke transaction accepted? &quot; + invokeReceipt.isAccepted() + &quot;.&quot;);
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+
+        Felt contractAddress = Felt.fromHex(&quot;0x123456789&quot;);
+
+        // In this example we want to increase the balance by 10
+        Call call = new Call(contractAddress, &quot;increase_balance&quot;, List.of(new Felt(10)));
+
+        Request&lt;EstimateFeeResponseList&gt; request = account.estimateFeeV3(
+                call,
+                false
+        );
+
+        EstimateFeeResponse feeEstimate = request.send().getValues().get(0);
+        System.out.println(&quot;The estimated fee is: &quot; + feeEstimate.getOverallFee().getValue() + &quot;.&quot;);
+    }
+}</code></pre><p>Until Starknet 0.14.0, transactions were processed in FIFO order. Starting from mentioned version, it is possible to include a tip with the transaction fee to incentivize it being placed in an earlier block.</p><p>Below example shows how to automatically estimate the tip for a transaction.</p><pre><code>import com.swmansion.starknet.data.types.Uint64;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import static com.swmansion.starknet.helpers.Tip.estimateTip;
+
+public class Main {
+    public static void main(String[] args) {
+        JsonRpcProvider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+        Uint64 tipEstimate = estimateTip(provider).send();
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+        
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x123&quot;);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+
+        // Specify the contract address, in this example ETH ERC20 contract is used
+        Felt contractAddress = Felt.fromHex(&quot;0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&quot;);
+
+        // Create a call
+        List&lt;Felt&gt; calldata = List.of(account.getAddress());
+        Call call = new Call(contractAddress, &quot;balanceOf&quot;, calldata);
+        Request&lt;FeltArray&gt; request = provider.callContract(call);
+
+        // Send the call request
+        List&lt;Felt&gt; response = request.send();
+
+        // Output value's type is Uint256 and is represented by two Felt values
+        Uint256 balance = new Uint256(response.get(0), response.get(1));
+
+        System.out.println(&quot;Balance: &quot; + balance.toString() + &quot;.&quot;);
+    }
+}</code></pre><pre><code>package com.example.javademo;
+
+import com.swmansion.starknet.data.types.RequestResult;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import com.swmansion.starknet.service.http.requests.HttpBatchRequest;
+
+import java.util.List;
+
+public class Abc {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        JsonRpcProvider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        int blockNumber = provider.getBlockNumber().send().getValue();
+
+        Felt invokeTransactionHash = Felt.fromHex(&quot;0x123&quot;);
+        Felt declareTransactionHash = Felt.fromHex(&quot;0x456&quot;);
+        Felt deployAccountTransactionHash = Felt.fromHex(&quot;0x789&quot;);
+        
+        // Batch RPC requests
+        HttpBatchRequest request = provider.batchRequests(
+                provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+                provider.getTransaction(invokeTransactionHash),
+                provider.getTransaction(declareTransactionHash),
+                provider.getTransaction(deployAccountTransactionHash)
+        );
+
+        // Create and send the batch request
+        List&lt;RequestResult&gt; response = request.send();
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.data.types.RequestResult;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+import com.swmansion.starknet.service.http.requests.HttpBatchRequest;
+
+import java.util.List;
+
+import static com.swmansion.starknet.data.Selector.selectorFromName;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a provider for interacting with Starknet
+        JsonRpcProvider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Batch any RPC requests
+        // Get block hash and number + Check the initial value of `balance` in contract
+        HttpBatchRequest mixedRequest = provider.batchRequestsAny(
+                provider.getBlockHashAndNumber(),
+                provider.getStorageAt(Felt.fromHex(&quot;0x123&quot;), selectorFromName(&quot;balance&quot;))
+        );
+
+        // Create and send the batch request
+        List&lt;RequestResult&gt; mixedResponse = mixedRequest.send();
+
+        GetBlockHashAndNumberResponse blockHashAndNumber = (GetBlockHashAndNumberResponse) mixedResponse.get(0).getOrNull();
+        Felt contractBalance = (Felt) mixedResponse.get(1).getOrNull();
+
+        System.out.println(&quot;Block hash: &quot; + blockHashAndNumber.getBlockHash() + &quot;.&quot;);
+        System.out.println(&quot;Initial contract balance: &quot; + contractBalance.getValue() + &quot;.&quot;);
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        StarknetChainId chainId = provider.getChainId().send();
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId);
+
+        // Import a compiled contract
+        Path contractPath = Paths.get(&quot;contract.sierra.json&quot;);
+        Path casmPath = Paths.get(&quot;contract.casm.json&quot;);
+        String contractCode = String.join(&quot;&quot;, Files.readAllLines(contractPath));
+        String casmCode = String.join(&quot;&quot;, Files.readAllLines(casmPath));
+        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
+        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
+        Felt nonce = account.getNonce().send();
+
+        // Estimate fee for declaring a contract
+        DeclareTransactionV3 declareTransactionPayloadForFeeEstimate = account.signDeclareV3(contractDefinition, casmContractDefinition, new DeclareParamsV3(nonce, ResourceBounds.ZERO), true);
+        Request&lt;EstimateFeeResponseList&gt; feeEstimateRequest = provider.getEstimateFee(List.of(declareTransactionPayloadForFeeEstimate));
+        EstimateFeeResponse feeEstimate = feeEstimateRequest.send().getValues().get(0);
+
+        // Make sure to prefund the account with enough funds to cover the fee for declare transaction
+
+        // Declare a contract
+        ResourceBoundsMapping resourceBounds = new ResourceBoundsMapping(
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(1_000_000_000),
+                        new Uint128(1_000_000_000_000_000_000L)
+                ),
+                new ResourceBounds(
+                        new Uint64(100_000_000),
+                        new Uint128(10_000_000_000_000_000L)
+                )
+
+        );
+        DeclareParamsV3 params = new DeclareParamsV3(nonce, resourceBounds);
+        DeclareTransactionV3 declareTransactionPayload = account.signDeclareV3(contractDefinition, casmContractDefinition, params, false);
+
+        Request&lt;DeclareResponse&gt; request = provider.declareContract(declareTransactionPayload);
+        DeclareResponse response = request.send();
+
+        Thread.sleep(60000); // wait for declare tx to complete
+
+        TransactionReceipt receipt = provider.getTransactionReceipt(response.getTransactionHash()).send();
+        System.out.println(&quot;Was transaction accepted? &quot; + receipt.isAccepted() + &quot;.&quot;);
+    }
+}</code></pre><pre><code>import com.swmansion.starknet.account.Account;
+import com.swmansion.starknet.account.StandardAccount;
+import com.swmansion.starknet.crypto.StarknetCurve;
+import com.swmansion.starknet.data.types.*;
+import com.swmansion.starknet.provider.Provider;
+import com.swmansion.starknet.provider.Request;
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider;
+
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // Create a provider for interacting with Starknet
+        Provider provider = new JsonRpcProvider(&quot;https://your.node.url/rpc&quot;);
+
+        // Set up an account
+        Felt privateKey = Felt.fromHex(&quot;0x1234&quot;);
+        Felt publicKey = StarknetCurve.getPublicKey(privateKey);
+        Felt accountAddress = Felt.fromHex(&quot;0x1236789&quot;);
+        // ⚠️ WARNING ⚠️ Both the account address and private key are for demonstration purposes only.
+
+        StarknetChainId chainId = provider.getChainId().send();
+        Account account = new StandardAccount(accountAddress, privateKey, provider, chainId, CairoVersion.ZERO);
+
+        // Import a compiled contract
+        Path contractPath = Paths.get(&quot;contract.sierra.json&quot;);
+        Path casmPath = Paths.get(&quot;contract.casm.json&quot;);
+        String contractCode = String.join(&quot;&quot;, Files.readAllLines(contractPath));
+        String casmCode = String.join(&quot;&quot;, Files.readAllLines(casmPath));
+        Cairo1ContractDefinition contractDefinition = new Cairo1ContractDefinition(contractCode);
+        CasmContractDefinition casmContractDefinition = new CasmContractDefinition(casmCode);
+        Felt nonce = account.getNonce().send();
+
+        DeclareParamsV3 params = new DeclareParamsV3(
+                nonce,
+                ResourceBoundsMapping.ZERO
+        );
+
+        DeclareTransactionV3 payload = account.signDeclareV3(
+                contractDefinition,
+                casmContractDefinition,
+                params,
+                true
+        );
+
+        Request&lt;EstimateFeeResponseList&gt; request = provider.getEstimateFee(List.of(payload), Collections.emptySet());
+        EstimateFeeResponse response = request.send().getValues().get(0);
+
+        System.out.println(&quot;The estimated fee is: &quot; + response.getOverallFee().getValue() + &quot;.&quot;);
+    }
+}</code></pre></div>
+            </div>
+            <p>See: <a href="#overview_description">Description</a></p>
+        </div>
+    <div class="contentContainer">
+        
+            <div class="overviewSummary">
+                
+<table>
+<caption><span>Packages</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Package</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/account/package-summary.html>com.swmansion.starknet.account</a></th><td class="colLast">src/main/kotlin/com/swmansion/starknet/account/Account.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/crypto/package-summary.html>com.swmansion.starknet.crypto</a></th><td class="colLast">Cryptography and signature related classes.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/data/package-summary.html>com.swmansion.starknet.data</a></th><td class="colLast">Data classes representing Starknet objects and utilities for handling them.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/data/types/package-summary.html>com.swmansion.starknet.data.types</a></th><td class="colLast">Data classes representing Starknet objects and transactions.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/data/types/conversions/package-summary.html>com.swmansion.starknet.data.types.conversions</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/deployercontract/package-summary.html>com.swmansion.starknet.deployercontract</a></th><td class="colLast">Classes for interacting with Universal Deployer Contract (UDC).</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/helpers/package-summary.html>com.swmansion.starknet.helpers</a></th><td class="colLast"></td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/provider/package-summary.html>com.swmansion.starknet.provider</a></th><td class="colLast">Provider interface and its implementations.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/provider/exceptions/package-summary.html>com.swmansion.starknet.provider.exceptions</a></th><td class="colLast">Exceptions thrown by the Starknet providers.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/provider/rpc/package-summary.html>com.swmansion.starknet.provider.rpc</a></th><td class="colLast">Provider implementing the <a href=https://github.com/starkware-libs/starknet-specs.html>JSON-RPC interface</a> to communicate with the network.</td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/service/http/package-summary.html>com.swmansion.starknet.service.http</a></th><td class="colLast">Http service used to communicate with Starknet.</td></tr>
+
+    <tr class="rowColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/service/http/requests/package-summary.html>com.swmansion.starknet.service.http.requests</a></th><td class="colLast"></td></tr>
+
+    <tr class="altColor"><th class="colFirst" scope="row"><a href=com/swmansion/starknet/signer/package-summary.html>com.swmansion.starknet.signer</a></th><td class="colLast">Signer interface and its implementations for manually signing transactions to be sent to Starknet.</td></tr>
+</tbody>
+</table>
+
+            </div>
+        
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li class="navBarCell1Rev">Overview</li>
+    
+    <li>Package</li>
+    
+    <li>Class</li>
+    
+    <li><a href="overview-tree.html">Tree</a></li>
+    
+    <li><a href="deprecated.html">Deprecated</a></li>
+    <li><a href="index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>signDeclareV3</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script src="https://unpkg.com/kotlin-playground@1"></script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>starknet-jvm</span>
+            </a>
+    </div>
+    <div>
+0.17.0    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":lib:dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="member" id="content" pageIds="starknet-jvm::com.swmansion.starknet.account/StandardAccount/signDeclareV3/#com.swmansion.starknet.data.types.Cairo1ContractDefinition#com.swmansion.starknet.data.types.CasmContractDefinition#com.swmansion.starknet.data.types.DeclareParamsV3#kotlin.Boolean#com.swmansion.starknet.crypto.HashMethod/PointingToDeclaration//1440829338">
+  <div class="breadcrumbs"><a href="../../../index.html">starknet-jvm</a><span class="delimiter">/</span><a href="../index.html">com.swmansion.starknet.account</a><span class="delimiter">/</span><a href="index.html">StandardAccount</a><span class="delimiter">/</span><span class="current">signDeclareV3</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>sign</span><wbr></wbr><span>Declare</span><wbr></wbr><span><span>V3</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":lib:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="sign-declare-v3.html"><span class="token function">signDeclareV3</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sierraContractDefinition<span class="token operator">: </span><a href="../../com.swmansion.starknet.data.types/-cairo1-contract-definition/index.html">Cairo1ContractDefinition</a><span class="token punctuation">, </span></span><span class="parameter ">casmContractDefinition<span class="token operator">: </span><a href="../../com.swmansion.starknet.data.types/-casm-contract-definition/index.html">CasmContractDefinition</a><span class="token punctuation">, </span></span><span class="parameter ">params<span class="token operator">: </span><a href="../../com.swmansion.starknet.data.types/-declare-params-v3/index.html">DeclareParamsV3</a><span class="token punctuation">, </span></span><span class="parameter ">forFeeEstimate<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">hashMethod<span class="token operator">: </span><a href="../../com.swmansion.starknet.crypto/-hash-method/index.html">HashMethod</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.swmansion.starknet.data.types/-declare-transaction-v3/index.html">DeclareTransactionV3</a></div><h4 class="">Samples</h4><div class="sample-container"><pre><code class="runnablesample monospace block lang-kotlin" theme="idea">import com.swmansion.starknet.account.Account
+import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.HashMethod
+import com.swmansion.starknet.crypto.StarknetCurve
+import com.swmansion.starknet.data.ContractAddressCalculator
+import com.swmansion.starknet.data.selectorFromName
+import com.swmansion.starknet.data.types.*
+import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.helpers.getHashMethodFromStarknetVersion
+import com.swmansion.starknet.provider.exceptions.RequestFailedException
+import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
+import com.swmansion.starknet.provider.rpc.JsonRpcProvider
+import com.swmansion.starknet.service.http.HttpResponse
+import com.swmansion.starknet.service.http.HttpService
+import com.swmansion.starknet.signer.Signer
+import com.swmansion.starknet.signer.StarkCurveSigner
+import network.account.AccountTest.Companion.standardAccount
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import starknet.data.loadTypedData
+import starknet.utils.DevnetClient
+import starknet.utils.ScarbClient
+import java.math.BigInteger
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.time.Duration
+import java.time.Instant
+import kotlin.io.path.readText
+fun main() { 
+   //sampleStart 
+   devnetClient.prefundAccountStrk(accountAddress)
+// docsStart
+ScarbClient.buildSaltedContract(
+    placeholderContractPath = Path.of(&quot;src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo&quot;),
+    saltedContractPath = Path.of(&quot;src/test/resources/contracts_v2/src/salted_counter_contract.cairo&quot;),
+)
+val contractCode = Path.of(&quot;src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json&quot;).readText()
+val casmCode = Path.of(&quot;src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json&quot;).readText()
+
+val contractDefinition = Cairo2ContractDefinition(contractCode)
+val contractCasmDefinition = CasmContractDefinition(casmCode)
+val nonce = account.getNonce().send()
+
+val resourceBounds = ResourceBoundsMapping(
+    l1Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+    l2Gas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000_000),
+        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+    ),
+    l1DataGas = ResourceBounds(
+        maxAmount = Uint64(100_000_000_000),
+        maxPricePerUnit = Uint128(10_000_000_000_000_000),
+    ),
+)
+val params = DeclareParamsV3(
+    nonce = nonce,
+    resourceBounds = resourceBounds,
+)
+val declareTransactionPayload = account.signDeclareV3(
+    contractDefinition,
+    contractCasmDefinition,
+    params,
+)
+val request = provider.declareContract(declareTransactionPayload)
+val result = request.send()
+
+val receipt = provider.getTransactionReceipt(result.transactionHash).send()
+// docsEnd
+assertTrue(receipt.isAccepted) 
+   //sampleEnd
+}</code></pre></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
