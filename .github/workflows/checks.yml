@@ -53,11 +53,17 @@ jobs:
 
       - name: Setup asdf
         run: |
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            ASDF_PLATFORM="linux-amd64"
-          else
-            ASDF_PLATFORM="darwin-arm64"
-          fi
+          case "${{ runner.os }}" in
+            Linux)  ASDF_OS="linux";;
+            macOS)  ASDF_OS="darwin";;
+            *)      echo "Unsupported OS: ${{ runner.os }}"; exit 1;;
+          esac
+          case "${{ runner.arch }}" in
+            X64)    ASDF_ARCH="amd64";;
+            ARM64)  ASDF_ARCH="arm64";;
+            *)      echo "Unsupported arch: ${{ runner.arch }}"; exit 1;;
+          esac
+          ASDF_PLATFORM="${ASDF_OS}-${ASDF_ARCH}"
           mkdir -p "$HOME/.local/bin"
           DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz"
           echo "Downloading asdf from $DOWNLOAD_URL"
