@@ -96,11 +96,11 @@ jobs:
           cache-read-only: false
 
       - name: Lint
-        run: ./gradlew :lib:lintKotlin
+        run: ./gradlew --settings-file settings.no-android.gradle.kts :lib:lintKotlin
 
       - name: Check guides
         run: |
-          ./gradlew :lib:generateGuides
+          ./gradlew --settings-file settings.no-android.gradle.kts :lib:generateGuides
           if ! git diff --exit-code lib/*.md; then
             echo "Error: Guides are not up-to-date. Please run './gradlew :lib:generateGuides' and commit the changes."
 
@@ -113,7 +113,7 @@ jobs:
         env:
           DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
           NETWORK_TEST_MODE: "disabled"
-        run: ./gradlew :lib:koverXmlReport --info
+        run: ./gradlew --settings-file settings.no-android.gradle.kts :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
