@@ -105,6 +105,9 @@ class StandardAccount @JvmOverloads constructor(
         /**
          * Generate a random private key.
          *
+         * Warning: this function has not been audited for cryptographic security!
+         * Use at your own risk.
+         *
          * @return private key
          */
         @JvmStatic
