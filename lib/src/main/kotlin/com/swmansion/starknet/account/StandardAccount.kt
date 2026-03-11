@@ -121,7 +121,7 @@ class StandardAccount @JvmOverloads constructor(
                 randomBytes[0] = (randomBytes[0].toInt() and 0x0f).toByte()
 
                 val privateKey = BigInteger(1, randomBytes)
-                if (privateKey != BigInteger.ZERO && privateKey < StarknetCurve.CURVE_ORDER) {
+                if (privateKey > BigInteger.ZERO && privateKey < StarknetCurve.CURVE_ORDER) {
                     return privateKey.toFelt
                 }
             }
