@@ -107,7 +107,8 @@ class StandardAccountTest {
     @Test
     fun `generate random private key`() {
         val randomPrivateKey = StandardAccount.generatePrivateKey()
-        assertTrue(randomPrivateKey.value < Felt.PRIME)
+        assertTrue(randomPrivateKey.value > BigInteger.ZERO)
+        assertTrue(randomPrivateKey.value < StarknetCurve.CURVE_ORDER)
         assertTrue(randomPrivateKey.hexStringPadded().length == 66)
     }
 

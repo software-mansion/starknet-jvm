@@ -1,6 +1,7 @@
 package com.swmansion.starknet.account
 
 import com.swmansion.starknet.crypto.HashMethod
+import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.crypto.StarknetCurveSignature
 import com.swmansion.starknet.data.TypedData
 import com.swmansion.starknet.data.types.*
@@ -104,16 +105,26 @@ class StandardAccount @JvmOverloads constructor(
         /**
          * Generate a random private key.
          *
+         * Warning: this function has not been audited for cryptographic security!
+         * Use at your own risk.
+         *
          * @return private key
          */
         @JvmStatic
         fun generatePrivateKey(): Felt {
             val random = SecureRandom()
             val randomBytes = ByteArray(32)
-            random.nextBytes(randomBytes)
-            val randomInt = BigInteger(1, randomBytes)
-            val privateKey = randomInt % Felt.PRIME
-            return privateKey.toFelt
+
+            while (true) {
+                random.nextBytes(randomBytes)
+                // Keep only 252 bits (clear the top 4 bits).
+                randomBytes[0] = (randomBytes[0].toInt() and 0x0f).toByte()
+
+                val privateKey = BigInteger(1, randomBytes)
+                if (privateKey > BigInteger.ZERO && privateKey < StarknetCurve.CURVE_ORDER) {
+                    return privateKey.toFelt
+                }
+            }
         }
     }
 
