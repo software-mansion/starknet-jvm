@@ -1,4 +1,8 @@
 cmake_minimum_required (VERSION 3.5)
+
+# Force min CMake version to 3.5 to avoid errors from deps that have lower min CMake version.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 if (NOT DEFINED CMAKE_CXX_COMPILER)
   set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 endif()
