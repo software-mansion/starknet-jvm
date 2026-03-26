@@ -1396,7 +1396,7 @@ class ProviderTest {
         val request = provider.getStarknetVersion(BlockTag.LATEST)
         val response = request.send()
 
-        assertEquals(response, "0.14.1")
+        assertEquals(response, "0.14.2")
     }
 
     @Test
@@ -1406,7 +1406,7 @@ class ProviderTest {
         val request = provider.getStarknetVersion(blockNumber)
         val response = request.send()
 
-        assertEquals(response, "0.14.1")
+        assertEquals(response, "0.14.2")
     }
 
     @Test
@@ -1416,7 +1416,7 @@ class ProviderTest {
         val request = provider.getStarknetVersion(blockHash)
         val response = request.send()
 
-        assertEquals(response, "0.14.1")
+        assertEquals(response, "0.14.2")
     }
 
     @Test
@@ -1585,7 +1585,7 @@ class ProviderTest {
                             "l1_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
                             "l2_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
                             "l1_data_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
-                            "l1_da_mode":"BLOB","starknet_version":"0.14.1","transactions":[]
+                            "l1_da_mode":"BLOB","starknet_version":"0.14.2","transactions":[]
                         }
                     }
                     """.trimIndent(),
