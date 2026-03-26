@@ -25,7 +25,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: 2315ce53 # v0.14.2 + RPC v0.10.1 (PR #909)
+      # TODO: Update to a tagged release once starknet-devnet releases RPC 0.10.2 support.
+      # Tracking PR: https://github.com/0xSpaceShard/starknet-devnet/pull/909
+      DEVNET_SHA: 2315ce53e90a4fb9c1a07f10de9860d688511bc1
     steps:
       - uses: actions/checkout@v3
         with:
@@ -41,6 +43,26 @@ jobs:
         uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
         with:
           cmake-version: '3.18.1'
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache starknet-devnet build
+        uses: actions/cache@v4
+        id: devnet-cache
+        with:
+          path: ~/starknet-devnet-bin
+          key: starknet-devnet-${{ env.DEVNET_SHA }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Build starknet-devnet from source
+        if: steps.devnet-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/0xSpaceShard/starknet-devnet.git ~/starknet-devnet-src
+          cd ~/starknet-devnet-src
+          git checkout $DEVNET_SHA
+          cargo build --release
+          mkdir -p ~/starknet-devnet-bin
+          cp target/release/starknet-devnet ~/starknet-devnet-bin/starknet-devnet
 
       # TODO(#539)
       - name: Fetch latest asdf version from GitHub releases
@@ -63,15 +85,6 @@ jobs:
           curl -fsSL "$DOWNLOAD_URL" | tar xzf - -C "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
-
-      - name: Install starknet-devnet
-        run: |
-          asdf plugin add starknet-devnet
-          git clone https://github.com/0xSpaceShard/starknet-devnet.git starknet-devnet-rs
-          cd starknet-devnet-rs
-          git fetch origin pull/909/head:pr-909
-          git checkout ${DEVNET_SHA}
-          cargo build --release
 
       - name: Install starknet-foundry
         run: |
@@ -107,7 +120,7 @@ jobs:
 
       - name: Run tests and generate coverage report
         env:
-          DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
+          DEVNET_PATH: ${{ runner.home }}/starknet-devnet-bin/starknet-devnet
           NETWORK_TEST_MODE: "disabled"
         run: ./gradlew :lib:koverXmlReport --info
 
