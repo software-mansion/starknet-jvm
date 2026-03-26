@@ -25,7 +25,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      DEVNET_SHA: a985727189ac884924f104e34026c0ca5716b14d # v0.5.0-rc.3
+      DEVNET_SHA: 2315ce53 # v0.14.2 + RPC v0.10.1 (PR #909)
     steps:
       - uses: actions/checkout@v3
         with:
@@ -67,8 +67,11 @@ jobs:
       - name: Install starknet-devnet
         run: |
           asdf plugin add starknet-devnet
-          asdf install starknet-devnet 0.7.0
-          asdf set starknet-devnet 0.7.0 --home
+          git clone https://github.com/0xSpaceShard/starknet-devnet.git starknet-devnet-rs
+          cd starknet-devnet-rs
+          git fetch origin pull/909/head:pr-909
+          git checkout ${DEVNET_SHA}
+          cargo build --release
 
       - name: Install starknet-foundry
         run: |
