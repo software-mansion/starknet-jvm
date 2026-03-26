@@ -120,9 +120,8 @@ jobs:
 
       - name: Run tests and generate coverage report
         env:
-          DEVNET_PATH: ${{ runner.home }}/starknet-devnet-bin/starknet-devnet
           NETWORK_TEST_MODE: "disabled"
-        run: ./gradlew :lib:koverXmlReport --info
+        run: DEVNET_PATH="$HOME/starknet-devnet-bin/starknet-devnet" ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70

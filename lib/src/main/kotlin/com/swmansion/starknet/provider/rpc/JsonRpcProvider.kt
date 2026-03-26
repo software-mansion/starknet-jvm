@@ -995,6 +995,58 @@ class JsonRpcProvider(
 
         return simulateTransactionsWithInitialReads(payload)
     }
+
+    override fun traceTransaction(
+        transactionHash: Felt,
+    ): HttpRequest<TransactionTrace> {
+        val params = buildJsonObject {
+            put("transaction_hash", transactionHash.hexString())
+        }
+
+        return buildRequest(
+            method = JsonRpcMethod.TRACE_TRANSACTION,
+            paramsJson = params,
+            responseSerializer = TransactionTracePolymorphicSerializer,
+        )
+    }
+
+    override fun traceBlockTransactions(
+        blockTag: BlockTag,
+        traceFlags: Set<TraceFlag>,
+    ): HttpRequest<BlockTransactionTraces> =
+        traceBlockTransactionsRequest(BlockId.Tag(blockTag), traceFlags)
+
+    override fun traceBlockTransactions(
+        blockHash: Felt,
+        traceFlags: Set<TraceFlag>,
+    ): HttpRequest<BlockTransactionTraces> =
+        traceBlockTransactionsRequest(BlockId.Hash(blockHash), traceFlags)
+
+    override fun traceBlockTransactions(
+        blockNumber: Int,
+        traceFlags: Set<TraceFlag>,
+    ): HttpRequest<BlockTransactionTraces> =
+        traceBlockTransactionsRequest(BlockId.Number(blockNumber), traceFlags)
+
+    private fun traceBlockTransactionsRequest(
+        blockId: BlockId,
+        traceFlags: Set<TraceFlag>,
+    ): HttpRequest<BlockTransactionTraces> {
+        val params = buildJsonObject {
+            put("block_id", Json.encodeToJsonElement(blockId))
+            if (traceFlags.isNotEmpty()) {
+                putJsonArray("trace_flags") {
+                    traceFlags.forEach { add(it.value) }
+                }
+            }
+        }
+
+        return buildRequest(
+            method = JsonRpcMethod.TRACE_BLOCK_TRANSACTIONS,
+            paramsJson = params,
+            responseSerializer = BlockTransactionTraces.serializer(),
+        )
+    }
 }
 
 private enum class JsonRpcMethod(val methodName: String) {
@@ -1027,4 +1079,6 @@ private enum class JsonRpcMethod(val methodName: String) {
     GET_STORAGE_PROOF("starknet_getStorageProof"),
     DEPLOY_ACCOUNT_TRANSACTION("starknet_addDeployAccountTransaction"),
     SIMULATE_TRANSACTIONS("starknet_simulateTransactions"),
+    TRACE_TRANSACTION("starknet_traceTransaction"),
+    TRACE_BLOCK_TRANSACTIONS("starknet_traceBlockTransactions"),
 }
