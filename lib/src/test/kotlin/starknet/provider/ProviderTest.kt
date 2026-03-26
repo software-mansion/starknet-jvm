@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import starknet.utils.DevnetClient
@@ -687,7 +688,7 @@ class ProviderTest {
             GetEventsPayload(
                 fromBlockId = BlockId.Number(0),
                 toBlockId = BlockId.Tag(BlockTag.LATEST),
-                address = eventsContractAddress,
+                address = AddressFilter.Single(eventsContractAddress),
                 keys = listOf(key),
                 chunkSize = 10,
             ),
@@ -1416,5 +1417,328 @@ class ProviderTest {
         val response = request.send()
 
         assertEquals(response, "0.14.1")
+    }
+
+    @Test
+    fun `getStorageAtWithMetadata deserializes StorageResult correctly`() {
+        val mockedResponse = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "result": {
+                    "value": "0x2a",
+                    "last_update_block": 5
+                }
+            }
+        """.trimIndent()
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        // Test all three block identifier overloads — deserialization path is identical for each
+        listOf(
+            mockProvider.getStorageAtWithMetadata(balanceContractAddress, selectorFromName("balance"), BlockTag.LATEST),
+            mockProvider.getStorageAtWithMetadata(balanceContractAddress, selectorFromName("balance"), 1),
+            mockProvider.getStorageAtWithMetadata(balanceContractAddress, selectorFromName("balance"), Felt.ONE),
+        ).forEach { request ->
+            val response = request.send()
+            assertEquals(Felt(42), response.value)
+            assertEquals(5L, response.lastUpdateBlock)
+        }
+    }
+
+    @Test
+    fun `getEvents with multiple addresses sends correct JSON`() {
+        // Verify that when addresses list is set, it's serialized as "address" array in the request
+        val eventsContract1 = Felt.fromHex("0x111")
+        val eventsContract2 = Felt.fromHex("0x222")
+
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """{"id":0,"jsonrpc":"2.0","result":{"events":[]}}""",
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        mockProvider.getEvents(
+            GetEventsPayload(
+                fromBlockId = BlockId.Number(0),
+                toBlockId = BlockId.Tag(BlockTag.LATEST),
+                address = AddressFilter.Multiple(listOf(eventsContract1, eventsContract2)),
+                chunkSize = 10,
+            ),
+        ).send()
+
+        assertNotNull(capturedBody)
+        // The request body should contain an "address" array with both contracts
+        assertTrue(capturedBody!!.contains("\"address\""), "Expected 'address' key in request body")
+        assertTrue(capturedBody!!.contains("0x111") || capturedBody!!.contains("0x0111"), "Expected first address")
+        assertTrue(capturedBody!!.contains("0x222") || capturedBody!!.contains("0x0222"), "Expected second address")
+    }
+
+    @Test
+    fun `getStateUpdate with contract addresses filter sends correct params`() {
+        val mockedResponse = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "result": {
+                    "block_hash": "0x1",
+                    "old_root": "0x0",
+                    "new_root": "0x1",
+                    "state_diff": {
+                        "storage_diffs": [],
+                        "deprecated_declared_classes": [],
+                        "declared_classes": [],
+                        "deployed_contracts": [],
+                        "replaced_classes": [],
+                        "nonces": []
+                    }
+                }
+            }
+        """.trimIndent()
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(true, 200, mockedResponse)
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val response = mockProvider.getStateUpdate(
+            blockTag = BlockTag.LATEST,
+            contractAddresses = listOf(balanceContractAddress),
+        ).send()
+
+        assertTrue(response is StateUpdateResponse)
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("contract_addresses"), "Expected 'contract_addresses' in request params")
+    }
+
+    @Test
+    fun `getTransaction with INCLUDE_PROOF_FACTS flag sends response_flags in request`() {
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """
+                    {
+                        "id":0,"jsonrpc":"2.0",
+                        "result":{
+                            "type":"INVOKE",
+                            "transaction_hash":"0x1",
+                            "version":"0x3",
+                            "signature":[],"nonce":"0x0",
+                            "calldata":[],
+                            "sender_address":"0x1",
+                            "resource_bounds":{"l1_gas":{"max_amount":"0x0","max_price_per_unit":"0x0"},"l2_gas":{"max_amount":"0x0","max_price_per_unit":"0x0"},"l1_data_gas":{"max_amount":"0x0","max_price_per_unit":"0x0"}},
+                            "tip":"0x0","paymaster_data":[],"account_deployment_data":[],
+                            "nonce_data_availability_mode":"L1","fee_data_availability_mode":"L1",
+                            "proof_facts":["0xabc","0xdef"]
+                        }
+                    }
+                    """.trimIndent(),
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val response = mockProvider.getTransaction(
+            transactionHash = invokeTransactionHash,
+            responseFlags = setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS),
+        ).send()
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("response_flags"), "Expected 'response_flags' in request body")
+        assertTrue(capturedBody!!.contains("INCLUDE_PROOF_FACTS"), "Expected INCLUDE_PROOF_FACTS flag in request body")
+        assertTrue(response is InvokeTransactionV3)
+        val invokeTx = response as InvokeTransactionV3
+        assertEquals(listOf(Felt.fromHex("0xabc"), Felt.fromHex("0xdef")), invokeTx.proofFacts)
+    }
+
+    @Test
+    fun `getBlockWithTxs with INCLUDE_PROOF_FACTS response flag sends correct request`() {
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """
+                    {
+                        "id":0,"jsonrpc":"2.0",
+                        "result":{
+                            "block_number":1,"timestamp":0,
+                            "sequencer_address":"0x1",
+                            "l1_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
+                            "l2_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
+                            "l1_data_gas_price":{"price_in_fri":"0x1","price_in_wei":"0x1"},
+                            "l1_da_mode":"BLOB","starknet_version":"0.14.1","transactions":[]
+                        }
+                    }
+                    """.trimIndent(),
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val response = mockProvider.getBlockWithTxs(
+            blockTag = BlockTag.PRE_CONFIRMED,
+            responseFlags = setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS),
+        ).send()
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("response_flags"), "Expected 'response_flags' in request body")
+        assertTrue(capturedBody!!.contains("INCLUDE_PROOF_FACTS"), "Expected INCLUDE_PROOF_FACTS flag")
+        assertTrue(response is PreConfirmedBlockWithTransactions)
+    }
+
+    @Test
+    fun `simulateTransactionsWithInitialReads sends RETURN_INITIAL_READS flag and deserializes response`() {
+        val mockedResponse = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "result": {
+                    "simulated_transactions": [],
+                    "initial_reads": {
+                        "storage": [
+                            {"contract_address": "0x1", "key": "0x2", "value": "0x3"}
+                        ],
+                        "nonces": [
+                            {"contract_address": "0x1", "nonce": "0x5"}
+                        ],
+                        "class_hashes": [
+                            {"contract_address": "0x1", "class_hash": "0xabc"}
+                        ],
+                        "declared_contracts": [
+                            {"class_hash": "0xabc", "is_declared": true}
+                        ]
+                    }
+                }
+            }
+        """.trimIndent()
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(true, 200, mockedResponse)
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val response = mockProvider.simulateTransactionsWithInitialReads(
+            transactions = emptyList(),
+            blockTag = BlockTag.LATEST,
+        ).send()
+
+        // Verify RETURN_INITIAL_READS flag was sent
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("RETURN_INITIAL_READS"), "Expected RETURN_INITIAL_READS in request")
+
+        // Verify response deserialization
+        assertNotNull(response)
+        assertTrue(response.simulatedTransactions.isEmpty())
+        assertEquals(1, response.initialReads.storage!!.size)
+        assertEquals(Felt.fromHex("0x1"), response.initialReads.storage!![0].contractAddress)
+        assertEquals(Felt.fromHex("0x2"), response.initialReads.storage!![0].key)
+        assertEquals(Felt.fromHex("0x3"), response.initialReads.storage!![0].value)
+        assertEquals(1, response.initialReads.nonces!!.size)
+        assertEquals(Felt.fromHex("0x5"), response.initialReads.nonces!![0].nonce)
+        assertEquals(1, response.initialReads.classHashes!!.size)
+        assertEquals(Felt.fromHex("0xabc"), response.initialReads.classHashes!![0].classHash)
+        assertEquals(1, response.initialReads.declaredContracts!!.size)
+        assertTrue(response.initialReads.declaredContracts!![0].isDeclared)
+    }
+
+    @Test
+    fun `InvokeTransactionV3 proof and proof_facts not serialized in broadcast body`() {
+        // proof and proof_facts should be stripped from the transaction body when broadcasting/simulating
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """{"id":0,"jsonrpc":"2.0","result":{"transaction_hash":"0x1"}}""",
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val tx = InvokeTransactionV3(
+            senderAddress = Felt.ONE,
+            calldata = emptyList(),
+            chainId = StarknetChainId.SEPOLIA,
+            nonce = Felt.ZERO,
+            resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l1DataGas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+            ),
+        )
+
+        mockProvider.invokeFunction(tx).send()
+
+        assertNotNull(capturedBody)
+        assertFalse(capturedBody!!.contains("\"proof\""), "proof should not appear in broadcast body")
+        assertFalse(capturedBody!!.contains("\"proof_facts\""), "proof_facts should not appear in broadcast body")
+    }
+
+    @Test
+    fun `getTransaction with INCLUDE_PROOF_FACTS returns proofFacts on InvokeTransactionV3`() {
+        val tx = provider.getTransaction(invokeTransactionHash, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
+
+        assertTrue(tx is InvokeTransactionV3)
+        // proof_facts field must be present (non-null) when flag is set; may be empty list if node has none
+        assertNotNull((tx as InvokeTransactionV3).proofFacts)
+    }
+
+    @Test
+    fun `getBlockWithTxs with INCLUDE_PROOF_FACTS returns proofFacts on InvokeTransactionV3`() {
+        val blockNumber = provider.getBlockNumber().send().value
+        val response = provider.getBlockWithTxs(blockNumber, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
+
+        assertTrue(response is ProcessedBlockWithTransactions)
+        response.transactions.filterIsInstance<InvokeTransactionV3>().forEach {
+            assertNotNull(it.proofFacts)
+        }
+    }
+
+    @Test
+    fun `getBlockWithReceipts with INCLUDE_PROOF_FACTS returns proofFacts on transactions`() {
+        val blockNumber = provider.getBlockNumber().send().value
+        val response = provider.getBlockWithReceipts(blockNumber, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
+
+        assertTrue(response is ProcessedBlockWithReceipts)
+        // proof_facts is on the transaction object, not the receipt
+        response.transactionsWithReceipts.map { it.transaction }.filterIsInstance<InvokeTransactionV3>().forEach {
+            assertNotNull(it.proofFacts)
+        }
+    }
+
+    @Test
+    fun getStorageAtWithMetadata() {
+        val result = provider.getStorageAtWithMetadata(
+            contractAddress = balanceContractAddress,
+            key = selectorFromName("balance"),
+            blockTag = BlockTag.LATEST,
+        ).send()
+
+        assertTrue(result.value >= Felt(10))
+        assertTrue(result.lastUpdateBlock >= 0)
     }
 }

@@ -27,12 +27,18 @@ internal data class GetStorageAtPayload(
 
     @SerialName("block_id")
     override val blockId: BlockId,
+
+    @SerialName("response_flags")
+    val responseFlags: Set<StorageResponseFlag>? = null,
 ) : PayloadWithBlockId()
 
 @Serializable
 internal data class GetTransactionByHashPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
+
+    @SerialName("response_flags")
+    val responseFlags: Set<TxnResponseFlag>? = null,
 )
 
 @Serializable
@@ -108,6 +114,9 @@ internal data class GetStorageProofPayload constructor(
 internal data class GetBlockWithTransactionsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
+
+    @SerialName("response_flags")
+    val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
 
 @Serializable
@@ -120,12 +129,18 @@ internal data class GetBlockWithTransactionHashesPayload(
 internal data class GetBlockWithReceiptsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
+
+    @SerialName("response_flags")
+    val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
 
 @Serializable
 internal data class GetStateUpdatePayload(
     @SerialName("block_id")
     override val blockId: BlockId,
+
+    @SerialName("contract_addresses")
+    val contractAddresses: List<Felt>? = null,
 ) : PayloadWithBlockId()
 
 @Serializable
@@ -135,6 +150,9 @@ internal data class GetTransactionByBlockIdAndIndexPayload(
 
     @SerialName("index")
     val index: Int,
+
+    @SerialName("response_flags")
+    val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
 
 @Serializable

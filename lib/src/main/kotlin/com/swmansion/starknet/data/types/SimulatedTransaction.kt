@@ -20,8 +20,14 @@ enum class CallType(val value: String) {
 
 @Serializable
 enum class SimulationFlag(val value: String) {
+    @SerialName("SKIP_VALIDATE")
     SKIP_VALIDATE("SKIP_VALIDATE"),
+
+    @SerialName("SKIP_FEE_CHARGE")
     SKIP_FEE_CHARGE("SKIP_FEE_CHARGE"),
+
+    @SerialName("RETURN_INITIAL_READS")
+    RETURN_INITIAL_READS("RETURN_INITIAL_READS"),
 }
 
 @Serializable
@@ -234,3 +240,66 @@ data class SimulatedTransaction(
     @SerialName("fee_estimation")
     val feeEstimation: EstimateFeeResponse,
 )
+
+@Serializable
+data class InitialReadsStorageEntry(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("key")
+    val key: Felt,
+
+    @SerialName("value")
+    val value: Felt,
+)
+
+@Serializable
+data class InitialReadsNonceEntry(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("nonce")
+    val nonce: Felt,
+)
+
+@Serializable
+data class InitialReadsClassHashEntry(
+    @SerialName("contract_address")
+    val contractAddress: Felt,
+
+    @SerialName("class_hash")
+    val classHash: Felt,
+)
+
+@Serializable
+data class InitialReadsDeclaredContractEntry(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
+    @SerialName("is_declared")
+    val isDeclared: Boolean,
+)
+
+@Serializable
+data class InitialReads(
+    @SerialName("storage")
+    val storage: List<InitialReadsStorageEntry>? = null,
+
+    @SerialName("nonces")
+    val nonces: List<InitialReadsNonceEntry>? = null,
+
+    @SerialName("class_hashes")
+    val classHashes: List<InitialReadsClassHashEntry>? = null,
+
+    @SerialName("declared_contracts")
+    val declaredContracts: List<InitialReadsDeclaredContractEntry>? = null,
+)
+
+@Serializable
+data class SimulatedTransactionWithInitialReads(
+    @SerialName("simulated_transactions")
+    val simulatedTransactions: List<SimulatedTransaction>,
+
+    @SerialName("initial_reads")
+    val initialReads: InitialReads,
+) : StarknetResponse
