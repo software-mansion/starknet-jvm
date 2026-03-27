@@ -531,6 +531,36 @@ class ProviderTest {
     }
 
     @Test
+    fun `get invoke v3 transaction with proof facts response flag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val transactionHash = invokeV3TransactionHash
+
+        val tx = provider.getTransaction(transactionHash, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
+
+        assertTrue(tx is InvokeTransactionV3)
+        assertEquals(transactionHash, tx.hash)
+        val invokeV3 = tx as InvokeTransactionV3
+        assertNotNull(invokeV3.proofFacts)
+    }
+
+    @Test
+    fun `trace invoke v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val transactionHash = invokeV3TransactionHash
+
+        val trace = provider.traceTransaction(transactionHash).send()
+
+        assertTrue(trace is InvokeTransactionTrace)
+        val invokeTrace = trace as InvokeTransactionTrace
+        assertNotNull(invokeTrace.executeInvocation)
+        assertNotNull(invokeTrace.executionResources)
+        assertTrue(invokeTrace.executionResources.l1Gas >= 0u)
+        assertTrue(invokeTrace.executionResources.l2Gas >= 0u)
+    }
+
+    @Test
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
