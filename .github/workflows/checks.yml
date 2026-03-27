@@ -26,7 +26,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # TODO: Update to a tagged release once starknet-devnet releases RPC 0.10.2 support.
-      # Tracking PR: https://github.com/0xSpaceShard/starknet-devnet/pull/909
       DEVNET_SHA: 2315ce53e90a4fb9c1a07f10de9860d688511bc1
     steps:
       - uses: actions/checkout@v3
