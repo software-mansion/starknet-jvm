@@ -1067,23 +1067,23 @@ interface Provider {
      *
      * @param blockTag tag of the block to trace
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
-     * @return list of transaction traces
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockTag: BlockTag, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTraces>
+    fun traceBlockTransactions(blockTag: BlockTag, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
 
     /** Get execution traces for all transactions in a block.
      *
      * @param blockHash hash of the block to trace
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
-     * @return list of transaction traces
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockHash: Felt, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTraces>
+    fun traceBlockTransactions(blockHash: Felt, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
 
     /** Get execution traces for all transactions in a block.
      *
      * @param blockNumber number of the block to trace
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
-     * @return list of transaction traces
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockNumber: Int, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTraces>
+    fun traceBlockTransactions(blockNumber: Int, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
 }

@@ -1798,17 +1798,13 @@ class ProviderTest {
     @Test
     fun `traceBlockTransactions returns traces for all transactions in block`() {
         val blockNumber = provider.getBlockNumber().send().value
-        val traces = provider.traceBlockTransactions(blockNumber).send()
+        val result = provider.traceBlockTransactions(blockNumber).send()
 
-        assertNotNull(traces)
-        assertNotNull(traces.traces)
-
-        // Get the actual block to verify trace count matches transaction count
+        assertTrue(result is BlockTransactionTracesResult.Traces)
         val block = provider.getBlockWithTxHashes(blockNumber).send()
-        assertEquals(block.transactionHashes.size, traces.traces.size)
+        assertEquals(block.transactionHashes.size, result.traces.size)
 
-        // Verify each trace has transaction hash and trace root
-        traces.traces.forEach { trace ->
+        result.traces.forEach { trace ->
             assertNotNull(trace.transactionHash)
             assertNotNull(trace.traceRoot)
         }
@@ -1817,41 +1813,34 @@ class ProviderTest {
     @Test
     fun `traceBlockTransactions with block hash works`() {
         val blockHashAndNumber = provider.getBlockHashAndNumber().send()
-        val traces = provider.traceBlockTransactions(blockHashAndNumber.blockHash).send()
+        val result = provider.traceBlockTransactions(blockHashAndNumber.blockHash).send()
 
-        assertNotNull(traces)
-        assertNotNull(traces.traces)
+        assertTrue(result is BlockTransactionTracesResult.Traces)
     }
 
     @Test
     fun `traceBlockTransactions with block tag LATEST works`() {
-        val traces = provider.traceBlockTransactions(BlockTag.LATEST).send()
+        val result = provider.traceBlockTransactions(BlockTag.LATEST).send()
 
-        assertNotNull(traces)
-        assertNotNull(traces.traces)
+        assertTrue(result is BlockTransactionTracesResult.Traces)
     }
 
     @Test
     fun `traceBlockTransactions with RETURN_INITIAL_READS flag`() {
         val blockNumber = provider.getBlockNumber().send().value
 
-        val traces = provider.traceBlockTransactions(
+        val result = provider.traceBlockTransactions(
             blockNumber,
             setOf(TraceFlag.RETURN_INITIAL_READS),
         ).send()
 
+        assertTrue(result is BlockTransactionTracesResult.TracesWithInitialReads)
+        val (traces, initialReads) = result as BlockTransactionTracesResult.TracesWithInitialReads
+
         assertNotNull(traces)
-        assertNotNull(traces.traces)
-
-        // When RETURN_INITIAL_READS flag is set, initial_reads should be present
-        assertNotNull(traces.initialReads, "Expected initial_reads when RETURN_INITIAL_READS flag is set")
-
-        // Verify the structure of initial_reads
-        traces.initialReads?.let { initialReads ->
-            assertNotNull(initialReads.storage)
-            assertNotNull(initialReads.nonces)
-            assertNotNull(initialReads.classHashes)
-            assertNotNull(initialReads.declaredContracts)
-        }
+        assertNotNull(initialReads.storage)
+        assertNotNull(initialReads.nonces)
+        assertNotNull(initialReads.classHashes)
+        assertNotNull(initialReads.declaredContracts)
     }
 }

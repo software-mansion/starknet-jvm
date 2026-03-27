@@ -11,8 +11,11 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.put
 
 @Serializable
 enum class EntryPointType(val value: String) {
@@ -103,6 +106,12 @@ data class RevertedFunctionInvocation(
 sealed class TransactionTrace : StarknetResponse {
     abstract val type: TransactionType
     abstract val stateDiff: StateDiff?
+}
+
+@Serializable
+sealed class L1HandlerTransactionTraceBase : TransactionTrace() {
+    @SerialName("type")
+    override val type: TransactionType = TransactionType.L1_HANDLER
 }
 
 @Serializable
@@ -224,28 +233,29 @@ data class DeployAccountTransactionTrace private constructor(
     )
 }
 
-@Suppress("DataClassPrivateConstructor")
 @Serializable
-data class L1HandlerTransactionTrace private constructor(
+data class L1HandlerTransactionTrace(
     @SerialName("function_invocation")
     val functionInvocation: FunctionInvocation,
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff? = null,
 
-    @SerialName("type")
-    override val type: TransactionType,
-) : TransactionTrace() {
-    @JvmOverloads
-    constructor(
-        functionInvocation: FunctionInvocation,
-        stateDiff: StateDiff? = null,
-    ) : this(
-        functionInvocation = functionInvocation,
-        stateDiff = stateDiff,
-        type = TransactionType.L1_HANDLER,
-    )
-}
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
+) : L1HandlerTransactionTraceBase()
+
+@Serializable
+data class RevertedL1HandlerTransactionTrace(
+    @SerialName("function_invocation")
+    val functionInvocation: RevertedFunctionInvocation,
+
+    @SerialName("state_diff")
+    override val stateDiff: StateDiff? = null,
+
+    @SerialName("execution_resources")
+    val executionResources: ExecutionResources,
+) : L1HandlerTransactionTraceBase()
 
 @Serializable
 data class SimulatedTransaction(
@@ -330,32 +340,45 @@ data class BlockTransactionTrace(
     val traceRoot: TransactionTrace,
 )
 
-@Serializable(with = BlockTransactionTracesSerializer::class)
-data class BlockTransactionTraces(
-    val traces: List<BlockTransactionTrace>,
-    val initialReads: InitialReads? = null,
-) : StarknetResponse
+@Serializable(with = BlockTransactionTracesResultSerializer::class)
+sealed class BlockTransactionTracesResult : StarknetResponse {
+    abstract val traces: List<BlockTransactionTrace>
 
-object BlockTransactionTracesSerializer : KSerializer<BlockTransactionTraces> {
+    data class Traces(
+        override val traces: List<BlockTransactionTrace>,
+    ) : BlockTransactionTracesResult()
+
+    data class TracesWithInitialReads(
+        override val traces: List<BlockTransactionTrace>,
+        val initialReads: InitialReads,
+    ) : BlockTransactionTracesResult()
+}
+
+object BlockTransactionTracesResultSerializer : KSerializer<BlockTransactionTracesResult> {
     private val listSerializer = ListSerializer(BlockTransactionTrace.serializer())
 
-    // Use JsonElement descriptor since we can deserialize from either array or object
-    override val descriptor = buildClassSerialDescriptor("BlockTransactionTraces")
+    override val descriptor = buildClassSerialDescriptor("BlockTransactionTracesResult")
 
-    override fun serialize(encoder: Encoder, value: BlockTransactionTraces) {
-        if (value.initialReads != null) {
-            // When initial_reads is present, serialize as object
-            val composite = encoder.beginStructure(descriptor)
-            composite.encodeSerializableElement(descriptor, 0, listSerializer, value.traces)
-            composite.encodeSerializableElement(descriptor, 1, InitialReads.serializer(), value.initialReads)
-            composite.endStructure(descriptor)
-        } else {
-            // When initial_reads is absent, serialize as array directly
-            listSerializer.serialize(encoder, value.traces)
+    override fun serialize(encoder: Encoder, value: BlockTransactionTracesResult) {
+        val output = encoder as? JsonEncoder
+            ?: throw SerializationException("This serializer can only be used with JSON")
+
+        when (value) {
+            is BlockTransactionTracesResult.TracesWithInitialReads -> {
+                val jsonObject = buildJsonObject {
+                    put("traces", output.json.encodeToJsonElement(listSerializer, value.traces))
+                    put("initial_reads", output.json.encodeToJsonElement(InitialReads.serializer(), value.initialReads))
+                }
+                output.encodeJsonElement(jsonObject)
+            }
+            is BlockTransactionTracesResult.Traces -> {
+                val jsonArray = output.json.encodeToJsonElement(listSerializer, value.traces)
+                output.encodeJsonElement(jsonArray)
+            }
         }
     }
 
-    override fun deserialize(decoder: Decoder): BlockTransactionTraces {
+    override fun deserialize(decoder: Decoder): BlockTransactionTracesResult {
         val input = decoder as? JsonDecoder
             ?: throw SerializationException("This serializer can only be used with JSON")
 
@@ -364,18 +387,17 @@ object BlockTransactionTracesSerializer : KSerializer<BlockTransactionTraces> {
         return when {
             element is JsonArray -> {
                 // Format without RETURN_INITIAL_READS: [{"transaction_hash": ..., "trace_root": ...}, ...]
-                val traces = input.json.decodeFromJsonElement(listSerializer, element)
-                BlockTransactionTraces(traces, null)
+                BlockTransactionTracesResult.Traces(
+                    input.json.decodeFromJsonElement(listSerializer, element),
+                )
             }
             element is JsonObject && element.containsKey("traces") -> {
                 // Format with RETURN_INITIAL_READS: {"traces": [...], "initial_reads": {...}}
                 val traces = input.json.decodeFromJsonElement(listSerializer, element.getValue("traces"))
-                val initialReads = element["initial_reads"]?.let {
-                    input.json.decodeFromJsonElement(InitialReads.serializer(), it)
-                }
-                BlockTransactionTraces(traces, initialReads)
+                val initialReads = input.json.decodeFromJsonElement(InitialReads.serializer(), element.getValue("initial_reads"))
+                BlockTransactionTracesResult.TracesWithInitialReads(traces, initialReads)
             }
-            else -> throw SerializationException("Unexpected JSON format for BlockTransactionTraces")
+            else -> throw SerializationException("Unexpected JSON format for BlockTransactionTracesResult")
         }
     }
 }

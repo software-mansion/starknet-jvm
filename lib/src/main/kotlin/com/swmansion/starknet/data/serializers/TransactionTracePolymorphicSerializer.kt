@@ -18,6 +18,16 @@ internal object TransactionTracePolymorphicSerializer :
         }
     }
 
+    private fun selectL1HandlerTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<L1HandlerTransactionTraceBase> {
+        val functionInvocation = jsonObject["function_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid L1_HANDLER_TXN_TRACE: function_invocation is missing.")
+        val isReverted = "revert_reason" in functionInvocation
+
+        return when (isReverted) {
+            true -> RevertedL1HandlerTransactionTrace.serializer()
+            false -> L1HandlerTransactionTrace.serializer()
+        }
+    }
+
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionTrace> {
         val jsonObject = element.jsonObject
 
@@ -27,7 +37,7 @@ internal object TransactionTracePolymorphicSerializer :
         return when (type) {
             TransactionType.INVOKE -> selectInvokeTransactionTraceDeserializer(jsonObject)
             TransactionType.DEPLOY_ACCOUNT -> DeployAccountTransactionTrace.serializer()
-            TransactionType.L1_HANDLER -> L1HandlerTransactionTrace.serializer()
+            TransactionType.L1_HANDLER -> selectL1HandlerTransactionTraceDeserializer(jsonObject)
             TransactionType.DECLARE -> DeclareTransactionTrace.serializer()
             else -> throw IllegalArgumentException("Unknown transaction trace type '${typeElement.jsonPrimitive.content}'")
         }

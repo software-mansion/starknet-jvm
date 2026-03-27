@@ -1013,38 +1013,36 @@ class JsonRpcProvider(
     override fun traceBlockTransactions(
         blockTag: BlockTag,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTraces> =
+    ): HttpRequest<BlockTransactionTracesResult> =
         traceBlockTransactionsRequest(BlockId.Tag(blockTag), traceFlags)
 
     override fun traceBlockTransactions(
         blockHash: Felt,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTraces> =
+    ): HttpRequest<BlockTransactionTracesResult> =
         traceBlockTransactionsRequest(BlockId.Hash(blockHash), traceFlags)
 
     override fun traceBlockTransactions(
         blockNumber: Int,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTraces> =
+    ): HttpRequest<BlockTransactionTracesResult> =
         traceBlockTransactionsRequest(BlockId.Number(blockNumber), traceFlags)
 
     private fun traceBlockTransactionsRequest(
         blockId: BlockId,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTraces> {
+    ): HttpRequest<BlockTransactionTracesResult> {
         val params = buildJsonObject {
             put("block_id", Json.encodeToJsonElement(blockId))
             if (traceFlags.isNotEmpty()) {
-                putJsonArray("trace_flags") {
-                    traceFlags.forEach { add(it.value) }
-                }
+                put("trace_flags", Json.encodeToJsonElement(traceFlags.toList()))
             }
         }
 
         return buildRequest(
             method = JsonRpcMethod.TRACE_BLOCK_TRANSACTIONS,
             paramsJson = params,
-            responseSerializer = BlockTransactionTraces.serializer(),
+            responseSerializer = BlockTransactionTracesResult.serializer(),
         )
     }
 }
