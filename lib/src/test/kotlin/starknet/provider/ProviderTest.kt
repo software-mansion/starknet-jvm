@@ -1664,8 +1664,8 @@ class ProviderTest {
     }
 
     @Test
-    fun `InvokeTransactionV3 proof and proof_facts not serialized in broadcast body`() {
-        // proof and proof_facts should be stripped from the transaction body when broadcasting/simulating
+    fun `InvokeTransactionV3 proof_facts is not serialized in broadcast body`() {
+        // proof_facts is a response-only field and must never be sent in a broadcast
         var capturedBody: String? = null
         val httpService = mock<HttpService> {
             on { send(any()) } doAnswer { invocation ->
@@ -1694,7 +1694,42 @@ class ProviderTest {
         mockProvider.invokeFunction(tx).send()
 
         assertNotNull(capturedBody)
-        assertFalse(capturedBody!!.contains("\"proof\""), "proof should not appear in broadcast body")
+        assertFalse(capturedBody!!.contains("\"proof_facts\""), "proof_facts should not appear in broadcast body")
+    }
+
+    @Test
+    fun `InvokeTransactionV3 proof is serialized in broadcast body when set`() {
+        // proof is part of BROADCASTED_INVOKE_TXN and must be included in the broadcast when set
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """{"id":0,"jsonrpc":"2.0","result":{"transaction_hash":"0x1"}}""",
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val tx = InvokeTransactionV3(
+            senderAddress = Felt.ONE,
+            calldata = emptyList(),
+            chainId = StarknetChainId.SEPOLIA,
+            nonce = Felt.ZERO,
+            resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l1DataGas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+            ),
+        ).copy(proof = "dGVzdA==")
+
+        mockProvider.invokeFunction(tx).send()
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("\"proof\""), "proof should appear in broadcast body when set")
+        assertTrue(capturedBody!!.contains("dGVzdA=="), "proof value should be present in broadcast body")
         assertFalse(capturedBody!!.contains("\"proof_facts\""), "proof_facts should not appear in broadcast body")
     }
 

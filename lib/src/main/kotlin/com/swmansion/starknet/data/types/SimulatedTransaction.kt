@@ -9,7 +9,6 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonObject
@@ -322,35 +321,6 @@ data class SimulatedTransactionWithInitialReads(
 ) : StarknetResponse
 
 @Serializable
-data class TransactionTraceResponse(
-    @Serializable(with = TransactionTracePolymorphicSerializer::class)
-    val trace: TransactionTrace,
-) : StarknetResponse
-
-@Serializable
-data class TransactionTraceWithHash(
-    @SerialName("transaction_hash")
-    val transactionHash: Felt,
-
-    @Serializable(with = TransactionTracePolymorphicSerializer::class)
-    @SerialName("trace_root")
-    val traceRoot: TransactionTrace,
-) : StarknetResponse
-
-@Serializable
-data class TransactionTraceWithInitialReads(
-    @SerialName("transaction_hash")
-    val transactionHash: Felt,
-
-    @Serializable(with = TransactionTracePolymorphicSerializer::class)
-    @SerialName("trace_root")
-    val traceRoot: TransactionTrace,
-
-    @SerialName("initial_reads")
-    val initialReads: InitialReads? = null,
-) : StarknetResponse
-
-@Serializable
 data class BlockTransactionTrace(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
@@ -394,14 +364,14 @@ object BlockTransactionTracesSerializer : KSerializer<BlockTransactionTraces> {
         return when {
             element is JsonArray -> {
                 // Format without RETURN_INITIAL_READS: [{"transaction_hash": ..., "trace_root": ...}, ...]
-                val traces = Json.decodeFromJsonElement(listSerializer, element)
+                val traces = input.json.decodeFromJsonElement(listSerializer, element)
                 BlockTransactionTraces(traces, null)
             }
             element is JsonObject && element.containsKey("traces") -> {
                 // Format with RETURN_INITIAL_READS: {"traces": [...], "initial_reads": {...}}
-                val traces = Json.decodeFromJsonElement(listSerializer, element.getValue("traces"))
+                val traces = input.json.decodeFromJsonElement(listSerializer, element.getValue("traces"))
                 val initialReads = element["initial_reads"]?.let {
-                    Json.decodeFromJsonElement(InitialReads.serializer(), it)
+                    input.json.decodeFromJsonElement(InitialReads.serializer(), it)
                 }
                 BlockTransactionTraces(traces, initialReads)
             }
@@ -409,9 +379,3 @@ object BlockTransactionTracesSerializer : KSerializer<BlockTransactionTraces> {
         }
     }
 }
-
-@Serializable
-data class BlockTransactionTracesWithInitialReads(
-    @SerialName("traces")
-    val traces: List<TransactionTraceWithInitialReads>,
-) : StarknetResponse
