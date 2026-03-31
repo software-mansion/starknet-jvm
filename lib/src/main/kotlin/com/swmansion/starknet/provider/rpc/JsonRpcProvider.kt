@@ -843,7 +843,13 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getStateOfBlockWithLatestTag
      */
-    override fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>?): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(blockTag: BlockTag): HttpRequest<StateUpdate> {
+        val payload = GetStateUpdatePayload(BlockId.Tag(blockTag), null)
+
+        return getStateUpdate(payload)
+    }
+
+    override fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Tag(blockTag), contractAddresses)
 
         return getStateUpdate(payload)
@@ -852,7 +858,13 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getStateOfBlockWithHash
      */
-    override fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>?): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(blockHash: Felt): HttpRequest<StateUpdate> {
+        val payload = GetStateUpdatePayload(BlockId.Hash(blockHash), null)
+
+        return getStateUpdate(payload)
+    }
+
+    override fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Hash(blockHash), contractAddresses)
 
         return getStateUpdate(payload)
@@ -861,7 +873,13 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getStateOfBlockWithNumber
      */
-    override fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>?): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(blockNumber: Int): HttpRequest<StateUpdate> {
+        val payload = GetStateUpdatePayload(BlockId.Number(blockNumber), null)
+
+        return getStateUpdate(payload)
+    }
+
+    override fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Number(blockNumber), contractAddresses)
 
         return getStateUpdate(payload)

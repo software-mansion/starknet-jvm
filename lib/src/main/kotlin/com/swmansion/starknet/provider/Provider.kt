@@ -906,11 +906,33 @@ interface Provider {
      * Get the information about the result of executing the requested block.
      *
      * @param blockTag a tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockTag: BlockTag): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockTag a tag of the requested block
      * @param contractAddresses optional list of contract addresses to filter the state diff; class declarations unaffected
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>? = null): Request<StateUpdate>
+    fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockHash a hash of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockHash: Felt): Request<StateUpdate>
 
     /**
      * Get block state information.
@@ -922,7 +944,18 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>? = null): Request<StateUpdate>
+    fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockNumber a number of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockNumber: Int): Request<StateUpdate>
 
     /**
      * Get block state information.
@@ -934,7 +967,7 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>? = null): Request<StateUpdate>
+    fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>): Request<StateUpdate>
 
     /**
      * Get transaction by block id and index.
