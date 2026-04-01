@@ -45,7 +45,12 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         } else {
             filteredEntries
         }
-        val result = JsonObject(withProof)
+        val withProofFacts = if (value is InvokeTransactionV3 && !value.proofFacts.isNullOrEmpty()) {
+            withProof.plus("proof_facts" to JsonArray(value.proofFacts.map { JsonPrimitive(it.hexString()) }))
+        } else {
+            withProof
+        }
+        val result = JsonObject(withProofFacts)
 
         encoder.encodeJsonElement(result)
     }

@@ -1734,6 +1734,49 @@ class ProviderTest {
     }
 
     @Test
+    fun `InvokeTransactionV3 proof_facts is serialized in broadcast body when set`() {
+        // proof_facts is part of BROADCASTED_INVOKE_TXN and must be included in the broadcast when non-empty
+        // Regression test: TransactionSerializer was stripping proof_facts and never re-adding it
+        var capturedBody: String? = null
+        val httpService = mock<HttpService> {
+            on { send(any()) } doAnswer { invocation ->
+                capturedBody = invocation.getArgument<HttpService.Payload>(0).body
+                HttpResponse(
+                    true,
+                    200,
+                    """{"id":0,"jsonrpc":"2.0","result":{"transaction_hash":"0x1"}}""",
+                )
+            }
+        }
+        val mockProvider = JsonRpcProvider(rpcUrl, httpService)
+
+        val proofFact1 = Felt.fromHex("0x1a2b3c")
+        val proofFact2 = Felt.fromHex("0x4d5e6f")
+        val tx = InvokeTransactionV3(
+            senderAddress = Felt.ONE,
+            calldata = emptyList(),
+            chainId = StarknetChainId.SEPOLIA,
+            nonce = Felt.ZERO,
+            resourceBounds = ResourceBoundsMapping(
+                l1Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l2Gas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+                l1DataGas = ResourceBounds(Uint64.ZERO, Uint128.ZERO),
+            ),
+        ).copy(
+            proof = "dGVzdA==",
+            proofFacts = listOf(proofFact1, proofFact2),
+        )
+
+        mockProvider.invokeFunction(tx).send()
+
+        assertNotNull(capturedBody)
+        assertTrue(capturedBody!!.contains("\"proof_facts\""), "proof_facts should appear in broadcast body when non-empty")
+        assertTrue(capturedBody!!.contains(proofFact1.hexString()), "first proof_fact value should be present in broadcast body")
+        assertTrue(capturedBody!!.contains(proofFact2.hexString()), "second proof_fact value should be present in broadcast body")
+        assertTrue(capturedBody!!.contains("\"proof\""), "proof should also appear in broadcast body")
+    }
+
+    @Test
     fun `getTransaction with INCLUDE_PROOF_FACTS returns proofFacts on InvokeTransactionV3`() {
         val tx = provider.getTransaction(invokeTransactionHash, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
 
