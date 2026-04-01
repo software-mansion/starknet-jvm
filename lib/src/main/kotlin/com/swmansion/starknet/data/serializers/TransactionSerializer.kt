@@ -37,20 +37,14 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             "TransactionSerializer can only serialize ExecutableTransaction instances."
         }
 
-        val jsonObject = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-        val filteredEntries = jsonObject.filter { (key, _) -> !transactionIgnoredKeys.contains(key) }
-            .plus("type" to encoder.json.encodeToJsonElement(value.type))
-        val withProof = if (value is InvokeTransactionV3 && value.proof != null) {
-            filteredEntries.plus("proof" to JsonPrimitive(value.proof))
-        } else {
-            filteredEntries
+        val base = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject.toMutableMap()
+        if (value is InvokeTransactionV3) {
+            value.proof?.let { base["proof"] = JsonPrimitive(it) }
+            if (!value.proofFacts.isNullOrEmpty()) {
+                base["proof_facts"] = JsonArray(value.proofFacts.map { JsonPrimitive(it.hexString()) })
+            }
         }
-        val withProofFacts = if (value is InvokeTransactionV3 && !value.proofFacts.isNullOrEmpty()) {
-            withProof.plus("proof_facts" to JsonArray(value.proofFacts.map { JsonPrimitive(it.hexString()) }))
-        } else {
-            withProof
-        }
-        val result = JsonObject(withProofFacts)
+        val result = JsonObject(base)
 
         encoder.encodeJsonElement(result)
     }
