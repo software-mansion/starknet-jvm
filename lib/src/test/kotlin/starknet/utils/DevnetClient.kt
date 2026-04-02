@@ -104,11 +104,33 @@ class DevnetClient(
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
+        devnetProcessBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
+        devnetProcessBuilder.redirectError(ProcessBuilder.Redirect.DISCARD)
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(8, TimeUnit.SECONDS)
 
-        if (!devnetProcess.isAlive) {
-            throw DevnetSetupFailedException("Could not start devnet process")
+        val deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)
+        var devnetReady = false
+        while (System.currentTimeMillis() < deadline) {
+            if (!devnetProcess.isAlive) {
+                throw DevnetSetupFailedException("Could not start devnet process")
+            }
+            try {
+                val connection = java.net.URL("$baseUrl/is_alive").openConnection() as java.net.HttpURLConnection
+                connection.connectTimeout = 1000
+                connection.readTimeout = 1000
+                connection.requestMethod = "GET"
+                if (connection.responseCode == 200) {
+                    devnetReady = true
+                    break
+                }
+                connection.disconnect()
+            } catch (_: Exception) {
+                // Devnet not ready yet
+            }
+            Thread.sleep(500)
+        }
+        if (!devnetReady) {
+            throw DevnetSetupFailedException("Devnet did not become ready within 60 seconds")
         }
         isDevnetRunning = true
 
