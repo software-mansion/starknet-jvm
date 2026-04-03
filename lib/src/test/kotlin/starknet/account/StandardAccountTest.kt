@@ -425,7 +425,7 @@ class StandardAccountTest {
 
         assertNotEquals(Felt.ZERO, (response.l1GasPrice.value + response.l2GasPrice.value).toFelt)
         assertEquals(
-            response.l1GasPrice.value * response.l1GasConsumed.value + response.l1DataGasPrice.value * response.l1DataGasConsumed.value,
+            response.l1GasPrice.value * response.l1GasConsumed.value + response.l1DataGasPrice.value * response.l1DataGasConsumed.value + response.l2GasPrice.value * response.l2GasConsumed.value,
             response.overallFee.value,
         )
     }

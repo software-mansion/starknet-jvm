@@ -24,8 +24,6 @@ jobs:
         ]
 
     runs-on: ${{ matrix.os }}
-    env:
-      DEVNET_SHA: a985727189ac884924f104e34026c0ca5716b14d # v0.5.0-rc.3
     steps:
       - uses: actions/checkout@v3
         with:
@@ -67,8 +65,8 @@ jobs:
       - name: Install starknet-devnet
         run: |
           asdf plugin add starknet-devnet
-          asdf install starknet-devnet 0.7.0
-          asdf set starknet-devnet 0.7.0 --home
+          asdf install starknet-devnet 0.8.0-rc.0
+          asdf set starknet-devnet 0.8.0-rc.0 --home
 
       - name: Install starknet-foundry
         run: |
@@ -104,7 +102,6 @@ jobs:
 
       - name: Run tests and generate coverage report
         env:
-          DEVNET_PATH: ${{ github.workspace }}/starknet-devnet-rs/target/release/starknet-devnet
           NETWORK_TEST_MODE: "disabled"
         run: ./gradlew :lib:koverXmlReport --info
 

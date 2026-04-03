@@ -22,6 +22,16 @@ interface Provider {
     fun getTransaction(transactionHash: Felt): Request<Transaction>
 
     /**
+     * Get a transaction with optional response flags.
+     *
+     * @param transactionHash a hash of sent transaction
+     * @param responseFlags set of flags to control additional fields in the response
+     *
+     * @throws RequestFailedException
+     */
+    fun getTransaction(transactionHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+
+    /**
      * Invoke a function using version 3 transaction.
      *
      * Invoke a function in deployed contract using version 3 transaction.
@@ -295,6 +305,45 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getStorageAt(contractAddress: Felt, key: String): Request<Felt>
+
+    /**
+     * Get a value of storage var with metadata.
+     *
+     * Get a value of a storage variable including the last update block number.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockTag the tag of the requested block
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<StorageResult>
+
+    /**
+     * Get a value of storage var with metadata.
+     *
+     * Get a value of a storage variable including the last update block number.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockHash a hash of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockHash: Felt): Request<StorageResult>
+
+    /**
+     * Get a value of storage var with metadata.
+     *
+     * Get a value of a storage variable including the last update block number.
+     *
+     * @param contractAddress an address of the contract
+     * @param key an address of the storage variable inside contract
+     * @param blockNumber a number of the block in respect to what the query will be made
+     *
+     * @throws RequestFailedException
+     */
+    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockNumber: Int): Request<StorageResult>
 
     /**
      * Get transaction receipt
@@ -759,6 +808,36 @@ interface Provider {
     fun getBlockWithTxHashes(blockNumber: Int): Request<BlockWithTransactionHashes>
 
     /**
+     * Get a block with transactions including optional response flags.
+     *
+     * @param blockTag a tag of the requested block
+     * @param responseFlags flags controlling additional fields (e.g. proof_facts) in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+
+    /**
+     * Get a block with transactions including optional response flags.
+     *
+     * @param blockHash a hash of the requested block
+     * @param responseFlags flags controlling additional fields in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+
+    /**
+     * Get a block with transactions including optional response flags.
+     *
+     * @param blockNumber a number of the requested block
+     * @param responseFlags flags controlling additional fields in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithTxs(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+
+    /**
      * Get a block with transaction receipts.
      *
      * Get block information with transaction receipts given the block id.
@@ -792,6 +871,36 @@ interface Provider {
     fun getBlockWithReceipts(blockNumber: Int): Request<BlockWithReceipts>
 
     /**
+     * Get a block with transaction receipts including optional response flags.
+     *
+     * @param blockTag a tag of the requested block
+     * @param responseFlags flags controlling additional fields in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+
+    /**
+     * Get a block with transaction receipts including optional response flags.
+     *
+     * @param blockHash a hash of the requested block
+     * @param responseFlags flags controlling additional fields in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+
+    /**
+     * Get a block with transaction receipts including optional response flags.
+     *
+     * @param blockNumber a number of the requested block
+     * @param responseFlags flags controlling additional fields in transaction responses
+     *
+     * @throws RequestFailedException
+     */
+    fun getBlockWithReceipts(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+
+    /**
      * Get block state information.
      *
      * Get the information about the result of executing the requested block.
@@ -801,6 +910,18 @@ interface Provider {
      * @throws RequestFailedException
      */
     fun getStateUpdate(blockTag: BlockTag): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockTag a tag of the requested block
+     * @param contractAddresses optional list of contract addresses to filter the state diff; class declarations unaffected
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>): Request<StateUpdate>
 
     /**
      * Get block state information.
@@ -818,11 +939,35 @@ interface Provider {
      *
      * Get the information about the result of executing the requested block.
      *
+     * @param blockHash a hash of the requested block
+     * @param contractAddresses optional list of contract addresses to filter the state diff; class declarations unaffected
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
      * @param blockNumber a number of the requested block
      *
      * @throws RequestFailedException
      */
     fun getStateUpdate(blockNumber: Int): Request<StateUpdate>
+
+    /**
+     * Get block state information.
+     *
+     * Get the information about the result of executing the requested block.
+     *
+     * @param blockNumber a number of the requested block
+     * @param contractAddresses optional list of contract addresses to filter the state diff; class declarations unaffected
+     *
+     * @throws RequestFailedException
+     */
+    fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>): Request<StateUpdate>
 
     /**
      * Get transaction by block id and index.
@@ -857,6 +1002,36 @@ interface Provider {
      */
     fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction>
 
+    /**
+     * Get transaction by block id and index with optional response flags.
+     *
+     * @param blockTag a tag of the requested block
+     * @param responseFlags set of flags to control additional fields in the response
+     *
+     * @throws RequestFailedException
+     */
+    fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+
+    /**
+     * Get transaction by block id and index with optional response flags.
+     *
+     * @param blockHash a hash of the requested block
+     * @param responseFlags set of flags to control additional fields in the response
+     *
+     * @throws RequestFailedException
+     */
+    fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+
+    /**
+     * Get transaction by block id and index with optional response flags.
+     *
+     * @param blockNumber a number of the requested block
+     * @param responseFlags set of flags to control additional fields in the response
+     *
+     * @throws RequestFailedException
+     */
+    fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+
     /** Simulate executing a list of transactions
      *
      * @param transactions list of transactions to be simulated
@@ -883,4 +1058,65 @@ interface Provider {
      * @return a list of transaction simulations
      */
     fun simulateTransactions(transactions: List<ExecutableTransaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+
+    /** Simulate executing a list of transactions, returning initial reads alongside results.
+     *
+     * Sends RETURN_INITIAL_READS flag automatically. The response includes both simulated
+     * transactions and the initial reads (execution witness) needed for re-execution.
+     *
+     * @param transactions list of transactions to be simulated
+     * @param blockTag tag of the block that should be used for simulation
+     * @param simulationFlags additional simulation flags (SKIP_VALIDATE, SKIP_FEE_CHARGE)
+     * @return simulated transactions and initial reads
+     */
+    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+
+    /** Simulate executing a list of transactions, returning initial reads alongside results.
+     *
+     * @param transactions list of transactions to be simulated
+     * @param blockNumber number of the block that should be used for simulation
+     * @param simulationFlags additional simulation flags
+     * @return simulated transactions and initial reads
+     */
+    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockNumber: Int, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+
+    /** Simulate executing a list of transactions, returning initial reads alongside results.
+     *
+     * @param transactions list of transactions to be simulated
+     * @param blockHash hash of the block that should be used for simulation
+     * @param simulationFlags additional simulation flags
+     * @return simulated transactions and initial reads
+     */
+    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+
+    /** Get the execution trace of a transaction by its hash.
+     *
+     * @param transactionHash the hash of the transaction to trace
+     * @return transaction trace
+     */
+    fun traceTransaction(transactionHash: Felt): Request<TransactionTrace>
+
+    /** Get execution traces for all transactions in a block.
+     *
+     * @param blockTag tag of the block to trace
+     * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
+     */
+    fun traceBlockTransactions(blockTag: BlockTag, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
+
+    /** Get execution traces for all transactions in a block.
+     *
+     * @param blockHash hash of the block to trace
+     * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
+     */
+    fun traceBlockTransactions(blockHash: Felt, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
+
+    /** Get execution traces for all transactions in a block.
+     *
+     * @param blockNumber number of the block to trace
+     * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
+     * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
+     */
+    fun traceBlockTransactions(blockNumber: Int, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
 }

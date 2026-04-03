@@ -266,6 +266,14 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
+
+    // Optional proof for the transaction, base64-encoded (present when INCLUDE_PROOF_FACTS flag is used in broadcast)
+    @SerialName("proof")
+    val proof: String? = null,
+
+    // Proof facts returned in transaction responses when INCLUDE_PROOF_FACTS response flag is set
+    @SerialName("proof_facts")
+    val proofFacts: List<Felt>? = null,
 ) : InvokeTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
@@ -277,6 +285,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         forFeeEstimate: Boolean = false,
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64 = Uint64.ZERO,
+        proofFacts: List<Felt>? = null,
     ) : this(
         hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
             senderAddress = senderAddress,
@@ -290,6 +299,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
             accountDeploymentData = emptyList(),
             nonceDataAvailabilityMode = DAMode.L1,
             feeDataAvailabilityMode = DAMode.L1,
+            proofFacts = proofFacts,
         ),
         senderAddress = senderAddress,
         calldata = calldata,
@@ -302,6 +312,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         accountDeploymentData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
+        proofFacts = proofFacts,
     )
 }
 

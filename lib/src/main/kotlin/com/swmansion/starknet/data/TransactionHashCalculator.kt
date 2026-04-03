@@ -28,23 +28,26 @@ object TransactionHashCalculator {
         accountDeploymentData: AccountDeploymentData,
         feeDataAvailabilityMode: DAMode,
         nonceDataAvailabilityMode: DAMode,
+        proofFacts: List<Felt>? = null,
     ): Felt {
-        return Poseidon.poseidonHash(
-            *prepareCommonTransanctionV3Fields(
-                txType = TransactionType.INVOKE,
-                version = version,
-                address = senderAddress,
-                tip = tip,
-                resourceBounds = resourceBounds,
-                paymasterData = paymasterData,
-                chainId = chainId,
-                nonce = nonce,
-                nonceDataAvailabilityMode = nonceDataAvailabilityMode,
-                feeDataAvailabilityMode = feeDataAvailabilityMode,
-            ).toTypedArray(),
-            Poseidon.poseidonHash(accountDeploymentData),
-            Poseidon.poseidonHash(calldata),
-        )
+        val fields = prepareCommonTransanctionV3Fields(
+            txType = TransactionType.INVOKE,
+            version = version,
+            address = senderAddress,
+            tip = tip,
+            resourceBounds = resourceBounds,
+            paymasterData = paymasterData,
+            chainId = chainId,
+            nonce = nonce,
+            nonceDataAvailabilityMode = nonceDataAvailabilityMode,
+            feeDataAvailabilityMode = feeDataAvailabilityMode,
+        ).toMutableList()
+        fields.add(Poseidon.poseidonHash(accountDeploymentData))
+        fields.add(Poseidon.poseidonHash(calldata))
+        if (!proofFacts.isNullOrEmpty()) {
+            fields.add(Poseidon.poseidonHash(proofFacts))
+        }
+        return Poseidon.poseidonHash(*fields.toTypedArray())
     }
 
     @JvmStatic

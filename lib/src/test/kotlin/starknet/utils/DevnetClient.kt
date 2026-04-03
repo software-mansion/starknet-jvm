@@ -13,6 +13,7 @@ import starknet.utils.data.*
 import starknet.utils.data.serializers.AccountDetailsSerializer
 import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
 import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -38,6 +39,7 @@ class DevnetClient(
     private lateinit var devnetPath: Path
     private lateinit var devnetProcess: Process
     private var isDevnetRunning = false
+    private val devnetStderr = StringBuilder()
 
     private val accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
     private val scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
@@ -104,11 +106,36 @@ class DevnetClient(
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
+        devnetProcessBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(8, TimeUnit.SECONDS)
+        devnetStderr.clear()
+        Thread {
+            devnetProcess.errorStream.bufferedReader().forEachLine { devnetStderr.appendLine(it) }
+        }.also { it.isDaemon = true }.start()
 
-        if (!devnetProcess.isAlive) {
-            throw DevnetSetupFailedException("Could not start devnet process")
+        val deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)
+        var devnetReady = false
+        while (System.currentTimeMillis() < deadline) {
+            if (!devnetProcess.isAlive) {
+                throw DevnetSetupFailedException("Could not start devnet process:\n$devnetStderr")
+            }
+            try {
+                val connection = java.net.URL("$baseUrl/is_alive").openConnection() as java.net.HttpURLConnection
+                connection.connectTimeout = 1000
+                connection.readTimeout = 1000
+                connection.requestMethod = "GET"
+                if (connection.responseCode == 200) {
+                    devnetReady = true
+                    break
+                }
+                connection.disconnect()
+            } catch (_: IOException) {
+                // Devnet not ready yet
+            }
+            Thread.sleep(500)
+        }
+        if (!devnetReady) {
+            throw DevnetSetupFailedException("Devnet did not become ready within 60 seconds:\n$devnetStderr")
         }
         isDevnetRunning = true
 

@@ -14,6 +14,27 @@ import kotlin.math.roundToInt
 typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
 
 @Serializable
+enum class TxnResponseFlag {
+    @SerialName("INCLUDE_PROOF_FACTS")
+    INCLUDE_PROOF_FACTS,
+}
+
+@Serializable
+enum class StorageResponseFlag {
+    @SerialName("INCLUDE_LAST_UPDATE_BLOCK")
+    INCLUDE_LAST_UPDATE_BLOCK,
+}
+
+@Serializable
+data class StorageResult(
+    @SerialName("value")
+    val value: Felt,
+
+    @SerialName("last_update_block")
+    val lastUpdateBlock: Long,
+) : StarknetResponse
+
+@Serializable
 data class CallContractResponse(
     val result: List<Felt>,
 )
