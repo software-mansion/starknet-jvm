@@ -286,6 +286,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64 = Uint64.ZERO,
         proofFacts: List<Felt>? = null,
+        proof: String? = null,
     ) : this(
         hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
             senderAddress = senderAddress,
@@ -312,6 +313,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         accountDeploymentData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
+        proof = proof,
         proofFacts = proofFacts,
     )
 }
