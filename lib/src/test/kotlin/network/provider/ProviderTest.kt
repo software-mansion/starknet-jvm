@@ -353,6 +353,17 @@ class ProviderTest {
     }
 
     @Test
+    fun `get block with transactions with l1 accepted block tag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val request = provider.getBlockWithTxs(BlockTag.L1_ACCEPTED)
+        val response = request.send()
+
+        assertNotNull(response)
+        assertTrue(response is ProcessedBlockWithTransactions)
+    }
+
+    @Test
     fun `get block with transactions with latest block tag`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
@@ -520,10 +531,40 @@ class ProviderTest {
     }
 
     @Test
+    fun `get invoke v3 transaction with proof facts response flag`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val transactionHash = invokeV3TransactionHash
+
+        val tx = provider.getTransaction(transactionHash, setOf(TxnResponseFlag.INCLUDE_PROOF_FACTS)).send()
+
+        assertTrue(tx is InvokeTransactionV3)
+        assertEquals(transactionHash, tx.hash)
+        val invokeV3 = tx as InvokeTransactionV3
+        assertNotNull(invokeV3.proofFacts)
+    }
+
+    @Test
+    fun `trace invoke v3 transaction`() {
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
+
+        val transactionHash = invokeV3TransactionHash
+
+        val trace = provider.traceTransaction(transactionHash).send()
+
+        assertTrue(trace is InvokeTransactionTrace)
+        val invokeTrace = trace as InvokeTransactionTrace
+        assertNotNull(invokeTrace.executeInvocation)
+        assertNotNull(invokeTrace.executionResources)
+        assertTrue(invokeTrace.executionResources.l1Gas >= 0u)
+        assertTrue(invokeTrace.executionResources.l2Gas >= 0u)
+    }
+
+    @Test
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val erc20BalancesKey = Felt.fromHex("0x45524332305f62616c616e636573")
+        val erc20BalancesKey = StorageKey("0x45524332305f62616c616e636573")
         val request = provider.getStorageProof(
             blockId = BlockId.Number(556669),
             contractAddresses = listOf(strkContractAddress),

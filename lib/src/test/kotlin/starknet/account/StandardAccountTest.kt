@@ -2,11 +2,13 @@ package starknet.account
 
 import com.swmansion.starknet.account.Account
 import com.swmansion.starknet.account.StandardAccount
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.ContractAddressCalculator
 import com.swmansion.starknet.data.selectorFromName
 import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.extensions.toFelt
+import com.swmansion.starknet.helpers.getHashMethodFromStarknetVersion
 import com.swmansion.starknet.provider.exceptions.RequestFailedException
 import com.swmansion.starknet.provider.exceptions.RpcRequestFailedException
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
@@ -14,6 +16,7 @@ import com.swmansion.starknet.service.http.HttpResponse
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
+import network.account.AccountTest.Companion.standardAccount
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.parallel.Execution
@@ -104,7 +107,8 @@ class StandardAccountTest {
     @Test
     fun `generate random private key`() {
         val randomPrivateKey = StandardAccount.generatePrivateKey()
-        assertTrue(randomPrivateKey.value < Felt.PRIME)
+        assertTrue(randomPrivateKey.value > BigInteger.ZERO)
+        assertTrue(randomPrivateKey.value < StarknetCurve.CURVE_ORDER)
         assertTrue(randomPrivateKey.hexStringPadded().length == 66)
     }
 
@@ -421,7 +425,7 @@ class StandardAccountTest {
 
         assertNotEquals(Felt.ZERO, (response.l1GasPrice.value + response.l2GasPrice.value).toFelt)
         assertEquals(
-            response.l1GasPrice.value * response.l1GasConsumed.value + response.l1DataGasPrice.value * response.l1DataGasConsumed.value,
+            response.l1GasPrice.value * response.l1GasConsumed.value + response.l1DataGasPrice.value * response.l1DataGasConsumed.value + response.l2GasPrice.value * response.l2GasConsumed.value,
             response.overallFee.value,
         )
     }
@@ -561,6 +565,185 @@ class StandardAccountTest {
             val receipt = provider.getTransactionReceipt(result.transactionHash).send()
             assertTrue(receipt.isAccepted)
         }
+
+        @Test
+        fun `starknet account default hash method is blake`() {
+            val account = standardAccount
+
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            )
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = Felt.ONE
+
+            val resourceBounds = ResourceBoundsMapping.ZERO
+            val declareTransaction = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                DeclareParamsV3(nonce, resourceBounds),
+            )
+
+            assertEquals(declareTransaction.hashMethod, HashMethod.BLAKE2S)
+        }
+
+        @Test
+        fun `starknet account override default hash method`() {
+            val account = standardAccount
+
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            )
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+            val nonce = Felt.ONE
+
+            val resourceBounds = ResourceBoundsMapping.ZERO
+            val declareTransaction = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                DeclareParamsV3(nonce, resourceBounds),
+                HashMethod.POSEIDON,
+            )
+
+            assertEquals(declareTransaction.hashMethod, HashMethod.POSEIDON)
+        }
+
+        @Test
+        fun `starknet account detect hash method poseidon`() {
+            val httpService = mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(
+                    true,
+                    200,
+                    """
+                    {
+                      "id": 0,
+                      "jsonrpc": "2.0",
+                      "result": {
+                        "block_number": 2989106,
+                        "l1_da_mode": "BLOB",
+                        "l1_data_gas_price": {
+                          "price_in_fri": "0x56d9",
+                          "price_in_wei": "0x1"
+                        },
+                        "l1_gas_price": {
+                          "price_in_fri": "0x1438ad6de514",
+                          "price_in_wei": "0x3b9aca09"
+                        },
+                        "l2_gas_price": {
+                          "price_in_fri": "0xb2d05e00",
+                          "price_in_wei": "0x20f12"
+                        },
+                        "sequencer_address": "0x1176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8",
+                        "starknet_version": "0.14.0",
+                        "timestamp": 1763660730,
+                        "transactions": []
+                      }
+                    }
+                    """.trimIndent(),
+                )
+            }
+            val provider = JsonRpcProvider("", httpService)
+
+            val account = standardAccount
+
+            ScarbClient.buildSaltedContract(
+                placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+                saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            )
+            val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+            val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+            val contractDefinition = Cairo1ContractDefinition(contractCode)
+            val contractCasmDefinition = CasmContractDefinition(casmCode)
+
+            val resourceBounds = ResourceBoundsMapping.ZERO
+            val nonce = Felt.ONE
+
+            val starknetVersion = provider.getStarknetVersion(BlockTag.PRE_CONFIRMED).send()
+            val hashMethod = getHashMethodFromStarknetVersion(starknetVersion)
+
+            val declareTransaction = account.signDeclareV3(
+                contractDefinition,
+                contractCasmDefinition,
+                DeclareParamsV3(nonce, resourceBounds),
+                hashMethod,
+            )
+
+            assertEquals(declareTransaction.hashMethod, HashMethod.POSEIDON)
+        }
+    }
+
+    @Test
+    fun `starknet account detect hash method blake`() {
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(
+                true,
+                200,
+                """
+                {
+                  "id": 0,
+                  "jsonrpc": "2.0",
+                  "result": {
+                    "block_number": 2989106,
+                    "l1_da_mode": "BLOB",
+                    "l1_data_gas_price": {
+                      "price_in_fri": "0x56d9",
+                      "price_in_wei": "0x1"
+                    },
+                    "l1_gas_price": {
+                      "price_in_fri": "0x1438ad6de514",
+                      "price_in_wei": "0x3b9aca09"
+                    },
+                    "l2_gas_price": {
+                      "price_in_fri": "0xb2d05e00",
+                      "price_in_wei": "0x20f12"
+                    },
+                    "sequencer_address": "0x1176a1bd84444c89232ec27754698e5d2e7e1a7f1539f12027f28b23ec9f3d8",
+                    "starknet_version": "0.14.1",
+                    "timestamp": 1763660730,
+                    "transactions": []
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+        val provider = JsonRpcProvider("", httpService)
+
+        val account = standardAccount
+
+        ScarbClient.buildSaltedContract(
+            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
+            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+        )
+        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+
+        val contractDefinition = Cairo1ContractDefinition(contractCode)
+        val contractCasmDefinition = CasmContractDefinition(casmCode)
+
+        val resourceBounds = ResourceBoundsMapping.ZERO
+        val nonce = Felt.ONE
+
+        val starknetVersion = provider.getStarknetVersion(BlockTag.PRE_CONFIRMED).send()
+        val hashMethod = getHashMethodFromStarknetVersion(starknetVersion)
+
+        val declareTransaction = account.signDeclareV3(
+            contractDefinition,
+            contractCasmDefinition,
+            DeclareParamsV3(nonce, resourceBounds),
+            hashMethod,
+        )
+
+        assertEquals(declareTransaction.hashMethod, HashMethod.BLAKE2S)
     }
 
     @Nested

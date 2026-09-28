@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.data.serializers.AddressFilterSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -63,7 +64,33 @@ data class EmittedEvent @JvmOverloads constructor(
 
     @SerialName("transaction_hash")
     val transactionHash: Felt,
-)
+
+    @SerialName("transaction_index")
+    val transactionIndex: Int,
+
+    @SerialName("event_index")
+    val eventIndex: Int,
+) {
+    init {
+        require(transactionIndex >= 0) { "`transaction_index` must be non-negative, got $transactionIndex" }
+        require(eventIndex >= 0) { "`event_index` must be non-negative, got $eventIndex" }
+    }
+}
+
+/**
+ * Filter for contract addresses emitting events.
+ *
+ * Use [Single] for a single address (serialized as a plain hex string) or
+ * [Multiple] for a list of addresses (serialized as a JSON array)
+ */
+@Serializable(with = AddressFilterSerializer::class)
+sealed class AddressFilter {
+    /** Filter by a single contract address. */
+    data class Single(val address: Felt) : AddressFilter()
+
+    /** Filter by multiple contract addresses. */
+    data class Multiple(val addresses: List<Felt>) : AddressFilter()
+}
 
 @Serializable
 data class GetEventsPayload @JvmOverloads constructor(
@@ -74,7 +101,7 @@ data class GetEventsPayload @JvmOverloads constructor(
     val toBlockId: BlockId? = null,
 
     @SerialName("address")
-    val address: Felt? = null,
+    val address: AddressFilter? = null,
 
     @SerialName("keys")
     val keys: List<List<Felt>>? = null,

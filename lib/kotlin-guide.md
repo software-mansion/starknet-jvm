@@ -308,7 +308,7 @@ import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 
 fun main() {
     val provider = JsonRpcProvider("https://your.node.url/rpc")
-    val tipEstimate = estimateTip(provider)
+    val tipEstimate = estimateTip(provider).send()
 }
 ```
 

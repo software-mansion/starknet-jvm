@@ -14,6 +14,27 @@ import kotlin.math.roundToInt
 typealias NodeHashToNodeMapping = List<NodeHashToNodeMappingItem>
 
 @Serializable
+enum class TxnResponseFlag {
+    @SerialName("INCLUDE_PROOF_FACTS")
+    INCLUDE_PROOF_FACTS,
+}
+
+@Serializable
+enum class StorageResponseFlag {
+    @SerialName("INCLUDE_LAST_UPDATE_BLOCK")
+    INCLUDE_LAST_UPDATE_BLOCK,
+}
+
+@Serializable
+data class StorageResult(
+    @SerialName("value")
+    val value: Felt,
+
+    @SerialName("last_update_block")
+    val lastUpdateBlock: Long,
+) : StarknetResponse
+
+@Serializable
 data class CallContractResponse(
     val result: List<Felt>,
 )
@@ -399,6 +420,9 @@ data class StateDiff(
     @SerialName("declared_classes")
     val declaredClasses: List<DeclaredClassItem>,
 
+    @SerialName("migrated_compiled_classes")
+    val migratedCompiledClasses: List<MigratedClassItem>? = null,
+
     @SerialName("deployed_contracts")
     val deployedContracts: List<DeployedContractItem>,
 
@@ -428,8 +452,17 @@ data class ReplacedClassItem(
 )
 
 @Serializable
+data class MigratedClassItem(
+    @SerialName("class_hash")
+    val classHash: Felt,
+
+    @SerialName("compiled_class_hash")
+    val compiledClassHash: Felt,
+)
+
+@Serializable
 sealed class StateUpdate : StarknetResponse {
-    abstract val oldRoot: Felt
+    abstract val oldRoot: Felt?
     abstract val stateDiff: StateDiff
 }
 
@@ -451,7 +484,7 @@ data class StateUpdateResponse(
 @Serializable
 data class PreConfirmedStateUpdateResponse(
     @SerialName("old_root")
-    override val oldRoot: Felt,
+    override val oldRoot: Felt?,
 
     @SerialName("state_diff")
     override val stateDiff: StateDiff,

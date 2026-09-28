@@ -1,8 +1,6 @@
 package starknet.data.types
 
 import com.swmansion.starknet.crypto.HashMethod
-import com.swmansion.starknet.crypto.Poseidon
-import com.swmansion.starknet.crypto.StarknetCurve
 import com.swmansion.starknet.data.types.Felt
 import com.swmansion.starknet.data.types.MerkleTree
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -10,15 +8,23 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 
 internal class MerkleTreeTest {
-    @ParameterizedTest
-    @EnumSource(HashMethod::class)
-    fun `calculate hashes`(hashFunction: HashMethod) {
-        val applyHash: (Felt, Felt) -> Felt = when (hashFunction) {
-            HashMethod.PEDERSEN -> StarknetCurve::pedersen
-            HashMethod.POSEIDON -> Poseidon::poseidonHash
+    companion object {
+        @JvmStatic
+        fun getHashMethods(): List<HashMethod> {
+            return listOf(
+                HashMethod.PEDERSEN,
+                HashMethod.POSEIDON,
+            )
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("getHashMethods")
+    fun `calculate hashes`(hashFunction: HashMethod) {
+        val applyHash: (Felt, Felt) -> Felt = { left, right -> hashFunction.hash(left, right) }
 
         val leaves = listOf(
             Felt.fromHex("0x12"),

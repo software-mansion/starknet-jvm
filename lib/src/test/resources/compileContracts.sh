@@ -12,37 +12,37 @@ echo "Installing scarb..."
 asdf plugin add scarb || true
 echo "Done!"
 
-echo "Checking v1 contracts formatting..."
-scarb fmt --check
 echo "Compiling v1 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V1_CONTRACT_PATH" || exit 1
 asdf install scarb $V1_SCARB_VERSION || true
 asdf set scarb $V1_SCARB_VERSION || exit 1
+echo "Checking v1 contracts formatting..."
+scarb fmt --check
 scarb --profile release build
 popd || exit 1
 popd || exit 1
 echo "Done!"
 
-echo "Checking v2 contracts formatting..."
-scarb fmt --check
 echo "Compiling v2 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V2_CONTRACT_PATH" || exit 1
 asdf install scarb $V2_SCARB_VERSION || true
 asdf set scarb $V2_SCARB_VERSION || exit 1
+echo "Checking v2 contracts formatting..."
+scarb fmt --check
 scarb --profile release build
 popd || exit 1
 popd || exit 1
 echo "Done!"
 
-echo "Checking v2.6 contracts formatting..."
-scarb fmt --check
 echo "Compiling v2.6 contracts.."
 pushd "$(dirname "$0")" || exit 1
 pushd "$V2_6_CONTRACT_PATH" || exit 1
 asdf install scarb $V2_6_SCARB_VERSION || true
 asdf set scarb $V2_6_SCARB_VERSION || exit 1
+echo "Checking v2.6 contracts formatting..."
+scarb fmt --check
 scarb --profile release build
 popd || exit 1
 popd || exit 1

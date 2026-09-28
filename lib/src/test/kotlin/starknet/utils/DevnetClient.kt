@@ -7,11 +7,14 @@ import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.service.http.OkHttpService
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import starknet.utils.data.*
 import starknet.utils.data.serializers.AccountDetailsSerializer
 import starknet.utils.data.serializers.SnCastResponsePolymorphicSerializer
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
@@ -30,13 +33,13 @@ class DevnetClient(
 
     private val baseUrl: String = "http://$host:$port"
     val rpcUrl: String = "$baseUrl/rpc"
-    val mintUrl: String = "$baseUrl/mint"
 
     private val json = Json { ignoreUnknownKeys = true }
 
     private lateinit var devnetPath: Path
     private lateinit var devnetProcess: Process
     private var isDevnetRunning = false
+    private val devnetStderr = StringBuilder()
 
     private val accountFilePath = accountDirectory.resolve("starknet_open_zeppelin_accounts.json")
     private val scarbTomlPath = contractsDirectory.resolve("Scarb.toml")
@@ -70,8 +73,10 @@ class DevnetClient(
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/430b3370e60b28b8de430143b26e52bf36380b9a/crates/starknet-devnet-core/src/constants.rs#L25
-        val accountContractClassHash = Felt.fromHex("0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564")
-        val legacyAccountContractClassHash = Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
+        val accountContractClassHash =
+            Felt.fromHex("0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564")
+        val legacyAccountContractClassHash =
+            Felt.fromHex("0x4d07e40e93398ed3c76981e72dd1fd22557a78ce36c0515f679e27f0bb5bc5f")
         val ethErc20ContractAddress = Felt.fromHex("0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7")
     }
 
@@ -79,9 +84,8 @@ class DevnetClient(
         if (isDevnetRunning) {
             throw DevnetSetupFailedException("Devnet is already running")
         }
-        devnetPath = Paths.get(System.getenv("DEVNET_PATH")) ?: throw DevnetSetupFailedException(
-            "DEVNET_PATH environment variable is not set. Make sure you have devnet installed https://github.com/0xSpaceShard/starknet-devnet-rs and DEVNET_PATH points to a devnet binary.",
-        )
+
+        devnetPath = resolveDevnetPath()
 
         // This kills any zombie devnet processes left over from previous test runs, if any.
         ProcessBuilder(
@@ -91,8 +95,7 @@ class DevnetClient(
         ).start().waitFor()
 
         val devnetProcessBuilder = ProcessBuilder(
-            // TODO(#534): Once we use stable release of starknet devnet, path of starknet-devnet binary should be adjusted
-            devnetPath.absolutePathString(),
+            "starknet-devnet",
             "--host",
             host,
             "--port",
@@ -103,11 +106,36 @@ class DevnetClient(
             "--state-archive-capacity",
             stateArchiveCapacity.value,
         )
+        devnetProcessBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
         devnetProcess = devnetProcessBuilder.start()
-        devnetProcess.waitFor(8, TimeUnit.SECONDS)
+        devnetStderr.clear()
+        Thread {
+            devnetProcess.errorStream.bufferedReader().forEachLine { devnetStderr.appendLine(it) }
+        }.also { it.isDaemon = true }.start()
 
-        if (!devnetProcess.isAlive) {
-            throw DevnetSetupFailedException("Could not start devnet process")
+        val deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)
+        var devnetReady = false
+        while (System.currentTimeMillis() < deadline) {
+            if (!devnetProcess.isAlive) {
+                throw DevnetSetupFailedException("Could not start devnet process:\n$devnetStderr")
+            }
+            try {
+                val connection = java.net.URL("$baseUrl/is_alive").openConnection() as java.net.HttpURLConnection
+                connection.connectTimeout = 1000
+                connection.readTimeout = 1000
+                connection.requestMethod = "GET"
+                if (connection.responseCode == 200) {
+                    devnetReady = true
+                    break
+                }
+                connection.disconnect()
+            } catch (_: IOException) {
+                // Devnet not ready yet
+            }
+            Thread.sleep(500)
+        }
+        if (!devnetReady) {
+            throw DevnetSetupFailedException("Devnet did not become ready within 60 seconds:\n$devnetStderr")
         }
         isDevnetRunning = true
 
@@ -138,13 +166,18 @@ class DevnetClient(
     private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
         val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
         val payload = HttpService.Payload(
-            url = mintUrl,
+            url = rpcUrl,
             body =
             """
             {
-              "address": "${accountAddress.hexString()}",
-              "amount": 5000000000000000000000000000000000000,
-              "unit": $unit
+              "jsonrpc": "2.0",
+              "id": 0,
+              "method": "devnet_mint",
+              "params": {
+                "address": "${accountAddress.hexString()}",
+                "amount": 100000000000000000000000000000000000,
+                "unit": $unit
+              }
             }
             """.trimIndent(),
             method = "POST",
@@ -405,9 +438,13 @@ class DevnetClient(
         // First two of them come from "scarb build" output, and don't have "command" field
         // Last object is the actual one we want to return
         // Retrieving the last object works in both cases - with one and with few response objects
-        val lines = String(process.inputStream.readAllBytes()).trim().split("\n")
+        val lines = String(process.inputStream.readAllBytes()).trim().split("\n").filter { it != "null" }
         val result = lines.last()
-        return json.decodeFromString(SnCastResponsePolymorphicSerializer, result)
+
+        return json.decodeFromString(
+            SnCastResponsePolymorphicSerializer,
+            result,
+        )
     }
 
     private fun requireNoErrors(command: String, errorStream: String) {
@@ -448,4 +485,26 @@ class DevnetClient(
             throw DevnetTransactionFailedException("$type transaction failed.")
         }
     }
+
+    private fun resolveDevnetPath(): Path {
+        val binaryName = "starknet-devnet"
+
+        return System.getenv("DEVNET_PATH")?.takeIf { it.isNotBlank() }?.let { Paths.get(it) }
+            ?: runAsdfWhich(binaryName)
+            ?: throw DevnetSetupFailedException(
+                "Could not find '$binaryName'. Set DEVNET_PATH env var or ensure it was installed through asdf for the project",
+            )
+    }
+
+    private fun runAsdfWhich(binaryName: String): Path? =
+        ProcessBuilder("asdf", "which", binaryName)
+            .redirectErrorStream(true)
+            .start()
+            .inputStream
+            .readAllBytes()
+            .toString(Charsets.UTF_8)
+            .trim()
+            .takeIf { it.isNotEmpty() }
+            ?.let { Paths.get(it) }
+            ?.takeIf { Files.isExecutable(it) }
 }

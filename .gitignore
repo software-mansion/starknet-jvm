@@ -57,3 +57,11 @@ crypto/poseidon/poseidon
 crypto/poseidon/*.dylib
 crypto/poseidon/*.so
 
+# envs files
+.env
+
+# generated accounts
+lib/src/test/resources/accounts
+
+#spr
+.spr.yml

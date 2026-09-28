@@ -31,7 +31,7 @@ private fun bigintToNative(input: BigInteger): ByteArray {
  * @param input a Felt to be converted
  * @return small endian byte array
  */
-private fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
+internal fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
 
 /**
  * Starknet curve utilities.

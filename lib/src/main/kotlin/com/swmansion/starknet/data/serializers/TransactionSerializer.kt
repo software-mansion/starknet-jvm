@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
-internal val transactionIgnoredKeys = listOf("transaction_hash", "contract_address")
+internal val transactionIgnoredKeys = listOf("transaction_hash", "contract_address", "proof_facts", "proof")
 
 internal object TransactionSerializer : KSerializer<Transaction> {
     override val descriptor = PrimitiveSerialDescriptor("Transaction", PrimitiveKind.STRING)
@@ -37,10 +37,14 @@ internal object TransactionSerializer : KSerializer<Transaction> {
             "TransactionSerializer can only serialize ExecutableTransaction instances."
         }
 
-        val jsonObject = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject
-        val result = JsonObject(
-            jsonObject.filter { (key, _) -> !transactionIgnoredKeys.contains(key) }.plus("type" to encoder.json.encodeToJsonElement(value.type)),
-        )
+        val base = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject.toMutableMap()
+        if (value is InvokeTransactionV3) {
+            value.proof?.let { base["proof"] = JsonPrimitive(it) }
+            if (!value.proofFacts.isNullOrEmpty()) {
+                base["proof_facts"] = JsonArray(value.proofFacts.map { JsonPrimitive(it.hexString()) })
+            }
+        }
+        val result = JsonObject(base)
 
         encoder.encodeJsonElement(result)
     }

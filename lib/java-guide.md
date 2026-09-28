@@ -450,7 +450,7 @@ import static com.swmansion.starknet.helpers.Tip.estimateTip;
 public class Main {
     public static void main(String[] args) {
         JsonRpcProvider provider = new JsonRpcProvider("https://your.node.url/rpc");
-        Uint64 tipEstimate = estimateTip(provider);
+        Uint64 tipEstimate = estimateTip(provider).send();
     }
 }
 ```

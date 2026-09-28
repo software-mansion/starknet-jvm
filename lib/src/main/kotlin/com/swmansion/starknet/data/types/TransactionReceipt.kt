@@ -167,6 +167,7 @@ data class DeclareTransactionReceipt private constructor(
     @SerialName("block_number")
     override val blockNumber: Int? = null,
 
+    @SerialName("type")
     override val type: TransactionType,
 
     @SerialName("messages_sent")

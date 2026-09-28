@@ -137,14 +137,15 @@ git submodule update --init --recursive
 ## Running tests
 
 ### Prerequisites
-- [`starknet-devnet-rs`](https://github.com/0xSpaceShard/starknet-devnet-rs) 
-  - Since it has yet to be released, you will need to build it manually and set `DEVNET_PATH` environment variable that points to a binary:
-    ```shell
-    DEVNET_PATH=/path/to/starknet-devnet-rs/target/release/starknet-devnet
-    ```
-  - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-- [`starknet-foundry`](https://github.com/foundry-rs/starknet-foundry) - provides `sncast` cli
-- [`asdf`](https://github.com/asdf-vm/asdf) version manager and [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
+- [`asdf`](https://github.com/asdf-vm/asdf) version manager and:
+  - [`asdf scarb`](https://github.com/software-mansion/asdf-scarb) plugin
+  - [`asdf starknet-foundry`](https://github.com/foundry-rs/asdf-starknet-foundry) - provides `sncast` cli
+  - [`asdf starknet-devnet`](https://github.com/ptisserand/asdf-starknet-devnet) 
+    - You can also set `DEVNET_PATH` environment variable that points to a binary
+      ```shell
+        DEVNET_PATH=/path/to/starknet-devnet-rs/target/release/starknet-devnet
+      ```
+    - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
 - [`java`](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html) - make sure to have Java 11 installed and set the `JAVA_HOME` environment variable to the path of your JDK installation
 - [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed
 

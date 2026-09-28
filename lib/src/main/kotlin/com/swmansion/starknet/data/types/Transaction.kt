@@ -1,5 +1,6 @@
 package com.swmansion.starknet.data.types
 
+import com.swmansion.starknet.crypto.HashMethod
 import com.swmansion.starknet.data.Cairo1ClassHashCalculator
 import com.swmansion.starknet.data.TransactionHashCalculator
 import com.swmansion.starknet.data.serializers.ExecutableTransactionSerializer
@@ -8,6 +9,7 @@ import com.swmansion.starknet.provider.Provider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonNames
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -264,6 +266,14 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
 
     @SerialName("fee_data_availability_mode")
     override val feeDataAvailabilityMode: DAMode,
+
+    // Optional proof for the transaction, base64-encoded (present when INCLUDE_PROOF_FACTS flag is used in broadcast)
+    @SerialName("proof")
+    val proof: String? = null,
+
+    // Proof facts returned in transaction responses when INCLUDE_PROOF_FACTS response flag is set
+    @SerialName("proof_facts")
+    val proofFacts: List<Felt>? = null,
 ) : InvokeTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
@@ -275,6 +285,8 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         forFeeEstimate: Boolean = false,
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64 = Uint64.ZERO,
+        proofFacts: List<Felt>? = null,
+        proof: String? = null,
     ) : this(
         hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
             senderAddress = senderAddress,
@@ -288,6 +300,7 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
             accountDeploymentData = emptyList(),
             nonceDataAvailabilityMode = DAMode.L1,
             feeDataAvailabilityMode = DAMode.L1,
+            proofFacts = proofFacts,
         ),
         senderAddress = senderAddress,
         calldata = calldata,
@@ -300,6 +313,8 @@ data class InvokeTransactionV3 @JvmOverloads internal constructor(
         accountDeploymentData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
+        proof = proof,
+        proofFacts = proofFacts,
     )
 }
 
@@ -483,6 +498,10 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
 
     @SerialName("contract_class")
     val contractDefinition: Cairo1ContractDefinition? = null,
+
+    // This is here pretty much only for unit testing. It's not used in any logic and not serialized.
+    @Transient
+    internal val hashMethod: HashMethod? = null,
 ) : DeclareTransaction(), TransactionV3, ExecutableTransaction {
     @JvmOverloads
     constructor(
@@ -495,6 +514,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         signature: Signature = emptyList(),
         resourceBounds: ResourceBoundsMapping,
         tip: Uint64 = Uint64.ZERO,
+        hashMethod: HashMethod = HashMethod.BLAKE2S,
     ) : this(
         hash = TransactionHashCalculator.calculateDeclareV3TxHash(
             classHash = Cairo1ClassHashCalculator.computeSierraClassHash(contractDefinition),
@@ -502,7 +522,7 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
             senderAddress = senderAddress,
             version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
             nonce = nonce,
-            compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+            compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition, hashMethod),
             resourceBounds = resourceBounds,
             tip = tip,
             paymasterData = emptyList(),
@@ -516,13 +536,14 @@ data class DeclareTransactionV3 @JvmOverloads constructor(
         version = if (forFeeEstimate) TransactionVersion.V3_QUERY else TransactionVersion.V3,
         signature = signature,
         nonce = nonce,
-        compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition),
+        compiledClassHash = Cairo1ClassHashCalculator.computeCasmClassHash(casmContractDefinition, hashMethod),
         resourceBounds = resourceBounds,
         tip = tip,
         paymasterData = emptyList(),
         accountDeploymentData = emptyList(),
         nonceDataAvailabilityMode = DAMode.L1,
         feeDataAvailabilityMode = DAMode.L1,
+        hashMethod = hashMethod,
     )
 }
 

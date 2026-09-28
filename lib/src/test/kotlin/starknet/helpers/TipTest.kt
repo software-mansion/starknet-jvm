@@ -38,6 +38,13 @@ class TipTest {
                     "parent_hash": "0x1",
                     "sequencer_address": "0x1",
                     "starknet_version": "0.14.0",
+                    "event_commitment": "0x1",
+                    "transaction_commitment": "0x1",
+                    "receipt_commitment": "0x1",
+                    "state_diff_commitment": "0x1",
+                    "event_count": 1,
+                    "transaction_count": 1,
+                    "state_diff_length": 1,
                     "status": "ACCEPTED_ON_L2",
                     "timestamp": 123,
                     "transactions": []
@@ -49,7 +56,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64.ZERO, tipEstimate)
     }
@@ -81,6 +88,13 @@ class TipTest {
                     "parent_hash": "0x1",
                     "sequencer_address": "0x1",
                     "starknet_version": "0.14.0",
+                    "event_commitment": "0x1",
+                    "transaction_commitment": "0x1",
+                    "receipt_commitment": "0x1",
+                    "state_diff_commitment": "0x1",
+                    "event_count": 1,
+                    "transaction_count": 1,
+                    "state_diff_length": 1,
                     "status": "ACCEPTED_ON_L2",
                     "timestamp": 123,
                     "transactions": [
@@ -186,7 +200,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(200), tipEstimate)
     }
@@ -218,6 +232,13 @@ class TipTest {
                     "parent_hash": "0x1",
                     "sequencer_address": "0x1",
                     "starknet_version": "0.14.0",
+                    "event_commitment": "0x1",
+                    "transaction_commitment": "0x1",
+                    "receipt_commitment": "0x1",
+                    "state_diff_commitment": "0x1",
+                    "event_count": 1,
+                    "transaction_count": 1,
+                    "state_diff_length": 1,
                     "status": "ACCEPTED_ON_L2",
                     "timestamp": 123,
                     "transactions": [
@@ -354,7 +375,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(250), tipEstimate)
     }
@@ -387,6 +408,13 @@ class TipTest {
                     "parent_hash": "0x1",
                     "sequencer_address": "0x1",
                     "starknet_version": "0.14.0",
+                    "event_commitment": "0x1",
+                    "transaction_commitment": "0x1",
+                    "receipt_commitment": "0x1",
+                    "state_diff_commitment": "0x1",
+                    "event_count": 1,
+                    "transaction_count": 1,
+                    "state_diff_length": 1,
                     "status": "ACCEPTED_ON_L2",
                     "timestamp": 123,
                     "transactions": [
@@ -505,7 +533,7 @@ class TipTest {
             on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
         }
         val provider = JsonRpcProvider("", httpService)
-        val tipEstimate = estimateTip(provider)
+        val tipEstimate = estimateTip(provider).send()
 
         assertEquals(Uint64(200), tipEstimate)
     }

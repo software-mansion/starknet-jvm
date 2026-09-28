@@ -97,6 +97,54 @@ internal class TransactionHashCalculatorTest {
         }
 
         @Test
+        fun `calculate invoke v3 transaction hash with proof facts`() {
+            // Transaction submitted on integration network
+            val hash = TransactionHashCalculator.calculateInvokeTxV3Hash(
+                senderAddress = Felt.fromHex("0x7bfcd6bd5b220a1d46921d92924ddec46bb7e49d05354c76a8714b41269b2f8"),
+                calldata = listOf(
+                    Felt.fromHex("0x1"),
+                    Felt.fromHex("0x70a5da4f557b77a9c54546e4bcc900806e28793d8e3eaaa207428d2387249b7"),
+                    Felt.fromHex("0x31341177714d81ad9ccd0c903211bc056a60e8af988d0fd918cc43874549653"),
+                    Felt.fromHex("0x0"),
+                ),
+                chainId = StarknetChainId.INTEGRATION_SEPOLIA,
+                version = TransactionVersion.V3,
+                nonce = Felt.fromHex("0x25"),
+                accountDeploymentData = emptyList(),
+                tip = Uint64.ZERO,
+                resourceBounds = ResourceBoundsMapping(
+                    l1Gas = ResourceBounds(
+                        maxAmount = Uint64.ZERO,
+                        maxPricePerUnit = Uint128.fromHex("0x15d3ef79800"),
+                    ),
+                    l2Gas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0x7757fac"),
+                        maxPricePerUnit = Uint128.fromHex("0x2cb417800"),
+                    ),
+                    l1DataGas = ResourceBounds(
+                        maxAmount = Uint64.fromHex("0xc0"),
+                        maxPricePerUnit = Uint128.fromHex("0x5dc"),
+                    ),
+                ),
+                paymasterData = emptyList(),
+                feeDataAvailabilityMode = DAMode.L1,
+                nonceDataAvailabilityMode = DAMode.L1,
+                proofFacts = listOf(
+                    Felt.fromHex("0x50524f4f4630"),
+                    Felt.fromHex("0x5649525455414c5f534e4f53"),
+                    Felt.fromHex("0x3e98c2d7703b03a7edb73ed7f075f97f1dcbaa8f717cdf6e1a57bf058265473"),
+                    Felt.fromHex("0x5649525455414c5f534e4f5330"),
+                    Felt.fromHex("0x2256b2"),
+                    Felt.fromHex("0x4272ea7d22d1b1e91d4d6eb1c55fcb5769b676df746cf2fe77af8fffb86eef2"),
+                    Felt.fromHex("0x6989a681c469d769f3a706c56550a63741a4b2d32bef4b1209a26daad1dbb6"),
+                    Felt.fromHex("0x0"),
+                ),
+            )
+            val expected = Felt.fromHex("0x7c173b8a109ab589694c89431e2c6070ea8662087b012f62081fab6baca4f6e")
+            assertEquals(expected, hash)
+        }
+
+        @Test
         fun `calculate deploy account v3 transaction hash`() {
             val hash = TransactionHashCalculator.calculateDeployAccountV3TxHash(
                 constructorCalldata = listOf(

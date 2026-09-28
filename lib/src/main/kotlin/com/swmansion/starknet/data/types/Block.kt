@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class BlockTag(val tag: String) {
-    LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
+    L1_ACCEPTED("l1_accepted"), LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
 }
 
 @Serializable
@@ -16,7 +16,6 @@ enum class BlockStatus {
     PRE_CONFIRMED,
     ACCEPTED_ON_L1,
     ACCEPTED_ON_L2,
-    REJECTED,
 }
 
 @Serializable(with = BlockIdSerializer::class)
@@ -62,6 +61,13 @@ sealed interface ProcessedBlock : Block {
     val blockHash: Felt
     val parentHash: Felt
     val newRoot: Felt
+    val eventCommitment: Felt
+    val transactionCommitment: Felt
+    val receiptCommitment: Felt
+    val stateDiffCommitment: Felt
+    val eventCount: UInt
+    val transactionCount: UInt
+    val stateDiffLength: UInt
 }
 
 /**
@@ -119,6 +125,27 @@ data class ProcessedBlockWithTransactions(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
+
+    @SerialName("event_commitment")
+    override val eventCommitment: Felt,
+
+    @SerialName("transaction_commitment")
+    override val transactionCommitment: Felt,
+
+    @SerialName("receipt_commitment")
+    override val receiptCommitment: Felt,
+
+    @SerialName("state_diff_commitment")
+    override val stateDiffCommitment: Felt,
+
+    @SerialName("event_count")
+    override val eventCount: UInt,
+
+    @SerialName("transaction_count")
+    override val transactionCount: UInt,
+
+    @SerialName("state_diff_length")
+    override val stateDiffLength: UInt,
 ) : BlockWithTransactions(), ProcessedBlock
 
 @Serializable
@@ -210,6 +237,27 @@ data class ProcessedBlockWithReceipts(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
+
+    @SerialName("event_commitment")
+    override val eventCommitment: Felt,
+
+    @SerialName("transaction_commitment")
+    override val transactionCommitment: Felt,
+
+    @SerialName("receipt_commitment")
+    override val receiptCommitment: Felt,
+
+    @SerialName("state_diff_commitment")
+    override val stateDiffCommitment: Felt,
+
+    @SerialName("event_count")
+    override val eventCount: UInt,
+
+    @SerialName("transaction_count")
+    override val transactionCount: UInt,
+
+    @SerialName("state_diff_length")
+    override val stateDiffLength: UInt,
 ) : BlockWithReceipts(), ProcessedBlock
 
 @Serializable
@@ -287,6 +335,27 @@ data class ProcessedBlockWithTransactionHashes(
 
     @SerialName("starknet_version")
     override val starknetVersion: String,
+
+    @SerialName("event_commitment")
+    override val eventCommitment: Felt,
+
+    @SerialName("transaction_commitment")
+    override val transactionCommitment: Felt,
+
+    @SerialName("receipt_commitment")
+    override val receiptCommitment: Felt,
+
+    @SerialName("state_diff_commitment")
+    override val stateDiffCommitment: Felt,
+
+    @SerialName("event_count")
+    override val eventCount: UInt,
+
+    @SerialName("transaction_count")
+    override val transactionCount: UInt,
+
+    @SerialName("state_diff_length")
+    override val stateDiffLength: UInt,
 ) : BlockWithTransactionHashes(), ProcessedBlock
 
 @Serializable

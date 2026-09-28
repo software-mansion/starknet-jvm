@@ -62,8 +62,19 @@ internal object NativeLoader {
     private fun getLibPath(system: SystemType, architecture: String, name: String): String {
         return when (system) {
             SystemType.MacOS -> "/darwin/$name.dylib"
-            SystemType.Linux -> "/linux/$architecture/$name.so"
+            SystemType.Linux -> {
+                val archPath = getPathForArch(architecture)
+                "/linux/$archPath/$name.so"
+            }
             else -> throw UnsupportedPlatform(operatingSystem.name, architecture)
+        }
+    }
+
+    private fun getPathForArch(arch: String): String {
+        return when (arch.lowercase(Locale.ENGLISH)) {
+            "x86_64", "amd64" -> "amd64"
+            "aarch64", "arm64" -> "arm64"
+            else -> arch.lowercase(Locale.ENGLISH)
         }
     }
 }
