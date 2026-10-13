@@ -18,10 +18,9 @@ jobs:
   test_and_lint:
     strategy:
       matrix:
-        os: [
-          "macos-latest",
-          "ubuntu-latest"
-        ]
+        os:
+          - "macos-latest"
+          - "ubuntu-latest"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -102,7 +101,11 @@ jobs:
 
       - name: Run tests and generate coverage report
         env:
-          NETWORK_TEST_MODE: "disabled"
+          NETWORK_TEST_MODE: "all"
+          NETWORK_TEST_NETWORK_NAME: "SEPOLIA_TESTNET"
+          SEPOLIA_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
+          SEPOLIA_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
+          SEPOLIA_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
