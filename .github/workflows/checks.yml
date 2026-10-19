@@ -15,7 +15,7 @@ env:
   SNFOUNDRY_SHA: 3d227d0aa6bf896f912144088f3c7bf0424f4c13
 
 jobs:
-  test_and_lint:
+  test:
     strategy:
       matrix:
         os: [
@@ -86,8 +86,64 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Run tests and generate coverage report
+        env:
+          NETWORK_TEST_MODE: "disabled"
+        run: ./gradlew :lib:koverXmlReport --info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
+        with:
+          files: lib/build/reports/kover/report.xml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: false
+
       - name: Lint
         run: ./gradlew :lib:lintKotlin
+
+  check-guides:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: false
 
       - name: Check guides
         run: |
@@ -99,13 +155,3 @@ jobs:
           else
             echo "Guides are up-to-date"
           fi
-
-      - name: Run tests and generate coverage report
-        env:
-          NETWORK_TEST_MODE: "disabled"
-        run: ./gradlew :lib:koverXmlReport --info
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
-        with:
-          files: lib/build/reports/kover/report.xml
