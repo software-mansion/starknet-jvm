@@ -137,22 +137,29 @@ class AccountTest {
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val feeEstimatePayload = account.signDeclareV3(
-            contractDefinition,
-            contractCasmDefinition,
-            DeclareParamsV3(nonce, ResourceBoundsMapping.ZERO),
-            forFeeEstimate = true,
+        val resourceBounds = ResourceBoundsMapping(
+            l1Gas = ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+            l2Gas = ResourceBounds(
+                maxAmount = Uint64(1_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+            ),
+            l1DataGas = ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
         )
-        val feeEstimate = provider.getEstimateFee(listOf(feeEstimatePayload), BlockTag.PRE_CONFIRMED)
-            .send().values.first()
-        val resourceBounds = feeEstimate.toResourceBounds(
-            amountMultiplier = 1.2,
-            unitPriceMultiplier = 1.2,
+
+        val params = DeclareParamsV3(
+            nonce = nonce,
+            resourceBounds = resourceBounds,
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
             contractCasmDefinition,
-            DeclareParamsV3(nonce, resourceBounds),
+            params,
         )
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
