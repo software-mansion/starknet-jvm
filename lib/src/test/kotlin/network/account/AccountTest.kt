@@ -108,13 +108,13 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PRE_CONFIRMED)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertEquals(Felt(0), feeEstimate.l1GasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
-        assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
-        assertNotEquals(Felt(0), feeEstimate.l1DataGasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l1DataGasPrice)
-        assertNotEquals(Felt(0), feeEstimate.overallFee)
+        assertEquals(Uint64.ZERO, feeEstimate.l1GasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l1GasPrice)
+        assertNotEquals(Uint64.ZERO, feeEstimate.l2GasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l2GasPrice)
+        assertNotEquals(Uint64.ZERO, feeEstimate.l1DataGasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l1DataGasPrice)
+        assertNotEquals(Uint128.ZERO, feeEstimate.overallFee)
     }
 
     @Test
