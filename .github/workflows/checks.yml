@@ -11,16 +11,17 @@ concurrency:
 
 env:
   GH_TOKEN: ${{ github.token }}
-# TODO: Remove below env once stable release of starknet foundry is available
+  # TODO: Remove below env once stable release of starknet foundry is available
   SNFOUNDRY_SHA: 3d227d0aa6bf896f912144088f3c7bf0424f4c13
 
 jobs:
-  test_and_lint:
+  test:
     strategy:
       matrix:
-        os:
-          - "macos-latest"
-          - "ubuntu-latest"
+        os: [
+          "macos-latest",
+          "ubuntu-latest"
+        ]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -69,9 +70,9 @@ jobs:
 
       - name: Install starknet-foundry
         run: |
-           asdf plugin add starknet-foundry
-           asdf install starknet-foundry nightly-2025-12-02
-           asdf set starknet-foundry nightly-2025-12-02 --home
+          asdf plugin add starknet-foundry
+          asdf install starknet-foundry nightly-2025-12-02
+          asdf set starknet-foundry nightly-2025-12-02 --home
 
       - name: Install scarb
         run: |
@@ -85,8 +86,64 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Run tests and generate coverage report
+        env:
+          NETWORK_TEST_MODE: "disabled"
+        run: ./gradlew :lib:koverXmlReport --info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
+        with:
+          files: lib/build/reports/kover/report.xml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: false
+
       - name: Lint
         run: ./gradlew :lib:lintKotlin
+
+  check-guides:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: false
 
       - name: Check guides
         run: |
@@ -98,17 +155,3 @@ jobs:
           else
             echo "Guides are up-to-date"
           fi
-
-      - name: Run tests and generate coverage report
-        env:
-          NETWORK_TEST_MODE: "all"
-          NETWORK_TEST_NETWORK_NAME: "SEPOLIA_TESTNET"
-          SEPOLIA_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
-          SEPOLIA_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
-          SEPOLIA_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
-        run: ./gradlew :lib:koverXmlReport --info
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
-        with:
-          files: lib/build/reports/kover/report.xml
