@@ -129,6 +129,8 @@ class AccountTest {
         ScarbClient.buildSaltedContract(
             placeholderContractPath = contractPath,
             saltedContractPath = contractPath,
+            placeholderText = "Enter a name",
+            saltText = "Enter a name ${System.currentTimeMillis()}",
         )
         val contractCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.contract_class.json").readText()
         val casmCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.compiled_contract_class.json").readText()
@@ -337,7 +339,7 @@ class AccountTest {
             contractAddress = strkContractAddress,
             entrypoint = "transfer",
             calldata = listOf(deployedAccountAddress) +
-                resourceBounds.l1Gas.toMaxFee().toUint256.toCalldata(),
+                feeEstimate.toMaxFee().toUint256.toCalldata(),
         )
 
         val transferRequest = account.executeV3(call)
