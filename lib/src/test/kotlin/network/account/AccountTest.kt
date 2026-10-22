@@ -118,37 +118,36 @@ class AccountTest {
     }
 
     @Test
-    fun `sign and send declare v3 transaction (cairo compiler v2)`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+    fun `sign and send declare v3 transaction`() {
+//        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
         val account = standardAccount
 
+        val contractPath = Path.of("src/test/resources/contracts_v2_6/src/hello_starknet.cairo")
         ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            placeholderContractPath = contractPath,
+            saltedContractPath = contractPath,
         )
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.contract_class.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.compiled_contract_class.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
+        val feeEstimatePayload = account.signDeclareV3(
+            contractDefinition,
+            contractCasmDefinition,
+            DeclareParamsV3(nonce, ResourceBoundsMapping.ZERO),
+            forFeeEstimate = true,
+        )
+        val feeEstimate = provider.getEstimateFee(listOf(feeEstimatePayload), BlockTag.PRE_CONFIRMED)
+            .send().values.first()
+        val resourceBounds = feeEstimate.toResourceBounds(
+            amountMultiplier = 1.2,
+            unitPriceMultiplier = 1.2,
         )
         val declareTransactionPayload = account.signDeclareV3(
             contractDefinition,
@@ -159,57 +158,6 @@ class AccountTest {
         val result = request.send()
 
         Thread.sleep(30000)
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-        assertTrue(receipt.isAccepted)
-    }
-
-    @Test
-    fun `sign and send declare v3 transaction`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing failures in this test.
-        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
-
-        val account = standardAccount
-
-        ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
-        )
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
-
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
-        val nonce = account.getNonce().send()
-
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-        )
-        val params = DeclareParamsV3(
-            nonce = nonce,
-            resourceBounds = resourceBounds,
-        )
-        val declareTransactionPayload = account.signDeclareV3(
-            contractDefinition,
-            contractCasmDefinition,
-            params,
-        )
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
-
-        Thread.sleep(60000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
@@ -668,7 +616,7 @@ class AccountTest {
                 maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
+                maxAmount = Uint64(1_000_000_000),
                 maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
@@ -709,7 +657,7 @@ class AccountTest {
                 maxPricePerUnit = Uint128(10_000_000_000_000_000),
             ),
             l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
+                maxAmount = Uint64(1_000_000_000),
                 maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
             ),
             l1DataGas = ResourceBounds(
