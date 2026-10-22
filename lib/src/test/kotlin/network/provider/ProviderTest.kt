@@ -560,7 +560,7 @@ class ProviderTest {
         assertTrue(invokeTrace.executionResources.l2Gas >= 0u)
     }
 
-    @Disabled("TODO")
+    @Disabled("TODO(#641)")
     @Test
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
