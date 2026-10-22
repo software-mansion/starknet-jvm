@@ -119,7 +119,7 @@ class AccountTest {
 
     @Test
     fun `sign and send declare v3 transaction`() {
-//        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
+        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
         // Note to future developers experiencing failures in this test.
         // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
 
