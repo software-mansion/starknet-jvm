@@ -334,12 +334,15 @@ class AccountTest {
 
         val feeEstimate = feeEstimateRequest.send().values.first()
         val resourceBounds = feeEstimate.toResourceBounds()
+        val maxFee = resourceBounds.l1Gas.toMaxFee().value
+            .add(resourceBounds.l2Gas.toMaxFee().value)
+            .add(resourceBounds.l1DataGas.toMaxFee().value)
 
         val call = Call(
             contractAddress = strkContractAddress,
             entrypoint = "transfer",
             calldata = listOf(deployedAccountAddress) +
-                feeEstimate.toMaxFee().toUint256.toCalldata(),
+                maxFee.toFelt.toUint256.toCalldata(),
         )
 
         val transferRequest = account.executeV3(call)
