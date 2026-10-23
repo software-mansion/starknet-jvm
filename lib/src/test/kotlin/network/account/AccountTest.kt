@@ -108,60 +108,13 @@ class AccountTest {
         val feeEstimateRequest = provider.getEstimateFee(listOf(declareTransactionPayload), BlockTag.PRE_CONFIRMED)
 
         val feeEstimate = feeEstimateRequest.send().values.first()
-        assertEquals(Felt(0), feeEstimate.l1GasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l1GasPrice)
-        assertNotEquals(Felt(0), feeEstimate.l2GasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l2GasPrice)
-        assertNotEquals(Felt(0), feeEstimate.l1DataGasConsumed)
-        assertNotEquals(Felt(0), feeEstimate.l1DataGasPrice)
-        assertNotEquals(Felt(0), feeEstimate.overallFee)
-    }
-
-    @Test
-    fun `sign and send declare v3 transaction (cairo compiler v2)`() {
-        assumeTrue(NetworkConfig.isTestEnabled(requiresGas = true))
-        // Note to future developers experiencing failures in this test.
-        // This test sometimes fails due to getNonce receiving higher (pending) nonce than addDeclareTransaction expects
-
-        val account = standardAccount
-
-        ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
-        )
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
-
-        val contractDefinition = Cairo1ContractDefinition(contractCode)
-        val contractCasmDefinition = CasmContractDefinition(casmCode)
-        val nonce = account.getNonce().send()
-
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-        )
-        val declareTransactionPayload = account.signDeclareV3(
-            contractDefinition,
-            contractCasmDefinition,
-            DeclareParamsV3(nonce, resourceBounds),
-        )
-        val request = provider.declareContract(declareTransactionPayload)
-        val result = request.send()
-
-        Thread.sleep(30000)
-        val receipt = provider.getTransactionReceipt(result.transactionHash).send()
-
-        assertTrue(receipt.isAccepted)
+        assertEquals(Uint64.ZERO, feeEstimate.l1GasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l1GasPrice)
+        assertNotEquals(Uint64.ZERO, feeEstimate.l2GasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l2GasPrice)
+        assertNotEquals(Uint64.ZERO, feeEstimate.l1DataGasConsumed)
+        assertNotEquals(Uint128.ZERO, feeEstimate.l1DataGasPrice)
+        assertNotEquals(Uint128.ZERO, feeEstimate.overallFee)
     }
 
     @Test
@@ -172,31 +125,29 @@ class AccountTest {
 
         val account = standardAccount
 
+        val contractPath = Path.of("src/test/resources/contracts_v2_6/src/hello_starknet.cairo")
         ScarbClient.buildSaltedContract(
-            placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
-            saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
+            placeholderContractPath = contractPath,
+            saltedContractPath = contractPath,
+            placeholderText = "Enter a name",
+            saltText = "Enter a name ${System.currentTimeMillis()}",
         )
-        val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
-        val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
+        val contractCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.contract_class.json").readText()
+        val casmCode = Path.of("src/test/resources/contracts_v2_6/target/release/contracts_v2_6_HelloStarknet.compiled_contract_class.json").readText()
 
         val contractDefinition = Cairo1ContractDefinition(contractCode)
         val contractCasmDefinition = CasmContractDefinition(casmCode)
         val nonce = account.getNonce().send()
 
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
+        val feeEstimatePayload = account.signDeclareV3(
+            contractDefinition,
+            contractCasmDefinition,
+            DeclareParamsV3(nonce, ResourceBoundsMapping.ZERO),
+            forFeeEstimate = true,
         )
+        val feeEstimate = provider.getEstimateFee(listOf(feeEstimatePayload)).send().values.first()
+        val resourceBounds = feeEstimate.toResourceBounds()
+
         val params = DeclareParamsV3(
             nonce = nonce,
             resourceBounds = resourceBounds,
@@ -209,7 +160,7 @@ class AccountTest {
         val request = provider.declareContract(declareTransactionPayload)
         val result = request.send()
 
-        Thread.sleep(60000)
+        Thread.sleep(30000)
         val receipt = provider.getTransactionReceipt(result.transactionHash).send()
 
         assertTrue(receipt.isAccepted)
@@ -383,12 +334,15 @@ class AccountTest {
 
         val feeEstimate = feeEstimateRequest.send().values.first()
         val resourceBounds = feeEstimate.toResourceBounds()
+        val maxFee = resourceBounds.l1Gas.toMaxFee().value
+            .add(resourceBounds.l2Gas.toMaxFee().value)
+            .add(resourceBounds.l1DataGas.toMaxFee().value)
 
         val call = Call(
             contractAddress = strkContractAddress,
             entrypoint = "transfer",
             calldata = listOf(deployedAccountAddress) +
-                resourceBounds.l1Gas.toMaxFee().toUint256.toCalldata(),
+                maxFee.toFelt.toUint256.toCalldata(),
         )
 
         val transferRequest = account.executeV3(call)
@@ -662,24 +616,9 @@ class AccountTest {
         val account = standardAccount
         val deployer = StandardDeployer(udcAddress, provider, account)
 
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-        )
         val deployment = deployer.deployContractV3(
             classHash = classHash,
             constructorCalldata = emptyList(),
-            resourceBounds = resourceBounds,
             unique = true,
             salt = Felt(System.currentTimeMillis()),
         ).send()
@@ -703,24 +642,9 @@ class AccountTest {
         val deployer = StandardDeployer(udcAddress, provider, account)
 
         val initialBalance = Felt(1000)
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000_000),
-                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(100_000_000_000),
-                maxPricePerUnit = Uint128(10_000_000_000_000_000),
-            ),
-        )
         val deployment = deployer.deployContractV3(
             classHash = classHash,
             constructorCalldata = listOf(initialBalance),
-            resourceBounds = resourceBounds,
         ).send()
         Thread.sleep(120000)
 

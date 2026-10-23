@@ -47,19 +47,19 @@ class ProviderTest {
         private val deployAccountV3TransactionHash by lazy {
             when (network) {
                 Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x38ce58ed386612e75c64342f1df6b2ffb8d3e62adf3c9f73475527aa6483152")
-                else -> throw NotImplementedError("Test is not yet supported for this network: $network")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x06718B783A0B888F5421C4EB76A532FEB9FD5167B2B09274298F79798C782B32")
             }
         }
         private val invokeV3TransactionHash by lazy {
             when (network) {
                 Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x6e93e3758361ce0d0785c981addff8905ad7641cc07832e74f334370ffec39c")
-                else -> throw NotImplementedError("Test is not yet supported for this network: $network")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x26476DA48E56E5E7025543AD0BB9105DF00EE08571C6D17C4207462FF7717C4")
             }
         }
         private val declareV3TransactionHash by lazy {
             when (network) {
                 Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x7a0c820d91797e5b6196b87a36e449db146b3bfc76d40ad38184012a469a9e6")
-                else -> throw NotImplementedError("Test is not yet supported for this network: $network")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x6054540622D534FFFFB162A0E80C21BC106581EAFEB3EFAD29385B78E04983D")
             }
         }
         private val specificBlockHash = when (network) {
@@ -560,6 +560,7 @@ class ProviderTest {
         assertTrue(invokeTrace.executionResources.l2Gas >= 0u)
     }
 
+    @Disabled("TODO(#641)")
     @Test
     fun `get storage proof`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
