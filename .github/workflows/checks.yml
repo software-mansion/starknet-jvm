@@ -93,6 +93,7 @@ jobs:
           SEPOLIA_TESTNET_RPC_URL: ${{ secrets.TESTNET_RPC_URL }}
           SEPOLIA_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
           SEPOLIA_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+          SEPOLIA_TESTNET_ACCOUNT_CAIRO_VERSION: ${{ secrets.TESTNET_ACCOUNT_CAIRO_VERSION }}
         run: ./gradlew :lib:koverXmlReport --info
 
       - name: Upload coverage to Codecov
