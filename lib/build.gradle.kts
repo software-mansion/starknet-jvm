@@ -25,7 +25,7 @@ plugins {
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     dokkaSourceSets.create("dokkaHtmlJava") {
         dependencies {
-            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:1.8.20")
+            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
         }
     }
 }
@@ -225,25 +225,25 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.21")
 
     // Use the Kotlin reflection library.
     implementation(kotlin("reflect"))
 
     // Use the JUnit test library.
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.3")
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")   // Highest version that works with Gradle 7.6.2
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.4.0")   // Highest version that works with Gradle 7.6.2
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
-    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.86")
 
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:5.5.1")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     implementation("org.apache.commons:commons-math3:3.6.1")
 
