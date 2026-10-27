@@ -17,7 +17,10 @@ import com.swmansion.starknet.service.http.HttpService
 import com.swmansion.starknet.signer.Signer
 import com.swmansion.starknet.signer.StarkCurveSigner
 import network.account.AccountTest.Companion.standardAccount
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -1762,7 +1765,7 @@ class StandardAccountTest {
             )
 
             assertTrue {
-                assertThrows<RpcRequestFailedException> {
+                assertThrows(RpcRequestFailedException::class.java) {
                     secondAccount.executeV3(outsideCall).send()
                 }.payload.contains("SRC9: invalid caller")
             }
@@ -1785,7 +1788,7 @@ class StandardAccountTest {
             )
 
             assertTrue {
-                assertThrows<RpcRequestFailedException> {
+                assertThrows(RpcRequestFailedException::class.java) {
                     secondAccount.executeV3(outsideCall).send()
                 }.payload.contains("SRC9: now >= execute_before")
             }

@@ -4,7 +4,8 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
 import org.junit.jupiter.api.parallel.Execution

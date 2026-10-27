@@ -233,6 +233,7 @@ dependencies {
     // Use the JUnit test library.
     testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.4.0")   // Highest version that works with Gradle 7.6.2
