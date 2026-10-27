@@ -12,7 +12,10 @@ internal object Uint128DecimalSerializer : KSerializer<Uint128> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Uint128(decimal)", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Uint128) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Uint128,
+    ) {
         encoder.encodeString(value.toString())
     }
 

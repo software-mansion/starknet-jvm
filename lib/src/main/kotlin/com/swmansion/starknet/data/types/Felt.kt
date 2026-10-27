@@ -9,7 +9,11 @@ import java.math.BigInteger
 import java.security.SecureRandom
 
 @Serializable(with = FeltSerializer::class)
-data class Felt(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata, StarknetResponse {
+data class Felt(
+    override val value: BigInteger,
+) : NumAsHexBase(value),
+    ConvertibleToCalldata,
+    StarknetResponse {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 
@@ -76,9 +80,7 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
          * @param value hex string.
          */
         @JvmStatic
-        fun fromHex(value: String): Felt {
-            return Felt(parseHex(value))
-        }
+        fun fromHex(value: String): Felt = Felt(parseHex(value))
 
         /**
          * Create Felt from ASCII string. It must be shorter than 32 characters and only contain ASCII encoding.
@@ -95,9 +97,10 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
                 throw IllegalArgumentException("String to be encoded must be an ascii string.")
             }
 
-            val encoded = value.toCharArray().joinToString("") { c ->
-                c.code.toString(16).padStart(2, '0')
-            }
+            val encoded =
+                value.toCharArray().joinToString("") { c ->
+                    c.code.toString(16).padStart(2, '0')
+                }
 
             return fromHex("0x$encoded")
         }
@@ -130,9 +133,7 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
          * Calculated as [value] mod [Felt.PRIME].
          */
         @JvmStatic
-        fun fromSigned(value: Long): Felt {
-            return fromSigned(BigInteger.valueOf(value))
-        }
+        fun fromSigned(value: Long): Felt = fromSigned(BigInteger.valueOf(value))
 
         /**
          * Create Felt from signed [Int] value.
@@ -140,8 +141,6 @@ data class Felt(override val value: BigInteger) : NumAsHexBase(value), Convertib
          * Calculated as [value] mod [Felt.PRIME].
          */
         @JvmStatic
-        fun fromSigned(value: Int): Felt {
-            return fromSigned(BigInteger.valueOf(value.toLong()))
-        }
+        fun fromSigned(value: Int): Felt = fromSigned(BigInteger.valueOf(value.toLong()))
     }
 }

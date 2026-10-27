@@ -9,7 +9,9 @@ import java.lang.IllegalArgumentException
 internal object TransactionTracePolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionTrace>(TransactionTrace::class) {
     private fun selectInvokeTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<InvokeTransactionTraceBase> {
-        val executeInvocation = jsonObject["execute_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
+        val executeInvocation =
+            jsonObject["execute_invocation"]?.jsonObject
+                ?: throw IllegalStateException("Response from node contains invalid INVOKE_TXN_TRACE: execute_invocation is missing.")
         val isReverted = "revert_reason" in executeInvocation
 
         return when (isReverted) {
@@ -18,8 +20,12 @@ internal object TransactionTracePolymorphicSerializer :
         }
     }
 
-    private fun selectL1HandlerTransactionTraceDeserializer(jsonObject: JsonObject): DeserializationStrategy<L1HandlerTransactionTraceBase> {
-        val functionInvocation = jsonObject["function_invocation"]?.jsonObject ?: throw IllegalStateException("Response from node contains invalid L1_HANDLER_TXN_TRACE: function_invocation is missing.")
+    private fun selectL1HandlerTransactionTraceDeserializer(
+        jsonObject: JsonObject,
+    ): DeserializationStrategy<L1HandlerTransactionTraceBase> {
+        val functionInvocation =
+            jsonObject["function_invocation"]?.jsonObject
+                ?: throw IllegalStateException("Response from node contains invalid L1_HANDLER_TXN_TRACE: function_invocation is missing.")
         val isReverted = "revert_reason" in functionInvocation
 
         return when (isReverted) {
@@ -31,7 +37,10 @@ internal object TransactionTracePolymorphicSerializer :
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionTrace> {
         val jsonObject = element.jsonObject
 
-        val typeElement = jsonObject.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
+        val typeElement =
+            jsonObject.getOrElse(
+                "type",
+            ) { throw SerializationException("Input element does not contain mandatory field 'type'") }
         val type = Json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
 
         return when (type) {

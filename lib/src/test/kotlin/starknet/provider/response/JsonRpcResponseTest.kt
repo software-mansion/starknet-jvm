@@ -17,7 +17,8 @@ import org.mockito.kotlin.mock
 class JsonRpcResponseTest {
     @Test
     fun `rpc provider parses response with unknown keys`() {
-        val mockResponse = """
+        val mockResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -36,10 +37,11 @@ class JsonRpcResponseTest {
                     "unknown_sequence": ["0x1", "0x2"]
                 }
             }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
+            """.trimIndent()
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+            }
         val message = MessageL1ToL2(Felt.ONE, Felt.ONE, Felt.ONE, Felt.ONE, listOf(Felt.ZERO, Felt.ONE))
 
         val provider = JsonRpcProvider("", httpServiceMock, ignoreUnknownJsonKeys = true)
@@ -63,15 +65,17 @@ class JsonRpcResponseTest {
     @Test
     fun `rpc provider falls back to basic exception on unknown format`() {
         val message = "{\"status_code\": 500, \"status_message\": \"error\"}"
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(false, 500, message)
-        }
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(false, 500, message)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
-        val exception = assertThrows(RequestFailedException::class.java) {
-            request.send()
-        }
+        val exception =
+            assertThrows(RequestFailedException::class.java) {
+                request.send()
+            }
         assertFalse(exception is RpcRequestFailedException)
         assertEquals("Request failed", exception.message)
         assertEquals(message, exception.payload)
@@ -79,7 +83,8 @@ class JsonRpcResponseTest {
 
     @Test
     fun `rpc provider parses rpc error without data`() {
-        val message = """
+        val message =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -88,23 +93,26 @@ class JsonRpcResponseTest {
                     "message": "Invalid message selector"
                 }
             }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, message)
-        }
+            """.trimIndent()
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, message)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
-        val exception = assertThrows(RpcRequestFailedException::class.java) {
-            request.send()
-        }
+        val exception =
+            assertThrows(RpcRequestFailedException::class.java) {
+                request.send()
+            }
         assertEquals(21, exception.code)
         assertEquals("Invalid message selector", exception.message)
     }
 
     @Test
     fun `rpc provider parses rpc error with data object`() {
-        val message = """
+        val message =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -120,16 +128,18 @@ class JsonRpcResponseTest {
                     }
                 }
             }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, message)
-        }
+            """.trimIndent()
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, message)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
-        val exception = assertThrows(RpcRequestFailedException::class.java) {
-            request.send()
-        }
+        val exception =
+            assertThrows(RpcRequestFailedException::class.java) {
+                request.send()
+            }
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("{\"error\":\"Invalid message selector\",\"details\":{\"selector\":\"0x1234\",\"id\":789}}", exception.data)
@@ -137,7 +147,8 @@ class JsonRpcResponseTest {
 
     @Test
     fun `rpc provider parses rpc error with data primitive`() {
-        val message = """
+        val message =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -147,16 +158,18 @@ class JsonRpcResponseTest {
                     "data": "Invalid message selector"
                 }
             }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, message)
-        }
+            """.trimIndent()
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, message)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
-        val exception = assertThrows(RpcRequestFailedException::class.java) {
-            request.send()
-        }
+        val exception =
+            assertThrows(RpcRequestFailedException::class.java) {
+                request.send()
+            }
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("Invalid message selector", exception.data)
@@ -164,7 +177,8 @@ class JsonRpcResponseTest {
 
     @Test
     fun `rpc handler parses rpc error with data array`() {
-        val message = """
+        val message =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -177,16 +191,18 @@ class JsonRpcResponseTest {
                     ]
                 }
             }
-        """.trimIndent()
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, message)
-        }
+            """.trimIndent()
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, message)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
         val request = provider.getTransaction(Felt(1))
 
-        val exception = assertThrows(RpcRequestFailedException::class.java) {
-            request.send()
-        }
+        val exception =
+            assertThrows(RpcRequestFailedException::class.java) {
+                request.send()
+            }
         assertEquals(-32603, exception.code)
         assertEquals("Internal error", exception.message)
         assertEquals("[\"Invalid message selector\",\"0x1234\"]", exception.data)
@@ -194,36 +210,39 @@ class JsonRpcResponseTest {
 
     @Test
     fun `rpc provider parses batch response with incorrect order`() {
-        val mockResponse = """
-           [
-              {
-                "id": "1",
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "REVERTED"
-                }
-              },
-              {
-                "id": "0",
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "SUCCEEDED"
-                }
-              }
-            ]
-        """.trimIndent()
+        val mockResponse =
+            """
+            [
+               {
+                 "id": "1",
+                 "jsonrpc": "2.0",
+                 "result": {
+                   "finality_status": "ACCEPTED_ON_L2",
+                   "execution_status": "REVERTED"
+                 }
+               },
+               {
+                 "id": "0",
+                 "jsonrpc": "2.0",
+                 "result": {
+                   "finality_status": "ACCEPTED_ON_L2",
+                   "execution_status": "SUCCEEDED"
+                 }
+               }
+             ]
+            """.trimIndent()
 
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt(1)),
-            provider.getTransactionStatus(Felt(2)),
-        )
+        val request =
+            provider.batchRequests(
+                provider.getTransactionStatus(Felt(1)),
+                provider.getTransactionStatus(Felt(2)),
+            )
         val response = request.send()
 
         val txStatusResponse1 = response[0].getOrThrow()
@@ -238,37 +257,40 @@ class JsonRpcResponseTest {
 
     @Test
     fun `rpc provider parses batch response with error`() {
-        val mockResponse = """
-           [
-              {
-                "id": "1",
-                "jsonrpc": "2.0",
-                "result": {
-                  "finality_status": "ACCEPTED_ON_L2",
-                  "execution_status": "REVERTED"
-                }
-              },
-              {
-                "id": 0,
-                "jsonrpc": "2.0",
-                "error": {
-                    "code": -32603,
-                    "message": "Internal error",
-                    "data": "Invalid message selector"
-                }
-              }
-            ]
-        """.trimIndent()
+        val mockResponse =
+            """
+            [
+               {
+                 "id": "1",
+                 "jsonrpc": "2.0",
+                 "result": {
+                   "finality_status": "ACCEPTED_ON_L2",
+                   "execution_status": "REVERTED"
+                 }
+               },
+               {
+                 "id": 0,
+                 "jsonrpc": "2.0",
+                 "error": {
+                     "code": -32603,
+                     "message": "Internal error",
+                     "data": "Invalid message selector"
+                 }
+               }
+             ]
+            """.trimIndent()
 
-        val httpServiceMock = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
-        }
+        val httpServiceMock =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockResponse)
+            }
         val provider = JsonRpcProvider("", httpServiceMock)
 
-        val request = provider.batchRequests(
-            provider.getTransactionStatus(Felt(1)),
-            provider.getTransactionStatus(Felt(1)),
-        )
+        val request =
+            provider.batchRequests(
+                provider.getTransactionStatus(Felt(1)),
+                provider.getTransactionStatus(Felt(1)),
+            )
         val response = request.send()
 
         val txStatusResponse1 = response[0]

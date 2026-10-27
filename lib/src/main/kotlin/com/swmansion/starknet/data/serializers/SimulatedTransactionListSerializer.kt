@@ -16,7 +16,10 @@ internal object SimulatedTransactionListSerializer : KSerializer<SimulatedTransa
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = listSerialDescriptor<SimulatedTransaction>()
 
-    override fun serialize(encoder: Encoder, value: SimulatedTransactionList) {
+    override fun serialize(
+        encoder: Encoder,
+        value: SimulatedTransactionList,
+    ) {
         encoder.encodeSerializableValue(listSerializer, value.values)
     }
 

@@ -9,13 +9,10 @@ import kotlinx.serialization.Serializable
 internal data class JsonRpcResponse<T : StarknetResponse>(
     @SerialName("id")
     val id: Int,
-
     @SerialName("jsonrpc")
     val jsonRpc: String,
-
     @SerialName("result")
     val result: T? = null,
-
     @SerialName("error")
     val error: JsonRpcError? = null,
 )
@@ -24,10 +21,8 @@ internal data class JsonRpcResponse<T : StarknetResponse>(
 internal data class JsonRpcError(
     @SerialName("code")
     val code: Int,
-
     @SerialName("message")
     val message: String,
-
     @SerialName("data")
     val data: String? = null,
 )

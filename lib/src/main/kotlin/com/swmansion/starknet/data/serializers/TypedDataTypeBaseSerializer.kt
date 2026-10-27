@@ -10,14 +10,28 @@ internal object TypedDataTypeBaseSerializer : JsonContentPolymorphicSerializer<T
         val type = element.jsonObject["type"]?.jsonPrimitive?.content
 
         return when (type) {
-            "merkletree" -> TypedData.MerkleTreeType.serializer()
-            "enum" -> when (element.jsonObject["contains"]?.jsonPrimitive?.content) {
-                null -> TypedData.StandardType.serializer()
-                else -> TypedData.EnumType.serializer()
+            "merkletree" -> {
+                TypedData.MerkleTreeType.serializer()
             }
-            is String -> TypedData.StandardType.serializer()
-            null -> throw IllegalArgumentException("Input element does not contain mandatory field 'type'")
-            else -> throw IllegalArgumentException("Unknown type '$type'")
+
+            "enum" -> {
+                when (element.jsonObject["contains"]?.jsonPrimitive?.content) {
+                    null -> TypedData.StandardType.serializer()
+                    else -> TypedData.EnumType.serializer()
+                }
+            }
+
+            is String -> {
+                TypedData.StandardType.serializer()
+            }
+
+            null -> {
+                throw IllegalArgumentException("Input element does not contain mandatory field 'type'")
+            }
+
+            else -> {
+                throw IllegalArgumentException("Unknown type '$type'")
+            }
         }
     }
 }

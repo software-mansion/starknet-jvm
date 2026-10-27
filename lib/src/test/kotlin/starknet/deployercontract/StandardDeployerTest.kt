@@ -16,11 +16,12 @@ import java.nio.file.Paths
 
 @Execution(ExecutionMode.SAME_THREAD)
 object StandardDeployerTest {
-    private val devnetClient = DevnetClient(
-        port = 5053,
-        accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
-        contractsDirectory = Paths.get("src/test/resources/contracts"),
-    )
+    private val devnetClient =
+        DevnetClient(
+            port = 5053,
+            accountDirectory = Paths.get("src/test/resources/accounts/standard_deployer_test"),
+            contractsDirectory = Paths.get("src/test/resources/contracts"),
+        )
     private val provider = JsonRpcProvider(devnetClient.rpcUrl)
 
     private lateinit var signer: Signer
@@ -41,10 +42,11 @@ object StandardDeployerTest {
             signer = StarkCurveSigner(accountDetails.privateKey)
             accountAddress = accountDetails.address
             val chainId = provider.getChainId().send()
-            standardDeployer = StandardDeployer(
-                provider,
-                StandardAccount(accountAddress, signer, provider, chainId),
-            )
+            standardDeployer =
+                StandardDeployer(
+                    provider,
+                    StandardAccount(accountAddress, signer, provider, chainId),
+                )
         } catch (ex: Exception) {
             devnetClient.close()
             throw ex
@@ -54,12 +56,14 @@ object StandardDeployerTest {
     @Test
     fun testUdcDeployV3() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV3(
-            classHash = balanceContractClassHash,
-            unique = true,
-            salt = Felt(301),
-            constructorCalldata = listOf(initialBalance),
-        ).send()
+        val deployment =
+            standardDeployer
+                .deployContractV3(
+                    classHash = balanceContractClassHash,
+                    unique = true,
+                    salt = Felt(301),
+                    constructorCalldata = listOf(initialBalance),
+                ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_balance")).send()
@@ -69,39 +73,48 @@ object StandardDeployerTest {
     @Test
     fun testUdcDeployV3WithSpecificResourceBounds() {
         val initialBalance = Felt(1000)
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(50000000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-        )
-        val deployment = standardDeployer.deployContractV3(
-            classHash = balanceContractClassHash,
-            unique = true,
-            salt = Felt(302),
-            constructorCalldata = listOf(initialBalance),
-            resourceBounds = resourceBounds,
-        ).send()
+        val resourceBounds =
+            ResourceBoundsMapping(
+                l1Gas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+                l2Gas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+                l1DataGas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+            )
+        val deployment =
+            standardDeployer
+                .deployContractV3(
+                    classHash = balanceContractClassHash,
+                    unique = true,
+                    salt = Felt(302),
+                    constructorCalldata = listOf(initialBalance),
+                    resourceBounds = resourceBounds,
+                ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue) }
+        assertEquals(listOf(initialBalance), contractValue)
+    }
 
     @Test
     fun testUdcDeployV3WithDefaultParameters() {
         val initialBalance = Felt(1000)
-        val deployment = standardDeployer.deployContractV3(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-        ).send()
+        val deployment =
+            standardDeployer
+                .deployContractV3(
+                    classHash = balanceContractClassHash,
+                    constructorCalldata = listOf(initialBalance),
+                ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_balance")).send()
@@ -111,27 +124,34 @@ object StandardDeployerTest {
     @Test
     fun testUdcDeployV3WithSpecificFeeAndDefaultParameters() {
         val initialBalance = Felt(1000)
-        val resourceBounds = ResourceBoundsMapping(
-            l1Gas = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-            l2Gas = ResourceBounds(
-                maxAmount = Uint64(50000000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-            l1DataGas = ResourceBounds(
-                maxAmount = Uint64(50000),
-                maxPricePerUnit = Uint128(100_000_000_000),
-            ),
-        )
-        val deployment = standardDeployer.deployContractV3(
-            classHash = balanceContractClassHash,
-            constructorCalldata = listOf(initialBalance),
-            resourceBounds = resourceBounds,
-        ).send()
+        val resourceBounds =
+            ResourceBoundsMapping(
+                l1Gas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+                l2Gas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+                l1DataGas =
+                    ResourceBounds(
+                        maxAmount = Uint64(50000),
+                        maxPricePerUnit = Uint128(100_000_000_000),
+                    ),
+            )
+        val deployment =
+            standardDeployer
+                .deployContractV3(
+                    classHash = balanceContractClassHash,
+                    constructorCalldata = listOf(initialBalance),
+                    resourceBounds = resourceBounds,
+                ).send()
         val address = standardDeployer.findContractAddress(deployment).send()
 
         val contractValue = provider.callContract(Call(address, "get_balance")).send()
-        assertEquals(listOf(initialBalance), contractValue) }
+        assertEquals(listOf(initialBalance), contractValue)
+    }
 }

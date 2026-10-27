@@ -38,10 +38,8 @@ sealed class SnCastResponse {
 data class AccountDeploySnCastResponse(
     @JsonNames("command")
     override val command: SnCastCommand = SnCastCommand.ACCOUNT_DEPLOY,
-
     @JsonNames("error")
     override val error: String? = null,
-
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 ) : SnCastResponse()
@@ -51,13 +49,10 @@ data class AccountDeploySnCastResponse(
 data class AccountCreateSnCastResponse(
     @JsonNames("command")
     override val command: SnCastCommand = SnCastCommand.ACCOUNT_CREATE,
-
     @JsonNames("error")
     override val error: String? = null,
-
     @JsonNames("address")
     val accountAddress: Felt,
-
     @JsonNames("estimated_fee")
     @Serializable(with = Uint128DecimalSerializer::class)
     val estimatedFee: Uint128,
@@ -68,13 +63,10 @@ data class AccountCreateSnCastResponse(
 data class DeclareSnCastResponse(
     @JsonNames("command")
     override val command: SnCastCommand = SnCastCommand.DECLARE,
-
     @JsonNames("error")
     override val error: String? = null,
-
     @JsonNames("class_hash")
     val classHash: Felt,
-
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 ) : SnCastResponse()
@@ -84,13 +76,10 @@ data class DeclareSnCastResponse(
 data class DeploySnCastResponse(
     @JsonNames("command")
     override val command: SnCastCommand = SnCastCommand.DEPLOY,
-
     @JsonNames("error")
     override val error: String? = null,
-
     @JsonNames("contract_address")
     val contractAddress: Felt,
-
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 ) : SnCastResponse()
@@ -100,13 +89,13 @@ data class DeploySnCastResponse(
 data class InvokeSnCastResponse(
     @JsonNames("command")
     override val command: SnCastCommand = SnCastCommand.INVOKE,
-
     @JsonNames("error")
     override val error: String? = null,
-
     @JsonNames("transaction_hash")
     val transactionHash: Felt,
 ) : SnCastResponse()
 
-class SnCastCommandFailed(val commandName: String, val error: String?) :
-    Exception("Command $commandName failed. Error reason: $error")
+class SnCastCommandFailed(
+    val commandName: String,
+    val error: String?,
+) : Exception("Command $commandName failed. Error reason: $error")

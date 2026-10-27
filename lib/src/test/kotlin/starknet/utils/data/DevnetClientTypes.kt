@@ -10,6 +10,7 @@ data class DeployAccountResult(
     val details: AccountDetails,
     val transactionHash: Felt,
 )
+
 data class CreateAccountResult(
     val details: AccountDetails,
     val estimatedFee: Uint128,
@@ -34,17 +35,18 @@ data class InvokeContractResult(
 data class AccountDetails(
     @JsonNames("private_key")
     val privateKey: Felt,
-
     @JsonNames("public_key")
     val publicKey: Felt,
-
     @JsonNames("address")
     val address: Felt,
-
     @JsonNames("salt")
     val salt: Felt,
 )
 
-class DevnetSetupFailedException(message: String) : Exception(message)
+class DevnetSetupFailedException(
+    message: String,
+) : Exception(message)
 
-class DevnetTransactionFailedException(message: String) : Exception(message)
+class DevnetTransactionFailedException(
+    message: String,
+) : Exception(message)

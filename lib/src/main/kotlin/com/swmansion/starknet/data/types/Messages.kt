@@ -11,11 +11,9 @@ data class MessageL2ToL1(
     @JsonNames("from_address")
     @SerialName("from_address")
     val fromAddress: Felt,
-
     @JsonNames("to_address")
     @SerialName("to_address")
     val toAddress: Felt,
-
     @JsonNames("payload")
     @SerialName("payload")
     val payload: List<Felt>,
@@ -27,19 +25,15 @@ data class MessageL1ToL2(
     @JsonNames("from_address")
     @SerialName("from_address")
     val fromAddress: Felt,
-
     @JsonNames("to_address")
     @SerialName("to_address")
     val toAddress: Felt,
-
     @JsonNames("selector", "entry_point_selector")
     @SerialName("entry_point_selector")
     val selector: Felt,
-
     @JsonNames("nonce")
     @SerialName("nonce")
     val nonce: Felt? = null,
-
     @JsonNames("payload")
     @SerialName("payload")
     val payload: List<Felt>,
@@ -49,13 +43,10 @@ data class MessageL1ToL2(
 data class OrderedMessageL2ToL1(
     @SerialName("order")
     val order: Int,
-
     @SerialName("from_address")
     val fromAddress: Felt,
-
     @SerialName("to_address")
     val toAddress: Felt,
-
     @SerialName("payload")
     val payload: List<Felt>,
 )

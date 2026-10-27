@@ -9,7 +9,10 @@ internal object TransactionReceiptPolymorphicSerializer :
     JsonContentPolymorphicSerializer<TransactionReceipt>(TransactionReceipt::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<TransactionReceipt> {
         val jsonElement = element.jsonObject
-        val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
+        val typeElement =
+            jsonElement.getOrElse(
+                "type",
+            ) { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
         val type = Json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
 

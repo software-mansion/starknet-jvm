@@ -9,10 +9,11 @@ import com.swmansion.starknet.data.types.conversions.ConvertibleToCalldata
  * @param r part of the signature
  * @param s part of the signature
  */
-data class StarknetCurveSignature(val r: Felt, val s: Felt) : ConvertibleToCalldata {
+data class StarknetCurveSignature(
+    val r: Felt,
+    val s: Felt,
+) : ConvertibleToCalldata {
     fun toList(): List<Felt> = listOf(r, s)
 
-    override fun toCalldata(): List<Felt> {
-        return toList()
-    }
+    override fun toCalldata(): List<Felt> = toList()
 }

@@ -11,7 +11,10 @@ import kotlinx.serialization.encoding.Encoder
 internal object StarknetChainIdSerializer : KSerializer<StarknetChainId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("StarknetChainId", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: StarknetChainId) {
+    override fun serialize(
+        encoder: Encoder,
+        value: StarknetChainId,
+    ) {
         encoder.encodeString(value.value.hexString())
     }
 

@@ -30,7 +30,6 @@ class DevnetClient(
     private val accountDirectory: Path = Paths.get("src/test/resources/account"),
     private val contractsDirectory: Path = Paths.get("src/test/resources/contracts"),
 ) : AutoCloseable {
-
     private val baseUrl: String = "http://$host:$port"
     val rpcUrl: String = "$baseUrl/rpc"
 
@@ -52,24 +51,33 @@ class DevnetClient(
 
     private val transactionVerificiationMode = TransactionVerificiationMode.STATUS
 
-    private enum class StateArchiveCapacity(val value: String) { FULL("full"), NONE("none") }
+    private enum class StateArchiveCapacity(
+        val value: String,
+    ) {
+        FULL("full"),
+        NONE("none"),
+    }
 
     private val stateArchiveCapacity = StateArchiveCapacity.FULL
 
-    private val defaultResourceBounds = ResourceBoundsMapping(
-        l1Gas = ResourceBounds(
-            maxAmount = 100_000.toUint64,
-            maxPricePerUnit = 10_000_000_000_000.toUint128,
-        ),
-        l2Gas = ResourceBounds(
-            maxAmount = 1_000_000_000.toUint64,
-            maxPricePerUnit = 100_000_000_000_000_000.toUint128,
-        ),
-        l1DataGas = ResourceBounds(
-            maxAmount = 100_000.toUint64,
-            maxPricePerUnit = 10_000_000_000_000.toUint128,
-        ),
-    )
+    private val defaultResourceBounds =
+        ResourceBoundsMapping(
+            l1Gas =
+                ResourceBounds(
+                    maxAmount = 100_000.toUint64,
+                    maxPricePerUnit = 10_000_000_000_000.toUint128,
+                ),
+            l2Gas =
+                ResourceBounds(
+                    maxAmount = 1_000_000_000.toUint64,
+                    maxPricePerUnit = 100_000_000_000_000_000.toUint128,
+                ),
+            l1DataGas =
+                ResourceBounds(
+                    maxAmount = 100_000.toUint64,
+                    maxPricePerUnit = 10_000_000_000_000.toUint128,
+                ),
+        )
 
     companion object {
         // Source: https://github.com/0xSpaceShard/starknet-devnet/blob/430b3370e60b28b8de430143b26e52bf36380b9a/crates/starknet-devnet-core/src/constants.rs#L25
@@ -94,18 +102,19 @@ class DevnetClient(
             "starknet-devnet.*$port.*$seed",
         ).start().waitFor()
 
-        val devnetProcessBuilder = ProcessBuilder(
-            "starknet-devnet",
-            "--host",
-            host,
-            "--port",
-            port.toString(),
-            "--seed",
-            seed.toString(),
-            // This is currently needed for devnet to support requests with specified block_id (not latest or pre-confirmed)
-            "--state-archive-capacity",
-            stateArchiveCapacity.value,
-        )
+        val devnetProcessBuilder =
+            ProcessBuilder(
+                "starknet-devnet",
+                "--host",
+                host,
+                "--port",
+                port.toString(),
+                "--seed",
+                seed.toString(),
+                // This is currently needed for devnet to support requests with specified block_id (not latest or pre-confirmed)
+                "--state-archive-capacity",
+                stateArchiveCapacity.value,
+            )
         devnetProcessBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
         devnetProcess = devnetProcessBuilder.start()
         devnetStderr.clear()
@@ -163,26 +172,30 @@ class DevnetClient(
         prefundAccount(accountAddress, PriceUnit.FRI)
     }
 
-    private fun prefundAccount(accountAddress: Felt, priceUnit: PriceUnit) {
+    private fun prefundAccount(
+        accountAddress: Felt,
+        priceUnit: PriceUnit,
+    ) {
         val unit = Json.encodeToString(PriceUnit.serializer(), priceUnit)
-        val payload = HttpService.Payload(
-            url = rpcUrl,
-            body =
-            """
-            {
-              "jsonrpc": "2.0",
-              "id": 0,
-              "method": "devnet_mint",
-              "params": {
-                "address": "${accountAddress.hexString()}",
-                "amount": 100000000000000000000000000000000000,
-                "unit": $unit
-              }
-            }
-            """.trimIndent(),
-            method = "POST",
-            params = emptyList(),
-        )
+        val payload =
+            HttpService.Payload(
+                url = rpcUrl,
+                body =
+                    """
+                    {
+                      "jsonrpc": "2.0",
+                      "id": 0,
+                      "method": "devnet_mint",
+                      "params": {
+                        "address": "${accountAddress.hexString()}",
+                        "amount": 100000000000000000000000000000000000,
+                        "unit": $unit
+                      }
+                    }
+                    """.trimIndent(),
+                method = "POST",
+                params = emptyList(),
+            )
         val response = httpService.send(payload)
         if (!response.isSuccessful) {
             throw DevnetSetupFailedException("Prefunding account failed")
@@ -195,26 +208,28 @@ class DevnetClient(
         salt: Felt? = null,
         type: String,
     ): CreateAccountResult {
-        val params = mutableListOf(
-            "create",
-            "--name",
-            accountName,
-            "--class-hash",
-            classHash.hexString(),
-            "--type",
-            type,
-            "--url",
-            rpcUrl,
-        )
+        val params =
+            mutableListOf(
+                "create",
+                "--name",
+                accountName,
+                "--class-hash",
+                classHash.hexString(),
+                "--type",
+                type,
+                "--url",
+                rpcUrl,
+            )
         salt?.let {
             params.add("--salt")
             params.add(salt.hexString())
         }
 
-        val response = runSnCast(
-            command = "account",
-            args = params,
-        ) as AccountCreateSnCastResponse
+        val response =
+            runSnCast(
+                command = "account",
+                args = params,
+            ) as AccountCreateSnCastResponse
 
         return CreateAccountResult(
             details = readAccountDetails(accountName),
@@ -232,19 +247,21 @@ class DevnetClient(
             prefundAccountStrk(readAccountDetails(accountName).address)
         }
 
-        val params = listOf(
-            "deploy",
-            "--name",
-            accountName,
-            *createFeeArgs(resourceBounds),
-            "--url",
-            rpcUrl,
-        )
-        val response = runSnCast(
-            command = "account",
-            args = params,
-            accountName = accountName,
-        ) as AccountDeploySnCastResponse
+        val params =
+            listOf(
+                "deploy",
+                "--name",
+                accountName,
+                *createFeeArgs(resourceBounds),
+                "--url",
+                rpcUrl,
+            )
+        val response =
+            runSnCast(
+                command = "account",
+                args = params,
+                accountName = accountName,
+            ) as AccountDeploySnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Deploy Account")
 
@@ -278,18 +295,20 @@ class DevnetClient(
         resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeclareContractResult {
-        val params = listOf(
-            "--contract-name",
-            contractName,
-            *createFeeArgs(resourceBounds),
-            "--url",
-            rpcUrl,
-        )
-        val response = runSnCast(
-            command = "declare",
-            args = params,
-            accountName = accountName,
-        ) as DeclareSnCastResponse
+        val params =
+            listOf(
+                "--contract-name",
+                contractName,
+                *createFeeArgs(resourceBounds),
+                "--url",
+                rpcUrl,
+            )
+        val response =
+            runSnCast(
+                command = "declare",
+                args = params,
+                accountName = accountName,
+            ) as DeclareSnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Declare")
 
@@ -307,13 +326,14 @@ class DevnetClient(
         resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): DeployContractResult {
-        val params = mutableListOf(
-            "--class-hash",
-            classHash.hexString(),
-            *createFeeArgs(resourceBounds),
-            "--url",
-            rpcUrl,
-        )
+        val params =
+            mutableListOf(
+                "--class-hash",
+                classHash.hexString(),
+                *createFeeArgs(resourceBounds),
+                "--url",
+                rpcUrl,
+            )
         if (constructorCalldata.isNotEmpty()) {
             params.add("--constructor-calldata")
             constructorCalldata.forEach { params.add(it.hexString()) }
@@ -325,11 +345,12 @@ class DevnetClient(
             params.add("--salt")
             params.add(salt.hexString())
         }
-        val response = runSnCast(
-            command = "deploy",
-            args = params,
-            accountName = accountName,
-        ) as DeploySnCastResponse
+        val response =
+            runSnCast(
+                command = "deploy",
+                args = params,
+                accountName = accountName,
+            ) as DeploySnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Deploy Contract")
 
@@ -365,24 +386,26 @@ class DevnetClient(
         resourceBounds: ResourceBoundsMapping = defaultResourceBounds,
         accountName: String = "__default__",
     ): InvokeContractResult {
-        val params = mutableListOf(
-            "--contract-address",
-            contractAddress.hexString(),
-            "--function",
-            function,
-            *createFeeArgs(resourceBounds),
-            "--url",
-            rpcUrl,
-        )
+        val params =
+            mutableListOf(
+                "--contract-address",
+                contractAddress.hexString(),
+                "--function",
+                function,
+                *createFeeArgs(resourceBounds),
+                "--url",
+                rpcUrl,
+            )
         if (calldata.isNotEmpty()) {
             params.add("--calldata")
             calldata.forEach { params.add(it.hexString()) }
         }
-        val response = runSnCast(
-            command = "invoke",
-            args = params,
-            accountName = accountName,
-        ) as InvokeSnCastResponse
+        val response =
+            runSnCast(
+                command = "invoke",
+                args = params,
+                accountName = accountName,
+            ) as InvokeSnCastResponse
 
         requireTransactionSuccessful(response.transactionHash, "Invoke")
 
@@ -391,40 +414,46 @@ class DevnetClient(
         )
     }
 
-    private fun createFeeArgs(resourceBounds: ResourceBoundsMapping): Array<String> {
-        return arrayOf(
+    private fun createFeeArgs(resourceBounds: ResourceBoundsMapping): Array<String> =
+        arrayOf(
             "--l1-gas",
-            resourceBounds.l1Gas.maxAmount.value.toString(),
+            resourceBounds.l1Gas.maxAmount.value
+                .toString(),
             "--l1-gas-price",
-            resourceBounds.l1Gas.maxPricePerUnit.value.toString(),
+            resourceBounds.l1Gas.maxPricePerUnit.value
+                .toString(),
             "--l2-gas",
-            resourceBounds.l2Gas.maxAmount.value.toString(),
+            resourceBounds.l2Gas.maxAmount.value
+                .toString(),
             "--l2-gas-price",
-            resourceBounds.l2Gas.maxPricePerUnit.value.toString(),
+            resourceBounds.l2Gas.maxPricePerUnit.value
+                .toString(),
             "--l1-data-gas",
-            resourceBounds.l1DataGas.maxAmount.value.toString(),
+            resourceBounds.l1DataGas.maxAmount.value
+                .toString(),
             "--l1-data-gas-price",
-            resourceBounds.l1DataGas.maxPricePerUnit.value.toString(),
+            resourceBounds.l1DataGas.maxPricePerUnit.value
+                .toString(),
         )
-    }
 
     private fun runSnCast(
         command: String,
         args: List<String>,
         accountName: String = "__default__",
     ): SnCastResponse {
-        val processBuilder = ProcessBuilder(
-            "sncast",
-            "--json",
-            "--accounts-file",
-            accountFilePath.absolutePathString(),
-            "--profile",
-            "tests_profile",
-            "--account",
-            accountName,
-            command,
-            *(args.toTypedArray()),
-        )
+        val processBuilder =
+            ProcessBuilder(
+                "sncast",
+                "--json",
+                "--accounts-file",
+                accountFilePath.absolutePathString(),
+                "--profile",
+                "tests_profile",
+                "--account",
+                accountName,
+                command,
+                *(args.toTypedArray()),
+            )
 
         processBuilder.directory(File(contractsDirectory.absolutePathString()))
 
@@ -447,7 +476,10 @@ class DevnetClient(
         )
     }
 
-    private fun requireNoErrors(command: String, errorStream: String) {
+    private fun requireNoErrors(
+        command: String,
+        errorStream: String,
+    ) {
         if (errorStream.isNotEmpty()) {
             throw SnCastCommandFailed(command, errorStream)
         }
@@ -458,17 +490,29 @@ class DevnetClient(
         return json.decodeFromString(AccountDetailsSerializer(accountName), contents)
     }
 
-    private fun requireTransactionSuccessful(transactionHash: Felt, type: String) {
+    private fun requireTransactionSuccessful(
+        transactionHash: Felt,
+        type: String,
+    ) {
         // Receipt provides a more detailed error message than status, but is less reliable than getTransactionStatus
         // Use status by default, use receipt for debugging purposes if needed
         when (transactionVerificiationMode) {
-            TransactionVerificiationMode.RECEIPT -> requireTransactionReceiptSuccessful(transactionHash, type)
-            TransactionVerificiationMode.STATUS -> requireTransactionStatusSuccessful(transactionHash, type)
+            TransactionVerificiationMode.RECEIPT -> {
+                requireTransactionReceiptSuccessful(transactionHash, type)
+            }
+
+            TransactionVerificiationMode.STATUS -> {
+                requireTransactionStatusSuccessful(transactionHash, type)
+            }
+
             TransactionVerificiationMode.DISABLED -> {}
         }
     }
 
-    private fun requireTransactionReceiptSuccessful(transactionHash: Felt, type: String) {
+    private fun requireTransactionReceiptSuccessful(
+        transactionHash: Felt,
+        type: String,
+    ) {
         val request = provider.getTransactionReceipt(transactionHash)
         val receipt = request.send()
         if (!receipt.isAccepted) {
@@ -476,7 +520,10 @@ class DevnetClient(
         }
     }
 
-    private fun requireTransactionStatusSuccessful(transactionHash: Felt, type: String) {
+    private fun requireTransactionStatusSuccessful(
+        transactionHash: Felt,
+        type: String,
+    ) {
         val request = provider.getTransactionStatus(transactionHash)
         val status = request.send()
         if (status.executionStatus != TransactionExecutionStatus.SUCCEEDED &&

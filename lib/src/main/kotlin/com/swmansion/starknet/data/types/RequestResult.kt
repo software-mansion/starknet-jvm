@@ -1,6 +1,8 @@
 package com.swmansion.starknet.data.types
 
-data class RequestResult<out T>(val result: Result<T>) {
+data class RequestResult<out T>(
+    val result: Result<T>,
+) {
     companion object {
         fun <T> success(value: T) = RequestResult(Result.success(value))
 

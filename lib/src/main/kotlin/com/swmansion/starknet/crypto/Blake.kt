@@ -13,7 +13,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder.LITTLE_ENDIAN
 
 object Blake {
-
     private val smallThreshold: BigInteger = BigInteger.ONE.shiftLeft(63)
     private const val BIG_MARKER = 1 shl 31
 
@@ -33,9 +32,10 @@ object Blake {
                 "rawBytes size ${rawBytes.size} exceeds 32 bytes"
             }
 
-            val valueBytes = rawBytes.let {
-                ByteArray(32 - it.size) + it
-            }
+            val valueBytes =
+                rawBytes.let {
+                    ByteArray(32 - it.size) + it
+                }
 
             if (value.value < smallThreshold) {
                 // Small: 2 limbs only (high-32 then low-32 of the last 8 bytes)
@@ -86,8 +86,7 @@ object Blake {
      * @param data Byte array to hash.
      * @return Felt representation of the hash.
      */
-    private fun blake2sToFelt(data: ByteArray): Felt =
-        pack256LeToFelt(blake2sHashBytes(data))
+    private fun blake2sToFelt(data: ByteArray): Felt = pack256LeToFelt(blake2sHashBytes(data))
 
     /**
      * Computes the Blake2s hash of a list of Felts.
@@ -100,9 +99,16 @@ object Blake {
         val words = encodeFeltsToInts(felts)
 
         // Serialize as little-endian bytes
-        val byteArray = words.flatMap { word ->
-            ByteBuffer.allocate(4).order(LITTLE_ENDIAN).putInt(word).array().asList()
-        }.toByteArray()
+        val byteArray =
+            words
+                .flatMap { word ->
+                    ByteBuffer
+                        .allocate(4)
+                        .order(LITTLE_ENDIAN)
+                        .putInt(word)
+                        .array()
+                        .asList()
+                }.toByteArray()
 
         return blake2sToFelt(byteArray)
     }
