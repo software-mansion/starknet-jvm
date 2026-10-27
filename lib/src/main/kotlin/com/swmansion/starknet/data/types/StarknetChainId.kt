@@ -15,7 +15,8 @@ data class StarknetChainId(
         val SEPOLIA = StarknetChainId(Felt.fromHex("0x534e5f5345504f4c4941")) // encodeShortString('SN_SEPOLIA'),
 
         @field:JvmField
-        val INTEGRATION_SEPOLIA = StarknetChainId(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")) // encodeShortString('SN_INTEGRATION_SEPOLIA'),
+        val INTEGRATION_SEPOLIA =
+            StarknetChainId(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")) // encodeShortString('SN_INTEGRATION_SEPOLIA'),
 
         /**
          * Create [StarknetChainId] from a network name represented as ASCII string.

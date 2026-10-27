@@ -46,6 +46,8 @@ object StarknetCurve {
         NativeLoader.load("crypto_jni")
     }
 
+    // This function is internal, because invalid generation of k is VERY dangerous.
+
     /**
      * Native pedersen hash.
      */
@@ -112,7 +114,6 @@ object StarknetCurve {
      * @param hash a hash to be signed
      * @param k cryptographically secure random integer
      */
-    // This function is internal, because invalid generation of k is VERY dangerous.
     @JvmStatic
     @JvmSynthetic
     internal fun sign(

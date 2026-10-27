@@ -382,7 +382,8 @@ class AccountTest {
                         nonce = Felt.ZERO,
                         resourceBounds = ResourceBoundsMapping.ZERO,
                     ),
-                forFeeEstimate = true, // BUG: (#344) this should be true, but Pathfinder and Devnet claim that using query version produce invalid signature
+                // BUG: (#344) This should be true, but Pathfinder and Devnet claim that using query version produces an invalid signature.
+                forFeeEstimate = true,
             )
         val feeEstimateRequest = provider.getEstimateFee(listOf(payloadForFeeEstimate))
 

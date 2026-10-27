@@ -476,8 +476,9 @@ data class ResourcePrice(
     // TODO: (#344) This is a deviation from the spec, make this non-nullable once Juno is updated
     @SerialName("price_in_wei")
     val priceInWei: Felt? = null,
+    // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
     @SerialName("price_in_fri")
-    @JsonNames("price_in_strk") // TODO: (#344) RPC 0.5.0 legacy name, remove once Pathfinder is updated
+    @JsonNames("price_in_strk")
     val priceInFri: Felt,
 )
 

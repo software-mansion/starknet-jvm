@@ -22,10 +22,10 @@ class OkHttpService(
 ) : HttpService {
     constructor() : this(OkHttpClient())
 
-    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+    private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
     private fun buildRequest(payload: Payload): okhttp3.Request {
-        val body = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
+        val body = payload.body?.toRequestBody(jsonMediaType)
         val url = buildRequestUrl(payload.url, payload.params)
 
         return okhttp3.Request
