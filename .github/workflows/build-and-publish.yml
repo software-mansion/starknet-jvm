@@ -4,7 +4,20 @@ on:
   push:
     tags:
       - '*'
+  workflow_call:
+    inputs:
+      publish:
+        description: Publish built packages to Sonatype and GitHub Releases.
+        required: false
+        default: true
+        type: boolean
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish built packages to Sonatype and GitHub Releases.
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   verify_version:
@@ -192,7 +205,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || inputs.publish)
     needs: [ package_jar, generate_javadoc_and_sources ]
     steps:
       - uses: actions/checkout@v3
