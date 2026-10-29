@@ -1,0 +1,12 @@
+name: Weekly Package Build
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # https://crontab.guru/#0_0_*_*_0
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-publish.yml
+    with:
+      publish: false
