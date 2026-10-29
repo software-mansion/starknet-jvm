@@ -7,8 +7,8 @@ import org.junit.jupiter.params.provider.MethodSource
 class RpcTest {
     companion object {
         @JvmStatic
-        private fun getTestCases(): List<Pair<String, HashMethod>> {
-            return listOf(
+        private fun getTestCases(): List<Pair<String, HashMethod>> =
+            listOf(
                 Pair("0.9.0", HashMethod.POSEIDON),
                 Pair("0.9.1", HashMethod.POSEIDON),
                 Pair("0.10.0", HashMethod.POSEIDON),
@@ -17,7 +17,6 @@ class RpcTest {
                 Pair("0.14.1", HashMethod.BLAKE2S),
                 Pair("1.0.0", HashMethod.BLAKE2S),
             )
-        }
     }
 
     @ParameterizedTest

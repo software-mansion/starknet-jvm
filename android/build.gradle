@@ -1,11 +1,11 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
     compileSdk 32
+    ndkVersion "23.1.7779620"
     namespace "com.swmansion.starknet"
 
     defaultConfig {
@@ -43,13 +43,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     sourceSets {
         main {
             kotlin.srcDirs = ['../lib/src/main']
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("1.8")
     }
 }
 

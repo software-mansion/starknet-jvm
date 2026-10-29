@@ -29,13 +29,17 @@ internal object BlockIdSerializer : KSerializer<BlockId> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("BlockHashOrTag", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: BlockId) {
+    override fun serialize(
+        encoder: Encoder,
+        value: BlockId,
+    ) {
         require(encoder is JsonEncoder)
-        val element = when (value) {
-            is BlockId.Tag -> encoder.json.encodeToJsonElement(value.toString())
-            is BlockId.Hash -> buildJsonObject { put("block_hash", value.toString()) }
-            is BlockId.Number -> buildJsonObject { put("block_number", value.blockNumber) }
-        }
+        val element =
+            when (value) {
+                is BlockId.Tag -> encoder.json.encodeToJsonElement(value.toString())
+                is BlockId.Hash -> buildJsonObject { put("block_hash", value.toString()) }
+                is BlockId.Number -> buildJsonObject { put("block_number", value.blockNumber) }
+            }
         encoder.encodeJsonElement(element)
     }
 }

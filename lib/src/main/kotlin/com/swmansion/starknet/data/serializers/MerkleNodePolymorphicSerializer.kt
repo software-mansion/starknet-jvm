@@ -9,8 +9,16 @@ internal object MerkleNodePolymorphicSerializer :
     JsonContentPolymorphicSerializer<NodeHashToNodeMappingItem.MerkleNode>(NodeHashToNodeMappingItem.MerkleNode::class) {
     override fun selectDeserializer(element: JsonElement): DeserializationStrategy<NodeHashToNodeMappingItem.MerkleNode> {
         val jsonElement = element.jsonObject
-        val binaryNodeKeys = NodeHashToNodeMappingItem.BinaryNode.serializer().descriptor.elementNames.toSet()
-        val edgeNodeKeys = NodeHashToNodeMappingItem.EdgeNode.serializer().descriptor.elementNames.toSet()
+        val binaryNodeKeys =
+            NodeHashToNodeMappingItem.BinaryNode
+                .serializer()
+                .descriptor.elementNames
+                .toSet()
+        val edgeNodeKeys =
+            NodeHashToNodeMappingItem.EdgeNode
+                .serializer()
+                .descriptor.elementNames
+                .toSet()
 
         val binaryMatch = jsonElement.keys.intersect(binaryNodeKeys).isNotEmpty()
         val edgeMatch = jsonElement.keys.intersect(edgeNodeKeys).isNotEmpty()

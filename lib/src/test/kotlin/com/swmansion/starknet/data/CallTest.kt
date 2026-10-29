@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class CallTest {
-
     private val address = Felt.fromHex("0x111")
     private val selectorString = "abcdef"
     private val selector = selectorFromName(selectorString)

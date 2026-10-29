@@ -12,7 +12,6 @@ internal sealed class PayloadWithBlockId {
 internal data class CallContractPayload(
     @SerialName("request")
     val request: Call,
-
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
@@ -21,13 +20,10 @@ internal data class CallContractPayload(
 internal data class GetStorageAtPayload(
     @SerialName("contract_address")
     val contractAddress: Felt,
-
     @SerialName("key")
     val key: Felt,
-
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("response_flags")
     val responseFlags: Set<StorageResponseFlag>? = null,
 ) : PayloadWithBlockId()
@@ -36,7 +32,6 @@ internal data class GetStorageAtPayload(
 internal data class GetTransactionByHashPayload(
     @SerialName("transaction_hash")
     val transactionHash: Felt,
-
     @SerialName("response_flags")
     val responseFlags: Set<TxnResponseFlag>? = null,
 )
@@ -63,10 +58,8 @@ internal data class GetMessagesStatusPayload(
 internal data class EstimateTransactionFeePayload(
     @SerialName("request")
     val request: List<ExecutableTransaction>,
-
     @SerialName("simulation_flags")
     val simulationFlags: Set<SimulationFlagForEstimateFee>,
-
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
@@ -75,7 +68,6 @@ internal data class EstimateTransactionFeePayload(
 internal data class EstimateMessageFeePayload(
     @SerialName("message")
     val message: MessageL1ToL2,
-
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
@@ -90,7 +82,6 @@ internal data class GetBlockTransactionCountPayload(
 internal data class GetNoncePayload(
     @SerialName("contract_address")
     val contractAddress: Felt,
-
     @SerialName("block_id")
     override val blockId: BlockId,
 ) : PayloadWithBlockId()
@@ -99,13 +90,10 @@ internal data class GetNoncePayload(
 internal data class GetStorageProofPayload constructor(
     @SerialName("block_id")
     val blockId: BlockId,
-
     @SerialName("class_hashes")
     val classHashes: List<Felt>? = null,
-
     @SerialName("contract_addresses")
     val contractAddresses: List<Felt>? = null,
-
     @SerialName("contracts_storage_keys")
     val contractsStorageKeys: List<ContractsStorageKeys>? = null,
 )
@@ -114,7 +102,6 @@ internal data class GetStorageProofPayload constructor(
 internal data class GetBlockWithTransactionsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("response_flags")
     val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
@@ -129,7 +116,6 @@ internal data class GetBlockWithTransactionHashesPayload(
 internal data class GetBlockWithReceiptsPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("response_flags")
     val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
@@ -138,7 +124,6 @@ internal data class GetBlockWithReceiptsPayload(
 internal data class GetStateUpdatePayload(
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("contract_addresses")
     val contractAddresses: List<Felt>? = null,
 ) : PayloadWithBlockId()
@@ -147,10 +132,8 @@ internal data class GetStateUpdatePayload(
 internal data class GetTransactionByBlockIdAndIndexPayload(
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("index")
     val index: Int,
-
     @SerialName("response_flags")
     val responseFlags: Set<TxnResponseFlag>? = null,
 ) : PayloadWithBlockId()
@@ -160,11 +143,9 @@ internal data class SimulateTransactionsPayload(
     @SerialName("transactions")
     val transactions: List<
         ExecutableTransaction,
-        >,
-
+    >,
     @SerialName("block_id")
     override val blockId: BlockId,
-
     @SerialName("simulation_flags")
     val simulationFlags: Set<SimulationFlag>,
 ) : PayloadWithBlockId()

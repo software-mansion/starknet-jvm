@@ -21,7 +21,6 @@ class HttpRequest<T : StarknetResponse> private constructor(
     private val deserializer: HttpResponseDeserializer<T>,
     private val service: HttpService,
 ) : Request<T> {
-
     internal constructor(
         url: String,
         jsonRpcRequest: JsonRpcRequest,
@@ -31,14 +30,15 @@ class HttpRequest<T : StarknetResponse> private constructor(
     ) : this(
         jsonRpcRequest = jsonRpcRequest,
         serializer = serializer,
-        payload = lazy {
-            HttpService.Payload(
-                url,
-                "POST",
-                emptyList(),
-                Json.encodeToString(jsonRpcRequest),
-            )
-        },
+        payload =
+            lazy {
+                HttpService.Payload(
+                    url,
+                    "POST",
+                    emptyList(),
+                    Json.encodeToString(jsonRpcRequest),
+                )
+            },
         deserializer = buildJsonHttpDeserializer(serializer, deserializationJson),
         service = service,
     )
@@ -48,7 +48,5 @@ class HttpRequest<T : StarknetResponse> private constructor(
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<T> {
-        return service.sendAsync(payload.value).thenApplyAsync(deserializer)
-    }
+    override fun sendAsync(): CompletableFuture<T> = service.sendAsync(payload.value).thenApplyAsync(deserializer)
 }

@@ -29,8 +29,9 @@ fun starknetKeccak(input: ByteArray): Felt = keccak(input).and(MASK_250).toFelt
  * @return a big integer with computed keccak
  */
 fun keccak(input: ByteArray): BigInteger {
-    val keccak = Keccak.Digest256().apply {
-        update(input)
-    }
+    val keccak =
+        Keccak.Digest256().apply {
+            update(input)
+        }
     return BigInteger(keccak.digest())
 }

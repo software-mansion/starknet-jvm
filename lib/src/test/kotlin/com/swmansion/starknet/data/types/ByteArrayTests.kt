@@ -18,8 +18,8 @@ internal class ByteArrayTests {
 
     companion object {
         @JvmStatic
-        private fun getByteArrayTestCases(): List<ByteArrayTestCase> {
-            return listOf(
+        private fun getByteArrayTestCases(): List<ByteArrayTestCase> =
+            listOf(
                 ByteArrayTestCase(
                     input = "hello",
                     data = emptyList(),
@@ -34,10 +34,11 @@ internal class ByteArrayTests {
                 ),
                 ByteArrayTestCase(
                     input = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345AAADEFGHIJKLMNOPQRSTUVWXYZ12345A",
-                    data = listOf(
-                        Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
-                        Felt.fromHex("0x4141414445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
-                    ),
+                    data =
+                        listOf(
+                            Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
+                            Felt.fromHex("0x4141414445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
+                        ),
                     pendingWord = Felt.fromHex("0x41"),
                     pendingWordLen = 1,
                 ),
@@ -78,7 +79,6 @@ internal class ByteArrayTests {
                     pendingWordLen = 1,
                 ),
             )
-        }
     }
 
     @ParameterizedTest
@@ -99,11 +99,12 @@ internal class ByteArrayTests {
     @ParameterizedTest
     @MethodSource("getByteArrayTestCases")
     fun `byte array to string`(testCase: ByteArrayTestCase) {
-        val byteArray = StarknetByteArray(
-            data = testCase.data,
-            pendingWord = testCase.pendingWord,
-            pendingWordLen = testCase.pendingWordLen,
-        )
+        val byteArray =
+            StarknetByteArray(
+                data = testCase.data,
+                pendingWord = testCase.pendingWord,
+                pendingWordLen = testCase.pendingWordLen,
+            )
 
         assertEquals(testCase.input, byteArray.toString())
     }
@@ -112,42 +113,49 @@ internal class ByteArrayTests {
     inner class InvalidByteArrayTests {
         @Test
         fun `byte array from string with invalid pending word length`() {
-            val exception = assertThrows<IllegalArgumentException> {
-                StarknetByteArray(
-                    data = emptyList(),
-                    pendingWord = Felt.fromHex("0x68656c6c6f"),
-                    pendingWordLen = 31,
-                )
-            }
+            val exception =
+                assertThrows<IllegalArgumentException> {
+                    StarknetByteArray(
+                        data = emptyList(),
+                        pendingWord = Felt.fromHex("0x68656c6c6f"),
+                        pendingWordLen = 31,
+                    )
+                }
 
             assertEquals("The length of 'pendingWord' must be between 0 and 30. [31] given.", exception.message)
         }
 
         @Test
         fun `byte array from string with invalid pending word`() {
-            val exception = assertThrows<IllegalArgumentException> {
-                StarknetByteArray(
-                    data = emptyList(),
-                    pendingWord = Felt.fromHex("0x68656c6c6f"),
-                    pendingWordLen = 4,
-                )
-            }
+            val exception =
+                assertThrows<IllegalArgumentException> {
+                    StarknetByteArray(
+                        data = emptyList(),
+                        pendingWord = Felt.fromHex("0x68656c6c6f"),
+                        pendingWordLen = 4,
+                    )
+                }
 
-            assertEquals("The length of 'pendingWord' must be equal to 'pendingWordLen'. [0x68656c6c6f] of length [5] given.", exception.message)
+            assertEquals(
+                "The length of 'pendingWord' must be equal to 'pendingWordLen'. [0x68656c6c6f] of length [5] given.",
+                exception.message,
+            )
         }
 
         @Test
         fun `byte array from string with invalid data`() {
-            val exception = assertThrows<IllegalArgumentException> {
-                StarknetByteArray(
-                    data = listOf(
-                        Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
-                        Felt.fromHex("0x68656c6c6f"),
-                    ),
-                    pendingWord = Felt.ZERO,
-                    pendingWordLen = 0,
-                )
-            }
+            val exception =
+                assertThrows<IllegalArgumentException> {
+                    StarknetByteArray(
+                        data =
+                            listOf(
+                                Felt.fromHex("0x4142434445464748494a4b4c4d4e4f505152535455565758595a3132333435"),
+                                Felt.fromHex("0x68656c6c6f"),
+                            ),
+                        pendingWord = Felt.ZERO,
+                        pendingWordLen = 0,
+                    )
+                }
 
             assertEquals("All elements of 'data' must be 31 bytes long. [0x68656c6c6f] of length [5] given.", exception.message)
         }

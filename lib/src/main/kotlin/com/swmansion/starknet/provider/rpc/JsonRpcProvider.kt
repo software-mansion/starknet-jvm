@@ -47,12 +47,13 @@ class JsonRpcProvider(
         paramsJson: JsonElement,
         responseSerializer: KSerializer<T>,
     ): HttpRequest<T> {
-        val jsonRpcRequest = JsonRpcRequest(
-            id = 0,
-            jsonRpc = "2.0",
-            method = method.methodName,
-            params = paramsJson,
-        )
+        val jsonRpcRequest =
+            JsonRpcRequest(
+                id = 0,
+                jsonRpc = "2.0",
+                method = method.methodName,
+                params = paramsJson,
+            )
 
         return HttpRequest(url, jsonRpcRequest, responseSerializer, deserializationJson, httpService)
     }
@@ -66,14 +67,15 @@ class JsonRpcProvider(
     fun batchRequestsAny(requests: List<HttpRequest<out StarknetResponse>>): HttpBatchRequest<StarknetResponse> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
-        val orderedRequests = requests.mapIndexed { index, request ->
-            JsonRpcRequest(
-                id = index,
-                jsonRpc = "2.0",
-                method = request.jsonRpcRequest.method,
-                params = request.jsonRpcRequest.params,
-            )
-        }
+        val orderedRequests =
+            requests.mapIndexed { index, request ->
+                JsonRpcRequest(
+                    id = index,
+                    jsonRpc = "2.0",
+                    method = request.jsonRpcRequest.method,
+                    params = request.jsonRpcRequest.params,
+                )
+            }
         val responseSerializers = requests.map { it.serializer }
         return HttpBatchRequest.fromRequestsAny(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
@@ -86,9 +88,8 @@ class JsonRpcProvider(
      *
      * @sample starknet.provider.ProviderTest.batchRequestsAny
      */
-    fun batchRequestsAny(vararg requests: HttpRequest<out StarknetResponse>): HttpBatchRequest<StarknetResponse> {
-        return batchRequestsAny(requests.toList())
-    }
+    fun batchRequestsAny(vararg requests: HttpRequest<out StarknetResponse>): HttpBatchRequest<StarknetResponse> =
+        batchRequestsAny(requests.toList())
 
     /** Batch multiple calls into a single RPC request
      *
@@ -99,14 +100,15 @@ class JsonRpcProvider(
     fun <T : StarknetResponse> batchRequests(requests: List<HttpRequest<T>>): HttpBatchRequest<T> {
         require(requests.isNotEmpty()) { "Cannot create a batch request from an empty list of requests." }
 
-        val orderedRequests = requests.mapIndexed { index, request ->
-            JsonRpcRequest(
-                id = index,
-                jsonRpc = "2.0",
-                method = request.jsonRpcRequest.method,
-                params = request.jsonRpcRequest.params,
-            )
-        }
+        val orderedRequests =
+            requests.mapIndexed { index, request ->
+                JsonRpcRequest(
+                    id = index,
+                    jsonRpc = "2.0",
+                    method = request.jsonRpcRequest.method,
+                    params = request.jsonRpcRequest.params,
+                )
+            }
         val responseSerializers = requests.map { it.serializer }
         return HttpBatchRequest.fromRequests(url, orderedRequests, responseSerializers, deserializationJson, httpService)
     }
@@ -119,9 +121,7 @@ class JsonRpcProvider(
      *
      * @sample starknet.provider.ProviderTest.batchGetTransactions
      */
-    fun <T : StarknetResponse> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> {
-        return batchRequests(requests.toList())
-    }
+    fun <T : StarknetResponse> batchRequests(vararg requests: HttpRequest<T>): HttpBatchRequest<T> = batchRequests(requests.toList())
 
     /**
      * @sample starknet.provider.ProviderTest.getSpecVersion
@@ -141,7 +141,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.callContractWithBlockTag
      */
-    override fun callContract(call: Call, blockTag: BlockTag): HttpRequest<FeltArray> {
+    override fun callContract(
+        call: Call,
+        blockTag: BlockTag,
+    ): HttpRequest<FeltArray> {
         val payload = CallContractPayload(call, BlockId.Tag(blockTag))
 
         return callContract(payload)
@@ -150,7 +153,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.callContractWithBlockHash
      */
-    override fun callContract(call: Call, blockHash: Felt): HttpRequest<FeltArray> {
+    override fun callContract(
+        call: Call,
+        blockHash: Felt,
+    ): HttpRequest<FeltArray> {
         val payload = CallContractPayload(call, BlockId.Hash(blockHash))
 
         return callContract(payload)
@@ -159,21 +165,23 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.callContractWithBlockNumber
      */
-    override fun callContract(call: Call, blockNumber: Int): HttpRequest<FeltArray> {
+    override fun callContract(
+        call: Call,
+        blockNumber: Int,
+    ): HttpRequest<FeltArray> {
         val payload = CallContractPayload(call, BlockId.Number(blockNumber))
 
         return callContract(payload)
     }
 
-    override fun callContract(call: Call): HttpRequest<FeltArray> {
-        return callContract(call, BlockTag.LATEST)
-    }
+    override fun callContract(call: Call): HttpRequest<FeltArray> = callContract(call, BlockTag.LATEST)
 
     override fun deployAccount(payload: DeployAccountTransactionV3): HttpRequest<DeployAccountResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("deploy_account_transaction", params)
-        }
+        val jsonPayload =
+            buildJsonObject {
+                put("deploy_account_transaction", params)
+            }
 
         return buildRequest(JsonRpcMethod.DEPLOY_ACCOUNT_TRANSACTION, jsonPayload, DeployAccountResponse.serializer())
     }
@@ -187,46 +195,66 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getStorageAt
      */
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): HttpRequest<Felt> {
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): HttpRequest<Felt> {
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockHash: Felt,
+    ): HttpRequest<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): HttpRequest<Felt> {
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockNumber: Int,
+    ): HttpRequest<Felt> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber))
 
         return getStorageAt(payload)
     }
 
-    override fun getStorageAt(contractAddress: Felt, key: Felt): HttpRequest<Felt> {
-        return getStorageAt(contractAddress, key, BlockTag.LATEST)
-    }
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+    ): HttpRequest<Felt> = getStorageAt(contractAddress, key, BlockTag.LATEST)
 
     /**
      * @sample starknet.provider.ProviderTest.getStorageAtWithKeyAsString
      */
-    override fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockTag)
-    }
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockTag: BlockTag,
+    ): Request<Felt> = getStorageAt(contractAddress, selectorFromName(key), blockTag)
 
-    override fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockHash)
-    }
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockHash: Felt,
+    ): Request<Felt> = getStorageAt(contractAddress, selectorFromName(key), blockHash)
 
-    override fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key), blockNumber)
-    }
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockNumber: Int,
+    ): Request<Felt> = getStorageAt(contractAddress, selectorFromName(key), blockNumber)
 
-    override fun getStorageAt(contractAddress: Felt, key: String): Request<Felt> {
-        return getStorageAt(contractAddress, selectorFromName(key))
-    }
+    override fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+    ): Request<Felt> = getStorageAt(contractAddress, selectorFromName(key))
 
     private fun getStorageAtWithMetadata(payload: GetStorageAtPayload): HttpRequest<StorageResult> {
         val params = Json.encodeToJsonElement(payload)
@@ -234,20 +262,34 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_STORAGE_AT, params, StorageResult.serializer())
     }
 
-    override fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockTag: BlockTag): HttpRequest<StorageResult> {
+    override fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<StorageResult> {
         val payload = GetStorageAtPayload(contractAddress, key, BlockId.Tag(blockTag), setOf(StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK))
 
         return getStorageAtWithMetadata(payload)
     }
 
-    override fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockHash: Felt): HttpRequest<StorageResult> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash), setOf(StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK))
+    override fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockHash: Felt,
+    ): HttpRequest<StorageResult> {
+        val payload =
+            GetStorageAtPayload(contractAddress, key, BlockId.Hash(blockHash), setOf(StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK))
 
         return getStorageAtWithMetadata(payload)
     }
 
-    override fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockNumber: Int): HttpRequest<StorageResult> {
-        val payload = GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber), setOf(StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK))
+    override fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockNumber: Int,
+    ): HttpRequest<StorageResult> {
+        val payload =
+            GetStorageAtPayload(contractAddress, key, BlockId.Number(blockNumber), setOf(StorageResponseFlag.INCLUDE_LAST_UPDATE_BLOCK))
 
         return getStorageAtWithMetadata(payload)
     }
@@ -262,7 +304,10 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_TRANSACTION_BY_HASH, params, TransactionSerializer)
     }
 
-    override fun getTransaction(transactionHash: Felt, responseFlags: Set<TxnResponseFlag>): HttpRequest<Transaction> {
+    override fun getTransaction(
+        transactionHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByHashPayload(transactionHash, responseFlags)
         val params = Json.encodeToJsonElement(payload)
 
@@ -308,13 +353,12 @@ class JsonRpcProvider(
     /**
      * @sample starknet.account.StandardAccountTest.InvokeTest.signV3SingleCall
      */
-    override fun invokeFunction(
-        payload: InvokeTransactionV3,
-    ): HttpRequest<InvokeFunctionResponse> {
+    override fun invokeFunction(payload: InvokeTransactionV3): HttpRequest<InvokeFunctionResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("invoke_transaction", params)
-        }
+        val jsonPayload =
+            buildJsonObject {
+                put("invoke_transaction", params)
+            }
 
         return buildRequest(JsonRpcMethod.INVOKE_TRANSACTION, jsonPayload, InvokeFunctionResponse.serializer())
     }
@@ -328,14 +372,15 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtClassHash
      */
-    override fun getClass(classHash: Felt): HttpRequest<ContractClassBase> {
-        return getClass(classHash, BlockTag.LATEST)
-    }
+    override fun getClass(classHash: Felt): HttpRequest<ContractClassBase> = getClass(classHash, BlockTag.LATEST)
 
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtClassHashWithBlockHash
      */
-    override fun getClass(classHash: Felt, blockHash: Felt): HttpRequest<ContractClassBase> {
+    override fun getClass(
+        classHash: Felt,
+        blockHash: Felt,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassPayload(classHash, BlockId.Hash(blockHash))
 
         return getClass(payload)
@@ -344,7 +389,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtClassHashWithBlockNumber
      */
-    override fun getClass(classHash: Felt, blockNumber: Int): HttpRequest<ContractClassBase> {
+    override fun getClass(
+        classHash: Felt,
+        blockNumber: Int,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassPayload(classHash, BlockId.Number(blockNumber))
 
         return getClass(payload)
@@ -353,7 +401,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtClassHashWithLatestBlock
      */
-    override fun getClass(classHash: Felt, blockTag: BlockTag): HttpRequest<ContractClassBase> {
+    override fun getClass(
+        classHash: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassPayload(classHash, BlockId.Tag(blockTag))
 
         return getClass(payload)
@@ -368,7 +419,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtContractAddressWithBlockHash
      */
-    override fun getClassAt(contractAddress: Felt, blockHash: Felt): HttpRequest<ContractClassBase> {
+    override fun getClassAt(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassAtPayload(BlockId.Hash(blockHash), contractAddress)
 
         return getClassAt(payload)
@@ -377,7 +431,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtContractAddressWithBlockNumber
      */
-    override fun getClassAt(contractAddress: Felt, blockNumber: Int): HttpRequest<ContractClassBase> {
+    override fun getClassAt(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassAtPayload(BlockId.Number(blockNumber), contractAddress)
 
         return getClassAt(payload)
@@ -386,7 +443,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtContractAddressWithLatestBlock
      */
-    override fun getClassAt(contractAddress: Felt, blockTag: BlockTag): HttpRequest<ContractClassBase> {
+    override fun getClassAt(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<ContractClassBase> {
         val payload = GetClassAtPayload(BlockId.Tag(blockTag), contractAddress)
 
         return getClassAt(payload)
@@ -395,9 +455,7 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassDefinitionAtContractAddress
      */
-    override fun getClassAt(contractAddress: Felt): HttpRequest<ContractClassBase> {
-        return getClassAt(contractAddress, BlockTag.LATEST)
-    }
+    override fun getClassAt(contractAddress: Felt): HttpRequest<ContractClassBase> = getClassAt(contractAddress, BlockTag.LATEST)
 
     private fun getClassHashAt(payload: GetClassAtPayload): HttpRequest<Felt> {
         val params = Json.encodeToJsonElement(payload)
@@ -405,13 +463,19 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_CLASS_HASH_AT, params, Felt.serializer())
     }
 
-    override fun getClassHashAt(contractAddress: Felt, blockHash: Felt): HttpRequest<Felt> {
+    override fun getClassHashAt(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): HttpRequest<Felt> {
         val payload = GetClassAtPayload(BlockId.Hash(blockHash), contractAddress)
 
         return getClassHashAt(payload)
     }
 
-    override fun getClassHashAt(contractAddress: Felt, blockNumber: Int): HttpRequest<Felt> {
+    override fun getClassHashAt(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): HttpRequest<Felt> {
         val payload = GetClassAtPayload(BlockId.Number(blockNumber), contractAddress)
 
         return getClassHashAt(payload)
@@ -420,7 +484,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassHashAtPendingBlock
      */
-    override fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): HttpRequest<Felt> {
+    override fun getClassHashAt(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<Felt> {
         val payload = GetClassAtPayload(BlockId.Tag(blockTag), contractAddress)
 
         return getClassHashAt(payload)
@@ -429,15 +496,14 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getClassHash
      */
-    override fun getClassHashAt(contractAddress: Felt): HttpRequest<Felt> {
-        return getClassHashAt(contractAddress, BlockTag.LATEST)
-    }
+    override fun getClassHashAt(contractAddress: Felt): HttpRequest<Felt> = getClassHashAt(contractAddress, BlockTag.LATEST)
 
     override fun declareContract(payload: DeclareTransactionV3): HttpRequest<DeclareResponse> {
         val params = jsonWithDefaults.encodeToJsonElement(TransactionSerializer, payload)
-        val jsonPayload = buildJsonObject {
-            put("declare_transaction", params)
-        }
+        val jsonPayload =
+            buildJsonObject {
+                put("declare_transaction", params)
+            }
 
         return buildRequest(JsonRpcMethod.DECLARE, jsonPayload, DeclareResponse.serializer())
     }
@@ -509,9 +575,10 @@ class JsonRpcProvider(
      * @sample starknet.provider.ProviderTest.getEvents
      */
     override fun getEvents(payload: GetEventsPayload): HttpRequest<GetEventsResult> {
-        val jsonPayload = buildJsonObject {
-            put("filter", Json.encodeToJsonElement(payload))
-        }
+        val jsonPayload =
+            buildJsonObject {
+                put("filter", Json.encodeToJsonElement(payload))
+            }
 
         return buildRequest(JsonRpcMethod.GET_EVENTS, jsonPayload, GetEventsResult.serializer())
     }
@@ -535,9 +602,7 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,
         blockHash: Felt,
-    ): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, blockHash, defaultFeeEstimateSimulationFlags)
-    }
+    ): HttpRequest<EstimateFeeResponseList> = getEstimateFee(payload, blockHash, defaultFeeEstimateSimulationFlags)
 
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,
@@ -552,9 +617,7 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,
         blockNumber: Int,
-    ): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, blockNumber, defaultFeeEstimateSimulationFlags)
-    }
+    ): HttpRequest<EstimateFeeResponseList> = getEstimateFee(payload, blockNumber, defaultFeeEstimateSimulationFlags)
 
     /**
      * @sample network.account.AccountTest.estimateFeeForDeclareV3Transaction
@@ -572,9 +635,7 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,
         blockTag: BlockTag,
-    ): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, blockTag, defaultFeeEstimateSimulationFlags)
-    }
+    ): HttpRequest<EstimateFeeResponseList> = getEstimateFee(payload, blockTag, defaultFeeEstimateSimulationFlags)
 
     /**
      * @sample starknet.account.StandardAccountTest.InvokeEstimateTest.estimateFeeWithSkipValidateFlag
@@ -582,16 +643,13 @@ class JsonRpcProvider(
     override fun getEstimateFee(
         payload: List<ExecutableTransaction>,
         simulationFlags: Set<SimulationFlagForEstimateFee>,
-    ): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, BlockTag.PRE_CONFIRMED, simulationFlags)
-    }
+    ): HttpRequest<EstimateFeeResponseList> = getEstimateFee(payload, BlockTag.PRE_CONFIRMED, simulationFlags)
 
     /**
      * @sample starknet.account.StandardAccountTest.DeployAccountEstimateTest.estimateFeeForDeployAccountV3Transaction
      */
-    override fun getEstimateFee(payload: List<ExecutableTransaction>): HttpRequest<EstimateFeeResponseList> {
-        return getEstimateFee(payload, BlockTag.PRE_CONFIRMED, defaultFeeEstimateSimulationFlags)
-    }
+    override fun getEstimateFee(payload: List<ExecutableTransaction>): HttpRequest<EstimateFeeResponseList> =
+        getEstimateFee(payload, BlockTag.PRE_CONFIRMED, defaultFeeEstimateSimulationFlags)
 
     private fun getEstimateMessageFee(payload: EstimateMessageFeePayload): HttpRequest<EstimateMessageFeeResponse> {
         val jsonPayload = jsonWithDefaults.encodeToJsonElement(payload)
@@ -599,13 +657,19 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.ESTIMATE_MESSAGE_FEE, jsonPayload, EstimateMessageFeeResponse.serializer())
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockHash: Felt,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Hash(blockHash))
 
         return getEstimateMessageFee(estimatePayload)
     }
 
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockNumber: Int,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Number(blockNumber))
 
         return getEstimateMessageFee(estimatePayload)
@@ -614,7 +678,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.account.StandardAccountTest.estimateMessageFee
      */
-    override fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): HttpRequest<EstimateMessageFeeResponse> {
+    override fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockTag: BlockTag,
+    ): HttpRequest<EstimateMessageFeeResponse> {
         val estimatePayload = EstimateMessageFeePayload(message, BlockId.Tag(blockTag))
 
         return getEstimateMessageFee(estimatePayload)
@@ -626,13 +693,15 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_NONCE, jsonPayload, Felt.serializer())
     }
 
-    override fun getNonce(contractAddress: Felt): HttpRequest<Felt> =
-        getNonce(contractAddress, blockTag = BlockTag.PRE_CONFIRMED)
+    override fun getNonce(contractAddress: Felt): HttpRequest<Felt> = getNonce(contractAddress, blockTag = BlockTag.PRE_CONFIRMED)
 
     /**
      * @sample starknet.provider.ProviderTest.getNonceWithBlockTag
      */
-    override fun getNonce(contractAddress: Felt, blockTag: BlockTag): HttpRequest<Felt> {
+    override fun getNonce(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): HttpRequest<Felt> {
         val payload = GetNoncePayload(contractAddress, BlockId.Tag(blockTag))
 
         return getNonce(payload)
@@ -641,7 +710,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getNonceWithBlockNumber
      */
-    override fun getNonce(contractAddress: Felt, blockNumber: Int): HttpRequest<Felt> {
+    override fun getNonce(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): HttpRequest<Felt> {
         val payload = GetNoncePayload(contractAddress, BlockId.Number(blockNumber))
 
         return getNonce(payload)
@@ -650,7 +722,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getNonceWithBlockHash
      */
-    override fun getNonce(contractAddress: Felt, blockHash: Felt): HttpRequest<Felt> {
+    override fun getNonce(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): HttpRequest<Felt> {
         val payload = GetNoncePayload(contractAddress, BlockId.Hash(blockHash))
 
         return getNonce(payload)
@@ -732,19 +807,28 @@ class JsonRpcProvider(
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxs(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithTransactions> {
+    override fun getBlockWithTxs(
+        blockTag: BlockTag,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Tag(blockTag), responseFlags)
 
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxs(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithTransactions> {
+    override fun getBlockWithTxs(
+        blockHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Hash(blockHash), responseFlags)
 
         return getBlockWithTxs(payload)
     }
 
-    override fun getBlockWithTxs(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithTransactions> {
+    override fun getBlockWithTxs(
+        blockNumber: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithTransactions> {
         val payload = GetBlockWithTransactionsPayload(BlockId.Number(blockNumber), responseFlags)
 
         return getBlockWithTxs(payload)
@@ -816,19 +900,28 @@ class JsonRpcProvider(
         return buildRequest(JsonRpcMethod.GET_BLOCK_WITH_RECEIPTS, jsonPayload, BlockWithReceiptsPolymorphicSerializer)
     }
 
-    override fun getBlockWithReceipts(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithReceipts> {
+    override fun getBlockWithReceipts(
+        blockTag: BlockTag,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithReceipts> {
         val payload = GetBlockWithReceiptsPayload(BlockId.Tag(blockTag), responseFlags)
 
         return getBlockWithReceipts(payload)
     }
 
-    override fun getBlockWithReceipts(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithReceipts> {
+    override fun getBlockWithReceipts(
+        blockHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithReceipts> {
         val payload = GetBlockWithReceiptsPayload(BlockId.Hash(blockHash), responseFlags)
 
         return getBlockWithReceipts(payload)
     }
 
-    override fun getBlockWithReceipts(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): HttpRequest<BlockWithReceipts> {
+    override fun getBlockWithReceipts(
+        blockNumber: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<BlockWithReceipts> {
         val payload = GetBlockWithReceiptsPayload(BlockId.Number(blockNumber), responseFlags)
 
         return getBlockWithReceipts(payload)
@@ -849,7 +942,10 @@ class JsonRpcProvider(
         return getStateUpdate(payload)
     }
 
-    override fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(
+        blockTag: BlockTag,
+        contractAddresses: List<Felt>,
+    ): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Tag(blockTag), contractAddresses)
 
         return getStateUpdate(payload)
@@ -864,7 +960,10 @@ class JsonRpcProvider(
         return getStateUpdate(payload)
     }
 
-    override fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(
+        blockHash: Felt,
+        contractAddresses: List<Felt>,
+    ): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Hash(blockHash), contractAddresses)
 
         return getStateUpdate(payload)
@@ -879,7 +978,10 @@ class JsonRpcProvider(
         return getStateUpdate(payload)
     }
 
-    override fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>): HttpRequest<StateUpdate> {
+    override fun getStateUpdate(
+        blockNumber: Int,
+        contractAddresses: List<Felt>,
+    ): HttpRequest<StateUpdate> {
         val payload = GetStateUpdatePayload(BlockId.Number(blockNumber), contractAddresses)
 
         return getStateUpdate(payload)
@@ -894,7 +996,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getTransactionByBlockTagAndIndex
      */
-    override fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockTag: BlockTag,
+        index: Int,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index)
 
         return getTransactionByBlockIdAndIndex(payload)
@@ -903,7 +1008,10 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getTransactionByBlockHashAndIndex
      */
-    override fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockHash: Felt,
+        index: Int,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index)
 
         return getTransactionByBlockIdAndIndex(payload)
@@ -912,25 +1020,40 @@ class JsonRpcProvider(
     /**
      * @sample starknet.provider.ProviderTest.getTransactionByBlockNumberAndIndex
      */
-    override fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockNumber: Int,
+        index: Int,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
 
-    override fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int, responseFlags: Set<TxnResponseFlag>): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockTag: BlockTag,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Tag(blockTag), index, responseFlags)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
 
-    override fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int, responseFlags: Set<TxnResponseFlag>): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockHash: Felt,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Hash(blockHash), index, responseFlags)
 
         return getTransactionByBlockIdAndIndex(payload)
     }
 
-    override fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int, responseFlags: Set<TxnResponseFlag>): HttpRequest<Transaction> {
+    override fun getTransactionByBlockIdAndIndex(
+        blockNumber: Int,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): HttpRequest<Transaction> {
         val payload = GetTransactionByBlockIdAndIndexPayload(BlockId.Number(blockNumber), index, responseFlags)
 
         return getTransactionByBlockIdAndIndex(payload)
@@ -975,7 +1098,9 @@ class JsonRpcProvider(
         return simulateTransactions(payload)
     }
 
-    private fun simulateTransactionsWithInitialReads(payload: SimulateTransactionsPayload): HttpRequest<SimulatedTransactionWithInitialReads> {
+    private fun simulateTransactionsWithInitialReads(
+        payload: SimulateTransactionsPayload,
+    ): HttpRequest<SimulatedTransactionWithInitialReads> {
         val params = jsonWithDefaults.encodeToJsonElement(payload)
 
         return buildRequest(JsonRpcMethod.SIMULATE_TRANSACTIONS, params, SimulatedTransactionWithInitialReads.serializer())
@@ -1014,12 +1139,11 @@ class JsonRpcProvider(
         return simulateTransactionsWithInitialReads(payload)
     }
 
-    override fun traceTransaction(
-        transactionHash: Felt,
-    ): HttpRequest<TransactionTrace> {
-        val params = buildJsonObject {
-            put("transaction_hash", transactionHash.hexString())
-        }
+    override fun traceTransaction(transactionHash: Felt): HttpRequest<TransactionTrace> {
+        val params =
+            buildJsonObject {
+                put("transaction_hash", transactionHash.hexString())
+            }
 
         return buildRequest(
             method = JsonRpcMethod.TRACE_TRANSACTION,
@@ -1031,31 +1155,29 @@ class JsonRpcProvider(
     override fun traceBlockTransactions(
         blockTag: BlockTag,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTracesResult> =
-        traceBlockTransactionsRequest(BlockId.Tag(blockTag), traceFlags)
+    ): HttpRequest<BlockTransactionTracesResult> = traceBlockTransactionsRequest(BlockId.Tag(blockTag), traceFlags)
 
     override fun traceBlockTransactions(
         blockHash: Felt,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTracesResult> =
-        traceBlockTransactionsRequest(BlockId.Hash(blockHash), traceFlags)
+    ): HttpRequest<BlockTransactionTracesResult> = traceBlockTransactionsRequest(BlockId.Hash(blockHash), traceFlags)
 
     override fun traceBlockTransactions(
         blockNumber: Int,
         traceFlags: Set<TraceFlag>,
-    ): HttpRequest<BlockTransactionTracesResult> =
-        traceBlockTransactionsRequest(BlockId.Number(blockNumber), traceFlags)
+    ): HttpRequest<BlockTransactionTracesResult> = traceBlockTransactionsRequest(BlockId.Number(blockNumber), traceFlags)
 
     private fun traceBlockTransactionsRequest(
         blockId: BlockId,
         traceFlags: Set<TraceFlag>,
     ): HttpRequest<BlockTransactionTracesResult> {
-        val params = buildJsonObject {
-            put("block_id", Json.encodeToJsonElement(blockId))
-            if (traceFlags.isNotEmpty()) {
-                put("trace_flags", Json.encodeToJsonElement(traceFlags.toList()))
+        val params =
+            buildJsonObject {
+                put("block_id", Json.encodeToJsonElement(blockId))
+                if (traceFlags.isNotEmpty()) {
+                    put("trace_flags", Json.encodeToJsonElement(traceFlags.toList()))
+                }
             }
-        }
 
         return buildRequest(
             method = JsonRpcMethod.TRACE_BLOCK_TRANSACTIONS,
@@ -1065,7 +1187,9 @@ class JsonRpcProvider(
     }
 }
 
-private enum class JsonRpcMethod(val methodName: String) {
+private enum class JsonRpcMethod(
+    val methodName: String,
+) {
     GET_SPEC_VERSION("starknet_specVersion"),
     CALL("starknet_call"),
     INVOKE_TRANSACTION("starknet_addInvokeTransaction"),

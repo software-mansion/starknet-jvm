@@ -39,13 +39,14 @@ internal fun feltToNative(input: Felt): ByteArray = bigintToNative(input.value)
  * Class with utility methods related to starknet curve signatures generation and verification.
  */
 object StarknetCurve {
-
     @field:JvmField
     val CURVE_ORDER: BigInteger = BigInteger("800000000000010FFFFFFFFFFFFFFFFB781126DCAE7B2321E66A241ADC64D2F", 16)
 
     init {
         NativeLoader.load("crypto_jni")
     }
+
+    // This function is internal, because invalid generation of k is VERY dangerous.
 
     /**
      * Native pedersen hash.
@@ -60,7 +61,10 @@ object StarknetCurve {
      * Compute pedersen hash on input values
      */
     @JvmStatic
-    fun pedersen(first: Felt, second: Felt): Felt {
+    fun pedersen(
+        first: Felt,
+        second: Felt,
+    ): Felt {
         val hash = pedersen(feltToNative(first), feltToNative(second)).apply { reverse() }
         return Felt(BigInteger(hash))
     }
@@ -79,10 +83,11 @@ object StarknetCurve {
      * @param values a collection of Felts
      */
     @JvmStatic
-    fun pedersenOnElements(values: Collection<Felt>): Felt = pedersen(
-        pedersen(values),
-        Felt(values.size),
-    )
+    fun pedersenOnElements(values: Collection<Felt>): Felt =
+        pedersen(
+            pedersen(values),
+            Felt(values.size),
+        )
 
     /**
      * Compute pedersen hash on variable number of arguments.
@@ -96,7 +101,11 @@ object StarknetCurve {
      * Native sign.
      */
     @JvmStatic
-    private external fun sign(privateKey: ByteArray, hash: ByteArray, k: ByteArray): ByteArray
+    private external fun sign(
+        privateKey: ByteArray,
+        hash: ByteArray,
+        k: ByteArray,
+    ): ByteArray
 
     /**
      * Sign a provided hash.
@@ -105,15 +114,19 @@ object StarknetCurve {
      * @param hash a hash to be signed
      * @param k cryptographically secure random integer
      */
-    // This function is internal, because invalid generation of k is VERY dangerous.
     @JvmStatic
     @JvmSynthetic
-    internal fun sign(privateKey: Felt, hash: Felt, k: BigInteger): StarknetCurveSignature {
-        val signature = sign(
-            feltToNative(privateKey),
-            feltToNative(hash),
-            bigintToNative(k),
-        )
+    internal fun sign(
+        privateKey: Felt,
+        hash: Felt,
+        k: BigInteger,
+    ): StarknetCurveSignature {
+        val signature =
+            sign(
+                feltToNative(privateKey),
+                feltToNative(hash),
+                bigintToNative(k),
+            )
         val r = BigInteger(signature.slice(0 until 32).toByteArray().apply { reverse() })
         val w = BigInteger(signature.slice(32 until 64).toByteArray().apply { reverse() })
         val s = w.modInverse(CURVE_ORDER)
@@ -127,10 +140,14 @@ object StarknetCurve {
      * @param hash a hash to be signed
      */
     @JvmStatic
-    fun sign(privateKey: Felt, hash: Felt): StarknetCurveSignature {
-        val cal = HMacDSAKCalculator(SHA256Digest()).apply {
-            init(CURVE_ORDER, privateKey.value, hash.value.toBytes())
-        }
+    fun sign(
+        privateKey: Felt,
+        hash: Felt,
+    ): StarknetCurveSignature {
+        val cal =
+            HMacDSAKCalculator(SHA256Digest()).apply {
+                init(CURVE_ORDER, privateKey.value, hash.value.toBytes())
+            }
 
         // Generated K might not be suitable for signing. Probability of it is very low.
         // https://github.com/starkware-libs/cairo-lang/blob/167b28bcd940fd25ea3816204fa882a0b0a49603/src/starkware/crypto/starkware/crypto/signature/signature.py#L141
@@ -158,7 +175,12 @@ object StarknetCurve {
      * Native signature verification.
      */
     @JvmStatic
-    private external fun verify(publicKey: ByteArray, hash: ByteArray, r: ByteArray, w: ByteArray): Boolean
+    private external fun verify(
+        publicKey: ByteArray,
+        hash: ByteArray,
+        r: ByteArray,
+        w: ByteArray,
+    ): Boolean
 
     /**
      * Verify a signature.
@@ -169,7 +191,12 @@ object StarknetCurve {
      * @param s part of signature
      */
     @JvmStatic
-    fun verify(publicKey: Felt, hash: Felt, r: Felt, s: Felt): Boolean {
+    fun verify(
+        publicKey: Felt,
+        hash: Felt,
+        r: Felt,
+        s: Felt,
+    ): Boolean {
         val w = s.value.modInverse(CURVE_ORDER)
         return verify(
             feltToNative(publicKey),

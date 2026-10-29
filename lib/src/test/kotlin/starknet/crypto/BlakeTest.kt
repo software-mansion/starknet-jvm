@@ -10,8 +10,8 @@ import java.math.BigInteger
 class BlakeTest {
     companion object {
         @JvmStatic
-        private fun getTestCases(): List<Pair<List<Felt>, Felt>> {
-            return listOf(
+        private fun getTestCases(): List<Pair<List<Felt>, Felt>> =
+            listOf(
                 // Empty array
                 Pair(
                     emptyList(),
@@ -42,7 +42,6 @@ class BlakeTest {
                     Felt.fromHex("0x27E2140360D26BF4A53778D8BC2F9B103DDFA83ABF3451308190B9C340D11A5"),
                 ),
             )
-        }
     }
 
     @ParameterizedTest

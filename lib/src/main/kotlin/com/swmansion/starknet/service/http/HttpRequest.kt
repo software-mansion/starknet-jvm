@@ -11,13 +11,10 @@ class HttpRequest<T>(
     val deserializer: HttpResponseDeserializer<T>,
     val service: HttpService,
 ) : Request<T> {
-
     override fun send(): T {
         val response = service.send(payload)
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<T> {
-        return service.sendAsync(payload).thenApplyAsync(deserializer)
-    }
+    override fun sendAsync(): CompletableFuture<T> = service.sendAsync(payload).thenApplyAsync(deserializer)
 }

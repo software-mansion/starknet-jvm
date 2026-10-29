@@ -13,7 +13,11 @@ data class MerkleTree(
 
     companion object {
         @JvmStatic
-        fun hash(a: Felt, b: Felt, hashFunction: HashMethod): Felt {
+        fun hash(
+            a: Felt,
+            b: Felt,
+            hashFunction: HashMethod,
+        ): Felt {
             val (aSorted, bSorted) = if (a < b) Pair(a, b) else Pair(b, a)
             return hashFunction.hash(aSorted, bSorted)
         }
@@ -24,17 +28,22 @@ data class MerkleTree(
         return build(leaves, emptyList())
     }
 
-    private fun build(leaves: List<Felt>, branches: List<List<Felt>>): Pair<Felt, List<List<Felt>>> {
+    private fun build(
+        leaves: List<Felt>,
+        branches: List<List<Felt>>,
+    ): Pair<Felt, List<List<Felt>>> {
         if (leaves.size == 1) {
             return leaves[0] to branches
         }
-        val newBranches = when (leaves.size != leafHashes.size) {
-            true -> branches + listOf(leaves)
-            false -> branches
-        }
-        val newLeaves = leaves.indices.step(2).map {
-            hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO }, hashFunction)
-        }
+        val newBranches =
+            when (leaves.size != leafHashes.size) {
+                true -> branches + listOf(leaves)
+                false -> branches
+            }
+        val newLeaves =
+            leaves.indices.step(2).map {
+                hash(leaves[it], leaves.getOrElse(it + 1) { Felt.ZERO }, hashFunction)
+            }
 
         return build(newLeaves, newBranches)
     }

@@ -26,34 +26,31 @@ interface OutsideExecution : ConvertibleToCalldata {
 data class OutsideExecutionV2(
     @SerialName("Caller")
     override val caller: Felt,
-
     @SerialName("Nonce")
     override val nonce: Felt,
-
     @SerialName("Execute After")
     override val executeAfter: Felt,
-
     @SerialName("Execute Before")
     override val executeBefore: Felt,
-
     @SerialName("Calls")
     override val calls: List<OutsideCallV2>,
 ) : OutsideExecution {
     companion object {
-        val typeDescriptor = Descriptor(
-            "OutsideExecution",
-            listOf(
-                StandardType(name = "Caller", type = "ContractAddress"),
-                StandardType(name = "Nonce", type = "felt"),
-                StandardType(name = "Execute After", type = "u128"),
-                StandardType(name = "Execute Before", type = "u128"),
-                StandardType(name = "Calls", type = "Call*"),
-            ),
-        )
+        val typeDescriptor =
+            Descriptor(
+                "OutsideExecution",
+                listOf(
+                    StandardType(name = "Caller", type = "ContractAddress"),
+                    StandardType(name = "Nonce", type = "felt"),
+                    StandardType(name = "Execute After", type = "u128"),
+                    StandardType(name = "Execute Before", type = "u128"),
+                    StandardType(name = "Calls", type = "Call*"),
+                ),
+            )
     }
 
-    override fun toCalldata(): List<Felt> {
-        return listOf(
+    override fun toCalldata(): List<Felt> =
+        listOf(
             caller.toCalldata(),
             nonce.toCalldata(),
             executeAfter.toCalldata(),
@@ -61,16 +58,16 @@ data class OutsideExecutionV2(
             Felt(calls.size).toCalldata(),
             calls.toCalldata(),
         ).flatten()
-    }
 
     override fun toTypedData(chainId: StarknetChainId): TypedData {
         val domain = domain(chainId)
 
-        val outsideExecutionTypesV2 = listOf(
-            Domain.typeDescriptorV1,
-            typeDescriptor,
-            OutsideCallV2.typeDescriptor,
-        )
+        val outsideExecutionTypesV2 =
+            listOf(
+                Domain.typeDescriptorV1,
+                typeDescriptor,
+                OutsideCallV2.typeDescriptor,
+            )
 
         return TypedData(
             types = outsideExecutionTypesV2.associate { it.name to it.properties },
@@ -80,12 +77,11 @@ data class OutsideExecutionV2(
         )
     }
 
-    private fun domain(chainId: StarknetChainId): Domain {
-        return Domain(
+    private fun domain(chainId: StarknetChainId): Domain =
+        Domain(
             name = JsonPrimitive("Account.execute_from_outside"),
             version = JsonPrimitive("2"),
             chainId = JsonPrimitive(chainId.value.hexString()),
             revision = JsonPrimitive("1"),
         )
-    }
 }

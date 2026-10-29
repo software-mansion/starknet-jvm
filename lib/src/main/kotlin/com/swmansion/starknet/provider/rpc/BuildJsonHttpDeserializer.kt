@@ -50,10 +50,11 @@ private fun <T : StarknetResponse> getOrderedRpcResults(
     jsonResponses.forEach { jsonElement ->
         val id = jsonElement.jsonObject["id"]!!.jsonPrimitive.int
         val deserializationStrategy = deserializationStrategies[id]
-        val jsonRpcResponse = deserializationJson.decodeFromJsonElement(
-            JsonRpcResponse.serializer(deserializationStrategy),
-            jsonElement,
-        )
+        val jsonRpcResponse =
+            deserializationJson.decodeFromJsonElement(
+                JsonRpcResponse.serializer(deserializationStrategy),
+                jsonElement,
+            )
         orderedResults[id] = getResult(jsonRpcResponse, response.body, jsonElement.toString())
     }
 
@@ -64,8 +65,8 @@ private fun <T : StarknetResponse> getOrderedRpcResults(
 internal fun <T : StarknetResponse> buildJsonHttpDeserializer(
     deserializationStrategy: KSerializer<T>,
     deserializationJson: Json,
-): HttpResponseDeserializer<T> {
-    return Function { response ->
+): HttpResponseDeserializer<T> =
+    Function { response ->
         if (!response.isSuccessful) throw RequestFailedException(payload = response.body)
 
         val jsonRpcResponse =
@@ -88,18 +89,19 @@ internal fun <T : StarknetResponse> buildJsonHttpDeserializer(
         }
         jsonRpcResponse.result
     }
-}
 
 internal fun <T : StarknetResponse> buildJsonHttpBatchDeserializer(
     deserializationStrategies: List<KSerializer<T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<RequestResult<T>>> = Function { response ->
-    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
-}
+): HttpResponseDeserializer<List<RequestResult<T>>> =
+    Function { response ->
+        getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
+    }
 
 internal fun <T : StarknetResponse> buildJsonHttpBatchDeserializerOfDifferentTypes(
     deserializationStrategies: List<KSerializer<out T>>,
     deserializationJson: Json,
-): HttpResponseDeserializer<List<RequestResult<T>>> = Function { response ->
-    getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
-}
+): HttpResponseDeserializer<List<RequestResult<T>>> =
+    Function { response ->
+        getOrderedRpcResults(response, deserializationStrategies, deserializationJson)
+    }

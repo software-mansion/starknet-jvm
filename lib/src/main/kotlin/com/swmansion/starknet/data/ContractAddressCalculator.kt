@@ -31,13 +31,14 @@ object ContractAddressCalculator {
         calldata: Calldata,
         salt: Felt,
         deployerAddress: Felt,
-    ): Felt = StarknetCurve.pedersenOnElements(
-        CONTRACT_ADDRESS_PREFIX,
-        deployerAddress,
-        salt,
-        classHash,
-        StarknetCurve.pedersenOnElements(calldata),
-    )
+    ): Felt =
+        StarknetCurve.pedersenOnElements(
+            CONTRACT_ADDRESS_PREFIX,
+            deployerAddress,
+            salt,
+            classHash,
+            StarknetCurve.pedersenOnElements(calldata),
+        )
 
     /**
      * Calculate address of a contract on Starknet. Doesn't require deployerAddress.
@@ -51,12 +52,13 @@ object ContractAddressCalculator {
         classHash: Felt,
         calldata: Calldata,
         salt: Felt,
-    ): Felt = calculateAddressFromHash(
-        classHash = classHash,
-        calldata = calldata,
-        salt = salt,
-        deployerAddress = Felt.ZERO,
-    )
+    ): Felt =
+        calculateAddressFromHash(
+            classHash = classHash,
+            calldata = calldata,
+            salt = salt,
+            deployerAddress = Felt.ZERO,
+        )
 
     /**
      * Checks if provided string is in a checksum address format.
@@ -64,9 +66,7 @@ object ContractAddressCalculator {
      * @param address to check
      */
     @JvmStatic
-    fun isChecksumAddressValid(address: String): Boolean {
-        return calculateChecksumAddress(Felt.fromHex(address)) == address
-    }
+    fun isChecksumAddressValid(address: String): Boolean = calculateChecksumAddress(Felt.fromHex(address)) == address
 
     /**
      * Outputs formatted checksum address.
@@ -79,7 +79,11 @@ object ContractAddressCalculator {
      */
     @JvmStatic
     fun calculateChecksumAddress(address: Felt): String {
-        val stringAddress = address.value.toString(16).lowercase(Locale.ENGLISH).padStart(64, '0')
+        val stringAddress =
+            address.value
+                .toString(16)
+                .lowercase(Locale.ENGLISH)
+                .padStart(64, '0')
         val chars = stringAddress.toCharArray()
         // This part is different from EIP55. EIP55 digests hex as encoded ASCII string and here we
         // use digest it as bytes.
