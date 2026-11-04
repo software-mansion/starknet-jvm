@@ -24,9 +24,11 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3 {
-        return signV3(listOf(call), params, forFeeEstimate)
-    }
+    fun signV3(
+        call: Call,
+        params: InvokeParamsV3,
+        forFeeEstimate: Boolean,
+    ): InvokeTransactionV3 = signV3(listOf(call), params, forFeeEstimate)
 
     /**
      * Sign a version 3 invoke transaction.
@@ -37,9 +39,10 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(call: Call, params: InvokeParamsV3): InvokeTransactionV3 {
-        return signV3(listOf(call), params, false)
-    }
+    fun signV3(
+        call: Call,
+        params: InvokeParamsV3,
+    ): InvokeTransactionV3 = signV3(listOf(call), params, false)
 
     /**
      * Sign multiple calls as a single version 3 invoke transaction.
@@ -51,7 +54,11 @@ interface Account {
      * @param forFeeEstimate when set to `true`, it changes the version to `2^128+version` so the signed transaction can only be used for fee estimation
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: InvokeParamsV3, forFeeEstimate: Boolean): InvokeTransactionV3
+    fun signV3(
+        calls: List<Call>,
+        params: InvokeParamsV3,
+        forFeeEstimate: Boolean,
+    ): InvokeTransactionV3
 
     /**
      * Sign multiple calls as a single version 3 invoke transaction.
@@ -62,9 +69,10 @@ interface Account {
      * @param params additional execution parameters for the transaction
      * @return signed invoke transaction version 3 payload
      */
-    fun signV3(calls: List<Call>, params: InvokeParamsV3): InvokeTransactionV3 {
-        return signV3(calls, params, false)
-    }
+    fun signV3(
+        calls: List<Call>,
+        params: InvokeParamsV3,
+    ): InvokeTransactionV3 = signV3(calls, params, false)
 
     /**
      * Sign version 3 deploy account transaction.
@@ -105,10 +113,11 @@ interface Account {
         resourceBounds: ResourceBoundsMapping,
         forFeeEstimate: Boolean,
     ): DeployAccountTransactionV3 {
-        val params = DeployAccountParamsV3(
-            nonce = Felt.ZERO,
-            resourceBounds = resourceBounds,
-        )
+        val params =
+            DeployAccountParamsV3(
+                nonce = Felt.ZERO,
+                resourceBounds = resourceBounds,
+            )
         return signDeployAccountV3(classHash, calldata, salt, params, forFeeEstimate)
     }
 
@@ -129,10 +138,11 @@ interface Account {
         salt: Felt,
         resourceBounds: ResourceBoundsMapping,
     ): DeployAccountTransactionV3 {
-        val params = DeployAccountParamsV3(
-            nonce = Felt.ZERO,
-            resourceBounds = resourceBounds,
-        )
+        val params =
+            DeployAccountParamsV3(
+                nonce = Felt.ZERO,
+                resourceBounds = resourceBounds,
+            )
         return signDeployAccountV3(classHash, calldata, salt, params, false)
     }
 
@@ -172,9 +182,7 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         forFeeEstimate: Boolean,
-    ): DeclareTransactionV3 {
-        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, forFeeEstimate, HashMethod.BLAKE2S)
-    }
+    ): DeclareTransactionV3 = signDeclareV3(sierraContractDefinition, casmContractDefinition, params, forFeeEstimate, HashMethod.BLAKE2S)
 
     /**
      * Sign a version 3 declare transaction.
@@ -192,9 +200,7 @@ interface Account {
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
         hashMethod: HashMethod,
-    ): DeclareTransactionV3 {
-        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false, hashMethod)
-    }
+    ): DeclareTransactionV3 = signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false, hashMethod)
 
     /**
      * Sign a version 3 declare transaction.
@@ -210,9 +216,7 @@ interface Account {
         sierraContractDefinition: Cairo1ContractDefinition,
         casmContractDefinition: CasmContractDefinition,
         params: DeclareParamsV3,
-    ): DeclareTransactionV3 {
-        return signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false)
-    }
+    ): DeclareTransactionV3 = signDeclareV3(sierraContractDefinition, casmContractDefinition, params, false)
 
     /**
      * Sign TypedData for off-chain usage with this account privateKey
@@ -229,7 +233,10 @@ interface Account {
      * @param signature a signature of typedData
      * @return `true` if signature is valid, `false` otherwise
      */
-    fun verifyTypedDataSignature(typedData: TypedData, signature: Signature): Request<Boolean>
+    fun verifyTypedDataSignature(
+        typedData: TypedData,
+        signature: Signature,
+    ): Request<Boolean>
 
     /**
      * Execute a list of calls using version 3 invoke transaction.
@@ -240,7 +247,10 @@ interface Account {
      * @param resourceBounds resource bounds for the transaction execution
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
+    fun executeV3(
+        calls: List<Call>,
+        resourceBounds: ResourceBoundsMapping,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 3 invoke transaction.
@@ -267,7 +277,10 @@ interface Account {
      * @param resourceBounds resource bounds for the transaction execution
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping): Request<InvokeFunctionResponse>
+    fun executeV3(
+        call: Call,
+        resourceBounds: ResourceBoundsMapping,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 3 invoke transaction.
@@ -279,7 +292,11 @@ interface Account {
      * @param tip tip of the transaction
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, resourceBounds: ResourceBoundsMapping, tip: Uint64): Request<InvokeFunctionResponse>
+    fun executeV3(
+        call: Call,
+        resourceBounds: ResourceBoundsMapping,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls using version 3 invoke transaction with automatically estimated fee
@@ -293,7 +310,11 @@ interface Account {
      *
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+    fun executeV3(
+        calls: List<Call>,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call using version 3 invoke transaction with automatically estimated fee
@@ -307,7 +328,11 @@ interface Account {
      *
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, estimateAmountMultiplier: Double, estimateUnitPriceMultiplier: Double): Request<InvokeFunctionResponse>
+    fun executeV3(
+        call: Call,
+        estimateAmountMultiplier: Double,
+        estimateUnitPriceMultiplier: Double,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute a list of calls with automatically estimated fee using version 3 invoke transaction.
@@ -324,7 +349,10 @@ interface Account {
      * @param tip tip of the transaction
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(calls: List<Call>, tip: Uint64): Request<InvokeFunctionResponse>
+    fun executeV3(
+        calls: List<Call>,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Execute single call with automatically estimated fee using version 3 invoke transaction.
@@ -341,7 +369,10 @@ interface Account {
      * @param tip tip of the transaction
      * @return Invoke function response, containing transaction hash.
      */
-    fun executeV3(call: Call, tip: Uint64): Request<InvokeFunctionResponse>
+    fun executeV3(
+        call: Call,
+        tip: Uint64,
+    ): Request<InvokeFunctionResponse>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
@@ -362,7 +393,10 @@ interface Account {
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, skipValidate: Boolean): Request<EstimateFeeResponseList>
+    fun estimateFeeV3(
+        call: Call,
+        skipValidate: Boolean,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
@@ -373,7 +407,10 @@ interface Account {
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, blockTag: BlockTag): Request<EstimateFeeResponseList>
+    fun estimateFeeV3(
+        call: Call,
+        blockTag: BlockTag,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate fee for a call as a version 3 invoke transaction.
@@ -385,7 +422,11 @@ interface Account {
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return Field value representing estimated fee.
      */
-    fun estimateFeeV3(call: Call, blockTag: BlockTag, skipValidate: Boolean): Request<EstimateFeeResponseList>
+    fun estimateFeeV3(
+        call: Call,
+        blockTag: BlockTag,
+        skipValidate: Boolean,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate fee for a list of calls as a version 3 invoke transaction.
@@ -406,7 +447,10 @@ interface Account {
      * @param skipValidate when set to `true`, the validation part of the transaction is skipped.
      * @return estimated fee as field value.
      */
-    fun estimateFeeV3(calls: List<Call>, skipValidate: Boolean): Request<EstimateFeeResponseList>
+    fun estimateFeeV3(
+        calls: List<Call>,
+        skipValidate: Boolean,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate fee for a list of calls.
@@ -417,7 +461,10 @@ interface Account {
      * @param blockTag a tag of the block in respect to what the query will be made.
      * @return estimated fee as field value.
      */
-    fun estimateFeeV3(calls: List<Call>, blockTag: BlockTag): Request<EstimateFeeResponseList>
+    fun estimateFeeV3(
+        calls: List<Call>,
+        blockTag: BlockTag,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate fee for a list of calls.

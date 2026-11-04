@@ -6,16 +6,14 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 class StorageKeyTest {
-
     companion object {
         @JvmStatic
-        fun getHappyCaseData(): List<String> {
-            return listOf(
+        fun getHappyCaseData(): List<String> =
+            listOf(
                 "0x0",
                 "0x7abcdef",
                 "0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             )
-        }
     }
 
     @ParameterizedTest
@@ -28,9 +26,10 @@ class StorageKeyTest {
     fun `length exceeds limit`() {
         val hex = "0x7abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcabc"
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            StorageKey(hex)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                StorageKey(hex)
+            }
         assert(exception.message!!.contains("Invalid storage key format"))
     }
 }

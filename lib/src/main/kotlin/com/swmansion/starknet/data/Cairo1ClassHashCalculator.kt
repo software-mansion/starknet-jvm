@@ -22,10 +22,24 @@ object Cairo1ClassHashCalculator {
         val abiHash = starknetKeccak(contractClass.abi!!.toByteArray(charset = Charsets.UTF_8))
         val sierraProgramHash = Poseidon.poseidonHash(contractClass.sierraProgram)
 
-        return (Poseidon.poseidonHash(listOf(sierraVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, abiHash, sierraProgramHash)))
+        return (
+            Poseidon.poseidonHash(
+                listOf(
+                    sierraVersion,
+                    externalEntryPointHash,
+                    l1HandlerEntryPointHash,
+                    constructorEntryPointHash,
+                    abiHash,
+                    sierraProgramHash,
+                ),
+            )
+        )
     }
 
-    fun computeCasmClassHash(contract: CasmContractDefinition, hashMethod: HashMethod): Felt {
+    fun computeCasmClassHash(
+        contract: CasmContractDefinition,
+        hashMethod: HashMethod,
+    ): Felt {
         val json = if (contract.ignoreUnknownJsonKeys) jsonWithIgnoreUnknownKeys else Json
         val contractClass = json.decodeFromJsonElement(CasmContractClass.serializer(), contract.toJson())
 
@@ -33,20 +47,30 @@ object Cairo1ClassHashCalculator {
         val externalEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.external, hashMethod))
         val l1HandlerEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.l1Handler, hashMethod))
         val constructorEntryPointHash = hashMethod.hash(getCasmEntryPointsArray(contractClass.entryPointsByType.constructor, hashMethod))
-        val bytecodeHash = contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths, hashMethod) }
-            ?: hashMethod.hash(contractClass.bytecode)
+        val bytecodeHash =
+            contractClass.bytecodeSegmentLengths?.let { lengths -> hashBytecodeSegments(contractClass.bytecode, lengths, hashMethod) }
+                ?: hashMethod.hash(contractClass.bytecode)
 
-        return (hashMethod.hash(listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash)))
+        return (
+            hashMethod.hash(
+                listOf(casmVersion, externalEntryPointHash, l1HandlerEntryPointHash, constructorEntryPointHash, bytecodeHash),
+            )
+        )
     }
 
-    private fun hashBytecodeSegments(bytecode: List<Felt>, bytecodeSegmentLengths: List<Int>, hashMethod: HashMethod): Felt {
+    private fun hashBytecodeSegments(
+        bytecode: List<Felt>,
+        bytecodeSegmentLengths: List<Int>,
+        hashMethod: HashMethod,
+    ): Felt {
         val segmentStarts = bytecodeSegmentLengths.scan(0, Int::plus)
 
-        val hashLeaves = bytecodeSegmentLengths.flatMapIndexed { index, length ->
-            val segment = bytecode.slice(segmentStarts[index] until segmentStarts[index + 1])
+        val hashLeaves =
+            bytecodeSegmentLengths.flatMapIndexed { index, length ->
+                val segment = bytecode.slice(segmentStarts[index] until segmentStarts[index + 1])
 
-            listOf(length.toFelt) + hashMethod.hash(segment)
-        }
+                listOf(length.toFelt) + hashMethod.hash(segment)
+            }
 
         return (BigInteger.ONE + hashMethod.hash(hashLeaves).value).toFelt
     }
@@ -59,7 +83,10 @@ object Cairo1ClassHashCalculator {
         return entryPointsArray
     }
 
-    private fun getCasmEntryPointsArray(arr: List<CasmEntryPoint>, hashMethod: HashMethod): List<Felt> {
+    private fun getCasmEntryPointsArray(
+        arr: List<CasmEntryPoint>,
+        hashMethod: HashMethod,
+    ): List<Felt> {
         val entryPointsArray = mutableListOf<Felt>()
         for (ep in arr) {
             requireNotNull(ep.builtins) { "Builtins cannot be null!" }

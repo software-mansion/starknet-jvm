@@ -10,7 +10,10 @@ data class ContractDeployment(
     val transactionHash: Felt,
 )
 
-class AddressRetrievalFailedException(message: String, contractDeployment: ContractDeployment) : RuntimeException(message)
+class AddressRetrievalFailedException(
+    message: String,
+    contractDeployment: ContractDeployment,
+) : RuntimeException(message)
 
 class SaltGenerationFailedException : RuntimeException()
 
@@ -73,7 +76,11 @@ interface Deployer {
      *
      * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithSpecificFeeAndDefaultParameters
      */
-    fun deployContractV3(classHash: Felt, constructorCalldata: Calldata, resourceBounds: ResourceBoundsMapping): Request<ContractDeployment>
+    fun deployContractV3(
+        classHash: Felt,
+        constructorCalldata: Calldata,
+        resourceBounds: ResourceBoundsMapping,
+    ): Request<ContractDeployment>
 
     /**
      * Deploy a contract through Universal Deployer Contract (UDC) using version 3 invoke transaction
@@ -86,7 +93,10 @@ interface Deployer {
      *
      * @sample starknet.deployercontract.StandardDeployerTest.testUdcDeployV3WithDefaultParameters
      */
-    fun deployContractV3(classHash: Felt, constructorCalldata: Calldata): Request<ContractDeployment>
+    fun deployContractV3(
+        classHash: Felt,
+        constructorCalldata: Calldata,
+    ): Request<ContractDeployment>
 
     /**
      * Get a contract address from the deployment

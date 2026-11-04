@@ -20,9 +20,19 @@ internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCair
 
         // This accepts both integer and hex string for offset,
         // as compiled contract code uses integer for this field, but the RPC spec requires NUM_AS_HEX.
-        val offset = jsonObject.getValue("offset").jsonPrimitive.content.toBigIntegerOrNull()?.toNumAsHex
-            ?: jsonObject.getValue("offset").jsonPrimitive.content.toNumAsHex
-        val selector = jsonObject.getValue("selector").jsonPrimitive.content.toFelt
+        val offset =
+            jsonObject
+                .getValue("offset")
+                .jsonPrimitive.content
+                .toBigIntegerOrNull()
+                ?.toNumAsHex
+                ?: jsonObject
+                    .getValue("offset")
+                    .jsonPrimitive.content.toNumAsHex
+        val selector =
+            jsonObject
+                .getValue("selector")
+                .jsonPrimitive.content.toFelt
 
         return DeprecatedCairoEntryPoint(
             offset = offset,
@@ -33,11 +43,15 @@ internal object DeprecatedCairoEntryPointSerializer : KSerializer<DeprecatedCair
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("DeprecatedCairoEntryPoint", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: DeprecatedCairoEntryPoint) {
-        val jsonObject = buildJsonObject {
-            put("offset", value.offset.hexString())
-            put("selector", value.selector.hexString())
-        }
+    override fun serialize(
+        encoder: Encoder,
+        value: DeprecatedCairoEntryPoint,
+    ) {
+        val jsonObject =
+            buildJsonObject {
+                put("offset", value.offset.hexString())
+                put("selector", value.selector.hexString())
+            }
         val output = encoder as? JsonEncoder ?: throw SerializationException("")
 
         output.encodeJsonElement(jsonObject)

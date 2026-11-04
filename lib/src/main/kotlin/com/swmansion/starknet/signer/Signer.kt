@@ -24,7 +24,10 @@ interface Signer {
      * @param accountAddress Account address used in the TypedData hash calculation
      * @return a signature of provided typedData
      */
-    fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature
+    fun signTypedData(
+        typedData: TypedData,
+        accountAddress: Felt,
+    ): Signature
 
     /**
      * Public key used by a signer.

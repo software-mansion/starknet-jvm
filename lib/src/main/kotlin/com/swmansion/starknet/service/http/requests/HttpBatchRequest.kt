@@ -22,20 +22,18 @@ class HttpBatchRequest<T : StarknetResponse> private constructor(
         return deserializer.apply(response)
     }
 
-    override fun sendAsync(): CompletableFuture<List<RequestResult<T>>> {
-        return service.sendAsync(payload).thenApplyAsync(deserializer)
-    }
+    override fun sendAsync(): CompletableFuture<List<RequestResult<T>>> = service.sendAsync(payload).thenApplyAsync(deserializer)
 
     companion object {
         @JvmStatic
-        fun <T : StarknetResponse>fromRequests(
+        fun <T : StarknetResponse> fromRequests(
             url: String,
             jsonRpcRequests: List<JsonRpcRequest>,
             responseDeserializers: List<KSerializer<T>>,
             deserializationJson: Json,
             service: HttpService,
-        ): HttpBatchRequest<T> {
-            return HttpBatchRequest(
+        ): HttpBatchRequest<T> =
+            HttpBatchRequest(
                 HttpService.Payload(
                     url = url,
                     method = "POST",
@@ -45,17 +43,16 @@ class HttpBatchRequest<T : StarknetResponse> private constructor(
                 deserializer = buildJsonHttpBatchDeserializer(responseDeserializers, deserializationJson),
                 service = service,
             )
-        }
 
         @JvmStatic
-        fun <T : StarknetResponse>fromRequestsAny(
+        fun <T : StarknetResponse> fromRequestsAny(
             url: String,
             jsonRpcRequests: List<JsonRpcRequest>,
             responseDeserializers: List<KSerializer<out T>>,
             deserializationJson: Json,
             service: HttpService,
-        ): HttpBatchRequest<T> {
-            return HttpBatchRequest(
+        ): HttpBatchRequest<T> =
+            HttpBatchRequest(
                 HttpService.Payload(
                     url = url,
                     method = "POST",
@@ -65,6 +62,5 @@ class HttpBatchRequest<T : StarknetResponse> private constructor(
                 deserializer = buildJsonHttpBatchDeserializerOfDifferentTypes(responseDeserializers, deserializationJson),
                 service = service,
             )
-        }
     }
 }

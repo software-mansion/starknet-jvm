@@ -14,7 +14,8 @@ import org.mockito.kotlin.mock
 class TipTest {
     @Test
     fun `block without transactions`() {
-        val mockedResponse = """
+        val mockedResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -50,11 +51,12 @@ class TipTest {
                     "transactions": []
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
+        val httpService =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
         val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider).send()
 
@@ -64,7 +66,8 @@ class TipTest {
     @Test
     fun `odd transactions number`() {
         // 3 transactions, tips: 100, 200, 300
-        val mockedResponse = """
+        val mockedResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -194,11 +197,12 @@ class TipTest {
                     ]
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
+        val httpService =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
         val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider).send()
 
@@ -208,7 +212,8 @@ class TipTest {
     @Test
     fun `even transactions number`() {
         // 4 transactions, tips: 100, 200, 300, 400
-        val mockedResponse = """
+        val mockedResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -369,11 +374,12 @@ class TipTest {
                     ]
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
+        val httpService =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
         val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider).send()
 
@@ -384,7 +390,8 @@ class TipTest {
     fun `block with old transactions`() {
         // 3 transactions v3, tips: 100, 200, 300
         // 1 transaction v1
-        val mockedResponse = """
+        val mockedResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -527,11 +534,12 @@ class TipTest {
                     ]
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
+        val httpService =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
         val provider = JsonRpcProvider("", httpService)
         val tipEstimate = estimateTip(provider).send()
 

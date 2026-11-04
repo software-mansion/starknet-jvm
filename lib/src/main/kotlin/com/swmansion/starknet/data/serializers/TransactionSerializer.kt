@@ -18,7 +18,10 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         require(decoder is JsonDecoder)
         val element = decoder.decodeJsonElement()
         val jsonElement = element.jsonObject
-        val typeElement = jsonElement.getOrElse("type") { throw SerializationException("Input element does not contain mandatory field 'type'") }
+        val typeElement =
+            jsonElement.getOrElse(
+                "type",
+            ) { throw SerializationException("Input element does not contain mandatory field 'type'") }
 
         val type = decoder.json.decodeFromJsonElement(TransactionType.serializer(), typeElement)
 
@@ -31,13 +34,20 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         }
     }
 
-    override fun serialize(encoder: Encoder, value: Transaction) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Transaction,
+    ) {
         require(encoder is JsonEncoder)
         require(value is ExecutableTransaction) {
             "TransactionSerializer can only serialize ExecutableTransaction instances."
         }
 
-        val base = encoder.json.encodeToJsonElement(ExecutableTransactionSerializer, value).jsonObject.toMutableMap()
+        val base =
+            encoder.json
+                .encodeToJsonElement(ExecutableTransactionSerializer, value)
+                .jsonObject
+                .toMutableMap()
         if (value is InvokeTransactionV3) {
             value.proof?.let { base["proof"] = JsonPrimitive(it) }
             if (!value.proofFacts.isNullOrEmpty()) {
@@ -49,8 +59,14 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         encoder.encodeJsonElement(result)
     }
 
-    private fun deserializeInvoke(decoder: JsonDecoder, element: JsonElement): InvokeTransaction {
-        val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+    private fun deserializeInvoke(
+        decoder: JsonDecoder,
+        element: JsonElement,
+    ): InvokeTransaction {
+        val versionElement =
+            element.jsonObject.getOrElse("version") {
+                throw SerializationException("Input element does not contain mandatory field 'version'")
+            }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
@@ -61,8 +77,14 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         }
     }
 
-    private fun deserializeDeclare(decoder: JsonDecoder, element: JsonElement): DeclareTransaction {
-        val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+    private fun deserializeDeclare(
+        decoder: JsonDecoder,
+        element: JsonElement,
+    ): DeclareTransaction {
+        val versionElement =
+            element.jsonObject.getOrElse("version") {
+                throw SerializationException("Input element does not contain mandatory field 'version'")
+            }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {
@@ -74,8 +96,14 @@ internal object TransactionSerializer : KSerializer<Transaction> {
         }
     }
 
-    private fun deserializeDeployAccount(decoder: JsonDecoder, element: JsonElement): DeployAccountTransaction {
-        val versionElement = element.jsonObject.getOrElse("version") { throw SerializationException("Input element does not contain mandatory field 'version'") }
+    private fun deserializeDeployAccount(
+        decoder: JsonDecoder,
+        element: JsonElement,
+    ): DeployAccountTransaction {
+        val versionElement =
+            element.jsonObject.getOrElse("version") {
+                throw SerializationException("Input element does not contain mandatory field 'version'")
+            }
 
         val version = decoder.json.decodeFromJsonElement(Felt.serializer(), versionElement)
         return when (version) {

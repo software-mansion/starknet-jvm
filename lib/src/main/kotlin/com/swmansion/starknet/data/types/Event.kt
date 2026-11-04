@@ -11,10 +11,8 @@ import kotlinx.serialization.json.JsonNames
 data class Event(
     @JsonNames("address", "from_address")
     val address: Felt,
-
     @JsonNames("keys")
     val keys: List<Felt>,
-
     @JsonNames("data")
     val data: List<Felt>,
 )
@@ -24,7 +22,6 @@ data class Event(
 data class EventContent(
     @JsonNames("keys")
     val keys: List<Felt>,
-
     @JsonNames("data")
     val data: List<Felt>,
 )
@@ -33,10 +30,8 @@ data class EventContent(
 data class OrderedEvent(
     @SerialName("order")
     val order: Int,
-
     @SerialName("keys")
     val keys: List<Felt>,
-
     @SerialName("data")
     val data: List<Felt>,
 ) {
@@ -46,36 +41,31 @@ data class OrderedEvent(
 }
 
 @Serializable
-data class EmittedEvent @JvmOverloads constructor(
-    @SerialName("from_address")
-    val address: Felt,
-
-    @SerialName("keys")
-    val keys: List<Felt>,
-
-    @SerialName("data")
-    val data: List<Felt>,
-
-    @SerialName("block_hash")
-    val blockHash: Felt? = null,
-
-    @SerialName("block_number")
-    val blockNumber: Int? = null,
-
-    @SerialName("transaction_hash")
-    val transactionHash: Felt,
-
-    @SerialName("transaction_index")
-    val transactionIndex: Int,
-
-    @SerialName("event_index")
-    val eventIndex: Int,
-) {
-    init {
-        require(transactionIndex >= 0) { "`transaction_index` must be non-negative, got $transactionIndex" }
-        require(eventIndex >= 0) { "`event_index` must be non-negative, got $eventIndex" }
+data class EmittedEvent
+    @JvmOverloads
+    constructor(
+        @SerialName("from_address")
+        val address: Felt,
+        @SerialName("keys")
+        val keys: List<Felt>,
+        @SerialName("data")
+        val data: List<Felt>,
+        @SerialName("block_hash")
+        val blockHash: Felt? = null,
+        @SerialName("block_number")
+        val blockNumber: Int? = null,
+        @SerialName("transaction_hash")
+        val transactionHash: Felt,
+        @SerialName("transaction_index")
+        val transactionIndex: Int,
+        @SerialName("event_index")
+        val eventIndex: Int,
+    ) {
+        init {
+            require(transactionIndex >= 0) { "`transaction_index` must be non-negative, got $transactionIndex" }
+            require(eventIndex >= 0) { "`event_index` must be non-negative, got $eventIndex" }
+        }
     }
-}
 
 /**
  * Filter for contract addresses emitting events.
@@ -86,39 +76,41 @@ data class EmittedEvent @JvmOverloads constructor(
 @Serializable(with = AddressFilterSerializer::class)
 sealed class AddressFilter {
     /** Filter by a single contract address. */
-    data class Single(val address: Felt) : AddressFilter()
+    data class Single(
+        val address: Felt,
+    ) : AddressFilter()
 
     /** Filter by multiple contract addresses. */
-    data class Multiple(val addresses: List<Felt>) : AddressFilter()
+    data class Multiple(
+        val addresses: List<Felt>,
+    ) : AddressFilter()
 }
 
 @Serializable
-data class GetEventsPayload @JvmOverloads constructor(
-    @SerialName("from_block")
-    val fromBlockId: BlockId? = null,
-
-    @SerialName("to_block")
-    val toBlockId: BlockId? = null,
-
-    @SerialName("address")
-    val address: AddressFilter? = null,
-
-    @SerialName("keys")
-    val keys: List<List<Felt>>? = null,
-
-    @SerialName("chunk_size")
-    val chunkSize: Int,
-
-    @SerialName("continuation_token")
-    val continuationToken: String? = null,
-)
+data class GetEventsPayload
+    @JvmOverloads
+    constructor(
+        @SerialName("from_block")
+        val fromBlockId: BlockId? = null,
+        @SerialName("to_block")
+        val toBlockId: BlockId? = null,
+        @SerialName("address")
+        val address: AddressFilter? = null,
+        @SerialName("keys")
+        val keys: List<List<Felt>>? = null,
+        @SerialName("chunk_size")
+        val chunkSize: Int,
+        @SerialName("continuation_token")
+        val continuationToken: String? = null,
+    )
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GetEventsResult @JvmOverloads constructor(
-    @JsonNames("events")
-    val events: List<EmittedEvent>,
-
-    @JsonNames("continuation_token")
-    val continuationToken: String? = null,
-) : StarknetResponse
+data class GetEventsResult
+    @JvmOverloads
+    constructor(
+        @JsonNames("events")
+        val events: List<EmittedEvent>,
+        @JsonNames("continuation_token")
+        val continuationToken: String? = null,
+    ) : StarknetResponse

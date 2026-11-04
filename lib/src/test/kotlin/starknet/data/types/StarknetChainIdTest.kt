@@ -9,8 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource
 internal class StarknetChainIdTest {
     companion object {
         @JvmStatic
-        fun getChainIdData(): List<ChainIdData> {
-            return listOf(
+        fun getChainIdData(): List<ChainIdData> =
+            listOf(
                 ChainIdData(StarknetChainId.MAIN, "SN_MAIN", "0x534e5f4d41494e"),
                 ChainIdData(StarknetChainId.SEPOLIA, "SN_SEPOLIA", "0x534e5f5345504f4c4941"),
                 ChainIdData(
@@ -19,8 +19,8 @@ internal class StarknetChainIdTest {
                     "0x534e5f494e544547524154494f4e5f5345504f4c4941",
                 ),
             )
-        }
     }
+
     data class ChainIdData(
         val chainId: StarknetChainId,
         val name: String,

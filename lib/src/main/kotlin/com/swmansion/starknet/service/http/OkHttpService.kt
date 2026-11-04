@@ -17,16 +17,22 @@ import java.util.concurrent.CompletableFuture
  * [avoid wasting resources](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared).
  * @param client OkHttpClient used for making requests
  */
-class OkHttpService(private val client: OkHttpClient) : HttpService {
+class OkHttpService(
+    private val client: OkHttpClient,
+) : HttpService {
     constructor() : this(OkHttpClient())
 
-    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+    private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
     private fun buildRequest(payload: Payload): okhttp3.Request {
-        val body = payload.body?.toRequestBody(JSON_MEDIA_TYPE)
+        val body = payload.body?.toRequestBody(jsonMediaType)
         val url = buildRequestUrl(payload.url, payload.params)
 
-        return okhttp3.Request.Builder().url(url).method(payload.method, body).build()
+        return okhttp3.Request
+            .Builder()
+            .url(url)
+            .method(payload.method, body)
+            .build()
     }
 
     private fun buildRequestUrl(
@@ -77,7 +83,10 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
 
         client.newCall(httpRequest).enqueue(
             object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
+                override fun onFailure(
+                    call: Call,
+                    e: IOException,
+                ) {
                     future.completeExceptionally(
                         RequestFailedException(
                             message = e.message ?: "Unknown HTTP error.",
@@ -86,7 +95,10 @@ class OkHttpService(private val client: OkHttpClient) : HttpService {
                     )
                 }
 
-                override fun onResponse(call: Call, response: Response) {
+                override fun onResponse(
+                    call: Call,
+                    response: Response,
+                ) {
                     try {
                         val parsedResponse = processHttpResponse(response)
                         future.complete(parsedResponse)

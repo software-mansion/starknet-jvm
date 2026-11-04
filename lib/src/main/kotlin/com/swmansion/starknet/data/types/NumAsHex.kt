@@ -7,7 +7,9 @@ import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
 @Serializable(with = NumAsHexSerializer::class)
-data class NumAsHex(override val value: BigInteger) : NumAsHexBase(value) {
+data class NumAsHex(
+    override val value: BigInteger,
+) : NumAsHexBase(value) {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 

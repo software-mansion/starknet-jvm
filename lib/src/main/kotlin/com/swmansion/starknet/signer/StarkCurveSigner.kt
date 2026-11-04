@@ -9,8 +9,9 @@ import com.swmansion.starknet.data.types.*
  *
  * @param privateKey a private key to be used by this signer
  */
-class StarkCurveSigner(private val privateKey: Felt) : Signer {
-
+class StarkCurveSigner(
+    private val privateKey: Felt,
+) : Signer {
     // Generating public key takes a while
     override val publicKey: Felt by lazy { StarknetCurve.getPublicKey(privateKey) }
 
@@ -28,7 +29,10 @@ class StarkCurveSigner(private val privateKey: Felt) : Signer {
      * @sample starknet.signer.SignerTest.signTypedData
 
      */
-    override fun signTypedData(typedData: TypedData, accountAddress: Felt): Signature {
+    override fun signTypedData(
+        typedData: TypedData,
+        accountAddress: Felt,
+    ): Signature {
         val messageHash = typedData.getMessageHash(accountAddress)
         return StarknetCurve.sign(privateKey, messageHash).toList()
     }

@@ -19,9 +19,7 @@ import org.apache.commons.math3.stat.descriptive.rank.Median
 fun estimateTip(
     provider: Provider,
     blockHash: Felt,
-): Request<Uint64> {
-    return estimateTip(provider, BlockId.Hash(blockHash))
-}
+): Request<Uint64> = estimateTip(provider, BlockId.Hash(blockHash))
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
  *
@@ -33,9 +31,7 @@ fun estimateTip(
 fun estimateTip(
     provider: Provider,
     blockTag: BlockTag,
-): Request<Uint64> {
-    return estimateTip(provider, BlockId.Tag(blockTag))
-}
+): Request<Uint64> = estimateTip(provider, BlockId.Tag(blockTag))
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
  *
@@ -47,9 +43,7 @@ fun estimateTip(
 fun estimateTip(
     provider: Provider,
     blockNumber: Int,
-): Request<Uint64> {
-    return estimateTip(provider, BlockId.Number(blockNumber))
-}
+): Request<Uint64> = estimateTip(provider, BlockId.Number(blockNumber))
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the latest block.
  *
@@ -57,11 +51,7 @@ fun estimateTip(
  *
  * @return
  */
-fun estimateTip(
-    provider: Provider,
-): Request<Uint64> {
-    return estimateTip(provider, BlockId.Tag(BlockTag.LATEST))
-}
+fun estimateTip(provider: Provider): Request<Uint64> = estimateTip(provider, BlockId.Tag(BlockTag.LATEST))
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
  *
@@ -74,16 +64,18 @@ private fun estimateTip(
     provider: Provider,
     blockId: BlockId,
 ): Request<Uint64> {
-    val request = when (blockId) {
-        is BlockId.Hash -> provider.getBlockWithTxs(blockId.blockHash)
-        is BlockId.Number -> provider.getBlockWithTxs(blockId.blockNumber)
-        is BlockId.Tag -> provider.getBlockWithTxs(blockId.blockTag)
-    }
+    val request =
+        when (blockId) {
+            is BlockId.Hash -> provider.getBlockWithTxs(blockId.blockHash)
+            is BlockId.Number -> provider.getBlockWithTxs(blockId.blockNumber)
+            is BlockId.Tag -> provider.getBlockWithTxs(blockId.blockTag)
+        }
 
     return request.map { blockWithTxs ->
-        val tips = blockWithTxs.transactions
-            .filterIsInstance<TransactionV3>()
-            .map { it.tip.value }
+        val tips =
+            blockWithTxs.transactions
+                .filterIsInstance<TransactionV3>()
+                .map { it.tip.value }
 
         if (tips.isEmpty()) {
             return@map Uint64.ZERO

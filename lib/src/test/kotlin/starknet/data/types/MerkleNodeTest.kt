@@ -11,12 +11,13 @@ internal class MerkleNodeTest {
 
     @Test
     fun `binary node`() {
-        val jsonString = """
+        val jsonString =
+            """
             {
                "left": "0x123",
                "right": "0x456"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val node = json.decodeFromString(NodeHashToNodeMappingItem.MerkleNode.serializer(), jsonString)
 
@@ -25,11 +26,12 @@ internal class MerkleNodeTest {
 
     @Test
     fun `binary node with missing field`() {
-        val jsonString = """
+        val jsonString =
+            """
             {
                "left": "0x123"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"left\":\"0x123\"}") {
             json.decodeFromString<NodeHashToNodeMappingItem.BinaryNode>(jsonString)
@@ -38,13 +40,14 @@ internal class MerkleNodeTest {
 
     @Test
     fun `edge node`() {
-        val jsonString = """
+        val jsonString =
+            """
             {
                "path": "0x123",
                "length": 456,
                "child": "0x789"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val node = json.decodeFromString(NodeHashToNodeMappingItem.MerkleNode.serializer(), jsonString)
         assertTrue(node is NodeHashToNodeMappingItem.EdgeNode)
@@ -52,12 +55,13 @@ internal class MerkleNodeTest {
 
     @Test
     fun `edge node with missing fields`() {
-        val jsonString = """
+        val jsonString =
+            """
             {
                "path": "0x123",
                "length": 456
             }
-        """.trimIndent()
+            """.trimIndent()
 
         assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"path\":123,\"length\":456}") {
             json.decodeFromString<NodeHashToNodeMappingItem.MerkleNode>(jsonString)
@@ -66,13 +70,14 @@ internal class MerkleNodeTest {
 
     @Test
     fun `node with mixed fields`() {
-        val jsonString = """
+        val jsonString =
+            """
             {
                "path": "0x123",
                "length": 20,
                "right": "0x123"
             }
-        """.trimIndent()
+            """.trimIndent()
 
         assertThrows<IllegalArgumentException>("Invalid MerkleNode JSON object: {\"path\":10,\"length\":20,\"right\":\"0x123\"}") {
             json.decodeFromString<NodeHashToNodeMappingItem.MerkleNode>(jsonString)

@@ -146,7 +146,7 @@ git submodule update --init --recursive
         DEVNET_PATH=/path/to/starknet-devnet-rs/target/release/starknet-devnet
       ```
     - You can do so by using environment variables in your system or IDE, or by sourcing an `.env` file. Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-- [`java`](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/downloads-list.html) - make sure to have Java 11 installed and set the `JAVA_HOME` environment variable to the path of your JDK installation
+- [`java`](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html) - make sure to have Java 17 or later installed and set the `JAVA_HOME` environment variable to the path of your JDK installation
 - [`cmake`](https://github.com/Kitware/CMake/releases/tag/v3.18.1) - make sure to have `cmake` 3.18.1  installed
 
 ### Regular Tests

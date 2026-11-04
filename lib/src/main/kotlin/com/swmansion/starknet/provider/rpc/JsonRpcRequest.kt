@@ -8,13 +8,10 @@ import kotlinx.serialization.json.JsonElement
 data class JsonRpcRequest(
     @SerialName("id")
     val id: Int,
-
     @SerialName("jsonrpc")
     val jsonRpc: String,
-
     @SerialName("method")
     val method: String,
-
     @SerialName("params")
     val params: JsonElement,
 )

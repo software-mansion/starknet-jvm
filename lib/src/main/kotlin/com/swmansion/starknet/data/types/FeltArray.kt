@@ -7,7 +7,11 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-data class FeltArray(private val list: MutableList<Felt>) : ConvertibleToCalldata, MutableList<Felt> by list, StarknetResponse {
+data class FeltArray(
+    private val list: MutableList<Felt>,
+) : ConvertibleToCalldata,
+    MutableList<Felt> by list,
+    StarknetResponse {
     constructor(vararg elements: Felt) : this(elements.toMutableList())
 
     @JvmOverloads
@@ -21,11 +25,12 @@ internal object FeltArraySerializer : KSerializer<FeltArray> {
 
     override val descriptor = delegate.descriptor
 
-    override fun serialize(encoder: Encoder, value: FeltArray) {
+    override fun serialize(
+        encoder: Encoder,
+        value: FeltArray,
+    ) {
         delegate.serialize(encoder, value.toList())
     }
 
-    override fun deserialize(decoder: Decoder): FeltArray {
-        return FeltArray(delegate.deserialize(decoder))
-    }
+    override fun deserialize(decoder: Decoder): FeltArray = FeltArray(delegate.deserialize(decoder))
 }

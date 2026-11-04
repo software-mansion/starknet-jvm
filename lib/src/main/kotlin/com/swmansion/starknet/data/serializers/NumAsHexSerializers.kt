@@ -42,7 +42,10 @@ internal sealed class HexSerializer<T : NumAsHexBase>(
         return fromHex(hex)
     }
 
-    override fun serialize(encoder: Encoder, value: T) {
+    override fun serialize(
+        encoder: Encoder,
+        value: T,
+    ) {
         encoder.encodeString(hexString(value))
     }
 }
