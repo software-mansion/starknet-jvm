@@ -537,4 +537,148 @@ class TipTest {
 
         assertEquals(Uint64(200), tipEstimate)
     }
+
+    @Test
+    fun `tips exceeding int range`() {
+        // 3 transactions, tips: 10^10, 2 * 10^10, 3 * 10^10
+        val mockedResponse = """
+            {
+                "id": 0,
+                "jsonrpc": "2.0",
+                "result": {
+                    "block_hash": "0x1",
+                    "block_number": 111,
+                    "l1_da_mode": "BLOB",
+                    "l1_data_gas_price": {
+                        "price_in_fri": "0x1",
+                        "price_in_wei": "0x1"
+                    },
+                    "l1_gas_price": {
+                        "price_in_fri": "0x1",
+                        "price_in_wei": "0x1"
+                    },
+                    "l2_gas_price": {
+                        "price_in_fri": "0x1",
+                        "price_in_wei": "0x1"
+                    },
+                    "new_root": "0x1",
+                    "parent_hash": "0x1",
+                    "sequencer_address": "0x1",
+                    "starknet_version": "0.14.0",
+                    "event_commitment": "0x1",
+                    "transaction_commitment": "0x1",
+                    "receipt_commitment": "0x1",
+                    "state_diff_commitment": "0x1",
+                    "event_count": 1,
+                    "transaction_count": 1,
+                    "state_diff_length": 1,
+                    "status": "ACCEPTED_ON_L2",
+                    "timestamp": 123,
+                    "transactions": [
+                        {
+                            "account_deployment_data": [],
+                            "calldata": [],
+                            "fee_data_availability_mode": "L1",
+                            "nonce": "0x1",
+                            "nonce_data_availability_mode": "L1",
+                            "paymaster_data": [],
+                            "resource_bounds": {
+                                "l1_data_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l1_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l2_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                }
+                            },
+                            "sender_address": "0x1",
+                            "signature": [
+                                "0x1",
+                                "0x1"
+                            ],
+                            "tip": "0x2540be400",
+                            "transaction_hash": "0x1",
+                            "type": "INVOKE",
+                            "version": "0x3"
+                        },
+                        {
+                            "account_deployment_data": [],
+                            "calldata": [],
+                            "fee_data_availability_mode": "L1",
+                            "nonce": "0x1",
+                            "nonce_data_availability_mode": "L1",
+                            "paymaster_data": [],
+                            "resource_bounds": {
+                                "l1_data_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l1_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l2_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                }
+                            },
+                            "sender_address": "0x1",
+                            "signature": [
+                                "0x1",
+                                "0x1"
+                            ],
+                            "tip": "0x4a817c800",
+                            "transaction_hash": "0x1",
+                            "type": "INVOKE",
+                            "version": "0x3"
+                        },
+                        {
+                            "account_deployment_data": [],
+                            "calldata": [],
+                            "fee_data_availability_mode": "L1",
+                            "nonce": "0x1",
+                            "nonce_data_availability_mode": "L1",
+                            "paymaster_data": [],
+                            "resource_bounds": {
+                                "l1_data_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l1_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                },
+                                "l2_gas": {
+                                    "max_amount": "0x1",
+                                    "max_price_per_unit": "0x1"
+                                }
+                            },
+                            "sender_address": "0x1",
+                            "signature": [
+                                "0x1",
+                                "0x1"
+                            ],
+                            "tip": "0x6fc23ac00",
+                            "transaction_hash": "0x1",
+                            "type": "INVOKE",
+                            "version": "0x3"
+                        }
+                    ]
+                }
+            }
+        """.trimIndent()
+
+        val httpService = mock<HttpService> {
+            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+        }
+        val provider = JsonRpcProvider("", httpService)
+        val tipEstimate = estimateTip(provider).send()
+
+        assertEquals(Uint64(20_000_000_000L), tipEstimate)
+    }
 }
