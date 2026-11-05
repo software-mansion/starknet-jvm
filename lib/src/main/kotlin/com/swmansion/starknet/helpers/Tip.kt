@@ -89,6 +89,6 @@ private fun estimateTip(
             return@map Uint64.ZERO
         }
 
-        Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toInt().toUint64
+        Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toBigDecimal().toBigInteger().toUint64
     }
 }
