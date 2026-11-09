@@ -52,8 +52,8 @@ kotlin {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.19.1") // highest version available for sdk 32
-    implementation("androidx.appcompat:appcompat:1.8.0") // highest version available for sdk 32
+    implementation("androidx.core:core-ktx:1.19.1") // requires sdk >= 32
+    implementation("androidx.appcompat:appcompat:1.8.0") // requires sdk >= 32
     implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     // Make sure you are using the AAR and not a JAR and include transitive dependencies
