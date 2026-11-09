@@ -121,6 +121,7 @@ object StarknetCurve {
         hash: Felt,
         k: BigInteger,
     ): StarknetCurveSignature {
+        // This function is internal, because invalid generation of k is VERY dangerous.
         val signature =
             sign(
                 feltToNative(privateKey),
