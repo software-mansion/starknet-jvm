@@ -86,7 +86,88 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Run tests and generate coverage report
+      - name: Run local tests and generate coverage report
+        env:
+          NETWORK_TEST_MODE: "disabled"
+        run: ./gradlew :lib:koverXmlReport --info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
+        with:
+          files: lib/build/reports/kover/report.xml
+
+  network-test:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    strategy:
+      matrix:
+        os: [
+          "macos-latest",
+          "ubuntu-latest"
+        ]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        with:
+          cmake-version: '3.18.1'
+
+      # TODO(#539)
+      - name: Fetch latest asdf version from GitHub releases
+        run: |
+          latest_version=$(curl -sS --fail -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/asdf-vm/asdf/releases/latest | grep \"tag_name\": | awk '{print $2}' | tr -d 'v",')
+          echo "Latest asdf version found is $latest_version"
+          echo "LATEST=$latest_version" >> $GITHUB_ENV
+
+      - name: Setup asdf
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            ASDF_PLATFORM="linux-amd64"
+          else
+            ASDF_PLATFORM="darwin-arm64"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          DOWNLOAD_URL="https://github.com/asdf-vm/asdf/releases/download/v${LATEST}/asdf-v${LATEST}-${ASDF_PLATFORM}.tar.gz"
+          echo "Downloading asdf from $DOWNLOAD_URL"
+          curl -fsSL "$DOWNLOAD_URL" | tar xzf - -C "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "${ASDF_DATA_DIR:-$HOME/.asdf}/shims" >> $GITHUB_PATH
+
+      - name: Install starknet-devnet
+        run: |
+          asdf plugin add starknet-devnet
+          asdf install starknet-devnet 0.8.0-rc.0
+          asdf set starknet-devnet 0.8.0-rc.0 --home
+
+      - name: Install starknet-foundry
+        run: |
+           asdf plugin add starknet-foundry
+           asdf install starknet-foundry nightly-2025-12-02
+           asdf set starknet-foundry nightly-2025-12-02 --home
+
+      - name: Install scarb
+        run: |
+          asdf plugin add scarb
+          asdf install scarb 0.4.0
+          asdf install scarb 0.7.0
+          asdf install scarb 2.6.0
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          cache-read-only: false
+
+      - name: Run network tests
         env:
           NETWORK_TEST_MODE: "all"
           NETWORK_TEST_NETWORK_NAME: "SEPOLIA_TESTNET"
@@ -94,12 +175,7 @@ jobs:
           SEPOLIA_TESTNET_ACCOUNT_ADDRESS: ${{ secrets.TESTNET_ACCOUNT_ADDRESS }}
           SEPOLIA_TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
           SEPOLIA_TESTNET_ACCOUNT_CAIRO_VERSION: ${{ secrets.TESTNET_ACCOUNT_CAIRO_VERSION }}
-        run: ./gradlew :lib:koverXmlReport --info
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70
-        with:
-          files: lib/build/reports/kover/report.xml
+        run: ./gradlew :lib:test --tests 'network.*' --info
 
   lint:
     runs-on: ubuntu-latest
