@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.7.0
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v2.12.0
 
       - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+        uses: jwlawson/actions-setup-cmake@v2.0.2
         with:
           cmake-version: '3.18.1'
 
@@ -29,7 +29,7 @@ jobs:
           cp -R lib/build/dokka/html lib/build/dokka/javadoc/kotlin/
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@ba1486788b0490a235422264426c45848eac35c6
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           folder: lib/build/dokka/javadoc
           branch: gh-pages
