@@ -246,3 +246,10 @@ jobs:
             lib/sources-jar/*.jar
             lib/starknet-jar/*.jar
             lib/starknet-aar/*.aar
+
+  publish_docs:
+    needs: [ publish ]
+    if: needs.publish.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-and-publish-docs.yml
