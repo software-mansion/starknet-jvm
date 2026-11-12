@@ -249,7 +249,6 @@ jobs:
 
   publish_docs:
     needs: [ publish ]
-    if: needs.publish.result == 'success'
     permissions:
       contents: write
     uses: ./.github/workflows/build-and-publish-docs.yml
