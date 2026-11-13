@@ -15,13 +15,17 @@ class ScarbClient {
         private val json = Json { ignoreUnknownKeys = true }
 
         @JvmStatic
-        fun buildContracts(contractsDirectory: Path, profileName: String = "release"): ScarbBuildResponse {
-            val output = runScarb(
-                command = "build",
-                args = emptyList(),
-                workingDirectory = contractsDirectory,
-                profileName = profileName,
-            )
+        fun buildContracts(
+            contractsDirectory: Path,
+            profileName: String = "release",
+        ): ScarbBuildResponse {
+            val output =
+                runScarb(
+                    command = "build",
+                    args = emptyList(),
+                    workingDirectory = contractsDirectory,
+                    profileName = profileName,
+                )
             // `scarb build` outputs multiple json strings. Only parse the last one.
             val index = output.lastIndexOf('{')
             val resultJson = if (index >= 0) output.substring(index) else throw IllegalArgumentException("Invalid response JSON")
@@ -41,14 +45,15 @@ class ScarbClient {
             workingDirectory: Path,
             profileName: String,
         ): String {
-            val processBuilder = ProcessBuilder(
-                "scarb",
-                "--profile",
-                profileName,
-                "--json",
-                command,
-                *(args.toTypedArray()),
-            )
+            val processBuilder =
+                ProcessBuilder(
+                    "scarb",
+                    "--profile",
+                    profileName,
+                    "--json",
+                    command,
+                    *(args.toTypedArray()),
+                )
             processBuilder.directory(File(workingDirectory.absolutePathString()))
 
             val process = processBuilder.start()
@@ -83,14 +88,22 @@ class ScarbClient {
         }
 
         @JvmStatic
-        private fun createSaltedContract(placeholderContractPath: Path, saltedContractPath: Path, placeholderText: String, saltText: String) {
+        private fun createSaltedContract(
+            placeholderContractPath: Path,
+            saltedContractPath: Path,
+            placeholderText: String,
+            saltText: String,
+        ) {
             val contractCode = placeholderContractPath.readText()
             val newContractCode = contractCode.replace(placeholderText, saltText)
 
             saltedContractPath.writeText(newContractCode)
         }
 
-        private fun requireNoErrors(command: String, errorStream: String) {
+        private fun requireNoErrors(
+            command: String,
+            errorStream: String,
+        ) {
             if (errorStream.isNotEmpty()) {
                 throw ScarbCommandFailed(command, errorStream)
             }

@@ -8,12 +8,10 @@ data class OutsideTransaction(
     val signature: StarknetCurveSignature,
     val signerAddress: Felt,
 ) : ConvertibleToCalldata {
-
-    override fun toCalldata(): List<Felt> {
-        return listOf(
+    override fun toCalldata(): List<Felt> =
+        listOf(
             outsideExecution.toCalldata(),
             listOf(Felt(signature.toCalldata().size)),
             signature.toCalldata(),
         ).flatten()
-    }
 }

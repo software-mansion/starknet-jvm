@@ -8,7 +8,10 @@ import java.math.BigInteger
 private const val SHIFT = 128
 private val SHIFT_MOD: BigInteger = BigInteger.valueOf(2).pow(128)
 
-data class Uint256(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata {
+data class Uint256(
+    override val value: BigInteger,
+) : NumAsHexBase(value),
+    ConvertibleToCalldata {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
     constructor(value: Felt) : this(value.value)

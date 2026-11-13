@@ -16,7 +16,10 @@ internal object EstimateFeeResponseListSerializer : KSerializer<EstimateFeeRespo
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = listSerialDescriptor<EstimateFeeResponse>()
 
-    override fun serialize(encoder: Encoder, value: EstimateFeeResponseList) {
+    override fun serialize(
+        encoder: Encoder,
+        value: EstimateFeeResponseList,
+    ) {
         encoder.encodeSerializableValue(listSerializer, value.values)
     }
 

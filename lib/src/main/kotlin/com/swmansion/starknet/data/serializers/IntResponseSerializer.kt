@@ -11,11 +11,12 @@ import kotlinx.serialization.encoding.Encoder
 internal object IntResponseSerializer : KSerializer<IntResponse> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("IntResponse", PrimitiveKind.INT)
 
-    override fun serialize(encoder: Encoder, value: IntResponse) {
+    override fun serialize(
+        encoder: Encoder,
+        value: IntResponse,
+    ) {
         encoder.encodeInt(value.value)
     }
 
-    override fun deserialize(decoder: Decoder): IntResponse {
-        return IntResponse(decoder.decodeInt())
-    }
+    override fun deserialize(decoder: Decoder): IntResponse = IntResponse(decoder.decodeInt())
 }

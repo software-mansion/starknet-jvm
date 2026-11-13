@@ -9,7 +9,10 @@ import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
 @Serializable(with = Uint128Serializer::class)
-data class Uint128(override val value: BigInteger) : NumAsHexBase(value), ConvertibleToCalldata {
+data class Uint128(
+    override val value: BigInteger,
+) : NumAsHexBase(value),
+    ConvertibleToCalldata {
     constructor(value: Long) : this(BigInteger.valueOf(value))
     constructor(value: Int) : this(BigInteger.valueOf(value.toLong()))
 
@@ -46,8 +49,6 @@ data class Uint128(override val value: BigInteger) : NumAsHexBase(value), Conver
          * @param value hex string.
          */
         @JvmStatic
-        fun fromHex(value: String): Uint128 {
-            return Uint128(parseHex(value))
-        }
+        fun fromHex(value: String): Uint128 = Uint128(parseHex(value))
     }
 }

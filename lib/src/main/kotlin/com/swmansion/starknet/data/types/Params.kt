@@ -14,10 +14,11 @@ sealed class ParamsV3 {
     abstract val feeDataAvailabilityMode: DAMode
 }
 
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+
 /**
  * Params used for signing and sending v3 invoke transactions.
  */
-// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class InvokeParamsV3 private constructor(
     override val nonce: Felt,
@@ -49,10 +50,11 @@ data class InvokeParamsV3 private constructor(
     )
 }
 
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+
 /**
  * Params used for signing and sending v3 declare transactions.
  */
-// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeclareParamsV3 private constructor(
     override val nonce: Felt,
@@ -84,10 +86,11 @@ data class DeclareParamsV3 private constructor(
     )
 }
 
+// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
+
 /**
  * Params used for signing and sending v3 deploy account transactions.
  */
-// TODO: Make primary constructor public once values are no longer hardcoded on Starknet
 @Suppress("DataClassPrivateConstructor")
 data class DeployAccountParamsV3 private constructor(
     override val nonce: Felt,

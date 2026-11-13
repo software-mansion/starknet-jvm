@@ -16,15 +16,20 @@ internal object JsonRpcErrorSerializer : KSerializer<JsonRpcError> {
 
         val jsonObject = input.decodeJsonElement().jsonObject
 
-        val code = jsonObject.getValue("code").jsonPrimitive.content.toInt()
+        val code =
+            jsonObject
+                .getValue("code")
+                .jsonPrimitive.content
+                .toInt()
         val message = jsonObject.getValue("message").jsonPrimitive.content
-        val data = jsonObject["data"]?.let {
-            when (it) {
-                is JsonPrimitive -> it.jsonPrimitive.content
-                is JsonArray -> it.jsonArray.toString()
-                is JsonObject -> it.jsonObject.toString()
+        val data =
+            jsonObject["data"]?.let {
+                when (it) {
+                    is JsonPrimitive -> it.jsonPrimitive.content
+                    is JsonArray -> it.jsonArray.toString()
+                    is JsonObject -> it.jsonObject.toString()
+                }
             }
-        }
 
         return JsonRpcError(
             code = code,
@@ -36,7 +41,8 @@ internal object JsonRpcErrorSerializer : KSerializer<JsonRpcError> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("JsonRpcError", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: JsonRpcError) {
-        throw SerializationException("Class used for deserialization only.")
-    }
+    override fun serialize(
+        encoder: Encoder,
+        value: JsonRpcError,
+    ): Unit = throw SerializationException("Class used for deserialization only.")
 }

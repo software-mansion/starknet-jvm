@@ -176,12 +176,18 @@ internal class NumAsHexBaseTests {
 
             val calldata = convertibleToCalldata.toCalldata()
 
-            val expectedCalldata = listOf(
-                Felt(15),
-                Felt(2), Felt(100), Felt(200),
-                Felt(3), Felt(300), Felt(400), Felt(500),
-                Felt(0),
-            )
+            val expectedCalldata =
+                listOf(
+                    Felt(15),
+                    Felt(2),
+                    Felt(100),
+                    Felt(200),
+                    Felt(3),
+                    Felt(300),
+                    Felt(400),
+                    Felt(500),
+                    Felt(0),
+                )
             assertEquals(expectedCalldata, calldata)
         }
 

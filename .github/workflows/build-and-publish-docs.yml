@@ -12,6 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.7.0
 
+      - name: Set up Java
+        uses: actions/setup-java@v3.14.2
+        with:
+          distribution: temurin
+          java-version: 17
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2.12.0
 

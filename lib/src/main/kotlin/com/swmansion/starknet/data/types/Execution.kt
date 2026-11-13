@@ -18,10 +18,8 @@ typealias CallArguments = List<ConvertibleToCalldata>
 data class Call(
     @SerialName("contract_address")
     val contractAddress: Felt,
-
     @SerialName("entry_point_selector")
     val entrypoint: Felt,
-
     @SerialName("calldata")
     val calldata: Calldata,
 ) {
@@ -59,7 +57,11 @@ data class Call(
          * @return a Call object
          */
         @JvmStatic
-        fun fromCallArguments(contractAddress: Felt, entrypoint: Felt, arguments: CallArguments): Call {
+        fun fromCallArguments(
+            contractAddress: Felt,
+            entrypoint: Felt,
+            arguments: CallArguments,
+        ): Call {
             val calldata = arguments.toCalldata()
             return Call(contractAddress, entrypoint, calldata)
         }
@@ -83,9 +85,11 @@ data class Call(
          * @return a Call object
          */
         @JvmStatic
-        fun fromCallArguments(contractAddress: Felt, entrypoint: String, arguments: CallArguments): Call {
-            return fromCallArguments(contractAddress, selectorFromName(entrypoint), arguments)
-        }
+        fun fromCallArguments(
+            contractAddress: Felt,
+            entrypoint: String,
+            arguments: CallArguments,
+        ): Call = fromCallArguments(contractAddress, selectorFromName(entrypoint), arguments)
     }
 }
 
@@ -129,7 +133,10 @@ object AccountCalldataTransformer {
 
     @JvmStatic
     @JvmOverloads
-    fun callsToExecuteCalldata(calls: List<Call>, cairoVersion: Felt = Felt.ZERO): List<Felt> {
+    fun callsToExecuteCalldata(
+        calls: List<Call>,
+        cairoVersion: Felt = Felt.ZERO,
+    ): List<Felt> {
         if (cairoVersion == Felt.ONE) {
             return callsToExecuteCalldataCairo1(calls)
         }

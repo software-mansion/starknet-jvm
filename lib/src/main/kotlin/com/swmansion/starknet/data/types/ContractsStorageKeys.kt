@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
-value class StorageKey(val value: String) {
+value class StorageKey(
+    val value: String,
+) {
     init {
         require(REGEX.matches(value)) {
             "Invalid storage key format: $value. Must match regex: ${REGEX.pattern}"
@@ -23,7 +25,6 @@ value class StorageKey(val value: String) {
 data class ContractsStorageKeys(
     @SerialName("contract_address")
     val contractAddress: Felt,
-
     @SerialName("storage_keys")
     val storageKeys: List<StorageKey>,
 )

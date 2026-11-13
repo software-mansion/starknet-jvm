@@ -16,7 +16,10 @@ internal object MessageStatusListSerializer : KSerializer<MessageStatusList> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = listSerialDescriptor<MessageStatus>()
 
-    override fun serialize(encoder: Encoder, value: MessageStatusList) {
+    override fun serialize(
+        encoder: Encoder,
+        value: MessageStatusList,
+    ) {
         encoder.encodeSerializableValue(listSerializer, value.values)
     }
 

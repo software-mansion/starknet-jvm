@@ -4,9 +4,10 @@ import com.swmansion.starknet.data.types.*
 import com.swmansion.starknet.provider.rpc.JsonRpcProvider
 import network.utils.NetworkConfig
 import network.utils.NetworkConfig.Network
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Assumptions.*
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 
@@ -20,30 +21,36 @@ class ProviderTest {
 
         private val provider = JsonRpcProvider(rpcUrl)
 
-        private val declareV0TransactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x76b8ab51555253c7fcbcf2f8419b2576160160daf01ffb7c882e448e24b64ff")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x656e113cb27707d2147c271a79c51d1069b0273ae447b965e15154a17b3ec01")
-        }
-        private val invokeV1TransactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x3d381262ca26570083eab24e431b72e69ce5e33b423c034aef466613ee20511")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x03f6e39d90aa084585ac59fa4c19429499951eb7a279427bbe0a7718c8d9072f")
-        }
-        private val revertedInvokeV1TransactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0xe691cd69a7dc7efb815f6029db26cf5d7a14f2b5e893e2de4a281c82b5a0d")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x7246ea24cefc572096264f1f243cd9b32837c17324ac23076070f29f50b6393")
-        }
-        private val deployAccountV1TransactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x014f73658da451dec4d14de51e12ad79b737c6342814b5f05c39da83a9ec1f3c")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x62e87178d0bf221e453276d607420fd256d928349c620f08958eeb66f24d2d9")
-        }
-        private val declareV1TransactionHash = when (network) {
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x5e27aad6f9139f6eeb0ee886179c40b551e91ad8bcc80e16ff0fe6d5444d6f9")
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x012bc00eadd7f25a5523e5857da2073e2028070a5e616723931ac290aba3f22a")
-        }
-        private val declareV2TransactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x01556b67a22bc26dfc4827286997e3e3b53380e14ba1d879f1d67b7ffbd5a808")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x0683e900e4c0e27e164f0b7569f86edec6dec919e55d97728113b40fe6b731c7")
-        }
+        private val declareV0TransactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x76b8ab51555253c7fcbcf2f8419b2576160160daf01ffb7c882e448e24b64ff")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x656e113cb27707d2147c271a79c51d1069b0273ae447b965e15154a17b3ec01")
+            }
+        private val invokeV1TransactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x3d381262ca26570083eab24e431b72e69ce5e33b423c034aef466613ee20511")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x03f6e39d90aa084585ac59fa4c19429499951eb7a279427bbe0a7718c8d9072f")
+            }
+        private val revertedInvokeV1TransactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0xe691cd69a7dc7efb815f6029db26cf5d7a14f2b5e893e2de4a281c82b5a0d")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x7246ea24cefc572096264f1f243cd9b32837c17324ac23076070f29f50b6393")
+            }
+        private val deployAccountV1TransactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x014f73658da451dec4d14de51e12ad79b737c6342814b5f05c39da83a9ec1f3c")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x62e87178d0bf221e453276d607420fd256d928349c620f08958eeb66f24d2d9")
+            }
+        private val declareV1TransactionHash =
+            when (network) {
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x5e27aad6f9139f6eeb0ee886179c40b551e91ad8bcc80e16ff0fe6d5444d6f9")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x012bc00eadd7f25a5523e5857da2073e2028070a5e616723931ac290aba3f22a")
+            }
+        private val declareV2TransactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x01556b67a22bc26dfc4827286997e3e3b53380e14ba1d879f1d67b7ffbd5a808")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x0683e900e4c0e27e164f0b7569f86edec6dec919e55d97728113b40fe6b731c7")
+            }
         private val deployAccountV3TransactionHash by lazy {
             when (network) {
                 Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x38ce58ed386612e75c64342f1df6b2ffb8d3e62adf3c9f73475527aa6483152")
@@ -62,10 +69,11 @@ class ProviderTest {
                 Network.SEPOLIA_TESTNET -> Felt.fromHex("0x6054540622D534FFFFB162A0E80C21BC106581EAFEB3EFAD29385B78E04983D")
             }
         }
-        private val specificBlockHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x3224282d7f577055cd72894cb66e511f105576788796a1d50538e7eae5efbe1")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x1e04294ce4f7dd489ba5b5618dc112b37f9a7e82e2ded5691fb3083839dd3b5")
-        }
+        private val specificBlockHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x3224282d7f577055cd72894cb66e511f105576788796a1d50538e7eae5efbe1")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x1e04294ce4f7dd489ba5b5618dc112b37f9a7e82e2ded5691fb3083839dd3b5")
+            }
         private val strkContractAddress =
             Felt.fromHex("0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d")
         private val strkClassHash = Felt.fromHex("0x04ad3c1dc8413453db314497945b6903e1c766495a1e60492d44da9c2a986e4b")
@@ -92,10 +100,11 @@ class ProviderTest {
         val request = provider.getChainId()
         val chainId = request.send()
 
-        val expectedChainId = when (network) {
-            Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
-            Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
-        }
+        val expectedChainId =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> StarknetChainId.INTEGRATION_SEPOLIA
+                Network.SEPOLIA_TESTNET -> StarknetChainId.SEPOLIA
+            }
         assertEquals(expectedChainId, chainId)
     }
 
@@ -307,10 +316,11 @@ class ProviderTest {
     fun `get l1 handler transaction`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x2c678e2dda58eb4bffd1f2c45cca6a883e6f388e91aa5e153ff09e3f52a0dc5")
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x785c2ada3f53fbc66078d47715c27718f92e6e48b96372b36e5197de69b82b5")
-        }
+        val transactionHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x2c678e2dda58eb4bffd1f2c45cca6a883e6f388e91aa5e153ff09e3f52a0dc5")
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x785c2ada3f53fbc66078d47715c27718f92e6e48b96372b36e5197de69b82b5")
+            }
         val tx = provider.getTransaction(transactionHash).send()
         assertTrue(tx is L1HandlerTransaction)
         assertEquals(TransactionType.L1_HANDLER, tx.type)
@@ -323,10 +333,11 @@ class ProviderTest {
         assertTrue(receipt.isAccepted)
         assertNull(receipt.revertReason)
 
-        val expectedMessageHash = when (network) {
-            Network.SEPOLIA_INTEGRATION -> NumAsHex.fromHex("0x62aadcf51c6b5d9169523f4f62baae7a50c7fb4915b3789c044545af6e6b039c")
-            Network.SEPOLIA_TESTNET -> NumAsHex.fromHex("0x42e76df4e3d5255262929c27132bd0d295a8d3db2cfe63d2fcd061c7a7a7ab34")
-        }
+        val expectedMessageHash =
+            when (network) {
+                Network.SEPOLIA_INTEGRATION -> NumAsHex.fromHex("0x62aadcf51c6b5d9169523f4f62baae7a50c7fb4915b3789c044545af6e6b039c")
+                Network.SEPOLIA_TESTNET -> NumAsHex.fromHex("0x42e76df4e3d5255262929c27132bd0d295a8d3db2cfe63d2fcd061c7a7a7ab34")
+            }
 
         assertEquals(expectedMessageHash, (receipt as L1HandlerTransactionReceipt).messageHash)
     }
@@ -335,10 +346,11 @@ class ProviderTest {
     fun `get transaction receipt with l2 to l1 messages`() {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
-        val transactionHash = when (network) {
-            Network.SEPOLIA_TESTNET -> Felt.fromHex("0x9ce93eba4c0201940e229cb899fc8822a447ad48ed5e61c929b4e7c9f6ace9")
-            Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x26cda254979ce4e9705b83a886e175f5194b89339ce7de4bbae9ea6c9966c6d")
-        }
+        val transactionHash =
+            when (network) {
+                Network.SEPOLIA_TESTNET -> Felt.fromHex("0x9ce93eba4c0201940e229cb899fc8822a447ad48ed5e61c929b4e7c9f6ace9")
+                Network.SEPOLIA_INTEGRATION -> Felt.fromHex("0x26cda254979ce4e9705b83a886e175f5194b89339ce7de4bbae9ea6c9966c6d")
+            }
 
         val receiptRequest = provider.getTransactionReceipt(transactionHash)
         val receipt = receiptRequest.send()
@@ -566,17 +578,19 @@ class ProviderTest {
         assumeTrue(NetworkConfig.isTestEnabled(requiresGas = false))
 
         val erc20BalancesKey = StorageKey("0x45524332305f62616c616e636573")
-        val request = provider.getStorageProof(
-            blockId = BlockId.Number(556669),
-            contractAddresses = listOf(strkContractAddress),
-            contractsStorageKeys = listOf(
-                ContractsStorageKeys(
-                    contractAddress = strkContractAddress,
-                    storageKeys = listOf(erc20BalancesKey),
-                ),
-            ),
-            classHashes = listOf(strkClassHash),
-        )
+        val request =
+            provider.getStorageProof(
+                blockId = BlockId.Number(556669),
+                contractAddresses = listOf(strkContractAddress),
+                contractsStorageKeys =
+                    listOf(
+                        ContractsStorageKeys(
+                            contractAddress = strkContractAddress,
+                            storageKeys = listOf(erc20BalancesKey),
+                        ),
+                    ),
+                classHashes = listOf(strkClassHash),
+            )
         val storageProof = request.send()
 
         assertNotNull(storageProof)

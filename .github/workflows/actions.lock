@@ -5,6 +5,7 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/build-and-publish-docs.yml':
         - 'actions/checkout@v3.7.0'
+        - 'actions/setup-java@v3.14.2'
         - 'gradle/gradle-build-action@v2.12.0'
         - 'jamesives/github-pages-deploy-action@v4.4.1'
         - 'jwlawson/actions-setup-cmake@v2.0.2'

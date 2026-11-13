@@ -26,13 +26,13 @@ enum class ScarbBuildType {
 data class ScarbBuildResponse(
     @JsonNames("status")
     val status: ScarbBuildStatus? = null,
-
     @JsonNames("type")
     val type: ScarbBuildType? = null,
-
     @JsonNames("message")
     val message: String? = null,
 )
 
-class ScarbCommandFailed(val commandName: String, val error: String?) :
-    Exception("Command $commandName failed. Error reason: $error")
+class ScarbCommandFailed(
+    val commandName: String,
+    val error: String?,
+) : Exception("Command $commandName failed. Error reason: $error")

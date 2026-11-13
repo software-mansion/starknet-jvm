@@ -13,53 +13,59 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
-internal object BlockWithTransactionsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactions>(BlockWithTransactions::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactions> {
-        return when (isProcessedBlock(element.jsonObject)) {
+internal object BlockWithTransactionsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactions>(
+    BlockWithTransactions::class,
+) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactions> =
+        when (isProcessedBlock(element.jsonObject)) {
             true -> ProcessedBlockWithTransactions.serializer()
             false -> PreConfirmedBlockWithTransactions.serializer()
         }
-    }
 }
 
-internal object BlockWithTransactionHashesPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactionHashes>(BlockWithTransactionHashes::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactionHashes> {
-        return when (isProcessedBlock(element.jsonObject)) {
+internal object BlockWithTransactionHashesPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithTransactionHashes>(
+    BlockWithTransactionHashes::class,
+) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithTransactionHashes> =
+        when (isProcessedBlock(element.jsonObject)) {
             true -> ProcessedBlockWithTransactionHashes.serializer()
             false -> PreConfirmedBlockWithTransactionHashes.serializer()
         }
-    }
 }
 
 internal object BlockWithReceiptsPolymorphicSerializer : JsonContentPolymorphicSerializer<BlockWithReceipts>(BlockWithReceipts::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithReceipts> {
-        return when (isProcessedBlock(element.jsonObject)) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<BlockWithReceipts> =
+        when (isProcessedBlock(element.jsonObject)) {
             true -> ProcessedBlockWithReceiptsSerializer
             false -> PreConfirmedBlockWithReceipts.serializer()
         }
-    }
 }
 
 internal object ProcessedBlockWithReceiptsSerializer : KSerializer<ProcessedBlockWithReceipts> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ProcessedBlockWithReceipts", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: ProcessedBlockWithReceipts) {
+    override fun serialize(
+        encoder: Encoder,
+        value: ProcessedBlockWithReceipts,
+    ) {
         ProcessedBlockWithReceipts.serializer().serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): ProcessedBlockWithReceipts {
         val block = ProcessedBlockWithReceipts.serializer().deserialize(decoder)
 
-        val transactionsWithReceipts = block.transactionsWithReceipts.map { transactionWithReceipt ->
-            val updatedReceipt = when (val receipt = transactionWithReceipt.receipt) {
-                is InvokeTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
-                is DeclareTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
-                is DeployAccountTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
-                is DeployTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
-                is L1HandlerTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+        val transactionsWithReceipts =
+            block.transactionsWithReceipts.map { transactionWithReceipt ->
+                val updatedReceipt =
+                    when (val receipt = transactionWithReceipt.receipt) {
+                        is InvokeTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+                        is DeclareTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+                        is DeployAccountTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+                        is DeployTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+                        is L1HandlerTransactionReceipt -> receipt.copy(blockHash = block.blockHash, blockNumber = block.blockNumber)
+                    }
+                transactionWithReceipt.copy(receipt = updatedReceipt)
             }
-            transactionWithReceipt.copy(receipt = updatedReceipt)
-        }
 
         return block.copy(transactionsWithReceipts = transactionsWithReceipts)
     }

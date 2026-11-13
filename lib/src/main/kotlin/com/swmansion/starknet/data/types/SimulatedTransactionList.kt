@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable(with = SimulatedTransactionListSerializer::class)
-value class SimulatedTransactionList(val values: List<SimulatedTransaction>) : StarknetResponse
+value class SimulatedTransactionList(
+    val values: List<SimulatedTransaction>,
+) : StarknetResponse
