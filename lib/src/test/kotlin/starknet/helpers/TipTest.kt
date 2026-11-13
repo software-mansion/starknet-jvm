@@ -566,54 +566,57 @@ class TipTest {
     @Test
     fun `tips near u64 limit`() {
         // tips: 2^64 - 5, 2^64 - 4, 2^64 - 3, 2^64 - 2 (Uint64.MAX - 1, the largest value Uint64 accepts)
-        val tipEstimate = estimateTipForTips(
-            "0xfffffffffffffffb",
-            "0xfffffffffffffffc",
-            "0xfffffffffffffffd",
-            "0xfffffffffffffffe",
-        )
+        val tipEstimate =
+            estimateTipForTips(
+                "0xfffffffffffffffb",
+                "0xfffffffffffffffc",
+                "0xfffffffffffffffd",
+                "0xfffffffffffffffe",
+            )
 
         // (2^64 - 4 + 2^64 - 3) / 2, rounded down
         assertEquals(Uint64(BigInteger.valueOf(2).pow(64) - BigInteger.valueOf(4)), tipEstimate)
     }
 
     private fun estimateTipForTips(vararg tips: String): Uint64 {
-        val transactions = tips.joinToString(",") { tip ->
-            """
-            {
-                "account_deployment_data": [],
-                "calldata": [],
-                "fee_data_availability_mode": "L1",
-                "nonce": "0x1",
-                "nonce_data_availability_mode": "L1",
-                "paymaster_data": [],
-                "resource_bounds": {
-                    "l1_data_gas": {
-                        "max_amount": "0x1",
-                        "max_price_per_unit": "0x1"
+        val transactions =
+            tips.joinToString(",") { tip ->
+                """
+                {
+                    "account_deployment_data": [],
+                    "calldata": [],
+                    "fee_data_availability_mode": "L1",
+                    "nonce": "0x1",
+                    "nonce_data_availability_mode": "L1",
+                    "paymaster_data": [],
+                    "resource_bounds": {
+                        "l1_data_gas": {
+                            "max_amount": "0x1",
+                            "max_price_per_unit": "0x1"
+                        },
+                        "l1_gas": {
+                            "max_amount": "0x1",
+                            "max_price_per_unit": "0x1"
+                        },
+                        "l2_gas": {
+                            "max_amount": "0x1",
+                            "max_price_per_unit": "0x1"
+                        }
                     },
-                    "l1_gas": {
-                        "max_amount": "0x1",
-                        "max_price_per_unit": "0x1"
-                    },
-                    "l2_gas": {
-                        "max_amount": "0x1",
-                        "max_price_per_unit": "0x1"
-                    }
-                },
-                "sender_address": "0x1",
-                "signature": [
-                    "0x1",
-                    "0x1"
-                ],
-                "tip": "$tip",
-                "transaction_hash": "0x1",
-                "type": "INVOKE",
-                "version": "0x3"
+                    "sender_address": "0x1",
+                    "signature": [
+                        "0x1",
+                        "0x1"
+                    ],
+                    "tip": "$tip",
+                    "transaction_hash": "0x1",
+                    "type": "INVOKE",
+                    "version": "0x3"
+                }
+                """.trimIndent()
             }
-            """.trimIndent()
-        }
-        val mockedResponse = """
+        val mockedResponse =
+            """
             {
                 "id": 0,
                 "jsonrpc": "2.0",
@@ -649,11 +652,12 @@ class TipTest {
                     "transactions": [$transactions]
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
 
-        val httpService = mock<HttpService> {
-            on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
-        }
+        val httpService =
+            mock<HttpService> {
+                on { send(any()) } doReturn HttpResponse(true, 200, mockedResponse)
+            }
         val provider = JsonRpcProvider("", httpService)
         return estimateTip(provider).send()
     }
