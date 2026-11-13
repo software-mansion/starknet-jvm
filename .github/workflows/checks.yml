@@ -15,6 +15,11 @@ env:
   SNFOUNDRY_SHA: 3d227d0aa6bf896f912144088f3c7bf0424f4c13
 
 jobs:
+  build-package:
+    uses: ./.github/workflows/build-and-publish.yml
+    with:
+      publish: false
+
   test:
     strategy:
       matrix:
