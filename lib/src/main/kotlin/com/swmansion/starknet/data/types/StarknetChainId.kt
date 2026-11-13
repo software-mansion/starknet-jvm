@@ -4,7 +4,9 @@ import com.swmansion.starknet.data.serializers.StarknetChainIdSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = StarknetChainIdSerializer::class)
-data class StarknetChainId(val value: Felt) : StarknetResponse {
+data class StarknetChainId(
+    val value: Felt,
+) : StarknetResponse {
     companion object {
         @field:JvmField
         val MAIN = StarknetChainId(Felt.fromHex("0x534e5f4d41494e")) // encodeShortString('SN_MAIN'),
@@ -13,7 +15,8 @@ data class StarknetChainId(val value: Felt) : StarknetResponse {
         val SEPOLIA = StarknetChainId(Felt.fromHex("0x534e5f5345504f4c4941")) // encodeShortString('SN_SEPOLIA'),
 
         @field:JvmField
-        val INTEGRATION_SEPOLIA = StarknetChainId(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")) // encodeShortString('SN_INTEGRATION_SEPOLIA'),
+        val INTEGRATION_SEPOLIA =
+            StarknetChainId(Felt.fromHex("0x534e5f494e544547524154494f4e5f5345504f4c4941")) // encodeShortString('SN_INTEGRATION_SEPOLIA'),
 
         /**
          * Create [StarknetChainId] from a network name represented as ASCII string.
@@ -21,9 +24,7 @@ data class StarknetChainId(val value: Felt) : StarknetResponse {
          * @param networkName string transformed to [StarknetChainId]
          */
         @JvmStatic
-        fun fromNetworkName(networkName: String): StarknetChainId {
-            return StarknetChainId(Felt.fromShortString(networkName))
-        }
+        fun fromNetworkName(networkName: String): StarknetChainId = StarknetChainId(Felt.fromShortString(networkName))
 
         /**
          * Create [StarknetChainId] from a hex string.
@@ -31,9 +32,7 @@ data class StarknetChainId(val value: Felt) : StarknetResponse {
          * @param hex string transformed to [StarknetChainId]
          */
         @JvmStatic
-        fun fromHex(hex: String): StarknetChainId {
-            return StarknetChainId(Felt.fromHex(hex))
-        }
+        fun fromHex(hex: String): StarknetChainId = StarknetChainId(Felt.fromHex(hex))
     }
 
     /**
@@ -42,7 +41,5 @@ data class StarknetChainId(val value: Felt) : StarknetResponse {
      *
      * @return network name represented as ASCII string
      */
-    fun toNetworkName(): String {
-        return value.toShortString()
-    }
+    fun toNetworkName(): String = value.toShortString()
 }

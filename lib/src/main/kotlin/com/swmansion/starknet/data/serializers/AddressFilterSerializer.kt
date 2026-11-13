@@ -16,12 +16,16 @@ import kotlinx.serialization.json.encodeToJsonElement
 internal object AddressFilterSerializer : KSerializer<AddressFilter> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AddressFilter", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: AddressFilter) {
+    override fun serialize(
+        encoder: Encoder,
+        value: AddressFilter,
+    ) {
         require(encoder is JsonEncoder)
-        val element = when (value) {
-            is AddressFilter.Single -> encoder.json.encodeToJsonElement(FeltSerializer, value.address)
-            is AddressFilter.Multiple -> encoder.json.encodeToJsonElement(ListSerializer(FeltSerializer), value.addresses)
-        }
+        val element =
+            when (value) {
+                is AddressFilter.Single -> encoder.json.encodeToJsonElement(FeltSerializer, value.address)
+                is AddressFilter.Multiple -> encoder.json.encodeToJsonElement(ListSerializer(FeltSerializer), value.addresses)
+            }
         encoder.encodeJsonElement(element)
     }
 

@@ -16,7 +16,8 @@ internal object HexToIntDeserializer : KSerializer<Int> {
         return Integer.decode(hex)
     }
 
-    override fun serialize(encoder: Encoder, value: Int) {
-        throw UnsupportedOperationException("Class used for deserialization only.")
-    }
+    override fun serialize(
+        encoder: Encoder,
+        value: Int,
+    ): Unit = throw UnsupportedOperationException("Class used for deserialization only.")
 }

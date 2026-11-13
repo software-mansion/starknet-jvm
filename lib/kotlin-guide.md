@@ -195,45 +195,53 @@ val publicKey = StarknetCurve.getPublicKey(privateKey)
 
 val salt = Felt(2)
 val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
+val address =
+    ContractAddressCalculator.calculateAddressFromHash(
+        classHash = accountContractClassHash,
+        calldata = calldata,
+        salt = salt,
+    )
 
-val newAccount = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
+val newAccount =
+    StandardAccount(
+        address,
+        privateKey,
+        provider,
+        chainId,
+    )
 
-val resourceBounds = ResourceBoundsMapping(
-    l1Gas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000),
-        maxPricePerUnit = Uint128(10_000_000_000_000_000),
-    ),
-    l2Gas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000_000),
-        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-    ),
-    l1DataGas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000),
-        maxPricePerUnit = Uint128(10_000_000_000_000_000),
-    ),
-)
-val params = DeployAccountParamsV3(
-    resourceBounds = resourceBounds,
-)
+val resourceBounds =
+    ResourceBoundsMapping(
+        l1Gas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+        l2Gas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+            ),
+        l1DataGas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+    )
+val params =
+    DeployAccountParamsV3(
+        resourceBounds = resourceBounds,
+    )
 
 // Prefund the new account address with STRK
-val payload = newAccount.signDeployAccountV3(
-    classHash = accountContractClassHash,
-    salt = salt,
-    calldata = calldata,
-    params = params,
-    forFeeEstimate = false,
-)
+val payload =
+    newAccount.signDeployAccountV3(
+        classHash = accountContractClassHash,
+        salt = salt,
+        calldata = calldata,
+        params = params,
+        forFeeEstimate = false,
+    )
 
 val response = provider.deployAccount(payload).send()
 // Make sure tx matches what we sent
@@ -254,27 +262,31 @@ val publicKey = StarknetCurve.getPublicKey(privateKey)
 
 val salt = Felt(2)
 val calldata = listOf(publicKey)
-val address = ContractAddressCalculator.calculateAddressFromHash(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-)
-val account = StandardAccount(
-    address,
-    privateKey,
-    provider,
-    chainId,
-)
-val params = DeployAccountParamsV3(
-    resourceBounds = ResourceBoundsMapping.ZERO,
-)
-val payloadForFeeEstimation = account.signDeployAccountV3(
-    classHash = accountContractClassHash,
-    calldata = calldata,
-    salt = salt,
-    params = params,
-    forFeeEstimate = true,
-)
+val address =
+    ContractAddressCalculator.calculateAddressFromHash(
+        classHash = accountContractClassHash,
+        calldata = calldata,
+        salt = salt,
+    )
+val account =
+    StandardAccount(
+        address,
+        privateKey,
+        provider,
+        chainId,
+    )
+val params =
+    DeployAccountParamsV3(
+        resourceBounds = ResourceBoundsMapping.ZERO,
+    )
+val payloadForFeeEstimation =
+    account.signDeployAccountV3(
+        classHash = accountContractClassHash,
+        calldata = calldata,
+        salt = salt,
+        params = params,
+        forFeeEstimate = true,
+    )
 val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 ```
 
@@ -287,10 +299,11 @@ val feePayload = provider.getEstimateFee(listOf(payloadForFeeEstimation)).send()
 ```KOTLIN
 val call = Call(balanceContractAddress, "increase_balance", listOf(Felt(10)))
 
-val request = account.estimateFeeV3(
-    listOf(call),
-    skipValidate = false,
-)
+val request =
+    account.estimateFeeV3(
+        listOf(call),
+        skipValidate = false,
+    )
 val feeEstimate = request.send().values.first()
 ```
 
@@ -320,12 +333,13 @@ fun main() {
 ## Making multiple calls: get multiple transactions data in one request
 ```KOTLIN
 val blockNumber = provider.getBlockNumber().send().value
-val request = provider.batchRequests(
-    provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
-    provider.getTransaction(invokeTransactionHash),
-    provider.getTransaction(declareTransactionHash),
-    provider.getTransaction(deployAccountTransactionHash),
-)
+val request =
+    provider.batchRequests(
+        provider.getTransactionByBlockIdAndIndex(blockNumber, 0),
+        provider.getTransaction(invokeTransactionHash),
+        provider.getTransaction(declareTransactionHash),
+        provider.getTransaction(deployAccountTransactionHash),
+    )
 
 val response = request.send()
 ```
@@ -333,11 +347,12 @@ val response = request.send()
 
 ## Making multiple calls of different types in one request
 ```KOTLIN
-val request = provider.batchRequestsAny(
-    provider.getTransaction(invokeTransactionHash),
-    provider.getBlockNumber(),
-    provider.getTransactionStatus(invokeTransactionHash),
-)
+val request =
+    provider.batchRequestsAny(
+        provider.getTransaction(invokeTransactionHash),
+        provider.getBlockNumber(),
+        provider.getTransactionStatus(invokeTransactionHash),
+    )
 
 val response = request.send()
 
@@ -353,36 +368,46 @@ ScarbClient.buildSaltedContract(
     placeholderContractPath = Path.of("src/test/resources/contracts_v2/src/placeholder_counter_contract.cairo"),
     saltedContractPath = Path.of("src/test/resources/contracts_v2/src/salted_counter_contract.cairo"),
 )
-val contractCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json").readText()
+val contractCode =
+    Path
+        .of(
+            "src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.sierra.json",
+        ).readText()
 val casmCode = Path.of("src/test/resources/contracts_v2/target/release/ContractsV2_SaltedCounterContract.casm.json").readText()
 
 val contractDefinition = Cairo2ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
-val resourceBounds = ResourceBoundsMapping(
-    l1Gas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000),
-        maxPricePerUnit = Uint128(10_000_000_000_000_000),
-    ),
-    l2Gas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000_000),
-        maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
-    ),
-    l1DataGas = ResourceBounds(
-        maxAmount = Uint64(100_000_000_000),
-        maxPricePerUnit = Uint128(10_000_000_000_000_000),
-    ),
-)
-val params = DeclareParamsV3(
-    nonce = nonce,
-    resourceBounds = resourceBounds,
-)
-val declareTransactionPayload = account.signDeclareV3(
-    contractDefinition,
-    contractCasmDefinition,
-    params,
-)
+val resourceBounds =
+    ResourceBoundsMapping(
+        l1Gas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+        l2Gas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000_000),
+                maxPricePerUnit = Uint128(1_000_000_000_000_000_000),
+            ),
+        l1DataGas =
+            ResourceBounds(
+                maxAmount = Uint64(100_000_000_000),
+                maxPricePerUnit = Uint128(10_000_000_000_000_000),
+            ),
+    )
+val params =
+    DeclareParamsV3(
+        nonce = nonce,
+        resourceBounds = resourceBounds,
+    )
+val declareTransactionPayload =
+    account.signDeclareV3(
+        contractDefinition,
+        contractCasmDefinition,
+        params,
+    )
 val request = provider.declareContract(declareTransactionPayload)
 val result = request.send()
 
@@ -399,16 +424,18 @@ val contractDefinition = Cairo1ContractDefinition(contractCode)
 val contractCasmDefinition = CasmContractDefinition(casmCode)
 val nonce = account.getNonce().send()
 
-val params = DeclareParamsV3(
-    nonce = nonce,
-    resourceBounds = ResourceBoundsMapping.ZERO,
-)
-val declareTransactionPayload = account.signDeclareV3(
-    contractDefinition,
-    contractCasmDefinition,
-    params,
-    true,
-)
+val params =
+    DeclareParamsV3(
+        nonce = nonce,
+        resourceBounds = ResourceBoundsMapping.ZERO,
+    )
+val declareTransactionPayload =
+    account.signDeclareV3(
+        contractDefinition,
+        contractCasmDefinition,
+        params,
+        true,
+    )
 val request = provider.getEstimateFee(payload = listOf(declareTransactionPayload), simulationFlags = emptySet())
 val feeEstimate = request.send().values.first()
 ```

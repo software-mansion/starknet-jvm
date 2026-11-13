@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 internal class PoseidonTest {
-
     @Test
     fun `poseidon hash single zero`() {
         val zeroValue = Felt.ZERO
@@ -81,7 +80,10 @@ internal class PoseidonTest {
 
     @Test
     fun `poseidon hash 4 numbers`() {
-        val result = Poseidon.poseidonHash(listOf(Felt(BigInteger("1")), Felt(BigInteger("10")), Felt(BigInteger("100")), Felt(BigInteger("1000"))))
+        val result =
+            Poseidon.poseidonHash(
+                listOf(Felt(BigInteger("1")), Felt(BigInteger("10")), Felt(BigInteger("100")), Felt(BigInteger("1000"))),
+            )
         assertEquals(fromHex("0x51f923f87ee53d16c2d680c2c0c9eb0132ba255d52b6dd69f4b9918dcbe00a1"), result)
     }
 

@@ -29,7 +29,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransaction(transactionHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+    fun getTransaction(
+        transactionHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<Transaction>
 
     /**
      * Invoke a function using version 3 transaction.
@@ -131,7 +134,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockTag: BlockTag): Request<FeltArray>
+    fun callContract(
+        call: Call,
+        blockTag: BlockTag,
+    ): Request<FeltArray>
 
     /**
      * Get the version of the spec.
@@ -149,9 +155,7 @@ interface Provider {
      * @param blockTag the tag of the requested block.
      * @return Starknet version for the selected block.
      */
-    fun getStarknetVersion(blockTag: BlockTag): Request<String> {
-        return getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
-    }
+    fun getStarknetVersion(blockTag: BlockTag): Request<String> = getBlockWithTxs(blockTag).map { block -> block.starknetVersion }
 
     /**
      * Get a Starknet version for the selected block.
@@ -159,9 +163,7 @@ interface Provider {
      * @param blockHash the hash of the requested block.
      * @return Starknet version for the selected block.
      */
-    fun getStarknetVersion(blockHash: Felt): Request<String> {
-        return getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
-    }
+    fun getStarknetVersion(blockHash: Felt): Request<String> = getBlockWithTxs(blockHash).map { block -> block.starknetVersion }
 
     /**
      * Get a Starknet version for the selected block.
@@ -169,9 +171,7 @@ interface Provider {
      * @param blockNumber the number of the requested block.
      * @return Starknet version for the selected block.
      */
-    fun getStarknetVersion(blockNumber: Int): Request<String> {
-        return getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
-    }
+    fun getStarknetVersion(blockNumber: Int): Request<String> = getBlockWithTxs(blockNumber).map { block -> block.starknetVersion }
 
     /**
      * Calls a contract deployed on Starknet.
@@ -181,7 +181,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockHash: Felt): Request<FeltArray>
+    fun callContract(
+        call: Call,
+        blockHash: Felt,
+    ): Request<FeltArray>
 
     /**
      * Calls a contract deployed on Starknet.
@@ -191,7 +194,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun callContract(call: Call, blockNumber: Int): Request<FeltArray>
+    fun callContract(
+        call: Call,
+        blockNumber: Int,
+    ): Request<FeltArray>
 
     /**
      * Calls a contract deployed on Starknet.
@@ -215,7 +221,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockTag: BlockTag,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -228,7 +238,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockHash: Felt): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockHash: Felt,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -241,7 +255,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt, blockNumber: Int): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+        blockNumber: Int,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -253,7 +271,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: Felt): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: Felt,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -266,7 +287,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockTag: BlockTag): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockTag: BlockTag,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -279,7 +304,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockHash: Felt): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockHash: Felt,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -292,7 +321,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String, blockNumber: Int): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+        blockNumber: Int,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var.
@@ -304,7 +337,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAt(contractAddress: Felt, key: String): Request<Felt>
+    fun getStorageAt(
+        contractAddress: Felt,
+        key: String,
+    ): Request<Felt>
 
     /**
      * Get a value of storage var with metadata.
@@ -317,7 +353,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockTag: BlockTag): Request<StorageResult>
+    fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockTag: BlockTag,
+    ): Request<StorageResult>
 
     /**
      * Get a value of storage var with metadata.
@@ -330,7 +370,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockHash: Felt): Request<StorageResult>
+    fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockHash: Felt,
+    ): Request<StorageResult>
 
     /**
      * Get a value of storage var with metadata.
@@ -343,7 +387,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageAtWithMetadata(contractAddress: Felt, key: Felt, blockNumber: Int): Request<StorageResult>
+    fun getStorageAtWithMetadata(
+        contractAddress: Felt,
+        key: Felt,
+        blockNumber: Int,
+    ): Request<StorageResult>
 
     /**
      * Get transaction receipt
@@ -389,7 +437,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockHash: Felt): Request<ContractClassBase>
+    fun getClass(
+        classHash: Felt,
+        blockHash: Felt,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -401,7 +452,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockNumber: Int): Request<ContractClassBase>
+    fun getClass(
+        classHash: Felt,
+        blockNumber: Int,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -413,7 +467,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClass(classHash: Felt, blockTag: BlockTag): Request<ContractClassBase>
+    fun getClass(
+        classHash: Felt,
+        blockTag: BlockTag,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -423,7 +480,10 @@ interface Provider {
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockHash The hash of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockHash: Felt): Request<ContractClassBase>
+    fun getClassAt(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -433,7 +493,10 @@ interface Provider {
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockNumber The number of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockNumber: Int): Request<ContractClassBase>
+    fun getClassAt(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -443,7 +506,10 @@ interface Provider {
      * @param contractAddress The address of the contract whose class definition will be returned.
      * @param blockTag The tag of the requested block.
      */
-    fun getClassAt(contractAddress: Felt, blockTag: BlockTag): Request<ContractClassBase>
+    fun getClassAt(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): Request<ContractClassBase>
 
     /**
      * Get the contract class definition.
@@ -464,7 +530,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClassHashAt(contractAddress: Felt, blockHash: Felt): Request<Felt>
+    fun getClassHashAt(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -476,7 +545,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClassHashAt(contractAddress: Felt, blockNumber: Int): Request<Felt>
+    fun getClassHashAt(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -488,7 +560,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getClassHashAt(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
+    fun getClassHashAt(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): Request<Felt>
 
     /**
      * Get the contract class hash.
@@ -541,7 +616,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<ExecutableTransaction>, blockHash: Felt): Request<EstimateFeeResponseList>
+    fun getEstimateFee(
+        payload: List<ExecutableTransaction>,
+        blockHash: Felt,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -570,7 +648,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<ExecutableTransaction>, blockNumber: Int): Request<EstimateFeeResponseList>
+    fun getEstimateFee(
+        payload: List<ExecutableTransaction>,
+        blockNumber: Int,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -599,7 +680,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateFee(payload: List<ExecutableTransaction>, blockTag: BlockTag): Request<EstimateFeeResponseList>
+    fun getEstimateFee(
+        payload: List<ExecutableTransaction>,
+        blockTag: BlockTag,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -612,7 +696,10 @@ interface Provider {
      * @throws RequestFailedException
      */
 
-    fun getEstimateFee(payload: List<ExecutableTransaction>, simulationFlags: Set<SimulationFlagForEstimateFee>): Request<EstimateFeeResponseList>
+    fun getEstimateFee(
+        payload: List<ExecutableTransaction>,
+        simulationFlags: Set<SimulationFlagForEstimateFee>,
+    ): Request<EstimateFeeResponseList>
 
     /**
      * Estimate a fee.
@@ -636,7 +723,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockHash: Felt): Request<EstimateMessageFeeResponse>
+    fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockHash: Felt,
+    ): Request<EstimateMessageFeeResponse>
 
     /**
      * Estimate a message fee.
@@ -648,7 +738,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockNumber: Int): Request<EstimateMessageFeeResponse>
+    fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockNumber: Int,
+    ): Request<EstimateMessageFeeResponse>
 
     /**
      * Estimate a message fee.
@@ -660,7 +753,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getEstimateMessageFee(message: MessageL1ToL2, blockTag: BlockTag): Request<EstimateMessageFeeResponse>
+    fun getEstimateMessageFee(
+        message: MessageL1ToL2,
+        blockTag: BlockTag,
+    ): Request<EstimateMessageFeeResponse>
 
     /**
      * Get a nonce.
@@ -683,7 +779,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getNonce(contractAddress: Felt, blockTag: BlockTag): Request<Felt>
+    fun getNonce(
+        contractAddress: Felt,
+        blockTag: BlockTag,
+    ): Request<Felt>
 
     /**
      * Get a nonce.
@@ -695,7 +794,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getNonce(contractAddress: Felt, blockNumber: Int): Request<Felt>
+    fun getNonce(
+        contractAddress: Felt,
+        blockNumber: Int,
+    ): Request<Felt>
 
     /**
      * Get a nonce.
@@ -707,7 +809,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getNonce(contractAddress: Felt, blockHash: Felt): Request<Felt>
+    fun getNonce(
+        contractAddress: Felt,
+        blockHash: Felt,
+    ): Request<Felt>
 
     /**
      * Get merkle paths in one of the state tries.
@@ -721,7 +826,12 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStorageProof(blockId: BlockId, classHashes: List<Felt>? = null, contractAddresses: List<Felt>? = null, contractsStorageKeys: List<ContractsStorageKeys>? = null): Request<StorageProof>
+    fun getStorageProof(
+        blockId: BlockId,
+        classHashes: List<Felt>? = null,
+        contractAddresses: List<Felt>? = null,
+        contractsStorageKeys: List<ContractsStorageKeys>? = null,
+    ): Request<StorageProof>
 
     /**
      * Get the block synchronization status.
@@ -815,7 +925,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+    fun getBlockWithTxs(
+        blockTag: BlockTag,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithTransactions>
 
     /**
      * Get a block with transactions including optional response flags.
@@ -825,7 +938,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+    fun getBlockWithTxs(
+        blockHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithTransactions>
 
     /**
      * Get a block with transactions including optional response flags.
@@ -835,7 +951,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithTxs(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): Request<BlockWithTransactions>
+    fun getBlockWithTxs(
+        blockNumber: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithTransactions>
 
     /**
      * Get a block with transaction receipts.
@@ -878,7 +997,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockTag: BlockTag, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+    fun getBlockWithReceipts(
+        blockTag: BlockTag,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithReceipts>
 
     /**
      * Get a block with transaction receipts including optional response flags.
@@ -888,7 +1010,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockHash: Felt, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+    fun getBlockWithReceipts(
+        blockHash: Felt,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithReceipts>
 
     /**
      * Get a block with transaction receipts including optional response flags.
@@ -898,7 +1023,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getBlockWithReceipts(blockNumber: Int, responseFlags: Set<TxnResponseFlag>): Request<BlockWithReceipts>
+    fun getBlockWithReceipts(
+        blockNumber: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<BlockWithReceipts>
 
     /**
      * Get block state information.
@@ -921,7 +1049,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockTag: BlockTag, contractAddresses: List<Felt>): Request<StateUpdate>
+    fun getStateUpdate(
+        blockTag: BlockTag,
+        contractAddresses: List<Felt>,
+    ): Request<StateUpdate>
 
     /**
      * Get block state information.
@@ -944,7 +1075,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockHash: Felt, contractAddresses: List<Felt>): Request<StateUpdate>
+    fun getStateUpdate(
+        blockHash: Felt,
+        contractAddresses: List<Felt>,
+    ): Request<StateUpdate>
 
     /**
      * Get block state information.
@@ -967,7 +1101,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getStateUpdate(blockNumber: Int, contractAddresses: List<Felt>): Request<StateUpdate>
+    fun getStateUpdate(
+        blockNumber: Int,
+        contractAddresses: List<Felt>,
+    ): Request<StateUpdate>
 
     /**
      * Get transaction by block id and index.
@@ -978,7 +1115,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockTag: BlockTag,
+        index: Int,
+    ): Request<Transaction>
 
     /**
      * Get transaction by block id and index.
@@ -989,7 +1129,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockHash: Felt,
+        index: Int,
+    ): Request<Transaction>
 
     /**
      * Get transaction by block id and index.
@@ -1000,7 +1143,10 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockNumber: Int,
+        index: Int,
+    ): Request<Transaction>
 
     /**
      * Get transaction by block id and index with optional response flags.
@@ -1010,7 +1156,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockTag: BlockTag, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockTag: BlockTag,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<Transaction>
 
     /**
      * Get transaction by block id and index with optional response flags.
@@ -1020,7 +1170,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockHash: Felt, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockHash: Felt,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<Transaction>
 
     /**
      * Get transaction by block id and index with optional response flags.
@@ -1030,7 +1184,11 @@ interface Provider {
      *
      * @throws RequestFailedException
      */
-    fun getTransactionByBlockIdAndIndex(blockNumber: Int, index: Int, responseFlags: Set<TxnResponseFlag>): Request<Transaction>
+    fun getTransactionByBlockIdAndIndex(
+        blockNumber: Int,
+        index: Int,
+        responseFlags: Set<TxnResponseFlag>,
+    ): Request<Transaction>
 
     /** Simulate executing a list of transactions
      *
@@ -1039,7 +1197,11 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(
+        transactions: List<ExecutableTransaction>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlag>,
+    ): Request<SimulatedTransactionList>
 
     /** Simulate executing a list of transactions
      *
@@ -1048,7 +1210,11 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockNumber: Int, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(
+        transactions: List<ExecutableTransaction>,
+        blockNumber: Int,
+        simulationFlags: Set<SimulationFlag>,
+    ): Request<SimulatedTransactionList>
 
     /** Simulate executing a list of transactions
      *
@@ -1057,7 +1223,11 @@ interface Provider {
      * @param simulationFlags set of flags to be used for simulation
      * @return a list of transaction simulations
      */
-    fun simulateTransactions(transactions: List<ExecutableTransaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag>): Request<SimulatedTransactionList>
+    fun simulateTransactions(
+        transactions: List<ExecutableTransaction>,
+        blockHash: Felt,
+        simulationFlags: Set<SimulationFlag>,
+    ): Request<SimulatedTransactionList>
 
     /** Simulate executing a list of transactions, returning initial reads alongside results.
      *
@@ -1069,7 +1239,11 @@ interface Provider {
      * @param simulationFlags additional simulation flags (SKIP_VALIDATE, SKIP_FEE_CHARGE)
      * @return simulated transactions and initial reads
      */
-    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockTag: BlockTag, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+    fun simulateTransactionsWithInitialReads(
+        transactions: List<ExecutableTransaction>,
+        blockTag: BlockTag,
+        simulationFlags: Set<SimulationFlag> = emptySet(),
+    ): Request<SimulatedTransactionWithInitialReads>
 
     /** Simulate executing a list of transactions, returning initial reads alongside results.
      *
@@ -1078,7 +1252,11 @@ interface Provider {
      * @param simulationFlags additional simulation flags
      * @return simulated transactions and initial reads
      */
-    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockNumber: Int, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+    fun simulateTransactionsWithInitialReads(
+        transactions: List<ExecutableTransaction>,
+        blockNumber: Int,
+        simulationFlags: Set<SimulationFlag> = emptySet(),
+    ): Request<SimulatedTransactionWithInitialReads>
 
     /** Simulate executing a list of transactions, returning initial reads alongside results.
      *
@@ -1087,7 +1265,11 @@ interface Provider {
      * @param simulationFlags additional simulation flags
      * @return simulated transactions and initial reads
      */
-    fun simulateTransactionsWithInitialReads(transactions: List<ExecutableTransaction>, blockHash: Felt, simulationFlags: Set<SimulationFlag> = emptySet()): Request<SimulatedTransactionWithInitialReads>
+    fun simulateTransactionsWithInitialReads(
+        transactions: List<ExecutableTransaction>,
+        blockHash: Felt,
+        simulationFlags: Set<SimulationFlag> = emptySet(),
+    ): Request<SimulatedTransactionWithInitialReads>
 
     /** Get the execution trace of a transaction by its hash.
      *
@@ -1102,7 +1284,10 @@ interface Provider {
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
      * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockTag: BlockTag, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
+    fun traceBlockTransactions(
+        blockTag: BlockTag,
+        traceFlags: Set<TraceFlag> = emptySet(),
+    ): Request<BlockTransactionTracesResult>
 
     /** Get execution traces for all transactions in a block.
      *
@@ -1110,7 +1295,10 @@ interface Provider {
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
      * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockHash: Felt, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
+    fun traceBlockTransactions(
+        blockHash: Felt,
+        traceFlags: Set<TraceFlag> = emptySet(),
+    ): Request<BlockTransactionTracesResult>
 
     /** Get execution traces for all transactions in a block.
      *
@@ -1118,5 +1306,8 @@ interface Provider {
      * @param traceFlags flags to control trace output (e.g. RETURN_INITIAL_READS)
      * @return [BlockTransactionTracesResult.Traces] without flags, or [BlockTransactionTracesResult.TracesWithInitialReads] when [TraceFlag.RETURN_INITIAL_READS] is set
      */
-    fun traceBlockTransactions(blockNumber: Int, traceFlags: Set<TraceFlag> = emptySet()): Request<BlockTransactionTracesResult>
+    fun traceBlockTransactions(
+        blockNumber: Int,
+        traceFlags: Set<TraceFlag> = emptySet(),
+    ): Request<BlockTransactionTracesResult>
 }

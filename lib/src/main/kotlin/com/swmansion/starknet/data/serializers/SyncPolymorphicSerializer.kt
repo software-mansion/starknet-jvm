@@ -13,10 +13,11 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 internal object SyncPolymorphicSerializer : JsonContentPolymorphicSerializer<Syncing>(Syncing::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Syncing> = when (element) {
-        JsonPrimitive(false) -> NotSyncingResponseSerializer
-        else -> SyncingResponse.serializer()
-    }
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Syncing> =
+        when (element) {
+            JsonPrimitive(false) -> NotSyncingResponseSerializer
+            else -> SyncingResponse.serializer()
+        }
 }
 
 internal object NotSyncingResponseSerializer : KSerializer<NotSyncingResponse> {
@@ -25,12 +26,18 @@ internal object NotSyncingResponseSerializer : KSerializer<NotSyncingResponse> {
 
     override fun deserialize(decoder: Decoder): NotSyncingResponse {
         require(decoder is JsonDecoder)
-        val status = decoder.decodeJsonElement().jsonPrimitive.booleanOrNull
-            ?: throw SerializationException("Invalid NotSyncingResponse value [${decoder.decodeJsonElement().jsonPrimitive}], boolean expected.")
+        val status =
+            decoder.decodeJsonElement().jsonPrimitive.booleanOrNull
+                ?: throw SerializationException(
+                    "Invalid NotSyncingResponse value [${decoder.decodeJsonElement().jsonPrimitive}], boolean expected.",
+                )
         return NotSyncingResponse(status)
     }
 
-    override fun serialize(encoder: Encoder, value: NotSyncingResponse) {
+    override fun serialize(
+        encoder: Encoder,
+        value: NotSyncingResponse,
+    ) {
         require(encoder is JsonEncoder)
         encoder.encodeJsonElement(JsonPrimitive(value.status))
     }

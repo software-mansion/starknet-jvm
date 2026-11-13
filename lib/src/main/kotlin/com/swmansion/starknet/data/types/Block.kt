@@ -7,8 +7,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class BlockTag(val tag: String) {
-    L1_ACCEPTED("l1_accepted"), LATEST("latest"), PRE_CONFIRMED("pre_confirmed")
+enum class BlockTag(
+    val tag: String,
+) {
+    L1_ACCEPTED("l1_accepted"),
+    LATEST("latest"),
+    PRE_CONFIRMED("pre_confirmed"),
 }
 
 @Serializable
@@ -23,9 +27,7 @@ sealed class BlockId {
     data class Hash(
         val blockHash: Felt,
     ) : BlockId() {
-        override fun toString(): String {
-            return blockHash.hexString()
-        }
+        override fun toString(): String = blockHash.hexString()
     }
 
     data class Number(
@@ -35,11 +37,10 @@ sealed class BlockId {
     data class Tag(
         val blockTag: BlockTag,
     ) : BlockId() {
-        override fun toString(): String {
-            return blockTag.tag
-        }
+        override fun toString(): String = blockTag.tag
     }
 }
+
 sealed interface Block : StarknetResponse {
     val timestamp: Int
     val sequencerAddress: Felt
@@ -86,67 +87,49 @@ sealed class BlockWithTransactions : Block {
 data class ProcessedBlockWithTransactions(
     @SerialName("status")
     override val status: BlockStatus,
-
     @SerialName("transactions")
     override val transactions: List<
         @Serializable(with = TransactionSerializer::class)
         Transaction,
-        >,
-
+    >,
     @SerialName("parent_hash")
     override val parentHash: Felt,
-
     @SerialName("block_hash")
     override val blockHash: Felt,
-
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("new_root")
     override val newRoot: Felt,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-
     @SerialName("event_commitment")
     override val eventCommitment: Felt,
-
     @SerialName("transaction_commitment")
     override val transactionCommitment: Felt,
-
     @SerialName("receipt_commitment")
     override val receiptCommitment: Felt,
-
     @SerialName("state_diff_commitment")
     override val stateDiffCommitment: Felt,
-
     @SerialName("event_count")
     override val eventCount: UInt,
-
     @SerialName("transaction_count")
     override val transactionCount: UInt,
-
     @SerialName("state_diff_length")
     override val stateDiffLength: UInt,
-) : BlockWithTransactions(), ProcessedBlock
+) : BlockWithTransactions(),
+    ProcessedBlock
 
 @Serializable
 data class PreConfirmedBlockWithTransactions(
@@ -154,39 +137,31 @@ data class PreConfirmedBlockWithTransactions(
     override val transactions: List<
         @Serializable(with = TransactionSerializer::class)
         Transaction,
-        >,
-
+    >,
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithTransactions(), PreConfirmedBlock
+) : BlockWithTransactions(),
+    PreConfirmedBlock
 
 @Serializable
 data class TransactionWithReceipt(
     @Serializable(with = TransactionSerializer::class)
     @SerialName("transaction")
     val transaction: Transaction,
-
     @Serializable(with = TransactionReceiptPolymorphicSerializer::class)
     @SerialName("receipt")
     val receipt: TransactionReceipt,
@@ -201,94 +176,69 @@ sealed class BlockWithReceipts : Block {
 data class ProcessedBlockWithReceipts(
     @SerialName("status")
     override val status: BlockStatus,
-
     @SerialName("transactions")
     override val transactionsWithReceipts: List<TransactionWithReceipt>,
-
     @SerialName("block_hash")
     override val blockHash: Felt,
-
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("new_root")
     override val newRoot: Felt,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("parent_hash")
     override val parentHash: Felt,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-
     @SerialName("event_commitment")
     override val eventCommitment: Felt,
-
     @SerialName("transaction_commitment")
     override val transactionCommitment: Felt,
-
     @SerialName("receipt_commitment")
     override val receiptCommitment: Felt,
-
     @SerialName("state_diff_commitment")
     override val stateDiffCommitment: Felt,
-
     @SerialName("event_count")
     override val eventCount: UInt,
-
     @SerialName("transaction_count")
     override val transactionCount: UInt,
-
     @SerialName("state_diff_length")
     override val stateDiffLength: UInt,
-) : BlockWithReceipts(), ProcessedBlock
+) : BlockWithReceipts(),
+    ProcessedBlock
 
 @Serializable
 data class PreConfirmedBlockWithReceipts(
     @SerialName("transactions")
     override val transactionsWithReceipts: List<TransactionWithReceipt>,
-
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithReceipts(), PreConfirmedBlock
+) : BlockWithReceipts(),
+    PreConfirmedBlock
 
 @Serializable
 sealed class BlockWithTransactionHashes : Block {
@@ -299,91 +249,66 @@ sealed class BlockWithTransactionHashes : Block {
 data class ProcessedBlockWithTransactionHashes(
     @SerialName("status")
     override val status: BlockStatus,
-
     @SerialName("transactions")
     override val transactionHashes: List<Felt>,
-
     @SerialName("block_hash")
     override val blockHash: Felt,
-
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("new_root")
     override val newRoot: Felt,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("parent_hash")
     override val parentHash: Felt,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-
     @SerialName("event_commitment")
     override val eventCommitment: Felt,
-
     @SerialName("transaction_commitment")
     override val transactionCommitment: Felt,
-
     @SerialName("receipt_commitment")
     override val receiptCommitment: Felt,
-
     @SerialName("state_diff_commitment")
     override val stateDiffCommitment: Felt,
-
     @SerialName("event_count")
     override val eventCount: UInt,
-
     @SerialName("transaction_count")
     override val transactionCount: UInt,
-
     @SerialName("state_diff_length")
     override val stateDiffLength: UInt,
-) : BlockWithTransactionHashes(), ProcessedBlock
+) : BlockWithTransactionHashes(),
+    ProcessedBlock
 
 @Serializable
 data class PreConfirmedBlockWithTransactionHashes(
     @SerialName("transactions")
     override val transactionHashes: List<Felt>,
-
     @SerialName("timestamp")
     override val timestamp: Int,
-
     @SerialName("sequencer_address")
     override val sequencerAddress: Felt,
-
     @SerialName("block_number")
     override val blockNumber: Int,
-
     @SerialName("l1_gas_price")
     override val l1GasPrice: ResourcePrice,
-
     @SerialName("l2_gas_price")
     override val l2GasPrice: ResourcePrice,
-
     @SerialName("l1_data_gas_price")
     override val l1DataGasPrice: ResourcePrice,
-
     @SerialName("l1_da_mode")
     override val l1DataAvailabilityMode: L1DAMode,
-
     @SerialName("starknet_version")
     override val starknetVersion: String,
-) : BlockWithTransactionHashes(), PreConfirmedBlock
+) : BlockWithTransactionHashes(),
+    PreConfirmedBlock
