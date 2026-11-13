@@ -7,7 +7,7 @@ import com.swmansion.starknet.extensions.map
 import com.swmansion.starknet.extensions.toUint64
 import com.swmansion.starknet.provider.Provider
 import com.swmansion.starknet.provider.Request
-import org.apache.commons.math3.stat.descriptive.rank.Median
+import java.math.BigInteger
 
 /** Estimate the transaction tip by taking the median of all V3 transaction tips in the specified block.
  *
@@ -89,6 +89,17 @@ private fun estimateTip(
             return@map Uint64.ZERO
         }
 
-        Median().evaluate(tips.map { it.toDouble() }.toDoubleArray()).toInt().toUint64
+        median(tips).toUint64
+    }
+}
+
+private fun median(values: List<BigInteger>): BigInteger {
+    val sorted = values.sorted()
+    val middle = sorted.size / 2
+
+    return if (sorted.size % 2 == 1) {
+        sorted[middle]
+    } else {
+        (sorted[middle - 1] + sorted[middle]) / BigInteger.valueOf(2)
     }
 }
