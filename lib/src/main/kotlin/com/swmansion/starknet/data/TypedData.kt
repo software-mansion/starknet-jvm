@@ -283,7 +283,7 @@ data class TypedData private constructor(
         val toVisit = mutableListOf(typeName)
 
         while (toVisit.isNotEmpty()) {
-            val type = toVisit.removeFirst()
+            val type = toVisit.removeAt(0)
             val params = allTypes[type] ?: emptyList()
 
             params.forEach { param ->
