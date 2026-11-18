@@ -1,0 +1,14 @@
+[versions]
+kotlin = "2.4.21"
+bouncycastle = "1.86"
+okhttp = "5.5.1"
+kotlinx-serialization = "1.12.0"
+java-semver = "0.10.2"
+
+[libraries]
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+java-semver = { module = "com.github.zafarkhaja:java-semver", version.ref = "java-semver" }
