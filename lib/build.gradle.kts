@@ -225,7 +225,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
     // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.21")
+    implementation(libs.kotlin.stdlib.jdk8)
 
     // Use the Kotlin reflection library.
     implementation(kotlin("reflect"))
@@ -240,13 +240,13 @@ dependencies {
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
-    implementation("org.bouncycastle:bcprov-jdk18on:1.86")
+    implementation(libs.bcprov.jdk18on)
 
-    implementation("com.squareup.okhttp3:okhttp:5.5.1")
+    implementation(libs.okhttp)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
+    implementation(libs.kotlinx.serialization.json)
 
-    implementation("com.github.zafarkhaja:java-semver:0.10.2")
+    implementation(libs.java.semver)
 }
 
 java {
