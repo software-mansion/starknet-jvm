@@ -249,13 +249,35 @@ jobs:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
-      - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-        with:
-          files: |
-            lib/javadoc-jar/*.jar
-            lib/sources-jar/*.jar
-            lib/starknet-jar/*.jar
-            lib/starknet-aar/*.aar
+      # The release is created as a draft with all assets attached and published only afterwards,
+      # so a published release is never observed without its assets.
+      - name: Create GitHub release draft
+        # $FILES is intentionally unquoted so the globs expand.
+        run: |
+          # shellcheck disable=SC2086
+          if is_draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            # Published releases are immutable (org policy), so assets can only be added to a draft.
+            if [ "$is_draft" != "true" ]; then
+              echo "::error::Release $TAG is already published; assets cannot be added to an immutable release."
+              exit 1
+            fi
+            echo "Draft release $TAG already exists; uploading assets to it."
+            gh release upload "$TAG" $FILES --clobber
+          else
+            gh release create "$TAG" $FILES --draft --verify-tag --title "$TAG" --notes ""
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          FILES: lib/javadoc-jar/*.jar lib/sources-jar/*.jar lib/starknet-jar/*.jar lib/starknet-aar/*.aar
+      - name: Publish GitHub release
+        run: |
+          if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "true" ]; then
+            gh release edit "$TAG" --draft=false
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
 
   publish_docs:
     needs: [ publish ]

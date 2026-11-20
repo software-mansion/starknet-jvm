@@ -19,7 +19,6 @@ workflows:
         - 'docker/setup-qemu-action@v2.2.0'
         - 'gradle/gradle-build-action@v2.12.0'
         - 'jwlawson/actions-setup-cmake@v2.0.2'
-        - 'softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b'
     '.github/workflows/checks.yml':
         - 'actions/checkout@v3.7.0'
         - 'actions/setup-java@v3.14.2'
@@ -90,8 +89,3 @@ dependencies:
         commit: 'sha1-802fa1a2c4e212495c05bf94dba2704a92a472be'
         owner_id: 1849778
         repo_id: 233434320
-    'softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b':
-        ref: 'master'
-        commit: 'sha1-d4e8205d7e959a9107da6396278b2f1f07af0f9b'
-        owner_id: 2242
-        repo_id: 204253808
