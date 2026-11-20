@@ -249,35 +249,29 @@ jobs:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
-      # The release is created as a draft with all assets attached and published only afterwards,
-      # so a published release is never observed without its assets.
-      - name: Create GitHub release draft
+      # Without --draft, `gh release create` creates the release as a draft, uploads all assets,
+      # publishes it only afterwards, and deletes the draft if uploading or publishing fails.
+      # Published releases are immutable (org policy), so assets can never be added afterwards.
+      - name: Create GitHub release
         # $FILES is intentionally unquoted so the globs expand.
         run: |
           # shellcheck disable=SC2086
           if is_draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
-            # Published releases are immutable (org policy), so assets can only be added to a draft.
             if [ "$is_draft" != "true" ]; then
               echo "::error::Release $TAG is already published; assets cannot be added to an immutable release."
               exit 1
             fi
-            echo "Draft release $TAG already exists; uploading assets to it."
+            # Left over from an earlier run (e.g. created by hand): fill it in and publish it.
+            echo "Draft release $TAG already exists; uploading assets to it and publishing."
             gh release upload "$TAG" $FILES --clobber
+            gh release edit "$TAG" --draft=false
           else
-            gh release create "$TAG" $FILES --draft --verify-tag --title "$TAG" --notes ""
+            gh release create "$TAG" $FILES --verify-tag --title "$TAG" --notes ""
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
           FILES: lib/javadoc-jar/*.jar lib/sources-jar/*.jar lib/starknet-jar/*.jar lib/starknet-aar/*.aar
-      - name: Publish GitHub release
-        run: |
-          if [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = "true" ]; then
-            gh release edit "$TAG" --draft=false
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
 
   publish_docs:
     needs: [ publish ]
