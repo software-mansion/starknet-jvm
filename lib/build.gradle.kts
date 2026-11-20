@@ -25,7 +25,7 @@ plugins {
 val dokkaHtmlJava by tasks.register("dokkaHtmlJava", DokkaTask::class) {
     dokkaSourceSets.create("dokkaHtmlJava") {
         dependencies {
-            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
+            plugins("org.jetbrains.dokka:kotlin-as-java-plugin:${libs.versions.dokka.get()}")
         }
     }
 }
@@ -231,12 +231,12 @@ dependencies {
     implementation(kotlin("reflect"))
 
     // Use the JUnit test library.
-    testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.4.0")   // Highest version that works with Gradle 7.6.2
+    testImplementation(libs.mockito.kotlin)
 
     // Crypto provider
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on

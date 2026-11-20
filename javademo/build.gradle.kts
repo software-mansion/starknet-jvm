@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation("com.swmansion.starknet:starknet:0.18.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
+    implementation(libs.starknet)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.test{

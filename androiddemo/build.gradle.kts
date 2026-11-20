@@ -52,17 +52,17 @@ kotlin {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.19.1") // requires sdk >= 32
-    implementation("androidx.appcompat:appcompat:1.8.0") // requires sdk >= 32
-    implementation("com.google.android.material:material:1.14.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.2")
+    implementation(libs.androidx.core.ktx) // requires sdk >= 32
+    implementation(libs.androidx.appcompat) // requires sdk >= 32
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
     // Make sure you are using the AAR and not a JAR and include transitive dependencies
-    implementation("com.swmansion.starknet:starknet:0.18.0@aar"){
+    implementation("com.swmansion.starknet:starknet:${libs.versions.starknet.get()}@aar"){
         isTransitive = true
     }
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.11.0")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.jdk8)
+    testImplementation(libs.junit4)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
