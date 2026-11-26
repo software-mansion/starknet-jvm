@@ -25,6 +25,9 @@ workflows:
         - 'codecov/codecov-action@v3.1.1'
         - 'gradle/gradle-build-action@v2.12.0'
         - 'jwlawson/actions-setup-cmake@v2.0.2'
+    '.github/workflows/typos.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'codespell-project/actions-codespell@v2.4.3'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
     '.github/workflows/weekly-build.yml': []
@@ -59,6 +62,11 @@ dependencies:
         commit: 'sha1-d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70'
         owner_id: 8226205
         repo_id: 200299178
+    'codespell-project/actions-codespell@v2.4.3':
+        ref: 'v2.4.3'
+        commit: 'sha1-e3258cca84ce02b0bb36a3d41f2c18f719a0cc1a'
+        owner_id: 39140587
+        repo_id: 263411323
     'docker/build-push-action@v3.3.1':
         ref: 'v3.3.1'
         commit: 'sha1-1104d471370f9806843c095c1db02b5a90c5f8b6'
