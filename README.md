@@ -158,7 +158,7 @@ Use the following command to run tests:
 ### Network Tests
 Running tests on networks requires a valid configuration. It can be set using environment variables in your system or IDE, or by sourcing an `.env` file. 
 Refer to the example config found in [test_variables.env.example](test_variables.env.example).
-To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currenty, the allowed options are:
+To select the network, please set the `NETWORK_TEST_NETWORK_NAME` environment variable. Currently, the allowed options are:
   - `SEPOLIA_TESTNET`
   - `SEPOLIA_INTEGRATION`
 
@@ -189,7 +189,7 @@ Alternatively, you can use flag to specify whether to run network and gas tests:
 ./gradlew :lib:test -PnetworkTestMode=non_gas
 ./gradlew :lib:test -PnetworkTestMode=all
 ```
-Flag takes precendece over the environment variable if both are set.
+Flag takes precedence over the environment variable if both are set.
 
 ### Ensuring idiomatic Java code
 We want this library to be used by both kotlin & java users. In order to ensure a nice API for java always follow those rules: 

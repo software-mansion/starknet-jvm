@@ -1,0 +1,26 @@
+# Fails when codespell finds a misspelling in the tracked sources.
+# Vendored crypto sources, Sage scripts and Gradle build output are generated
+# or third-party code and are not owned by this repository.
+# To update .github/workflows/actions.lock after changing any `uses:`,
+# run `gh actions-lock` locally.
+
+name: Typos
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: codespell-project/actions-codespell@v2.4.3
+        with:
+          skip: ./.git,./crypto,./build,./lib/build,./android/build,./javademo/build,./androiddemo/build
+          ignore_words_list: OptIn,AfterAll

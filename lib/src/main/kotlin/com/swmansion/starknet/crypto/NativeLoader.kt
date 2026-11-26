@@ -68,7 +68,7 @@ internal object NativeLoader {
     class UnsupportedPlatform(
         system: String,
         architecture: String,
-    ) : RuntimeException("Unsupported platfrom $system:$architecture")
+    ) : RuntimeException("Unsupported platform $system:$architecture")
 
     class UnknownOS : RuntimeException("Failed to fetch OS name")
 
